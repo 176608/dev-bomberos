@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-echo ("Test en index");
+echo ("Testeo de Commiting en GitHub");
 
 define('LARAVEL_START', microtime(true));
 
