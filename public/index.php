@@ -3,8 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-echo ("Testeo de Commiting en GitHub");
-echo ("<br>Borrame estaxd:D");
+echo ("Test de Deploy");
 
 define('LARAVEL_START', microtime(true));
 

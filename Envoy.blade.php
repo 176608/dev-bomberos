@@ -2,10 +2,10 @@
 
 @setup
     $branch = 'master';
-    $path = '/public_html/bev-bomberos';
+    $path = 'public_html/bev-bomberos';
 @endsetup
 
-@task('deploy', ['on' => 'web'])
+@task('addChanges', ['on' => 'web'])
     cd {{ $path }}
 
     echo "Descargando cambios..."
@@ -31,4 +31,18 @@
     php artisan config:cache
     php artisan route:cache
     php artisan view:cache
+@endtask
+
+@task('deploy', ['on' => 'web'])
+    cd {{ $path }}
+
+    echo "Descargando cambios..."
+    git pull origin {{ $branch }}
+
+    echo "Limpiando caché..."
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+
+    echo "Despliegue completado."
 @endtask
