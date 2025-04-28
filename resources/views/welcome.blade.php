@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>welcome_blade_php</title>
+        <title>Modulo Bomberos</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
