@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-echo ("REE test de Deploy");
+echo ("Echo from index.php\n");
 
 define('LARAVEL_START', microtime(true));
 
