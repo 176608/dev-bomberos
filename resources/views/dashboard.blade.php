@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - Hidrantes')
+@section('title', 'Hidrantes')
 
 @section('content')
 <div class="card">
@@ -17,7 +17,6 @@
                         <th>Número Hidrante</th>
                         <th>Calle</th>
                         <th>Y Calle</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,10 +27,6 @@
                             <td>{{ $registro->numero_hidrante }}</td>
                             <td>{{ $registro->calle }}</td>
                             <td>{{ $registro->y_calle }}</td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-primary">Ver</a>
-                                <a href="#" class="btn btn-sm btn-warning">Editar</a>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
