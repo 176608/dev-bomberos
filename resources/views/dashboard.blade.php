@@ -50,15 +50,7 @@
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
             pageLength: 25,
-            order: [[0, 'desc']],
-            columns: [
-                {data: 'id'},
-                {data: 'fecha_inspeccion'},
-                {data: 'numero_hidrante'},
-                {data: 'calle'},
-                {data: 'y_calle'},
-                {data: 'acciones', orderable: false, searchable: false}
-            ]
+            order: [[0, 'desc']]
         });
     });
 </script>
