@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agregar;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
