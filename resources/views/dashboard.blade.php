@@ -9,7 +9,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
+            <table id="hidrantesTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
@@ -21,7 +21,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($registros as $registro)
+                    @foreach($registros as $registro)
                         <tr>
                             <td>{{ $registro->id }}</td>
                             <td>{{ $registro->fecha_inspeccion }}</td>
@@ -33,14 +33,33 @@
                                 <a href="#" class="btn btn-sm btn-warning">Editar</a>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center">No hay registros de hidrantes disponibles</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        $('#hidrantesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            },
+            pageLength: 25,
+            order: [[0, 'desc']],
+            columns: [
+                {data: 'id'},
+                {data: 'fecha_inspeccion'},
+                {data: 'numero_hidrante'},
+                {data: 'calle'},
+                {data: 'y_calle'},
+                {data: 'acciones', orderable: false, searchable: false}
+            ]
+        });
+    });
+</script>
 @endsection
