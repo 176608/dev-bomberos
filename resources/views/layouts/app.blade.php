@@ -22,7 +22,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                     </li>
-                    <!-- Agrega más items del menú según necesites -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('aux') }}">Vista Auxiliar</a>
+                    </li>
                 </ul>
             </div>
         </div>
