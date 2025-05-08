@@ -14,11 +14,14 @@ class RegisterController extends Controller
 
     public function __construct()
     {
-        $this->middleware('guest');
+        // Remove middleware from constructor
     }
 
     public function showRegistrationForm()
     {
+        if (auth()->check()) {
+            return redirect($this->redirectTo);
+        }
         return view('auth.register');
     }
 
@@ -34,6 +37,10 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        if (auth()->check()) {
+            return redirect($this->redirectTo);
+        }
+
         $this->validator($request->all())->validate();
 
         $user = $this->create($request->all());
