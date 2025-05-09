@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color:rgb(102, 209, 147);">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
             <a class="navbar-brand" href="https://www.imip.org.mx/"> - Cartografía</a>
@@ -76,7 +76,7 @@
         </div>
     </main>
 
-    <footer class="bg-light text-dark py-4 mt-2" style="background-color:rgb(102, 209, 147);">
+    <footer class="bg-light text-dark py-4 mt-2">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 text-md-start">
