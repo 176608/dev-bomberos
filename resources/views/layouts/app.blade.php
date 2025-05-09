@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
         <div class="container">
             <a class="navbar-brand" href="https://www.imip.org.mx/">
-                <img src="{{ asset('images/logo/IMIP_logo00.png') }}" 
+                <img src="{{ asset('img/logo/IMIP_logo00.png') }}" 
                      alt="Logo imip" height="40" class="d-inline-block align-text-top">
                 Cartografía
             </a>
@@ -73,7 +73,7 @@
         </div>
     </nav>
 
-    <main class="py-4">
+    <main class="py-4 mt-5">
         <div class="container-fluid">
             @yield('content')
         </div>
@@ -83,10 +83,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <img src="{{ asset('images/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="40" class="d-inline-block align-text-top">
+                    <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="40" class="d-inline-block align-text-top">
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <img src="{{ asset('images/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="40" class="d-inline-block align-text-top">
+                    <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="40" class="d-inline-block align-text-top">
                 </div>
             </div>
         </div>
