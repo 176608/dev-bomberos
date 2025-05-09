@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-    protected $redirectTo = '/index';
+    protected $redirectTo = '/';
 
     public function __construct()
     {
