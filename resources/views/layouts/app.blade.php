@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Módulo Bomberos')</title>
+    <title>@yield('title', 'Módulo Cartografía')</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,16 +11,29 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <div class="bg-dark text-white py-1">
         <div class="container">
-            <a class="navbar-brand" href="#">Bomberos</a>
+            <div class="d-flex justify-content-between">
+                <div>Instituto Municipal de Investigación y Planeación</div>
+                <div>Ciudad Juárez, Chihuahua</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="https://www.imip.org.mx/">
+                <img src="{{ asset('images/logo/IMIP_logo00.png') }}" 
+                     alt="Logo imip" height="40" class="d-inline-block align-text-top">
+                Cartografía
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}">Hidrantes</a>
                     </li>
                     @auth
                         <li class="nav-item">
@@ -70,11 +83,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>Contacto de Emergencia</h5>
-                    <p>Teléfono: 911</p>
+                    <img src="{{ asset('images/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="40" class="d-inline-block align-text-top">
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p>&copy; {{ date('Y') }} Módulo Bomberos</p>
+                    <img src="{{ asset('images/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="40" class="d-inline-block align-text-top">
                 </div>
             </div>
         </div>
