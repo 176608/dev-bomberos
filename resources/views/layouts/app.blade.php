@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
         <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
+            <a class="navbar-brand" href="https://www.imip.org.mx/"> - Cartografía</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -70,22 +70,28 @@
         </div>
     </nav>
 
-    <main class="py-4 mt-5">
+    <main class="py-4 mt-4">
         <div class="container-fluid">
             @yield('content')
         </div>
     </main>
 
-    <footer class="bg-dark text-light py-4 mt-3">
+    <footer class="bg-dark text-light py-4 mt-2">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="80" class="d-inline-block align-text-top">
+                <div class="col-md-4 text-md-start">
+                        <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo IMIP footer" height="100" class="d-inline-block align-text-top">
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-0">Calle Benjamín Franklin #4185</p>
+                        <p class="mb-0">Colonia Progresista</p>
+                        <p class="mb-0">C.P. 32310</p>
+                        <p class="mb-0">Ciudad Juárez, Chihuahua, México</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo ciudad juarez, footer" height="100" class="d-inline-block align-text-top">
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="80" class="d-inline-block align-text-top">
-                </div>
-            </div>
         </div>
     </footer>
 
