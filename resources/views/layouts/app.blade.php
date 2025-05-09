@@ -11,16 +11,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
-    <div class="bg-dark text-white py-1">
-        <div class="container">
-            <div class="d-flex justify-content-between">
-                <div>Instituto Municipal de Investigación y Planeación</div>
-                <div>Ciudad Juárez, Chihuahua</div>
-            </div>
-        </div>
-    </div>
-
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color:rgb(102, 209, 147);">
+    <nav class="navbar navbar-expand-lg fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
             <a class="navbar-brand" href="https://www.imip.org.mx/"> - Cartografía</a>
@@ -76,7 +67,7 @@
         </div>
     </main>
 
-    <footer class="bg-dark text-light py-4 mt-2" style="background-color:rgb(102, 209, 147);">
+    <footer class="bg-light py-4 mt-2" style="background-color:rgb(102, 209, 147);">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 text-md-start">
