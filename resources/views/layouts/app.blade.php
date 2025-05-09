@@ -21,12 +21,9 @@
     </div>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">
-                <img src="{{ asset('img/logo/IMIP_logo00.png') }}" 
-                     alt="Logo imip" height="40" class="d-inline-block align-text-top">
-                Cartografía
-            </a>
+        <div class="container-fluid">
+        <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
+            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -79,14 +76,14 @@
         </div>
     </main>
 
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="bg-dark text-light py-4 mt-3">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="40" class="d-inline-block align-text-top">
+                    <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo imip1" height="80" class="d-inline-block align-text-top">
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="40" class="d-inline-block align-text-top">
+                    <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo HCJ" height="80" class="d-inline-block align-text-top">
                 </div>
             </div>
         </div>
