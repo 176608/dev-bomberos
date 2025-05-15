@@ -8,10 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/aux', [AuxController::class, 'index'])
-    ->name('aux')
-    ->middleware(['auth', 'role']); // Changed from 'check.role' to 'role'
-
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
@@ -25,5 +21,11 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
 Route::post('/register', [RegisterController::class, 'register'])
     ->middleware('guest');
 */
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/aux', [AuxController::class, 'index'])
+        ->middleware('role')
+        ->name('aux');
+});
 
 

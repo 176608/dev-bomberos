@@ -9,7 +9,7 @@ class AuxController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'role']);  // Changed from 'check.role' to 'role'
+        $this->middleware('auth');
     }
 
     public function index()
