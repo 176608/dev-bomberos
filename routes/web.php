@@ -10,7 +10,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/aux', [AuxController::class, 'index'])
     ->name('aux')
-    ->middleware(['auth', 'check.role']);
+    ->middleware(['auth', 'role']); // Changed from 'check.role' to 'role'
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

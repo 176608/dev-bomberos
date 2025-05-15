@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class AuxController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'check.role']);
+        $this->middleware(['auth', 'role']);  // Changed from 'check.role' to 'role'
     }
 
     public function index()
