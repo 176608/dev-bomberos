@@ -11,14 +11,7 @@ class AuxController extends Controller
 {
     public function __construct()
     {
-        // Use auth middleware instead of custom implementation
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Auth::check() || !in_array(Auth::user()->role, ['Administrador', 'Desarrollador'])) {
-                return redirect()->route('dashboard');
-            }
-            return $next($request);
-        });
+        $this->middleware(['auth', 'check.role']);
     }
 
     public function index()

@@ -7,7 +7,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/aux', [AuxController::class, 'index'])->name('aux');
+
+Route::get('/aux', [AuxController::class, 'index'])
+    ->name('aux')
+    ->middleware(['auth', 'check.role']);
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
