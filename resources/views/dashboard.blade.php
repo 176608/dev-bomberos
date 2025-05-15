@@ -3,6 +3,7 @@
 @section('title', 'Hidrantes')
 
 @section('content')
+<!--Para agregar en la tabla es TH y TD-->
 <div class="card">
     <div class="card-header">
         <h2>Listado de Hidrantes</h2>
@@ -13,10 +14,11 @@
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
-                        <th>Fecha Inspección</th>
-                        <th>Número Hidrante</th>
+                        <th>Fecha Alta</th>
+                        <th>Colonia</th>
                         <th>Calle</th>
                         <th>Y Calle</th>
+                        <th>Oficial</th>
                     </tr>
                 </thead>
                 <tbody>
