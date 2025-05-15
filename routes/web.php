@@ -15,10 +15,12 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Rutas de registro
+/*
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
     ->name('register')
     ->middleware('guest');
 Route::post('/register', [RegisterController::class, 'register'])
     ->middleware('guest');
+*/
 
 
