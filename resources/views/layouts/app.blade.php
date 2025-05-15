@@ -33,10 +33,11 @@
                         <a class="nav-link" href="{{ route('dashboard') }}">Hidrantes</a>
                     </li>
                     @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('aux') }}">Vista Auxiliar</a>
-                        </li>
-                        <!-- Más items del menú protegidos -->
+                        @if(in_array(auth()->user()->role, ['Administrador', 'Desarrollador']))
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('aux') }}">Vista Auxiliar</a>
+                            </li>
+                        @endif
                     @endauth
                 </ul>
                 
