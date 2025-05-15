@@ -8,9 +8,10 @@ class Agregar extends Model
 {
     protected $table = 'agregar';
     protected $fillable = [
-        'fecha_inspeccion',
-        'numero_hidrante',
+        'fecha_alta',
+        'colonia',
         'calle',
-        'y_calle'
+        'y_calle',
+        'oficial'
     ];
 }
