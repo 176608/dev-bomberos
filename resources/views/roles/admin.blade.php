@@ -84,7 +84,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <input type="password" class="form-control" name="password" required minlength="8" pattern=".{8,}" title="La contraseña debe tener al menos 8 caracteres">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
@@ -127,7 +127,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Contraseña (dejar en blanco para mantener)</label>
-                            <input type="password" class="form-control" name="password">
+                            <input type="password" class="form-control" name="password" 
+                                pattern="^$|.{8,}"
+                                title="La contraseña debe estar vacía o tener al menos 8 caracteres"
+                                oninput="this.setCustomValidity('')"
+                                oninvalid="this.setCustomValidity('La contraseña debe estar vacía o tener al menos 8 caracteres')">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
