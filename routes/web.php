@@ -23,6 +23,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('dev.panel');
     Route::get('/analista', [AnalistaController::class, 'index'])
         ->name('analista.panel');
+
+    // Admin CRUD routes
+    Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 
