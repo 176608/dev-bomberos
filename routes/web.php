@@ -7,21 +7,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-// Rutas de autenticación
+// Auth routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Grupo de rutas autenticadas
-Route::middleware(['auth'])->group(function () {
-    Route::get('/aux', [AuxController::class, 'index'])
-        ->middleware(function ($request, $next) {
-            if (!in_array(auth()->user()->role, ['Administrador', 'Desarrollador'])) {
-                return redirect()->route('dashboard');
-            }
-            return $next($request);
-        })
-        ->name('aux');
+// Protected routes
+Route::middleware(['auth', 'admin.dev'])->group(function () {
+    Route::get('/aux', [AuxController::class, 'index'])->name('aux');
 });
 
 
