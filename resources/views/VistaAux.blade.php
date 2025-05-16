@@ -6,14 +6,12 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h2>Prueba de Conexión SQL Server</h2>
+        <h2>Vista Auxiliar</h2>
     </div>
     <div class="card-body">
-        <div class="alert alert-{{ $status == 'success' ? 'success' : 'danger' }}" role="alert">
-            {{ $message }}
-        </div>
+        <p>Esta es la vista auxiliar para administradores y desarrolladores.</p>
+        <p>Desde aquí puedes gestionar los usuarios registrados en el sistema.</p>
     </div>
-</div>
 
 @if(auth()->check() && auth()->user()->role === 'Administrador' && isset($users))
     <div class="card mt-4">
