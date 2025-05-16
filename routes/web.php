@@ -17,9 +17,12 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Rutas por rol
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.panel');
-    Route::get('/desarrollador', [DesarrolladorController::class, 'index'])->name('dev.panel');
-    Route::get('/analista', [AnalistaController::class, 'index'])->name('analista.panel');
+    Route::get('/admin', [AdminController::class, 'index'])
+        ->name('admin.panel');
+    Route::get('/desarrollador', [DesarrolladorController::class, 'index'])
+        ->name('dev.panel');
+    Route::get('/analista', [AnalistaController::class, 'index'])
+        ->name('analista.panel');
 });
 
 

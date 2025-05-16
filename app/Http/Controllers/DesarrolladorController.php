@@ -4,17 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class DesarrolladorController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
-        if (auth()->user()->role !== 'Desarrollador') {
+        if (!auth()->check() || auth()->user()->role !== 'Desarrollador') {
             return redirect()->route('dashboard');
         }
 
