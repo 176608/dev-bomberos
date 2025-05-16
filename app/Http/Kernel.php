@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        // ...existing code...
-        'admin.dev' => \App\Http\Middleware\CheckAdminDev::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'admin.dev' => \App\Http\Middleware\AdminDevMiddleware::class,
     ];
 }
