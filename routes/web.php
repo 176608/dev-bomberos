@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AuxController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DesarrolladorController;
+use App\Http\Controllers\AnalistaController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,9 +15,11 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Rutas protegidas con autenticación y rol
-Route::prefix('admin')->middleware(['auth', 'admin.dev'])->group(function () {
-    Route::get('/aux', [AuxController::class, 'index'])->name('aux');
+// Rutas por rol
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.panel');
+    Route::get('/desarrollador', [DesarrolladorController::class, 'index'])->name('dev.panel');
+    Route::get('/analista', [AnalistaController::class, 'index'])->name('analista.panel');
 });
 
 

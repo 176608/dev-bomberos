@@ -33,9 +33,17 @@
                         <a class="nav-link" href="{{ route('dashboard') }}">Hidrantes</a>
                     </li>
                     @auth
-                        @if(in_array(auth()->user()->role, ['Administrador', 'Desarrollador']))
+                        @if(auth()->user()->role === 'Administrador')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('aux') }}">Vista Auxiliar</a>
+                                <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
+                            </li>
+                        @elseif(auth()->user()->role === 'Desarrollador')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
+                            </li>
+                        @elseif(auth()->user()->role === 'Analista')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('analista.panel') }}">Panel Analista</a>
                             </li>
                         @endif
                     @endauth
