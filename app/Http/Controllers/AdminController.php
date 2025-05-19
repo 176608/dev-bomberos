@@ -10,14 +10,19 @@ use App\Http\Controllers\Controller;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->check() || auth()->user()->role !== 'Administrador') {
             return redirect()->route('dashboard');
         }
 
-        $users = User::all();
-        return view('roles.admin', compact('users'));
+        $status = $request->get('status', 'active'); // default to active users
+        
+        $users = User::when($status !== 'all', function($query) use ($status) {
+            return $query->where('status', $status === 'active' ? 1 : 0);
+        })->get();
+
+        return view('roles.admin', compact('users', 'status'));
     }
 
     public function store(Request $request)
@@ -34,6 +39,7 @@ class AdminController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'status' => 1,
         ]);
 
         return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente');
@@ -45,12 +51,14 @@ class AdminController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Analista'])],
+            'status' => ['required', 'boolean'],
         ]);
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
+            'status' => $request->status,
         ]);
 
         if ($request->filled('password')) {
@@ -60,13 +68,4 @@ class AdminController extends Controller
         return redirect()->route('admin.panel')->with('success', 'Usuario actualizado exitosamente');
     }
 
-    public function destroy(User $user)
-    {
-        if ($user->id === auth()->id()) {
-            return redirect()->route('admin.panel')->with('error', 'No puedes eliminar tu propio usuario');
-        }
-
-        $user->delete();
-        return redirect()->route('admin.panel')->with('success', 'Usuario eliminado exitosamente');
-    }
 }

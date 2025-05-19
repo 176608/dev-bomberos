@@ -5,7 +5,14 @@
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h2>Panel de Administrador</h2>
+        <div class="d-flex align-items-center gap-3">
+            <h2>Panel de Administrador</h2>
+            <select class="form-select" style="width: auto;" onchange="window.location.href='{{ route('admin.panel') }}?status=' + this.value">
+                <option value="active" {{ $status == 'active' ? 'selected' : '' }}>Usuarios Activos</option>
+                <option value="inactive" {{ $status == 'inactive' ? 'selected' : '' }}>Usuarios Inactivos</option>
+                <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Todos los Usuarios</option>
+            </select>
+        </div>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
             Crear Usuario
         </button>
@@ -29,7 +36,9 @@
                         <th>Nombre</th>
                         <th>Email</th>
                         <th>Rol</th>
+                        <th>Estado</th>
                         <th>Fecha Registro</th>
+                        <th>Última Edición</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -40,20 +49,17 @@
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->role }}</td>
+                            <td>
+                                <span class="badge bg-{{ $user->status ? 'success' : 'danger' }}">
+                                    {{ $user->status ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
                             <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
                                     Editar
                                 </button>
-                                @if($user->id !== auth()->id())
-                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')">
-                                            Eliminar
-                                        </button>
-                                    </form>
-                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -139,6 +145,13 @@
                                 <option value="Analista" {{ $user->role === 'Analista' ? 'selected' : '' }}>Analista</option>
                                 <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="status" required>
+                                <option value="1" {{ $user->status ? 'selected' : '' }}>Activo</option>
+                                <option value="0" {{ !$user->status ? 'selected' : '' }}>Inactivo</option>
                             </select>
                         </div>
                     </div>
