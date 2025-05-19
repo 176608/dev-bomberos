@@ -15,9 +15,7 @@
                         <th>ID</th>
                         <th>Fecha Alta</th>
                         <th>Colonia</th>
-                        <th>Calle</th>
-                        <th>Y Calle</th>
-                        <th>Oficial</th>
+                        <th>ID Colonia</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,9 +24,7 @@
                             <td>{{ $registro->id }}</td>
                             <td>{{ $registro->fecha_alta }}</td>
                             <td>{{ $registro->colonia }}</td>
-                            <td>{{ $registro->calle }}</td>
-                            <td>{{ $registro->y_calle }}</td>
-                            <td>{{ $registro->oficial }}</td>
+                            <td>{{ $registro->id_colonia }}</td>
                         </tr>
                     @endforeach
                 </tbody>

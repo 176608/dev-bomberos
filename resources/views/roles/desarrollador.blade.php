@@ -12,9 +12,8 @@
             <table id="coloniasTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID_COLO</th>
+                        <th>Fecha reg IMIP</th>
                         <th>Nombre</th>
-                        <th>Etiqueta</th>
                         <th>Tipo</th>
                         <th>IDKEY</th>
                     </tr>
@@ -22,9 +21,8 @@
                 <tbody>
                     @foreach($colonias as $colonia)
                         <tr>
-                            <td>{{ $colonia->ID_COLO }}</td>
+                            <td>{{ $colonia->FECHAUBICAIMIP }}</td>
                             <td>{{ $colonia->NOMBRE }}</td>
-                            <td>{{ $colonia->ETIQUETA }}</td>
                             <td>{{ $colonia->TIPO }}</td>
                             <td>{{ $colonia->IDKEY }}</td>
                         </tr>

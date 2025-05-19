@@ -10,6 +10,7 @@ class Agregar extends Model
     protected $fillable = [
         'fecha_alta',
         'colonia',
+        'id_colonia',
         'calle',
         'y_calle',
         'oficial'

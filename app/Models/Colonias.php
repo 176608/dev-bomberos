@@ -11,9 +11,8 @@ class Colonias extends Model
     protected $primaryKey = 'IDKEY';
 
     protected $fillable = [
-        'ID_COLO',
+        'FECHAUBICAIMIP',
         'NOMBRE',
-        'ETIQUETA',
         'TIPO'
     ];
 
