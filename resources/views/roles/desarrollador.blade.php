@@ -5,28 +5,28 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h2>Panel de Desarrollador</h2>
+        <h2>Gestión de Colonias</h2>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table id="usersTable" class="table table-bordered table-striped">
+            <table id="coloniasTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>ID_COLO</th>
                         <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Fecha Registro</th>
+                        <th>Etiqueta</th>
+                        <th>Tipo</th>
+                        <th>IDKEY</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $user)
+                    @foreach($colonias as $colonia)
                         <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->role }}</td>
-                            <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $colonia->ID_COLO }}</td>
+                            <td>{{ $colonia->NOMBRE }}</td>
+                            <td>{{ $colonia->ETIQUETA }}</td>
+                            <td>{{ $colonia->TIPO }}</td>
+                            <td>{{ $colonia->IDKEY }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -34,16 +34,17 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
 <script>
     $(document).ready(function() {
-        $('#usersTable').DataTable({
+        $('#coloniasTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
-            order: [[0, 'desc']]
+            order: [[0, 'asc']]
         });
     });
 </script>

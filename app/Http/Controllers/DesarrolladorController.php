@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Colonias;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -14,7 +14,7 @@ class DesarrolladorController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $users = User::all();
-        return view('roles.desarrollador', compact('users'));
+        $colonias = Colonias::all();
+        return view('roles.desarrollador', compact('colonias'));
     }
 }
