@@ -20,26 +20,29 @@
 
 <div class="container mt-4">
 
-    <!-- Card principal -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
 
-            <!-- Imagen a la izquierda -->
-            <div class="d-flex align-items-center">
+        <!-- Uso de row y col-6 -->
+        <div class="row g-3 align-items-center">
+
+            <!-- Columna izquierda (6/12) - Imagen -->
+            <div class="col-6 d-flex align-items-center">
                 <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png') }}" alt="Escudo" class="img-fluid custom-image-size">
-                <h5 class="card-title m-0">Gestión de Hidrantes</h5>
             </div>
 
-            <!-- Botones a la derecha -->
-            <div class="d-flex flex-column ms-auto">
+            <!-- Columna derecha (6/12) - Botones -->
+            <div class="col-6 d-flex flex-column justify-content-center">
                 <button class="btn btn-primary mb-2">Alta de hidrante</button>
                 <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
                     Ver reporte de hidrantes <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
+
         </div>
     </div>
+</div>
 
     <!-- Accordion con tabla -->
     <div class="accordion" id="accordionHidrantes">
