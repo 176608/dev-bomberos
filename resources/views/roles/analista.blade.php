@@ -19,7 +19,7 @@
 
 <div class="container mt-4">
 
-<div class="card mb-4 shadow-sm">
+<div class="card mb-4">
     <div class="card-body">
 
         <!-- Uso de row y col-6 -->
