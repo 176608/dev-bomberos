@@ -6,7 +6,7 @@
 <!--Para agregar en la tabla es TH y TD-->
 <div class="card">
     <div class="card-header">
-        <h2>Listado de Hidrantes test</h2>
+        <h2>Listado de Hidrantes</h2>
     </div>
     <div class="card-body">
         <div class="table-responsive">

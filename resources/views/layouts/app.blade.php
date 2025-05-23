@@ -23,14 +23,14 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía Cambios</a>
+            <a class="navbar-brand" href="https://www.imip.org.mx/">    Cartografía     </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">Hidrantes</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}">Información Publica</a>
                     </li>
                     @auth
                         @if(auth()->user()->role === 'Administrador')
@@ -43,7 +43,7 @@
                             </li>
                         @elseif(auth()->user()->role === 'Analista')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('analista.panel') }}">Panel Analista</a>
+                                <a class="nav-link" href="{{ route('analista.panel') }}">Panel Bomberos</a>
                             </li>
                         @endif
                     @endauth

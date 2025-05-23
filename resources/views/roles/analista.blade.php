@@ -1,37 +1,58 @@
 @extends('layouts.app')
 
-@section('title', 'Panel de Analista')
+@section('title', 'Bomberos')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h2>Panel de Analista</h2>
+<div class="container mt-4">
+    <!-- Contenedor superior -->
+    <div class="d-flex align-items-center mb-4">
+        <!-- Mitad izquierda: imagen -->
+        <div class="col-md-6 d-flex justify-content-start">
+            <img src="{{ asset('images/hidrante.png') }}" alt="Hidrante" width="100" height="100">
+        </div>
+
+        <!-- Mitad derecha: botones -->
+        <div class="col-md-6 d-flex flex-column justify-content-end">
+            <button class="btn btn-primary mb-2">Alta de hidrante</button>
+            <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
+            <button class="btn btn-success">Ver reporte de hidrantes</button>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="hidrantesTable" class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha Alta</th>
-                        <th>Colonia</th>
-                        <th>ID Colonia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($registros as $registro)
-                        <tr>
-                            <td>{{ $registro->id }}</td>
-                            <td>{{ $registro->fecha_alta }}</td>
-                            <td>{{ $registro->colonia }}</td>
-                            <td>{{ $registro->id_colonia }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+
+    <!-- Tabla oculta -->
+    <div id="tabla-hidrantes" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h2>Listado de Hidrantes</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="hidrantesTable" class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha Alta</th>
+                                <th>Colonia</th>
+                                <th>ID Colonia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($registros as $registro)
+                                <tr>
+                                    <td>{{ $registro->id }}</td>
+                                    <td>{{ $registro->fecha_alta }}</td>
+                                    <td>{{ $registro->colonia }}</td>
+                                    <td>{{ $registro->id_colonia }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
