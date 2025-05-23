@@ -3,27 +3,35 @@
 @section('title', 'Bomberos')
 
 @section('content')
+
 <style>
     .custom-image-size {
-    width: 15vw;
-    height: auto;
-    max-width: 300px; /* límite máximo para pantallas grandes */
-}
+        width: 15vw;
+        height: auto;
+        max-width: 300px; /* límite máximo para pantallas grandes */
+        object-fit: contain;
+    }
+
+    .card-title {
+        margin-left: 1rem;
+        font-weight: bold;
+    }
 </style>
 
 <div class="container mt-4">
 
     <!-- Card principal -->
     <div class="card mb-4 shadow-sm">
-        <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
+        <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
 
             <!-- Imagen a la izquierda -->
             <div class="d-flex align-items-center">
-                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png') }}" alt="Hidrante" class="img-fluid custom-image-size">
+                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png') }}" alt="Escudo" class="img-fluid custom-image-size">
+                <h5 class="card-title m-0">Gestión de Hidrantes</h5>
             </div>
 
             <!-- Botones a la derecha -->
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column ms-auto">
                 <button class="btn btn-primary mb-2">Alta de hidrante</button>
                 <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
