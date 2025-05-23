@@ -5,9 +5,9 @@
 @section('content')
 <style>
     .custom-image-size {
-    width: 33vw;
+    width: 15vw;
     height: auto;
-    max-width: 400px; /* límite máximo para pantallas grandes */
+    max-width: 300px; /* límite máximo para pantallas grandes */
 }
 </style>
 
