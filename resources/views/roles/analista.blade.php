@@ -11,8 +11,7 @@
 
             <!-- Imagen a la izquierda -->
             <div class="d-flex align-items-center">
-                <img src="{{ asset('images/hidrante.png') }}" alt="Hidrante" width="80" height="80" class="me-3">
-                <h5 class="card-title m-0">Gestión de Hidrantes</h5>
+                <img src="{{ asset('img/logo/Escudo_Ciudad_Juárez.png.png') }}" alt="Hidrante" width="80" height="80" class="me-3">
             </div>
 
             <!-- Botones a la derecha -->
