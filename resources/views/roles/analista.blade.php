@@ -3,6 +3,14 @@
 @section('title', 'Bomberos')
 
 @section('content')
+<style>
+    .custom-image-size {
+    width: 33vw;
+    height: auto;
+    max-width: 400px; /* límite máximo para pantallas grandes */
+}
+</style>
+
 <div class="container mt-4">
 
     <!-- Card principal -->
@@ -11,7 +19,7 @@
 
             <!-- Imagen a la izquierda -->
             <div class="d-flex align-items-center">
-                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png') }}" alt="Hidrante" class="me-3">
+                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png') }}" alt="Hidrante" class="img-fluid custom-image-size">
             </div>
 
             <!-- Botones a la derecha -->
