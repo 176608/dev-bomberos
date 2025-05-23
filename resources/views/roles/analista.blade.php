@@ -8,7 +8,6 @@
     .custom-image-size {
         width: 40vw;
         height: auto;
-        max-width: 300px; /* límite máximo para pantallas grandes */
         object-fit: contain;
     }
 
