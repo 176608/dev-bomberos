@@ -6,7 +6,7 @@
 
 <style>
     .custom-image-size {
-        width: 15vw;
+        width: 40vw;
         height: auto;
         max-width: 300px; /* límite máximo para pantallas grandes */
         object-fit: contain;
