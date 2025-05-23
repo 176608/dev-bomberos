@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="bg-dark text-white py-1">
-        <div class="container">
+        <div class="container"> 
             <div class="d-flex justify-content-between">
                 <div>Instituto Municipal de Investigación y Planeación</div>
                 <div>Ciudad Juárez, Chihuahua</div>
@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
-            <a class="navbar-brand" href="https://www.imip.org.mx/"> - Cartografía</a>
+            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía Cambios</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
