@@ -11,7 +11,7 @@
 
             <!-- Imagen a la izquierda -->
             <div class="d-flex align-items-center">
-                <img src="{{ asset('img/logo/Escudo_Ciudad_Juárez.png.png') }}" alt="Hidrante" width="80" height="80" class="me-3">
+                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez.png.png') }}" alt="Hidrante" width="80" height="80" class="me-3">
             </div>
 
             <!-- Botones a la derecha -->
