@@ -15,12 +15,12 @@
         <div class="col-md-6 d-flex flex-column justify-content-end">
             <button class="btn btn-primary mb-2">Alta de hidrante</button>
             <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
-            <button class="btn btn-success">Ver reporte de hidrantes</button>
+            <button class="btn btn-success mb-2" id="verReporteBtn">Ver reporte de hidrantes</button>
         </div>
     </div>
 
-    <!-- Tabla oculta -->
-    <div id="tabla-hidrantes" style="display: none;">
+    <!-- Tabla oculta - Spoiler -->
+    <div id="tabla-hidrantes" class="accordion-collapse collapse">
         <div class="card">
             <div class="card-header">
                 <h2>Listado de Hidrantes</h2>
@@ -58,11 +58,22 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        $('#hidrantesTable').DataTable({
+        // Inicializa DataTable
+        var table = $('#hidrantesTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
-            order: [[0, 'desc']]
+            order: [[0, 'desc']],
+            paging: true,
+            searching: true,
+            info: true,
+            autoWidth: false
+        });
+
+        // Funcionalidad del botón "Ver reporte de hidrantes"
+        $('#verReporteBtn').on('click', function () {
+            $('#tabla-hidrantes').collapse('show'); // Muestra el accordion
+            $('html, body').animate({ scrollTop: $('#tabla-hidrantes').offset().top }, 1000); // Centra la vista
         });
     });
 </script>
