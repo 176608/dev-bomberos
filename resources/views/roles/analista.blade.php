@@ -4,53 +4,65 @@
 
 @section('content')
 <div class="container mt-4">
-    <!-- Contenedor superior -->
-    <div class="d-flex align-items-center mb-4">
-        <!-- Mitad izquierda: imagen -->
-        <div class="col-md-6 d-flex justify-content-start">
-            <img src="{{ asset('images/hidrante.png') }}" alt="Hidrante" width="100" height="100">
-        </div>
 
-        <!-- Mitad derecha: botones -->
-        <div class="col-md-6 d-flex flex-column justify-content-end">
-            <button class="btn btn-primary mb-2">Alta de hidrante</button>
-            <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
-            <button class="btn btn-success mb-2" id="verReporteBtn">Ver reporte de hidrantes</button>
+    <!-- Card principal -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
+
+            <!-- Imagen a la izquierda -->
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('images/hidrante.png') }}" alt="Hidrante" width="80" height="80" class="me-3">
+                <h5 class="card-title m-0">Gestión de Hidrantes</h5>
+            </div>
+
+            <!-- Botones a la derecha -->
+            <div class="d-flex flex-column">
+                <button class="btn btn-primary mb-2">Alta de hidrante</button>
+                <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
+                <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
+                    Ver reporte de hidrantes <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Tabla oculta - Spoiler -->
-    <div id="tabla-hidrantes" class="accordion-collapse collapse">
-        <div class="card">
-            <div class="card-header">
-                <h2>Listado de Hidrantes</h2>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="hidrantesTable" class="table table-bordered table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha Alta</th>
-                                <th>Colonia</th>
-                                <th>ID Colonia</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($registros as $registro)
+    <!-- Accordion con tabla -->
+    <div class="accordion" id="accordionHidrantes">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes" aria-expanded="false">
+                    Mostrar/Ocultar Reporte de Hidrantes
+                </button>
+            </h2>
+            <div id="tabla-hidrantes" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <div class="table-responsive">
+                        <table id="hidrantesTable" class="table table-bordered table-striped">
+                            <thead class="table-dark">
                                 <tr>
-                                    <td>{{ $registro->id }}</td>
-                                    <td>{{ $registro->fecha_alta }}</td>
-                                    <td>{{ $registro->colonia }}</td>
-                                    <td>{{ $registro->id_colonia }}</td>
+                                    <th>ID</th>
+                                    <th>Fecha Alta</th>
+                                    <th>Colonia</th>
+                                    <th>ID Colonia</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($registros as $registro)
+                                    <tr>
+                                        <td>{{ $registro->id }}</td>
+                                        <td>{{ $registro->fecha_alta }}</td>
+                                        <td>{{ $registro->colonia }}</td>
+                                        <td>{{ $registro->id_colonia }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
 @endsection
@@ -58,7 +70,7 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Inicializa DataTable
+        // Inicializar DataTable
         var table = $('#hidrantesTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
@@ -70,10 +82,16 @@
             autoWidth: false
         });
 
-        // Funcionalidad del botón "Ver reporte de hidrantes"
+        // Funcionalidad del botón "Ver reporte"
         $('#verReporteBtn').on('click', function () {
-            $('#tabla-hidrantes').collapse('show'); // Muestra el accordion
-            $('html, body').animate({ scrollTop: $('#tabla-hidrantes').offset().top }, 1000); // Centra la vista
+            const target = document.getElementById('tabla-hidrantes');
+            if (target.classList.contains('show')) {
+                $('html, body').animate({ scrollTop: $('#accordionHidrantes').offset().top }, 1000);
+            } else {
+                setTimeout(() => {
+                    $('html, body').animate({ scrollTop: $('#accordionHidrantes').offset().top }, 1000);
+                }, 300); // Pequeño retraso para esperar que el accordion se abra
+            }
         });
     });
 </script>
