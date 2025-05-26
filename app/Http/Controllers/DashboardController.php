@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agregar;
+use App\Models\Hidrante;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $registros = Agregar::all();
+        $registros = Hidrante::all();
         return view('dashboard', compact('registros'));
     }
 }

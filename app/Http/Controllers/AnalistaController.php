@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agregar;
+use App\Models\Hidrante;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -14,7 +14,7 @@ class AnalistaController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $registros = Agregar::all();
+        $registros = Hidrante::all();
         return view('roles.analista', compact('registros'));
     }
 }
