@@ -92,6 +92,7 @@
 
 </div>
 
+@foreach($hidrantes as $hidrante)
 <!-- Modal de Edición -->
 <div class="modal fade" id="editarHidranteModal{{ $hidrante->id }}" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -233,6 +234,7 @@
         </div>
     </div>
 </div>
+@endforeach
 
 @endsection
 
