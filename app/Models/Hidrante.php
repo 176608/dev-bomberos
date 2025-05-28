@@ -8,10 +8,26 @@ class Hidrante extends Model
     protected $table = 'hidrantes';
     protected $fillable = [
         'fecha_alta',
+        'alta_user_id',
+        'update_user_id',
+        'numero_estacion',
+        'numero_hidrante',
+        'calle',
+        'id_calle',
+        'y_calle',
+        'id_y_calle',
         'colonia',
         'id_colonia',
-        'calle',
-        'y_calle',
+        'llave_hidrante',
+        'presion_agua',
+        'color',
+        'llave_fosa',
+        'ubicacion_fosa',
+        'hidrante_conectado_tubo',
+        'estado_hidrante',
+        'marca',
+        'anio',
+        'observaciones',
         'oficial'
     ];
 }
@@ -19,6 +35,7 @@ class Hidrante extends Model
 /*
 
 Field                   Type            Null    Default     Extra               Key
+----------------------- ----------------- ------- ----------- ------------------ ----
 id                      - int(11)       - NO    - NULL      - auto_increment    - PRI
 fecha_alta              - date          - NO    - current_timestamp()
 alta_user_id            - int(4)        - NO    - NULL

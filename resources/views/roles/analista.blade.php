@@ -59,17 +59,27 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Fecha Alta</th>
+                                    <th>Calle</th>
+                                    <th>Calle por ID</th>
+                                    <th>Y Calle</th>
+                                    <th>Y Calle por ID</th>
                                     <th>Colonia</th>
                                     <th>ID Colonia</th>
+                                    <th>Marca</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($registros as $registro)
+                                @foreach($hidrantes as $hidrante)
                                     <tr>
-                                        <td>{{ $registro->id }}</td>
-                                        <td>{{ $registro->fecha_alta }}</td>
-                                        <td>{{ $registro->colonia }}</td>
-                                        <td>{{ $registro->id_colonia }}</td>
+                                        <td>{{ $hidrante->id }}</td>
+                                        <td>{{ $hidrante->fecha_alta }}</td>
+                                        <td>{{ $hidrante->calle }}</td>
+                                        <td>{{ $hidrante->id_calle }}</td>
+                                        <td>{{ $hidrante->y_calle }}</td>
+                                        <td>{{ $hidrante->id_y_calle }}</td>
+                                        <td>{{ $hidrante->colonia }}</td>
+                                        <td>{{ $hidrante->id_colonia }}</td>
+                                        <td>{{ $hidrante->marca }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
