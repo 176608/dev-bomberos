@@ -23,7 +23,7 @@ Field           Type            Null    Default   Extra
 PRIMARYKEY      - int(4)        - YES   - NULL
 SHAPE           - varchar(16)   - YES   - NULL
 ID_COLO         - int(4)        - YES   - NULL
-NOMBRE          - varchar(53)   - YES   - NULL  Usamos esta*
+NOMBRE          - varchar(53)   - YES   - NULL  Usamos esta principalmente*
 ETIQUETA        - varchar(38)   - YES   - NULL
 TIPO            - varchar(21)   - YES   - NULL  Podemos usar esta*
 FECHAUBICAIMIP  - varchar(10)   - YES   - NULL

@@ -30,6 +30,21 @@ class Hidrante extends Model
         'observaciones',
         'oficial'
     ];
+
+    public function colonia()
+    {
+        return $this->belongsTo(Colonias::class, 'id_colonia', 'IDKEY');
+    }
+
+    public function calle()
+    {
+        return $this->belongsTo(Calles::class, 'id_calle', 'IDKEY');
+    }
+
+    public function yCalle()
+    {
+        return $this->belongsTo(Calles::class, 'id_y_calle', 'IDKEY');
+    }
 }
 
 /*

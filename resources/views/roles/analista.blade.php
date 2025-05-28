@@ -60,12 +60,10 @@
                                     <th>ID</th>
                                     <th>Fecha Alta</th>
                                     <th>Calle</th>
-                                    <th>Calle por ID</th>
                                     <th>Y Calle</th>
-                                    <th>Y Calle por ID</th>
                                     <th>Colonia</th>
-                                    <th>ID Colonia</th>
                                     <th>Marca</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,13 +71,15 @@
                                     <tr>
                                         <td>{{ $hidrante->id }}</td>
                                         <td>{{ $hidrante->fecha_alta }}</td>
-                                        <td>{{ $hidrante->calle }}</td>
-                                        <td>{{ $hidrante->id_calle }}</td>
-                                        <td>{{ $hidrante->y_calle }}</td>
-                                        <td>{{ $hidrante->id_y_calle }}</td>
-                                        <td>{{ $hidrante->colonia }}</td>
-                                        <td>{{ $hidrante->id_colonia }}</td>
+                                        <td>{{ $hidrante->calle()->exists() ? $hidrante->calle->Nomvial : $hidrante->calle }}</td>
+                                        <td>{{ $hidrante->yCalle()->exists() ? $hidrante->yCalle->Nomvial : $hidrante->y_calle }}</td>
+                                        <td>{{ $hidrante->colonia()->exists() ? $hidrante->colonia->NOMBRE : $hidrante->colonia }}</td>
                                         <td>{{ $hidrante->marca }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarHidranteModal{{ $hidrante->id }}">
+                                                Editar
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
