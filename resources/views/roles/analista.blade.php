@@ -71,9 +71,9 @@
                                     <tr>
                                         <td>{{ $hidrante->id }}</td>
                                         <td>{{ $hidrante->fecha_alta }}</td>
-                                        <td>{{ $hidrante->calle()->exists() ? $hidrante->calle->Nomvial : $hidrante->calle }}</td>
-                                        <td>{{ $hidrante->yCalle()->exists() ? $hidrante->yCalle->Nomvial : $hidrante->y_calle }}</td>
-                                        <td>{{ $hidrante->colonia()->exists() ? $hidrante->colonia->NOMBRE : $hidrante->colonia }}</td>
+                                        <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada' }}</td>
+                                        <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada' }}</td>
+                                        <td>{{ $hidrante->colonia ? $hidrante->colonia->NOMBRE : 'No especificada' }}</td>
                                         <td>{{ $hidrante->marca }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarHidranteModal{{ $hidrante->id }}">

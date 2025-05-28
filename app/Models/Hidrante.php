@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 class Hidrante extends Model
 {
     protected $table = 'hidrantes';
@@ -36,14 +37,14 @@ class Hidrante extends Model
         return $this->belongsTo(Colonias::class, 'id_colonia', 'IDKEY');
     }
 
-    public function calle()
+    public function callePrincipal()
     {
-        return $this->belongsTo(Calles::class, 'id_calle', 'IDKEY');
+        return $this->belongsTo(CatalogoCalle::class, 'id_calle', 'IDKEY');
     }
 
-    public function yCalle()
+    public function calleSecundaria()
     {
-        return $this->belongsTo(Calles::class, 'id_y_calle', 'IDKEY');
+        return $this->belongsTo(CatalogoCalle::class, 'id_y_calle', 'IDKEY');
     }
 }
 

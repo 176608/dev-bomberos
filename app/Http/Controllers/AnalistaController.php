@@ -16,10 +16,8 @@ class AnalistaController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $hidrantes = Hidrante::with(['colonia', 'calle', 'yCalle'])->get();
-        $cat_colonias = Colonias::all();
-        $cat_calles = Calles::all();
-        return view('roles.analista', compact('hidrantes', 'cat_colonias', 'cat_calles'));
+        $hidrantes = Hidrante::with(['colonia', 'callePrincipal', 'calleSecundaria'])->get();
+        return view('roles.analista', compact('hidrantes'));
     }
 
     public function store(Request $request)
