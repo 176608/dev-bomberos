@@ -71,13 +71,13 @@
                                     <tr>
                                         <td>{{ $hidrante->id }}</td>
                                         <td>{{ $hidrante->fecha_alta }}</td>
-                                        <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada' }}</td>
-                                        <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada' }}</td>
+                                        <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'Calle no especificada' }}</td>
+                                        <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'Y Calle no especificada' }}</td>
                                         <td>
                                             @if($hidrante->colonia instanceof \App\Models\Colonias)
                                                 {{ $hidrante->colonia->NOMBRE }}
                                             @else
-                                                {{ $hidrante->colonia ?? 'No especificada' }}
+                                                {{ $hidrante->colonia ?? 'Colonia no especificada' }}
                                             @endif
                                         </td>
                                         <td>{{ $hidrante->marca }}</td>
