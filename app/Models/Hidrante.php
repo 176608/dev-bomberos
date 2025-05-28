@@ -32,7 +32,7 @@ class Hidrante extends Model
         'oficial'
     ];
 
-    public function colonia()
+    public function coloniaLocacion()
     {
         return $this->belongsTo(Colonias::class, 'id_colonia', 'IDKEY');
     }
