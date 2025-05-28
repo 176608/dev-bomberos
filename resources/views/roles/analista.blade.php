@@ -77,7 +77,7 @@
                                             @if($hidrante->colonia instanceof \App\Models\Colonias)
                                                 {{ $hidrante->colonia->NOMBRE }}
                                             @else
-                                                {{ $hidrante->colonia ?? 'Colonia no especificada' }}
+                                                {{ 'Colonia no especificada' }}
                                             @endif
                                         </td>
                                         <td>{{ $hidrante->marca }}</td>
