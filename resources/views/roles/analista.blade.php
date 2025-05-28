@@ -111,6 +111,37 @@
             autoWidth: false
         });
 
+        // Manejador para el botón de editar
+        $(document).on('click', '.edit-hidrante', function(e) {
+            e.preventDefault();
+            const hidranteId = $(this).data('hidrante-id');
+            
+            // Hacer la petición AJAX para obtener los datos del hidrante
+            $.ajax({
+                url: `/dev-bomberos/public/hidrantes/${hidranteId}/edit`,
+                method: 'GET',
+                success: function(response) {
+                    // Si ya existe un modal previo, lo removemos
+                    $('#editarHidranteModal' + hidranteId).remove();
+                    
+                    // Agregar el nuevo modal al DOM
+                    $('body').append(response);
+                    
+                    // Mostrar el modal
+                    $('#editarHidranteModal' + hidranteId).modal('show');
+                    
+                    // Limpiar el modal cuando se cierre
+                    $('#editarHidranteModal' + hidranteId).on('hidden.bs.modal', function() {
+                        $(this).remove();
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error al cargar el hidrante:', xhr);
+                    alert('Error al cargar los datos del hidrante');
+                }
+            });
+        });
+
         // Funcionalidad del botón "Ver reporte"
         $('#verReporteBtn').on('click', function () {
             const target = document.getElementById('tabla-hidrantes');
@@ -119,31 +150,8 @@
             } else {
                 setTimeout(() => {
                     $('html, body').animate({ scrollTop: $('#accordionHidrantes').offset().top }, 1000);
-                }, 300); // Pequeño retraso para esperar que el accordion se abra
+                }, 300);
             }
-        });
-
-        // Manejador para el botón de editar
-        $('.edit-hidrante').on('click', function() {
-            const hidranteId = $(this).data('hidrante-id');
-            
-            // Hacer la petición AJAX para obtener los datos del hidrante y el formulario
-            $.get(`/hidrantes/${hidranteId}/edit`, function(data) {
-                // Crear un div temporal para insertar el formulario
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data;
-                
-                // Agregar el formulario al body y mostrar el modal
-                document.body.appendChild(tempDiv);
-                
-                const modalId = `#editarHidranteModal${hidranteId}`;
-                $(modalId).modal('show');
-                
-                // Limpiar el modal cuando se cierre
-                $(modalId).on('hidden.bs.modal', function() {
-                    tempDiv.remove();
-                });
-            });
         });
     });
 </script>
