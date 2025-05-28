@@ -34,8 +34,7 @@ Route::middleware(['auth'])->group(function () {
     // maybe this sobra
     Route::put('/hidrantes/{hidrante}', [AnalistaController::class, 'update'])->name('hidrantes.update');
     Route::get('/hidrantes/{hidrante}/edit', [AnalistaController::class, 'edit'])
-        ->name('hidrantes.edit')
-        ->middleware('auth');
+        ->name('hidrantes.edit');
 });
 
 

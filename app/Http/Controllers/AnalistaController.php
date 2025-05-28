@@ -80,9 +80,15 @@ class AnalistaController extends Controller
 
     public function edit(Hidrante $hidrante)
     {
-        $calles = CatalogoCalle::all();
-        $colonias = Colonias::all();
-        
-        return view('partials.hidrante-form', compact('hidrante', 'calles', 'colonias'));
+        try {
+            $calles = CatalogoCalle::all();
+            $colonias = Colonias::all();
+            
+            return view('partials.hidrante-form', compact('hidrante', 'calles', 'colonias'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al cargar los datos del hidrante'
+            ], 500);
+        }
     }
 }

@@ -116,42 +116,36 @@
             e.preventDefault();
             const hidranteId = $(this).data('hidrante-id');
             
-            // Hacer la petición AJAX para obtener los datos del hidrante
+            // Usar route() de Laravel para generar la URL correcta
             $.ajax({
-                url: `/dev-bomberos/public/hidrantes/${hidranteId}/edit`,
+                url: "{{ route('hidrantes.edit', ':id') }}".replace(':id', hidranteId),
                 method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
-                    // Si ya existe un modal previo, lo removemos
+                    // Remover modal existente si hay uno
+                    $('.modal-backdrop').remove();
                     $('#editarHidranteModal' + hidranteId).remove();
                     
                     // Agregar el nuevo modal al DOM
                     $('body').append(response);
                     
-                    // Mostrar el modal
-                    $('#editarHidranteModal' + hidranteId).modal('show');
-                    
-                    // Limpiar el modal cuando se cierre
-                    $('#editarHidranteModal' + hidranteId).on('hidden.bs.modal', function() {
-                        $(this).remove();
-                    });
+                    // Mostrar el modal usando Bootstrap 5
+                    const modal = new bootstrap.Modal(document.getElementById('editarHidranteModal' + hidranteId));
+                    modal.show();
                 },
                 error: function(xhr) {
                     console.error('Error al cargar el hidrante:', xhr);
-                    alert('Error al cargar los datos del hidrante');
+                    alert('Error al cargar los datos del hidrante. Por favor, intente nuevamente.');
                 }
             });
         });
 
-        // Funcionalidad del botón "Ver reporte"
-        $('#verReporteBtn').on('click', function () {
-            const target = document.getElementById('tabla-hidrantes');
-            if (target.classList.contains('show')) {
-                $('html, body').animate({ scrollTop: $('#accordionHidrantes').offset().top }, 1000);
-            } else {
-                setTimeout(() => {
-                    $('html, body').animate({ scrollTop: $('#accordionHidrantes').offset().top }, 1000);
-                }, 300);
-            }
+        // Limpiar modales cuando se cierren
+        $(document).on('hidden.bs.modal', '.modal', function() {
+            $(this).remove();
+            $('.modal-backdrop').remove();
         });
     });
 </script>
