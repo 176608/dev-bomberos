@@ -73,7 +73,13 @@
                                         <td>{{ $hidrante->fecha_alta }}</td>
                                         <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada' }}</td>
                                         <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada' }}</td>
-                                        <td>{{ $hidrante->colonia ? $hidrante->colonia->NOMBRE : 'No especificada' }}</td>
+                                        <td>
+                                            @if($hidrante->colonia instanceof \App\Models\Colonias)
+                                                {{ $hidrante->colonia->NOMBRE }}
+                                            @else
+                                                {{ $hidrante->colonia ?? 'No especificada' }}
+                                            @endif
+                                        </td>
                                         <td>{{ $hidrante->marca }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarHidranteModal{{ $hidrante->id }}">
