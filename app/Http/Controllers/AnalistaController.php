@@ -84,7 +84,13 @@ class AnalistaController extends Controller
             $calles = CatalogoCalle::all();
             $colonias = Colonias::all();
             
-            return view('partials.hidrante-form', compact('hidrante', 'calles', 'colonias'));
+            // Renderizar solo el contenido del modal
+            return view('partials.hidrante-form', [
+                'hidrante' => $hidrante,
+                'calles' => $calles,
+                'colonias' => $colonias,
+                'modalId' => $hidrante->id
+            ])->render();
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Error al cargar los datos del hidrante'

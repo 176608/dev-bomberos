@@ -94,7 +94,6 @@
 </div>
 
 @endsection
-@include('partials.hidrante-form')
 
 @section('scripts')
 <script>
