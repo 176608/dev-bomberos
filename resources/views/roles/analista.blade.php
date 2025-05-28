@@ -94,7 +94,7 @@
 </div>
 
 @endsection
-@include('modals.edit-hidrante')
+@include('partials.hidrante-form')
 
 @section('scripts')
 <script>
