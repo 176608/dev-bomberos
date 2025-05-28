@@ -49,3 +49,19 @@ class User extends Authenticatable
         ];
     }
 }
+
+
+/* 
+Field               Type                                      Null Key  Default Extra
+id              -bigint(20) unsigned                          -NO -PRI  -NULL   -auto_increment
+name                -varchar(255)                             -NO       -NULL
+email               -varchar(255)                             -NO -UNI  -NULL
+email_verified_at   -timestamp                                -YES      -NULL
+password            -varchar(255)                             -NO       -NULL
+remember_token      -varchar(100)                             -YES      -NULL
+created_at          -timestamp                                -YES      -NULL
+updated_at          -timestamp                                -YES      -NULL
+role      -enum('Analista','Desarrollador','Administrador')   -NO       -Analista
+status              -tinyint(1)                               -NO       -1
+
+*/

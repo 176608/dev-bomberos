@@ -28,6 +28,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
+
+    // Rutas de hidrantes
+    Route::post('/hidrantes', [AnalistaController::class, 'store'])->name('hidrantes.store');
+    Route::put('/hidrantes/{hidrante}', [AnalistaController::class, 'update'])->name('hidrantes.update');
 });
 
 

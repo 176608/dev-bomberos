@@ -33,7 +33,7 @@
             <!-- Columna derecha (6/12) - Botones -->
             <div class="col-6 d-flex flex-column justify-content-center">
                 <button class="btn btn-primary mb-2">Alta de hidrante</button>
-                <button class="btn btn-secondary mb-2">Editar información de hidrante</button>
+                <button class="btn btn-secondary mb-2">Editar parametros del reporte</button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
                     Ver reporte de hidrantes <i class="bi bi-chevron-down"></i>
                 </button>
