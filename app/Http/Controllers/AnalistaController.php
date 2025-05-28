@@ -77,4 +77,12 @@ class AnalistaController extends Controller
         return redirect()->route('analista.panel')
             ->with('success', 'Hidrante actualizado exitosamente');
     }
+
+    public function edit(Hidrante $hidrante)
+    {
+        $calles = CatalogoCalle::all();
+        $colonias = Colonias::all();
+        
+        return view('partials.hidrante-form', compact('hidrante', 'calles', 'colonias'));
+    }
 }
