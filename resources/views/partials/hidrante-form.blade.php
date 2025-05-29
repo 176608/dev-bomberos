@@ -96,7 +96,7 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Ubicación Fosa (6 MTS.)</label>
+                            <label class="form-label">Ubicación Fosa (N MTS.)</label>
                             <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}">
                         </div>
                     </div>
@@ -137,7 +137,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Oficial</label>
-                        <input type="number" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
+                        <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
                     </div>
                 </div>
                 <div class="modal-footer">
