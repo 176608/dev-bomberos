@@ -27,7 +27,7 @@ class AnalistaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fecha_alta' => 'required|date',
+            'fecha_inspeccion' => 'required|date',
             'colonia' => 'required|string',
             'id_colonia' => 'required|integer',
             'calle' => 'required|string',

@@ -33,18 +33,23 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Calle Principal</label>
                             <select class="form-select" name="id_calle" required>
+                                <option value="">Sin definir, selecciona una...</option>
                                 @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
+                                    <option value="{{ $calle->IDKEY }}" 
+                                        {{ old('id_calle', ($hidrante->id_calle == $calle->IDKEY || is_null($hidrante->id_calle)) ? 'selected' : '') }}>
                                         {{ $calle->Nomvial }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Calle Secundaria</label>
-                            <select class="form-select" name="id_y_calle" required>
+                            <select class="form-select" name="id_y_calle">
+                                <option value="">Sin definir, selecciona una...</option>
                                 @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
+                                    <option value="{{ $calle->IDKEY }}" 
+                                        {{ old('id_y_calle', ($hidrante->id_y_calle == $calle->IDKEY || is_null($hidrante->id_y_calle)) ? 'selected' : '') }}>
                                         {{ $calle->Nomvial }}
                                     </option>
                                 @endforeach
@@ -115,6 +120,7 @@
                             <select class="form-select" name="estado_hidrante">
                                 <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
                                 <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
+                                <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
                             </select>
                         </div>
                     </div>

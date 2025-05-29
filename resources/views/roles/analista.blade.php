@@ -70,7 +70,7 @@
                                 @foreach($hidrantes as $hidrante)
                                     <tr>
                                         <td>{{ $hidrante->id }}</td>
-                                        <td>{{ $hidrante->fecha_alta }}</td>
+                                        <td>{{ $hidrante->fecha_inspeccion }}</td>
                                         <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'Calle Principal no especificada' }}</td>
                                         <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'Calle Secundaria no especificada' }}</td>
                                         <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'Colonia no especificada' }}</td>

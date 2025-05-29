@@ -25,7 +25,7 @@
                     @foreach($registros as $registro)
                         <tr>
                             <td>{{ $registro->id }}</td>
-                            <td>{{ $registro->fecha_alta }}</td>
+                            <td>{{ $registro->fecha_inspeccion }}</td>
                             <td>{{ $registro->colonia }}</td>
                             <td>{{ $registro->calle }}</td>
                             <td>{{ $registro->y_calle }}</td>

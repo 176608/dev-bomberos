@@ -8,9 +8,7 @@ class Hidrante extends Model
 {
     protected $table = 'hidrantes';
     protected $fillable = [
-        'fecha_alta',
-        'alta_user_id',
-        'update_user_id',
+        'fecha_inspeccion',
         'numero_estacion',
         'numero_hidrante',
         'calle',
@@ -29,7 +27,8 @@ class Hidrante extends Model
         'marca',
         'anio',
         'observaciones',
-        'oficial'
+        'oficial',
+        'update_user_id'
     ];
 
     public function coloniaLocacion()
@@ -53,9 +52,7 @@ class Hidrante extends Model
 Field                   Type            Null    Default     Extra               Key
 ----------------------- ----------------- ------- ----------- ------------------ ----
 id                      - int(11)       - NO    - NULL      - auto_increment    - PRI
-fecha_alta              - date          - NO    - current_timestamp()
-alta_user_id            - int(4)        - NO    - NULL
-update_user_id          - int(4)        - NO    - NULL
+fecha_inspeccion        - date          - NO    - current_timestamp()    ------>>> fecha_alta -> fecha_inspeccion
 numero_estacion         - int(4)        - NO    - NULL
 numero_hidrante         - int(11)       - YES   - NULL
 calle                   - varchar(255)  - YES   - NULL
@@ -75,4 +72,5 @@ marca                   - varchar(255)  - YES   - NULL
 anio                    - int(11)       - YES   - NULL
 observaciones           - text          - YES   - NULL
 oficial                 - varchar(255)  - YES   - NULL
+update_user_id          - int(4)        - NO    - NULL por defecto el user que dio de alta
 */
