@@ -35,25 +35,26 @@
                             <select class="form-select" name="id_calle" required>
                                 <option value="">Sin definir, selecciona una...</option>
                                 @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}" 
-                                        {{ old('id_calle', ($hidrante->id_calle == $calle->IDKEY || is_null($hidrante->id_calle)) ? 'selected' : '') }}>
+                                    <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
                                         {{ $calle->Nomvial }}
                                     </option>
                                 @endforeach
                             </select>
+                            <input type="text" class="form-control mt-2" value="{{ $hidrante->calle }}" readonly 
+                                   placeholder="Nombre actual de la calle">
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Calle Secundaria</label>
                             <select class="form-select" name="id_y_calle">
                                 <option value="">Sin definir, selecciona una...</option>
                                 @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}" 
-                                        {{ old('id_y_calle', ($hidrante->id_y_calle == $calle->IDKEY || is_null($hidrante->id_y_calle)) ? 'selected' : '') }}>
+                                    <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
                                         {{ $calle->Nomvial }}
                                     </option>
                                 @endforeach
                             </select>
+                            <input type="text" class="form-control mt-2" value="{{ $hidrante->y_calle }}" readonly 
+                                   placeholder="Nombre actual de la calle secundaria">
                         </div>
                     </div>
 
@@ -61,12 +62,16 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Colonia</label>
                             <select class="form-select" name="id_colonia" required>
+                                <option value="">Sin definir, selecciona una...</option>
                                 @foreach($colonias as $colonia)
-                                    <option value="{{ $colonia->IDKEY }}" {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
+                                    <option value="{{ $colonia->IDKEY }}" 
+                                        {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
                                         {{ $colonia->NOMBRE }}
                                     </option>
                                 @endforeach
                             </select>
+                            <input type="text" class="form-control mt-2" value="{{ $hidrante->colonia }}" readonly 
+                                   placeholder="Nombre actual de la colonia">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Llave Hidrante</label>
