@@ -74,41 +74,22 @@ class AnalistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Log before update
-            \Log::info('Updating hidrante:', [
-                'id' => $hidrante->id,
-                'old_data' => $hidrante->toArray(),
-                'new_data' => $validated
-            ]);
-
+            // Add update_user_id
             $validated['update_user_id'] = auth()->id();
 
             // Update related text fields
-            if ($request->id_calle) {
-                $calle = CatalogoCalle::find($request->id_calle);
-                $validated['calle'] = $calle ? $calle->Nomvial : '';
-            }
-
-            if ($request->id_y_calle) {
-                $yCalle = CatalogoCalle::find($request->id_y_calle);
-                $validated['y_calle'] = $yCalle ? $yCalle->Nomvial : '';
-            }
-
-            if ($request->id_colonia) {
-                $colonia = Colonias::find($request->id_colonia);
-                $validated['colonia'] = $colonia ? $colonia->NOMBRE : '';
-            }
+            $validated['calle'] = CatalogoCalle::find($request->id_calle)?->Nomvial ?? '';
+            $validated['y_calle'] = CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '';
+            $validated['colonia'] = Colonias::find($request->id_colonia)?->NOMBRE ?? '';
 
             $hidrante->update($validated);
             
             \DB::commit();
 
-            if ($request->ajax()) {
-                return response()->json(['success' => true]);
-            }
-
-            return redirect()->route('analista.panel')
-                ->with('success', 'Hidrante actualizado exitosamente');
+            return response()->json([
+                'success' => true,
+                'message' => 'Hidrante actualizado exitosamente'
+            ]);
 
         } catch (\Exception $e) {
             \DB::rollBack();
@@ -118,15 +99,10 @@ class AnalistaController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al actualizar: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->route('analista.panel')
-                ->with('error', 'Error al actualizar el hidrante: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar: ' . $e->getMessage()
+            ], 500);
         }
     }
 

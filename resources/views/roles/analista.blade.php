@@ -120,66 +120,62 @@
             $(this).prop('disabled', true).append(loadingSpinner);
             
             $.ajax({
-                url: "{{ route('hidrantes.edit', ':id') }}".replace(':id', hidranteId),
+                url: '/dev-bomberos/public/hidrantes/' + hidranteId + '/edit',
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // Remove any existing modals
+                    // Remove existing modals
                     $('.modal').remove();
                     $('.modal-backdrop').remove();
                     
                     // Add new modal
                     $('body').append(response);
                     
-                    // Initialize modal properly
+                    // Initialize modal
                     const modalElement = document.getElementById('editarHidranteModal' + hidranteId);
                     const modal = new bootstrap.Modal(modalElement);
                     
-                    // Setup form submission handling
+                    // Setup form submission
                     $(modalElement).find('form').on('submit', function(e) {
                         e.preventDefault();
                         const form = $(this);
                         
                         $.ajax({
-                            url: form.attr('action'),
-                            method: form.attr('method'),
+                            url: '/dev-bomberos/public/hidrantes/' + hidranteId,
+                            method: 'POST',
                             data: form.serialize(),
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
                             success: function(response) {
                                 if(response.success) {
                                     modal.hide();
-                                    // Refresh table data
-                                    location.reload();
+                                    table.ajax.reload();
+                                    toastr.success('Hidrante actualizado exitosamente');
                                 } else {
-                                    alert('Error al actualizar: ' + response.message);
+                                    toastr.error('Error al actualizar: ' + response.message);
                                 }
                             },
-                            error: function(xhr) {
-                                console.error('Error:', xhr);
-                                alert('Error al actualizar el hidrante');
+                            error: function(xhr, status, error) {
+                                console.error('Error details:', {xhr, status, error});
+                                toastr.error('Error al actualizar el hidrante');
                             }
                         });
                     });
                     
                     modal.show();
                 },
-                error: function(xhr) {
-                    console.error('Error loading:', xhr);
-                    alert('Error al cargar los datos del hidrante');
+                error: function(xhr, status, error) {
+                    console.error('Error loading:', {xhr, status, error});
+                    toastr.error('Error al cargar los datos del hidrante');
                 },
                 complete: function() {
-                    // Remove loading indicator
                     loadingSpinner.remove();
                     $('.edit-hidrante').prop('disabled', false);
                 }
             });
-        });
-
-        // Limpiar modales cuando se cierren
-        $(document).on('hidden.bs.modal', '.modal', function() {
-            $(this).remove();
-            $('.modal-backdrop').remove();
         });
     });
 </script>
