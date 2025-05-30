@@ -8,7 +8,6 @@ use App\Models\Calles;
 use App\Models\CatalogoCalle;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 
 class AnalistaController extends Controller
 {
@@ -25,11 +24,11 @@ class AnalistaController extends Controller
         
         // Cache de datos frecuentemente usados
         $calles = Cache::remember('calles', 3600, function () {
-            return CatalogoCalle::all();
+            return CatalogoCalle::select('IDKEY', 'Nomvial')->get();
         });
         
         $colonias = Cache::remember('colonias', 3600, function () {
-            return Colonias::all();
+            return Colonias::select('IDKEY', 'NOMBRE')->get();
         });
         
         return view('roles.analista', compact('hidrantes', 'calles', 'colonias'));
