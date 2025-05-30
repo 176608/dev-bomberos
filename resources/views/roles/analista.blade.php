@@ -115,7 +115,10 @@
             e.preventDefault();
             const hidranteId = $(this).data('hidrante-id');
             
-            // Usar route() de Laravel para generar la URL correcta
+            // Show loading indicator
+            const loadingSpinner = $('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>');
+            $(this).prop('disabled', true).append(loadingSpinner);
+            
             $.ajax({
                 url: "{{ route('hidrantes.edit', ':id') }}".replace(':id', hidranteId),
                 method: 'GET',
@@ -123,20 +126,52 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // Remover modal existente si hay uno
+                    // Remove any existing modals
+                    $('.modal').remove();
                     $('.modal-backdrop').remove();
-                    $('#editarHidranteModal' + hidranteId).remove();
                     
-                    // Agregar el nuevo modal al DOM
+                    // Add new modal
                     $('body').append(response);
                     
-                    // Mostrar el modal usando Bootstrap 5
-                    const modal = new bootstrap.Modal(document.getElementById('editarHidranteModal' + hidranteId));
+                    // Initialize modal properly
+                    const modalElement = document.getElementById('editarHidranteModal' + hidranteId);
+                    const modal = new bootstrap.Modal(modalElement);
+                    
+                    // Setup form submission handling
+                    $(modalElement).find('form').on('submit', function(e) {
+                        e.preventDefault();
+                        const form = $(this);
+                        
+                        $.ajax({
+                            url: form.attr('action'),
+                            method: form.attr('method'),
+                            data: form.serialize(),
+                            success: function(response) {
+                                if(response.success) {
+                                    modal.hide();
+                                    // Refresh table data
+                                    location.reload();
+                                } else {
+                                    alert('Error al actualizar: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Error:', xhr);
+                                alert('Error al actualizar el hidrante');
+                            }
+                        });
+                    });
+                    
                     modal.show();
                 },
                 error: function(xhr) {
-                    console.error('Error al cargar el hidrante:', xhr);
-                    alert('Error al cargar los datos del hidrante. Por favor, intente nuevamente.');
+                    console.error('Error loading:', xhr);
+                    alert('Error al cargar los datos del hidrante');
+                },
+                complete: function() {
+                    // Remove loading indicator
+                    loadingSpinner.remove();
+                    $('.edit-hidrante').prop('disabled', false);
                 }
             });
         });
