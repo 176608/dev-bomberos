@@ -98,7 +98,7 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Inicializar DataTable
+        // DataTable initialization
         var table = $('#hidrantesTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
@@ -110,40 +110,47 @@
             autoWidth: false
         });
 
-        // Manejador para el botón de editar
         $(document).on('click', '.edit-hidrante', function(e) {
             e.preventDefault();
             const hidranteId = $(this).data('hidrante-id');
+            const button = $(this);
             
-            // Show loading indicator
-            const loadingSpinner = $('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>');
-            $(this).prop('disabled', true).append(loadingSpinner);
+            // Disable button and show loading
+            button.prop('disabled', true)
+                 .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...');
             
             $.ajax({
-                url: '/dev-bomberos/public/hidrantes/' + hidranteId + '/edit',
+                url: `${window.location.origin}/bev-bomberos/public/hidrantes/${hidranteId}/edit`,
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // Remove existing modals
-                    $('.modal').remove();
-                    $('.modal-backdrop').remove();
+                    // Remove any existing modals
+                    $('.modal, .modal-backdrop').remove();
                     
-                    // Add new modal
+                    // Add modal to DOM
                     $('body').append(response);
                     
-                    // Initialize modal
-                    const modalElement = document.getElementById('editarHidranteModal' + hidranteId);
-                    const modal = new bootstrap.Modal(modalElement);
+                    // Get modal element
+                    const modalElement = document.getElementById(`editarHidranteModal${hidranteId}`);
                     
-                    // Setup form submission
-                    $(modalElement).find('form').on('submit', function(e) {
+                    // Initialize Bootstrap modal
+                    const modalInstance = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    
+                    // Show modal
+                    modalInstance.show();
+                    
+                    // Handle form submission
+                    $(`#editarHidranteModal${hidranteId} form`).on('submit', function(e) {
                         e.preventDefault();
                         const form = $(this);
                         
                         $.ajax({
-                            url: '/dev-bomberos/public/hidrantes/' + hidranteId,
+                            url: form.attr('action'),
                             method: 'POST',
                             data: form.serialize(),
                             headers: {
@@ -151,29 +158,27 @@
                             },
                             success: function(response) {
                                 if(response.success) {
-                                    modal.hide();
-                                    table.ajax.reload();
-                                    toastr.success('Hidrante actualizado exitosamente');
+                                    modalInstance.hide();
+                                    location.reload();
+                                    alert('Hidrante actualizado exitosamente');
                                 } else {
-                                    toastr.error('Error al actualizar: ' + response.message);
+                                    alert('Error: ' + response.message);
                                 }
                             },
-                            error: function(xhr, status, error) {
-                                console.error('Error details:', {xhr, status, error});
-                                toastr.error('Error al actualizar el hidrante');
+                            error: function(xhr) {
+                                console.error('Error:', xhr);
+                                alert('Error al actualizar el hidrante');
                             }
                         });
                     });
-                    
-                    modal.show();
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error loading:', {xhr, status, error});
-                    toastr.error('Error al cargar los datos del hidrante');
+                error: function(xhr) {
+                    console.error('Error loading:', xhr);
+                    alert('Error al cargar los datos del hidrante');
                 },
                 complete: function() {
-                    loadingSpinner.remove();
-                    $('.edit-hidrante').prop('disabled', false);
+                    // Reset button state
+                    button.prop('disabled', false).html('Editar');
                 }
             });
         });

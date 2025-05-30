@@ -113,17 +113,21 @@ class AnalistaController extends Controller
     public function edit(Hidrante $hidrante)
     {
         try {
-            $calles = CatalogoCalle::all();
-            $colonias = Colonias::all();
+            $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
+                ->orderBy('Nomvial')
+                ->get();
+                
+            $colonias = Colonias::select('IDKEY', 'NOMBRE')
+                ->orderBy('NOMBRE')
+                ->get();
             
-            // Renderizar solo el contenido del modal
-            return view('partials.hidrante-form', [
-                'hidrante' => $hidrante,
-                'calles' => $calles,
-                'colonias' => $colonias,
-                'modalId' => $hidrante->id
-            ])->render();
+            return view('partials.hidrante-form', compact('hidrante', 'calles', 'colonias'));
         } catch (\Exception $e) {
+            \Log::error('Error loading hidrante form:', [
+                'id' => $hidrante->id,
+                'error' => $e->getMessage()
+            ]);
+            
             return response()->json([
                 'error' => 'Error al cargar los datos del hidrante'
             ], 500);
