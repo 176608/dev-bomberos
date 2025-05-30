@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hidrante extends Model
 {
+    //public $timestamps = false; // Añade esta línea
+    
     protected $table = 'hidrantes';
     protected $fillable = [
         'fecha_inspeccion',
