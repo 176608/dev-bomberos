@@ -42,18 +42,18 @@ class AnalistaController extends Controller
     public function update(Request $request, Hidrante $hidrante)
     {
         $validated = $request->validate([
-            'numero_estacion' => 'required|integer',
-            'numero_hidrante' => 'nullable|integer',
+            'numero_estacion' => 'required|string',
+            'numero_hidrante' => 'required|integer',
             'id_calle' => 'required|integer',
-            'id_y_calle' => 'required|integer',
+            'id_y_calle' => 'nullable|integer',
             'id_colonia' => 'required|integer',
-            'llave_hidrante' => 'nullable|string',
-            'presion_agua' => 'nullable|string',
+            'llave_hidrante' => 'required|string',
+            'presion_agua' => 'required|string',
             'color' => 'nullable|string',
-            'llave_fosa' => 'nullable|string',
+            'llave_fosa' => 'required|string',
             'ubicacion_fosa' => 'nullable|string',
-            'hidrante_conectado_tubo' => 'nullable|string',
-            'estado_hidrante' => 'nullable|string',
+            'hidrante_conectado_tubo' => 'required|string',
+            'estado_hidrante' => 'required|string',
             'marca' => 'nullable|string',
             'anio' => 'nullable|integer',
             'observaciones' => 'nullable|string',
@@ -63,19 +63,30 @@ class AnalistaController extends Controller
         // Add update_user_id automatically
         $validated['update_user_id'] = auth()->id();
 
-        // Update related text fields based on IDs
-        $calle = CatalogoCalle::find($request->id_calle);
-        $yCalle = CatalogoCalle::find($request->id_y_calle);
-        $colonia = Colonias::find($request->id_colonia);
+        // Update text fields based on selected IDs
+        if ($request->id_calle) {
+            $calle = CatalogoCalle::find($request->id_calle);
+            $validated['calle'] = $calle ? $calle->Nomvial : '';
+        }
 
-        $validated['calle'] = $calle ? $calle->Nomvial : null;
-        $validated['y_calle'] = $yCalle ? $yCalle->Nomvial : null;
-        $validated['colonia'] = $colonia ? $colonia->NOMBRE : null;
+        if ($request->id_y_calle) {
+            $yCalle = CatalogoCalle::find($request->id_y_calle);
+            $validated['y_calle'] = $yCalle ? $yCalle->Nomvial : '';
+        }
 
-        $hidrante->update($validated);
+        if ($request->id_colonia) {
+            $colonia = Colonias::find($request->id_colonia);
+            $validated['colonia'] = $colonia ? $colonia->NOMBRE : '';
+        }
 
-        return redirect()->route('analista.panel')
-            ->with('success', 'Hidrante actualizado exitosamente');
+        try {
+            $hidrante->update($validated);
+            return redirect()->route('analista.panel')
+                ->with('success', 'Hidrante actualizado exitosamente');
+        } catch (\Exception $e) {
+            return redirect()->route('analista.panel')
+                ->with('error', 'Error al actualizar el hidrante: ' . $e->getMessage());
+        }
     }
 
     public function edit(Hidrante $hidrante)
