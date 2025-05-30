@@ -18,19 +18,23 @@ class AnalistaController extends Controller
             return redirect()->route('dashboard');
         }
 
-        // Eager loading con latest() para ordenar por los más recientes
-        $hidrantes = Hidrante::with(['coloniaLocacion', 'callePrincipal', 'calleSecundaria'])
-            ->latest('id')
+        // Eager loading con latest() y selección específica de campos
+        $hidrantes = Hidrante::with([
+            'coloniaLocacion:IDKEY,NOMBRE', 
+            'callePrincipal:IDKEY,Nomvial', 
+            'calleSecundaria:IDKEY,Nomvial'
+        ])
+        ->latest('id')
+        ->get();
+
+        // Seleccionar solo los campos necesarios
+        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
+            ->orderBy('Nomvial')
             ->get();
         
-        // Cache de datos frecuentemente usados
-        $calles = Cache::remember('calles', 3600, function () {
-            return CatalogoCalle::select('IDKEY', 'Nomvial')->get();
-        });
-        
-        $colonias = Cache::remember('colonias', 3600, function () {
-            return Colonias::select('IDKEY', 'NOMBRE')->get();
-        });
+        $colonias = Colonias::select('IDKEY', 'NOMBRE')
+            ->orderBy('NOMBRE')
+            ->get();
         
         return view('roles.analista', compact('hidrantes', 'calles', 'colonias'));
     }
