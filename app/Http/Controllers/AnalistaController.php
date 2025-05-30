@@ -8,7 +8,7 @@ use App\Models\Calles;
 use App\Models\CatalogoCalle;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Cache;
+use Illuminate\Support\Facades\Cache;
 
 class AnalistaController extends Controller
 {
