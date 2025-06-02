@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hidrante extends Model
 {
-    //public $timestamps = false; // Añade esta línea
+    public $timestamps = true; // Deshabilita/Habilita created_at y updated_at
     
     protected $table = 'hidrantes';
     protected $fillable = [
@@ -58,11 +58,11 @@ fecha_inspeccion        - date          - NO    - current_timestamp()    ------>
 numero_estacion         - int(4)        - NO    - NULL
 numero_hidrante         - int(11)       - YES   - NULL
 calle                   - varchar(255)  - YES   - NULL
-id_calle                - int(11)       - NO    - NULL
+id_calle                - int(11)       - YES   - NULL
 y_calle                 - varchar(255)  - YES   - NULL
-id_y_calle              - int(11)       - NO    - NULL
+id_y_calle              - int(11)       - YES   - NULL
 colonia                 - varchar(255)  - YES   - NULL
-id_colonia              - int(10)       - NO    - NULL
+id_colonia              - int(10)       - YES   - NULL
 llave_hidrante          - varchar(255)  - YES   - NULL
 presion_agua            - varchar(50)   - YES   - NULL
 color                   - varchar(50)   - YES   - NULL

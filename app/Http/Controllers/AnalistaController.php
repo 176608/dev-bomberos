@@ -64,13 +64,23 @@ class AnalistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Add create_user_id
+            // Add update_user_id
             $validated['update_user_id'] = auth()->id();
 
-            // Set text fields based on IDs
-            $validated['calle'] = CatalogoCalle::find($request->id_calle)?->Nomvial ?? '';
-            $validated['y_calle'] = CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '';
-            $validated['colonia'] = Colonias::find($request->id_colonia)?->NOMBRE ?? '';
+            // Set text fields based on IDs, handling null values
+            $validated['calle'] = $request->id_calle ? 
+                (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '') : '';
+                
+            $validated['y_calle'] = $request->id_y_calle ? 
+                (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '') : '';
+                
+            $validated['colonia'] = $request->id_colonia ? 
+                (Colonias::find($request->id_colonia)?->NOMBRE ?? '') : '';
+
+            // Remove any null values
+            $validated = array_filter($validated, function($value) {
+                return $value !== null;
+            });
 
             Hidrante::create($validated);
             
@@ -85,7 +95,8 @@ class AnalistaController extends Controller
             \DB::rollBack();
             \Log::error('Error creating hidrante:', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'data' => $validated ?? null
             ]);
 
             return response()->json([
