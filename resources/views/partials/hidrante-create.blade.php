@@ -16,7 +16,7 @@
                                    value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Número de Estación</label>
@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Número de Hidrante</label>
-                            <input type="number" class="form-control" name="numero_hidrante" required>
+                            <input type="number" class="form-control" name="numero_hidrante" placeholder="Ejemplo: 5842" required>
                         </div>
                     </div>
 
@@ -65,17 +65,15 @@
                             <select class="form-select" name="id_colonia" required>
                                 <option value="">Sin definir, selecciona una...</option>
                                 @foreach($colonias as $colonia)
-                                    <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}
-                                    </option>
+                                    <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
                                 @endforeach
                             </select>
-                            
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Llave Hidrante</label>
                             <select class="form-select" name="llave_hidrante">
                                 <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="Pentagono">Pentagono</option>
+                                <option value="Pentagono">Pentágono</option>
                                 <option value="Cuadro">Cuadro</option>
                             </select>
                         </div>
@@ -93,7 +91,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Color</label>
-                            <input type="text" class="form-control" name="color">
+                            <input type="text" class="form-control" name="color" placeholder="Ejemplo: Rojo">
                         </div>
                     </div>
 
@@ -135,27 +133,26 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Marca</label>
-                            <input type="text" class="form-control" name="marca">
+                            <label class="form-label">Marca*</label>
+                            <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Año</label>
-                            <input type="number" class="form-control" name="anio">
+                            <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" name="observaciones" rows="3"></textarea>
+                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Escriba observaciones aquí..."></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Oficial</label>
-                        <input type="text" class="form-control" name="oficial" required>
+                        <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
                     </div>
                 </div>
 
-                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar Hidrante</button>
