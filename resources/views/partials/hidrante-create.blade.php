@@ -84,7 +84,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Presión de Agua</label>
-                            <select class="form-select" name="presion_agua">
+                            <select class="form-select" name="presion_agua" required>
                                 <option value="" selected>Sin definir, selecciona una...</option>
                                 <option value="Mala">Mala</option>
                                 <option value="Buena">Buena</option>
@@ -93,7 +93,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Color</label>
-                            <input type="text" class="form-control" name="color" value="{{ $hidrante->color }}">
+                            <input type="text" class="form-control" name="color">
                         </div>
                     </div>
 
@@ -108,7 +108,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Ubicación Fosa</label>
-                            <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}" placeholder="(N MTS.) Ejemplo: 5 MTS.">
+                            <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS.">
                         </div>
                     </div>
 
@@ -136,22 +136,22 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Marca</label>
-                            <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}">
+                            <input type="text" class="form-control" name="marca">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Año</label>
-                            <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
+                            <input type="number" class="form-control" name="anio">
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" name="observaciones" rows="3">{{ $hidrante->observaciones }}</textarea>
+                        <textarea class="form-control" name="observaciones" rows="3"></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Oficial</label>
-                        <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
+                        <input type="text" class="form-control" name="oficial" required>
                     </div>
                 </div>
 
