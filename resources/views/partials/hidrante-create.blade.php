@@ -11,7 +11,7 @@
                     <!-- Campo fecha_inspeccion -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha de Inspección</label>
+                            <label class="form-label">Fecha de Inspección (DD-MM-YYYY)</label>
                             <input type="date" class="form-control" name="fecha_inspeccion" 
                                    value="{{ date('Y-m-d') }}" required>
                         </div>
@@ -41,7 +41,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Calle Principal</label>
-                            <select class="form-select" name="id_calle" required>
+                            <select class="form-select" name="id_calle">
                                 <option value="">Sin definir, selecciona una...</option>
                                 @foreach($calles as $calle)
                                     <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
@@ -62,7 +62,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Colonia</label>
-                            <select class="form-select" name="id_colonia" required>
+                            <select class="form-select" name="id_colonia">
                                 <option value="">Sin definir, selecciona una...</option>
                                 @foreach($colonias as $colonia)
                                     <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
