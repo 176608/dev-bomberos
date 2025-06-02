@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 
     // Rutas de hidrantes
+    Route::get('/hidrantes/create', [AnalistaController::class, 'create'])->name('hidrantes.create');
     Route::post('/hidrantes', [AnalistaController::class, 'store'])->name('hidrantes.store');
     Route::put('/hidrantes/{hidrante}', [AnalistaController::class, 'update'])->name('hidrantes.update');
     Route::get('/hidrantes/{hidrante}/edit', [AnalistaController::class, 'edit'])->name('hidrantes.edit');

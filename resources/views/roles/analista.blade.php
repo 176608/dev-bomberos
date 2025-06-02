@@ -32,10 +32,15 @@
 
             <!-- Columna derecha (6/12) - Botones -->
             <div class="col-6 d-flex flex-column justify-content-center">
-                <button class="btn btn-primary mb-2">Alta de hidrante</button>
-                <button class="btn btn-secondary mb-2">Editar parametros del reporte</button>
+                <button class="btn btn-primary mb-2" id="btnNuevoHidrante">
+                    <i class="bi bi-plus-circle-fill"></i> Alta de hidrante
+                </button>
+                <button class="btn btn-secondary mb-2">
+                    <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
+                </button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
-                    Ver reporte de hidrantes <i class="bi bi-chevron-down"></i>
+                    <i class="bi bi-table"></i> Ver reporte de hidrantes 
+                    <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
 
@@ -108,6 +113,54 @@
             searching: true,
             info: true,
             autoWidth: false
+        });
+
+        $('#btnNuevoHidrante').click(function() {
+            $.get("{{ route('hidrantes.create') }}", function(response) {
+                // Remove any existing modals
+                $('.modal, .modal-backdrop').remove();
+                
+                // Add modal to DOM
+                $('body').append(response);
+                
+                // Initialize Bootstrap modal
+                const modalElement = document.getElementById('crearHidranteModal');
+                const modalInstance = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                // Show modal
+                modalInstance.show();
+                
+                // Handle form submission
+                $('#formCrearHidrante').on('submit', function(e) {
+                    e.preventDefault();
+                    const form = $(this);
+                    
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: 'POST',
+                        data: form.serialize(),
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if(response.success) {
+                                modalInstance.hide();
+                                location.reload();
+                                alert('Hidrante creado exitosamente');
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error:', xhr);
+                            alert('Error al crear el hidrante');
+                        }
+                    });
+                });
+            });
         });
 
         $(document).on('click', '.edit-hidrante', function(e) {

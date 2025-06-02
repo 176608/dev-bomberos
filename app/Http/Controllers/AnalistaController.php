@@ -41,17 +41,58 @@ class AnalistaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'fecha_inspeccion' => 'required|date',
-            'colonia' => 'required|string',
-            'id_colonia' => 'required|integer',
-            'calle' => 'required|string',
-            'y_calle' => 'required|string',
-            'oficial' => 'required|boolean'
-        ]);
+        try {
+            \DB::beginTransaction();
 
-        Hidrante::create($request->all());
-        return redirect()->route('analista.panel')->with('success', 'Hidrante creado exitosamente');
+            $validated = $request->validate([
+                'fecha_inspeccion' => 'required|date',
+                'numero_estacion' => 'required|string',
+                'numero_hidrante' => 'required|integer',
+                'id_calle' => 'required|integer',
+                'id_y_calle' => 'nullable|integer',
+                'id_colonia' => 'required|integer',
+                'llave_hidrante' => 'required|string',
+                'presion_agua' => 'required|string',
+                'color' => 'nullable|string',
+                'llave_fosa' => 'required|string',
+                'ubicacion_fosa' => 'nullable|string',
+                'hidrante_conectado_tubo' => 'required|string',
+                'estado_hidrante' => 'required|string',
+                'marca' => 'nullable|string',
+                'anio' => 'nullable|integer',
+                'observaciones' => 'nullable|string',
+                'oficial' => 'required|string'
+            ]);
+
+            // Add create_user_id
+            $validated['update_user_id'] = auth()->id();
+
+            // Set text fields based on IDs
+            $validated['calle'] = CatalogoCalle::find($request->id_calle)?->Nomvial ?? '';
+            $validated['y_calle'] = CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '';
+            $validated['colonia'] = Colonias::find($request->id_colonia)?->NOMBRE ?? '';
+
+            Hidrante::create($validated);
+            
+            \DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Hidrante creado exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error creating hidrante:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, Hidrante $hidrante)
@@ -132,5 +173,18 @@ class AnalistaController extends Controller
                 'error' => 'Error al cargar los datos del hidrante'
             ], 500);
         }
+    }
+
+    public function create()
+    {
+        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
+            ->orderBy('Nomvial')
+            ->get();
+            
+        $colonias = Colonias::select('IDKEY', 'NOMBRE')
+            ->orderBy('NOMBRE')
+            ->get();
+        
+        return view('partials.hidrante-create', compact('calles', 'colonias'));
     }
 }
