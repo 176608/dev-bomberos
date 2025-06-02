@@ -189,7 +189,6 @@
                 spinner.addClass('d-none');
             });
         });
-        });
 
         $(document).on('click', '.edit-hidrante', function(e) {
             e.preventDefault();
