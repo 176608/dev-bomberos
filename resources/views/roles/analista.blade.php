@@ -33,14 +33,15 @@
             <!-- Columna derecha (6/12) - Botones -->
             <div class="col-6 d-flex flex-column justify-content-center">
                 <button class="btn btn-primary mb-2" id="btnNuevoHidrante">
-                    <i class="bi bi-plus-circle-fill"></i> Alta de hidrante
+                    <i class="bi bi-plus-square"></i> 
+                    <span class="button-text">Alta de hidrante</span>
+                    <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true"></span>
                 </button>
                 <button class="btn btn-secondary mb-2">
                     <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                 </button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
-                    <i class="bi bi-table"></i> Ver reporte de hidrantes 
-                    <i class="bi bi-chevron-down"></i>
+                    <i class="bi bi-arrow-90deg-down"></i> Ver reporte de hidrantes 
                 </button>
             </div>
 
@@ -83,7 +84,7 @@
                                         <td>
                                             <button class="btn btn-sm btn-warning edit-hidrante" data-bs-toggle="modal" 
                                                 data-hidrante-id="{{ $hidrante->id }}">
-                                                Editar
+                                                Editar <i class="bi bi-pen-fill"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -116,6 +117,15 @@
         });
 
         $('#btnNuevoHidrante').click(function() {
+            const button = $(this);
+            const buttonText = button.find('.button-text');
+            const spinner = button.find('.spinner-border');
+            
+            // Disable button and show spinner
+            button.prop('disabled', true);
+            buttonText.text('Cargando...');
+            spinner.removeClass('d-none');
+            
             $.get("{{ route('hidrantes.create') }}", function(response) {
                 // Remove any existing modals
                 $('.modal, .modal-backdrop').remove();
@@ -160,6 +170,16 @@
                         }
                     });
                 });
+            })
+            .fail(function(xhr) {
+                console.error('Error:', xhr);
+                alert('Error al cargar el formulario');
+            })
+            .always(function() {
+                // Reset button state
+                button.prop('disabled', false);
+                buttonText.text('Alta de hidrante');
+                spinner.addClass('d-none');
             });
         });
 
