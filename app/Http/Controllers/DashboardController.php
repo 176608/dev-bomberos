@@ -6,6 +6,11 @@ use App\Models\Hidrante;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        // No aplicamos middleware de auth aquí para permitir acceso público
+    }
+
     public function index()
     {
         $registros = Hidrante::all();
