@@ -3,22 +3,23 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers {
-        logout as protected traitLogout;
-    }
-
     protected $redirectTo = '/dashboard';
 
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -49,25 +50,16 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        try {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect('/');
-        } catch (\Exception $e) {
-            \Log::error('Error en logout:', [
-                'message' => $e->getMessage()
-            ]);
-
-            return redirect()->back()->with('error', 'Error al cerrar sesión');
-        }
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 
     protected function redirectBasedOnRole()
     {
         $user = Auth::user();
-
+        
         if ($user->role === 'Administrador') {
             return redirect()->route('admin.panel');
         } elseif ($user->role === 'Desarrollador') {
