@@ -31,88 +31,80 @@
         </div>
     </div>
 
-    <!-- Reemplazar la sección del navbar -->
-<nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
-    <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
+        <div class="container-fluid">
         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
-        <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">Información Publica</a>
-                </li>
-                @auth
-                    @if(auth()->user()->role === 'Administrador')
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
-                        </li>
-                    @elseif(auth()->user()->role === 'Desarrollador')
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
-                        </li>
-                    @elseif(auth()->user()->role === 'Analista')
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('analista.panel') }}">Panel Bomberos</a>
-                        </li>
-                    @endif
-                @endauth
-            </ul>
-            
-            <ul class="navbar-nav">
-                @guest
+            <a class="navbar-brand" href="https://www.imip.org.mx/">    Cartografía     </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Iniciar Sesión</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}">Información Publica</a>
                     </li>
-                @else
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" 
-                           href="#" 
-                           role="button" 
-                           data-bs-toggle="dropdown" 
-                           aria-expanded="false">
-                            <i class="bi bi-person-circle me-1"></i>
-                            {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li>
-                                <div class="dropdown-header">
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-bold">{{ Auth::user()->name }}</span>
-                                        <small class="text-muted">{{ Auth::user()->email }}</small>
-                                    </div>
-                                </div>
+                    @auth
+                        @if(auth()->user()->role === 'Administrador')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <span class="dropdown-item-text">
-                                    <i class="bi bi-person-badge me-2"></i>
-                                    Rol: {{ Auth::user()->role }}
-                                </span>
+                        @elseif(auth()->user()->role === 'Desarrollador')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" 
-                                   href="{{ route('logout') }}" 
-                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="bi bi-box-arrow-right me-2"></i>
-                                    Cerrar Sesión
+                        @elseif(auth()->user()->role === 'Analista')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('analista.panel') }}">Panel Bomberos</a>
+                            </li>
+                        @endif
+                    @endauth
+                </ul>
+                
+                <ul class="navbar-nav">
+                    @guest
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">Iniciar Sesión</a>
+                        </li>
+                    @else
+                        <!-- Reemplazar la sección del menú de usuario con este código actualizado -->
+                        @auth
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    {{ Auth::user()->name }}
                                 </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li class="dropdown-header">
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ Auth::user()->name }}</span>
+                                            <small class="text-muted">{{ Auth::user()->email }}</small>
+                                        </div>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <span class="dropdown-item-text">
+                                            <i class="bi bi-person-badge me-2"></i>
+                                            Rol: {{ Auth::user()->role }}
+                                        </span>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right me-2"></i>
+                                                Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
-                        </ul>
-                    </li>
-                @endguest
-            </ul>
+                        @endauth
+                    @endguest
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <main class="py-4 mt-4">
         <div class="container-fluid">
