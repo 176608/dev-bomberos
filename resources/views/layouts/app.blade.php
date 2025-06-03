@@ -31,17 +31,20 @@
         </div>
     </div>
 
+    <!-- Reemplazada la sección de la barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
-        <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">    Cartografía     </a>
+            <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
+            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">Información Publica</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}">Información Pública</a>
                     </li>
                     @auth
                         @if(auth()->user()->role === 'Administrador')
@@ -59,46 +62,38 @@
                         @endif
                     @endauth
                 </ul>
-                
+
                 <ul class="navbar-nav">
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Iniciar Sesión</a>
+                            <a class="nav-link login-btn" href="{{ route('login') }}">
+                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                            </a>
                         </li>
                     @else
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" 
-                               href="#" 
-                               role="button" 
-                               data-bs-toggle="dropdown" 
-                               aria-expanded="false">
-                                <i class="bi bi-person-circle me-1"></i>
-                                {{ Auth::user()->name }}
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow">
-                                <li>
-                                    <div class="dropdown-header">
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold">{{ Auth::user()->name }}</span>
-                                            <small class="text-muted">{{ Auth::user()->email }}</small>
-                                        </div>
+                                <li class="dropdown-header">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold">{{ Auth::user()->name }}</span>
+                                        <small class="text-muted">{{ Auth::user()->email }}</small>
                                     </div>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <span class="dropdown-item-text">
-                                        <i class="bi bi-person-badge me-2"></i>
-                                        Rol: {{ Auth::user()->role }}
+                                        <i class="bi bi-person-badge"></i> Rol: {{ Auth::user()->role }}
                                     </span>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item text-danger" 
-                                       href="{{ route('logout') }}" 
-                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="bi bi-box-arrow-right me-2"></i>
-                                        Cerrar Sesión
-                                    </a>
+                                    <button type="button" class="dropdown-item text-danger logout-btn" 
+                                            onclick="handleLogout(event)">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    </button>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
@@ -143,5 +138,37 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     
     @yield('scripts')
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Login button click handler
+    const loginBtn = document.querySelector('.login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            console.log('🔑 Iniciando proceso de login...');
+        });
+    }
+});
+
+// Logout handler function
+function handleLogout(event) {
+    event.preventDefault();
+    console.log('🚪 Iniciando proceso de logout...');
+    
+    const form = document.getElementById('logout-form');
+    if (form) {
+        form.submit();
+    } else {
+        console.error('❌ Error: Formulario de logout no encontrado');
+    }
+}
+
+// Add AJAX setup for CSRF token
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+</script>
 </body>
 </html>
