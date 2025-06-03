@@ -28,32 +28,23 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        try {
-            if (Auth::attempt($credentials, $request->boolean('remember'))) {
-                if (!Auth::user()->status) {
-                    Auth::logout();
-                    throw ValidationException::withMessages([
-                        'email' => 'Tu cuenta está desactivada.',
-                    ]);
-                }
-
-                $request->session()->regenerate();
-                return $this->redirectBasedOnRole();
-            }
-
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Error en login:', [
-                'message' => $e->getMessage(),
-                'email' => $request->email
-            ]);
-            
+        }
+
+        $user = Auth::user();
+
+        if (!$user->status) {
+            Auth::logout();
             throw ValidationException::withMessages([
-                'email' => 'Error al iniciar sesión. Por favor intente de nuevo.',
+                'email' => 'Tu cuenta está desactivada.',
             ]);
         }
+
+        $request->session()->regenerate();
+        return $this->redirectBasedOnRole();
     }
 
     public function logout(Request $request)
@@ -62,27 +53,29 @@ class LoginController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            
-            return redirect('/'); // Redirigimos a la página principal en lugar de login
+
+            return redirect('/');
         } catch (\Exception $e) {
             \Log::error('Error en logout:', [
                 'message' => $e->getMessage()
             ]);
-            
+
             return redirect()->back()->with('error', 'Error al cerrar sesión');
         }
     }
 
     protected function redirectBasedOnRole()
     {
-        if (Auth::user()->role === 'Administrador') {
+        $user = Auth::user();
+
+        if ($user->role === 'Administrador') {
             return redirect()->route('admin.panel');
-        } elseif (Auth::user()->role === 'Desarrollador') {
+        } elseif ($user->role === 'Desarrollador') {
             return redirect()->route('dev.panel');
-        } elseif (Auth::user()->role === 'Analista') {
+        } elseif ($user->role === 'Analista') {
             return redirect()->route('analista.panel');
         }
-        
+
         return redirect()->route('dashboard');
     }
 }
