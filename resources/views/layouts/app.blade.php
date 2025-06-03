@@ -70,13 +70,14 @@
                     </li>
                 @else
                     <li class="nav-item dropdown">
-                        <button class="btn nav-link dropdown-toggle d-flex align-items-center" 
-                                type="button" 
-                                data-bs-toggle="dropdown" 
-                                aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" 
+                           href="#" 
+                           role="button" 
+                           data-bs-toggle="dropdown" 
+                           aria-expanded="false">
                             <i class="bi bi-person-circle me-1"></i>
                             {{ Auth::user()->name }}
-                        </button>
+                        </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
                             <li>
                                 <div class="dropdown-header">
@@ -88,25 +89,25 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <div class="dropdown-item-text">
+                                <span class="dropdown-item-text">
                                     <i class="bi bi-person-badge me-2"></i>
                                     Rol: {{ Auth::user()->role }}
-                                </div>
+                                </span>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" 
-                                   href="#" 
+                                   href="{{ route('logout') }}" 
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="bi bi-box-arrow-right me-2"></i>
                                     Cerrar Sesión
                                 </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
                             </li>
                         </ul>
                     </li>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
                 @endguest
             </ul>
         </div>
