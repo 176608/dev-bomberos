@@ -14,7 +14,8 @@ class LoginController extends Controller
 
     public function __construct()
     {
-        $this->middleware('guest', ['except' => ['logout']]);
+        // Corregimos la sintaxis del middleware
+        $this->middleware('guest')->except('logout');
     }
 
     public function showLoginForm()
