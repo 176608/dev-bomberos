@@ -67,18 +67,33 @@
                         </li>
                     @else
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>
                                 {{ Auth::user()->name }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Rol: {{ Auth::user()->role }}</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li class="dropdown-header">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold">{{ Auth::user()->name }}</span>
+                                        <small class="text-muted">{{ Auth::user()->email }}</small>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <span class="dropdown-item-text">
+                                        <i class="bi bi-person-badge me-2"></i>
+                                        Rol: {{ Auth::user()->role }}
+                                    </span>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
-                                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    <a class="dropdown-item d-flex align-items-center text-danger" href="#" 
+                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="bi bi-box-arrow-right me-2"></i>
+                                        Cerrar Sesión
                                     </a>
                                 </li>
                             </ul>
