@@ -3,20 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
-
-    protected $redirectTo = '/dashboard';
-
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout']);
+        $this->middleware('guest')->except('logout');
     }
 
     public function showLoginForm()
@@ -53,12 +48,13 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        $this->guard()->logout();
-
+        Auth::logout();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect('/');
+        
+        return redirect()->route('login')
+            ->with('status', 'Has cerrado sesión exitosamente.');
     }
 
     protected function redirectBasedOnRole()
