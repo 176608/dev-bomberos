@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Cache;
 
 class AnalistaController extends Controller
 {
-    public function __construct()
+    /*public function __construct()
     {
         $this->middleware('auth');
-    }
+    }*/
 
     public function index()
     {

@@ -12,6 +12,11 @@ class LoginController extends Controller
 {
     protected $redirectTo = '/dashboard';
 
+    /*public function __construct()
+    {
+        // Corregimos la sintaxis del middleware
+        $this->middleware('guest')->except('logout');
+    }*/
 
     public function showLoginForm()
     {
