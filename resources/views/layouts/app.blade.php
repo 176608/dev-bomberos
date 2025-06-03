@@ -65,40 +65,30 @@
 
                 <ul class="navbar-nav">
                     @guest
+                        <li class="nav-item d-flex align-items-center me-3">
+                            <span class="nav-link">
+                                <i class="bi bi-person-circle"></i> Invitado
+                            </span>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link login-btn" href="{{ route('login') }}">
                                 <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                             </a>
                         </li>
                     @else
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow">
-                                <li class="dropdown-header">
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-bold">{{ Auth::user()->name }}</span>
-                                        <small class="text-muted">{{ Auth::user()->email }}</small>
-                                    </div>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <span class="dropdown-item-text">
-                                        <i class="bi bi-person-badge"></i> Rol: {{ Auth::user()->role }}
-                                    </span>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <button type="button" class="dropdown-item text-danger logout-btn" 
-                                            onclick="handleLogout(event)">
-                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                    </button>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
+                        <li class="nav-item d-flex align-items-center me-3">
+                            <span class="nav-link">
+                                <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="nav-link btn btn-link logout-btn" 
+                                    onclick="handleLogout(event)">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </button>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
                         </li>
                     @endguest
                 </ul>
