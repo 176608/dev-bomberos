@@ -74,10 +74,12 @@
                                 <li><a class="dropdown-item" href="#">Rol: {{ Auth::user()->role }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form method="POST" action="{{ route('logout') }}">
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
-                                        <button type="submit" class="dropdown-item">Cerrar Sesión</button>
                                     </form>
+                                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    </a>
                                 </li>
                             </ul>
                         </li>
