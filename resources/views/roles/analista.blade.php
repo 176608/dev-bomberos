@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app')More actions
 
 @section('title', 'Bomberos')
 
@@ -49,8 +49,7 @@
                     <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                 </button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
-                    <i class="bi bi-arrow-90deg-down"></i> 
-                    <span class="button-text">Ver reporte de hidrantes</span>
+                    <i class="bi bi-arrow-90deg-down"></i> Ver reporte de hidrantes 
                 </button>
             </div>
 
@@ -58,22 +57,21 @@
     </div>
 </div>
 
+
     <!-- Accordion con tabla -->
     <div class="accordion" id="accordionHidrantes">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingHidrantes">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-toggle="collapse" 
+        <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
                     data-bs-target="#tabla-hidrantes"
-                    aria-expanded="false" 
+                    aria-expanded="false"
                     aria-controls="tabla-hidrantes">
                 Mostrar/Ocultar Reporte de Hidrantes
             </button>
         </h2>
-        <div id="tabla-hidrantes" 
-             class="accordion-collapse collapse" 
-             aria-labelledby="headingHidrantes"
-             data-bs-parent="#accordionHidrantes">
+        <div id="tabla-hidrantes" class="accordion-collapse collapse">
             <div class="accordion-body">
                 <div class="table-responsive">
                     <table id="hidrantesTable" class="table table-bordered table-striped">
