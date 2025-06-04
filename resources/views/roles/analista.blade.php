@@ -59,16 +59,21 @@
 
     <!-- Accordion con tabla -->
     <div class="accordion" id="accordionHidrantes">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes" aria-expanded="false">
-                    Mostrar/Ocultar Reporte de Hidrantes
-                </button>
-            </h2>
-            <div id="tabla-hidrantes" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                    <div class="table-responsive">
-                        <table id="hidrantesTable" class="table table-bordered table-striped">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#tabla-hidrantes"
+                    aria-expanded="false"
+                    aria-controls="tabla-hidrantes">
+                Mostrar/Ocultar Reporte de Hidrantes
+            </button>
+        </h2>
+        <div id="tabla-hidrantes" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                <div class="table-responsive">
+                    <table id="hidrantesTable" class="table table-bordered table-striped">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -263,5 +268,22 @@
             });
         });
     });
+
+    $('#verReporteBtn').on('click', function () {
+    const target = $('#tabla-hidrantes');
+    const accordionHeader = $('#accordionHidrantes .accordion-header');
+
+    if (target.hasClass('show')) {
+        target.collapse('hide');
+        $(this).text('Ver reporte de hidrantes');
+    } else {
+        target.collapse('show');
+        $(this).text('Ocultar reporte de hidrantes');
+    }
+
+    $('html, body').animate({
+        scrollTop: $('#accordionHidrantes').offset().top
+    }, 500);
+});
 </script>
 @endsection
