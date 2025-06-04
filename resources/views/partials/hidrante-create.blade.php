@@ -4,39 +4,61 @@
             <form action="{{ route('hidrantes.store') }}" method="POST" id="formCrearHidrante">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Nuevo Hidrante</h5>
+                    <h5 class="modal-title">Registrar Hidrante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Campo fecha_inspeccion -->
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha de Inspección (DD-MM-YYYY)</label>
-                            <input type="date" class="form-control" name="fecha_inspeccion" 
-                                   value="{{ date('Y-m-d') }}" required>
+                        
+                        <div class="card">
+
+                            <div class="card-header">
+                                Primera Seccion
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Fecha de Inspección(DD-MM-YYYY)</label>
+                                        <input type="date" class="form-control" name="fecha_inspeccion" 
+                                            value="{{ date('Y-m-d') }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Fecha tentativa de Mantenimiento(DD-MM-YYYY)</label>
+                                        <input type="date" class="form-control" name="NOTFECHA" 
+                                            value="{{ date('Y-m-d') }}" >
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Número de Estación</label>
+                                        <select class="form-select" name="numero_estacion" required>
+                                            <option value="" selected>Seleccione estación...</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Número de Hidrante</label>
+                                        <input type="number" class="form-control" name="numero_hidrante" placeholder="Ejemplo: 5842" required>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Número de Estación</label>
-                            <select class="form-select" name="numero_estacion" required>
-                                <option value="" selected>Seleccione estación...</option>
-                                <option value="01">01</option>
-                                <option value="02">02</option>
-                                <option value="03">03</option>
-                                <option value="04">04</option>
-                                <option value="05">05</option>
-                                <option value="06">06</option>
-                                <option value="07">07</option>
-                                <option value="08">08</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Número de Hidrante</label>
-                            <input type="number" class="form-control" name="numero_hidrante" placeholder="Ejemplo: 5842" required>
-                        </div>
-                    </div>
+                    
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -155,7 +177,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Hidrante</button>
+                    <button type="submit" class="btn btn-primary">Registrar Hidrante</button>
                 </div>
             </form>
         </div>
