@@ -1,4 +1,4 @@
-@extends('layouts.app')More actions
+@extends('layouts.app')
 
 @section('title', 'Bomberos')
 
