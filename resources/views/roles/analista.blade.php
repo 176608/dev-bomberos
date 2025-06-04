@@ -49,7 +49,8 @@
                     <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                 </button>
                 <button class="btn btn-success" id="verReporteBtn" data-bs-toggle="collapse" data-bs-target="#tabla-hidrantes">
-                    <i class="bi bi-arrow-90deg-down"></i> Ver reporte de hidrantes 
+                    <i class="bi bi-arrow-90deg-down"></i> 
+                    <span class="button-text">Ver reporte de hidrantes</span>
                 </button>
             </div>
 
@@ -116,20 +117,55 @@
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        // DataTable initialization
-        var table = $('#hidrantesTable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-            },
-            order: [[0, 'desc']],
-            paging: true,
-            searching: true,
-            info: true,
-            autoWidth: false
-        });
+$(document).ready(function() {
+    // DataTable initialization
+    var table = $('#hidrantesTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+        },
+        order: [[0, 'desc']],
+        paging: true,
+        searching: true,
+        info: true,
+        autoWidth: false
+    });
 
-        $('#btnNuevoHidrante').click(function() {
+    // Función para actualizar el ícono y texto del botón
+    function updateButtonState(isExpanded) {
+        const btn = $('#verReporteBtn');
+        const icon = btn.find('i');
+        const text = btn.find('.button-text');
+        
+        if (isExpanded) {
+            icon.removeClass('bi-arrow-90deg-down').addClass('bi-arrow-90deg-up');
+            text.text('Cerrar reporte de hidrantes');
+        } else {
+            icon.removeClass('bi-arrow-90deg-up').addClass('bi-arrow-90deg-down');
+            text.text('Ver reporte de hidrantes');
+        }
+    }
+
+    // Manejar eventos del acordeón
+    $('#tabla-hidrantes').on('show.bs.collapse hide.bs.collapse', function(e) {
+        updateButtonState(e.type === 'show');
+    });
+
+    // Sincronizar el botón del panel con el acordeón
+    $('#verReporteBtn').click(function() {
+        const accordion = $('#tabla-hidrantes');
+        const isExpanded = accordion.hasClass('show');
+        
+        if (!isExpanded) {
+            $('html, body').animate({
+                scrollTop: $('#accordionHidrantes').offset().top - 20
+            }, 500);
+        }
+    });
+
+    // Establecer estado inicial
+    updateButtonState($('#tabla-hidrantes').hasClass('show'));
+
+    $('#btnNuevoHidrante').click(function() {
     const button = $(this);
     const buttonText = button.find('.button-text');
     const spinner = button.find('.spinner-border');
@@ -268,22 +304,6 @@
             });
         });
     });
-
-    $('#verReporteBtn').on('click', function () {
-    const target = $('#tabla-hidrantes');
-    const accordionHeader = $('#accordionHidrantes .accordion-header');
-
-    if (target.hasClass('show')) {
-        target.collapse('hide');
-        $(this).text('Ver reporte de hidrantes');
-    } else {
-        target.collapse('show');
-        $(this).text('Ocultar reporte de hidrantes');
-    }
-
-    $('html, body').animate({
-        scrollTop: $('#accordionHidrantes').offset().top
-    }, 500);
-});
+    
 </script>
 @endsection
