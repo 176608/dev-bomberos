@@ -16,8 +16,9 @@
                             <div class="card-header">
                                 Primera Seccion
                             </div>
-                            
+
                             <div class="card-body">
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha de Inspección(DD-MM-YYYY)</label>
@@ -30,6 +31,8 @@
                                             value="{{ date('Y-m-d') }}" >
                                     </div>
                                 </div>
+
+                                <hr class="my-4">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -58,7 +61,7 @@
 
                     </div>
 
-                    
+                    <hr class="my-4">
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -82,6 +85,7 @@
                     </div>
 
                     <div class="row">
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Colonia</label>
                             <select class="form-select" name="id_colonia">
