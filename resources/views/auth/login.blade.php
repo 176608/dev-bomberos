@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center align-items-center">
+    <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-6">
-            <div class="card shadow-lg border-0 min-vh-100" style="background-color: rgba(161, 224, 152, 0.8);">
-                <div class="card-body p-2">
-                    <div class="text-center mb-2">
+            <div class="card shadow-lg border-0" style="background-color: rgba(161, 224, 152, 0.8);">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
                         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo IMIP" height="80">
                         <h4 class="mt-3 mb-4">Iniciar Sesión</h4>
                     </div>
