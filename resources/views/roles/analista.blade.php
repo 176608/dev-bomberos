@@ -61,17 +61,19 @@
     <!-- Accordion con tabla -->
     <div class="accordion" id="accordionHidrantes">
     <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
+        <h2 class="accordion-header" id="headingHidrantes">
+            <button class="accordion-button collapsed" type="button" 
+                    data-bs-toggle="collapse" 
                     data-bs-target="#tabla-hidrantes"
-                    aria-expanded="false"
+                    aria-expanded="false" 
                     aria-controls="tabla-hidrantes">
                 Mostrar/Ocultar Reporte de Hidrantes
             </button>
         </h2>
-        <div id="tabla-hidrantes" class="accordion-collapse collapse">
+        <div id="tabla-hidrantes" 
+             class="accordion-collapse collapse" 
+             aria-labelledby="headingHidrantes"
+             data-bs-parent="#accordionHidrantes">
             <div class="accordion-body">
                 <div class="table-responsive">
                     <table id="hidrantesTable" class="table table-bordered table-striped">
@@ -151,11 +153,14 @@ $(document).ready(function() {
     });
 
     // Sincronizar el botón del panel con el acordeón
-    $('#verReporteBtn').click(function() {
+    $('#verReporteBtn').click(function(e) {
+        e.preventDefault();
         const accordion = $('#tabla-hidrantes');
-        const isExpanded = accordion.hasClass('show');
         
-        if (!isExpanded) {
+        if (accordion.hasClass('show')) {
+            accordion.collapse('hide');
+        } else {
+            accordion.collapse('show');
             $('html, body').animate({
                 scrollTop: $('#accordionHidrantes').offset().top - 20
             }, 500);
@@ -257,53 +262,53 @@ $(document).ready(function() {
                     const modalElement = document.getElementById(`editarHidranteModal${hidranteId}`);
                     
                     // Initialize Bootstrap modal
-                    const modalInstance = new bootstrap.Modal(modalElement, {
+                    });st modalInstance = new bootstrap.Modal(modalElement, {
                         backdrop: 'static',
-                        keyboard: false
-                    });
-                    
-                    // Show modal
+                    // Show modal false
                     modalInstance.show();
                     
                     // Handle form submission
                     $(`#editarHidranteModal${hidranteId} form`).on('submit', function(e) {
                         e.preventDefault();
                         const form = $(this);
-                        
-                        $.ajax({
+                        editarHidranteModal${hidranteId} form`).on('submit', function(e) {
+                        $.ajax({tDefault();
                             url: form.attr('action'),
                             method: 'POST',
                             data: form.serialize(),
-                            headers: {
+                            headers: {attr('action'),
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
+                            },ta: form.serialize(),
                             success: function(response) {
-                                if(response.success) {
+                                if(response.success) {a[name="csrf-token"]').attr('content')
                                     modalInstance.hide();
-                                    location.reload();
+                                    location.reload();) {
                                     alert('Hidrante actualizado exitosamente');
-                                } else {
+                                } else {lInstance.hide();
                                     alert('Error: ' + response.message);
-                                }
-                            },
-                            error: function(xhr) {
+                                }   alert('Hidrante actualizado exitosamente');
+                            },  } else {
+                            error: function(xhr) {' + response.message);
                                 console.error('Error:', xhr);
                                 alert('Error al actualizar el hidrante');
-                            }
-                        });
-                    });
-                },
+                            }rror: function(xhr) {
+                        });     console.error('Error:', xhr);
+                    });         alert('Error al actualizar el hidrante');
+                },          }
                 error: function(xhr) {
                     console.error('Error loading:', xhr);
                     alert('Error al cargar los datos del hidrante');
-                },
-                complete: function() {
-                    // Reset button state
+                },ror: function(xhr) {
+                complete: function() {or loading:', xhr);
+                    // Reset button stater los datos del hidrante');
                     button.prop('disabled', false).html('Editar');
-                }
+                }omplete: function() {
+            });     // Reset button state
+        });         button.prop('disabled', false).html('Editar');
+    });         }
             });
-        });
-    });
+</script>);
+@endsection
     
 </script>
 @endsection
