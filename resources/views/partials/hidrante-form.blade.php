@@ -9,6 +9,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de Inspección</label>
+                            <input type="date" class="form-control" name="fecha_inspeccion" 
+                                   value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
+                                   required>
+                            <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Número de Estación</label>
@@ -150,6 +161,7 @@
                         <label class="form-label">Oficial</label>
                         <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

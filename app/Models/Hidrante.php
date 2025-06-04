@@ -33,6 +33,10 @@ class Hidrante extends Model
         'update_user_id'
     ];
 
+    protected $casts = [
+        'fecha_inspeccion' => 'date'
+    ];
+
     public function coloniaLocacion()
     {
         return $this->belongsTo(Colonias::class, 'id_colonia', 'IDKEY');
