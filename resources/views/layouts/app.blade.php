@@ -96,8 +96,10 @@
         </div>
     </nav>
 
-    <main class="py-2 mt-4">
+    <main class="py-4 mt-4">
+        <div class="container-fluid">
             @yield('content')
+        </div>
     </main>
 
     <footer class="bg-light text-dark py-4 mt-2">
