@@ -7,7 +7,7 @@
                     <h5 class="modal-title">Registrar Hidrante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="background-color: rgba(161, 224, 152, 0.8);">
                     <!-- Campo fecha_inspeccion -->
                     <div class="row">
                         
