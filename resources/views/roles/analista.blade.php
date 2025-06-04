@@ -309,6 +309,3 @@ $(document).ready(function() {
             });
 </script>);
 @endsection
-    
-</script>
-@endsection
