@@ -281,9 +281,9 @@
 }
 </style>
 
-@section('scripts')
 <script>
 $(document).ready(function() {
+    console.log("Hidrante create script loaded");
     // Función para inicializar Select2 en un modal
     function initSelect2Modal() {
         $('.select2-search').select2({
@@ -315,4 +315,3 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection
