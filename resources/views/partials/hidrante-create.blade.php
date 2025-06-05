@@ -64,37 +64,59 @@
                     <hr class="my-4">
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Calle Principal</label>
-                            <select class="form-select" name="id_calle">
-                                <option value="">Sin definir, selecciona una...</option>
-                                @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Calle Secundaria</label>
-                            <select class="form-select" name="id_y_calle">
-                                <option value="">Sin definir, selecciona una...</option>
-                                @foreach($calles as $calle)
-                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                @endforeach
-                            </select>
+                        <div class="card text-center p-0">
+
+                            <div class="card-header">
+                                Ubicación
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Calle Principal</label>
+                                        <select class="form-select" name="id_calle">
+                                            <option value="">Sin definir, selecciona una...</option>
+                                            @foreach($calles as $calle)
+                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Calle Secundaria</label>
+                                        <select class="form-select" name="id_y_calle">
+                                            <option value="">Sin definir, selecciona una...</option>
+                                            @foreach($calles as $calle)
+                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2">
+                                
+                                <div class="row">
+                                    <div class="col-md-8 mb-3 offset-md-2">
+                                        <label class="form-label">Colonia</label>
+                                        <select class="form-select" name="id_colonia">
+                                            <option value="">Sin definir, selecciona una...</option>
+                                            @foreach($colonias as $colonia)
+                                                <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
                         </div>
                     </div>
 
+                    <hr class="my-4">
+
                     <div class="row">
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Colonia</label>
-                            <select class="form-select" name="id_colonia">
-                                <option value="">Sin definir, selecciona una...</option>
-                                @foreach($colonias as $colonia)
-                                    <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Llave Hidrante</label>
                             <select class="form-select" name="llave_hidrante">
