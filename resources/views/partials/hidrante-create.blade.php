@@ -11,7 +11,7 @@
                     <!-- Campo fecha_inspeccion -->
                     <div class="row">
                         
-                        <div class="card text-center mx-auto">
+                        <div class="card text-center p-0">
 
                             <div class="card-header">
                                 Primera Seccion
@@ -32,7 +32,7 @@
                                     </div>
                                 </div>
 
-                                <hr class="my-4">
+                                <hr class="my-2">
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
