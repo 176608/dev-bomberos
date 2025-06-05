@@ -9,7 +9,7 @@
                 </div>
                 <div class="modal-body" style="background-color: rgba(161, 224, 152, 0.8);">
                     <!-- Campo fecha_inspeccion -->
-                    <div class="row">
+                    <div class="row" style="background-color: rgba(161, 224, 152, 0.8);">
                         
                         <div class="card text-center p-2">
 
