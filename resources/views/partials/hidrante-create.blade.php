@@ -148,7 +148,6 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Color</label>
-                                        <input type="text" class="form-control" name="color" placeholder="Ejemplo: Rojo">
                                         <select class="form-select" name="color" required>
                                             <option value="Rojo" selected>Rojo</option>
                                             <option value="Amarillo">Amarillo</option>
