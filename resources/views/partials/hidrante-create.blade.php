@@ -1,24 +1,3 @@
-
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
-
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap Bundle JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-<!-- (Optional) Latest compiled and minified JavaScript translation files -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-*.min.js"></script>
-
-
 <div class="modal fade" id="crearHidranteModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -96,33 +75,19 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Principal:</label>
-                                        <select class="selectpicker form-select" 
-                                                name="id_calle" 
-                                                id="id_calle" 
-                                                data-live-search="true" 
-                                                data-size="30"
-                                                title="Buscar calle principal..."
-                                                data-live-search-placeholder="Escribe para buscar...">
+                                        <select class="form-select" name="id_calle" id ="id_calle">
+                                            <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
-                                                <option value="{{ $calle->IDKEY }}" data-tokens="{{ $calle->Nomvial }}">
-                                                    {{ $calle->Nomvial }}
-                                                </option>
+                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Secundaria(Y Calle):</label>
-                                        <select class="selectpicker form-select" 
-                                                name="id_y_calle" 
-                                                id="id_y_calle" 
-                                                data-live-search="true" 
-                                                data-size="30"
-                                                title="Buscar calle secundaria..."
-                                                data-live-search-placeholder="Escribe para buscar...">
+                                        <select class="form-select" name="id_y_calle" id ="id_y_calle">
+                                            <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
-                                                <option value="{{ $calle->IDKEY }}" data-tokens="{{ $calle->Nomvial }}">
-                                                    {{ $calle->Nomvial }}
-                                                </option>
+                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -131,17 +96,10 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
-                                        <select class="selectpicker form-select" 
-                                                name="id_colonia" 
-                                                id="id_colonia" 
-                                                data-live-search="true" 
-                                                data-size="30"
-                                                title="Buscar colonia..."
-                                                data-live-search-placeholder="Escribe para buscar...">
+                                        <select class="form-select" name="id_colonia" id ="id_colonia">
+                                            <option value="">Sin definir, selecciona una...</option>
                                             @foreach($colonias as $colonia)
-                                                <option value="{{ $colonia->IDKEY }}" data-tokens="{{ $colonia->NOMBRE }}">
-                                                    {{ $colonia->NOMBRE }}
-                                                </option>
+                                                <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -298,86 +256,3 @@
         </div>
     </div>
 </div>
-
-<!-- Scripts en orden correcto -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-
-<style>
-.bootstrap-select .dropdown-menu {
-    max-width: 100%;
-    max-height: 300px;
-}
-
-.bootstrap-select .dropdown-toggle {
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.bootstrap-select .filter-option {
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.bootstrap-select .bs-searchbox {
-    padding: 8px;
-}
-
-.bootstrap-select .bs-searchbox input {
-    border-radius: 4px;
-}
-
-.bootstrap-select .dropdown-item {
-    white-space: normal;
-    word-wrap: break-word;
-    padding: 6px 12px;
-}
-
-.bootstrap-select .dropdown-item.active,
-.bootstrap-select .dropdown-item:active {
-    background-color: #007bff;
-    color: white;
-}
-
-.bootstrap-select .no-results {
-    padding: 8px;
-    background: #f8f9fa;
-    margin: 0;
-    text-align: center;
-    border-radius: 4px;
-}
-</style>
-
-<script>
-$(document).ready(function() {
-    // Inicializar Bootstrap Select
-    $('.selectpicker').selectpicker({
-        noneResultsText: 'No se encontraron resultados para {0}',
-        liveSearch: true,
-        styleBase: 'form-control',
-        style: '',
-        size: 7
-    });
-
-    // Estilizado adicional para el campo de búsqueda
-    $('.bootstrap-select .bs-searchbox input').addClass('form-control-sm');
-
-    // Evento cuando se selecciona un valor
-    $('#id_calle, #id_y_calle, #id_colonia').on('changed.bs.select', function() {
-        $(this).trigger('change'); // Trigger para validación de formulario si es necesario
-    });
-
-    // Mejorar la experiencia de búsqueda
-    $('.selectpicker').on('shown.bs.select', function() {
-        $(this).parent().find('.bs-searchbox input').focus();
-    });
-
-    // Limpiar búsqueda al cerrar
-    $('.selectpicker').on('hidden.bs.select', function() {
-        $(this).parent().find('.bs-searchbox input').val('');
-        $(this).selectpicker('refresh');
-    });
-});
-</script>
