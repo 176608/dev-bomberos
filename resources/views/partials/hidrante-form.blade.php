@@ -171,19 +171,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Color</label>
-                                        <input type="text" class="form-control" name="color" value="{{ $hidrante->color }}">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año</label>
-                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color</label>
                                         <select class="form-select" name="color" required>
                                             <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
                                             <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
                                             <option value="Otro"{{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Año</label>
+                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
                                     </div>
                                 </div>
                                 <div class="row">
