@@ -21,19 +21,19 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Inspección(DD-MM-YYYY)</label>
+                                        <label class="form-label">Fecha de Inspección</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
                                             value="{{ date('Y-m-d') }}" required>
+                                            <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa de Mantenimiento(DD-MM-YYYY)</label>
+                                        <label class="form-label">Fecha tentativa de Mantenimiento*</label>
                                         <input type="date" class="form-control" name="NOTFECHA" 
                                             value="{{ date('Y-m-d') }}" >
+                                            <small class="form-text text-muted">Campo de Muestra*</small>
                                     </div>
                                 </div>
-
                                 <hr class="my-2">
-                                
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Estación</label>
@@ -147,19 +147,20 @@
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color</label>
-                                        <select class="form-select" name="color" required>
-                                            <option value="Rojo" selected>Rojo</option>
-                                            <option value="Amarillo">Amarillo</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Fosa</label>
                                         <select class="form-select" name="llave_fosa">
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Cuadro">Cuadro</option>
                                             <option value="Volante">Volante</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Conectado a Tubo de:</label>
+                                        <select class="form-select" name="hidrante_conectado_tubo">
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="4'">4'</option>
+                                            <option value="6'">6'</option>
+                                            <option value="8'">8'</option>
                                         </select>
                                     </div>
                                 </div>
@@ -182,19 +183,18 @@
                         <div class="card text-center p-0">
 
                             <div class="card-header bg-success text-white">
-                                Ultima Seccion
+                                Estado y Características
                             </div>
 
                             <div class="card-body">
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Conectado a Tubo de:</label>
-                                        <select class="form-select" name="hidrante_conectado_tubo">
-                                            <option value="" selected>Sin definir, selecciona una...</option>
-                                            <option value="4'">4'</option>
-                                            <option value="6'">6'</option>
-                                            <option value="8'">8'</option>
+                                        <label class="form-label">Color</label>
+                                        <select class="form-select" name="color" required>
+                                            <option value="Rojo" selected>Rojo</option>
+                                            <option value="Amarillo">Amarillo</option>
+                                            <option value="Otro">Otro</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">

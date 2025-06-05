@@ -28,10 +28,11 @@
                                         <label class="form-label">Fecha de Mantenimiento*</label>
                                         <input type="date" class="form-control" name="xxx" 
                                                value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
-                                               >
+                                               readonly>
                                         <small class="form-text text-muted">Campo Muestra*</small>
                                     </div>
                                 </div>
+                                <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Estación</label>
@@ -139,6 +140,17 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
+                                        <label class="form-label">Conectado a Tubo</label>
+                                        <select class="form-select" name="hidrante_conectado_tubo">
+                                            <option value="4'" {{ $hidrante->hidrante_conectado_tubo == '4\'' ? 'selected' : '' }}>4'</option>
+                                            <option value="6'" {{ $hidrante->hidrante_conectado_tubo == '6\'' ? 'selected' : '' }}>6'</option>
+                                            <option value="8'" {{ $hidrante->hidrante_conectado_tubo == '8\'' ? 'selected' : '' }}>8'</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">Ubicación Fosa (N MTS.)</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}">
                                     </div>
@@ -162,11 +174,15 @@
                                         <input type="text" class="form-control" name="color" value="{{ $hidrante->color }}">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Conectado a Tubo</label>
-                                        <select class="form-select" name="hidrante_conectado_tubo">
-                                            <option value="4'" {{ $hidrante->hidrante_conectado_tubo == '4\'' ? 'selected' : '' }}>4'</option>
-                                            <option value="6'" {{ $hidrante->hidrante_conectado_tubo == '6\'' ? 'selected' : '' }}>6'</option>
-                                            <option value="8'" {{ $hidrante->hidrante_conectado_tubo == '8\'' ? 'selected' : '' }}>8'</option>
+                                        <label class="form-label">Año</label>
+                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Color</label>
+                                        <select class="form-select" name="color" required>
+                                            <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
+                                            <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
+                                            <option value="Otro"{{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -184,12 +200,7 @@
                                         <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}">
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año</label>
-                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
