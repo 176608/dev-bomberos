@@ -279,16 +279,42 @@
 .modal .select2-container {
     z-index: 1056;
 }
+
+/* Ajustes para el posicionamiento del dropdown */
+.select2-container--bootstrap-5.select2-container--open {
+    z-index: 1060 !important; /* Mayor que el z-index del modal */
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    border-color: #dee2e6;
+    border-radius: 0.375rem;
+}
+
+/* Asegurar que el dropdown esté contenido correctamente */
+.select2-container--bootstrap-5 .select2-dropdown--below {
+    margin-top: 2px;
+}
+
+/* Corregir el ancho del contenedor */
+.select2.select2-container {
+    width: 100% !important;
+}
+
+/* Ajustar el padding del contenedor del modal */
+.modal-body .select2-container {
+    display: block;
+}
 </style>
 
 <script>
 $(document).ready(function() {
     console.log("Hidrante create script loaded");
-    // Función para inicializar Select2 en un modal
+    
     function initSelect2Modal() {
         $('.select2-search').select2({
             theme: 'bootstrap-5',
             width: '100%',
+            dropdownParent: $('#crearHidranteModal .modal-body'), // Cambio importante aquí
             language: {
                 noResults: function() {
                     return "No se encontraron resultados";
@@ -300,18 +326,29 @@ $(document).ready(function() {
             placeholder: 'Comienza a escribir para buscar...',
             allowClear: true,
             minimumInputLength: 2,
-            dropdownParent: $('#crearHidranteModal')
+            scrollAfterSelect: false, // Prevenir scroll automático
+            position: function(pos, $el) {
+                pos.top += 5; // Ajuste fino del posicionamiento
+                return pos;
+            }
+        }).on('select2:open', function() {
+            // Asegurar que el dropdown esté visible
+            setTimeout(function() {
+                $('.select2-search__field').get(0).focus();
+            }, 10);
         });
     }
 
     // Reinicializar Select2 cuando se abre el modal
     $('#crearHidranteModal').on('shown.bs.modal', function () {
         initSelect2Modal();
+        // Forzar recálculo de posiciones
+        $(window).trigger('resize');
     });
 
-    // Limpiar selección cuando se cierra el modal
+    // Limpiar y destruir Select2 cuando se cierra el modal
     $('#crearHidranteModal').on('hidden.bs.modal', function () {
-        $('.select2-search').val(null).trigger('change');
+        $('.select2-search').select2('destroy');
     });
 });
 </script>
