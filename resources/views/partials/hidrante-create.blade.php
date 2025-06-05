@@ -92,9 +92,7 @@
                                         </select>
                                     </div>
                                 </div>
-
                                 <hr class="my-2">
-                                
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
