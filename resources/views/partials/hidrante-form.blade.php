@@ -18,14 +18,14 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Inspección</label>
+                                        <label class="form-label">Fecha de Inspección:</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
                                                value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
                                                required>
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Mantenimiento*</label>
+                                        <label class="form-label">Fecha de Mantenimiento*:</label>
                                         <input type="date" class="form-control" name="xxx" 
                                                value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
                                                readonly>
@@ -35,7 +35,7 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Número de Estación</label>
+                                        <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion">
                                             @foreach(['01', '02', '03', '04', '05', '06', '07', '08'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
@@ -43,7 +43,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Número de Hidrante</label>
+                                        <label class="form-label">Número de Hidrante:</label>
                                         <input type="number" class="form-control" name="numero_hidrante" value="{{ $hidrante->numero_hidrante }}">
                                     </div>
                                 </div>
@@ -62,7 +62,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Principal</label>
+                                        <label class="form-label">Calle Principal:</label>
                                         <select class="form-select" name="id_calle">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
@@ -74,7 +74,7 @@
                                         <input type="text" class="form-control mt-2" value="{{ $hidrante->calle }}" readonly>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Secundaria</label>
+                                        <label class="form-label">Calle Secundaria(Y Calle):</label>
                                         <select class="form-select" name="id_y_calle">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
@@ -88,7 +88,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Colonia</label>
+                                        <label class="form-label">Colonia:</label>
                                         <select class="form-select" name="id_colonia">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($colonias as $colonia)
@@ -116,14 +116,14 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Hidrante</label>
+                                        <label class="form-label">Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante">
                                             <option value="Pentagono" {{ $hidrante->llave_hidrante == 'Pentagono' ? 'selected' : '' }}>Pentagono</option>
                                             <option value="Cuadro" {{ $hidrante->llave_hidrante == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Presión de Agua</label>
+                                        <label class="form-label">Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua">
                                             <option value="Mala" {{ $hidrante->presion_agua == 'Mala' ? 'selected' : '' }}>Mala</option>
                                             <option value="Buena" {{ $hidrante->presion_agua == 'Buena' ? 'selected' : '' }}>Buena</option>
@@ -133,14 +133,14 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Fosa</label>
+                                        <label class="form-label">Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa">
                                             <option value="Cuadro" {{ $hidrante->llave_fosa == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
                                             <option value="Volante" {{ $hidrante->llave_fosa == 'Volante' ? 'selected' : '' }}>Volante</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Conectado a Tubo</label>
+                                        <label class="form-label">Conectado a Tubo de:</label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
                                             <option value="4'" {{ $hidrante->hidrante_conectado_tubo == '4\'' ? 'selected' : '' }}>4'</option>
                                             <option value="6'" {{ $hidrante->hidrante_conectado_tubo == '6\'' ? 'selected' : '' }}>6'</option>
@@ -151,7 +151,7 @@
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
-                                        <label class="form-label">Ubicación Fosa (N MTS.)</label>
+                                        <label class="form-label">Ubicación Fosa (N MTS.):</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}">
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color</label>
+                                        <label class="form-label">Color:</label>
                                         <select class="form-select" name="color" required>
                                             <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
                                             <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
@@ -178,13 +178,13 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año</label>
+                                        <label class="form-label">Año:</label>
                                         <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Estado Hidrante</label>
+                                        <label class="form-label">Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante">
                                             <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
                                             <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
@@ -192,7 +192,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca*</label>
+                                        <label class="form-label">Marca*:</label>
                                         <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}">
                                     </div>
                                 </div>
@@ -212,13 +212,13 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12 mb-3">
-                                        <label class="form-label">Observaciones</label>
+                                        <label class="form-label">Observaciones:</label>
                                         <textarea class="form-control" name="observaciones" rows="3">{{ $hidrante->observaciones }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Oficial</label>
+                                        <label class="form-label">Oficial:</label>
                                         <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
                                     </div>
                                 </div>

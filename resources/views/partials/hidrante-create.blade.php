@@ -21,13 +21,13 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Inspección</label>
+                                        <label class="form-label">Fecha de Inspección:</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
                                             value="{{ date('Y-m-d') }}" required>
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa de Mantenimiento*</label>
+                                        <label class="form-label">Fecha tentativa de Mantenimiento*:</label>
                                         <input type="date" class="form-control" name="NOTFECHA" 
                                             value="{{ date('Y-m-d') }}" >
                                             <small class="form-text text-muted">Campo de Muestra*</small>
@@ -36,7 +36,7 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Número de Estación</label>
+                                        <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
                                             <option value="" selected>Seleccione estación...</option>
                                             <option value="01">01</option>
@@ -50,7 +50,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Número de Hidrante</label>
+                                        <label class="form-label">Número de Hidrante:</label>
                                         <input type="number" class="form-control" name="numero_hidrante" placeholder="Ejemplo: 5842" required>
                                     </div>
                                 </div>
@@ -74,7 +74,7 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Principal</label>
+                                        <label class="form-label">Calle Principal:</label>
                                         <select class="form-select" name="id_calle">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
@@ -83,7 +83,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Secundaria</label>
+                                        <label class="form-label">Calle Secundaria(Y Calle):</label>
                                         <select class="form-select" name="id_y_calle">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($calles as $calle)
@@ -97,7 +97,7 @@
                                 
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Colonia</label>
+                                        <label class="form-label">Colonia:</label>
                                         <select class="form-select" name="id_colonia">
                                             <option value="">Sin definir, selecciona una...</option>
                                             @foreach($colonias as $colonia)
@@ -126,7 +126,7 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Hidrante</label>
+                                        <label class="form-label">Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante">
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Pentagono">Pentágono</option>
@@ -135,7 +135,7 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Presión de Agua</label>
+                                        <label class="form-label">Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Mala">Mala</option>
@@ -147,7 +147,7 @@
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Fosa</label>
+                                        <label class="form-label">Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa">
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Cuadro">Cuadro</option>
@@ -167,7 +167,7 @@
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
-                                        <label class="form-label">Ubicación Fosa</label>
+                                        <label class="form-label">Ubicación Fosa:</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS.">
                                     </div>
                                 </div>
@@ -190,7 +190,7 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color</label>
+                                        <label class="form-label">Color:</label>
                                         <select class="form-select" name="color" required>
                                             <option value="Rojo" selected>Rojo</option>
                                             <option value="Amarillo">Amarillo</option>
@@ -198,14 +198,14 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año</label>
+                                        <label class="form-label">Año:</label>
                                         <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Estado Hidrante</label>
+                                        <label class="form-label">Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante">
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Servicio">Servicio</option>
@@ -214,7 +214,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca*</label>
+                                        <label class="form-label">Marca*:</label>
                                         <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER">
                                     </div>
                                 </div>
@@ -234,13 +234,13 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12 mb-3">
-                                        <label class="form-label">Observaciones</label>
+                                        <label class="form-label">Observaciones:</label>
                                         <textarea class="form-control" name="observaciones" rows="3" placeholder="Escriba observaciones aquí..."></textarea>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Oficial</label>
+                                        <label class="form-label">Oficial:</label>
                                         <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
                                     </div>
                                 </div>
