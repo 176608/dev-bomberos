@@ -13,8 +13,8 @@
                         
                         <div class="card text-center p-0">
 
-                            <div class="card-header">
-                                Primera Seccion
+                            <div class="card-header bg-primary text-white">
+                                Información Básica
                             </div>
 
                             <div class="card-body">
@@ -66,7 +66,7 @@
                     <div class="row">
                         <div class="card text-center p-0">
 
-                            <div class="card-header">
+                            <div class="card-header bg-success text-white">
                                 Ubicación
                             </div>
 
@@ -118,8 +118,8 @@
                     <div class="row">
                         <div class="card text-center p-0">
 
-                            <div class="card-header">
-                                Tercera Seccion
+                            <div class="card-header bg-primary text-white">
+                                Características Técnicas
                             </div>
 
                             <div class="card-body">
@@ -181,7 +181,7 @@
                     <div class="row">
                         <div class="card text-center p-0">
 
-                            <div class="card-header">
+                            <div class="card-header bg-success text-white">
                                 Ultima Seccion
                             </div>
 
@@ -219,22 +219,32 @@
                                     </div>
                                 </div>
 
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row mb-4">
+                        <div class="card text-center p-0">
+                            <div class="card-header bg-secondary text-white">
+                                Información Adicional
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
-                                    <div class="mb-3">
+                                    <div class="col-12 mb-3">
                                         <label class="form-label">Observaciones</label>
                                         <textarea class="form-control" name="observaciones" rows="3" placeholder="Escriba observaciones aquí..."></textarea>
                                     </div>
                                 </div>
-
                                 <div class="row">
-                                    <div class="mb-3">
+                                    <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Oficial</label>
                                         <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                     

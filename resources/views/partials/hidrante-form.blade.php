@@ -25,6 +25,15 @@
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
+                                        <label class="form-label">Fecha de Mantenimiento*</label>
+                                        <input type="date" class="form-control" name="xxx" 
+                                               value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
+                                               >
+                                        <small class="form-text text-muted">Campo Muestra*</small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Estación</label>
                                         <select class="form-select" name="numero_estacion">
                                             @foreach(['01', '02', '03', '04', '05', '06', '07', '08'] as $num)
@@ -32,8 +41,6 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Hidrante</label>
                                         <input type="number" class="form-control" name="numero_hidrante" value="{{ $hidrante->numero_hidrante }}">
@@ -102,7 +109,7 @@
                     <!-- Tercera Sección - Características Técnicas -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
-                            <div class="card-header bg-info text-white">
+                            <div class="card-header bg-primary text-white">
                                 Características Técnicas
                             </div>
                             <div class="card-body">
@@ -145,7 +152,7 @@
                     <!-- Cuarta Sección - Estado y Características -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
-                            <div class="card-header bg-warning text-dark">
+                            <div class="card-header bg-success text-white">
                                 Estado y Características
                             </div>
                             <div class="card-body">
@@ -173,7 +180,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca</label>
+                                        <label class="form-label">Marca*</label>
                                         <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}">
                                     </div>
                                 </div>
@@ -203,7 +210,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Oficial</label>
                                         <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
                                     </div>
