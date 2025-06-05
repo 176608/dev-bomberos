@@ -114,91 +114,131 @@
 
                     <hr class="my-4">
 
+                    
                     <div class="row">
+                        <div class="card text-center p-0">
 
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Llave Hidrante</label>
-                            <select class="form-select" name="llave_hidrante">
-                                <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="Pentagono">Pentágono</option>
-                                <option value="Cuadro">Cuadro</option>
-                            </select>
+                            <div class="card-header">
+                                Tercera Seccion
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Llave Hidrante</label>
+                                        <select class="form-select" name="llave_hidrante">
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="Pentagono">Pentágono</option>
+                                            <option value="Cuadro">Cuadro</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Presión de Agua</label>
+                                        <select class="form-select" name="presion_agua" required>
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="Mala">Mala</option>
+                                            <option value="Buena">Buena</option>
+                                            <option value="Sin agua">Sin agua</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Color</label>
+                                        <input type="text" class="form-control" name="color" placeholder="Ejemplo: Rojo">
+                                        <select class="form-select" name="color" required>
+                                            <option value="Rojo" selected>Rojo</option>
+                                            <option value="Amarillo">Amarillo</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Llave Fosa</label>
+                                        <select class="form-select" name="llave_fosa">
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="Cuadro">Cuadro</option>
+                                            <option value="Volante">Volante</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 offset-md-3 mb-3">
+                                        <label class="form-label">Ubicación Fosa</label>
+                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS.">
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
                     </div>
+
+                    <hr class="my-4">
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Presión de Agua</label>
-                            <select class="form-select" name="presion_agua" required>
-                                <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="Mala">Mala</option>
-                                <option value="Buena">Buena</option>
-                                <option value="Sin agua">Sin agua</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Color</label>
-                            <input type="text" class="form-control" name="color" placeholder="Ejemplo: Rojo">
-                        </div>
-                    </div>
+                        <div class="card text-center p-0">
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Llave Fosa</label>
-                            <select class="form-select" name="llave_fosa">
-                                <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="Cuadro">Cuadro</option>
-                                <option value="Volante">Volante</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Ubicación Fosa</label>
-                            <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS.">
-                        </div>
-                    </div>
+                            <div class="card-header">
+                                Ultima Seccion
+                            </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Conectado a Tubo</label>
-                            <select class="form-select" name="hidrante_conectado_tubo">
-                                <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="4'">4'</option>
-                                <option value="6'">6'</option>
-                                <option value="8'">8'</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Estado Hidrante</label>
-                            <select class="form-select" name="estado_hidrante">
-                                <option value="" selected>Sin definir, selecciona una...</option>
-                                <option value="Servicio">Servicio</option>
-                                <option value="Fuera de servicio">Fuera de servicio</option>
-                                <option value="Solo Base">Solo Base</option>
-                            </select>
-                        </div>
-                    </div>
+                            <div class="card-body">
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Marca*</label>
-                            <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Año</label>
-                            <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
-                        </div>
-                    </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Conectado a Tubo de:</label>
+                                        <select class="form-select" name="hidrante_conectado_tubo">
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="4'">4'</option>
+                                            <option value="6'">6'</option>
+                                            <option value="8'">8'</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Año</label>
+                                        <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Estado Hidrante</label>
+                                        <select class="form-select" name="estado_hidrante">
+                                            <option value="" selected>Sin definir, selecciona una...</option>
+                                            <option value="Servicio">Servicio</option>
+                                            <option value="Fuera de servicio">Fuera de servicio</option>
+                                            <option value="Solo Base">Solo Base</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Marca*</label>
+                                        <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER">
+                                    </div>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Escriba observaciones aquí..."></textarea>
-                    </div>
+                                <div class="row">
+                                    <div class="mb-3">
+                                        <label class="form-label">Observaciones</label>
+                                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Escriba observaciones aquí..."></textarea>
+                                    </div>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Oficial</label>
-                        <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                <div class="row">
+                                    <div class="mb-3">
+                                        <label class="form-label">Oficial</label>
+                                        <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
                     </div>
+                    
                 </div>
 
                 <div class="modal-footer">
