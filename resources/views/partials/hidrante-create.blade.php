@@ -75,8 +75,8 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Principal:</label>
-                                        <select class="form-select" name="id_calle" id ="id_calle">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_calle" id="id_calle">
+                                            <option value="">Buscar calle principal...</option>
                                             @foreach($calles as $calle)
                                                 <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                             @endforeach
@@ -84,8 +84,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Secundaria(Y Calle):</label>
-                                        <select class="form-select" name="id_y_calle" id ="id_y_calle">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
+                                            <option value="">Buscar calle secundaria...</option>
                                             @foreach($calles as $calle)
                                                 <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                             @endforeach
@@ -96,8 +96,8 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
-                                        <select class="form-select" name="id_colonia" id ="id_colonia">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_colonia" id="id_colonia">
+                                            <option value="">Buscar colonia...</option>
                                             @foreach($colonias as $colonia)
                                                 <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
                                             @endforeach
@@ -256,3 +256,63 @@
         </div>
     </div>
 </div>
+
+<style>
+.select2-container--bootstrap-5 .select2-selection {
+    min-height: 38px;
+}
+
+.select2-container--bootstrap-5 .select2-search__field:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    padding: 6px 12px;
+}
+
+.modal .select2-container {
+    z-index: 1056;
+}
+</style>
+
+@section('scripts')
+<script>
+$(document).ready(function() {
+    // Función para inicializar Select2 en un modal
+    function initSelect2Modal() {
+        $('.select2-search').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
+            },
+            placeholder: 'Comienza a escribir para buscar...',
+            allowClear: true,
+            minimumInputLength: 2,
+            dropdownParent: $('#crearHidranteModal')
+        });
+    }
+
+    // Reinicializar Select2 cuando se abre el modal
+    $('#crearHidranteModal').on('shown.bs.modal', function () {
+        initSelect2Modal();
+    });
+
+    // Limpiar selección cuando se cierra el modal
+    $('#crearHidranteModal').on('hidden.bs.modal', function () {
+        $('.select2-search').val(null).trigger('change');
+    });
+});
+</script>
+@endsection
