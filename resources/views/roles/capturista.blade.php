@@ -97,7 +97,7 @@ $(document).ready(function() {
     // DataTable initialization
     var table = $('#hidrantesTable').DataTable({
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
         order: [[0, 'desc']],
         paging: true,
