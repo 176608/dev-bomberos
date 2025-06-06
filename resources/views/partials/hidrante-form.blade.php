@@ -44,7 +44,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Hidrante:</label>
-                                        <input type="number" class="form-control" name="numero_hidrante" value="{{ $hidrante->numero_hidrante }}">
+                                        <input type="number" class="form-control" name="numero_hidrante" value="{{ $hidrante->numero_hidrante }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">Ubicación Fosa (N MTS.):</label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}">
+                                        <input type="text" class="form-control" name="ubicacion_fosa" value="{{ $hidrante->ubicacion_fosa }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -179,7 +179,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Año:</label>
-                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}">
+                                        <input type="number" class="form-control" name="anio" value="{{ $hidrante->anio }}" required>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -193,7 +193,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Marca*:</label>
-                                        <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}">
+                                        <input type="text" class="form-control" name="marca" value="{{ $hidrante->marca }}" required>
                                     </div>
                                 </div>
                                 
@@ -219,7 +219,7 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Oficial:</label>
-                                        <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}">
+                                        <input type="text" class="form-control" name="oficial" value="{{ $hidrante->oficial }}" required>
                                     </div>
                                 </div>
                             </div>

@@ -125,7 +125,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Hidrante:</label>
-                                        <select class="form-select" name="llave_hidrante">
+                                        <select class="form-select" name="llave_hidrante" required>
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Pentagono">Pentágono</option>
                                             <option value="Cuadro">Cuadro</option>
@@ -146,7 +146,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Fosa:</label>
-                                        <select class="form-select" name="llave_fosa">
+                                        <select class="form-select" name="llave_fosa" required>
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Cuadro">Cuadro</option>
                                             <option value="Volante">Volante</option>
@@ -154,7 +154,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Conectado a Tubo de:</label>
-                                        <select class="form-select" name="hidrante_conectado_tubo">
+                                        <select class="form-select" name="hidrante_conectado_tubo" required>
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="4'">4'</option>
                                             <option value="6'">6'</option>
@@ -166,7 +166,7 @@
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">Ubicación Fosa:</label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS.">
+                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
                                     </div>
                                 </div>
 
@@ -204,7 +204,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Estado Hidrante:</label>
-                                        <select class="form-select" name="estado_hidrante">
+                                        <select class="form-select" name="estado_hidrante" required>
                                             <option value="" selected>Sin definir, selecciona una...</option>
                                             <option value="Servicio">Servicio</option>
                                             <option value="Fuera de servicio">Fuera de servicio</option>
@@ -213,7 +213,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Marca*:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER">
+                                        <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER" required>
                                     </div>
                                 </div>
 
