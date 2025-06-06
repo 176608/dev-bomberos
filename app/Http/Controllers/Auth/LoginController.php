@@ -32,7 +32,7 @@ class LoginController extends Controller
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => 'Tu información de autenticación está incorrecta.',
             ]);
         }
 
