@@ -3,7 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DesarrolladorController;
-use App\Http\Controllers\AnalistaController;
+use App\Http\Controllers\CapturistaController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,8 +23,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.panel');
     Route::get('/desarrollador', [DesarrolladorController::class, 'index'])
         ->name('dev.panel');
-    Route::get('/analista', [AnalistaController::class, 'index'])
-        ->name('analista.panel');
+    Route::get('/capturista', [CapturistaController::class, 'index'])
+        ->name('capturista.panel');
 
     // Admin CRUD routes
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
@@ -32,10 +32,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 
     // Rutas de hidrantes
-    Route::get('/hidrantes/create', [AnalistaController::class, 'create'])->name('hidrantes.create');
-    Route::post('/hidrantes', [AnalistaController::class, 'store'])->name('hidrantes.store');
-    Route::put('/hidrantes/{hidrante}', [AnalistaController::class, 'update'])->name('hidrantes.update');
-    Route::get('/hidrantes/{hidrante}/edit', [AnalistaController::class, 'edit'])->name('hidrantes.edit');
+    Route::get('/hidrantes/create', [CapturistaController::class, 'create'])->name('hidrantes.create');
+    Route::post('/hidrantes', [CapturistaController::class, 'store'])->name('hidrantes.store');
+    Route::put('/hidrantes/{hidrante}', [CapturistaController::class, 'update'])->name('hidrantes.update');
+    Route::get('/hidrantes/{hidrante}/edit', [CapturistaController::class, 'edit'])->name('hidrantes.edit');
 });
 
 

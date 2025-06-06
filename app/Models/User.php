@@ -61,7 +61,7 @@ password            -varchar(255)                             -NO       -NULL
 remember_token      -varchar(100)                             -YES      -NULL
 created_at          -timestamp                                -YES      -NULL
 updated_at          -timestamp                                -YES      -NULL
-role      -enum('Analista','Desarrollador','Administrador')   -NO       -Analista
+role      -enum('Capturista','Desarrollador','Administrador')   -NO       -Capturista
 status              -tinyint(1)                               -NO       -1
 
 */

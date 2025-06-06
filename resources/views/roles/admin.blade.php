@@ -95,7 +95,7 @@
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
                         <select class="form-select" name="role" required>
-                            <option value="Analista">Analista</option>
+                            <option value="Capturista">Capturista</option>
                             <option value="Desarrollador">Desarrollador</option>
                             <option value="Administrador">Administrador</option>
                         </select>
@@ -142,7 +142,7 @@
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
                             <select class="form-select" name="role" required>
-                                <option value="Analista" {{ $user->role === 'Analista' ? 'selected' : '' }}>Analista</option>
+                                <option value="Capturista" {{ $user->role === 'Capturista' ? 'selected' : '' }}>Capturista</option>
                                 <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
                             </select>

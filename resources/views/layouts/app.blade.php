@@ -58,9 +58,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
                             </li>
-                        @elseif(auth()->user()->role === 'Analista')
+                        @elseif(auth()->user()->role === 'Capturista')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('analista.panel') }}">Panel Bomberos</a>
+                                <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
                             </li>
                         @endif
                     @endauth

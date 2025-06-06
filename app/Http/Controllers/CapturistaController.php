@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
-class AnalistaController extends Controller
+class CapturistaController extends Controller
 {
     /*public function __construct()
     {
@@ -19,7 +19,7 @@ class AnalistaController extends Controller
 
     public function index()
     {
-        if (!auth()->check() || auth()->user()->role !== 'Analista') {
+        if (!auth()->check() || auth()->user()->role !== 'Capturista') {
             return redirect()->route('dashboard');
         }
 
@@ -41,7 +41,7 @@ class AnalistaController extends Controller
             ->orderBy('NOMBRE')
             ->get();
         
-        return view('roles.analista', compact('hidrantes', 'calles', 'colonias'));
+        return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));
     }
 
     public function store(Request $request)

@@ -65,8 +65,8 @@ class LoginController extends Controller
             return redirect()->route('admin.panel');
         } elseif ($user->role === 'Desarrollador') {
             return redirect()->route('dev.panel');
-        } elseif ($user->role === 'Analista') {
-            return redirect()->route('analista.panel');
+        } elseif ($user->role === 'Capturista') {
+            return redirect()->route('capturista.panel');
         }
 
         return redirect()->route('dashboard');

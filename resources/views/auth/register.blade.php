@@ -32,7 +32,7 @@
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
                             <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                                <option value="Analista">Analista</option>
+                                <option value="Capturista">Capturista</option>
                                 <option value="Desarrollador">Desarrollador</option>
                                 <option value="Administrador">Administrador</option>
                             </select>

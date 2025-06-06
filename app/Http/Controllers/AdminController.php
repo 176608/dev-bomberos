@@ -31,7 +31,7 @@ class AdminController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Analista'])],
+            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
         ]);
 
         User::create([
@@ -50,7 +50,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Analista'])],
+            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
             'status' => ['required', 'boolean'],
         ]);
 
