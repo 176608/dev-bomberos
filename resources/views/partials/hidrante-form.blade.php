@@ -63,43 +63,42 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Principal:</label>
-                                        <select class="form-select" name="id_calle">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
+                                            <option value="">Buscar nueva calle principal...</option>
                                             @foreach($calles as $calle)
                                                 <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
                                                     {{ $calle->Nomvial }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="text" class="form-control mt-2" value="{{ $hidrante->calle }}" readonly>
+                                        <small class="form-text text-muted">Calle actual: {{ $hidrante->calle ?: 'No especificada' }}</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Secundaria(Y Calle):</label>
-                                        <select class="form-select" name="id_y_calle">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
+                                            <option value="">Buscar nueva calle secundaria...</option>
                                             @foreach($calles as $calle)
                                                 <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
                                                     {{ $calle->Nomvial }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="text" class="form-control mt-2" value="{{ $hidrante->y_calle }}" readonly>
+                                        <small class="form-text text-muted">Calle secundaria actual: {{ $hidrante->y_calle ?: 'No especificada' }}</small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
-                                        <select class="form-select" name="id_colonia">
-                                            <option value="">Sin definir, selecciona una...</option>
+                                        <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
+                                            <option value="">Buscar nueva colonia...</option>
                                             @foreach($colonias as $colonia)
-                                                <option value="{{ $colonia->IDKEY }}" 
-                                                    {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
+                                                <option value="{{ $colonia->IDKEY }}" {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
                                                     {{ $colonia->NOMBRE }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="text" class="form-control mt-2" value="{{ $hidrante->colonia }}" readonly>
+                                        <small class="form-text text-muted">Colonia actual: {{ $hidrante->colonia ?: 'No especificada' }}</small>
                                     </div>
                                 </div>
                             </div>
@@ -235,3 +234,90 @@
         </div>
     </div>
 </div>
+
+<style>
+.select2-container--bootstrap-5 .select2-selection {
+    min-height: 38px;
+}
+
+.select2-container--bootstrap-5 .select2-search__field:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    padding: 6px 12px;
+}
+
+.modal .select2-container {
+    z-index: 1056;
+}
+
+.select2-container--bootstrap-5.select2-container--open {
+    z-index: 1060 !important;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    border-color: #dee2e6;
+    border-radius: 0.375rem;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown--below {
+    margin-top: 2px;
+}
+
+.select2.select2-container {
+    width: 100% !important;
+}
+
+.modal-body .select2-container {
+    display: block;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    function initEditSelect2() {
+        $('.select2-search').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $('#editarHidranteModal{{ $hidrante->id }} .modal-body'),
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
+            },
+            allowClear: true,
+            minimumInputLength: 2,
+            scrollAfterSelect: false,
+            position: function(pos, $el) {
+                pos.top += 5;
+                return pos;
+            }
+        }).on('select2:open', function() {
+            setTimeout(function() {
+                $('.select2-search__field').get(0).focus();
+            }, 10);
+        });
+    }
+
+    // Inicializar Select2 cuando se abre el modal
+    $('#editarHidranteModal{{ $hidrante->id }}').on('shown.bs.modal', function () {
+        initEditSelect2();
+        $(window).trigger('resize');
+    });
+
+    // Limpiar Select2 cuando se cierra el modal
+    $('#editarHidranteModal{{ $hidrante->id }}').on('hidden.bs.modal', function () {
+        $('.select2-search').select2('destroy');
+    });
+});
+</script>
