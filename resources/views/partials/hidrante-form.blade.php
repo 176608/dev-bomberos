@@ -82,7 +82,14 @@
                                         <small class="form-text text-muted">Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Secundaria(Y Calle):</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label">Calle Secundaria(Y Calle):</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input clear-field" type="checkbox" 
+                                                       id="clear_y_calle" data-field="y_calle">
+                                                <label class="form-check-label">Limpiar campo</label>
+                                            </div>
+                                        </div>
                                         <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
                                             <option value="">Buscar nueva calle secundaria...</option>
                                             @foreach($calles as $calle)
@@ -91,13 +98,20 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="form-text text-muted">Calle secundaria actual: {{ $hidrante->y_calle ?: 'No especificada' }}</small>
+                                        <small class="form-text text-muted">Calle secundaria actual: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Colonia:</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label">Colonia:</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input clear-field" type="checkbox" 
+                                                       id="clear_colonia" data-field="colonia">
+                                                <label class="form-check-label">Limpiar campo</label>
+                                            </div>
+                                        </div>
                                         <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
                                             <option value="">Buscar nueva colonia...</option>
                                             @foreach($colonias as $colonia)
@@ -106,7 +120,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="form-text text-muted">Colonia actual: {{ $hidrante->colonia ?: 'No especificada' }}</small>
+                                        <small class="form-text text-muted">Colonia actual: <span id="colonia_actual">{{ $hidrante->colonia ?: 'Sin definir' }}</span></small>
                                     </div>
                                 </div>
                             </div>
