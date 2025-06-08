@@ -23,14 +23,24 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha de Inspección:</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
+                                            id="fecha_inspeccion"
                                             value="{{ date('Y-m-d') }}" required>
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa de Mantenimiento*:</label>
-                                        <input type="date" class="form-control" name="NOTFECHA" 
-                                            value="{{ date('Y-m-d') }}" >
-                                            <small class="form-text text-muted">Campo de Muestra*</small>
+                                        <label class="form-label">Fecha tentativa de Mantenimiento:</label>
+                                        <div class="d-grid gap-2 mb-2">
+                                            <button type="button" class="btn btn-primary" id="btnGenerarFecha">
+                                                Generar fecha tentativa
+                                            </button>
+                                        </div>
+                                        <div class="btn-group d-none w-100 mb-2" id="opcionesPlazo">
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                        </div>
+                                        <input type="date" class="form-control" name="fecha_tentativa" 
+                                            id="fecha_tentativa" value="{{ date('Y-m-d') }}">
+                                            <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -66,8 +76,14 @@
                     <div class="row">
                         <div class="card text-center p-0">
 
-                            <div class="card-header bg-success text-white">
-                                Ubicación
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <span>Ubicación</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ubicacionPendiente">
+                                    <label class="form-check-label text-white" for="ubicacionPendiente">
+                                        Información pendiente de capturar
+                                    </label>
+                                </div>
                             </div>
 
                             <div class="card-body">
@@ -349,6 +365,56 @@ $(document).ready(function() {
     // Limpiar y destruir Select2 cuando se cierra el modal
     $('#crearHidranteModal').on('hidden.bs.modal', function () {
         $('.select2-search').select2('destroy');
+    });
+
+    // Manejo de fechas tentativas
+    $('#btnGenerarFecha').click(function() {
+        $('#opcionesPlazo').removeClass('d-none');
+    });
+
+    $('#opcionesPlazo button').click(function() {
+        const plazo = $(this).data('plazo');
+        const fechaInspeccion = new Date($('#fecha_inspeccion').val());
+        
+        if (plazo === 'corto') {
+            fechaInspeccion.setMonth(fechaInspeccion.getMonth() + 6);
+        } else {
+            fechaInspeccion.setFullYear(fechaInspeccion.getFullYear() + 1);
+        }
+
+        $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0]);
+        $('#opcionesPlazo').addClass('d-none');
+    });
+
+    // Manejo de ubicación pendiente
+    $('#ubicacionPendiente').change(function() {
+        const isChecked = $(this).is(':checked');
+        const selects = $('#id_calle, #id_y_calle, #id_colonia');
+        
+        selects.prop('disabled', isChecked);
+        
+        if (isChecked) {
+            selects.val(null).trigger('change');
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'calle',
+                value: 'Pendiente'
+            }).appendTo('#formCrearHidrante');
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'y_calle',
+                value: 'Pendiente'
+            }).appendTo('#formCrearHidrante');
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'colonia',
+                value: 'Pendiente'
+            }).appendTo('#formCrearHidrante');
+        } else {
+            $('#formCrearHidrante input[name="calle"]').remove();
+            $('#formCrearHidrante input[name="y_calle"]').remove();
+            $('#formCrearHidrante input[name="colonia"]').remove();
+        }
     });
 });
 </script>

@@ -11,6 +11,7 @@ class Hidrante extends Model
     protected $table = 'hidrantes';
     protected $fillable = [
         'fecha_inspeccion',
+        'fecha_tentativa',
         'numero_estacion',
         'numero_hidrante',
         'id_calle',
@@ -34,7 +35,8 @@ class Hidrante extends Model
     ];
 
     protected $casts = [
-        'fecha_inspeccion' => 'date'
+        'fecha_inspeccion' => 'date',
+        'fecha_tentativa' => 'date'
     ];
 
     public function coloniaLocacion()

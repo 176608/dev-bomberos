@@ -51,11 +51,15 @@ class CapturistaController extends Controller
 
             $validated = $request->validate([
                 'fecha_inspeccion' => 'required|date',
+                'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
                 'numero_hidrante' => 'required|integer',
                 'id_calle' => 'nullable|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
+                'calle' => 'nullable|string',
+                'y_calle' => 'nullable|string',
+                'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
                 'presion_agua' => 'required|string',
                 'color' => 'required|string',
@@ -69,18 +73,22 @@ class CapturistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Add update_user_id
-            $validated['update_user_id'] = auth()->id();
-
-            // Set text fields based on IDs, handling null values
-            $validated['calle'] = $request->id_calle ? 
-                (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '') : '';
-                
-            $validated['y_calle'] = $request->id_y_calle ? 
-                (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '') : '';
-                
-            $validated['colonia'] = $request->id_colonia ? 
-                (Colonias::find($request->id_colonia)?->NOMBRE ?? '') : '';
+            // Si no hay IDs de ubicación, usar los valores pendientes
+            if (!$request->id_calle && !$request->id_y_calle && !$request->id_colonia) {
+                $validated['calle'] = 'Pendiente';
+                $validated['y_calle'] = 'Pendiente';
+                $validated['colonia'] = 'Pendiente';
+            } else {
+                // Lógica existente para obtener nombres de calles y colonia
+                $validated['calle'] = $request->id_calle ? 
+                    (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '') : '';
+                    
+                $validated['y_calle'] = $request->id_y_calle ? 
+                    (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '') : '';
+                    
+                $validated['colonia'] = $request->id_colonia ? 
+                    (Colonias::find($request->id_colonia)?->NOMBRE ?? '') : '';
+            }
 
             // Remove any null values
             $validated = array_filter($validated, function($value) {
