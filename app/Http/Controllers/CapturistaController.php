@@ -125,11 +125,16 @@ class CapturistaController extends Controller
             \DB::beginTransaction();
 
             $validated = $request->validate([
+                'fecha_inspeccion' => 'required|date',
+                'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
                 'numero_hidrante' => 'required|integer',
                 'id_calle' => 'nullable|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
+                'calle' => 'nullable|string',
+                'y_calle' => 'nullable|string',
+                'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
                 'presion_agua' => 'required|string',
                 'color' => 'required|string',
@@ -146,10 +151,20 @@ class CapturistaController extends Controller
             // Add update_user_id
             $validated['update_user_id'] = auth()->id();
 
-            // Update related text fields
-            $validated['calle'] = CatalogoCalle::find($request->id_calle)?->Nomvial ?? '';
-            $validated['y_calle'] = CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '';
-            $validated['colonia'] = Colonias::find($request->id_colonia)?->NOMBRE ?? '';
+            // Manejar campos limpiados
+            $validated['calle'] = $request->has('calle') ? $request->calle : 
+                (CatalogoCalle::find($request->id_calle)?->Nomvial ?? 'Sin definir');
+            
+            $validated['y_calle'] = $request->has('y_calle') ? $request->y_calle : 
+                (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? 'Sin definir');
+            
+            $validated['colonia'] = $request->has('colonia') ? $request->colonia : 
+                (Colonias::find($request->id_colonia)?->NOMBRE ?? 'Sin definir');
+
+            // Limpiar IDs si el campo está marcado como "Sin definir"
+            if ($validated['calle'] === 'Sin definir') $validated['id_calle'] = null;
+            if ($validated['y_calle'] === 'Sin definir') $validated['id_y_calle'] = null;
+            if ($validated['colonia'] === 'Sin definir') $validated['id_colonia'] = null;
 
             $hidrante->update($validated);
             

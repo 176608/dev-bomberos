@@ -20,16 +20,17 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha de Inspección:</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
+                                               id="edit_fecha_inspeccion"
                                                value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
                                                required>
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Mantenimiento*:</label>
-                                        <input type="date" class="form-control" name="xxx" 
-                                               value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
-                                               readonly>
-                                        <small class="form-text text-muted">Campo Muestra*</small>
+                                        <label class="form-label">Fecha tentativa de Mantenimiento:</label>
+                                        <input type="date" class="form-control" name="fecha_tentativa" 
+                                               id="edit_fecha_tentativa"
+                                               value="{{ $hidrante->fecha_tentativa ? date('Y-m-d', strtotime($hidrante->fecha_tentativa)) : date('Y-m-d') }}">
+                                        <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -62,7 +63,14 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Principal:</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label">Calle Principal:</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input clear-field" type="checkbox" 
+                                                       id="clear_calle" data-field="calle">
+                                                <label class="form-check-label">Limpiar campo</label>
+                                            </div>
+                                        </div>
                                         <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
                                             <option value="">Buscar nueva calle principal...</option>
                                             @foreach($calles as $calle)
@@ -71,7 +79,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="form-text text-muted">Calle actual: {{ $hidrante->calle ?: 'No especificada' }}</small>
+                                        <small class="form-text text-muted">Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle Secundaria(Y Calle):</label>
@@ -318,6 +326,34 @@ $(document).ready(function() {
     // Limpiar Select2 cuando se cierra el modal
     $('#editarHidranteModal{{ $hidrante->id }}').on('hidden.bs.modal', function () {
         $('.select2-search').select2('destroy');
+    });
+
+    // Manejar limpieza de campos
+    $('.clear-field').change(function() {
+        const field = $(this).data('field');
+        const isChecked = $(this).is(':checked');
+        const select = $(`#edit_id_${field}`);
+        
+        if (isChecked) {
+            select.val(null).trigger('change');
+            select.prop('disabled', true);
+            $(`#${field}_actual`).text('Sin definir');
+            
+            // Agregar campo oculto para el valor "Sin definir"
+            $(`<input type="hidden" name="${field}" value="Sin definir">`).insertAfter(select);
+        } else {
+            select.prop('disabled', false);
+            $(`input[name="${field}"][type="hidden"]`).remove();
+        }
+    });
+
+    // Manejar fecha de inspección y tentativa
+    $('#edit_fecha_inspeccion').change(function() {
+        const fechaInspeccion = new Date($(this).val());
+        const fechaTentativa = new Date(fechaInspeccion);
+        fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
+        
+        $('#edit_fecha_tentativa').val(fechaTentativa.toISOString().split('T')[0]);
     });
 });
 </script>
