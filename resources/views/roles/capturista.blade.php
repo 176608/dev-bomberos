@@ -90,7 +90,7 @@
 
 <!-- Modal para configuración de tabla -->
 <div class="modal fade" id="configuracionModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Configuración de Tabla</h5>
@@ -98,27 +98,81 @@
             </div>
             <div class="modal-body">
                 <form id="formConfiguracion">
-                    <div class="mb-3">
-                        <p class="fw-bold">Seleccione las columnas a mostrar:</p>
-                        <div class="form-check">
-                            <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha" checked>
-                            <label class="form-check-label" for="col_fecha">Fecha Alta</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Información Básica</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha_inspeccion" checked>
+                                <label class="form-check-label" for="col_fecha_inspeccion">Fecha de Inspección</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_tentativa" id="col_fecha_tentativa">
+                                <label class="form-check-label" for="col_fecha_tentativa">Fecha Tentativa</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="numero_estacion" id="col_numero_estacion">
+                                <label class="form-check-label" for="col_numero_estacion">Número de Estación</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="numero_hidrante" id="col_numero_hidrante">
+                                <label class="form-check-label" for="col_numero_hidrante">Número de Hidrante</label>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
-                            <label class="form-check-label" for="col_calle">Calle</label>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Ubicación</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
+                                <label class="form-check-label" for="col_calle">Calle Principal</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
+                                <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
+                                <label class="form-check-label" for="col_colonia">Colonia</label>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
-                            <label class="form-check-label" for="col_y_calle">Y Calle</label>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Características</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="llave_hidrante" id="col_llave_hidrante">
+                                <label class="form-check-label" for="col_llave_hidrante">Llave Hidrante</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="presion_agua" id="col_presion_agua">
+                                <label class="form-check-label" for="col_presion_agua">Presión de Agua</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="color" id="col_color">
+                                <label class="form-check-label" for="col_color">Color</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="estado_hidrante" id="col_estado_hidrante">
+                                <label class="form-check-label" for="col_estado_hidrante">Estado</label>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
-                            <label class="form-check-label" for="col_colonia">Colonia</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca" checked>
-                            <label class="form-check-label" for="col_marca">Marca</label>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Información Adicional</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca" checked>
+                                <label class="form-check-label" for="col_marca">Marca</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="anio" id="col_anio">
+                                <label class="form-check-label" for="col_anio">Año</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="oficial" id="col_oficial">
+                                <label class="form-check-label" for="col_oficial">Oficial</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="observaciones" id="col_observaciones">
+                                <label class="form-check-label" for="col_observaciones">Observaciones</label>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -274,10 +328,23 @@ $(document).ready(function() {
         });
     });
 
+    // Función para limpiar modales
+    function cleanupModal() {
+        $('.modal').modal('hide');
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css('padding-right', '');
+    }
+
     // Manejador para el botón de configuración
-    $('.btn-secondary').click(function() {
+    $('#btnConfiguracion').click(function() {
+        cleanupModal();
         const modal = new bootstrap.Modal(document.getElementById('configuracionModal'));
         modal.show();
+    });
+
+    // Evento cuando se cierra el modal
+    $('#configuracionModal').on('hidden.bs.modal', function () {
+        cleanupModal();
     });
 
     // Cargar configuración guardada
@@ -289,7 +356,7 @@ $(document).ready(function() {
                     table.columns().every(function() {
                         const column = this;
                         const columnName = $(column.header()).data('column');
-                        if (columnName && columnName !== 'id' && columnName !== 'acciones') {
+                        if (columnName && !['id', 'acciones'].includes(columnName)) {
                             column.visible(config.includes(columnName));
                             $(`#col_${columnName}`).prop('checked', config.includes(columnName));
                         }
@@ -315,14 +382,16 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    $('#configuracionModal').modal('hide');
+                    cleanupModal();
                     table.columns().every(function() {
                         const column = this;
                         const columnName = $(column.header()).data('column');
-                        if (columnName && columnName !== 'id' && columnName !== 'acciones') {
+                        if (columnName && !['id', 'acciones'].includes(columnName)) {
                             column.visible(configuracion.includes(columnName));
                         }
                     });
+                    // Mostrar notificación de éxito
+                    alert('Configuración guardada exitosamente');
                 }
             },
             error: function(xhr) {

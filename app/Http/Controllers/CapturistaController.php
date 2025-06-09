@@ -6,6 +6,7 @@ use App\Models\Hidrante;
 use App\Models\Colonias;
 use App\Models\Calles;
 use App\Models\CatalogoCalle;
+use App\Models\ConfiguracionCapturista;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -227,5 +228,51 @@ class CapturistaController extends Controller
             ->get();
         
         return view('partials.hidrante-create', compact('calles', 'colonias'));
+    }
+
+    public function guardarConfiguracion(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'configuracion' => 'required|array'
+            ]);
+
+            ConfiguracionCapturista::updateOrCreate(
+                ['user_id' => auth()->id()],
+                ['configuracion' => $validated['configuracion']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Configuración guardada exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error saving configuration:', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al guardar la configuración'
+            ], 500);
+        }
+    }
+
+    public function getConfiguracion()
+    {
+        try {
+            $config = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+            return response()->json([
+                'success' => true,
+                'configuracion' => $config ? $config->configuracion : null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener la configuración'
+            ], 500);
+        }
     }
 }
