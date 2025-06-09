@@ -32,15 +32,27 @@ class CapturistaController extends Controller
             'updatedBy:id,name'
         ])
         ->latest('id')
-        ->get();
+        ->get()
+        ->map(function($hidrante) {
+            return [
+                'id' => $hidrante->id,
+                'fecha_inspeccion' => $hidrante->fecha_inspeccion,
+                'calle' => $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada',
+                'id_calle' => $hidrante->id_calle,
+                'y_calle' => $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada',
+                'id_y_calle' => $hidrante->id_y_calle,
+                'colonia' => $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada',
+                'id_colonia' => $hidrante->id_colonia,
+                'marca' => $hidrante->marca ?? 'No especificada',
+                'create_user' => $hidrante->createdBy ? $hidrante->createdBy->name : 'No disponible',
+                'update_user' => $hidrante->updatedBy ? $hidrante->updatedBy->name : 'No disponible',
+                'created_at' => $hidrante->created_at,
+                'updated_at' => $hidrante->updated_at
+            ];
+        });
 
-        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
-            ->orderBy('Nomvial')
-            ->get();
-        
-        $colonias = Colonias::select('IDKEY', 'NOMBRE')
-            ->orderBy('NOMBRE')
-            ->get();
+        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')->orderBy('Nomvial')->get();
+        $colonias = Colonias::select('IDKEY', 'NOMBRE')->orderBy('NOMBRE')->get();
         
         return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));
     }

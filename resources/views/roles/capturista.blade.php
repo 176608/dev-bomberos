@@ -55,13 +55,13 @@
                 <table id="hidrantesTable" class="table table-bordered table-striped">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
-                            <th>Fecha Alta</th>
-                            <th>Calle</th>
-                            <th>Y Calle</th>
-                            <th>Colonia</th>
-                            <th>Marca</th>
-                            <th>Acciones</th>
+                            <th data-column="id">ID</th>
+                            <th data-column="fecha_inspeccion">Fecha Inspección</th>
+                            <th data-column="calle">Calle Principal</th>
+                            <th data-column="y_calle">Calle Secundaria</th>
+                            <th data-column="colonia">Colonia</th>
+                            <th data-column="marca">Marca</th>
+                            <th data-column="acciones">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -257,32 +257,20 @@ $(document).ready(function() {
                 }
             },
             { 
-                data: 'callePrincipal.Nomvial',
-                name: 'calle',
-                render: function(data, type, row) {
-                    return data || 'No especificada';
-                }
+                data: 'calle',
+                name: 'calle'
             },
             { 
-                data: 'calleSecundaria.Nomvial',
-                name: 'y_calle',
-                render: function(data, type, row) {
-                    return data || 'No especificada';
-                }
+                data: 'y_calle',
+                name: 'y_calle'
             },
             { 
-                data: 'coloniaLocacion.NOMBRE',
-                name: 'colonia',
-                render: function(data, type, row) {
-                    return data || 'No especificada';
-                }
+                data: 'colonia',
+                name: 'colonia'
             },
             { 
                 data: 'marca',
-                name: 'marca',
-                render: function(data) {
-                    return data || 'No especificada';
-                }
+                name: 'marca'
             },
             {
                 data: null,
