@@ -120,17 +120,35 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
-                                <label class="form-check-label" for="col_calle">Calle Principal</label>
+                            <div class="row">
+                                    <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
+                                    <label class="form-check-label" for="col_calle">Calle Principal(Cadena)</label>
+                                </div>
+                                <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="id_calle" id="col_id_calle" checked>
+                                    <label class="form-check-label" for="col_id_calle">Calle Principal(Clave ID)</label>
+                                </div>
                             </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
-                                <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
+                            <div class="row">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
+                                    <label class="form-check-label" for="col_y_calle">Calle Secundaria(Cadena)</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="id_y_calle" id="col_id_y_calle" checked>
+                                    <label class="form-check-label" for="col_id_y_calle">Calle Secundaria(Clave ID)</label>
+                                </div>
                             </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
-                                <label class="form-check-label" for="col_colonia">Colonia</label>
+                            <div class="row">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
+                                    <label class="form-check-label" for="col_colonia">Colonia(Cadena)</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="id_colonia" id="col_id_colonia" checked>
+                                    <label class="form-check-label" for="col_id_colonia">Colonia(Clave ID)</label>
+                                </div>
                             </div>
                         </div>
                     </div>
