@@ -31,12 +31,15 @@ class Hidrante extends Model
         'anio',
         'observaciones',
         'oficial',
+        'create_user_id',
         'update_user_id'
     ];
 
     protected $casts = [
         'fecha_inspeccion' => 'date',
-        'fecha_tentativa' => 'date'
+        'fecha_tentativa' => 'date', 
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
 
     public function coloniaLocacion()
@@ -53,6 +56,17 @@ class Hidrante extends Model
     {
         return $this->belongsTo(CatalogoCalle::class, 'id_y_calle', 'IDKEY');
     }
+
+    // Add relationships for users
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'create_user_id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'update_user_id');
+    }
 }
 
 /*
@@ -60,7 +74,8 @@ class Hidrante extends Model
 Field                   Type            Null    Default     Extra               Key
 ----------------------- ----------------- ------- ----------- ------------------ ----
 id                      - int(11)       - NO    - NULL      - auto_increment    - PRI
-fecha_inspeccion        - date          - NO    - current_timestamp()    ------>>> fecha_alta -> fecha_inspeccion
+fecha_inspeccion        - date          - NO    - NULL
+fecha_tentativa         - date          - NO    - NULL
 numero_estacion         - int(4)        - NO    - NULL
 numero_hidrante         - int(11)       - YES   - NULL
 calle                   - varchar(255)  - YES   - NULL
@@ -80,5 +95,8 @@ marca                   - varchar(255)  - YES   - NULL
 anio                    - int(11)       - YES   - NULL
 observaciones           - text          - YES   - NULL
 oficial                 - varchar(255)  - YES   - NULL
-update_user_id          - int(4)        - NO    - NULL por defecto el user que dio de alta
+create_user_id          - int(4)        - NO    - NULL  *El id del usuario que crea el registro
+update_user_id          - int(4)        - NO    - NULL  *El id del usuario que actualiza el registro
+created_at              - datetime      - YES   - NULL  *Fecha de creación del registro
+updated_at              - datetime      - YES   - NULL  *Fecha de actualización del registro
 */

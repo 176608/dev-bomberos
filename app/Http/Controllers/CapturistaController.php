@@ -73,7 +73,11 @@ class CapturistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Si no hay IDs de ubicación, usar los valores pendientes
+            // Agregar IDs de usuario
+            $validated['create_user_id'] = auth()->id();
+            $validated['update_user_id'] = auth()->id();
+
+            // Manejar campos de ubicación
             if (!$request->id_calle && !$request->id_y_calle && !$request->id_colonia) {
                 $validated['calle'] = 'Pendiente';
                 $validated['y_calle'] = 'Pendiente';
@@ -82,15 +86,13 @@ class CapturistaController extends Controller
                 // Lógica existente para obtener nombres de calles y colonia
                 $validated['calle'] = $request->id_calle ? 
                     (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '') : '';
-                    
                 $validated['y_calle'] = $request->id_y_calle ? 
                     (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '') : '';
-                    
                 $validated['colonia'] = $request->id_colonia ? 
                     (Colonias::find($request->id_colonia)?->NOMBRE ?? '') : '';
             }
 
-            // Remove any null values
+            // Remover valores nulos
             $validated = array_filter($validated, function($value) {
                 return $value !== null;
             });
@@ -148,7 +150,7 @@ class CapturistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Add update_user_id
+            // Actualizar update_user_id
             $validated['update_user_id'] = auth()->id();
 
             // Manejar campos limpiados
@@ -161,7 +163,7 @@ class CapturistaController extends Controller
             $validated['colonia'] = $request->has('colonia') ? $request->colonia : 
                 (Colonias::find($request->id_colonia)?->NOMBRE ?? 'Sin definir');
 
-            // Limpiar IDs si el campo está marcado como "Sin definir"
+            // Limpiar IDs cuando corresponda
             if ($validated['calle'] === 'Sin definir') $validated['id_calle'] = null;
             if ($validated['y_calle'] === 'Sin definir') $validated['id_y_calle'] = null;
             if ($validated['colonia'] === 'Sin definir') $validated['id_colonia'] = null;

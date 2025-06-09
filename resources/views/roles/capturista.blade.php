@@ -39,7 +39,7 @@
                         <span class="button-text">Alta de hidrante</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true"></span>
                     </button>
-                    <button class="btn btn-secondary mb-2">
+                    <button class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#configuracionModal">
                         <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                     </button>
                 </div>
@@ -88,6 +88,48 @@
     </div>
 </div>
 
+<!-- Modal para configuración de tabla -->
+<div class="modal fade" id="configuracionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configuración de Tabla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formConfiguracion">
+                    <div class="mb-3">
+                        <p class="fw-bold">Seleccione las columnas a mostrar:</p>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha" checked>
+                            <label class="form-check-label" for="col_fecha">Fecha Alta</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
+                            <label class="form-check-label" for="col_calle">Calle</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
+                            <label class="form-check-label" for="col_y_calle">Y Calle</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
+                            <label class="form-check-label" for="col_colonia">Colonia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca" checked>
+                            <label class="form-check-label" for="col_marca">Marca</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarConfiguracion">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -231,6 +273,66 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Manejador para el botón de configuración
+    $('.btn-secondary').click(function() {
+        const modal = new bootstrap.Modal(document.getElementById('configuracionModal'));
+        modal.show();
+    });
+
+    // Cargar configuración guardada
+    function loadTableConfig() {
+        $.get("{{ route('configuracion.get') }}")
+            .done(function(response) {
+                if (response.configuracion) {
+                    const config = response.configuracion;
+                    table.columns().every(function() {
+                        const column = this;
+                        const columnName = $(column.header()).data('column');
+                        if (columnName && columnName !== 'id' && columnName !== 'acciones') {
+                            column.visible(config.includes(columnName));
+                            $(`#col_${columnName}`).prop('checked', config.includes(columnName));
+                        }
+                    });
+                }
+            });
+    }
+
+    // Guardar configuración
+    $('#guardarConfiguracion').click(function() {
+        const configuracion = $('.column-toggle:checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        $.ajax({
+            url: "{{ route('configuracion.save') }}",
+            method: 'POST',
+            data: {
+                configuracion: configuracion
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#configuracionModal').modal('hide');
+                    table.columns().every(function() {
+                        const column = this;
+                        const columnName = $(column.header()).data('column');
+                        if (columnName && columnName !== 'id' && columnName !== 'acciones') {
+                            column.visible(configuracion.includes(columnName));
+                        }
+                    });
+                }
+            },
+            error: function(xhr) {
+                alert('Error al guardar la configuración');
+            }
+        });
+    });
+
+    // Cargar configuración al iniciar
+    loadTableConfig();
 });
 </script>
 @endsection
