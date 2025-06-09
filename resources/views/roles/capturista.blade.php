@@ -23,6 +23,20 @@
     .btn:disabled .button-text {
         opacity: 0.5;
     }
+
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    .table {
+        width: 100% !important;
+    }
+    
+    .dataTables_scrollBody {
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+    }
 </style>
 
 <div class="container mt-4">
@@ -242,13 +256,20 @@ $(document).ready(function() {
         pageLength: 10,
         order: [[0, 'desc']],
         responsive: true,
+        scrollX: true,
+        autoWidth: true,
         columnDefs: [
             {
-                targets: 6, // columna de acciones
+                targets: 6,
                 orderable: false,
                 searchable: false
             }
-        ]
+        ],
+        drawCallback: function(settings) {
+            // Ajustar columnas cada vez que se redibuja la tabla
+            $(window).trigger('resize');
+            this.api().columns.adjust();
+        }
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -401,17 +422,39 @@ $(document).ready(function() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
                 if (response.success && response.configuracion) {
-                    response.configuracion.forEach(function(columnName) {
-                        // No ocultar ID ni Acciones
-                        if (!['id', 'acciones'].includes(columnName)) {
-                            const columnIndex = $(`th[data-column="${columnName}"]`).index();
-                            if (columnIndex !== -1) {
-                                table.column(columnIndex).visible(true);
-                                $(`#col_${columnName}`).prop('checked', true);
-                            }
+                    // Primero, ocultar todas las columnas excepto ID y Acciones
+                    table.columns().every(function() {
+                        const columnName = $(this.header()).data('column');
+                        if (columnName && !['id', 'acciones'].includes(columnName)) {
+                            this.visible(false);
+                            $(`#col_${columnName}`).prop('checked', false);
                         }
                     });
+
+                    // Luego, mostrar solo las columnas configuradas
+                    response.configuracion.forEach(function(columnName) {
+                        const columnIndex = $(`th[data-column="${columnName}"]`).index();
+                        if (columnIndex !== -1) {
+                            table.column(columnIndex).visible(true);
+                            $(`#col_${columnName}`).prop('checked', true);
+                        }
+                    });
+
+                    // Ajustar columnas y redibujar
+                    table.columns.adjust().draw();
                 }
+            })
+            .fail(function() {
+                // Configuración por defecto en caso de error
+                const defaultColumns = ['id', 'fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca', 'acciones'];
+                table.columns().every(function() {
+                    const columnName = $(this.header()).data('column');
+                    const isVisible = defaultColumns.includes(columnName);
+                    this.visible(isVisible);
+                    if (columnName) {
+                        $(`#col_${columnName}`).prop('checked', isVisible);
+                    }
+                });
                 table.columns.adjust().draw();
             });
     }
@@ -433,15 +476,24 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    cleanupModal();
+                    // Ocultar el modal
+                    $('#configuracionModal').modal('hide');
+                    
+                    // Actualizar visibilidad de columnas
                     table.columns().every(function() {
-                        const column = this;
-                        const columnName = $(column.header()).data('column');
+                        const columnName = $(this.header()).data('column');
                         if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            column.visible(configuracion.includes(columnName));
+                            this.visible(configuracion.includes(columnName));
                         }
                     });
-                    // Mostrar notificación de éxito
+
+                    // Ajustar columnas y redibujar
+                    table.columns.adjust().draw();
+                    
+                    // Limpiar modal
+                    cleanupModal();
+                    
+                    // Notificar éxito
                     alert('Configuración guardada exitosamente');
                 }
             },
@@ -453,6 +505,11 @@ $(document).ready(function() {
 
     // Cargar configuración al iniciar
     loadTableConfig();
+
+    // Agregar listener para ajuste de ventana
+    $(window).on('resize', function() {
+        table.columns.adjust();
+    });
 });
 </script>
 @endsection
