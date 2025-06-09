@@ -242,13 +242,24 @@ $(document).ready(function() {
         columns: [
             { data: 'id', name: 'id' },
             { data: 'fecha_inspeccion', name: 'fecha_inspeccion' },
+            { data: 'fecha_tentativa', name: 'fecha_tentativa' },
             { data: 'calle', name: 'calle' },
             { data: 'id_calle', name: 'id_calle' },
             { data: 'y_calle', name: 'y_calle' },
             { data: 'id_y_calle', name: 'id_y_calle' },
             { data: 'colonia', name: 'colonia' },
             { data: 'id_colonia', name: 'id_colonia' },
+            { data: 'llave_hidrante', name: 'llave_hidrante' },
+            { data: 'presion_agua', name: 'presion_agua' },
+            { data: 'color', name: 'color' },
+            { data: 'llave_fosa', name: 'llave_fosa' },
+            { data: 'ubicacion_fosa', name: 'ubicacion_fosa' },
+            { data: 'hidrante_conectado_tubo', name: 'hidrante_conectado_tubo' },
+            { data: 'estado_hidrante', name: 'estado_hidrante' },
             { data: 'marca', name: 'marca' },
+            { data: 'anio', name: 'anio' },
+            { data: 'observaciones', name: 'observaciones' },
+            { data: 'oficial', name: 'oficial' },
             { data: 'create_user_id', name: 'create_user_id' },
             { data: 'update_user_id', name: 'update_user_id' },
             { data: 'created_at', name: 'created_at' },
@@ -257,15 +268,20 @@ $(document).ready(function() {
         ],
         columnDefs: [
             {
-                targets: ['created_at', 'updated_at'],
-                render: function(data) {
-                    return moment(data).format('YYYY-MM-DD HH:mm:ss');
+                // Manejar valores nulos en todas las columnas
+                targets: '_all',
+                render: function(data, type, row) {
+                    if (data === null || data === undefined || data === '') {
+                        return 'No especificado***';
+                    }
+                    return data;
                 }
             },
             {
-                targets: ['create_user_id', 'update_user_id'],
-                render: function(data, type, row) {
-                    return data ? `Usuario ID: ${data}` : 'No disponible';
+                // Formato especial para fechas
+                targets: ['created_at', 'updated_at', 'fecha_inspeccion', 'fecha_tentativa'],
+                render: function(data) {
+                    return data ? moment(data).format('YYYY-MM-DD HH:mm:ss') : 'No especificado***';
                 }
             }
         ],
