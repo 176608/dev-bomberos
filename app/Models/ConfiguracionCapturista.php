@@ -21,4 +21,22 @@ class ConfiguracionCapturista extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function getDefaultConfig()
+    {
+        return [
+            'id',
+            'fecha_inspeccion',
+            'calle',
+            'y_calle',
+            'colonia',
+            'marca',
+            'acciones'
+        ];
+    }
+
+    public function getConfiguracionAttribute($value)
+    {
+        return $value ? json_decode($value, true) : self::getDefaultConfig();
+    }
 }

@@ -193,6 +193,32 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Información del Sistema</h6>
+                            <div class="row">
+                                <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="create_user_id" id="col_create_user">
+                                    <label class="form-check-label" for="col_create_user">Usuario Alta</label>
+                                </div>
+                                <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="update_user_id" id="col_update_user">
+                                    <label class="form-check-label" for="col_update_user">Usuario Actualización</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="created_at" id="col_created_at">
+                                    <label class="form-check-label" for="col_created_at">Fecha de Alta</label>
+                                </div>
+                                <div class="form-check mb-2 col-6">
+                                    <input class="form-check-input column-toggle" type="checkbox" value="updated_at" id="col_updated_at">
+                                    <label class="form-check-label" for="col_updated_at">Fecha de Actualización</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -213,11 +239,41 @@ $(document).ready(function() {
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'fecha_inspeccion', name: 'fecha_inspeccion' },
+            { data: 'calle', name: 'calle' },
+            { data: 'id_calle', name: 'id_calle' },
+            { data: 'y_calle', name: 'y_calle' },
+            { data: 'id_y_calle', name: 'id_y_calle' },
+            { data: 'colonia', name: 'colonia' },
+            { data: 'id_colonia', name: 'id_colonia' },
+            { data: 'marca', name: 'marca' },
+            { data: 'create_user_id', name: 'create_user_id' },
+            { data: 'update_user_id', name: 'update_user_id' },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'updated_at', name: 'updated_at' },
+            { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
+        ],
+        columnDefs: [
+            {
+                targets: ['created_at', 'updated_at'],
+                render: function(data) {
+                    return moment(data).format('YYYY-MM-DD HH:mm:ss');
+                }
+            },
+            {
+                targets: ['create_user_id', 'update_user_id'],
+                render: function(data, type, row) {
+                    return data ? `Usuario ID: ${data}` : 'No disponible';
+                }
+            }
+        ],
         order: [[0, 'desc']],
         paging: true,
         searching: true,
         info: true,
-        autoWidth: false
+        responsive: true
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -371,14 +427,27 @@ $(document).ready(function() {
             .done(function(response) {
                 if (response.configuracion) {
                     const config = response.configuracion;
-                    table.columns().every(function() {
+                    // Configuración por defecto si no hay configuración guardada
+                    const defaultConfig = [
+                        'id', 'fecha_inspeccion', 'calle', 'y_calle', 
+                        'colonia', 'marca', 'acciones'
+                    ];
+                    
+                    const columnsToShow = config.length > 0 ? config : defaultConfig;
+                    
+                    // Actualizar checkboxes y visibilidad de columnas
+                    table.columns().every(function(index) {
                         const column = this;
                         const columnName = $(column.header()).data('column');
-                        if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            column.visible(config.includes(columnName));
-                            $(`#col_${columnName}`).prop('checked', config.includes(columnName));
+                        if (columnName) {
+                            const isVisible = columnsToShow.includes(columnName);
+                            column.visible(isVisible);
+                            $(`#col_${columnName}`).prop('checked', isVisible);
                         }
                     });
+                    
+                    // Ajustar la tabla después de cambiar la visibilidad
+                    table.columns.adjust().draw();
                 }
             });
     }

@@ -24,14 +24,33 @@ class CapturistaController extends Controller
             return redirect()->route('dashboard');
         }
 
-        // Eager loading con latest() y selección específica de campos
         $hidrantes = Hidrante::with([
             'coloniaLocacion:IDKEY,NOMBRE', 
             'callePrincipal:IDKEY,Nomvial', 
-            'calleSecundaria:IDKEY,Nomvial'
+            'calleSecundaria:IDKEY,Nomvial',
+            'createdBy:id,name',
+            'updatedBy:id,name'
         ])
         ->latest('id')
-        ->get();
+        ->get()
+        ->map(function($hidrante) {
+            return [
+                'id' => $hidrante->id,
+                'fecha_inspeccion' => $hidrante->fecha_inspeccion->format('Y-m-d'),
+                'fecha_tentativa' => $hidrante->fecha_tentativa->format('Y-m-d'),
+                'calle' => $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada',
+                'id_calle' => $hidrante->id_calle,
+                'y_calle' => $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada',
+                'id_y_calle' => $hidrante->id_y_calle,
+                'colonia' => $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada',
+                'id_colonia' => $hidrante->id_colonia,
+                'marca' => $hidrante->marca ?? 'S/A',
+                'create_user_id' => $hidrante->createdBy ? $hidrante->createdBy->name : null,
+                'update_user_id' => $hidrante->updatedBy ? $hidrante->updatedBy->name : null,
+                'created_at' => $hidrante->created_at->format('Y-m-d H:i:s'),
+                'updated_at' => $hidrante->updated_at->format('Y-m-d H:i:s'),
+            ];
+        });
 
         // Seleccionar solo los campos necesarios
         $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
