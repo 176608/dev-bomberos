@@ -236,59 +236,64 @@
 $(document).ready(function() {
     // DataTable initialization
     var table = $('#hidrantesTable').DataTable({
+        processing: true,
+        serverSide: false,
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
+        data: @json($hidrantes),
         columns: [
-            { data: 'id', name: 'id' },
-            { data: 'fecha_inspeccion', name: 'fecha_inspeccion' },
-            { data: 'fecha_tentativa', name: 'fecha_tentativa' },
-            { data: 'calle', name: 'calle' },
-            { data: 'id_calle', name: 'id_calle' },
-            { data: 'y_calle', name: 'y_calle' },
-            { data: 'id_y_calle', name: 'id_y_calle' },
-            { data: 'colonia', name: 'colonia' },
-            { data: 'id_colonia', name: 'id_colonia' },
-            { data: 'llave_hidrante', name: 'llave_hidrante' },
-            { data: 'presion_agua', name: 'presion_agua' },
-            { data: 'color', name: 'color' },
-            { data: 'llave_fosa', name: 'llave_fosa' },
-            { data: 'ubicacion_fosa', name: 'ubicacion_fosa' },
-            { data: 'hidrante_conectado_tubo', name: 'hidrante_conectado_tubo' },
-            { data: 'estado_hidrante', name: 'estado_hidrante' },
-            { data: 'marca', name: 'marca' },
-            { data: 'anio', name: 'anio' },
-            { data: 'observaciones', name: 'observaciones' },
-            { data: 'oficial', name: 'oficial' },
-            { data: 'create_user_id', name: 'create_user_id' },
-            { data: 'update_user_id', name: 'update_user_id' },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'updated_at', name: 'updated_at' },
-            { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
-        ],
-        columnDefs: [
-            {
-                // Manejar valores nulos en todas las columnas
-                targets: '_all',
+            { 
+                data: 'id',
+                name: 'id'
+            },
+            { 
+                data: 'fecha_inspeccion',
+                name: 'fecha_inspeccion',
+                render: function(data) {
+                    return data ? moment(data).format('YYYY-MM-DD') : 'No especificado';
+                }
+            },
+            { 
+                data: 'calle',
+                name: 'calle',
                 render: function(data, type, row) {
-                    if (data === null || data === undefined || data === '') {
-                        return 'No especificado***';
-                    }
-                    return data;
+                    return row.calle_principal ? row.calle_principal.Nomvial : 'No especificada';
+                }
+            },
+            { 
+                data: 'y_calle',
+                name: 'y_calle',
+                render: function(data, type, row) {
+                    return row.calle_secundaria ? row.calle_secundaria.Nomvial : 'No especificada';
+                }
+            },
+            { 
+                data: 'colonia',
+                name: 'colonia',
+                render: function(data, type, row) {
+                    return row.colonia_locacion ? row.colonia_locacion.NOMBRE : 'No especificada';
+                }
+            },
+            { 
+                data: 'marca',
+                name: 'marca',
+                render: function(data) {
+                    return data || 'No especificada';
                 }
             },
             {
-                // Formato especial para fechas
-                targets: ['created_at', 'updated_at', 'fecha_inspeccion', 'fecha_tentativa'],
-                render: function(data) {
-                    return data ? moment(data).format('YYYY-MM-DD HH:mm:ss') : 'No especificado***';
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return `<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="${row.id}">
+                        Editar <i class="bi bi-pen-fill"></i>
+                    </button>`;
                 }
             }
         ],
         order: [[0, 'desc']],
-        paging: true,
-        searching: true,
-        info: true,
         responsive: true
     });
 

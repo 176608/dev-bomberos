@@ -32,43 +32,8 @@ class CapturistaController extends Controller
             'updatedBy:id,name'
         ])
         ->latest('id')
-        ->get()
-        ->map(function($hidrante) {
-            return [
-                'id' => $hidrante->id,
-                // Fechas
-                'fecha_inspeccion' => $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : null,
-                'fecha_tentativa' => $hidrante->fecha_tentativa ? $hidrante->fecha_tentativa->format('Y-m-d') : null,
-                // Ubicación
-                'calle' => $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada',
-                'id_calle' => $hidrante->id_calle,
-                'y_calle' => $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada',
-                'id_y_calle' => $hidrante->id_y_calle,
-                'colonia' => $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada',
-                'id_colonia' => $hidrante->id_colonia,
-                // Características técnicas
-                'llave_hidrante' => $hidrante->llave_hidrante ?? 'No especificada',
-                'presion_agua' => $hidrante->presion_agua ?? 'No especificada',
-                'color' => $hidrante->color ?? 'No especificado',
-                'llave_fosa' => $hidrante->llave_fosa ?? 'No especificada',
-                'ubicacion_fosa' => $hidrante->ubicacion_fosa ?? 'No especificada',
-                'hidrante_conectado_tubo' => $hidrante->hidrante_conectado_tubo ?? 'No especificado',
-                'estado_hidrante' => $hidrante->estado_hidrante ?? 'No especificado',
-                'marca' => $hidrante->marca ?? 'No especificada',
-                'anio' => $hidrante->anio ?? 'No especificado',
-                'observaciones' => $hidrante->observaciones ?? 'Sin observaciones',
-                'oficial' => $hidrante->oficial ?? 'No especificado',
-                // Información del sistema
-                'create_user_id' => $hidrante->createdBy ? $hidrante->createdBy->name : 'Usuario no disponible',
-                'update_user_id' => $hidrante->updatedBy ? $hidrante->updatedBy->name : 'Usuario no disponible',
-                'created_at' => $hidrante->created_at ? $hidrante->created_at->format('Y-m-d H:i:s') : null,
-                'updated_at' => $hidrante->updated_at ? $hidrante->updated_at->format('Y-m-d H:i:s') : null,
-                // Campo para acciones siempre presente
-                'acciones' => '' // Se llena en la vista
-            ];
-        });
+        ->get();
 
-        // Seleccionar solo los campos necesarios
         $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
             ->orderBy('Nomvial')
             ->get();
