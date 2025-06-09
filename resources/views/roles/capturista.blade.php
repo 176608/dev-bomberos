@@ -245,34 +245,36 @@ $(document).ready(function() {
         columns: [
             { 
                 data: 'id',
-                name: 'id'
+                name: 'id',
+                visible: true
             },
             { 
                 data: 'fecha_inspeccion',
                 name: 'fecha_inspeccion',
                 render: function(data) {
-                    return data ? moment(data).format('YYYY-MM-DD') : 'No especificado';
+                    if (!data) return 'No especificado';
+                    return moment(data).isValid() ? moment(data).format('YYYY-MM-DD') : 'Fecha inválida';
                 }
             },
             { 
-                data: 'calle',
+                data: 'callePrincipal.Nomvial',
                 name: 'calle',
                 render: function(data, type, row) {
-                    return row.calle_principal ? row.calle_principal.Nomvial : 'No especificada';
+                    return data || 'No especificada';
                 }
             },
             { 
-                data: 'y_calle',
+                data: 'calleSecundaria.Nomvial',
                 name: 'y_calle',
                 render: function(data, type, row) {
-                    return row.calle_secundaria ? row.calle_secundaria.Nomvial : 'No especificada';
+                    return data || 'No especificada';
                 }
             },
             { 
-                data: 'colonia',
+                data: 'coloniaLocacion.NOMBRE',
                 name: 'colonia',
                 render: function(data, type, row) {
-                    return row.colonia_locacion ? row.colonia_locacion.NOMBRE : 'No especificada';
+                    return data || 'No especificada';
                 }
             },
             { 
@@ -284,8 +286,10 @@ $(document).ready(function() {
             },
             {
                 data: null,
+                name: 'acciones',
                 orderable: false,
                 searchable: false,
+                visible: true,
                 render: function(data, type, row) {
                     return `<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="${row.id}">
                         Editar <i class="bi bi-pen-fill"></i>
@@ -294,7 +298,11 @@ $(document).ready(function() {
             }
         ],
         order: [[0, 'desc']],
-        responsive: true
+        responsive: true,
+        drawCallback: function() {
+            // Reajustar columnas después de cada redibujado
+            this.api().columns.adjust();
+        }
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -448,7 +456,6 @@ $(document).ready(function() {
             .done(function(response) {
                 if (response.configuracion) {
                     const config = response.configuracion;
-                    // Configuración por defecto si no hay configuración guardada
                     const defaultConfig = [
                         'id', 'fecha_inspeccion', 'calle', 'y_calle', 
                         'colonia', 'marca', 'acciones'
@@ -456,20 +463,32 @@ $(document).ready(function() {
                     
                     const columnsToShow = config.length > 0 ? config : defaultConfig;
                     
-                    // Actualizar checkboxes y visibilidad de columnas
-                    table.columns().every(function(index) {
+                    table.columns().every(function() {
                         const column = this;
                         const columnName = $(column.header()).data('column');
-                        if (columnName) {
-                            const isVisible = columnsToShow.includes(columnName);
+                        const isVisible = columnsToShow.includes(columnName);
+                        
+                        if (columnName && !['id', 'acciones'].includes(columnName)) {
                             column.visible(isVisible);
                             $(`#col_${columnName}`).prop('checked', isVisible);
                         }
                     });
                     
-                    // Ajustar la tabla después de cambiar la visibilidad
                     table.columns.adjust().draw();
                 }
+            })
+            .fail(function(error) {
+                console.error('Error cargando configuración:', error);
+                // Usar configuración por defecto en caso de error
+                const defaultColumns = ['id', 'fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca', 'acciones'];
+                table.columns().every(function() {
+                    const column = this;
+                    const columnName = $(column.header()).data('column');
+                    if (columnName) {
+                        column.visible(defaultColumns.includes(columnName));
+                    }
+                });
+                table.columns.adjust().draw();
             });
     }
 
