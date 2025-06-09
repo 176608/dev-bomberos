@@ -68,11 +68,11 @@
                         @foreach($hidrantes as $hidrante)
                             <tr>
                                 <td>{{ $hidrante->id }}</td>
-                                <td>{{ $hidrante->fecha_inspeccion->format('Y-m-d') }}</td>
-                                <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'Calle Principal no especificada' }}</td>
-                                <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'Calle Secundaria no especificada' }}</td>
-                                <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'Colonia no especificada' }}</td>
-                                <td>{{ $hidrante->marca ? $hidrante->marca : 'S/A' }}</td>
+                                <td>{{ $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'No especificado' }}</td>
+                                <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada' }}</td>
+                                <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada' }}</td>
+                                <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada' }}</td>
+                                <td>{{ $hidrante->marca ?? 'S/A' }}</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning edit-hidrante" data-bs-toggle="modal" 
                                             data-hidrante-id="{{ $hidrante->id }}">
@@ -236,61 +236,19 @@
 $(document).ready(function() {
     // DataTable initialization
     var table = $('#hidrantesTable').DataTable({
-        processing: true,
-        serverSide: false,
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
-        data: @json($hidrantes),
-        columns: [
-            { 
-                data: 'id',
-                name: 'id',
-                visible: true
-            },
-            { 
-                data: 'fecha_inspeccion',
-                name: 'fecha_inspeccion',
-                render: function(data) {
-                    if (!data) return 'No especificado';
-                    return moment(data).isValid() ? moment(data).format('YYYY-MM-DD') : 'Fecha inválida';
-                }
-            },
-            { 
-                data: 'calle',
-                name: 'calle'
-            },
-            { 
-                data: 'y_calle',
-                name: 'y_calle'
-            },
-            { 
-                data: 'colonia',
-                name: 'colonia'
-            },
-            { 
-                data: 'marca',
-                name: 'marca'
-            },
-            {
-                data: null,
-                name: 'acciones',
-                orderable: false,
-                searchable: false,
-                visible: true,
-                render: function(data, type, row) {
-                    return `<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="${row.id}">
-                        Editar <i class="bi bi-pen-fill"></i>
-                    </button>`;
-                }
-            }
-        ],
+        pageLength: 10,
         order: [[0, 'desc']],
         responsive: true,
-        drawCallback: function() {
-            // Reajustar columnas después de cada redibujado
-            this.api().columns.adjust();
-        }
+        columnDefs: [
+            {
+                targets: 6, // columna de acciones
+                orderable: false,
+                searchable: false
+            }
+        ]
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -442,40 +400,18 @@ $(document).ready(function() {
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
-                if (response.configuracion) {
-                    const config = response.configuracion;
-                    const defaultConfig = [
-                        'id', 'fecha_inspeccion', 'calle', 'y_calle', 
-                        'colonia', 'marca', 'acciones'
-                    ];
-                    
-                    const columnsToShow = config.length > 0 ? config : defaultConfig;
-                    
-                    table.columns().every(function() {
-                        const column = this;
-                        const columnName = $(column.header()).data('column');
-                        const isVisible = columnsToShow.includes(columnName);
-                        
-                        if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            column.visible(isVisible);
-                            $(`#col_${columnName}`).prop('checked', isVisible);
+                if (response.success && response.configuracion) {
+                    response.configuracion.forEach(function(columnName) {
+                        // No ocultar ID ni Acciones
+                        if (!['id', 'acciones'].includes(columnName)) {
+                            const columnIndex = $(`th[data-column="${columnName}"]`).index();
+                            if (columnIndex !== -1) {
+                                table.column(columnIndex).visible(true);
+                                $(`#col_${columnName}`).prop('checked', true);
+                            }
                         }
                     });
-                    
-                    table.columns.adjust().draw();
                 }
-            })
-            .fail(function(error) {
-                console.error('Error cargando configuración:', error);
-                // Usar configuración por defecto en caso de error
-                const defaultColumns = ['id', 'fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca', 'acciones'];
-                table.columns().every(function() {
-                    const column = this;
-                    const columnName = $(column.header()).data('column');
-                    if (columnName) {
-                        column.visible(defaultColumns.includes(columnName));
-                    }
-                });
                 table.columns.adjust().draw();
             });
     }

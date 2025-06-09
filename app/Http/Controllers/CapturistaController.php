@@ -24,33 +24,16 @@ class CapturistaController extends Controller
             return redirect()->route('dashboard');
         }
 
+        // Obtener hidrantes con sus relaciones
         $hidrantes = Hidrante::with([
-            'coloniaLocacion:IDKEY,NOMBRE', 
-            'callePrincipal:IDKEY,Nomvial', 
-            'calleSecundaria:IDKEY,Nomvial',
-            'createdBy:id,name',
-            'updatedBy:id,name'
-        ])
-        ->latest('id')
-        ->get()
-        ->map(function($hidrante) {
-            return [
-                'id' => $hidrante->id,
-                'fecha_inspeccion' => $hidrante->fecha_inspeccion,
-                'calle' => $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada',
-                'id_calle' => $hidrante->id_calle,
-                'y_calle' => $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada',
-                'id_y_calle' => $hidrante->id_y_calle,
-                'colonia' => $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada',
-                'id_colonia' => $hidrante->id_colonia,
-                'marca' => $hidrante->marca ?? 'No especificada',
-                'create_user' => $hidrante->createdBy ? $hidrante->createdBy->name : 'No disponible',
-                'update_user' => $hidrante->updatedBy ? $hidrante->updatedBy->name : 'No disponible',
-                'created_at' => $hidrante->created_at,
-                'updated_at' => $hidrante->updated_at
-            ];
-        });
+            'coloniaLocacion',
+            'callePrincipal',
+            'calleSecundaria',
+            'createdBy',
+            'updatedBy'
+        ])->get();
 
+        // Obtener calles y colonias para los formularios
         $calles = CatalogoCalle::select('IDKEY', 'Nomvial')->orderBy('Nomvial')->get();
         $colonias = Colonias::select('IDKEY', 'NOMBRE')->orderBy('NOMBRE')->get();
         
