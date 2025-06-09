@@ -23,20 +23,6 @@
     .btn:disabled .button-text {
         opacity: 0.5;
     }
-
-    .dataTables_wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-    
-    .table {
-        width: 100% !important;
-    }
-    
-    .dataTables_scrollBody {
-        overflow-x: auto !important;
-        overflow-y: auto !important;
-    }
 </style>
 
 <div class="container mt-4">
@@ -69,24 +55,24 @@
                 <table id="hidrantesTable" class="table table-bordered table-striped">
                     <thead class="table-dark">
                         <tr>
-                            <th data-column="id">ID</th>
-                            <th data-column="fecha_inspeccion">Fecha Inspección</th>
-                            <th data-column="calle">Calle Principal</th>
-                            <th data-column="y_calle">Calle Secundaria</th>
-                            <th data-column="colonia">Colonia</th>
-                            <th data-column="marca">Marca</th>
-                            <th data-column="acciones">Acciones</th>
+                            <th>ID</th>
+                            <th>Fecha Alta</th>
+                            <th>Calle</th>
+                            <th>Y Calle</th>
+                            <th>Colonia</th>
+                            <th>Marca</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($hidrantes as $hidrante)
                             <tr>
                                 <td>{{ $hidrante->id }}</td>
-                                <td>{{ $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'No especificado' }}</td>
-                                <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'No especificada' }}</td>
-                                <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'No especificada' }}</td>
-                                <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'No especificada' }}</td>
-                                <td>{{ $hidrante->marca ?? 'S/A' }}</td>
+                                <td>{{ $hidrante->fecha_inspeccion->format('Y-m-d') }}</td>
+                                <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'Calle Principal no especificada' }}</td>
+                                <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'Calle Secundaria no especificada' }}</td>
+                                <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'Colonia no especificada' }}</td>
+                                <td>{{ $hidrante->marca ? $hidrante->marca : 'S/A' }}</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning edit-hidrante" data-bs-toggle="modal" 
                                             data-hidrante-id="{{ $hidrante->id }}">
@@ -134,35 +120,17 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
-                            <div class="row">
-                                    <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
-                                    <label class="form-check-label" for="col_calle">Calle Principal(Cadena)</label>
-                                </div>
-                                <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="id_calle" id="col_id_calle" checked>
-                                    <label class="form-check-label" for="col_id_calle">Calle Principal(Clave ID)</label>
-                                </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
+                                <label class="form-check-label" for="col_calle">Calle Principal</label>
                             </div>
-                            <div class="row">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
-                                    <label class="form-check-label" for="col_y_calle">Calle Secundaria(Cadena)</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="id_y_calle" id="col_id_y_calle" checked>
-                                    <label class="form-check-label" for="col_id_y_calle">Calle Secundaria(Clave ID)</label>
-                                </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
+                                <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
                             </div>
-                            <div class="row">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
-                                    <label class="form-check-label" for="col_colonia">Colonia(Cadena)</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="id_colonia" id="col_id_colonia" checked>
-                                    <label class="form-check-label" for="col_id_colonia">Colonia(Clave ID)</label>
-                                </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
+                                <label class="form-check-label" for="col_colonia">Colonia</label>
                             </div>
                         </div>
                     </div>
@@ -207,32 +175,6 @@
                             </div>
                         </div>
                     </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="mb-3">Información del Sistema</h6>
-                            <div class="row">
-                                <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="create_user_id" id="col_create_user">
-                                    <label class="form-check-label" for="col_create_user">Usuario Alta</label>
-                                </div>
-                                <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="update_user_id" id="col_update_user">
-                                    <label class="form-check-label" for="col_update_user">Usuario Actualización</label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="created_at" id="col_created_at">
-                                    <label class="form-check-label" for="col_created_at">Fecha de Alta</label>
-                                </div>
-                                <div class="form-check mb-2 col-6">
-                                    <input class="form-check-input column-toggle" type="checkbox" value="updated_at" id="col_updated_at">
-                                    <label class="form-check-label" for="col_updated_at">Fecha de Actualización</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -253,23 +195,11 @@ $(document).ready(function() {
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
-        pageLength: 10,
         order: [[0, 'desc']],
-        responsive: true,
-        scrollX: true,
-        autoWidth: true,
-        columnDefs: [
-            {
-                targets: 6,
-                orderable: false,
-                searchable: false
-            }
-        ],
-        drawCallback: function(settings) {
-            // Ajustar columnas cada vez que se redibuja la tabla
-            $(window).trigger('resize');
-            this.api().columns.adjust();
-        }
+        paging: true,
+        searching: true,
+        info: true,
+        autoWidth: false
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -421,41 +351,17 @@ $(document).ready(function() {
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
-                if (response.success && response.configuracion) {
-                    // Primero, ocultar todas las columnas excepto ID y Acciones
+                if (response.configuracion) {
+                    const config = response.configuracion;
                     table.columns().every(function() {
-                        const columnName = $(this.header()).data('column');
+                        const column = this;
+                        const columnName = $(column.header()).data('column');
                         if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            this.visible(false);
-                            $(`#col_${columnName}`).prop('checked', false);
+                            column.visible(config.includes(columnName));
+                            $(`#col_${columnName}`).prop('checked', config.includes(columnName));
                         }
                     });
-
-                    // Luego, mostrar solo las columnas configuradas
-                    response.configuracion.forEach(function(columnName) {
-                        const columnIndex = $(`th[data-column="${columnName}"]`).index();
-                        if (columnIndex !== -1) {
-                            table.column(columnIndex).visible(true);
-                            $(`#col_${columnName}`).prop('checked', true);
-                        }
-                    });
-
-                    // Ajustar columnas y redibujar
-                    table.columns.adjust().draw();
                 }
-            })
-            .fail(function() {
-                // Configuración por defecto en caso de error
-                const defaultColumns = ['id', 'fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca', 'acciones'];
-                table.columns().every(function() {
-                    const columnName = $(this.header()).data('column');
-                    const isVisible = defaultColumns.includes(columnName);
-                    this.visible(isVisible);
-                    if (columnName) {
-                        $(`#col_${columnName}`).prop('checked', isVisible);
-                    }
-                });
-                table.columns.adjust().draw();
             });
     }
 
@@ -476,24 +382,15 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Ocultar el modal
-                    $('#configuracionModal').modal('hide');
-                    
-                    // Actualizar visibilidad de columnas
+                    cleanupModal();
                     table.columns().every(function() {
-                        const columnName = $(this.header()).data('column');
+                        const column = this;
+                        const columnName = $(column.header()).data('column');
                         if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            this.visible(configuracion.includes(columnName));
+                            column.visible(configuracion.includes(columnName));
                         }
                     });
-
-                    // Ajustar columnas y redibujar
-                    table.columns.adjust().draw();
-                    
-                    // Limpiar modal
-                    cleanupModal();
-                    
-                    // Notificar éxito
+                    // Mostrar notificación de éxito
                     alert('Configuración guardada exitosamente');
                 }
             },
@@ -505,11 +402,6 @@ $(document).ready(function() {
 
     // Cargar configuración al iniciar
     loadTableConfig();
-
-    // Agregar listener para ajuste de ventana
-    $(window).on('resize', function() {
-        table.columns.adjust();
-    });
 });
 </script>
 @endsection
