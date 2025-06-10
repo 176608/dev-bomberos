@@ -23,6 +23,26 @@
     .btn:disabled .button-text {
         opacity: 0.5;
     }
+
+    .dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .table {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_scrollBody {
+        min-height: 300px;
+    }
+
+    /* Asegurar que el modal no afecte el scroll */
+    body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
 </style>
 
 <div class="container mt-4">
@@ -199,7 +219,21 @@ $(document).ready(function() {
         paging: true,
         searching: true,
         info: true,
-        autoWidth: false
+        autoWidth: true,
+        scrollX: true,
+        scrollY: '50vh',
+        scrollCollapse: true,
+        responsive: true,
+        columnDefs: [
+            {
+                targets: 'no-sort',
+                orderable: false
+            }
+        ],
+        drawCallback: function() {
+            $(window).trigger('resize');
+            this.api().columns.adjust();
+        }
     });
 
     // Manejador para el botón de nuevo hidrante
@@ -382,7 +416,14 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    cleanupModal();
+                    // Primero ocultar el modal correctamente
+                    $('#configuracionModal').modal('hide');
+                    
+                    // Remover cualquier backdrop restante
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('padding-right', '');
+                    
+                    // Actualizar columnas
                     table.columns().every(function() {
                         const column = this;
                         const columnName = $(column.header()).data('column');
@@ -390,7 +431,11 @@ $(document).ready(function() {
                             column.visible(configuracion.includes(columnName));
                         }
                     });
-                    // Mostrar notificación de éxito
+
+                    // Ajustar columnas y redibujar
+                    table.columns.adjust().draw(false);
+                    
+                    // Notificar éxito
                     alert('Configuración guardada exitosamente');
                 }
             },
@@ -402,6 +447,21 @@ $(document).ready(function() {
 
     // Cargar configuración al iniciar
     loadTableConfig();
+
+    $(window).on('resize', function() {
+        if (table) {
+            table.columns.adjust();
+        }
+    });
+
+    // Manejar el cierre del modal
+    $('#configuracionModal').on('hidden.bs.modal', function() {
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css('padding-right', '');
+        if (table) {
+            table.columns.adjust();
+        }
+    });
 });
 </script>
 @endsection
