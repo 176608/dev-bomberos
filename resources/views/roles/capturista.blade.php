@@ -115,7 +115,7 @@
 </div>
 
 <!-- Modal para configuración de tabla -->
-<div class="modal fade" id="configuracionModal" tabindex="-1">
+<div class="modal fade modal-params" id="configuracionModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -254,7 +254,7 @@ $(document).ready(function() {
 
         $.get("{{ route('hidrantes.create') }}")
             .done(function(response) {
-                $('.modal, .modal-backdrop').remove();
+                $('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
 
                 const modalElement = document.getElementById('crearHidranteModal');
@@ -319,7 +319,7 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                $('.modal, .modal-backdrop').remove();
+                $('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
                 
                 const modalElement = document.getElementById(`editarHidranteModal${hidranteId}`);
@@ -372,7 +372,7 @@ $(document).ready(function() {
     function cleanupModal() {
         $('.modal').modal('hide');
         $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').css('padding-right', '');
+        $('body').removeClass('modal-open').removeAttr('style');
     }
 
     // Manejador para el botón de configuración
@@ -522,7 +522,7 @@ $(document).ready(function() {
     // Manejar el cierre del modal
     $('#configuracionModal').on('hidden.bs.modal', function() {
         $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open');
+        $('body').removeClass('modal-open').removeAttr('style');
     });
 });
 </script>

@@ -1,4 +1,4 @@
-<div class="modal fade" id="crearHidranteModal" tabindex="-1">
+<div class="modal fade modal-create" id="crearHidranteModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('hidrantes.store') }}" method="POST" id="formCrearHidrante">

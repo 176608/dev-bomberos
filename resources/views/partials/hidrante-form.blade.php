@@ -1,4 +1,4 @@
-<div class="modal fade" id="editarHidranteModal{{ $hidrante->id }}" tabindex="-1">
+<div class="modal fade modal-edit" id="editarHidranteModal{{ $hidrante->id }}" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('hidrantes.update', $hidrante->id) }}" method="POST">
