@@ -391,12 +391,32 @@ $(document).ready(function() {
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
-                if (response.configuracion) {
-                    console.log('Configuración actual:', response.configuracion);
-                    alert('Configuración actual: ' + JSON.stringify(response.configuracion));
+                if (response.configuracion && Array.isArray(response.configuracion)) {
+                    // Primero desmarcamos todos los checkboxes
+                    $('.column-toggle').prop('checked', false);
+                    
+                    // Marcamos solo los checkboxes que están en la configuración
+                    response.configuracion.forEach(function(columnName) {
+                        $(`#col_${columnName}`).prop('checked', true);
+                    });
+
+                    console.log('Configuración cargada:', response.configuracion);
                 } else {
-                    console.log('No hay configuración guardada');
-                    alert('No hay configuración guardada');
+                    // Si no hay configuración, marcar los checkboxes por defecto
+                    const defaultColumns = [
+                        'fecha_inspeccion',
+                        'calle',
+                        'y_calle',
+                        'colonia',
+                        'marca'
+                    ];
+                    
+                    $('.column-toggle').each(function() {
+                        const columnName = $(this).val();
+                        $(this).prop('checked', defaultColumns.includes(columnName));
+                    });
+
+                    console.log('Usando configuración por defecto:', defaultColumns);
                 }
             })
             .fail(function(error) {
@@ -405,14 +425,50 @@ $(document).ready(function() {
             });
     }
 
+    // Modificar el evento para cargar el modal
+    $('[data-bs-target="#configuracionModal"]').on('click', function() {
+        // Cargar configuración antes de mostrar el modal
+        $.get("{{ route('configuracion.get') }}")
+            .done(function(response) {
+                console.log('Configuración recuperada:', response);
+                
+                // Desmarcamos todos los checkboxes primero
+                $('.column-toggle').prop('checked', false);
+                
+                if (response.success && response.configuracion) {
+                    // Si hay configuración guardada, usarla
+                    response.configuracion.forEach(function(columnName) {
+                        $(`#col_${columnName}`).prop('checked', true);
+                    });
+                    console.log('Usando configuración guardada:', response.configuracion);
+                } else {
+                    // Usar configuración por defecto desde el modelo
+                    const defaultColumns = [
+                        'fecha_inspeccion',
+                        'calle',
+                        'y_calle',
+                        'colonia',
+                        'marca'
+                    ];
+                    
+                    $('.column-toggle').each(function() {
+                        const columnName = $(this).val();
+                        $(this).prop('checked', defaultColumns.includes(columnName));
+                    });
+                    console.log('Usando configuración por defecto:', defaultColumns);
+                }
+            })
+            .fail(function(error) {
+                console.error('Error cargando configuración:', error);
+                alert('Error al cargar la configuración de columnas');
+            });
+    });
+
     // Guardar configuración
     $('#guardarConfiguracion').click(function() {
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
         }).get();
-
-        console.log('Configuración a guardar:', configuracion);
-        alert('Configuración a guardar: ' + JSON.stringify(configuracion));
 
         $.ajax({
             url: "{{ route('configuracion.save') }}",
@@ -428,7 +484,7 @@ $(document).ready(function() {
                     console.log('Configuración guardada:', response.configuracion);
                     alert('Configuración guardada exitosamente: ' + JSON.stringify(response.configuracion));
                     
-                    // Solo limpiamos el modal
+                    // Cerrar modal limpiamente
                     $('#configuracionModal').modal('hide');
                     $('.modal-backdrop').remove();
                     $('body').removeClass('modal-open');
