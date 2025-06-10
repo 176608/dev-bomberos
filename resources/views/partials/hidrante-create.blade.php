@@ -38,7 +38,7 @@
                                             <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
                                             <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
                                         </div>
-                                        <input type="date" class="form-control" name="fecha_tentativa" 
+                                        <input type="date" class="form-control d-none" name="fecha_tentativa" 
                                             id="fecha_tentativa" value="{{ date('Y-m-d') }}">
                                             <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
@@ -383,7 +383,9 @@ $(document).ready(function() {
             fechaInspeccion.setFullYear(fechaInspeccion.getFullYear() + 1);
         }
 
-        $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0]);
+        $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0])
+            .removeClass('d-none');
+
         $('#opcionesPlazo').addClass('d-none');
     });
 
