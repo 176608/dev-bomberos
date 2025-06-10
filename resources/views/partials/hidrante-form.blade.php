@@ -27,9 +27,20 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha tentativa de Mantenimiento:</label>
-                                        <input type="date" class="form-control" name="fecha_tentativa" 
-                                               id="edit_fecha_tentativa"
-                                               value="{{ $hidrante->fecha_tentativa ? date('Y-m-d', strtotime($hidrante->fecha_tentativa)) : date('Y-m-d') }}">
+                                        @if(!$hidrante->fecha_tentativa)
+                                            <div class="d-grid gap-2 mb-2">
+                                                <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
+                                                    Generar fecha tentativa
+                                                </button>
+                                            </div>
+                                            <div class="btn-group d-none w-100 mb-2" id="edit_opcionesPlazo">
+                                                <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                                                <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                            </div>
+                                        @endif
+                                        <input type="date" class="form-control {{ $hidrante->fecha_tentativa ? '' : 'd-none' }}" 
+                                               name="fecha_tentativa" id="edit_fecha_tentativa"
+                                               value="{{ $hidrante->fecha_tentativa ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
                                         <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
@@ -368,6 +379,41 @@ $(document).ready(function() {
         fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
         
         $('#edit_fecha_tentativa').val(fechaTentativa.toISOString().split('T')[0]);
+    });
+
+    // Generar fecha tentativa
+    $('#edit_btnGenerarFecha').click(function() {
+        $('#edit_opcionesPlazo').removeClass('d-none');
+        $(this).addClass('d-none');
+    });
+
+    $('#edit_opcionesPlazo button').click(function() {
+        const plazo = $(this).data('plazo');
+        const fechaHoy = new Date();
+        const fechaTentativa = new Date(fechaHoy);
+        
+        if (plazo === 'corto') {
+            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
+        } else {
+            fechaTentativa.setFullYear(fechaTentativa.getFullYear() + 1);
+        }
+
+        // Formatear fecha para input date
+        const fechaFormateada = fechaTentativa.toISOString().split('T')[0];
+        
+        // Mostrar input date y establecer valor
+        const inputFecha = $('#edit_fecha_tentativa');
+        inputFecha.val(fechaFormateada)
+                 .removeClass('d-none');
+
+        // Ocultar grupo de botones
+        $('#edit_opcionesPlazo').addClass('d-none');
+    });
+
+    // Seleccionar plazo
+    $('#edit_opcionesPlazo .btn-outline-primary').click(function() {
+        $('#edit_opcionesPlazo .btn-outline-primary').removeClass('btn-primary').addClass('btn-outline-primary');
+        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
     });
 });
 </script>
