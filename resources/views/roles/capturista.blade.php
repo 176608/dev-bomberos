@@ -24,18 +24,24 @@
         opacity: 0.5;
     }
 
+    .card .table-responsive {
+        overflow-y: visible !important;
+        max-height: none !important;
+    }
+
     .dataTables_wrapper {
         width: 100%;
         margin: 0 auto;
     }
 
-    .table {
-        width: 100% !important;
-        margin: 0 !important;
+    .dataTables_scrollBody {
+        max-height: none !important;
+        overflow-y: visible !important;
     }
 
-    .dataTables_scrollBody {
-        min-height: 300px;
+    /* Si hay scroll horizontal, asegurarnos que sea suave */
+    .dataTables_wrapper .dataTables_scroll {
+        overflow-x: auto;
     }
 
     /* Asegurar que el modal no afecte el scroll */
@@ -221,8 +227,8 @@ $(document).ready(function() {
         info: true,
         autoWidth: true,
         scrollX: true,
-        scrollY: '50vh',
-        scrollCollapse: true,
+        scrollY: false,        // Deshabilitar scroll vertical
+        scrollCollapse: false, // Deshabilitar colapso de scroll
         responsive: true,
         columnDefs: [
             {
