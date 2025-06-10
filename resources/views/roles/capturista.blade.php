@@ -386,16 +386,16 @@ $(document).ready(function() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
                 if (response.configuracion) {
-                    const config = response.configuracion;
-                    table.columns().every(function() {
-                        const column = this;
-                        const columnName = $(column.header()).data('column');
-                        if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            column.visible(config.includes(columnName));
-                            $(`#col_${columnName}`).prop('checked', config.includes(columnName));
-                        }
-                    });
+                    console.log('Configuración actual:', response.configuracion);
+                    alert('Configuración actual: ' + JSON.stringify(response.configuracion));
+                } else {
+                    console.log('No hay configuración guardada');
+                    alert('No hay configuración guardada');
                 }
+            })
+            .fail(function(error) {
+                console.error('Error al cargar configuración:', error);
+                alert('Error al cargar la configuración');
             });
     }
 
@@ -404,6 +404,9 @@ $(document).ready(function() {
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
         }).get();
+
+        console.log('Configuración a guardar:', configuracion);
+        alert('Configuración a guardar: ' + JSON.stringify(configuracion));
 
         $.ajax({
             url: "{{ route('configuracion.save') }}",
@@ -416,30 +419,17 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Primero ocultar el modal correctamente
+                    console.log('Configuración guardada:', response.configuracion);
+                    alert('Configuración guardada exitosamente: ' + JSON.stringify(response.configuracion));
+                    
+                    // Solo limpiamos el modal
                     $('#configuracionModal').modal('hide');
-                    
-                    // Remover cualquier backdrop restante
                     $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open').css('padding-right', '');
-                    
-                    // Actualizar columnas
-                    table.columns().every(function() {
-                        const column = this;
-                        const columnName = $(column.header()).data('column');
-                        if (columnName && !['id', 'acciones'].includes(columnName)) {
-                            column.visible(configuracion.includes(columnName));
-                        }
-                    });
-
-                    // Ajustar columnas y redibujar
-                    table.columns.adjust().draw(false);
-                    
-                    // Notificar éxito
-                    alert('Configuración guardada exitosamente');
+                    $('body').removeClass('modal-open');
                 }
             },
             error: function(xhr) {
+                console.error('Error al guardar:', xhr);
                 alert('Error al guardar la configuración');
             }
         });
@@ -457,10 +447,7 @@ $(document).ready(function() {
     // Manejar el cierre del modal
     $('#configuracionModal').on('hidden.bs.modal', function() {
         $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').css('padding-right', '');
-        if (table) {
-            table.columns.adjust();
-        }
+        $('body').removeClass('modal-open');
     });
 });
 </script>

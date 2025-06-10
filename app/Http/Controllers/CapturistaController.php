@@ -232,25 +232,26 @@ class CapturistaController extends Controller
                 'configuracion' => 'required|array'
             ]);
 
-            ConfiguracionCapturista::updateOrCreate(
+            $config = ConfiguracionCapturista::updateOrCreate(
                 ['user_id' => auth()->id()],
                 ['configuracion' => $validated['configuracion']]
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Configuración guardada exitosamente'
+                'message' => 'Configuración guardada exitosamente',
+                'configuracion' => $config->configuracion
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error saving configuration:', [
+            \Log::error('Error guardando configuración:', [
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar la configuración'
+                'message' => 'Error al guardar la configuración: ' . $e->getMessage()
             ], 500);
         }
     }
