@@ -357,6 +357,7 @@ $(document).ready(function() {
 
     // Reinicializar Select2 cuando se abre el modal
     $('#crearHidranteModal').on('shown.bs.modal', function () {
+        $('#fecha_tentativa').val('');
         initSelect2Modal();
         // Forzar recálculo de posiciones
         $(window).trigger('resize');
