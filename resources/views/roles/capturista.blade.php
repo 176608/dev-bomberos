@@ -482,12 +482,25 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     console.log('Configuración guardada:', response.configuracion);
-                    alert('Configuración guardada exitosamente: ' + JSON.stringify(response.configuracion));
                     
-                    // Cerrar modal limpiamente
-                    $('#configuracionModal').modal('hide');
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open');
+                    // Cerrar el modal correctamente
+                    const modalElement = document.getElementById('configuracionModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+                    
+                    // Esperar a que termine la animación del modal
+                    setTimeout(() => {
+                        // Limpiar clases y estilos
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').removeAttr('style');
+                        
+                        // Restaurar el scroll
+                        document.documentElement.style.overflow = '';
+                        document.body.style.overflow = '';
+                        
+                        // Notificar al usuario
+                        alert('Configuración guardada exitosamente');
+                    }, 300);
                 }
             },
             error: function(xhr) {
