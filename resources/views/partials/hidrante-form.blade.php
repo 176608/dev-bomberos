@@ -105,16 +105,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <div class="d-flex align-items-center mt-1">
-                                            <small class="form-text text-muted flex-grow-1">
-                                                Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span>
-                                            </small>
-                                            @if($hidrante->calle && !in_array($hidrante->calle, ['', 'Sin definir', 'Pendiente']))
-                                                <button type="button" class="btn btn-danger btn-sm ms-2 clear-location" data-field="calle">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            @endif
-                                        </div>
+                                        <small class="form-text text-muted">Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -334,16 +325,6 @@ select2.select2-container {
 
 .modal-body .select2-container {
     display: block;
-}
-
-.clear-location {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    line-height: 1;
-}
-
-.clear-location i {
-    font-size: 0.875rem;
 }
 </style>
 
@@ -575,117 +556,6 @@ $(document).ready(function() {
                         name: `id_${field}`,
                         value: ''
                     }).appendTo(this);
-                }
-            });
-        }
-    });
-
-    // Función para manejar el estado de los campos de ubicación
-    function handleLocationFields(isPending) {
-        const fields = [
-            { name: 'calle', id: 'edit_id_calle', span: 'calle_actual' },
-            { name: 'y_calle', id: 'edit_id_y_calle', span: 'y_calle_actual' },
-            { name: 'colonia', id: 'edit_id_colonia', span: 'colonia_actual' }
-        ];
-        
-        fields.forEach(field => {
-            const select = $(`#${field.id}`);
-            const span = $(`#${field.span}`);
-            
-            // Limpiar campos ocultos previos
-            $(`input[name="${field.name}"][type="hidden"]`).remove();
-            
-            if (isPending) {
-                // Caso: Información pendiente
-                select.val(null).trigger('change').prop('disabled', true);
-                span.text('Pendiente');
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.name,
-                    value: 'Pendiente'
-                }).appendTo(select.closest('form'));
-                
-                // Ocultar botón de limpiar si existe
-                select.closest('.mb-3').find('.clear-location').hide();
-            } else if (!select.val()) {
-                // Caso: Select vacío
-                span.text('Sin definir');
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.name,
-                    value: 'Sin definir'
-                }).appendTo(select.closest('form'));
-            }
-        });
-    }
-
-    // Manejador para el switch de información pendiente
-    $('#edit_ubicacionPendiente').change(function() {
-        const isChecked = $(this).is(':checked');
-        handleLocationFields(isChecked);
-    });
-
-    // Manejador para los botones de limpiar ubicación
-    $('.clear-location').click(function() {
-        const field = $(this).data('field');
-        const select = $(`#edit_id_${field}`);
-        const span = $(`#${field}_actual`);
-        
-        // Limpiar select y establecer "Sin definir"
-        select.val(null).trigger('change');
-        span.text('Sin definir');
-        
-        // Agregar campo oculto
-        $(`input[name="${field}"][type="hidden"]`).remove();
-        $('<input>').attr({
-            type: 'hidden',
-            name: field,
-            value: 'Sin definir'
-        }).appendTo(select.closest('form'));
-        
-        // Ocultar el botón de limpiar
-        $(this).hide();
-    });
-
-    // Manejador para cambios en los select
-    $('.select2-search').on('change', function() {
-        const field = $(this).attr('id').replace('edit_id_', '');
-        const value = $(this).val();
-        const span = $(`#${field}_actual`);
-        const clearBtn = $(this).closest('.mb-3').find('.clear-location');
-        
-        if (value) {
-            // Mostrar botón de limpiar
-            clearBtn.show();
-            // Remover campo oculto si existe
-            $(`input[name="${field}"][type="hidden"]`).remove();
-        } else {
-            // Establecer "Sin definir" si no hay valor seleccionado
-            span.text('Sin definir');
-            clearBtn.hide();
-            
-            if (!$('#edit_ubicacionPendiente').is(':checked')) {
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field,
-                    value: 'Sin definir'
-                }).appendTo($(this).closest('form'));
-            }
-        }
-    });
-
-    // Modificar el submit del formulario
-    $('form').submit(function() {
-        const isPending = $('#edit_ubicacionPendiente').is(':checked');
-        if (!isPending) {
-            $('.select2-search').each(function() {
-                if (!$(this).val()) {
-                    const field = $(this).attr('id').replace('edit_id_', '');
-                    $('<input>').attr({
-                        type: 'hidden',
-                        name: field,
-                        value: 'Sin definir'
-                    }).appendTo(this.form);
                 }
             });
         }
