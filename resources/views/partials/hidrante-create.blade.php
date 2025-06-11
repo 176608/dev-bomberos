@@ -370,6 +370,7 @@ $(document).ready(function() {
 
     // Manejo de fechas tentativas
     $('#btnGenerarFecha').click(function() {
+        $('#btnGenerarFecha').addClass('d-none');
         $('#opcionesPlazo').removeClass('d-none');
     });
 
