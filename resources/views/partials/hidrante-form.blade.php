@@ -26,26 +26,36 @@
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa de Mantenimiento:</label>
-                                        @php
-                                            $invalidDate = !$hidrante->fecha_tentativa || $hidrante->fecha_tentativa->format('Y-m-d') === '0000-00-00';
-                                        @endphp
-                                        
-                                        @if($invalidDate)
-                                            <div class="d-grid gap-2 mb-2">
-                                                <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
-                                                    Generar fecha tentativa
-                                                </button>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label">Fecha tentativa de Mantenimiento:</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input clear-field" type="checkbox" 
+                                                       id="clear_fecha_tentativa" data-field="fecha_tentativa">
+                                                <label class="form-check-label">Limpiar campo</label>
                                             </div>
-                                            <div class="btn-group d-none w-100 mb-2" id="edit_opcionesPlazo">
-                                                <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
-                                                <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
-                                            </div>
-                                        @endif
+                                        </div>
                                         
-                                        <input type="date" class="form-control {{ $invalidDate ? 'd-none' : '' }}" 
-                                               name="fecha_tentativa" id="edit_fecha_tentativa"
-                                               value="{{ (!$invalidDate && $hidrante->fecha_tentativa) ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
+                                        <div id="fecha_tentativa_container">
+                                            @php
+                                                $invalidDate = !$hidrante->fecha_tentativa || $hidrante->fecha_tentativa->format('Y-m-d') === '0000-00-00';
+                                            @endphp
+                                            
+                                            @if($invalidDate)
+                                                <div class="d-grid gap-2 mb-2">
+                                                    <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
+                                                        Generar fecha tentativa
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group d-none w-100 mb-2" id="edit_opcionesPlazo">
+                                                    <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                                                    <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                                </div>
+                                            @endif
+                                            
+                                            <input type="date" class="form-control {{ $invalidDate ? 'd-none' : '' }}" 
+                                                   name="fecha_tentativa" id="edit_fecha_tentativa"
+                                                   value="{{ (!$invalidDate && $hidrante->fecha_tentativa) ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
+                                        </div>
                                         <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
@@ -392,8 +402,51 @@ $(document).ready(function() {
         $(this).addClass('d-none');
     });
 
-    // Reemplazar el manejador de eventos para los botones de plazo
-    $('#edit_opcionesPlazo button').click(function() {
+    // Manejar limpieza de fecha tentativa
+    $('#clear_fecha_tentativa').change(function() {
+        const isChecked = $(this).is(':checked');
+        const container = $('#fecha_tentativa_container');
+        
+        if (isChecked) {
+            // Limpiar y ocultar el input date
+            $('#edit_fecha_tentativa').addClass('d-none').val('');
+            
+            // Ocultar botones si están visibles
+            $('#edit_opcionesPlazo').addClass('d-none');
+            
+            // Mostrar botón para generar nueva fecha
+            const btnGenerar = $('<button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">Generar fecha tentativa</button>');
+            container.html(btnGenerar);
+            
+            // Agregar campo oculto para el valor "0000-00-00"
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'fecha_tentativa',
+                value: '0000-00-00'
+            }).appendTo(container);
+        } else {
+            // Restaurar el estado original
+            location.reload();
+        }
+    });
+
+    // Actualizar el manejador de eventos para el botón generar (delegación de eventos)
+    $(document).on('click', '#edit_btnGenerarFecha', function() {
+        const container = $('#fecha_tentativa_container');
+        
+        // Crear y mostrar botones de plazo
+        const botonesHtml = `
+            <div class="btn-group w-100 mb-2" id="edit_opcionesPlazo">
+                <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+            </div>
+        `;
+        
+        $(this).replaceWith(botonesHtml);
+    });
+
+    // Actualizar el manejador de eventos para los botones de plazo (delegación de eventos)
+    $(document).on('click', '#edit_opcionesPlazo button', function() {
         const plazo = $(this).data('plazo');
         const fechaHoy = new Date();
         const fechaTentativa = new Date(fechaHoy);
@@ -404,17 +457,22 @@ $(document).ready(function() {
             fechaTentativa.setFullYear(fechaTentativa.getFullYear() + 1);
         }
 
-        // Formatear fecha para input date
         const fechaFormateada = fechaTentativa.toISOString().split('T')[0];
         
-        // Mostrar input date y establecer valor
-        const inputFecha = $('#edit_fecha_tentativa');
-        inputFecha.val(fechaFormateada)
-                 .removeClass('d-none');
-
-        // Ocultar grupo de botones y botón generar
-        $('#edit_opcionesPlazo').addClass('d-none');
-        $('#edit_btnGenerarFecha').addClass('d-none');
+        // Crear y mostrar el input date
+        const inputDate = $('<input>')
+            .attr({
+                type: 'date',
+                class: 'form-control',
+                name: 'fecha_tentativa',
+                id: 'edit_fecha_tentativa',
+                value: fechaFormateada
+            });
+        
+        $('#fecha_tentativa_container').html(inputDate);
+        
+        // Desmarcar el checkbox de limpiar
+        $('#clear_fecha_tentativa').prop('checked', false);
     });
 
     // Seleccionar plazo
