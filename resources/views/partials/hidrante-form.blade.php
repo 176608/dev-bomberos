@@ -391,11 +391,30 @@ $(document).ready(function() {
 
     function initSelect2() {
         $('.select2-search').select2({
-            ...CONFIG.select2Options,
-            dropdownParent: $(`${MODAL_ID} .modal-body`)
-        }).on('select2:select', function() {
-            const field = $(this).attr('id').replace('edit_id_', '');
-            handleLocationField(field, 'enable');
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $(`${MODAL_ID} .modal-body`),
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
+            },
+            placeholder: 'Comienza a escribir para buscar...',
+            allowClear: true,
+            minimumInputLength: 2, // Requiere mínimo 2 caracteres para buscar
+            scrollAfterSelect: false, // Prevenir scroll automático
+            position: function(pos, $el) {
+                pos.top += 5; // Ajuste fino del posicionamiento
+                return pos;
+            }
+        }).on('select2:open', function() {
+            // Asegurar que el dropdown esté visible y enfocado
+            setTimeout(function() {
+                $('.select2-search__field').get(0).focus();
+            }, 10);
         });
     }
 
