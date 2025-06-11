@@ -113,7 +113,7 @@
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input clear-field" type="checkbox" 
                                                        id="clear_y_calle" data-field="y_calle">
-                                                <label class="form-check-label">Limpiar campo</label>
+                                                <label class="form-check-label">Limpiar</label>
                                             </div>
                                         </div>
                                         <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
@@ -330,235 +330,128 @@ select2.select2-container {
 
 <script>
 $(document).ready(function() {
-    function initEditSelect2() {
-        $('.select2-search').select2({
+    const MODAL_ID = '#editarHidranteModal{{ $hidrante->id }}';
+    
+    // Configuración centralizada
+    const CONFIG = {
+        fields: ['calle', 'y_calle', 'colonia'],
+        actions: {
+            clear: {
+                value: 'Sin definir',
+                id: '',
+                disabled: true
+            },
+            pending: {
+                value: 'Pendiente',
+                id: '0',
+                disabled: true
+            },
+            enable: {
+                disabled: false
+            }
+        },
+        select2Options: {
             theme: 'bootstrap-5',
             width: '100%',
-            dropdownParent: $('#editarHidranteModal{{ $hidrante->id }} .modal-body'),
             language: {
-                noResults: function() {
-                    return "No se encontraron resultados";
-                },
-                searching: function() {
-                    return "Buscando...";
-                }
-            },
-            allowClear: true,
-            minimumInputLength: 2,
-            scrollAfterSelect: false,
-            position: function(pos, $el) {
-                pos.top += 5;
-                return pos;
+                noResults: () => "No se encontraron resultados"
             }
-        }).on('select2:open', function() {
-            setTimeout(function() {
-                $('.select2-search__field').get(0).focus();
-            }, 10);
-        });
-    }
+        }
+    };
 
-    // Inicializar Select2 cuando se abre el modal
-    $('#editarHidranteModal{{ $hidrante->id }}').on('shown.bs.modal', function () {
-        initEditSelect2();
-        $(window).trigger('resize');
-    });
-
-    // Limpiar Select2 cuando se cierra el modal
-    $('#editarHidranteModal{{ $hidrante->id }}').on('hidden.bs.modal', function () {
-        $('.select2-search').select2('destroy');
-    });
-
-    // Manejar limpieza de campos
-    $('.clear-field').change(function() {
-        const field = $(this).data('field');
-        const isChecked = $(this).is(':checked');
+    // Funciones principales
+    function handleLocationField(field, action) {
         const select = $(`#edit_id_${field}`);
+        const span = $(`#${field}_actual`);
+        const form = select.closest('form');
         
-        if (isChecked) {
-            select.val(null).trigger('change');
-            select.prop('disabled', true);
-            $(`#${field}_actual`).text('Sin definir');
+        // Limpiar campos ocultos previos
+        $(`input[name="${field}"][type="hidden"], input[name="id_${field}"][type="hidden"]`).remove();
+
+        const config = CONFIG.actions[action];
+        if (!config) return;
+
+        select.val(null).trigger('change').prop('disabled', config.disabled);
+        
+        if (config.value) {
+            span.text(config.value);
             
-            // Agregar campo oculto para el valor "Sin definir"
-            $(`<input type="hidden" name="${field}" value="Sin definir">`).insertAfter(select);
-        } else {
-            select.prop('disabled', false);
-            $(`input[name="${field}"][type="hidden"]`).remove();
-        }
-    });
-
-    // Manejar fecha de inspección y tentativa
-    $('#edit_fecha_inspeccion').change(function() {
-        const fechaInspeccion = new Date($(this).val());
-        const fechaTentativa = new Date(fechaInspeccion);
-        fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
-        
-        $('#edit_fecha_tentativa').val(fechaTentativa.toISOString().split('T')[0]);
-    });
-
-    // Función para mostrar los botones de plazo
-    function showPlazoButtons() {
-        const botonesHtml = `
-            <div class="btn-group w-100 mb-2" id="edit_opcionesPlazo">
-                <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
-                <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
-            </div>
-        `;
-        $('#generarFechaContainer').html(botonesHtml);
-    }
-
-    // Función para generar fecha basada en el plazo
-    function generateDate(plazo) {
-        const fechaHoy = new Date();
-        const fechaTentativa = new Date(fechaHoy);
-        
-        if (plazo === 'corto') {
-            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
-        } else {
-            fechaTentativa.setFullYear(fechaTentativa.getFullYear() + 1);
-        }
-
-        return fechaTentativa.toISOString().split('T')[0];
-    }
-
-    // Manejador para el botón de generar fecha
-    $(document).on('click', '#edit_btnGenerarFecha', function(e) {
-        e.preventDefault();
-        showPlazoButtons();
-    });
-
-    // Función para verificar si la fecha es válida
-    function isValidDate(date) {
-        return date && date !== '0000-00-00';
-    }
-
-    // Función para habilitar/deshabilitar y resetear el switch de limpieza
-    function toggleCleanSwitch(enable) {
-        const switchEl = $('#clear_fecha_tentativa');
-        switchEl.prop('disabled', !enable);
-        switchEl.prop('checked', false); // Asegura que el switch esté en OFF
-    }
-
-    // Verificar estado inicial del switch basado en la fecha precargada
-    $(function() {
-        const fechaTentativa = $('#edit_fecha_tentativa').val();
-        toggleCleanSwitch(isValidDate(fechaTentativa));
-    });
-
-    // Actualizar el manejador de botones de plazo
-    $(document).on('click', '#edit_opcionesPlazo button', function(e) {
-        e.preventDefault();
-        const plazo = $(this).data('plazo');
-        const fechaFormateada = generateDate(plazo);
-        
-        // Mostrar el input date con la fecha generada
-        const inputDate = $('#edit_fecha_tentativa');
-        inputDate.val(fechaFormateada)
-                .removeClass('d-none');
-        
-        // Remover los botones de plazo
-        $('#generarFechaContainer').remove();
-        
-        // Habilitar el switch de limpieza y asegurar que esté en OFF
-        toggleCleanSwitch(true);
-    });
-
-    // Actualizar el manejador para limpiar fecha
-    $('#clear_fecha_tentativa').change(function() {
-        const isChecked = $(this).is(':checked');
-        
-        if (isChecked) {
-            // Ocultar input date y limpiar valor
-            $('#edit_fecha_tentativa').addClass('d-none').val('');
-            
-            // Recrear botón de generar fecha
-            const btnHtml = `
-                <div class="d-grid gap-2 mb-2" id="generarFechaContainer">
-                    <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
-                        Generar fecha tentativa
-                    </button>
-                </div>
-            `;
-            $('#fecha_tentativa_container').prepend(btnHtml);
-            
-            // Agregar campo oculto con valor 0000-00-00
-            $('<input>').attr({
+            // Agregar campos ocultos usando un solo jQuery object
+            $('<input>', {
                 type: 'hidden',
-                name: 'fecha_tentativa',
-                value: '0000-00-00'
-            }).appendTo('#fecha_tentativa_container');
-            
-            // Deshabilitar el switch y ponerlo en OFF después de un breve delay
-            setTimeout(() => {
-                toggleCleanSwitch(false);
-            }, 100);
+                name: field,
+                value: config.value
+            }).add($('<input>', {
+                type: 'hidden',
+                name: `id_${field}`,
+                value: config.id
+            })).appendTo(form);
         }
-    });
+    }
 
-    // Agregar el manejador para el switch de ubicación pendiente
-    $('#edit_ubicacionPendiente').change(function() {
-        const isChecked = $(this).is(':checked');
-        const selects = $('#edit_id_calle, #edit_id_y_calle, #edit_id_colonia');
-        const fields = [
-            { name: 'calle', id: 'edit_id_calle', span: 'calle_actual' },
-            { name: 'y_calle', id: 'edit_id_y_calle', span: 'y_calle_actual' },
-            { name: 'colonia', id: 'edit_id_colonia', span: 'colonia_actual' }
-        ];
-        
-        selects.prop('disabled', isChecked);
-        
-        // Remover campos ocultos previos
-        fields.forEach(field => {
-            $(`input[name="${field.name}"][type="hidden"]`).remove();
-            $(`input[name="${field.id}"][type="hidden"]`).remove();
+    function initSelect2() {
+        $('.select2-search').select2({
+            ...CONFIG.select2Options,
+            dropdownParent: $(`${MODAL_ID} .modal-body`)
+        }).on('select2:select', function() {
+            const field = $(this).attr('id').replace('edit_id_', '');
+            handleLocationField(field, 'enable');
         });
-        
-        if (isChecked) {
-            // Limpiar selects
-            selects.val(null).trigger('change');
-            
-            // Actualizar textos y agregar campos ocultos
-            fields.forEach(field => {
-                $(`#${field.span}`).text('Pendiente');
-                
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.name,
-                    value: 'Pendiente'
-                }).appendTo(this.form);
-                
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.id.replace('edit_', ''),
-                    value: '0'
-                \][]}).appendTo(this.form);
-            });
-        }
-    });
+    }
 
-    // Modificar el manejador de submit
-    $(this.form).submit(function(e) {
-        const fields = ['calle', 'y_calle', 'colonia'];
-        const pendienteChecked = $('#edit_ubicacionPendiente').is(':checked');
-        
-        if (!pendienteChecked) {
-            fields.forEach(field => {
-                const selectValue = $(`#edit_id_${field}`).val();
-                if (!selectValue) {
-                    $('<input>').attr({
-                        type: 'hidden',
-                        name: field,
-                        value: 'Sin definir'
-                    }).appendTo(this);
-                    
-                    $('<input>').attr({
-                        type: 'hidden',
-                        name: `id_${field}`,
-                        value: ''
-                    }).appendTo(this);
-                }
-            });
-        }
-    });
+    function initDateHandlers() {
+        $('#edit_fecha_inspeccion').change(function() {
+            const fechaInspeccion = new Date($(this).val());
+            const fechaTentativa = new Date(fechaInspeccion);
+            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
+            $('#edit_fecha_tentativa')
+                .val(fechaTentativa.toISOString().split('T')[0])
+                .removeClass('d-none');
+            $('#generarFechaContainer').addClass('d-none');
+        });
+
+        // Manejador para el botón de generar fecha
+        $('#edit_btnGenerarFecha').click(function() {
+            const fechaInspeccion = new Date($('#edit_fecha_inspeccion').val());
+            const fechaTentativa = new Date(fechaInspeccion);
+            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
+            
+            $('#edit_fecha_tentativa')
+                .val(fechaTentativa.toISOString().split('T')[0])
+                .removeClass('d-none');
+            $(this).closest('#generarFechaContainer').addClass('d-none');
+        });
+    }
+
+    // Inicialización de eventos
+    function initEventHandlers() {
+        // Ubicación pendiente
+        $('#edit_ubicacionPendiente').change(function() {
+            const action = $(this).is(':checked') ? 'pending' : 'enable';
+            CONFIG.fields.forEach(field => handleLocationField(field, action));
+        });
+
+        // Botones de limpieza
+        $('.clear-field').change(function() {
+            if ($(this).is(':checked')) {
+                handleLocationField($(this).data('field'), 'clear');
+                setTimeout(() => $(this).prop('checked', false), 100);
+            }
+        });
+
+        initDateHandlers();
+    }
+
+    // Inicialización del modal
+    $(MODAL_ID)
+        .on('shown.bs.modal', function() {
+            initSelect2();
+            $(window).trigger('resize');
+        })
+        .on('hidden.bs.modal', function() {
+            $('.select2-search').select2('destroy');
+        });
+
+    initEventHandlers();
 });
 </script>
