@@ -423,7 +423,25 @@ $(document).ready(function() {
         showPlazoButtons();
     });
 
-    // Manejador para los botones de plazo
+    // Función para verificar si la fecha es válida
+    function isValidDate(date) {
+        return date && date !== '0000-00-00';
+    }
+
+    // Función para habilitar/deshabilitar y resetear el switch de limpieza
+    function toggleCleanSwitch(enable) {
+        const switchEl = $('#clear_fecha_tentativa');
+        switchEl.prop('disabled', !enable);
+        switchEl.prop('checked', false); // Asegura que el switch esté en OFF
+    }
+
+    // Verificar estado inicial del switch basado en la fecha precargada
+    $(function() {
+        const fechaTentativa = $('#edit_fecha_tentativa').val();
+        toggleCleanSwitch(isValidDate(fechaTentativa));
+    });
+
+    // Actualizar el manejador de botones de plazo
     $(document).on('click', '#edit_opcionesPlazo button', function(e) {
         e.preventDefault();
         const plazo = $(this).data('plazo');
@@ -437,11 +455,11 @@ $(document).ready(function() {
         // Remover los botones de plazo
         $('#generarFechaContainer').remove();
         
-        // Habilitar el botón de limpiar
-        $('#clear_fecha_tentativa').prop('disabled', false);
+        // Habilitar el switch de limpieza y asegurar que esté en OFF
+        toggleCleanSwitch(true);
     });
 
-    // Manejador para limpiar fecha
+    // Actualizar el manejador para limpiar fecha
     $('#clear_fecha_tentativa').change(function() {
         const isChecked = $(this).is(':checked');
         
@@ -466,8 +484,10 @@ $(document).ready(function() {
                 value: '0000-00-00'
             }).appendTo('#fecha_tentativa_container');
             
-            // Deshabilitar el botón de limpiar
-            $(this).prop('disabled', true);
+            // Deshabilitar el switch y ponerlo en OFF después de un breve delay
+            setTimeout(() => {
+                toggleCleanSwitch(false);
+            }, 100);
         }
     });
 });
