@@ -79,8 +79,12 @@
                     <!-- Segunda Sección - Ubicación -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
-                            <div class="card-header bg-success text-white">
-                                Ubicación
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <span>Ubicación</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="edit_ubicacionPendiente">
+                                    <label class="form-check-label text-white">Información pendiente de capturar</label>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -488,6 +492,72 @@ $(document).ready(function() {
             setTimeout(() => {
                 toggleCleanSwitch(false);
             }, 100);
+        }
+    });
+
+    // Agregar el manejador para el switch de ubicación pendiente
+    $('#edit_ubicacionPendiente').change(function() {
+        const isChecked = $(this).is(':checked');
+        const selects = $('#edit_id_calle, #edit_id_y_calle, #edit_id_colonia');
+        const fields = [
+            { name: 'calle', id: 'edit_id_calle', span: 'calle_actual' },
+            { name: 'y_calle', id: 'edit_id_y_calle', span: 'y_calle_actual' },
+            { name: 'colonia', id: 'edit_id_colonia', span: 'colonia_actual' }
+        ];
+        
+        selects.prop('disabled', isChecked);
+        
+        // Remover campos ocultos previos
+        fields.forEach(field => {
+            $(`input[name="${field.name}"][type="hidden"]`).remove();
+            $(`input[name="${field.id}"][type="hidden"]`).remove();
+        });
+        
+        if (isChecked) {
+            // Limpiar selects
+            selects.val(null).trigger('change');
+            
+            // Actualizar textos y agregar campos ocultos
+            fields.forEach(field => {
+                $(`#${field.span}`).text('Pendiente');
+                
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: field.name,
+                    value: 'Pendiente'
+                }).appendTo(this.form);
+                
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: field.id.replace('edit_', ''),
+                    value: '0'
+                \][]}).appendTo(this.form);
+            });
+        }
+    });
+
+    // Modificar el manejador de submit
+    $(this.form).submit(function(e) {
+        const fields = ['calle', 'y_calle', 'colonia'];
+        const pendienteChecked = $('#edit_ubicacionPendiente').is(':checked');
+        
+        if (!pendienteChecked) {
+            fields.forEach(field => {
+                const selectValue = $(`#edit_id_${field}`).val();
+                if (!selectValue) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: field,
+                        value: 'Sin definir'
+                    }).appendTo(this);
+                    
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: `id_${field}`,
+                        value: ''
+                    }).appendTo(this);
+                }
+            });
         }
     });
 });

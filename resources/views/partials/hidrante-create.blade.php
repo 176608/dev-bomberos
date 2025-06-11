@@ -390,34 +390,68 @@ $(document).ready(function() {
         $('#opcionesPlazo').addClass('d-none');
     });
 
-    // Manejo de ubicación pendiente
+    // Modificar el manejador de ubicación pendiente
     $('#ubicacionPendiente').change(function() {
         const isChecked = $(this).is(':checked');
         const selects = $('#id_calle, #id_y_calle, #id_colonia');
+        const fields = [
+            { name: 'calle', id: 'id_calle' },
+            { name: 'y_calle', id: 'id_y_calle' },
+            { name: 'colonia', id: 'id_colonia' }
+        ];
         
         selects.prop('disabled', isChecked);
         
+        // Remover campos ocultos previos
+        fields.forEach(field => {
+            $(`input[name="${field.name}"][type="hidden"]`).remove();
+            $(`input[name="${field.id}"][type="hidden"]`).remove();
+        });
+        
         if (isChecked) {
+            // Limpiar selects
             selects.val(null).trigger('change');
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'calle',
-                value: 'Pendiente'
-            }).appendTo('#formCrearHidrante');
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'y_calle',
-                value: 'Pendiente'
-            }).appendTo('#formCrearHidrante');
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'colonia',
-                value: 'Pendiente'
-            }).appendTo('#formCrearHidrante');
-        } else {
-            $('#formCrearHidrante input[name="calle"]').remove();
-            $('#formCrearHidrante input[name="y_calle"]').remove();
-            $('#formCrearHidrante input[name="colonia"]').remove();
+            
+            // Agregar campos con valor "Pendiente" y id = 0
+            fields.forEach(field => {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: field.name,
+                    value: 'Pendiente'
+                }).appendTo('#formCrearHidrante');
+                
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: field.id,
+                    value: '0'
+                }).appendTo('#formCrearHidrante');
+            });
+        }
+    });
+
+    // Agregar manejador de submit del formulario
+    $('#formCrearHidrante').submit(function(e) {
+        const fields = ['calle', 'y_calle', 'colonia'];
+        const pendienteChecked = $('#ubicacionPendiente').is(':checked');
+        
+        if (!pendienteChecked) {
+            fields.forEach(field => {
+                const selectValue = $(`#id_${field}`).val();
+                if (!selectValue) {
+                    // Si no hay valor seleccionado, agregar "Sin definir"
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: field,
+                        value: 'Sin definir'
+                    }).appendTo(this);
+                    
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: `id_${field}`,
+                        value: ''
+                    }).appendTo(this);
+                }
+            });
         }
     });
 });
