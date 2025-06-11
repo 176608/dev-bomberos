@@ -42,6 +42,14 @@ class Hidrante extends Model
         'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
 
+    protected function getFechaTentativaAttribute($value)
+    {
+        if (!$value || $value === '0000-00-00') {
+            return null;
+        }
+        return \Carbon\Carbon::parse($value);
+    }
+
     public function coloniaLocacion()
     {
         return $this->belongsTo(Colonias::class, 'id_colonia', 'IDKEY');

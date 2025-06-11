@@ -27,7 +27,11 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha tentativa de Mantenimiento:</label>
-                                        @if(!$hidrante->fecha_tentativa)
+                                        @php
+                                            $invalidDate = !$hidrante->fecha_tentativa || $hidrante->fecha_tentativa->format('Y-m-d') === '0000-00-00';
+                                        @endphp
+                                        
+                                        @if($invalidDate)
                                             <div class="d-grid gap-2 mb-2">
                                                 <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
                                                     Generar fecha tentativa
@@ -38,9 +42,10 @@
                                                 <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
                                             </div>
                                         @endif
-                                        <input type="date" class="form-control {{ $hidrante->fecha_tentativa ? '' : 'd-none' }}" 
+                                        
+                                        <input type="date" class="form-control {{ $invalidDate ? 'd-none' : '' }}" 
                                                name="fecha_tentativa" id="edit_fecha_tentativa"
-                                               value="{{ $hidrante->fecha_tentativa ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
+                                               value="{{ (!$invalidDate && $hidrante->fecha_tentativa) ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
                                         <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
@@ -304,7 +309,7 @@
     margin-top: 2px;
 }
 
-.select2.select2-container {
+select2.select2-container {
     width: 100% !important;
 }
 
@@ -387,6 +392,7 @@ $(document).ready(function() {
         $(this).addClass('d-none');
     });
 
+    // Reemplazar el manejador de eventos para los botones de plazo
     $('#edit_opcionesPlazo button').click(function() {
         const plazo = $(this).data('plazo');
         const fechaHoy = new Date();
@@ -406,8 +412,9 @@ $(document).ready(function() {
         inputFecha.val(fechaFormateada)
                  .removeClass('d-none');
 
-        // Ocultar grupo de botones
+        // Ocultar grupo de botones y botón generar
         $('#edit_opcionesPlazo').addClass('d-none');
+        $('#edit_btnGenerarFecha').addClass('d-none');
     });
 
     // Seleccionar plazo
