@@ -79,29 +79,34 @@
                     <!-- Segunda Sección - Ubicación -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
-                            <div class="card-header bg-success text-white">
-                                Ubicación
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <span>Ubicación</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ubicacionPendiente">
+                                    <label class="form-check-label text-white" for="ubicacionPendiente">
+                                        Información pendiente de capturar
+                                    </label>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <label class="form-label">Calle Principal:</label>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input clear-field" type="checkbox" 
-                                                       id="clear_calle" data-field="calle">
-                                                <label class="form-check-label">Limpiar campo</label>
+                                        <label class="form-label">Calle Principal:</label>
+                                        <div class="input-group">
+                                            <select class="form-select select2-search" name="id_calle" id="id_calle">
+                                                <option value="">Buscar calle principal...</option>
+                                                @foreach($calles as $calle)
+                                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-append">
+                                                <div class="form-check form-switch mt-2 ms-2">
+                                                    <input class="form-check-input clear-field" type="checkbox" 
+                                                           data-field="calle" data-target="id_calle">
+                                                    <label class="form-check-label">Limpiar</label>
+                                                </div>
                                             </div>
                                         </div>
-                                        <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
-                                            <option value="">Buscar nueva calle principal...</option>
-                                            @foreach($calles as $calle)
-                                                <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
-                                                    {{ $calle->Nomvial }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <small class="form-text text-muted">Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -489,6 +494,51 @@ $(document).ready(function() {
                 toggleCleanSwitch(false);
             }, 100);
         }
+    });
+
+    // Manejar ubicación pendiente
+    $('#ubicacionPendiente').change(function() {
+        const isChecked = $(this).is(':checked');
+        const selects = $('#id_calle, #id_y_calle, #id_colonia');
+        
+        selects.prop('disabled', isChecked);
+        
+        if (isChecked) {
+            // Limpiar selects
+            selects.val(null).trigger('change');
+            
+            // Establecer valores pendientes
+            const pendingFields = [
+                {name: 'calle', id: 'id_calle'},
+                {name: 'y_calle', id: 'id_y_calle'},
+                {name: 'colonia', id: 'id_colonia'}
+            ];
+
+            pendingFields.forEach(field => {
+                $(`#${field.id}`).val('').trigger('change');
+                // Agregar campos ocultos
+                $(`<input type="hidden" name="${field.name}" value="Pendiente">`).appendTo('#formHidrante');
+                $(`<input type="hidden" name="${field.id}" value="0">`).appendTo('#formHidrante');
+            });
+        } else {
+            // Remover campos ocultos
+            $('input[name^="calle"], input[name^="y_calle"], input[name^="colonia"]').remove();
+            selects.prop('disabled', false);
+        }
+    });
+
+    // Manejar selección de Select2
+    $('.select2-search').on('select2:select', function(e) {
+        const id = $(this).attr('id');
+        const field = id.replace('id_', '');
+        
+        // Remover campos ocultos si existían
+        $(`input[name="${field}"], input[name="${id}"]`).remove();
+        
+        // Desmarcar checkbox de limpieza
+        $(this).closest('.input-group')
+               .find('.clear-field')
+               .prop('checked', false);
     });
 });
 </script>

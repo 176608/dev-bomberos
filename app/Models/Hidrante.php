@@ -75,6 +75,33 @@ class Hidrante extends Model
     {
         return $this->belongsTo(User::class, 'update_user_id');
     }
+
+    protected function setDefaultValues($attributes)
+    {
+        // Para campos sin definir
+        foreach(['calle', 'y_calle', 'colonia'] as $field) {
+            if (empty($attributes[$field])) {
+                $attributes[$field] = 'Sin definir';
+                $attributes['id_' . $field] = null;
+            }
+        }
+        return $attributes;
+    }
+
+    protected function setPendingValues($attributes)
+    {
+        $pendingFields = [
+            'calle' => ['field' => 'calle', 'id' => 'id_calle'],
+            'y_calle' => ['field' => 'y_calle', 'id' => 'id_y_calle'],
+            'colonia' => ['field' => 'colonia', 'id' => 'id_colonia']
+        ];
+
+        foreach($pendingFields as $config) {
+            $attributes[$config['field']] = 'Pendiente';
+            $attributes[$config['id']] = 0;
+        }
+        return $attributes;
+    }
 }
 
 /*
