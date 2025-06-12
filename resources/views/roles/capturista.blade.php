@@ -266,6 +266,8 @@ $(document).ready(function() {
         }
     });
 
+    var configTable; // Variable para la tabla configurada
+
     // Manejador para el botón de nuevo hidrante
     $('#btnNuevoHidrante').click(function() {
         const button = $(this);
@@ -451,38 +453,105 @@ $(document).ready(function() {
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
+                let columns = [];
+                let configuracion = [];
+
                 if (response.configuracion && Array.isArray(response.configuracion)) {
-                    // Actualizar checkboxes como antes
-                    $('.column-toggle').prop('checked', false);
-                    response.configuracion.forEach(function(columnName) {
-                        $(`#col_${columnName}`).prop('checked', true);
-                    });
-                    
-                    // Actualizar headers de la tabla configurada
-                    updateConfiguredTableHeaders(response.configuracion);
-                    
-                    console.log('Configuración cargada:', response.configuracion);
+                    configuracion = response.configuracion;
                 } else {
-                    // Configuración por defecto
-                    const defaultColumns = [
+                    configuracion = [
                         'fecha_inspeccion',
                         'calle',
                         'y_calle',
                         'colonia',
                         'marca'
                     ];
-                    
-                    // Actualizar checkboxes por defecto
-                    $('.column-toggle').each(function() {
-                        const columnName = $(this).val();
-                        $(this).prop('checked', defaultColumns.includes(columnName));
-                    });
-                    
-                    // Actualizar headers con configuración por defecto
-                    updateConfiguredTableHeaders(defaultColumns);
-                    
-                    console.log('Usando configuración por defecto:', defaultColumns);
                 }
+
+                // Actualizar headers
+                updateConfiguredTableHeaders(configuracion);
+
+                // Configurar columnas para DataTable
+                columns = [
+                    { data: 'id', title: 'ID' }
+                ];
+
+                // Mapeo de campos a sus fuentes de datos
+                const columnMapping = {
+                    'fecha_inspeccion': (data) => data.fecha_inspeccion ? moment(data.fecha_inspeccion).format('YYYY-MM-DD') : '',
+                    'fecha_tentativa': (data) => data.fecha_tentativa ? moment(data.fecha_tentativa).format('YYYY-MM-DD') : '',
+                    'numero_estacion': 'numero_estacion',
+                    'numero_hidrante': 'numero_hidrante',
+                    'calle': (data) => data.callePrincipal ? data.callePrincipal.Nomvial : 'Sin especificar',
+                    'y_calle': (data) => data.calleSecundaria ? data.calleSecundaria.Nomvial : 'Sin especificar',
+                    'colonia': (data) => data.coloniaLocacion ? data.coloniaLocacion.NOMBRE : 'Sin especificar',
+                    'llave_hidrante': 'llave_hidrante',
+                    'presion_agua': 'presion_agua',
+                    'color': 'color',
+                    'estado_hidrante': 'estado_hidrante',
+                    'marca': 'marca',
+                    'anio': 'anio',
+                    'oficial': 'oficial',
+                    'observaciones': 'observaciones'
+                };
+
+                // Agregar columnas configuradas
+                configuracion.forEach(column => {
+                    columns.push({
+                        data: null,
+                        title: headerNames[column] || column,
+                        render: function(data, type, row) {
+                            const mapping = columnMapping[column];
+                            return typeof mapping === 'function' ? 
+                                   mapping(row) : 
+                                   row[mapping] || 'N/A';
+                        }
+                    });
+                });
+
+                // Agregar columna de acciones
+                columns.push({
+                    data: null,
+                    title: 'Acciones',
+                    orderable: false,
+                    render: function(data, type, row) {
+                        return `<button class="btn btn-sm btn-warning edit-hidrante" 
+                                data-hidrante-id="${row.id}" disabled>
+                                Editar <i class="bi bi-pen-fill"></i>
+                            </button>`;
+                    }
+                });
+
+                // Destruir tabla existente si ya está inicializada
+                if (configTable) {
+                    configTable.destroy();
+                }
+
+                // Inicializar la tabla configurada
+                configTable = $('#hidrantesConfigTable').DataTable({
+                    data: {!! json_encode($hidrantes) !!},
+                    columns: columns,
+                    language: {
+                        url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+                    },
+                    order: [[0, 'desc']],
+                    paging: true,
+                    searching: true,
+                    info: true,
+                    autoWidth: true,
+                    scrollX: true,
+                    responsive: true,
+                    drawCallback: function() {
+                        $(window).trigger('resize');
+                        this.api().columns.adjust();
+                    }
+                });
+
+                // Actualizar checkboxes
+                $('.column-toggle').prop('checked', false);
+                configuracion.forEach(function(columnName) {
+                    $(`#col_${columnName}`).prop('checked', true);
+                });
             })
             .fail(function(error) {
                 console.error('Error al cargar configuración:', error);
@@ -546,27 +615,17 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Actualizar los headers de la tabla configurada
-                    updateConfiguredTableHeaders(configuracion);
+                    loadTableConfig(); // Recargar la tabla con la nueva configuración
                     
-                    console.log('Configuración guardada:', response.configuracion);
-                    
-                    // Cerrar el modal correctamente
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
                     
-                    // Esperar a que termine la animación del modal
                     setTimeout(() => {
-                        // Limpiar clases y estilos
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').removeAttr('style');
-                        
-                        // Restaurar el scroll
                         document.documentElement.style.overflow = '';
                         document.body.style.overflow = '';
-                        
-                        // Notificar al usuario
                         alert('Configuración guardada exitosamente');
                     }, 300);
                 }
