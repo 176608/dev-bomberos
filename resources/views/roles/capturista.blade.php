@@ -240,6 +240,25 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    // Definir headerNames al inicio para que esté disponible en todo el scope
+    const headerNames = {
+        'fecha_inspeccion': 'Fecha Inspección',
+        'fecha_tentativa': 'Fecha Tentativa', 
+        'numero_estacion': 'N° Estación',
+        'numero_hidrante': 'N° Hidrante',
+        'calle': 'Calle Principal',
+        'y_calle': 'Calle Secundaria',
+        'colonia': 'Colonia',
+        'llave_hidrante': 'Llave Hidrante',
+        'presion_agua': 'Presión Agua',
+        'color': 'Color',
+        'estado_hidrante': 'Estado',
+        'marca': 'Marca',
+        'anio': 'Año',
+        'oficial': 'Oficial',
+        'observaciones': 'Observaciones'
+    };
+
     // DataTable initialization
     var table = $('#hidrantesTable').DataTable({
         language: {
@@ -415,32 +434,10 @@ $(document).ready(function() {
 
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
-        // Obtener la fila de headers
         const headerRow = $('#configuredHeaders');
-        
-        // Limpiar headers existentes (excepto ID y Acciones)
         headerRow.find('th:not(:first-child):not(:last-child)').remove();
         
-        // Mapeo de nombres técnicos a nombres display
-        const headerNames = {
-            'fecha_inspeccion': 'Fecha Inspección',
-            'fecha_tentativa': 'Fecha Tentativa',
-            'numero_estacion': 'N° Estación',
-            'numero_hidrante': 'N° Hidrante',
-            'calle': 'Calle Principal',
-            'y_calle': 'Calle Secundaria',
-            'colonia': 'Colonia',
-            'llave_hidrante': 'Llave Hidrante',
-            'presion_agua': 'Presión Agua',
-            'color': 'Color',
-            'estado_hidrante': 'Estado',
-            'marca': 'Marca',
-            'anio': 'Año',
-            'oficial': 'Oficial',
-            'observaciones': 'Observaciones'
-        };
-
-        // Insertar los headers configurados antes de "Acciones"
+        // Ahora headerNames está disponible aquí
         const lastHeader = headerRow.find('th:last');
         configuracion.forEach(column => {
             $('<th>', {
