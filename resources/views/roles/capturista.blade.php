@@ -542,9 +542,6 @@ $(document).ready(function() {
         });
     });
 
-    // Para cargar la configuración inicial de la tabla
-    //loadTableConfig();
-
     $(window).on('resize', function() {
         if (table) {
             table.columns.adjust();
@@ -555,6 +552,45 @@ $(document).ready(function() {
     $('#configuracionModal').on('hidden.bs.modal', function() {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').removeAttr('style');
+    });
+
+    // Agregar este evento para cargar la configuración cuando se abre el modal
+    $('#configuracionModal').on('show.bs.modal', function () {
+        // Mostrar spinner mientras carga
+        $('#tableLoader').removeClass('d-none');
+        
+        // Cargar configuración actual del usuario
+        $.get("{{ route('configuracion.get') }}")
+            .done(function(response) {
+                // Desmarcar todos los checkboxes primero
+                $('.column-toggle').prop('checked', false);
+                
+                if (response.configuracion && Array.isArray(response.configuracion)) {
+                    // Marcar los checkboxes según la configuración guardada
+                    response.configuracion.forEach(function(columnName) {
+                        $(`#col_${columnName}`).prop('checked', true);
+                    });
+                } else {
+                    // Configuración por defecto si no hay configuración guardada
+                    const defaultColumns = [
+                        'fecha_inspeccion',
+                        'calle',
+                        'y_calle',
+                        'colonia',
+                        'marca'
+                    ];
+                    defaultColumns.forEach(function(columnName) {
+                        $(`#col_${columnName}`).prop('checked', true);
+                    });
+                }
+            })
+            .fail(function(error) {
+                console.error('Error al cargar configuración:', error);
+                alert('Error al cargar la configuración');
+            })
+            .always(function() {
+                $('#tableLoader').addClass('d-none');
+            });
     });
 });
 </script>
