@@ -155,7 +155,7 @@
                             <th class="text-center align-middle">ID</th>
                             @foreach($columnas as $columna)
                                 @if($columna !== 'id' && $columna !== 'acciones')
-                                    <th class="text-center align-middle">{{ $headerNames[$columna] }}</th>
+                                    <th class="text-center align-middle">{{ $headerNames[$columna] ?? ucfirst($columna) }}</th>
                                 @endif
                             @endforeach
                             <th class="text-center align-middle">Acciones</th>
@@ -308,24 +308,8 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Definir headerNames al inicio para que esté disponible en todo el scope
-    const headerNames = {
-        'fecha_inspeccion': 'Fecha Inspección',
-        'fecha_tentativa': 'Fecha Tentativa', 
-        'numero_estacion': 'N° Estación',
-        'numero_hidrante': 'N° Hidrante',
-        'calle': 'Calle Principal',
-        'y_calle': 'Calle Secundaria',
-        'colonia': 'Colonia',
-        'llave_hidrante': 'Llave Hidrante',
-        'presion_agua': 'Presión Agua',
-        'color': 'Color',
-        'estado_hidrante': 'Estado',
-        'marca': 'Marca',
-        'anio': 'Año',
-        'oficial': 'Oficial',
-        'observaciones': 'Observaciones'
-    };
+    // Obtener headerNames del servidor
+    const headerNames = @json($headerNames);
 
     // Inicializar DataTables con spinner
     $('#tableLoader').removeClass('d-none');

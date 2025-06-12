@@ -44,7 +44,25 @@ class CapturistaController extends Controller
         $colonias = Colonias::select('IDKEY', 'NOMBRE')->orderBy('NOMBRE')->get();
         
         return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));*/
-        return view('roles.capturista', compact('hidrantes', 'columnas'));
+        $headerNames = [
+            'fecha_inspeccion' => 'Fecha Inspección',
+            'fecha_tentativa' => 'Fecha Tentativa', 
+            'numero_estacion' => 'N° Estación',
+            'numero_hidrante' => 'N° Hidrante',
+            'calle' => 'Calle Principal',
+            'y_calle' => 'Calle Secundaria',
+            'colonia' => 'Colonia',
+            'llave_hidrante' => 'Llave Hidrante',
+            'presion_agua' => 'Presión Agua',
+            'color' => 'Color',
+            'estado_hidrante' => 'Estado',
+            'marca' => 'Marca',
+            'anio' => 'Año',
+            'oficial' => 'Oficial',
+            'observaciones' => 'Observaciones'
+        ];
+
+        return view('roles.capturista', compact('hidrantes', 'columnas', 'headerNames'));
     }
 
     public function store(Request $request)
