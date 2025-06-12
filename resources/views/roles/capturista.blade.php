@@ -54,7 +54,8 @@
     #hidrantesConfigTable {
         width: 100% !important;
         margin-bottom: 1rem;
-        vertical-align: middle;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
     }
 
     #hidrantesConfigTable thead th {
@@ -74,13 +75,39 @@
         cursor: pointer;
     }
 
+    #hidrantesConfigTable th,
     #hidrantesConfigTable td {
-        padding: 0.75rem;
-        vertical-align: middle;
-        white-space: nowrap;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 0.75rem !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        min-width: 100px !important; /* Ancho mínimo para todas las columnas */
+    }
+
+    /* Ajustes específicos para columnas */
+    #hidrantesConfigTable th:first-child,
+    #hidrantesConfigTable td:first-child {
+        width: 80px !important; /* ID más pequeño */
+    }
+
+    #hidrantesConfigTable th:last-child,
+    #hidrantesConfigTable td:last-child {
+        width: 100px !important; /* Columna de acciones */
+    }
+
+    /* Contenedor de la tabla */
+    .dataTables_wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Scroll horizontal suave */
+    .dataTables_scrollBody {
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        border: none !important;
     }
 
     /* Estilo para filas con estado pendiente */
@@ -322,28 +349,48 @@ $(document).ready(function() {
         paging: true,
         searching: true,
         info: true,
-        autoWidth: false,
         scrollX: true,
-        responsive: true,
+        scrollY: false,
+        scrollCollapse: true,
+        autoWidth: false,
+        fixedHeader: true,
         pageLength: 10,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
         columnDefs: [
             {
                 targets: '_all',
                 className: 'text-center align-middle',
+                width: '150px', // Ancho fijo para todas las columnas
                 render: function(data, type, row) {
                     if (type === 'display' && data != null) {
-                        return '<span class="d-inline-block text-truncate" style="max-width: 150px;">' + 
-                               data + '</span>';
+                        return '<div class="text-truncate" style="max-width: 150px;">' + 
+                               data + '</div>';
                     }
                     return data;
                 }
+            },
+            {
+                targets: 0, // Columna ID
+                width: '80px'
+            },
+            {
+                targets: -1, // Columna Acciones
+                width: '100px'
             }
         ],
         drawCallback: function() {
             $('#tableLoader').addClass('d-none');
-            $(window).trigger('resize');
-            this.api().columns.adjust();
+            this.api().columns.adjust().draw(false); // Importante: draw(false) evita el redibujado recursivo
+        }
+    });
+
+    // Agregar listener para ajuste de columnas en resize
+    $(window).on('resize', function() {
+        if (configTable) {
+            clearTimeout(window.resizeFinished);
+            window.resizeFinished = setTimeout(function() {
+                configTable.columns.adjust().draw(false);
+            }, 250);
         }
     });
 
@@ -538,12 +585,6 @@ $(document).ready(function() {
                 alert('Error al guardar la configuración');
             }
         });
-    });
-
-    $(window).on('resize', function() {
-        if (table) {
-            table.columns.adjust();
-        }
     });
 
     // Manejar el cierre del modal
