@@ -450,58 +450,52 @@ $(document).ready(function() {
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
-                let columns = [];
-                let configuracion = [];
-
-                if (response.configuracion && Array.isArray(response.configuracion)) {
-                    configuracion = response.configuracion;
-                } else {
-                    configuracion = [
-                        'fecha_inspeccion',
-                        'calle',
-                        'y_calle',
-                        'colonia',
-                        'marca'
-                    ];
-                }
+                let configuracion = response.configuracion && Array.isArray(response.configuracion) ? 
+                    response.configuracion : 
+                    ['fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca'];
 
                 // Actualizar headers
                 updateConfiguredTableHeaders(configuracion);
 
-                // Configurar columnas para DataTable
-                columns = [
-                    { data: 'id', title: 'ID' }
-                ];
-
-                // Mapeo de campos a sus fuentes de datos
-                const columnMapping = {
-                    'fecha_inspeccion': (data) => data.fecha_inspeccion ? moment(data.fecha_inspeccion).format('YYYY-MM-DD') : '',
-                    'fecha_tentativa': (data) => data.fecha_tentativa ? moment(data.fecha_tentativa).format('YYYY-MM-DD') : '',
-                    'numero_estacion': 'numero_estacion',
-                    'numero_hidrante': 'numero_hidrante',
-                    'calle': (data) => data.callePrincipal ? data.callePrincipal.Nomvial : 'Sin especificar',
-                    'y_calle': (data) => data.calleSecundaria ? data.calleSecundaria.Nomvial : 'Sin especificar',
-                    'colonia': (data) => data.coloniaLocacion ? data.coloniaLocacion.NOMBRE : 'Sin especificar',
-                    'llave_hidrante': 'llave_hidrante',
-                    'presion_agua': 'presion_agua',
-                    'color': 'color',
-                    'estado_hidrante': 'estado_hidrante',
-                    'marca': 'marca',
-                    'anio': 'anio',
-                    'oficial': 'oficial',
-                    'observaciones': 'observaciones'
+                // Definir mapeo de relaciones
+                const relationMapping = {
+                    'calle': (row) => row.callePrincipal ? row.callePrincipal.Nomvial : 'Sin especificar',
+                    'y_calle': (row) => row.calleSecundaria ? row.calleSecundaria.Nomvial : 'Sin especificar',
+                    'colonia': (row) => row.coloniaLocacion ? row.coloniaLocacion.NOMBRE : 'Sin especificar'
                 };
+
+                // Definir mapeo de fechas
+                const dateMapping = {
+                    'fecha_inspeccion': true,
+                    'fecha_tentativa': true
+                };
+
+                // Configurar columnas para DataTable
+                const columns = [
+                    { 
+                        data: 'id',
+                        title: 'ID',
+                        className: 'text-center'
+                    }
+                ];
 
                 // Agregar columnas configuradas
                 configuracion.forEach(column => {
                     columns.push({
                         data: null,
                         title: headerNames[column] || column,
+                        className: 'text-center',
                         render: function(data, type, row) {
-                            const mapping = columnMapping[column];
-                            return typeof mapping === 'function' ? 
-                                   mapping(row) : 
-                                   row[mapping] || 'N/A';
+                            // Si es una relación
+                            if (relationMapping[column]) {
+                                return relationMapping[column](row);
+                            }
+                            // Si es una fecha
+                            if (dateMapping[column]) {
+                                return row[column] ? moment(row[column]).format('YYYY-MM-DD') : 'N/A';
+                            }
+                            // Campos normales
+                            return row[column] || 'N/A';
                         }
                     });
                 });
@@ -510,6 +504,7 @@ $(document).ready(function() {
                 columns.push({
                     data: null,
                     title: 'Acciones',
+                    className: 'text-center',
                     orderable: false,
                     render: function(data, type, row) {
                         return `<button class="btn btn-sm btn-warning edit-hidrante" 
@@ -535,9 +530,13 @@ $(document).ready(function() {
                     paging: true,
                     searching: true,
                     info: true,
-                    autoWidth: true,
+                    autoWidth: false,
                     scrollX: true,
                     responsive: true,
+                    columnDefs: [{
+                        targets: '_all',
+                        defaultContent: 'N/A'
+                    }],
                     drawCallback: function() {
                         $(window).trigger('resize');
                         this.api().columns.adjust();
