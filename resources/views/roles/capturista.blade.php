@@ -75,21 +75,65 @@
 
 
     <!-- Card adicional para el reporte configurado -->
-    <div class="card mt-4">
+    <div class="card mt-4 mb-4">
         <div class="card-body">
-            <h5 class="card-title mb-3">Reporte Hidrantes Configurado</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title m-0">Reporte Hidrantes Configurado</h5>
+                <div id="tableLoader" class="d-none">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <span class="ms-2">Actualizando tabla...</span>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="hidrantesConfigTable" class="table table-bordered table-striped">
                     <thead class="table-dark">
-                        <tr id="configuredHeaders">
-                            <!-- El ID siempre estará presente -->
+                        <tr>
                             <th>ID</th>
-                            <!-- Los headers dinámicos se insertarán aquí -->
+                            @foreach($columnas as $columna)
+                                @if($columna !== 'id' && $columna !== 'acciones')
+                                    <th>{{ $headerNames[$columna] ?? ucfirst($columna) }}</th>
+                                @endif
+                            @endforeach
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- El tbody quedará vacío por ahora -->
+                        @foreach($hidrantes as $hidrante)
+                            <tr>
+                                <td>{{ $hidrante->id }}</td>
+                                @foreach($columnas as $columna)
+                                    @if($columna !== 'id' && $columna !== 'acciones')
+                                        <td>
+                                            @switch($columna)
+                                                @case('calle')
+                                                    {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin especificar' }}
+                                                    @break
+                                                @case('y_calle')
+                                                    {{ $hidrante->calleSecundaria?->Nomvial ?? 'Sin especificar' }}
+                                                    @break
+                                                @case('colonia')
+                                                    {{ $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin especificar' }}
+                                                    @break
+                                                @case('fecha_inspeccion')
+                                                @case('fecha_tentativa')
+                                                    {{ $hidrante->$columna ? date('Y-m-d', strtotime($hidrante->$columna)) : 'N/A' }}
+                                                    @break
+                                                @default
+                                                    {{ $hidrante->$columna ?? 'N/A' }}
+                                            @endswitch
+                                        </td>
+                                    @endif
+                                @endforeach
+                                <td>
+                                    <button class="btn btn-sm btn-warning edit-hidrante" 
+                                            data-hidrante-id="{{ $hidrante->id }}">
+                                        Editar <i class="bi bi-pen-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -448,154 +492,29 @@ $(document).ready(function() {
 
     // Cargar configuración guardada
     function loadTableConfig() {
+        // Mostrar loader
+        $('#tableLoader').removeClass('d-none');
+        
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
                 let configuracion = response.configuracion && Array.isArray(response.configuracion) ? 
                     response.configuracion : 
                     ['fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca'];
 
-                // Actualizar headers
-                updateConfiguredTableHeaders(configuracion);
-
-                // Definir mapeo de relaciones
-                const relationMapping = {
-                    'calle': (row) => row.callePrincipal ? row.callePrincipal.Nomvial : 'Sin especificar',
-                    'y_calle': (row) => row.calleSecundaria ? row.calleSecundaria.Nomvial : 'Sin especificar',
-                    'colonia': (row) => row.coloniaLocacion ? row.coloniaLocacion.NOMBRE : 'Sin especificar'
-                };
-
-                // Definir mapeo de fechas
-                const dateMapping = {
-                    'fecha_inspeccion': true,
-                    'fecha_tentativa': true
-                };
-
-                // Configurar columnas para DataTable
-                const columns = [
-                    { 
-                        data: 'id',
-                        title: 'ID',
-                        className: 'text-center'
-                    }
-                ];
-
-                // Agregar columnas configuradas
-                configuracion.forEach(column => {
-                    columns.push({
-                        data: null,
-                        title: headerNames[column] || column,
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            // Si es una relación
-                            if (relationMapping[column]) {
-                                return relationMapping[column](row);
-                            }
-                            // Si es una fecha
-                            if (dateMapping[column]) {
-                                return row[column] ? moment(row[column]).format('YYYY-MM-DD') : 'N/A';
-                            }
-                            // Campos normales
-                            return row[column] || 'N/A';
-                        }
-                    });
-                });
-
-                // Agregar columna de acciones
-                columns.push({
-                    data: null,
-                    title: 'Acciones',
-                    className: 'text-center',
-                    orderable: false,
-                    render: function(data, type, row) {
-                        return `<button class="btn btn-sm btn-warning edit-hidrante" 
-                                data-hidrante-id="${row.id}" disabled>
-                                Editar <i class="bi bi-pen-fill"></i>
-                            </button>`;
-                    }
-                });
-
-                // Destruir tabla existente si ya está inicializada
-                if (configTable) {
-                    configTable.destroy();
-                }
-
-                // Inicializar la tabla configurada
-                configTable = $('#hidrantesConfigTable').DataTable({
-                    data: {!! json_encode($hidrantes) !!},
-                    columns: columns,
-                    language: {
-                        url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-                    },
-                    order: [[0, 'desc']],
-                    paging: true,
-                    searching: true,
-                    info: true,
-                    autoWidth: false,
-                    scrollX: true,
-                    responsive: true,
-                    columnDefs: [{
-                        targets: '_all',
-                        defaultContent: 'N/A'
-                    }],
-                    drawCallback: function() {
-                        $(window).trigger('resize');
-                        this.api().columns.adjust();
-                    }
-                });
-
-                // Actualizar checkboxes
-                $('.column-toggle').prop('checked', false);
-                configuracion.forEach(function(columnName) {
-                    $(`#col_${columnName}`).prop('checked', true);
-                });
+                // Recargar la página con la nueva configuración
+                window.location.reload();
             })
             .fail(function(error) {
                 console.error('Error al cargar configuración:', error);
                 alert('Error al cargar la configuración');
+                $('#tableLoader').addClass('d-none');
             });
     }
 
-    // Modificar el evento para cargar el modal
-    $('[data-bs-target="#configuracionModal"]').on('click', function() {
-        // Cargar configuración antes de mostrar el modal
-        $.get("{{ route('configuracion.get') }}")
-            .done(function(response) {
-                console.log('Configuración recuperada:', response);
-                
-                // Desmarcamos todos los checkboxes primero
-                $('.column-toggle').prop('checked', false);
-                
-                if (response.success && response.configuracion) {
-                    // Si hay configuración guardada, usarla
-                    response.configuracion.forEach(function(columnName) {
-                        $(`#col_${columnName}`).prop('checked', true);
-                    });
-                    console.log('Usando configuración guardada:', response.configuracion);
-                } else {
-                    // Usar configuración por defecto desde el modelo
-                    const defaultColumns = [
-                        'fecha_inspeccion',
-                        'calle',
-                        'y_calle',
-                        'colonia',
-                        'marca'
-                    ];
-                    
-                    $('.column-toggle').each(function() {
-                        const columnName = $(this).val();
-                        $(this).prop('checked', defaultColumns.includes(columnName));
-                    });
-                    console.log('Usando configuración por defecto:', defaultColumns);
-                }
-            })
-            .fail(function(error) {
-                console.error('Error cargando configuración:', error);
-                alert('Error al cargar la configuración de columnas');
-            });
-    });
-
-    // Guardar configuración
+    // Modificar el guardado de configuración
     $('#guardarConfiguracion').click(function() {
+        $('#tableLoader').removeClass('d-none');
+        
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
         }).get();
@@ -603,32 +522,19 @@ $(document).ready(function() {
         $.ajax({
             url: "{{ route('configuracion.save') }}",
             method: 'POST',
-            data: {
-                configuracion: configuracion
-            },
+            data: { configuracion: configuracion },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
                 if (response.success) {
-                    loadTableConfig(); // Recargar la tabla con la nueva configuración
-                    
-                    const modalElement = document.getElementById('configuracionModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                    modalInstance.hide();
-                    
-                    setTimeout(() => {
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').removeAttr('style');
-                        document.documentElement.style.overflow = '';
-                        document.body.style.overflow = '';
-                        alert('Configuración guardada exitosamente');
-                    }, 300);
+                    window.location.reload();
                 }
             },
             error: function(xhr) {
                 console.error('Error al guardar:', xhr);
                 alert('Error al guardar la configuración');
+                $('#tableLoader').addClass('d-none');
             }
         });
     });

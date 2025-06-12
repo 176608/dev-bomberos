@@ -21,8 +21,14 @@ class CapturistaController extends Controller
     public function index()
     {
         if (!auth()->check() || auth()->user()->role !== 'Capturista') {
-            return redirect()->route('dashboard');
+            return redirect()->route('login');
         }
+
+        // Obtener la configuración del usuario
+        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())
+            ->first();
+
+        $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 
         // Obtener hidrantes con sus relaciones
         $hidrantes = Hidrante::with([
@@ -34,10 +40,11 @@ class CapturistaController extends Controller
         ])->get();
 
         // Obtener calles y colonias para los formularios
-        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')->orderBy('Nomvial')->get();
+        /*$calles = CatalogoCalle::select('IDKEY', 'Nomvial')->orderBy('Nomvial')->get();
         $colonias = Colonias::select('IDKEY', 'NOMBRE')->orderBy('NOMBRE')->get();
         
-        return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));
+        return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));*/
+        return view('roles.capturista', compact('hidrantes', 'columnas'));
     }
 
     public function store(Request $request)
