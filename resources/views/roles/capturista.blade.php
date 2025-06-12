@@ -108,13 +108,13 @@
                                         <td>
                                             @switch($columna)
                                                 @case('calle')
-                                                    {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin especificar' }}
+                                                    {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin especificar(index)' }}
                                                     @break
                                                 @case('y_calle')
-                                                    {{ $hidrante->calleSecundaria?->Nomvial ?? 'Sin especificar' }}
+                                                    {{ $hidrante->calleSecundaria?->Nomvial ?? 'Sin especificar(index)' }}
                                                     @break
                                                 @case('colonia')
-                                                    {{ $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin especificar' }}
+                                                    {{ $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin especificar(index)' }}
                                                     @break
                                                 @case('fecha_inspeccion')
                                                 @case('fecha_tentativa')
@@ -139,8 +139,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Segunda card con la tabla -->
+<!--Tabla para quitar 
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">Reporte de Hidrantes</h5>
@@ -179,7 +178,7 @@
             </div>
         </div>
     </div>
-
+-->
 </div>
 
 <!-- Modal para configuración de tabla -->
