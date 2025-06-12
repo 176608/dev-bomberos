@@ -329,6 +329,26 @@ $(document).ready(function() {
         }
     });
 
+    // Inicializar DataTables con spinner
+    $('#tableLoader').removeClass('d-none');
+    var configTable = $('#hidrantesConfigTable').DataTable({
+        language: {
+            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+        },
+        order: [[0, 'desc']],
+        paging: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        scrollX: true,
+        responsive: true,
+        drawCallback: function() {
+            $('#tableLoader').addClass('d-none');
+            $(window).trigger('resize');
+            this.api().columns.adjust();
+        }
+    });
+
     var configTable; // Variable para la tabla configurada
 
     // Manejador para el botón de nuevo hidrante
@@ -490,31 +510,8 @@ $(document).ready(function() {
         });
     }
 
-    // Cargar configuración guardada
-    function loadTableConfig() {
-        // Mostrar loader
-        $('#tableLoader').removeClass('d-none');
-        
-        $.get("{{ route('configuracion.get') }}")
-            .done(function(response) {
-                let configuracion = response.configuracion && Array.isArray(response.configuracion) ? 
-                    response.configuracion : 
-                    ['fecha_inspeccion', 'calle', 'y_calle', 'colonia', 'marca'];
-
-                // Recargar la página con la nueva configuración
-                window.location.reload();
-            })
-            .fail(function(error) {
-                console.error('Error al cargar configuración:', error);
-                alert('Error al cargar la configuración');
-                $('#tableLoader').addClass('d-none');
-            });
-    }
-
     // Modificar el guardado de configuración
     $('#guardarConfiguracion').click(function() {
-        $('#tableLoader').removeClass('d-none');
-        
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
         }).get();
@@ -528,19 +525,25 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // Mostrar spinner antes de recargar
+                    $('#tableLoader').removeClass('d-none');
+                    // Cerrar modal
+                    const modalElement = document.getElementById('configuracionModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+                    // Recargar página
                     window.location.reload();
                 }
             },
             error: function(xhr) {
                 console.error('Error al guardar:', xhr);
                 alert('Error al guardar la configuración');
-                $('#tableLoader').addClass('d-none');
             }
         });
     });
 
-    // Cargar configuración al iniciar
-    loadTableConfig();
+    // Para cargar la configuración inicial de la tabla
+    //loadTableConfig();
 
     $(window).on('resize', function() {
         if (table) {
