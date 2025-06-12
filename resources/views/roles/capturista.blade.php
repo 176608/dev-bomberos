@@ -49,6 +49,68 @@
         overflow: auto !important;
         padding-right: 0 !important;
     }
+
+    /* Estilos para la tabla */
+    #hidrantesConfigTable {
+        width: 100% !important;
+        margin-bottom: 1rem;
+        vertical-align: middle;
+    }
+
+    #hidrantesConfigTable thead th {
+        background-color: #343a40;
+        color: white;
+        font-weight: 500;
+        white-space: nowrap;
+        padding: 0.75rem;
+    }
+
+    #hidrantesConfigTable tbody tr {
+        transition: all 0.2s ease-in-out;
+    }
+
+    #hidrantesConfigTable tbody tr:hover {
+        background-color: rgba(0,0,0,0.075) !important;
+        cursor: pointer;
+    }
+
+    #hidrantesConfigTable td {
+        padding: 0.75rem;
+        vertical-align: middle;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Estilo para filas con estado pendiente */
+    .table-danger {
+        background-color: #f8d7da !important;
+    }
+
+    .table-danger:hover {
+        background-color: #f5c6cb !important;
+    }
+
+    /* Ajustes responsive */
+    .dataTables_wrapper {
+        padding: 0;
+    }
+
+    .dataTables_scrollBody {
+        min-height: 400px;
+    }
+
+    /* Personalización de DataTables */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+    }
 </style>
 
 <div class="container mt-4">
@@ -87,25 +149,27 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-bordered table-striped">
+                <table id="hidrantesConfigTable" class="table table-bordered table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
+                            <th class="text-center align-middle">ID</th>
                             @foreach($columnas as $columna)
                                 @if($columna !== 'id' && $columna !== 'acciones')
-                                    <th>{{ $headerNames[$columna] ?? ucfirst($columna) }}</th>
+                                    <th class="text-center align-middle">{{ $headerNames[$columna] }}</th>
                                 @endif
                             @endforeach
-                            <th>Acciones</th>
+                            <th class="text-center align-middle">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($hidrantes as $hidrante)
-                            <tr>
-                                <td>{{ $hidrante->id }}</td>
+                            <tr class="{{ str_contains(strtolower($hidrante->calle), 'pendiente') || 
+                                         str_contains(strtolower($hidrante->y_calle), 'pendiente') || 
+                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'table-danger' : '' }}">
+                                <td class="text-center align-middle">{{ $hidrante->id }}</td>
                                 @foreach($columnas as $columna)
                                     @if($columna !== 'id' && $columna !== 'acciones')
-                                        <td>
+                                        <td class="text-center align-middle">
                                             @switch($columna)
                                                 @case('calle')
                                                     {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin especificar(index)' }}
@@ -126,7 +190,7 @@
                                         </td>
                                     @endif
                                 @endforeach
-                                <td>
+                                <td class="text-center align-middle">
                                     <button class="btn btn-sm btn-warning edit-hidrante" 
                                             data-hidrante-id="{{ $hidrante->id }}">
                                         Editar <i class="bi bi-pen-fill"></i>
@@ -139,46 +203,7 @@
             </div>
         </div>
     </div>
-<!--Tabla para quitar 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Reporte de Hidrantes</h5>
-            <div class="table-responsive">
-                <table id="hidrantesTable" class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Fecha Alta</th>
-                            <th>Calle</th>
-                            <th>Y Calle</th>
-                            <th>Colonia</th>
-                            <th>Marca</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($hidrantes as $hidrante)
-                            <tr>
-                                <td>{{ $hidrante->id }}</td>
-                                <td>{{ $hidrante->fecha_inspeccion->format('Y-m-d') }}</td>
-                                <td>{{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Nomvial : 'Calle Principal no especificada' }}</td>
-                                <td>{{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Nomvial : 'Calle Secundaria no especificada' }}</td>
-                                <td>{{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->NOMBRE : 'Colonia no especificada' }}</td>
-                                <td>{{ $hidrante->marca ? $hidrante->marca : 'S/A' }}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-warning edit-hidrante" data-bs-toggle="modal" 
-                                            data-hidrante-id="{{ $hidrante->id }}">
-                                        Editar <i class="bi bi-pen-fill"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
--->
+    
 </div>
 
 <!-- Modal para configuración de tabla -->
@@ -302,34 +327,9 @@ $(document).ready(function() {
         'observaciones': 'Observaciones'
     };
 
-    // DataTable initialization
-    var table = $('#hidrantesTable').DataTable({
-        language: {
-            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-        },
-        order: [[0, 'desc']],
-        paging: true,
-        searching: true,
-        info: true,
-        autoWidth: true,
-        scrollX: true,
-        scrollY: false,        // Deshabilitar scroll vertical
-        scrollCollapse: false, // Deshabilitar colapso de scroll
-        responsive: true,
-        columnDefs: [
-            {
-                targets: 'no-sort',
-                orderable: false
-            }
-        ],
-        drawCallback: function() {
-            $(window).trigger('resize');
-            this.api().columns.adjust();
-        }
-    });
-
     // Inicializar DataTables con spinner
     $('#tableLoader').removeClass('d-none');
+    // Modificar la inicialización de DataTables
     var configTable = $('#hidrantesConfigTable').DataTable({
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
@@ -341,6 +341,21 @@ $(document).ready(function() {
         autoWidth: false,
         scrollX: true,
         responsive: true,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        columnDefs: [
+            {
+                targets: '_all',
+                className: 'text-center align-middle',
+                render: function(data, type, row) {
+                    if (type === 'display' && data != null) {
+                        return '<span class="d-inline-block text-truncate" style="max-width: 150px;">' + 
+                               data + '</span>';
+                    }
+                    return data;
+                }
+            }
+        ],
         drawCallback: function() {
             $('#tableLoader').addClass('d-none');
             $(window).trigger('resize');
