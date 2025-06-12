@@ -112,6 +112,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Card adicional para el reporte configurado -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Reporte Hidrantes Configurado</h5>
+            <div class="table-responsive">
+                <table id="hidrantesConfigTable" class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr id="configuredHeaders">
+                            <!-- El ID siempre estará presente -->
+                            <th>ID</th>
+                            <!-- Los headers dinámicos se insertarán aquí -->
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- El tbody quedará vacío por ahora -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para configuración de tabla -->
@@ -387,22 +409,59 @@ $(document).ready(function() {
         cleanupModal();
     });
 
+    // Función para actualizar los headers de la tabla configurada
+    function updateConfiguredTableHeaders(configuracion) {
+        // Obtener la fila de headers
+        const headerRow = $('#configuredHeaders');
+        
+        // Limpiar headers existentes (excepto ID y Acciones)
+        headerRow.find('th:not(:first-child):not(:last-child)').remove();
+        
+        // Mapeo de nombres técnicos a nombres display
+        const headerNames = {
+            'fecha_inspeccion': 'Fecha Inspección',
+            'fecha_tentativa': 'Fecha Tentativa',
+            'numero_estacion': 'N° Estación',
+            'numero_hidrante': 'N° Hidrante',
+            'calle': 'Calle Principal',
+            'y_calle': 'Calle Secundaria',
+            'colonia': 'Colonia',
+            'llave_hidrante': 'Llave Hidrante',
+            'presion_agua': 'Presión Agua',
+            'color': 'Color',
+            'estado_hidrante': 'Estado',
+            'marca': 'Marca',
+            'anio': 'Año',
+            'oficial': 'Oficial',
+            'observaciones': 'Observaciones'
+        };
+
+        // Insertar los headers configurados antes de "Acciones"
+        const lastHeader = headerRow.find('th:last');
+        configuracion.forEach(column => {
+            $('<th>', {
+                text: headerNames[column] || column
+            }).insertBefore(lastHeader);
+        });
+    }
+
     // Cargar configuración guardada
     function loadTableConfig() {
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
                 if (response.configuracion && Array.isArray(response.configuracion)) {
-                    // Primero desmarcamos todos los checkboxes
+                    // Actualizar checkboxes como antes
                     $('.column-toggle').prop('checked', false);
-                    
-                    // Marcamos solo los checkboxes que están en la configuración
                     response.configuracion.forEach(function(columnName) {
                         $(`#col_${columnName}`).prop('checked', true);
                     });
-
+                    
+                    // Actualizar headers de la tabla configurada
+                    updateConfiguredTableHeaders(response.configuracion);
+                    
                     console.log('Configuración cargada:', response.configuracion);
                 } else {
-                    // Si no hay configuración, marcar los checkboxes por defecto
+                    // Configuración por defecto
                     const defaultColumns = [
                         'fecha_inspeccion',
                         'calle',
@@ -411,11 +470,15 @@ $(document).ready(function() {
                         'marca'
                     ];
                     
+                    // Actualizar checkboxes por defecto
                     $('.column-toggle').each(function() {
                         const columnName = $(this).val();
                         $(this).prop('checked', defaultColumns.includes(columnName));
                     });
-
+                    
+                    // Actualizar headers con configuración por defecto
+                    updateConfiguredTableHeaders(defaultColumns);
+                    
                     console.log('Usando configuración por defecto:', defaultColumns);
                 }
             })
@@ -481,6 +544,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // Actualizar los headers de la tabla configurada
+                    updateConfiguredTableHeaders(configuracion);
+                    
                     console.log('Configuración guardada:', response.configuracion);
                     
                     // Cerrar el modal correctamente
