@@ -73,6 +73,29 @@
         </div>
     </div>
 
+
+    <!-- Card adicional para el reporte configurado -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Reporte Hidrantes Configurado</h5>
+            <div class="table-responsive">
+                <table id="hidrantesConfigTable" class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr id="configuredHeaders">
+                            <!-- El ID siempre estará presente -->
+                            <th>ID</th>
+                            <!-- Los headers dinámicos se insertarán aquí -->
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- El tbody quedará vacío por ahora -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- Segunda card con la tabla -->
     <div class="card">
         <div class="card-body">
@@ -113,27 +136,6 @@
         </div>
     </div>
 
-    <!-- Card adicional para el reporte configurado -->
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Reporte Hidrantes Configurado</h5>
-            <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr id="configuredHeaders">
-                            <!-- El ID siempre estará presente -->
-                            <th>ID</th>
-                            <!-- Los headers dinámicos se insertarán aquí -->
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- El tbody quedará vacío por ahora -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Modal para configuración de tabla -->
