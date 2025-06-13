@@ -322,11 +322,11 @@ $(document).ready(function() {
         paging: true,
         searching: true,
         info: true,
-        autoWidth: false,
+        autoWidth: true,
         scrollX: true,
         responsive: true,
-        pageLength: 10,
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        pageLength: 25,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
         columnDefs: [
             {
                 targets: '_all',
