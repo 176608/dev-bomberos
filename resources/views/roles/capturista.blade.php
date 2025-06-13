@@ -90,18 +90,9 @@
         width: 100px;
     }
 
-    /* Estilo para filas con estado pendiente */
-    .table-danger {
-        background-color: #f8d7da;
-    }
-
-    .table-danger:hover {
-        background-color: #f5c6cb;
-    }
-
     /* Hover effect para las filas */
     #hidrantesConfigTable tbody tr:hover {
-        background-color: rgba(0,0,0,0.075);
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
     /* Contenedor de DataTables */
@@ -119,7 +110,7 @@
         min-height: 400px;
     }
 
-    /* Personalización de DataTables */
+    /* Personalización de DataTables 
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter {
         margin-bottom: 1rem;
@@ -128,7 +119,7 @@
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 1rem;
-    }
+    }*/
 </style>
 
 <div class="container mt-4">
@@ -347,21 +338,7 @@ $(document).ready(function() {
         scrollX: true,
         responsive: true,
         pageLength: 25,
-        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],/*
-        columnDefs: [
-            {
-                targets: 0,  // Columna ID
-                width: '80px'
-            },
-            {
-                targets: -1,  // Columna Acciones
-                width: '100px'
-            },
-            {
-                targets: '_all',  // Todas las demás columnas
-                width: '120px'
-            }
-        ],*/
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
         drawCallback: function() {
             //$('#tableLoader').addClass('d-none');
             $(window).trigger('resize');
