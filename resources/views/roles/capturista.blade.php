@@ -149,7 +149,7 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-striped table-hover">
+                <table id="hidrantesConfigTable" class="table table-bordered table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center align-middle">ID</th>
