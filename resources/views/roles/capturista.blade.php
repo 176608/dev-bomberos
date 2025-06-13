@@ -50,12 +50,6 @@
         padding-right: 0 !important;
     }
 
-    /* Estilos para la tabla 
-    #hidrantesConfigTable {
-        width: 100% !important;
-        margin-bottom: 1rem;
-        /border-collapse: collapse;
-    }*/
 
     #hidrantesConfigTable td {
         padding: 0.75rem;
@@ -70,7 +64,6 @@
 
     /* Estilos específicos para encabezados */
     #hidrantesConfigTable thead th {
-        background-color:rgb(17, 35, 53);
         color: white;
         font-weight: 500;
         position: relative;
@@ -116,15 +109,21 @@
         margin-top: 1rem;
     }
 
-    .table-danger {
-        background-color:rgb(255, 255, 255) !important;
-        color:rgba(175, 18, 18, 0.94) !important;
+    /* Estilos para table-danger en tema oscuro */
+    #hidrantesConfigTable tbody tr.table-danger {
+        background-color: rgba(192, 16, 16, 0.61) !important;
+        color: #fff;
     }
 
-    #hidrantesConfigTable hover {
-        cursor: pointer;
+    #hidrantesConfigTable tbody tr.table-danger:hover {
+        background-color: rgba(212, 79, 92, 0.4) !important;
     }
-    
+
+    /* Ajuste para el texto dentro de celdas en filas danger */
+    #hidrantesConfigTable tbody tr.table-danger td {
+        color: #fff;
+    }
+
 </style>
 
 <div class="container mt-4">
