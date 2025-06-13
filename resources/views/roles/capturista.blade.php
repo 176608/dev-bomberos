@@ -55,6 +55,7 @@
         width: 100% !important;
         margin-bottom: 1rem;
         vertical-align: middle;
+        table-layout: fixed !important;
     }
 
     #hidrantesConfigTable thead th {
@@ -83,9 +84,44 @@
         text-overflow: ellipsis;
     }
 
+    /* Ajustes para alineación de columnas */
+    #hidrantesConfigTable {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    #hidrantesConfigTable thead th,
+    #hidrantesConfigTable tbody td {
+        width: auto !important;
+        min-width: 120px !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* Ajustes específicos por columna */
+    #hidrantesConfigTable th:first-child,
+    #hidrantesConfigTable td:first-child {
+        width: 80px !important;  /* Columna ID */
+        min-width: 80px !important;
+    }
+
+    #hidrantesConfigTable th:last-child,
+    #hidrantesConfigTable td:last-child {
+        width: 100px !important;  /* Columna Acciones */
+        min-width: 100px !important;
+    }
+
+    /* Contenedor de la tabla */
+    .dataTables_wrapper {
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+
     /* Estilo para filas con estado pendiente */
     .table-danger {
-        background-color: #f8d7da !important;
+        background-color:rgb(194, 53, 65) !important;
     }
 
     .table-danger:hover {
@@ -325,22 +361,23 @@ $(document).ready(function() {
         paging: true,
         searching: true,
         info: true,
-        autoWidth: true,
+        autoWidth: false,
         scrollX: true,
         responsive: true,
         pageLength: 25,
         lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
         columnDefs: [
             {
-                targets: '_all',
-                className: 'text-center align-middle',
-                render: function(data, type, row) {
-                    if (type === 'display' && data != null) {
-                        return '<span class="d-inline-block text-truncate" style="max-width: 150px;">' + 
-                               data + '</span>';
-                    }
-                    return data;
-                }
+                targets: 0,  // Columna ID
+                width: '80px'
+            },
+            {
+                targets: -1,  // Columna Acciones
+                width: '100px'
+            },
+            {
+                targets: '_all',  // Todas las demás columnas
+                width: '120px'
             }
         ],
         drawCallback: function() {
