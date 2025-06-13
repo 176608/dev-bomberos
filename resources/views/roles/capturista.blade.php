@@ -165,7 +165,7 @@
                         @foreach($hidrantes as $hidrante)
                             <tr class="{{ str_contains(strtolower($hidrante->calle), 'pendiente') || 
                                          str_contains(strtolower($hidrante->y_calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'text-danger' : '' }}">
+                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'table-danger' : '' }}">
                                 <td class="text-center align-middle">{{ $hidrante->id }}</td>
                                 @foreach($columnas as $columna)
                                     @if($columna !== 'id' && $columna !== 'acciones')
