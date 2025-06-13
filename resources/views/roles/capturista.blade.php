@@ -336,7 +336,7 @@ $(document).ready(function() {
                 className: 'text-center align-middle',
                 render: function(data, type, row) {
                     if (type === 'display' && data != null) {
-                        return '<span class="d-inline-block text-truncate">' + 
+                        return '<span class="d-inline-block text-truncate" style="max-width: 150px;">' + 
                                data + '</span>';
                     }
                     return data;
