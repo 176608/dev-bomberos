@@ -70,7 +70,7 @@
 
     /* Estilos específicos para encabezados */
     #hidrantesConfigTable thead th {
-        background-color: #212529;
+        background-color:rgb(17, 35, 53);
         color: white;
         font-weight: 500;
         position: relative;
@@ -115,6 +115,16 @@
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 1rem;
     }
+
+    .table-danger {
+        background-color:rgb(255, 255, 255) !important;
+        color:rgba(175, 18, 18, 0.94) !important;
+    }
+
+    #hidrantesConfigTable hover {
+        cursor: pointer;
+    }
+    
 </style>
 
 <div class="container mt-4">
