@@ -335,7 +335,7 @@ $(document).ready(function() {
     //$('#tableLoader').removeClass('d-none');
 
     // Modificar la inicialización de DataTables
-    /*var configTable = $('#hidrantesConfigTable').DataTable({
+    var configTable = $('#hidrantesConfigTable').DataTable({
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
@@ -347,7 +347,7 @@ $(document).ready(function() {
         scrollX: true,
         responsive: true,
         pageLength: 25,
-        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],/*
         columnDefs: [
             {
                 targets: 0,  // Columna ID
@@ -361,13 +361,13 @@ $(document).ready(function() {
                 targets: '_all',  // Todas las demás columnas
                 width: '120px'
             }
-        ],
+        ],*/
         drawCallback: function() {
             //$('#tableLoader').addClass('d-none');
             $(window).trigger('resize');
             this.api().columns.adjust();
         }
-    });*/
+    });
 
     var configTable; // Variable para la tabla configurada
 
