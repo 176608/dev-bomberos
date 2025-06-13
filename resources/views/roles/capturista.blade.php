@@ -109,21 +109,6 @@
         margin-top: 1rem;
     }
 
-    /* Estilos para table-danger en tema oscuro */
-    #hidrantesConfigTable tbody tr.table-danger {
-        background-color: rgba(192, 16, 16, 0.61) !important;
-        color: #fff;
-    }
-
-    #hidrantesConfigTable tbody tr.table-danger:hover {
-        background-color: rgba(212, 79, 92, 0.4) !important;
-    }
-
-    /* Ajuste para el texto dentro de celdas en filas danger */
-    #hidrantesConfigTable tbody tr.table-danger td {
-        color: #fff;
-    }
-
 </style>
 
 <div class="container mt-4">
@@ -164,7 +149,7 @@
             -->
             </div>
             <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-dark table-striped table-hover table-bordered">
+                <table id="hidrantesConfigTable" class="table table-striped table-hover table-bordered">
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center align-middle">ID</th>
@@ -180,7 +165,7 @@
                         @foreach($hidrantes as $hidrante)
                             <tr class="{{ str_contains(strtolower($hidrante->calle), 'pendiente') || 
                                          str_contains(strtolower($hidrante->y_calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'table-danger' : '' }}">
+                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'text-danger' : '' }}">
                                 <td class="text-center align-middle">{{ $hidrante->id }}</td>
                                 @foreach($columnas as $columna)
                                     @if($columna !== 'id' && $columna !== 'acciones')
