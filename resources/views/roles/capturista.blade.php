@@ -141,12 +141,14 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title m-0">Reporte Hidrantes Configurado</h5>
-                <div id="tableLoader" class="d-none">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <span class="ms-2">Actualizando tabla...</span>
+            <!-- spinner disabled
+            <div id="tableLoader" class="d-none">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
                 </div>
+                <span class="ms-2">Actualizando tabla...</span>
+            </div>                
+            -->
             </div>
             <div class="table-responsive">
                 <table id="hidrantesConfigTable" class="table table-bordered table-striped table-hover">
@@ -312,7 +314,8 @@ $(document).ready(function() {
     const headerNames = @json($headerNames);
 
     // Inicializar DataTables con spinner
-    $('#tableLoader').removeClass('d-none');
+    //$('#tableLoader').removeClass('d-none');
+
     // Modificar la inicialización de DataTables
     var configTable = $('#hidrantesConfigTable').DataTable({
         language: {
@@ -341,7 +344,7 @@ $(document).ready(function() {
             }
         ],
         drawCallback: function() {
-            $('#tableLoader').addClass('d-none');
+            //$('#tableLoader').addClass('d-none');
             $(window).trigger('resize');
             this.api().columns.adjust();
         }
@@ -524,7 +527,8 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     // Mostrar spinner antes de recargar
-                    $('#tableLoader').removeClass('d-none');
+                    //$('#tableLoader').removeClass('d-none');
+
                     // Cerrar modal
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -549,7 +553,7 @@ $(document).ready(function() {
     // Agregar este evento para cargar la configuración cuando se abre el modal
     $('#configuracionModal').on('show.bs.modal', function () {
         // Mostrar spinner mientras carga
-        $('#tableLoader').removeClass('d-none');
+        //$('#tableLoader').removeClass('d-none');
         
         // Cargar configuración actual del usuario
         $.get("{{ route('configuracion.get') }}")
@@ -581,7 +585,7 @@ $(document).ready(function() {
                 alert('Error al cargar la configuración');
             })
             .always(function() {
-                $('#tableLoader').addClass('d-none');
+                //$('#tableLoader').addClass('d-none');
             });
     });
 });
