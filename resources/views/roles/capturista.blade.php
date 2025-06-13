@@ -90,29 +90,6 @@
         width: 100px;
     }
 
-    /* Estilos mejorados para table-striped */
-    #hidrantesConfigTable tbody tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.02);
-    }
-
-    #hidrantesConfigTable tbody tr:nth-of-type(even) {
-        background-color: rgba(94, 255, 129, 0.33);
-    }
-
-    /* Mejora del hover manteniendo el contraste */
-    #hidrantesConfigTable tbody tr:hover {
-        background-color: rgba(0, 0, 0, 0.075) !important;
-    }
-
-    /* Ajuste para filas con estado pendiente manteniendo el patrón striped */
-    #hidrantesConfigTable tbody tr.table-danger {
-        background-color:rgba(255, 96, 96, 0.1) !important;
-    }
-
-    #hidrantesConfigTable tbody tr.table-danger:hover {
-        background-color:rgb(248, 192, 198) !important;
-    }
-
     /* Contenedor de DataTables */
     .dataTables_wrapper {
         width: 100%;
