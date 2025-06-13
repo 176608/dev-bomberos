@@ -50,12 +50,12 @@
         padding-right: 0 !important;
     }
 
-    /* Estilos para la tabla */
+    /* Estilos para la tabla 
     #hidrantesConfigTable {
         width: 100% !important;
         margin-bottom: 1rem;
-        border-collapse: collapse;
-    }
+        /border-collapse: collapse;
+    }*/
 
     #hidrantesConfigTable td {
         padding: 0.75rem;
@@ -110,7 +110,7 @@
         min-height: 400px;
     }
 
-    /* Personalización de DataTables 
+    /* Personalización de DataTables */
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter {
         margin-bottom: 1rem;
@@ -119,7 +119,7 @@
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 1rem;
-    }*/
+    }
 </style>
 
 <div class="container mt-4">
