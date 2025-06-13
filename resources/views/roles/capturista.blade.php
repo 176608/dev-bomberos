@@ -54,78 +54,60 @@
     #hidrantesConfigTable {
         width: 100% !important;
         margin-bottom: 1rem;
-        vertical-align: middle;
-        table-layout: fixed !important;
-    }
-
-    #hidrantesConfigTable thead th {
-        background-color: #343a40;
-        color: white;
-        font-weight: 500;
-        white-space: nowrap;
-        padding: 0.75rem;
-    }
-
-    #hidrantesConfigTable tbody tr {
-        transition: all 0.2s ease-in-out;
-    }
-
-    #hidrantesConfigTable tbody tr:hover {
-        background-color: rgba(0,0,0,0.075) !important;
-        cursor: pointer;
+        border-collapse: collapse;
     }
 
     #hidrantesConfigTable td {
         padding: 0.75rem;
+        text-align: center;
         vertical-align: middle;
         white-space: nowrap;
-        max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
+        min-width: 120px;
+        transition: width 0.2s ease;
     }
 
-    /* Ajustes para alineación de columnas */
-    #hidrantesConfigTable {
-        table-layout: fixed !important;
-        width: 100% !important;
+    /* Estilos específicos para encabezados */
+    #hidrantesConfigTable thead th {
+        background-color: #212529;
+        color: white;
+        font-weight: 500;
+        position: relative;
+        resize: horizontal;
     }
 
-    #hidrantesConfigTable thead th,
-    #hidrantesConfigTable tbody td {
-        width: auto !important;
-        min-width: 120px !important;
-        max-width: none !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-
-    /* Ajustes específicos por columna */
+    /* Ajustes para columnas específicas */
     #hidrantesConfigTable th:first-child,
     #hidrantesConfigTable td:first-child {
-        width: 80px !important;  /* Columna ID */
-        min-width: 80px !important;
+        min-width: 80px;
+        width: 80px;
     }
 
     #hidrantesConfigTable th:last-child,
     #hidrantesConfigTable td:last-child {
-        width: 100px !important;  /* Columna Acciones */
-        min-width: 100px !important;
-    }
-
-    /* Contenedor de la tabla */
-    .dataTables_wrapper {
-        width: 100% !important;
-        overflow-x: auto !important;
+        min-width: 100px;
+        width: 100px;
     }
 
     /* Estilo para filas con estado pendiente */
     .table-danger {
-        background-color:rgb(194, 53, 65) !important;
+        background-color: #f8d7da;
     }
 
     .table-danger:hover {
-        background-color: #f5c6cb !important;
+        background-color: #f5c6cb;
+    }
+
+    /* Hover effect para las filas */
+    #hidrantesConfigTable tbody tr:hover {
+        background-color: rgba(0,0,0,0.075);
+    }
+
+    /* Contenedor de DataTables */
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto;
     }
 
     /* Ajustes responsive */
