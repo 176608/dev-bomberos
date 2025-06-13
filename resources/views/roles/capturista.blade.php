@@ -155,7 +155,7 @@
             -->
             </div>
             <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-striped table-hover table-bordered">
+                <table id="hidrantesConfigTable" class="table table-dark table-striped table-hover table-bordered">
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center align-middle">ID</th>
