@@ -149,7 +149,7 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-bordered table-striped table-hover">
+                <table id="hidrantesConfigTable" class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center align-middle">ID</th>
@@ -163,26 +163,52 @@
                     </thead>
                     <tbody>
                         @foreach($hidrantes as $hidrante)
-                            <tr class="{{ str_contains(strtolower($hidrante->calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->y_calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'table-danger' : '' }}">
+                            @php
+                                $isPendiente = strtolower($hidrante->callePrincipal?->Nomvial ?? '') === 'pendiente' ||
+                                              strtolower($hidrante->calleSecundaria?->Nomvial ?? '') === 'pendiente' ||
+                                              strtolower($hidrante->coloniaLocacion?->NOMBRE ?? '') === 'pendiente';
+                            @endphp
+                            <tr class="{{ $isPendiente ? 'table-danger' : '' }}">
                                 <td class="text-center align-middle">{{ $hidrante->id }}</td>
                                 @foreach($columnas as $columna)
                                     @if($columna !== 'id' && $columna !== 'acciones')
                                         <td class="text-center align-middle">
                                             @switch($columna)
                                                 @case('calle')
-                                                    {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin especificar(index)' }}
+                                                    @php
+                                                        $calle = $hidrante->callePrincipal?->Nomvial ?? null;
+                                                        if ($calle === null || strtolower($calle) === 'sin definir') {
+                                                            echo 'Sin definir.';
+                                                        } elseif (strtolower($calle) === 'pendiente') {
+                                                            echo 'Pendiente';
+                                                        } else {
+                                                            echo $calle;
+                                                        }
+                                                    @endphp
                                                     @break
                                                 @case('y_calle')
-                                                    {{ $hidrante->calleSecundaria?->Nomvial ?? 'Sin especificar(index)' }}
+                                                    @php
+                                                        $yCalle = $hidrante->calleSecundaria?->Nomvial ?? null;
+                                                        if ($yCalle === null || strtolower($yCalle) === 'sin definir') {
+                                                            echo 'Sin definir.';
+                                                        } elseif (strtolower($yCalle) === 'pendiente') {
+                                                            echo 'Pendiente';
+                                                        } else {
+                                                            echo $yCalle;
+                                                        }
+                                                    @endphp
                                                     @break
                                                 @case('colonia')
-                                                    {{ $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin especificar(index)' }}
-                                                    @break
-                                                @case('fecha_inspeccion')
-                                                @case('fecha_tentativa')
-                                                    {{ $hidrante->$columna ? date('Y-m-d', strtotime($hidrante->$columna)) : 'N/A' }}
+                                                    @php
+                                                        $colonia = $hidrante->coloniaLocacion?->NOMBRE ?? null;
+                                                        if ($colonia === null || strtolower($colonia) === 'sin definir') {
+                                                            echo 'Sin definir.';
+                                                        } elseif (strtolower($colonia) === 'pendiente') {
+                                                            echo 'Pendiente';
+                                                        } else {
+                                                            echo $colonia;
+                                                        }
+                                                    @endphp
                                                     @break
                                                 @default
                                                     {{ $hidrante->$columna ?? 'N/A' }}
