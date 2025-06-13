@@ -335,7 +335,7 @@ $(document).ready(function() {
     //$('#tableLoader').removeClass('d-none');
 
     // Modificar la inicialización de DataTables
-    var configTable = $('#hidrantesConfigTable').DataTable({
+    /*var configTable = $('#hidrantesConfigTable').DataTable({
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
@@ -367,7 +367,7 @@ $(document).ready(function() {
             $(window).trigger('resize');
             this.api().columns.adjust();
         }
-    });
+    });*/
 
     var configTable; // Variable para la tabla configurada
 
