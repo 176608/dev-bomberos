@@ -540,12 +540,6 @@ $(document).ready(function() {
         });
     });
 
-    $(window).on('resize', function() {
-        if (table) {
-            table.columns.adjust();
-        }
-    });
-
     // Manejar el cierre del modal
     $('#configuracionModal').on('hidden.bs.modal', function() {
         $('.modal-backdrop').remove();
