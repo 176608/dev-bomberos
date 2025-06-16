@@ -35,8 +35,10 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Email</th>
+                        <th>Email Verificado</th>
                         <th>Rol</th>
                         <th>Estado</th>
+                        <th>Estado Login</th>
                         <th>Fecha Registro</th>
                         <th>Última Edición</th>
                         <th>Acciones</th>
@@ -48,11 +50,31 @@
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
+                            <td>
+                                @if($user->email_verified_at)
+                                    <span class="badge bg-success">Verificado</span>
+                                @else
+                                    <span class="badge bg-warning">No verificado</span>
+                                @endif
+                            </td>
                             <td>{{ $user->role }}</td>
                             <td>
                                 <span class="badge bg-{{ $user->status ? 'success' : 'danger' }}">
                                     {{ $user->status ? 'Activo' : 'Inactivo' }}
                                 </span>
+                            </td>
+                            <td>
+                                @switch($user->log_in_status)
+                                    @case(0)
+                                        <span class="badge bg-success">Normal</span>
+                                        @break
+                                    @case(1)
+                                        <span class="badge bg-warning">Nueva cuenta</span>
+                                        @break
+                                    @case(2)
+                                        <span class="badge bg-info">Cambio solicitado</span>
+                                        @break
+                                @endswitch
                             </td>
                             <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
@@ -152,6 +174,14 @@
                             <select class="form-select" name="status" required>
                                 <option value="1" {{ $user->status ? 'selected' : '' }}>Activo</option>
                                 <option value="0" {{ !$user->status ? 'selected' : '' }}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado de Login</label>
+                            <select class="form-select" name="log_in_status" required>
+                                <option value="0" {{ $user->log_in_status === 0 ? 'selected' : '' }}>Normal</option>
+                                <option value="1" {{ $user->log_in_status === 1 ? 'selected' : '' }}>Nueva cuenta</option>
+                                <option value="2" {{ $user->log_in_status === 2 ? 'selected' : '' }}>Cambio solicitado</option>
                             </select>
                         </div>
                     </div>

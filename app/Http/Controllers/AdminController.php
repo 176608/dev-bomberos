@@ -40,6 +40,7 @@ class AdminController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'status' => 1,
+            'log_in_status' => 1, // Nuevo usuario siempre inicia en 1
         ]);
 
         return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente');
@@ -52,6 +53,7 @@ class AdminController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
             'status' => ['required', 'boolean'],
+            'log_in_status' => ['required', 'integer', 'in:0,1,2'],
         ]);
 
         $user->update([
@@ -59,6 +61,7 @@ class AdminController extends Controller
             'email' => $request->email,
             'role' => $request->role,
             'status' => $request->status,
+            'log_in_status' => $request->log_in_status,
         ]);
 
         if ($request->filled('password')) {

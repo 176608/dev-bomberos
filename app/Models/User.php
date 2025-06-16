@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'log_in_status', // Añadir el nuevo campo
     ];
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => 'boolean',
+            'log_in_status' => 'integer',
         ];
     }
 }
@@ -63,5 +65,5 @@ created_at          -timestamp                                -YES      -NULL
 updated_at          -timestamp                                -YES      -NULL
 role      -enum('Capturista','Desarrollador','Administrador')   -NO       -Capturista
 status              -tinyint(1)                               -NO       -1
-
+log_in_status
 */
