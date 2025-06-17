@@ -44,18 +44,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
     });
 });
-/*
-// Rutas que requieren autenticación y verificación de contraseña
-Route::middleware(['auth', 'password.reset.required'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.panel');
-    Route::get('/capturista', [CapturistaController::class, 'index'])->name('capturista.panel');
-    Route::get('/dev', [DevController::class, 'index'])->name('dev.panel');
-
-    // Admin CRUD routes
-    Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
-    Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
-});*/
 
 // Rutas específicas para el reseteo de contraseña
 Route::middleware(['auth'])->group(function () {

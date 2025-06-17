@@ -154,14 +154,6 @@
                             <input type="email" class="form-control" name="email" value="{{ $user->email }}" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Contraseña (dejar en blanco para mantener)</label>
-                            <input type="password" class="form-control" name="password" 
-                                pattern="^$|.{8,}"
-                                title="La contraseña debe estar vacía o tener al menos 8 caracteres"
-                                oninput="this.setCustomValidity('')"
-                                oninvalid="this.setCustomValidity('La contraseña debe estar vacía o tener al menos 8 caracteres')">
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Rol</label>
                             <select class="form-select" name="role" required>
                                 <option value="Capturista" {{ $user->role === 'Capturista' ? 'selected' : '' }}>Capturista</option>
@@ -177,12 +169,13 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Estado de Login</label>
-                            <select class="form-select" name="log_in_status" required>
-                                <option value="0" {{ $user->log_in_status === 0 ? 'selected' : '' }}>Normal</option>
-                                <option value="1" {{ $user->log_in_status === 1 ? 'selected' : '' }}>Nueva cuenta</option>
-                                <option value="2" {{ $user->log_in_status === 2 ? 'selected' : '' }}>Cambio solicitado</option>
-                            </select>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="resetPassword{{ $user->id }}" 
+                                       name="reset_password" value="2">
+                                <label class="form-check-label" for="resetPassword{{ $user->id }}">
+                                    Resetear contraseña de usuario
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

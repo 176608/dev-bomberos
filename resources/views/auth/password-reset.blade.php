@@ -8,7 +8,9 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo IMIP" height="80">
-                        <h4 class="mt-3 mb-4">Cambiar Contraseña</h4>
+                        <h4 class="mt-3 mb-4">
+                            {{ Auth::user()->log_in_status === 1 ? 'Completar Registro' : 'Cambiar Contraseña' }}
+                        </h4>
                         @if(session('message'))
                             <div class="alert alert-info">
                                 {{ session('message') }}
@@ -18,6 +20,28 @@
 
                     <form method="POST" action="{{ route('password.reset.update') }}" class="needs-validation" novalidate>
                         @csrf
+
+                        @if(Auth::user()->log_in_status === 1)
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    id="name" name="name" placeholder="Nombre" required
+                                    value="{{ Auth::user()->name }}">
+                                <label for="name">Nombre</label>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                    id="email" name="email" placeholder="Email" required
+                                    value="{{ Auth::user()->email }}">
+                                <label for="email">Email</label>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
 
                         <div class="form-floating mb-3">
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
@@ -36,7 +60,8 @@
                         </div>
 
                         <button type="submit" class="btn btn-success w-100 py-2 mb-3">
-                            <i class="bi bi-key"></i> Actualizar Contraseña
+                            <i class="bi bi-key"></i> 
+                            {{ Auth::user()->log_in_status === 1 ? 'Completar Registro' : 'Actualizar Contraseña' }}
                         </button>
                     </form>
                 </div>
