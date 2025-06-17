@@ -43,17 +43,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
     });
+});
 
+// Rutas que requieren autenticación y verificación de contraseña
+Route::middleware(['auth', 'password.reset.required'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.panel');
+    Route::get('/capturista', [CapturistaController::class, 'index'])->name('capturista.panel');
+    Route::get('/dev', [DevController::class, 'index'])->name('dev.panel');
+
+    // Admin CRUD routes
+    Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
+});
+
+// Rutas específicas para el reseteo de contraseña
+Route::middleware(['auth'])->group(function () {
     Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
         ->name('password.reset.form');
     Route::post('/password/reset', [PasswordResetController::class, 'update'])
         ->name('password.reset.update');
-});
-
-Route::middleware(['auth', 'password.reset.required'])->group(function () {
-    Route::get('/admin/panel', [AdminController::class, 'index'])->name('admin.panel');
-    Route::get('/capturista/panel', [CapturistaController::class, 'index'])->name('capturista.panel');
-    Route::get('/dev/panel', [DevController::class, 'index'])->name('dev.panel');
 });
 
 
