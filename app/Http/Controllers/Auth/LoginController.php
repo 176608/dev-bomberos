@@ -30,7 +30,7 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (!Auth::attempt($credentials)) {
             throw ValidationException::withMessages([
                 'email' => 'Tu información de autenticación está incorrecta.',
             ]);
@@ -43,6 +43,14 @@ class LoginController extends Controller
             throw ValidationException::withMessages([
                 'email' => 'Tu cuenta está desactivada.',
             ]);
+        }
+
+        // Check if user needs to reset password
+        if ($user->log_in_status > 0) {
+            return redirect()->route('password.reset.form')
+                ->with('message', $user->log_in_status === 1 ? 
+                    'Por favor, establece tu contraseña para continuar.' : 
+                    'Por favor, cambia tu contraseña para continuar.');
         }
 
         $request->session()->regenerate();

@@ -56,4 +56,13 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin.dev' => \App\Http\Middleware\AdminDevMiddleware::class,
     ];
+
+    /**
+     * The application's middleware aliases.
+     *
+     * @var array
+     */
+    protected $middlewareAliases = [
+        'password.reset.required' => \App\Http\Middleware\PasswordResetRequired::class,
+    ];
 }

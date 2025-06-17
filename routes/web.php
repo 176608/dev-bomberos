@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DesarrolladorController;
 use App\Http\Controllers\CapturistaController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas
@@ -42,6 +43,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
     });
+
+    Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset.form');
+    Route::post('/password/reset', [PasswordResetController::class, 'update'])
+        ->name('password.reset.update');
+});
+
+Route::middleware(['auth', 'password.reset.required'])->group(function () {
+    Route::get('/admin/panel', [AdminController::class, 'index'])->name('admin.panel');
+    Route::get('/capturista/panel', [CapturistaController::class, 'index'])->name('capturista.panel');
+    Route::get('/dev/panel', [DevController::class, 'index'])->name('dev.panel');
 });
 
 
