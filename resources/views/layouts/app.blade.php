@@ -50,18 +50,20 @@
                         <a class="nav-link" href="{{ route('dashboard') }}">Información Pública</a>
                     </li>
                     @auth
-                        @if(auth()->user()->role === 'Administrador')
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
-                            </li>
-                        @elseif(auth()->user()->role === 'Desarrollador')
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
-                            </li>
-                        @elseif(auth()->user()->role === 'Capturista')
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
-                            </li>
+                        @if(auth()->user()->log_in_status === 0)
+                            @if(auth()->user()->role === 'Administrador')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
+                                </li>
+                            @elseif(auth()->user()->role === 'Desarrollador')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
+                                </li>
+                            @elseif(auth()->user()->role === 'Capturista') 
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
+                                </li>
+                            @endif
                         @endif
                     @endauth
                 </ul>
@@ -139,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginBtn = document.querySelector('.login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', function(e) {
-            console.log('🔑 Iniciando proceso de login...');
+            console.log('Iniciando proceso de login...');
         });
     }
 });
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Logout handler function
 function handleLogout(event) {
     event.preventDefault();
-    console.log('🚪 Iniciando proceso de logout...');
+    console.log('Iniciando proceso de logout...');
     
     const form = document.getElementById('logout-form');
     if (form) {
