@@ -34,11 +34,11 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Email Verificado</th>
+                        <th>Correo</th>
+                        <th>Verificado</th>
                         <th>Rol</th>
                         <th>Estado</th>
-                        <th>Estado Login</th>
+                        <th>Acceso</th>
                         <th>Fecha Registro</th>
                         <th>Última Edición</th>
                         <th>Acciones</th>
@@ -69,10 +69,10 @@
                                         <span class="badge bg-success">Normal</span>
                                         @break
                                     @case(1)
-                                        <span class="badge bg-warning">Nueva cuenta</span>
+                                        <span class="badge bg-warning">Nueva</span>
                                         @break
                                     @case(2)
-                                        <span class="badge bg-info">Cambio solicitado</span>
+                                        <span class="badge bg-info">Cambio</span>
                                         @break
                                 @endswitch
                             </td>
