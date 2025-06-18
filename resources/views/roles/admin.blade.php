@@ -226,16 +226,8 @@ $(document).ready(function() {
                     // Hide modal
                     modal.modal('hide');
                     
-                    // Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: response.message,
-                        timer: 1500
-                    }).then(() => {
-                        // Reload page to refresh table
-                        window.location.reload();
-                    });
+                    alert(response.message);
+                    window.location.reload();
                 }
             },
             error: function(xhr) {
@@ -244,11 +236,7 @@ $(document).ready(function() {
                     errorMessage = xhr.responseJSON.message;
                 }
                 
-                Swal.fire({
-                    icon: 'error',
-                    title: '¡Error!',
-                    text: errorMessage
-                });
+                alert(errorMessage);
             }
         });
     });
