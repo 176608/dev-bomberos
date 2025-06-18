@@ -63,16 +63,30 @@ class AdminController extends Controller
                 'status' => $request->status,
             ];
 
-            // Handle password reset checkbox
             if ($request->has('reset_password')) {
                 $updateData['log_in_status'] = 2;
             }
 
             $user->update($updateData);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Usuario actualizado exitosamente',
+                    'data' => $user
+                ]);
+            }
+
             return redirect()->route('admin.panel')
                 ->with('success', 'Usuario actualizado exitosamente');
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar usuario: ' . $e->getMessage()
+                ], 422);
+            }
+
             return redirect()->route('admin.panel')
                 ->with('error', 'Error al actualizar usuario: ' . $e->getMessage());
         }

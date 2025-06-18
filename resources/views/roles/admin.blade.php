@@ -29,7 +29,7 @@
             </div>
         @endif
         <div class="table-responsive">
-            <table id="usersTable" class="table table-bordered table-striped">
+            <table id="usersTable" class="table table-striped table-bordered">
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
@@ -195,24 +195,71 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // DataTable initialization
-    $('#usersTable').DataTable({
+    // Initialize DataTable
+    const table = $('#usersTable').DataTable({
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
         },
-        order: [[0, 'desc']]
+        processing: true,
+        order: [[0, 'desc']],
+        columnDefs: [
+            {
+                targets: '_all',
+                defaultContent: ''
+            }
+        ]
     });
 
-    // Show alerts temporarily
-    setTimeout(function() {
-        $('.alert').fadeOut('slow');
-    }, 3000);
+    // Handle form submission
+    $('form[action*="/admin/users/"]').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const modal = form.closest('.modal');
 
-    // Reload page after successful update
-    @if(session('success'))
-        // Refresh DataTable
-        $('#usersTable').DataTable().ajax.reload();
-    @endif
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Hide modal
+                    modal.modal('hide');
+                    
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: response.message,
+                        timer: 1500
+                    }).then(() => {
+                        // Reload page to refresh table
+                        window.location.reload();
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Error al actualizar usuario';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: errorMessage
+                });
+            }
+        });
+    });
+
+    // Remove DataTable warnings from console
+    $.fn.dataTable.ext.errMode = 'none';
+    
+    // Handle DataTable errors more gracefully
+    table.on('error.dt', function(e, settings, techNote, message) {
+        console.error('DataTables error:', message);
+    });
 });
 </script>
 @endsection
