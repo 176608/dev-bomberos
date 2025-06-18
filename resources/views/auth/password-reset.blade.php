@@ -9,7 +9,7 @@
                     <div class="text-center mb-4">
                         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo IMIP" height="80">
                         <h4 class="mt-3 mb-4">
-                            {{ Auth::user()->log_in_status === 1 ? 'Completar Alta' : 'Cambiar Contraseña' }}
+                            {{ $user->log_in_status === 1 ? 'Completar Alta' : 'Cambiar Contraseña' }}
                         </h4>
                         @if(session('message'))
                             <div class="alert alert-info">
@@ -21,11 +21,11 @@
                     <form method="POST" action="{{ route('password.reset.update') }}" class="needs-validation" novalidate>
                         @csrf
 
-                        @if(Auth::user()->log_in_status === 1)
+                        @if($user->log_in_status === 1)
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" placeholder="Nombre" required
-                                    value="{{ Auth::user()->name }}">
+                                    value="{{ old('name', $user->name) }}">
                                 <label for="name">Nombre</label>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -35,7 +35,7 @@
                             <div class="form-floating mb-3">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
                                     id="email" name="email" placeholder="Email" required
-                                    value="{{ Auth::user()->email }}">
+                                    value="{{ old('email', $user->email) }}">
                                 <label for="email">Email</label>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -63,7 +63,7 @@
 
                         <button type="submit" class="btn btn-success w-100 py-2 mb-3">
                             <i class="bi bi-key"></i> 
-                            {{ Auth::user()->log_in_status === 1 ? 'Completar Registro' : 'Actualizar Contraseña' }}
+                            {{ $user->log_in_status === 1 ? 'Completar Registro' : 'Actualizar Contraseña' }}
                         </button>
                     </form>
                 </div>
