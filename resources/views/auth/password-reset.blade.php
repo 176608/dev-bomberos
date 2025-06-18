@@ -9,7 +9,7 @@
                     <div class="text-center mb-4">
                         <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo IMIP" height="80">
                         <h4 class="mt-3 mb-4">
-                            {{ Auth::user()->log_in_status === 1 ? 'Completar Registro' : 'Cambiar Contraseña' }}
+                            {{ Auth::user()->log_in_status === 1 ? 'Completar Alta' : 'Cambiar Contraseña' }}
                         </h4>
                         @if(session('message'))
                             <div class="alert alert-info">

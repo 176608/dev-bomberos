@@ -53,4 +53,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('password.reset.update');
 });
 
+// Ruta para verificar el email en el login
+Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
+
 
