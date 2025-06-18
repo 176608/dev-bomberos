@@ -65,6 +65,26 @@ class LoginController extends Controller
         return redirect('/');
     }
 
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['exists' => false], 200);
+        }
+
+        return response()->json([
+            'exists' => true,
+            'log_in_status' => $user->log_in_status,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
     protected function redirectBasedOnRole()
     {
         $user = Auth::user();
