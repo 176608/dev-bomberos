@@ -137,7 +137,7 @@
     <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="needs-validation" novalidate>
+                <form action="{{ route('admin.users.update', $user) }}" method="POST" class="needs-validation" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="modal-header">
