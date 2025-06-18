@@ -46,12 +46,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Rutas específicas para el reseteo de contraseña
-Route::middleware(['auth'])->group(function () {
-    Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
-        ->name('password.reset.form');
-    Route::post('/password/reset', [PasswordResetController::class, 'update'])
-        ->name('password.reset.update');
-});
+Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
+    ->name('password.reset.form');
+Route::post('/password/reset', [PasswordResetController::class, 'update'])
+    ->name('password.reset.update');
 
 // Ruta para verificar el email en el login
 Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');

@@ -66,7 +66,7 @@ $(function() {
                 $('#password').focus();
             } else if (response.log_in_status == 1 || response.log_in_status == 2) {
                 // Redirigir a password reset
-                window.location.href = "{{ route('password.reset.form') }}";
+                window.location.href = "{{ route('password.reset.form') }}?email=" + encodeURIComponent(email);
             }
         }).fail(function(xhr) {
             $('#login-error').removeClass('d-none').text('Error al verificar el correo.');

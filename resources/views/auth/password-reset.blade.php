@@ -59,6 +59,8 @@
                             <label for="password_confirmation">Confirmar Contraseña</label>
                         </div>
 
+                        <input type="hidden" name="email" value="{{ $user->email }}">
+
                         <button type="submit" class="btn btn-success w-100 py-2 mb-3">
                             <i class="bi bi-key"></i> 
                             {{ Auth::user()->log_in_status === 1 ? 'Completar Registro' : 'Actualizar Contraseña' }}
