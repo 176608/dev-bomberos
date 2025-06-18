@@ -48,27 +48,34 @@ class AdminController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
-            'status' => ['required', 'boolean'],
-            'log_in_status' => ['required', 'integer', 'in:0,1,2'],
-        ]);
+        try {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
+                'status' => ['required', 'boolean'],
+            ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'status' => $request->status,
-            'log_in_status' => $request->log_in_status,
-        ]);
+            $updateData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+                'status' => $request->status,
+            ];
 
-        if ($request->filled('password')) {
-            $user->update(['password' => Hash::make($request->password)]);
+            // Handle password reset checkbox
+            if ($request->has('reset_password')) {
+                $updateData['log_in_status'] = 2;
+            }
+
+            $user->update($updateData);
+
+            return redirect()->route('admin.panel')
+                ->with('success', 'Usuario actualizado exitosamente');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.panel')
+                ->with('error', 'Error al actualizar usuario: ' . $e->getMessage());
         }
-
-        return redirect()->route('admin.panel')->with('success', 'Usuario actualizado exitosamente');
     }
 
 }

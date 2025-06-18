@@ -137,7 +137,7 @@
     <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{{ route('admin.users.update', $user) }}" method="POST" class="needs-validation" novalidate>
+                <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-header">
@@ -147,15 +147,17 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control" name="name" value="{{ $user->name }}" required>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                   name="name" value="{{ old('name', $user->name) }}" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" value="{{ $user->email }}" required>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                   name="email" value="{{ old('email', $user->email) }}" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
-                            <select class="form-select" name="role" required>
+                            <select class="form-select @error('role') is-invalid @enderror" name="role" required>
                                 <option value="Capturista" {{ $user->role === 'Capturista' ? 'selected' : '' }}>Capturista</option>
                                 <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
@@ -163,7 +165,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Estado</label>
-                            <select class="form-select" name="status" required>
+                            <select class="form-select @error('status') is-invalid @enderror" name="status" required>
                                 <option value="1" {{ $user->status ? 'selected' : '' }}>Activo</option>
                                 <option value="0" {{ !$user->status ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -171,7 +173,7 @@
                         <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="resetPassword{{ $user->id }}" 
-                                       name="reset_password" value="2">
+                                       name="reset_password">
                                 <label class="form-check-label" for="resetPassword{{ $user->id }}">
                                     Resetear contraseña de usuario
                                 </label>
@@ -192,13 +194,25 @@
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        $('#usersTable').DataTable({
-            language: {
-                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-            },
-            order: [[0, 'desc']]
-        });
+$(document).ready(function() {
+    // DataTable initialization
+    $('#usersTable').DataTable({
+        language: {
+            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+        },
+        order: [[0, 'desc']]
     });
+
+    // Show alerts temporarily
+    setTimeout(function() {
+        $('.alert').fadeOut('slow');
+    }, 3000);
+
+    // Reload page after successful update
+    @if(session('success'))
+        // Refresh DataTable
+        $('#usersTable').DataTable().ajax.reload();
+    @endif
+});
 </script>
 @endsection
