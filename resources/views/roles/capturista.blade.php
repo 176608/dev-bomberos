@@ -327,7 +327,7 @@ $(document).ready(function() {
         scrollX: true,
         responsive: true,
         pageLength: 25,
-        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
+        lengthMenu: [[25, 50, 100, 500], [25, 50, 100,  500]],
         drawCallback: function() {
             //$('#tableLoader').addClass('d-none');
             $(window).trigger('resize');
