@@ -245,8 +245,10 @@
 $(document).ready(function() {
     // Obtener headerNames del servidor
     const headerNames = @json($headerNames);
+    // Variable para la tabla configurada
+    var configTable;
 
-    // Modificar la inicialización de DataTables
+    /*// Modificar la inicialización de DataTables
     var configTable = $('#hidrantesConfigTable').DataTable({
         language: {
             url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
@@ -265,9 +267,7 @@ $(document).ready(function() {
             $(window).trigger('resize');
             this.api().columns.adjust();
         }
-    });
-
-    var configTable; // Variable para la tabla configurada
+    });*/
 
     // Manejador para el botón de nuevo hidrante
     $('#btnNuevoHidrante').click(function() {
@@ -562,6 +562,16 @@ $(document).ready(function() {
             drawCallback: function() {
                 $('#tablaLoader').hide();
                 $('.table-responsive').show();
+            },
+            createdRow: function(row, data, dataIndex) {
+                // Si alguno de los campos contiene "Pendiente", pinta la fila de rojo
+                if (
+                    (data.calle && data.calle.toString().toLowerCase().includes('pendiente')) ||
+                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('pendiente')) ||
+                    (data.colonia && data.colonia.toString().toLowerCase().includes('pendiente'))
+                ) {
+                    $(row).addClass('table-danger');
+                }
             }
         });
 
