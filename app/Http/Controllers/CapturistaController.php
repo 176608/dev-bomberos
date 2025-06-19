@@ -312,21 +312,39 @@ class CapturistaController extends Controller
             })
             ->editColumn('calle', function($hidrante) {
                 $valor = $hidrante->callePrincipal?->Nomvial;
-                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
-                    ? 'Sin definir'
-                    : $valor;
+                if (is_null($valor)) {
+                    return 'Is NULL';
+                }
+                if (trim($valor) === '') {
+                    return 'Vacio';
+                }
+                if (strtolower(trim($valor)) === 'sin definir') {
+                    return 'Sin definir';
+                }
+                if (strtolower(trim($valor)) === 'pendiente') {
+                    return 'Pendiente';
+                }
+                return $valor;
             })
             ->editColumn('y_calle', function($hidrante) {
                 $valor = $hidrante->calleSecundaria?->Nomvial;
-                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
-                    ? 'Sin definir'
-                    : $valor;
+                if (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir') {
+                    return 'Sin definir';
+                }
+                if (strtolower(trim($valor)) === 'pendiente') {
+                    return 'Pendiente';
+                }
+                return $valor;
             })
             ->editColumn('colonia', function($hidrante) {
                 $valor = $hidrante->coloniaLocacion?->NOMBRE;
-                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
-                    ? 'Sin definir'
-                    : $valor;
+                if (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir') {
+                    return 'Sin definir';
+                }
+                if (strtolower(trim($valor)) === 'pendiente') {
+                    return 'Pendiente';
+                }
+                return $valor;
             })
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
