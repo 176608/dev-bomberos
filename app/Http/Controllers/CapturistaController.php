@@ -10,6 +10,7 @@ use App\Models\ConfiguracionCapturista;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Yajra\DataTables\Facades\DataTables;
 
 class CapturistaController extends Controller
 {
@@ -18,7 +19,7 @@ class CapturistaController extends Controller
         $this->middleware('auth');
     }*/
 
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->check() || auth()->user()->role !== 'Capturista') {
             return redirect()->route('login');
@@ -30,20 +31,15 @@ class CapturistaController extends Controller
 
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 
-        // Obtener hidrantes con sus relaciones
+        /*// Obtener hidrantes con sus relaciones
         $hidrantes = Hidrante::with([
             'coloniaLocacion',
             'callePrincipal',
             'calleSecundaria',
             'createdBy',
             'updatedBy'
-        ])->get();
+        ])->get();*/
 
-        // Obtener calles y colonias para los formularios
-        /*$calles = CatalogoCalle::select('IDKEY', 'Nomvial')->orderBy('Nomvial')->get();
-        $colonias = Colonias::select('IDKEY', 'NOMBRE')->orderBy('NOMBRE')->get();
-        
-        return view('roles.capturista', compact('hidrantes', 'calles', 'colonias'));*/
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
             'fecha_tentativa' => 'Fecha Tentativa', 
@@ -62,7 +58,12 @@ class CapturistaController extends Controller
             'observaciones' => 'Observaciones'
         ];
 
-        return view('roles.capturista', compact('hidrantes', 'columnas', 'headerNames'));
+        // Si la petición es AJAX y pide solo la tabla
+        if ($request->ajax() && $request->has('tabla')) {
+            return view('partials.hidrantes-table', compact('columnas', 'headerNames'))->render();
+        }
+
+        return view('roles.capturista', compact('columnas', 'headerNames'));
     }
 
     public function store(Request $request)
@@ -295,5 +296,36 @@ class CapturistaController extends Controller
                 'message' => 'Error al obtener la configuración'
             ], 500);
         }
+    }
+
+    public function dataTable(Request $request)
+    {
+        $query = Hidrante::with([
+            'coloniaLocacion',
+            'callePrincipal',
+            'calleSecundaria'
+        ]);
+
+        return DataTables::eloquent($query)
+            ->addColumn('acciones', function($hidrante) {
+                return '<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">Editar <i class="bi bi-pen-fill"></i></button>';
+            })
+            ->editColumn('calle', function($hidrante) {
+                return $hidrante->callePrincipal?->Nomvial ?? 'Sin definir';
+            })
+            ->editColumn('y_calle', function($hidrante) {
+                return $hidrante->calleSecundaria?->Nomvial ?? 'Sin definir';
+            })
+            ->editColumn('colonia', function($hidrante) {
+                return $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin definir';
+            })
+            ->editColumn('fecha_inspeccion', function($hidrante) {
+                return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
+            })
+            ->editColumn('fecha_tentativa', function($hidrante) {
+                return $hidrante->fecha_tentativa ? $hidrante->fecha_tentativa->format('Y-m-d') : 'N/A';
+            })
+            ->rawColumns(['acciones'])
+            ->make(true);
     }
 }

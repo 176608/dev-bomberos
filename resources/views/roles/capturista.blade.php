@@ -128,82 +128,18 @@
                     <button class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#configuracionModal">
                         <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                     </button>
+                    <button class="btn btn-info mb-2" id="btnVerTabla">
+                        <i class="bi bi-table"></i> Ver la tabla
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <!-- Card adicional para el reporte configurado -->
-    <div class="card mt-4 mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title m-0">Reporte Hidrantes Configurado</h5>
-            <!-- spinner disabled
-            <div id="tableLoader" class="d-none">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <span class="ms-2">Actualizando tabla...</span>
-            </div>                
-            -->
-            </div>
-            <div class="table-responsive">
-                <table id="hidrantesConfigTable" class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th class="text-center align-middle">ID</th>
-                            @foreach($columnas as $columna)
-                                @if($columna !== 'id' && $columna !== 'acciones')
-                                    <th class="text-center align-middle">{{ $headerNames[$columna] ?? ucfirst($columna) }}</th>
-                                @endif
-                            @endforeach
-                            <th class="text-center align-middle">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($hidrantes as $hidrante)
-                            <tr class="{{ str_contains(strtolower($hidrante->calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->y_calle), 'pendiente') || 
-                                         str_contains(strtolower($hidrante->colonia), 'pendiente') ? 'table-danger' : '' }}">
-                                <td class="text-center align-middle">{{ $hidrante->id }}</td>
-                                @foreach($columnas as $columna)
-                                    @if($columna !== 'id' && $columna !== 'acciones')
-                                        <td class="text-center align-middle">
-                                            @switch($columna)
-                                                @case('calle')
-                                                    {{ $hidrante->callePrincipal?->Nomvial ?? 'Sin definir' }}
-                                                    @break
-                                                @case('y_calle')
-                                                    {{ $hidrante->calleSecundaria?->Nomvial ?? 'Sin definir' }}
-                                                    @break
-                                                @case('colonia')
-                                                    {{ $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin definir' }}
-                                                    @break
-                                                @case('fecha_inspeccion')
-                                                @case('fecha_tentativa')
-                                                    {{ $hidrante->$columna ? date('Y-m-d', strtotime($hidrante->$columna)) : 'N/A' }}
-                                                    @break
-                                                @default
-                                                    {{ $hidrante->$columna ?? 'N/A' }}
-                                            @endswitch
-                                        </td>
-                                    @endif
-                                @endforeach
-                                <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-warning edit-hidrante" 
-                                            data-hidrante-id="{{ $hidrante->id }}">
-                                        Editar <i class="bi bi-pen-fill"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <!-- Aquí irá la tabla dinámica -->
+    <div id="tablaHidrantesContainer" style="display:none;">
+        <!-- Aquí se cargará la tabla con AJAX -->
     </div>
-    
 </div>
 
 <!-- Modal para configuración de tabla -->
@@ -310,9 +246,6 @@
 $(document).ready(function() {
     // Obtener headerNames del servidor
     const headerNames = @json($headerNames);
-
-    // Inicializar DataTables con spinner
-    //$('#tableLoader').removeClass('d-none');
 
     // Modificar la inicialización de DataTables
     var configTable = $('#hidrantesConfigTable').DataTable({
@@ -511,9 +444,6 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Mostrar spinner antes de recargar
-                    //$('#tableLoader').removeClass('d-none');
-
                     // Cerrar modal
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -537,9 +467,6 @@ $(document).ready(function() {
 
     // Agregar este evento para cargar la configuración cuando se abre el modal
     $('#configuracionModal').on('show.bs.modal', function () {
-        // Mostrar spinner mientras carga
-        //$('#tableLoader').removeClass('d-none');
-        
         // Cargar configuración actual del usuario
         $.get("{{ route('configuracion.get') }}")
             .done(function(response) {
@@ -556,9 +483,7 @@ $(document).ready(function() {
                     const defaultColumns = [
                         'fecha_inspeccion',
                         'calle',
-                        'y_calle',
-                        'colonia',
-                        'marca'
+                        'y_calle'
                     ];
                     defaultColumns.forEach(function(columnName) {
                         $(`#col_${columnName}`).prop('checked', true);
@@ -573,6 +498,83 @@ $(document).ready(function() {
                 //$('#tableLoader').addClass('d-none');
             });
     });
+
+    // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
+    function cargarTablaHidrantes() {
+        $('#tablaHidrantesContainer').show().html('');
+        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+            // Renderiza el partial de la tabla
+            $('#tablaHidrantesContainer').html(response);
+            inicializarDataTableServerSide();
+        });
+    }
+
+    // Nuevo botón "Ver la tabla"
+    $('#btnVerTabla').click(function() {
+        cargarTablaHidrantes();
+    });
+
+    // También puedes llamar cargarTablaHidrantes() después de crear o editar hidrante, si lo deseas
+
+    // Inicializa DataTable con server-side
+    function inicializarDataTableServerSide() {
+        let columnas = window.hidrantesTableConfig || [];
+        let headerNames = window.hidrantesHeaderNames || {};
+        let dtColumns = [
+            { data: 'id', name: 'id', className: 'text-center align-middle' }
+        ];
+        columnas.forEach(function(col) {
+            if(col !== 'id' && col !== 'acciones') {
+                dtColumns.push({
+                    data: col,
+                    name: col,
+                    className: 'text-center align-middle'
+                });
+            }
+        });
+        dtColumns.push({
+            data: 'acciones',
+            name: 'acciones',
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle'
+        });
+
+        let table = $('#hidrantesConfigTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('hidrantes.data') }}",
+            columns: dtColumns,
+            language: {
+                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+            },
+            order: [[0, 'desc']],
+            paging: true,
+            searching: true,
+            info: true,
+            autoWidth: false,
+            scrollX: true,
+            responsive: true,
+            pageLength: 25,
+            lengthMenu: [[25, 50, 100, 500], [25, 50, 100,  500]],
+            drawCallback: function() {
+                $('#tablaLoader').hide();
+                $('.table-responsive').show();
+            }
+        });
+
+        // Reasigna eventos de editar hidrante
+        $('#hidrantesConfigTable').on('click', '.edit-hidrante', function(e) {
+            // ...tu código de editar hidrante aquí...
+        });
+    }
+
+    // Si quieres que la tabla se muestre automáticamente después de crear/editar hidrante,
+    // llama cargarTablaHidrantes() en el success de esos AJAX.
+
+    // Opcional: Si quieres que la tabla se muestre automáticamente al dar click en "Alta de hidrante" o "Editar parámetros",
+    // llama cargarTablaHidrantes() en el success de esos eventos también.
 });
 </script>
 @endsection
