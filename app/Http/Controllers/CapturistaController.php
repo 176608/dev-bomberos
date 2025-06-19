@@ -311,40 +311,31 @@ class CapturistaController extends Controller
                 return '<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">Editar <i class="bi bi-pen-fill"></i></button>';
             })
             ->editColumn('calle', function($hidrante) {
-                $valor = $hidrante->callePrincipal?->Nomvial;
-                if (is_null($valor)) {
-                    return 'Is NULL';
-                }
-                if (trim($valor) === '') {
-                    return 'Vacio';
-                }
-                if (strtolower(trim($valor)) === 'sin definir') {
+                if (is_null($hidrante->id_calle)) {
                     return 'Sin definir';
                 }
-                if (strtolower(trim($valor)) === 'pendiente') {
+                if ($hidrante->id_calle == 0) {
                     return 'Pendiente';
                 }
-                return $valor;
+                return $hidrante->callePrincipal?->Nomvial ?? 'Sin definir';
             })
             ->editColumn('y_calle', function($hidrante) {
-                $valor = $hidrante->calleSecundaria?->Nomvial;
-                if (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir') {
+                if (is_null($hidrante->id_y_calle)) {
                     return 'Sin definir';
                 }
-                if (strtolower(trim($valor)) === 'pendiente') {
+                if ($hidrante->id_y_calle == 0) {
                     return 'Pendiente';
                 }
-                return $valor;
+                return $hidrante->calleSecundaria?->Nomvial ?? 'Sin definir';
             })
             ->editColumn('colonia', function($hidrante) {
-                $valor = $hidrante->coloniaLocacion?->NOMBRE;
-                if (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir') {
+                if (is_null($hidrante->id_colonia)) {
                     return 'Sin definir';
                 }
-                if (strtolower(trim($valor)) === 'pendiente') {
+                if ($hidrante->id_colonia == 0) {
                     return 'Pendiente';
                 }
-                return $valor;
+                return $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin definir';
             })
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
