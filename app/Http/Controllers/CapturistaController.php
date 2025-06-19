@@ -311,13 +311,22 @@ class CapturistaController extends Controller
                 return '<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">Editar <i class="bi bi-pen-fill"></i></button>';
             })
             ->editColumn('calle', function($hidrante) {
-                return $hidrante->callePrincipal?->Nomvial ?? 'Sin definir';
+                $valor = $hidrante->callePrincipal?->Nomvial;
+                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
+                    ? 'Sin definir'
+                    : $valor;
             })
             ->editColumn('y_calle', function($hidrante) {
-                return $hidrante->calleSecundaria?->Nomvial ?? 'Sin definir';
+                $valor = $hidrante->calleSecundaria?->Nomvial;
+                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
+                    ? 'Sin definir'
+                    : $valor;
             })
             ->editColumn('colonia', function($hidrante) {
-                return $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin definir';
+                $valor = $hidrante->coloniaLocacion?->NOMBRE;
+                return (is_null($valor) || trim($valor) === '' || strtolower(trim($valor)) === 'sin definir')
+                    ? 'Sin definir'
+                    : $valor;
             })
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
