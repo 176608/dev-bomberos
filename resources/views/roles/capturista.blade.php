@@ -427,8 +427,6 @@ $(document).ready(function() {
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
-                    // Recargar página
-                    //window.location.reload();
                     cargarTablaHidrantes();
                 }
             },
@@ -502,14 +500,14 @@ $(document).ready(function() {
         let columnas = window.hidrantesTableConfig || [];
         let headerNames = window.hidrantesHeaderNames || {};
         let dtColumns = [
-            { data: 'id', name: 'id', className: 'text-center align-middle' }
+            { data: 'id', name: 'id', className: 'text-center align-middle hhh' }
         ];
         columnas.forEach(function(col) {
             if(col !== 'id' && col !== 'acciones') {
                 dtColumns.push({
                     data: col,
                     name: col,
-                    className: 'text-center align-middle'
+                    className: 'text-center align-middle jjj'
                 });
             }
         });
@@ -518,7 +516,7 @@ $(document).ready(function() {
             name: 'acciones',
             orderable: false,
             searchable: false,
-            className: 'text-center align-middle'
+            className: 'text-center align-middle hhh'
         });
 
         let table = $('#hidrantesConfigTable').DataTable({
@@ -549,15 +547,16 @@ $(document).ready(function() {
                     (data.y_calle && data.y_calle.toString().toLowerCase().includes('Pendiente')) ||
                     (data.colonia && data.colonia.toString().toLowerCase().includes('Pendiente'))
                 ) {
+                    alert('Si entre a if, en la funcion');
                     $(row).addClass('table-danger').css('color', 'red');
                 }
             }
         });
 
-        // Reasigna eventos de editar hidrante
+        /*// Reasigna eventos de editar hidrante
         $('#hidrantesConfigTable').on('click', '.edit-hidrante', function(e) {
             // ...tu código de editar hidrante aquí...
-        });
+        });*/
     }
 
     // Si quieres que la tabla se muestre automáticamente después de crear/editar hidrante,
