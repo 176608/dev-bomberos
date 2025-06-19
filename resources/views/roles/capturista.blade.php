@@ -248,27 +248,6 @@ $(document).ready(function() {
     // Variable para la tabla configurada
     var configTable;
 
-    /*// Modificar la inicialización de DataTables
-    var configTable = $('#hidrantesConfigTable').DataTable({
-        language: {
-            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-        },
-        order: [[0, 'desc']],
-        paging: true,
-        searching: true,
-        info: true,
-        autoWidth: false,
-        scrollX: true,
-        responsive: true,
-        pageLength: 25,
-        lengthMenu: [[25, 50, 100, 500], [25, 50, 100,  500]],
-        drawCallback: function() {
-            //$('#tableLoader').addClass('d-none');
-            $(window).trigger('resize');
-            this.api().columns.adjust();
-        }
-    });*/
-
     // Manejador para el botón de nuevo hidrante
     $('#btnNuevoHidrante').click(function() {
         const button = $(this);
@@ -566,11 +545,11 @@ $(document).ready(function() {
             createdRow: function(row, data, dataIndex) {
                 // Si alguno de los campos contiene "Pendiente", pinta la fila de rojo
                 if (
-                    (data.calle && data.calle.toString().toLowerCase().includes('pendiente')) ||
-                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('pendiente')) ||
-                    (data.colonia && data.colonia.toString().toLowerCase().includes('pendiente'))
+                    (data.calle && data.calle.toString().toLowerCase().includes('Pendiente')) ||
+                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('Pendiente')) ||
+                    (data.colonia && data.colonia.toString().toLowerCase().includes('Pendiente'))
                 ) {
-                    $(row).addClass('table-danger');
+                    $(row).addClass('table-danger').css('color', 'red');
                 }
             }
         });
