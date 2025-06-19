@@ -551,18 +551,8 @@ $(document).ready(function() {
                 }
             }
         });
-
-        /*// Reasigna eventos de editar hidrante
-        $('#hidrantesConfigTable').on('click', '.edit-hidrante', function(e) {
-            // ...tu código de editar hidrante aquí...
-        });*/
     }
 
-    // Si quieres que la tabla se muestre automáticamente después de crear/editar hidrante,
-    // llama cargarTablaHidrantes() en el success de esos AJAX.
-
-    // Opcional: Si quieres que la tabla se muestre automáticamente al dar click en "Alta de hidrante" o "Editar parámetros",
-    // llama cargarTablaHidrantes() en el success de esos eventos también.
 });
 </script>
 @endsection

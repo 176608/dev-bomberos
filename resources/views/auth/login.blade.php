@@ -77,6 +77,36 @@ $(function() {
     $('#login-step2').on('submit', function(e) {
         // Permite el submit normal, Laravel manejará el error si la contraseña es incorrecta
     });
+
+    // Establecer el paso de inicio de sesión y el error en caso de que existan
+    @if ($errors->has('password'))
+        window.loginStep = 2;
+        window.loginError = @json($errors->first('password'));
+        window.loginEmail = @json(old('email'));
+    @endif
+    @if ($errors->has('email'))
+        window.loginStep = 1;
+        window.loginError = @json($errors->first('email'));
+        window.loginEmail = @json(old('email'));
+    @endif
+
+    // Lógica para mostrar el paso correcto basado en los errores
+    if (window.loginStep === 2) {
+        $('#login-step1').addClass('d-none');
+        $('#login-step2').removeClass('d-none');
+        $('#email-hidden').val(window.loginEmail || '');
+        $('#password').focus();
+        $('#login-error2').removeClass('d-none').text(window.loginError || '');
+    } else if (window.loginStep === 1) {
+        $('#login-step1').removeClass('d-none');
+        $('#login-step2').addClass('d-none');
+        $('#email').val(window.loginEmail || '');
+        $('#login-error').removeClass('d-none').text(window.loginError || '');
+    }
+
+    $('#password').on('input', function() {
+        $('#login-error2').addClass('d-none').text('');
+    });
 });
 </script>
 @endsection

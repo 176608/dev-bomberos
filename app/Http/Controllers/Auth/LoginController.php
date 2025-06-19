@@ -32,18 +32,19 @@ class LoginController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => 'Tu información de autenticación está incorrecta.',
-            ]);
+            // Redirige de vuelta con error y email
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['password' => 'Contraseña incorrecta.']);
         }
 
         $user = Auth::user();
 
         if (!$user->status) {
             Auth::logout();
-            throw ValidationException::withMessages([
-                'email' => 'Tu cuenta está desactivada.',
-            ]);
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'Tu cuenta está desactivada.']);
         }
 
         // Check if user needs to reset password
