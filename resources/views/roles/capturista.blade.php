@@ -500,14 +500,14 @@ $(document).ready(function() {
         let columnas = window.hidrantesTableConfig || [];
         let headerNames = window.hidrantesHeaderNames || {};
         let dtColumns = [
-            { data: 'id', name: 'id', className: 'text-center align-middle hhh' }
+            { data: 'id', name: 'id', className: 'text-center align-middle' }
         ];
         columnas.forEach(function(col) {
             if(col !== 'id' && col !== 'acciones') {
                 dtColumns.push({
                     data: col,
                     name: col,
-                    className: 'text-center align-middle jjj'
+                    className: 'text-center align-middle'
                 });
             }
         });
@@ -516,7 +516,7 @@ $(document).ready(function() {
             name: 'acciones',
             orderable: false,
             searchable: false,
-            className: 'text-center align-middle hhh'
+            className: 'text-center align-middle'
         });
 
         let table = $('#hidrantesConfigTable').DataTable({
@@ -543,11 +543,10 @@ $(document).ready(function() {
             createdRow: function(row, data, dataIndex) {
                 // Si alguno de los campos contiene "Pendiente", pinta la fila de rojo
                 if (
-                    (data.calle && data.calle.toString().toLowerCase().includes('Pendiente')) ||
-                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('Pendiente')) ||
-                    (data.colonia && data.colonia.toString().toLowerCase().includes('Pendiente'))
+                    (data.calle && data.calle.toString().toLowerCase().includes('pendiente')) ||
+                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('pendiente')) ||
+                    (data.colonia && data.colonia.toString().toLowerCase().includes('pendiente'))
                 ) {
-                    alert('Si entre a if, en la funcion');
                     $(row).addClass('table-danger').css('color', 'red');
                 }
             }
