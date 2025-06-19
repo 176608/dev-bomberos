@@ -136,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Aquí irá la tabla dinámica -->
     <div id="tablaHidrantesContainer" style="display:none;">
         <!-- Aquí se cargará la tabla con AJAX -->
     </div>
@@ -309,6 +308,7 @@ $(document).ready(function() {
                                 modalInstance.hide();
                                 location.reload();
                                 alert('Hidrante creado exitosamente');
+                                cargarTablaHidrantes();
                             } else {
                                 alert('Error: ' + response.message);
                             }
@@ -449,7 +449,8 @@ $(document).ready(function() {
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
                     // Recargar página
-                    window.location.reload();
+                    //window.location.reload();
+                    cargarTablaHidrantes();
                 }
             },
             error: function(xhr) {
