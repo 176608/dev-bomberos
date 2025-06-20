@@ -30,17 +30,20 @@ class AdminController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
         ]);
+
+        // Contraseña temporal por defecto
+        $defaultPassword = 'CambiaMe123!';
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            //'password' => Hash::make($request->password),
+            'password' => bcrypt($defaultPassword),
             'role' => $request->role,
             'status' => 1,
-            'log_in_status' => 1, // Nuevo usuario siempre inicia en 1
+            'log_in_status' => 1, // Nuevo usuario debe cambiar contraseña
         ]);
 
         return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente');

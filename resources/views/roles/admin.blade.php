@@ -35,7 +35,6 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Correo</th>
-                        <th>Verificado</th>
                         <th>Rol</th>
                         <th>Estado</th>
                         <th>Acceso</th>
@@ -50,13 +49,6 @@
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>
-                                @if($user->email_verified_at)
-                                    <span class="badge bg-success">Verificado</span>
-                                @else
-                                    <span class="badge bg-warning">No verificado</span>
-                                @endif
-                            </td>
                             <td>{{ $user->role }}</td>
                             <td>
                                 <span class="badge bg-{{ $user->status ? 'success' : 'danger' }}">
@@ -98,7 +90,7 @@
             <form action="{{ route('admin.users.store') }}" method="POST">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Crear Usuario</h5>
+                    <h5 class="modal-title">Alta de Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -107,12 +99,8 @@
                         <input type="text" class="form-control" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label">Correo</label>
                         <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" required minlength="8" pattern=".{8,}" title="La contraseña debe tener al menos 8 caracteres">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
@@ -151,7 +139,7 @@
                                    name="name" value="{{ old('name', $user->name) }}" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Correo</label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror" 
                                    name="email" value="{{ old('email', $user->email) }}" required>
                         </div>

@@ -36,7 +36,7 @@
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
                                     id="email" name="email" placeholder="Email" required
                                     value="{{ old('email', $user->email) }}">
-                                <label for="email">Email</label>
+                                <label for="email">Correo</label>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -45,7 +45,7 @@
 
                         <div class="form-floating mb-3">
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                id="password" name="password" placeholder="Nueva Contraseña" required minlength="8">
+                                id="password" name="password" placeholder="Nueva Contraseña" required minlength="8" title="La contraseña debe tener al menos 8 caracteres">
                             <label for="password">Nueva Contraseña</label>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -54,7 +54,7 @@
 
                         <div class="form-floating mb-3">
                             <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
-                                id="password_confirmation" name="password_confirmation" 
+                                id="password_confirmation" name="password_confirmation" title="La contraseña debe tener al menos 8 caracteres"
                                 placeholder="Confirmar Contraseña" required minlength="8">
                             <label for="password_confirmation">Confirmar Contraseña</label>
                         </div>
