@@ -391,7 +391,8 @@ $(document).ready(function() {
 
     // Evento cuando se cierra el modal
     $('#configuracionModal').on('hidden.bs.modal', function () {
-        cleanupModal();
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').removeAttr('style');
     });
 
     // Función para actualizar los headers de la tabla configurada
@@ -450,16 +451,15 @@ $(document).ready(function() {
             .done(function(response) {
                 // Desmarcar todos los checkboxes primero
                 $('.column-toggle').prop('checked', false);
-                
-                if (response.configuracion && Array.isArray(response.configuracion)) {
+
+                if (response.configuracion && Array.isArray(response.configuracion) && response.configuracion.length > 0) {
                     // Marcar los checkboxes según la configuración guardada
                     response.configuracion.forEach(function(columnName) {
                         $(`#col_${columnName}`).prop('checked', true);
                     });
                 } else {
-                    // Configuración por defecto si no hay configuración guardada
+                    // Solo si NO hay configuración guardada, marcar los defaults
                     const defaultColumns = [
-                        'fecha_inspeccion',
                         'calle',
                         'y_calle'
                     ];
@@ -471,9 +471,6 @@ $(document).ready(function() {
             .fail(function(error) {
                 console.error('Error al cargar configuración:', error);
                 alert('Error al cargar la configuración');
-            })
-            .always(function() {
-                //$('#tableLoader').addClass('d-none');
             });
     });
 
