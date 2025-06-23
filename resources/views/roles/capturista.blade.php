@@ -155,7 +155,7 @@
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Básica</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha_inspeccion" checked>
+                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha_inspeccion">
                                 <label class="form-check-label" for="col_fecha_inspeccion">Fecha de Inspección</label>
                             </div>
                             <div class="form-check mb-2">
@@ -168,21 +168,21 @@
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="numero_hidrante" id="col_numero_hidrante">
-                                <label class="form-check-label" for="col_numero_hidrante">Número de Hidrante</label>
+                                <label class="form-check-label" for="col_numero_hidrante">Número de Hidrante, A borrar</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle" checked>
+                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle">
                                 <label class="form-check-label" for="col_calle">Calle Principal</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle" checked>
+                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle">
                                 <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia" checked>
+                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia">
                                 <label class="form-check-label" for="col_colonia">Colonia</label>
                             </div>
                         </div>
@@ -211,7 +211,7 @@
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Adicional</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca" checked>
+                                <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca">
                                 <label class="form-check-label" for="col_marca">Marca</label>
                             </div>
                             <div class="form-check mb-2">
@@ -221,10 +221,6 @@
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="oficial" id="col_oficial">
                                 <label class="form-check-label" for="col_oficial">Oficial</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="observaciones" id="col_observaciones">
-                                <label class="form-check-label" for="col_observaciones">Observaciones</label>
                             </div>
                         </div>
                     </div>
