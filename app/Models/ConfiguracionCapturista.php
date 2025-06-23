@@ -22,7 +22,7 @@ class ConfiguracionCapturista extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function getDefaultConfig()
+    /*public static function getDefaultConfig()
     {
         return [
             'id',
@@ -33,7 +33,7 @@ class ConfiguracionCapturista extends Model
             'marca',
             'acciones'
         ];
-    }
+    }*/
 
     public function getConfiguracionAttribute($value)
     {
