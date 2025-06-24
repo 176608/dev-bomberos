@@ -167,7 +167,7 @@ $(document).ready(function() {
 
         $.get("{{ route('hidrantes.create') }}")
             .done(function(response) {
-                //$('.modal-create, .modal-edit, .modal-backdrop').remove();
+                $('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
 
                 const modalElement = document.getElementById('crearHidranteModal');
@@ -233,7 +233,7 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                //$('.modal-create, .modal-edit, .modal-backdrop').remove();
+                $('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
                 
                 const modalElement = document.getElementById(`editarHidranteModal${hidranteId}`);
@@ -416,6 +416,7 @@ $(document).ready(function() {
     $('#configuracionModal').on('hidden.bs.modal', function () {
         $('#spinnerConfiguracion').addClass('d-none');
     });
+    
 
 });
 </script>
