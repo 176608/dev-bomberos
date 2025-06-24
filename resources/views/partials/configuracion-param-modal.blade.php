@@ -12,30 +12,36 @@
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Básica</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha_inspeccion">
+                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_inspeccion" id="col_fecha_inspeccion"
+                                    {{ in_array('fecha_inspeccion', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_fecha_inspeccion">Fecha de Inspección</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_tentativa" id="col_fecha_tentativa">
+                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_tentativa" id="col_fecha_tentativa"
+                                    {{ in_array('fecha_tentativa', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_fecha_tentativa">Fecha Tentativa</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="numero_estacion" id="col_numero_estacion">
+                                <input class="form-check-input column-toggle" type="checkbox" value="numero_estacion" id="col_numero_estacion"
+                                    {{ in_array('numero_estacion', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_numero_estacion">Número de Estación</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle">
+                                <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle"
+                                    {{ in_array('calle', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_calle">Calle Principal</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle">
+                                <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle"
+                                    {{ in_array('y_calle', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia">
+                                <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia"
+                                    {{ in_array('colonia', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_colonia">Colonia</label>
                             </div>
                         </div>
@@ -45,34 +51,41 @@
                         <div class="col-md-6">
                             <h6 class="mb-3">Características</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="llave_hidrante" id="col_llave_hidrante">
+                                <input class="form-check-input column-toggle" type="checkbox" value="llave_hidrante" id="col_llave_hidrante"
+                                    {{ in_array('llave_hidrante', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_llave_hidrante">Llave Hidrante</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="presion_agua" id="col_presion_agua">
+                                <input class="form-check-input column-toggle" type="checkbox" value="presion_agua" id="col_presion_agua"
+                                    {{ in_array('presion_agua', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_presion_agua">Presión de Agua</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="color" id="col_color">
+                                <input class="form-check-input column-toggle" type="checkbox" value="color" id="col_color"
+                                    {{ in_array('color', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_color">Color</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="estado_hidrante" id="col_estado_hidrante">
+                                <input class="form-check-input column-toggle" type="checkbox" value="estado_hidrante" id="col_estado_hidrante"
+                                    {{ in_array('estado_hidrante', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_estado_hidrante">Estado</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Adicional</h6>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca">
+                                <input class="form-check-input column-toggle" type="checkbox" value="marca" id="col_marca"
+                                    {{ in_array('marca', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_marca">Marca</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="anio" id="col_anio">
+                                <input class="form-check-input column-toggle" type="checkbox" value="anio" id="col_anio"
+                                    {{ in_array('anio', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_anio">Año</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="oficial" id="col_oficial">
+                                <input class="form-check-input column-toggle" type="checkbox" value="oficial" id="col_oficial"
+                                    {{ in_array('oficial', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_oficial">Oficial</label>
                             </div>
                         </div>
@@ -93,10 +106,6 @@ $(function() {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').removeAttr('style');
     });
-
-    //$('#configuracionModal').on('hide.bs.modal', function () {
-        //document.activeElement.blur();
-    //});
 
     // Cargar configuración al abrir el modal
     $('#configuracionModal').on('show.bs.modal', function () {

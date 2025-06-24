@@ -21,20 +21,15 @@ class CapturistaController extends Controller
             return redirect()->route('login');
         }
 
-        // Obtener la configuración del usuario
+
+
+        /*// Obtener la configuración del usuario -- OLD
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())
             ->first();
-
+        // Obtener la configuración del usuario -- OLD
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
-
-        /*// Obtener hidrantes con sus relaciones
-        $hidrantes = Hidrante::with([
-            'coloniaLocacion',
-            'callePrincipal',
-            'calleSecundaria',
-            'createdBy',
-            'updatedBy'
-        ])->get();*/
+*/
+        
 
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
@@ -341,5 +336,13 @@ class CapturistaController extends Controller
             })
             ->rawColumns(['acciones'])
             ->make(true);
+    }
+
+    public function configuracionModal()
+    {
+        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+        $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
+
+        return view('partials.configuracion-param-modal', compact('columnas'))->render();
     }
 }

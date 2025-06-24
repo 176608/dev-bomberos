@@ -143,8 +143,6 @@
     </div>
 </div>
 
-@include('partials.configuracion-param-modal')
-
 @endsection
 
 @section('scripts')
@@ -298,7 +296,7 @@ $(document).ready(function() {
     }
 
     // Modificar el guardado de configuración
-    $('#guardarConfiguracion').click(function() {
+    /*$('#guardarConfiguracion').click(function() {
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
         }).get();
@@ -324,7 +322,7 @@ $(document).ready(function() {
                 alert('Error al guardar la configuración en blade');
             }
         });
-    });
+    });*/
 
     // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
     function cargarTablaHidrantes() {
@@ -341,8 +339,6 @@ $(document).ready(function() {
     $('#btnVerTabla').click(function() {
         cargarTablaHidrantes();
     });
-
-    // También puedes llamar cargarTablaHidrantes() después de crear o editar hidrante, si lo deseas
 
     // Inicializa DataTable con server-side
     function inicializarDataTableServerSide() {
@@ -405,16 +401,28 @@ $(document).ready(function() {
     // Mostrar spinner al hacer click en el botón
     $('#btnConfiguracion').on('click', function() {
         $('#spinnerConfiguracion').removeClass('d-none');
-    });
+        // Elimina cualquier modal anterior para evitar duplicados
+        $('#configuracionModal').remove();
 
-    // Ocultar spinner cuando el modal termina de cargar la configuración
-    $('#configuracionModal').on('shown.bs.modal', function () {
-        $('#spinnerConfiguracion').addClass('d-none');
-    });
+        $.get("{{ route('capturista.configuracion-modal') }}", function(modalHtml) {
+            $('body').append(modalHtml);
+            const modalElement = document.getElementById('configuracionModal');
+            const modalInstance = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modalInstance.show();
 
-    // También oculta el spinner si el modal se cierra antes de cargar
-    $('#configuracionModal').on('hidden.bs.modal', function () {
-        $('#spinnerConfiguracion').addClass('d-none');
+            // Oculta el spinner cuando el modal se muestre
+            $(modalElement).on('shown.bs.modal', function () {
+                $('#spinnerConfiguracion').addClass('d-none');
+            });
+            // Limpia el modal del DOM al cerrarse para evitar duplicados
+            $(modalElement).on('hidden.bs.modal', function () {
+                $(this).remove();
+                $('#spinnerConfiguracion').addClass('d-none');
+            });
+        });
     });
     
 

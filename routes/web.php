@@ -39,11 +39,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hidrantes/{hidrante}/edit', [CapturistaController::class, 'edit'])->name('hidrantes.edit');
     Route::get('/hidrantes/data', [CapturistaController::class, 'dataTable'])->name('hidrantes.data');
 
-    // Rutas de configuración
+    /*// Rutas de configuración A
     Route::prefix('configuracion')->group(function () {
         Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
-    });
+    });*/
+    // Rutas de configuración B
+    Route::get('/capturista/configuracion-modal', [CapturistaController::class, 'configuracionModal'])
+        ->name('capturista.configuracion-modal')
+        ->middleware('auth');
 });
 
 // Rutas específicas para el reseteo de contraseña
