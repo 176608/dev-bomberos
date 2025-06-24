@@ -167,7 +167,7 @@ $(document).ready(function() {
 
         $.get("{{ route('hidrantes.create') }}")
             .done(function(response) {
-                $('.modal-create, .modal-edit, .modal-backdrop').remove();
+                //$('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
 
                 const modalElement = document.getElementById('crearHidranteModal');
@@ -233,7 +233,7 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                $('.modal-create, .modal-edit, .modal-backdrop').remove();
+                //$('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
                 
                 const modalElement = document.getElementById(`editarHidranteModal${hidranteId}`);
@@ -260,6 +260,7 @@ $(document).ready(function() {
                                 modalInstance.hide();
                                 location.reload();
                                 alert('Hidrante actualizado exitosamente');
+                                cargarTablaHidrantes();
                             } else {
                                 alert('Error: ' + response.message);
                             }
@@ -281,13 +282,6 @@ $(document).ready(function() {
             }
         });
     });
-
-    // Función para limpiar modales
-    /*function cleanupModal() {
-        $('.modal').modal('hide');
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').removeAttr('style');
-    }*/
 
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
