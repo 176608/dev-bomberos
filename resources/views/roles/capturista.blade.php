@@ -125,10 +125,10 @@
                         <span class="button-text">Alta de hidrante</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true"></span>
                     </button>
-                    <button class="btn btn-secondary mb-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#configuracionModal" id="btnConfiguracion">
-                        <i class="bi bi-gear-fill"></i> 
-                        <span class="ms-1">Editar parámetros del reporte</span>
-                        <span class="spinner-border spinner-border-sm ms-2 d-none" id="spinnerConfiguracion" role="status" aria-hidden="true"></span>
+                    <button class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#configuracionModal" id="btnConfiguracion">
+                        <i class="bi bi-gear-fill"></i>
+                        <span class="button-text">Editar parámetros del reporte</span>
+                        <span class="spinner-border spinner-border-sm ms-1 d-none" id="spinnerConfiguracion" role="status" aria-hidden="true"></span>
                     </button>
                     <button class="btn btn-info mb-2" id="btnVerTabla">
                         <i class="bi bi-table"></i> Ver la tabla
@@ -408,13 +408,18 @@ $(document).ready(function() {
         });
     }
 
-    // Mostrar spinner al abrir el modal y ocultar cuando termine de cargar
+    // Mostrar spinner al hacer click en el botón
     $('#btnConfiguracion').on('click', function() {
         $('#spinnerConfiguracion').removeClass('d-none');
     });
 
-    // Cuando el modal termina de cargar la configuración, oculta el spinner
+    // Ocultar spinner cuando el modal termina de cargar la configuración
     $('#configuracionModal').on('shown.bs.modal', function () {
+        $('#spinnerConfiguracion').addClass('d-none');
+    });
+
+    // También oculta el spinner si el modal se cierra antes de cargar
+    $('#configuracionModal').on('hidden.bs.modal', function () {
         $('#spinnerConfiguracion').addClass('d-none');
     });
 

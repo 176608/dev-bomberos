@@ -23,10 +23,6 @@
                                 <input class="form-check-input column-toggle" type="checkbox" value="numero_estacion" id="col_numero_estacion">
                                 <label class="form-check-label" for="col_numero_estacion">Número de Estación</label>
                             </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="numero_hidrante" id="col_numero_hidrante">
-                                <label class="form-check-label" for="col_numero_hidrante">Número de Hidrante, A borrar</label>
-                            </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
