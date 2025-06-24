@@ -89,15 +89,6 @@
 
 <script>
 $(function() {
-    // Limpieza y manejo del modal de configuración
-    $('#configuracionModal').on('hidden.bs.modal', function () {
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').removeAttr('style');
-    });
-
-    $('#configuracionModal').on('hide.bs.modal', function () {
-        document.activeElement.blur();
-    });
 
     // Cargar configuración al abrir el modal
     $('#configuracionModal').on('show.bs.modal', function () {
