@@ -143,7 +143,7 @@
     </div>
 </div>
 
-@include('partials.configuracion-param-modal')
+
 
 @endsection
 
@@ -297,7 +297,7 @@ $(document).ready(function() {
         });
     }
 
-    /*// Modificar el guardado de configuración
+    // Modificar el guardado de configuración
     $('#guardarConfiguracion').click(function() {
         const configuracion = $('.column-toggle:checked').map(function() {
             return $(this).val();
@@ -320,11 +320,11 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                console.error('Error al guardar:', xhr);
-                alert('Error al guardar la configuración');
+                console.error('Error al guardar en blade:', xhr);
+                alert('Error al guardar la configuración en blade');
             }
         });
-    });*/
+    });
 
     // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
     function cargarTablaHidrantes() {

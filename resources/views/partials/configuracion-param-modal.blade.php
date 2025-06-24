@@ -116,8 +116,8 @@ $(function() {
                 $('#spinnerConfiguracion').addClass('d-none');
             })
             .fail(function(error) {
-                console.error('Error al cargar configuración:', error);
-                alert('Error al cargar la configuración');
+                console.error('Error al cargar configuración desde partial:', error);
+                alert('Error al cargar la configuración desde partial');
                 $('#spinnerConfiguracion').addClass('d-none');
             });
     });
@@ -147,7 +147,7 @@ $(function() {
             },
             error: function(xhr) {
                 console.error('Error al guardar:', xhr);
-                alert('Error al guardar la configuración');
+                alert('Error al guardar la configuración desde partial');
             }
         });
     });
