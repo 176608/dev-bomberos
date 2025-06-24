@@ -125,7 +125,7 @@
                         <span class="button-text">Alta de hidrante</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true"></span>
                     </button>
-                    <button class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#configuracionModal">
+                    <button class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#configuracionModal" id="btnConfiguracion">
                         <i class="bi bi-gear-fill"></i> Editar parámetros del reporte
                     </button>
                     <button class="btn btn-info mb-2" id="btnVerTabla">
@@ -141,7 +141,8 @@
     </div>
 </div>
 
-<!-- Modal para configuración de tabla -->
+<!-- Modal para configuración de tabla -->  
+<!--
 <div class="modal fade modal-params" id="configuracionModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -233,6 +234,9 @@
         </div>
     </div>
 </div>
+-->
+
+@include('partials.configuracion-param-modal')
 
 @endsection
 
@@ -377,14 +381,15 @@ $(document).ready(function() {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').removeAttr('style');
     }
-
+/*
     // Manejador para el botón de configuración
+    //configuracionModal Cambiar al partial de configuración
     $('#btnConfiguracion').click(function() {
         cleanupModal();
         const modal = new bootstrap.Modal(document.getElementById('configuracionModal'));
         modal.show();
     });
-
+    
     // Evento cuando se cierra el modal
     $('#configuracionModal').on('hidden.bs.modal', function () {
         $('.modal-backdrop').remove();
@@ -394,7 +399,7 @@ $(document).ready(function() {
     $('#configuracionModal').on('hide.bs.modal', function () {
         // Forzar el foco fuera del modal antes de ocultarlo
         document.activeElement.blur();
-    });
+    });*/
 
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
@@ -438,13 +443,13 @@ $(document).ready(function() {
             }
         });
     });
-
+/*
     // Manejar el cierre del modal
     $('#configuracionModal').on('hidden.bs.modal', function() {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').removeAttr('style');
     });
-
+    
     // Agregar este evento para cargar la configuración cuando se abre el modal
     $('#configuracionModal').on('show.bs.modal', function () {
         // Cargar configuración actual del usuario
@@ -474,7 +479,7 @@ $(document).ready(function() {
                 alert('Error al cargar la configuración');
             });
     });
-
+*/
     // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
     function cargarTablaHidrantes() {
         $('#tablaHidrantesContainer').show().html('');
