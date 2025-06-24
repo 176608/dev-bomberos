@@ -118,10 +118,12 @@ $(function() {
                         $(`#col_${columnName}`).prop('checked', true);
                     });
                 }
+                $('#spinnerConfiguracion').addClass('d-none');
             })
             .fail(function(error) {
                 console.error('Error al cargar configuración:', error);
                 alert('Error al cargar la configuración');
+                $('#spinnerConfiguracion').addClass('d-none');
             });
     });
 

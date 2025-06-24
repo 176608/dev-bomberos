@@ -324,7 +324,6 @@
 
 <script>
 $(document).ready(function() {
-    console.log("Hidrante create script loaded");
     
     function initSelect2Modal() {
         $('.select2-search').select2({
