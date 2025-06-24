@@ -391,6 +391,11 @@ $(document).ready(function() {
         $('body').removeClass('modal-open').removeAttr('style');
     });
 
+    $('#configuracionModal').on('hide.bs.modal', function () {
+        // Forzar el foco fuera del modal antes de ocultarlo
+        document.activeElement.blur();
+    });
+
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
         const headerRow = $('#configuredHeaders');
