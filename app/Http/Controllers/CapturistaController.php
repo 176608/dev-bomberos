@@ -21,15 +21,15 @@ class CapturistaController extends Controller
             return redirect()->route('login');
         }
 
-
-
         /*// Obtener la configuración del usuario -- OLD
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())
             ->first();
         // Obtener la configuración del usuario -- OLD
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
-*/
-        
+        */
+
+        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+        $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
