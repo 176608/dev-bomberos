@@ -14,10 +14,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CapturistaController extends Controller
 {
-    /*public function __construct()
-    {
-        $this->middleware('auth');
-    }*/
 
     public function index(Request $request)
     {
@@ -270,14 +266,14 @@ class CapturistaController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error guardando configuración:', [
+            \Log::error('Error guardando configuración backend:', [
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar la configuración: ' . $e->getMessage()
+                'message' => 'Error al guardar la configuración backend: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -293,7 +289,7 @@ class CapturistaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener la configuración'
+                'message' => 'Error al obtener la configuración de backend'
             ], 500);
         }
     }

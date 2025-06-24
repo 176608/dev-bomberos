@@ -143,7 +143,7 @@
     </div>
 </div>
 
-
+@include('partials.configuracion-param-modal')
 
 @endsection
 
