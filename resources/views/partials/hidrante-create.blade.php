@@ -37,17 +37,12 @@
                                                 Generar fecha tentativa
                                             </button>
                                         </div>
-                                        <!-- Opciones de plazo y botón regresar en la misma fila -->
-                                        <div class="row d-none mb-2" id="opcionesPlazo">
-                                            <div class="col-8 d-flex gap-2">
-                                                <button type="button" class="btn btn-outline-primary flex-fill" data-plazo="corto">Corto plazo</button>
-                                                <button type="button" class="btn btn-outline-primary flex-fill" data-plazo="largo">Largo plazo</button>
-                                            </div>
-                                            <div class="col-4 d-flex justify-content-end">
-                                                <button type="button" class="btn btn-outline-secondary" id="btnRegresarGenerar" title="Regresar">
-                                                    <i class="bi bi-arrow-left"></i>
-                                                </button>
-                                            </div>
+                                        <div class="btn-group d-none w-100 mb-2" id="opcionesPlazo">
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                            <button type="button" class="btn btn-outline-secondary" id="btnRegresarGenerar">
+                                                <i class="bi bi-arrow-left"></i>
+                                            </button>
                                         </div>
                                         <div class="d-none mb-2" id="contenedorFechaGenerada">
                                             <input type="date" class="form-control" name="fecha_tentativa" id="fecha_tentativa" required>
@@ -55,7 +50,6 @@
                                                 <i class="bi bi-arrow-left"></i> Cambiar plazo
                                             </button>
                                         </div>
-                                        <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
