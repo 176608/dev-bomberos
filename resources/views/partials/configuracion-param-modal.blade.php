@@ -93,8 +93,13 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="guardarConfiguracion">Guardar cambios</button>
+                <div class="col-6">
+                    Notas
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="guardarConfiguracion">Guardar cambios</button>
+                </div>
             </div>
         </div>
     </div>
