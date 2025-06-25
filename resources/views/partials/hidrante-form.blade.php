@@ -209,7 +209,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante">
-                                            <option value="" {{ empty($hidrante->estado_hidrante) ? 'selected' : '' }} disabled > <i class="bi bi-exclamation-diamond-fill"></i> S/D</option>
+                                            <option value="" {{ empty($hidrante->estado_hidrante) ? 'selected' : '' }} disabled > S/D</option>
                                             <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
                                             <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
                                             <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
@@ -254,7 +254,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-exclamation-diamond-fill"></i>    Guardar Cambios</button>
                 </div>
             </form>
         </div>
