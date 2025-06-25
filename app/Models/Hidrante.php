@@ -13,7 +13,6 @@ class Hidrante extends Model
         'fecha_inspeccion',
         'fecha_tentativa',
         'numero_estacion',
-        'numero_hidrante',
         'id_calle',
         'calle',
         'id_y_calle',
@@ -112,7 +111,7 @@ id                      - int(11)       - NO    - NULL      - auto_increment    
 fecha_inspeccion        - date          - NO    - NULL
 fecha_tentativa         - date          - NO    - NULL
 numero_estacion         - int(4)        - NO    - NULL
-numero_hidrante         - int(11)       - YES   - NULL
+numero_hidrante AAjustar- int(11)       - YES   - NULL      BORRAR PRONTO************
 calle                   - varchar(255)  - YES   - NULL
 id_calle                - int(11)       - YES   - NULL
 y_calle                 - varchar(255)  - YES   - NULL

@@ -148,9 +148,7 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Obtener headerNames del servidor
     const headerNames = @json($headerNames);
-    // Variable para la tabla configurada
     var configTable;
 
     // Manejador para el botón de nuevo hidrante
@@ -256,7 +254,7 @@ $(document).ready(function() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                location.reload();
+                                location.reload();//es necesario?
                                 alert('Hidrante actualizado exitosamente');
                                 cargarTablaHidrantes();
                             } else {
@@ -294,51 +292,6 @@ $(document).ready(function() {
             }).insertBefore(lastHeader);
         });
     }
-
-    // Modificar el guardado de configuración
-    /*$('#guardarConfiguracion').click(function() {
-        const configuracion = $('.column-toggle:checked').map(function() {
-            return $(this).val();
-        }).get();
-
-        $.ajax({
-            url: "{{ route('configuracion.save') }}",
-            method: 'POST',
-            data: { configuracion: configuracion },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Cerrar modal
-                    const modalElement = document.getElementById('configuracionModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                    modalInstance.hide();
-                    cargarTablaHidrantes();
-                }
-            },
-            error: function(xhr) {
-                console.error('Error al guardar en blade:', xhr);
-                alert('Error al guardar la configuración en blade');
-            }
-        });
-    });*/
-
-    // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
-    function cargarTablaHidrantes() {
-        $('#tablaHidrantesContainer').show().html('');
-        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-            // Renderiza el partial de la tabla
-            $('#tablaHidrantesContainer').html(response);
-            inicializarDataTableServerSide();
-        });
-    }
-
-    // Nuevo botón "Ver la tabla"
-    $('#btnVerTabla').click(function() {
-        cargarTablaHidrantes();
-    });
 
     // Inicializa DataTable con server-side
     function inicializarDataTableServerSide() {
@@ -397,6 +350,22 @@ $(document).ready(function() {
             }
         });
     }
+
+    // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
+    function cargarTablaHidrantes() {
+        $('#tablaHidrantesContainer').show().html('');
+        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+            // Renderiza el partial de la tabla
+            $('#tablaHidrantesContainer').html(response);
+            inicializarDataTableServerSide();
+        });
+    }
+
+    // Display the table when the page loads
+    $('#btnVerTabla').click(function() {
+        cargarTablaHidrantes();
+    });
 
     // Mostrar spinner al hacer click en el botón
     $('#btnConfiguracion').on('click', function() {
