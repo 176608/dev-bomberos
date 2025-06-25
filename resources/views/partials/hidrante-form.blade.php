@@ -52,7 +52,7 @@
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion">
-                                            <option value="" {{ empty($hidrante->numero_estacion) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->numero_estacion) ? 'selected' : '' }} disabled >S/D</option>
                                             @foreach(['01', '02', '03', '04', '05', '06', '07', '08'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
                                             @endforeach
@@ -134,7 +134,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante">
-                                            <option value="" {{ empty($hidrante->llave_hidrante) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->llave_hidrante) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="Pentagono" {{ $hidrante->llave_hidrante == 'Pentagono' ? 'selected' : '' }}>Pentagono</option>
                                             <option value="Cuadro" {{ $hidrante->llave_hidrante == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
                                         </select>
@@ -142,7 +142,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua">
-                                            <option value="" {{ empty($hidrante->presion_agua) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->presion_agua) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="Mala" {{ $hidrante->presion_agua == 'Mala' ? 'selected' : '' }}>Mala</option>
                                             <option value="Buena" {{ $hidrante->presion_agua == 'Buena' ? 'selected' : '' }}>Buena</option>
                                             <option value="Sin agua" {{ $hidrante->presion_agua == 'Sin agua' ? 'selected' : '' }}>Sin agua</option>
@@ -153,7 +153,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa">
-                                            <option value="" {{ empty($hidrante->llave_fosa) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->llave_fosa) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="Cuadro" {{ $hidrante->llave_fosa == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
                                             <option value="Volante" {{ $hidrante->llave_fosa == 'Volante' ? 'selected' : '' }}>Volante</option>
                                         </select>
@@ -161,7 +161,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Conectado a Tubo de:</label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
-                                            <option value="" {{ empty($hidrante->hidrante_conectado_tubo) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->hidrante_conectado_tubo) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4'</option>
                                             <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6'</option>
                                             <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8'</option>
@@ -193,7 +193,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Color:</label>
                                         <select class="form-select" name="color">
-                                            <option value="" {{ empty($hidrante->color) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->color) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
                                             <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
                                             <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
@@ -209,7 +209,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante">
-                                            <option value="" {{ empty($hidrante->estado_hidrante) ? 'selected disabled' : '' }}>S/D</option>
+                                            <option value="" {{ empty($hidrante->estado_hidrante) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
                                             <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
                                             <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
@@ -238,7 +238,7 @@
                                 <div class="row">
                                     <div class="col-12 mb-3">
                                         <label class="form-label">Observaciones:</label>
-                                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Sin Definir">{{ $hidrante->observaciones ?? '' }}</textarea>
+                                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Sin observaciones">{{ $hidrante->observaciones ?? '' }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
