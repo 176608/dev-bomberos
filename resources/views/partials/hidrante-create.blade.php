@@ -28,8 +28,11 @@
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa de Mantenimiento:</label>
-                                        <div class="d-grid gap-2 mb-2">
+                                        <label class="form-label">
+                                            <span id="iconoExclamacion"><i class="bi bi-exclamation-diamond-fill"></i></span>
+                                            Fecha tentativa de Mantenimiento:
+                                        </label>
+                                        <div class="d-grid gap-2 mb-2" id="contenedorGenerarFecha">
                                             <button type="button" class="btn btn-primary" id="btnGenerarFecha">
                                                 Generar fecha tentativa
                                             </button>
@@ -37,10 +40,17 @@
                                         <div class="btn-group d-none w-100 mb-2" id="opcionesPlazo">
                                             <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
                                             <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                            <button type="button" class="btn btn-outline-secondary" id="btnRegresarGenerar">
+                                                <i class="bi bi-arrow-left"></i>
+                                            </button>
                                         </div>
-                                        <input type="date" class="form-control d-none" name="fecha_tentativa" 
-                                            id="fecha_tentativa" value="{{ date('Y-m-d') }}">
-                                            <small class="form-text text-muted">Ajustable manualmente</small>
+                                        <div class="d-none mb-2" id="contenedorFechaGenerada">
+                                            <input type="date" class="form-control" name="fecha_tentativa" id="fecha_tentativa" required>
+                                            <button type="button" class="btn btn-outline-secondary mt-2" id="btnResetFecha">
+                                                <i class="bi bi-arrow-left"></i> Cambiar plazo
+                                            </button>
+                                        </div>
+                                        <small class="form-text text-muted">Ajustable manualmente</small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -363,26 +373,62 @@ $(document).ready(function() {
         $('.select2-search').select2('destroy');
     });
 
-    // Manejo de fechas tentativas
-    $('#btnGenerarFecha').click(function() {
-        $('#btnGenerarFecha').addClass('d-none');
+    // --- BLOQUE PARA FECHA TENTATIVA ---
+    function mostrarPasoGenerar() {
+        $('#contenedorGenerarFecha').removeClass('d-none');
+        $('#opcionesPlazo').addClass('d-none');
+        $('#contenedorFechaGenerada').addClass('d-none');
+        $('#iconoExclamacion').removeClass('d-none');
+    }
+
+    function mostrarPasoPlazo() {
+        $('#contenedorGenerarFecha').addClass('d-none');
         $('#opcionesPlazo').removeClass('d-none');
+        $('#contenedorFechaGenerada').addClass('d-none');
+        $('#iconoExclamacion').removeClass('d-none');
+    }
+
+    function mostrarPasoFechaGenerada() {
+        $('#contenedorGenerarFecha').addClass('d-none');
+        $('#opcionesPlazo').addClass('d-none');
+        $('#contenedorFechaGenerada').removeClass('d-none');
+        $('#iconoExclamacion').addClass('d-none');
+    }
+
+    // Paso 1: Mostrar opciones de plazo
+    $('#btnGenerarFecha').click(function() {
+        mostrarPasoPlazo();
     });
 
-    $('#opcionesPlazo button').click(function() {
+    // Paso 2: Selección de plazo y generación de fecha
+    $('#opcionesPlazo button[data-plazo]').click(function() {
         const plazo = $(this).data('plazo');
         const fechaInspeccion = new Date($('#fecha_inspeccion').val());
-        
+
         if (plazo === 'corto') {
             fechaInspeccion.setMonth(fechaInspeccion.getMonth() + 6);
         } else {
             fechaInspeccion.setFullYear(fechaInspeccion.getFullYear() + 1);
         }
 
-        $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0])
-            .removeClass('d-none');
+        $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0]);
+        mostrarPasoFechaGenerada();
+    });
 
-        $('#opcionesPlazo').addClass('d-none');
+    // Botón para regresar de selección de plazo a "Generar fecha tentativa"
+    $('#btnRegresarGenerar').click(function() {
+        mostrarPasoGenerar();
+    });
+
+    // Botón para regresar de fecha generada a selección de plazo
+    $('#btnResetFecha').click(function() {
+        mostrarPasoPlazo();
+    });
+
+    // Inicializa el flujo al abrir el modal
+    $('#crearHidranteModal').on('shown.bs.modal', function () {
+        mostrarPasoGenerar();
+        $('#fecha_tentativa').val('');
     });
 
     // Modificar el manejador de ubicación pendiente
