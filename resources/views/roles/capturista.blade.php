@@ -254,7 +254,6 @@ $(document).ready(function() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                location.reload();//es necesario?
                                 alert('Hidrante actualizado exitosamente');
                                 cargarTablaHidrantes();
                             } else {
