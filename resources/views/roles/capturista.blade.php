@@ -130,7 +130,7 @@
                         <span class="button-text">Editar parámetros del reporte</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" id="spinnerConfiguracion" role="status" aria-hidden="true"></span>
                     </button>
-                    <button class="btn btn-info mb-2" id="btnVerTabla">
+                    <button class="btn btn-success mb-2" id="btnVerTabla">
                         <i class="bi bi-table"></i> Ver la tabla
                     </button>
                 </div>
