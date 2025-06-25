@@ -45,7 +45,7 @@
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
                                             <option value="" selected>Seleccione estación...</option>
