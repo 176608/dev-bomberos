@@ -494,5 +494,26 @@ $(document).ready(function() {
             });
         }
     });
+
+    $('#formCrearHidrante').on('submit', function(e) {
+        // Si el icono de exclamación está visible, falta completar la fecha tentativa
+        if ($('#iconoExclamacion').is(':visible')) {
+            // Si está en el paso de generar, enfoca el botón
+            if (!$('#contenedorGenerarFecha').hasClass('d-none')) {
+                $('#btnGenerarFecha').focus();
+            }
+            // Si está en el paso de plazo, enfoca el primer botón de plazo
+            else if (!$('#opcionesPlazo').hasClass('d-none')) {
+                $('#opcionesPlazo button[data-plazo]').first().focus();
+            }
+            // Si está en el paso de fecha generada pero el campo está vacío, enfoca el input
+            else if (!$('#contenedorFechaGenerada').hasClass('d-none') && !$('#fecha_tentativa').val()) {
+                $('#fecha_tentativa').focus();
+            }
+            // Previene el submit
+            e.preventDefault();
+            return false;
+        }
+    });
 });
 </script>
