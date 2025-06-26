@@ -302,7 +302,7 @@ class CapturistaController extends Controller
                 if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
                     return 'N/A';
                 }
-                return str_pad((string)$hidrante->numero_estacion, 2, '0', STR_PAD_LEFT);
+                return $hidrante->numero_estacion;
             })
             ->editColumn('calle', function($hidrante) {
                 if (is_null($hidrante->id_calle)) {

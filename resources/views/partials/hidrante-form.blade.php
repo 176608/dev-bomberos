@@ -53,7 +53,7 @@
                                         <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion">
                                             <option value="" {{ empty($hidrante->numero_estacion) ? 'selected' : '' }} disabled >S/D</option>
-                                            @foreach(['01', '02', '03', '04', '05', '06', '07', '08'] as $num)
+                                            @foreach(['01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
                                             @endforeach
                                         </select>
