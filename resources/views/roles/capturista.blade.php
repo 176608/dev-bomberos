@@ -127,7 +127,7 @@
                     </button>
                     <button class="btn btn-secondary mb-2" id="btnConfiguracion">
                         <i class="bi bi-gear-fill"></i>
-                        <span class="button-text">Editar parámetros del reporte</span>
+                        <span class="button-text">Editar parámetros de la tabla</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" id="spinnerConfiguracion" role="status" aria-hidden="true"></span>
                     </button>
                     <button class="btn btn-success mb-2" id="btnVerTabla">
