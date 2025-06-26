@@ -329,7 +329,8 @@
 
 <script>
 $(document).ready(function() {
-    
+let fechaTentativaGenerada = false;    
+
     function initSelect2Modal() {
         $('.select2-search').select2({
             theme: 'bootstrap-5',
@@ -378,6 +379,7 @@ $(document).ready(function() {
         $('#opcionesPlazo').addClass('d-none');
         $('#contenedorFechaGenerada').addClass('d-none');
         $('#iconoExclamacion').removeClass('d-none');
+        fechaTentativaGenerada = false;
     }
 
     function mostrarPasoPlazo() {
@@ -385,6 +387,7 @@ $(document).ready(function() {
         $('#opcionesPlazo').removeClass('d-none');
         $('#contenedorFechaGenerada').addClass('d-none');
         $('#iconoExclamacion').removeClass('d-none');
+        fechaTentativaGenerada = false;
     }
 
     function mostrarPasoFechaGenerada() {
@@ -392,6 +395,7 @@ $(document).ready(function() {
         $('#opcionesPlazo').addClass('d-none');
         $('#contenedorFechaGenerada').removeClass('d-none');
         $('#iconoExclamacion').addClass('d-none');
+        fechaTentativaGenerada = true;
     }
 
     // Paso 1: Mostrar opciones de plazo
@@ -471,8 +475,7 @@ $(document).ready(function() {
 
     // Agregar manejador de submit del formulario
     $('#formCrearHidrante').submit(function(e) {
-        // Si el icono de exclamación está visible, no enviar el formulario
-        if ($('#iconoExclamacion').is(':visible')) {
+        if (!fechaTentativaGenerada) {
             alert('Falta generar la fecha tentativa de mantenimiento.');
             e.preventDefault();
             return false;
@@ -502,13 +505,5 @@ $(document).ready(function() {
         }
     });
 
-    $('#formCrearHidrante').on('submit', function(e) {
-        if ($('#iconoExclamacion').is(':visible')) {
-            console.log('Fecha tentativa de mantenimiento no generada.');
-            alert('Falta generar la fecha tentativa de mantenimiento.');
-            e.preventDefault();
-            return false;
-        }
-    });
 });
 </script>
