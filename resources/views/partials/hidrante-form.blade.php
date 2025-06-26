@@ -26,25 +26,28 @@
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha tentativa:</label>
-                                        <div id="fecha_tentativa_container">
-                                            @php
-                                                $invalidDate = !$hidrante->fecha_tentativa || $hidrante->fecha_tentativa->format('Y-m-d') === '0000-00-00';
-                                            @endphp
-                                            
-                                            @if($invalidDate)
-                                                <div class="d-grid gap-2 mb-2" id="generarFechaContainer">
-                                                    <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha">
-                                                        Generar fecha tentativa
-                                                    </button>
-                                                </div>
-                                            @endif
-                                            
-                                            <input type="date" class="form-control {{ $invalidDate ? 'd-none' : '' }}" 
-                                                   name="fecha_tentativa" id="edit_fecha_tentativa"
-                                                   value="{{ (!$invalidDate && $hidrante->fecha_tentativa) ? $hidrante->fecha_tentativa->format('Y-m-d') : '' }}">
+                                        <label class="form-label">
+                                            <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span>
+                                            Fecha tentativa de Mantenimiento:
+                                        </label>
+                                        <div class="d-grid gap-2 mb-2" id="edit_contenedorGenerarFecha{{ $hidrante->id }}">
+                                            <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha{{ $hidrante->id }}">
+                                                Generar fecha tentativa
+                                            </button>
                                         </div>
-                                        <small class="form-text text-muted">Ajustable manualmente</small>
+                                        <div class="btn-group d-none w-100 mb-2" id="edit_opcionesPlazo{{ $hidrante->id }}">
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
+                                            <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
+                                            <button type="button" class="btn btn-outline-secondary" id="edit_btnRegresarGenerar{{ $hidrante->id }}">
+                                                <i class="bi bi-arrow-left"></i>
+                                            </button>
+                                        </div>
+                                        <div class="d-none mb-2" id="edit_contenedorFechaGenerada{{ $hidrante->id }}">
+                                            <input type="date" class="form-control" name="fecha_tentativa" id="edit_fecha_tentativa{{ $hidrante->id }}">
+                                            <button type="button" class="btn btn-outline-secondary mt-2 btn-sm" id="edit_btnResetFecha{{ $hidrante->id }}">
+                                                <i class="bi bi-arrow-left"></i> Cambiar plazo
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -253,8 +256,17 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <span class="d-inline-block" tabindex="0" id="edit_popoverGuardarHidrante{{ $hidrante->id }}"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="hover focus"
+                        data-bs-placement="top"
+                        title="¡Atención!"
+                        data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
+                        <button type="submit" class="btn btn-primary" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
+                            Guardar Cambios
+                        </button>
+                    </span>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -304,12 +316,33 @@ select2.select2-container {
 .modal-body .select2-container {
     display: block;
 }
+
+/* Personaliza el fondo y texto del título del popover */
+.popover-header {
+    background-color: #dc3545 !important; /* Rojo Bootstrap */
+    color: #fff !important;               /* Letras blancas */
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #fff;
+}
+
+/* Personaliza el contenido del popover */
+.popover-body {
+    color: #212529 !important;            /* Texto oscuro */
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Opcional: cambia el borde del popover */
+.popover {
+    border: 2px solid #dc3545;
+}
 </style>
 
 <script>
 $(document).ready(function() {
     const MODAL_ID = '#editarHidranteModal{{ $hidrante->id }}';
-    
+
     // Configuración centralizada
     const CONFIG = {
         fields: ['calle', 'y_calle', 'colonia'],
@@ -337,24 +370,17 @@ $(document).ready(function() {
         }
     };
 
-    // Funciones principales
+    // --- UBICACIÓN ---
     function handleLocationField(field, action) {
         const select = $(`#edit_id_${field}`);
         const span = $(`#${field}_actual`);
         const form = select.closest('form');
-        
-        // Limpiar campos ocultos previos
         $(`input[name="${field}"][type="hidden"], input[name="id_${field}"][type="hidden"]`).remove();
-
         const config = CONFIG.actions[action];
         if (!config) return;
-
         select.val(null).trigger('change').prop('disabled', config.disabled);
-        
         if (config.value) {
             span.text(config.value);
-            
-            // Agregar campos ocultos usando un solo jQuery object
             $('<input>', {
                 type: 'hidden',
                 name: field,
@@ -367,60 +393,89 @@ $(document).ready(function() {
         }
     }
 
+    // --- SELECT2 ---
     function initSelect2() {
         $('.select2-search').select2({
             theme: 'bootstrap-5',
             width: '100%',
             dropdownParent: $(`${MODAL_ID} .modal-body`),
             language: {
-                noResults: function() {
-                    return "No se encontraron resultados";
-                },
-                searching: function() {
-                    return "Buscando...";
-                }
+                noResults: function() { return "No se encontraron resultados"; },
+                searching: function() { return "Buscando..."; }
             },
             placeholder: 'Comienza a escribir para buscar...',
             allowClear: true,
-            minimumInputLength: 2, // Requiere mínimo 2 caracteres para buscar
-            scrollAfterSelect: false, // Prevenir scroll automático
+            minimumInputLength: 2,
+            scrollAfterSelect: false,
             position: function(pos, $el) {
-                pos.top += 5; // Ajuste fino del posicionamiento
+                pos.top += 5;
                 return pos;
             }
         }).on('select2:open', function() {
-            // Asegurar que el dropdown esté visible y enfocado
             setTimeout(function() {
                 $('.select2-search__field').get(0).focus();
             }, 10);
         });
     }
 
-    function initDateHandlers() {
-        $('#edit_fecha_inspeccion').change(function() {
-            const fechaInspeccion = new Date($(this).val());
-            const fechaTentativa = new Date(fechaInspeccion);
-            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
-            $('#edit_fecha_tentativa')
-                .val(fechaTentativa.toISOString().split('T')[0])
-                .removeClass('d-none');
-            $('#generarFechaContainer').addClass('d-none');
-        });
+    // --- FECHA TENTATIVA ---
+    let edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
 
-        // Manejador para el botón de generar fecha
-        $('#edit_btnGenerarFecha').click(function() {
-            const fechaInspeccion = new Date($('#edit_fecha_inspeccion').val());
-            const fechaTentativa = new Date(fechaInspeccion);
-            fechaTentativa.setMonth(fechaTentativa.getMonth() + 6);
-            
-            $('#edit_fecha_tentativa')
-                .val(fechaTentativa.toISOString().split('T')[0])
-                .removeClass('d-none');
-            $(this).closest('#generarFechaContainer').addClass('d-none');
-        });
+    function edit_mostrarPasoGenerar{{ $hidrante->id }}() {
+        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').removeClass('d-none');
+        $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_iconoExclamacion{{ $hidrante->id }}').removeClass('d-none');
+        edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
+        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
     }
 
-    // Inicialización de eventos
+    function edit_mostrarPasoPlazo{{ $hidrante->id }}() {
+        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_opcionesPlazo{{ $hidrante->id }}').removeClass('d-none');
+        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_iconoExclamacion{{ $hidrante->id }}').removeClass('d-none');
+        edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
+        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    }
+
+    function edit_mostrarPasoFechaGenerada{{ $hidrante->id }}() {
+        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
+        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').removeClass('d-none');
+        $('#edit_iconoExclamacion{{ $hidrante->id }}').addClass('d-none');
+        edit_fechaTentativaGenerada{{ $hidrante->id }} = true;
+        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    }
+
+    function edit_initPopover{{ $hidrante->id }}() {
+        const popoverTrigger = document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}');
+        if (popoverTrigger) {
+            if (bootstrap.Popover.getInstance(popoverTrigger)) {
+                bootstrap.Popover.getInstance(popoverTrigger).dispose();
+            }
+            new bootstrap.Popover(popoverTrigger);
+        }
+    }
+
+    function edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}() {
+        if (edit_fechaTentativaGenerada{{ $hidrante->id }}) {
+            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', false);
+            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}').removeAttr('data-bs-toggle').removeAttr('data-bs-trigger').removeAttr('data-bs-content');
+            if (bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}'))) {
+                bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}')).dispose();
+            }
+        } else {
+            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', true);
+            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}')
+                .attr('data-bs-toggle', 'popover')
+                .attr('data-bs-trigger', 'hover focus')
+                .attr('data-bs-content', 'Falta generar una fecha tentativa de mantenimiento.');
+            edit_initPopover{{ $hidrante->id }}();
+        }
+    }
+
+    // --- EVENTOS ---
     function initEventHandlers() {
         // Ubicación pendiente
         $('#edit_ubicacionPendiente').change(function() {
@@ -428,7 +483,7 @@ $(document).ready(function() {
             CONFIG.fields.forEach(field => handleLocationField(field, action));
         });
 
-        // Botones de limpieza
+        // Botones de limpieza (si existen)
         $('.clear-field').change(function() {
             if ($(this).is(':checked')) {
                 handleLocationField($(this).data('field'), 'clear');
@@ -436,19 +491,48 @@ $(document).ready(function() {
             }
         });
 
-        initDateHandlers();
+        // Fecha tentativa: flujo de pasos
+        $('#edit_btnGenerarFecha{{ $hidrante->id }}').click(function() {
+            edit_mostrarPasoPlazo{{ $hidrante->id }}();
+        });
+        $('#edit_opcionesPlazo{{ $hidrante->id }} button[data-plazo]').click(function() {
+            const plazo = $(this).data('plazo');
+            const fechaBase = new Date(); // Usar fecha actual
+            if (plazo === 'corto') {
+                fechaBase.setMonth(fechaBase.getMonth() + 6);
+            } else {
+                fechaBase.setFullYear(fechaBase.getFullYear() + 1);
+            }
+            $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaBase.toISOString().split('T')[0]);
+            edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
+        });
+        $('#edit_btnRegresarGenerar{{ $hidrante->id }}').click(function() {
+            edit_mostrarPasoGenerar{{ $hidrante->id }}();
+        });
+        $('#edit_btnResetFecha{{ $hidrante->id }}').click(function() {
+            edit_mostrarPasoPlazo{{ $hidrante->id }}();
+        });
     }
 
-    // Inicialización del modal
+    // --- INICIALIZACIÓN DEL MODAL ---
     $(MODAL_ID)
         .on('shown.bs.modal', function() {
             initSelect2();
             $(window).trigger('resize');
+            // Flujo de fecha tentativa
+            const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
+            if (fechaTentativaVal) {
+                edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
+            } else {
+                edit_mostrarPasoGenerar{{ $hidrante->id }}();
+            }
+            setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
         })
         .on('hidden.bs.modal', function() {
             $('.select2-search').select2('destroy');
         });
 
+    // Inicializar eventos
     initEventHandlers();
 });
 </script>
