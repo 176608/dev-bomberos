@@ -325,17 +325,6 @@
 .modal-body .select2-container {
     display: block;
 }
-
-.resaltar-falta {
-    animation: resaltarFalta 0.5s 2;
-    border: 2px solid #dc3545 !important;
-    border-radius: 0.375rem;
-}
-@keyframes resaltarFalta {
-    0% { box-shadow: 0 0 0 0 #dc354580; }
-    50% { box-shadow: 0 0 8px 4px #dc354580; }
-    100% { box-shadow: 0 0 0 0 #dc354580; }
-}
 </style>
 
 <script>
@@ -508,31 +497,7 @@ $(document).ready(function() {
 
     $('#formCrearHidrante').on('submit', function(e) {
         if ($('#iconoExclamacion').is(':visible')) {
-            // Elimina advertencias previas
-            $('#advertenciaFechaTentativa').remove();
-            $('.resaltar-falta').removeClass('resaltar-falta');
-
-            // Resalta el área de fecha tentative y muestra mensaje
-            const $fechaInspeccion = $('#fecha_inspeccion');
-            const $bloqueTentativa = $('#iconoExclamacion').closest('.mb-3');
-
-            // Scroll y focus al campo de fecha de inspección
-            $('html, body').animate({
-                scrollTop: $fechaInspeccion.offset().top - 100
-            }, 300);
-            $fechaInspeccion.focus();
-
-            // Resalta el bloque de fecha tentative
-            $bloqueTentativa.addClass('resaltar-falta');
-
-            // Muestra advertencia solo una vez
-            if ($('#advertenciaFechaTentativa').length === 0) {
-                $bloqueTentativa.append(
-                    '<div id="advertenciaFechaTentativa" class="text-danger mt-2 fw-bold">Debes completar la fecha tentativa de mantenimiento antes de registrar el hidrante.</div>'
-                );
-            }
-
-            // Previene el submit
+            alert('Falta generar la fecha tentativa de mantenimiento.');
             e.preventDefault();
             return false;
         }
