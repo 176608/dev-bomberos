@@ -276,7 +276,7 @@
                           data-bs-placement="top"
                           title="¡Atención!"
                           data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
-                        <button type="submit" class="btn btn-danger btn-lg" id="btnRegistrarHidrante" disabled>
+                        <button type="submit" class="btn btn-danger" id="btnRegistrarHidrante" disabled>
                             Registrar Hidrante
                         </button>
                     </span>
