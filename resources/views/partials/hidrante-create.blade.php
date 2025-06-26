@@ -270,7 +270,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="left" data-bs-content="Falta de generar una fecha tentativa de mantenimiento, en la primera sección(Información Básica).">
+                    <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Falta de generar una fecha tentativa de mantenimiento, en la primera sección(Información Básica).">
                         <button type="submit" class="btn btn-primary" id="btnRegistrarHidrante" disabled>Registrar Hidrante</button>
                     </span>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
