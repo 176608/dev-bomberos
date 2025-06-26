@@ -270,8 +270,10 @@
                 </div>
 
                 <div class="modal-footer">
+                    <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="Falta generar la fecha tentativa de mantenimiento.">
+                        <button type="submit" class="btn btn-primary" id="btnRegistrarHidrante" disabled>Registrar Hidrante</button>
+                    </span>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Registrar Hidrante</button>
                 </div>
             </form>
         </div>
@@ -329,7 +331,7 @@
 
 <script>
 $(document).ready(function() {
-let fechaTentativaGenerada = false;    
+    let fechaTentativaGenerada = false;    
 
     function initSelect2Modal() {
         $('.select2-search').select2({
@@ -353,7 +355,6 @@ let fechaTentativaGenerada = false;
                 return pos;
             }
         }).on('select2:open', function() {
-            // Asegurar que el dropdown esté visible
             setTimeout(function() {
                 $('.select2-search__field').get(0).focus();
             }, 10);
@@ -364,8 +365,9 @@ let fechaTentativaGenerada = false;
     $('#crearHidranteModal').on('shown.bs.modal', function () {
         $('#fecha_tentativa').val('');
         initSelect2Modal();
-        // Forzar recálculo de posiciones
         $(window).trigger('resize');
+        mostrarPasoGenerar();
+        setTimeout(initPopover, 200);
     });
 
     // Limpiar y destruir Select2 cuando se cierra el modal
@@ -373,13 +375,14 @@ let fechaTentativaGenerada = false;
         $('.select2-search').select2('destroy');
     });
 
-    // --- BLOQUE PARA FECHA TENTATIVA ---
+    // --- FECHA TENTATIVA FLUJO ---
     function mostrarPasoGenerar() {
         $('#contenedorGenerarFecha').removeClass('d-none');
         $('#opcionesPlazo').addClass('d-none');
         $('#contenedorFechaGenerada').addClass('d-none');
         $('#iconoExclamacion').removeClass('d-none');
         fechaTentativaGenerada = false;
+        actualizarEstadoBotonRegistrar();
     }
 
     function mostrarPasoPlazo() {
@@ -388,6 +391,7 @@ let fechaTentativaGenerada = false;
         $('#contenedorFechaGenerada').addClass('d-none');
         $('#iconoExclamacion').removeClass('d-none');
         fechaTentativaGenerada = false;
+        actualizarEstadoBotonRegistrar();
     }
 
     function mostrarPasoFechaGenerada() {
@@ -396,6 +400,7 @@ let fechaTentativaGenerada = false;
         $('#contenedorFechaGenerada').removeClass('d-none');
         $('#iconoExclamacion').addClass('d-none');
         fechaTentativaGenerada = true;
+        actualizarEstadoBotonRegistrar();
     }
 
     // Paso 1: Mostrar opciones de plazo
@@ -428,13 +433,7 @@ let fechaTentativaGenerada = false;
         mostrarPasoPlazo();
     });
 
-    // Inicializa el flujo al abrir el modal
-    $('#crearHidranteModal').on('shown.bs.modal', function () {
-        mostrarPasoGenerar();
-        $('#fecha_tentativa').val('');
-    });
-
-    // Modificar el manejador de ubicación pendiente
+    // --- UBICACIÓN PENDIENTE ---
     $('#ubicacionPendiente').change(function() {
         const isChecked = $(this).is(':checked');
         const selects = $('#id_calle, #id_y_calle, #id_colonia');
@@ -473,10 +472,9 @@ let fechaTentativaGenerada = false;
         }
     });
 
-    // Agregar manejador de submit del formulario
+    // --- SUBMIT FORMULARIO ---
     $('#formCrearHidrante').submit(function(e) {
         if (!fechaTentativaGenerada) {
-            alert('Falta generar la fecha tentativa de mantenimiento.');
             e.preventDefault();
             return false;
         }
@@ -488,7 +486,6 @@ let fechaTentativaGenerada = false;
             fields.forEach(field => {
                 const selectValue = $(`#id_${field}`).val();
                 if (!selectValue) {
-                    // Si no hay valor seleccionado, agregar "Sin definir"
                     $('<input>').attr({
                         type: 'hidden',
                         name: field,
@@ -505,5 +502,39 @@ let fechaTentativaGenerada = false;
         }
     });
 
+    // --- POPOVER BOTÓN REGISTRAR ---
+    function initPopover() {
+        const popoverTrigger = document.getElementById('popoverRegistrarHidrante');
+        if (popoverTrigger) {
+            if (bootstrap.Popover.getInstance(popoverTrigger)) {
+                bootstrap.Popover.getInstance(popoverTrigger).dispose();
+            }
+            new bootstrap.Popover(popoverTrigger);
+        }
+    }
+
+    function actualizarEstadoBotonRegistrar() {
+        if (fechaTentativaGenerada) {
+            $('#btnRegistrarHidrante').prop('disabled', false);
+            $('#popoverRegistrarHidrante').removeAttr('data-bs-toggle').removeAttr('data-bs-trigger').removeAttr('data-bs-content');
+            if (bootstrap.Popover.getInstance(document.getElementById('popoverRegistrarHidrante'))) {
+                bootstrap.Popover.getInstance(document.getElementById('popoverRegistrarHidrante')).dispose();
+            }
+        } else {
+            $('#btnRegistrarHidrante').prop('disabled', true);
+            $('#popoverRegistrarHidrante')
+                .attr('data-bs-toggle', 'popover')
+                .attr('data-bs-trigger', 'hover focus')
+                .attr('data-bs-content', 'Falta generar la fecha tentativa de mantenimiento.');
+            initPopover();
+        }
+    }
+
+    // Inicializa el popover al abrir el modal
+    $('#crearHidranteModal').on('shown.bs.modal', function () {
+        mostrarPasoGenerar();
+        $('#fecha_tentativa').val('');
+        setTimeout(initPopover, 200); // Espera a que el DOM esté listo
+    });
 });
 </script>
