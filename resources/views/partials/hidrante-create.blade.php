@@ -29,7 +29,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacion"><i class="bi bi-exclamation-diamond-fill"></i></span>
+                                            <span id="iconoExclamacion"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span>
                                             Fecha tentativa de Mantenimiento:
                                         </label>
                                         <div class="d-grid gap-2 mb-2" id="contenedorGenerarFecha">
