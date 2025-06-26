@@ -325,6 +325,17 @@
 .modal-body .select2-container {
     display: block;
 }
+
+.resaltar-falta {
+    animation: resaltarFalta 0.5s 2;
+    border: 2px solid #dc3545 !important;
+    border-radius: 0.375rem;
+}
+@keyframes resaltarFalta {
+    0% { box-shadow: 0 0 0 0 #dc354580; }
+    50% { box-shadow: 0 0 8px 4px #dc354580; }
+    100% { box-shadow: 0 0 0 0 #dc354580; }
+}
 </style>
 
 <script>
@@ -496,20 +507,33 @@ $(document).ready(function() {
     });
 
     $('#formCrearHidrante').on('submit', function(e) {
-        // Si el icono de exclamación está visible, falta completar la fecha tentativa
         if ($('#iconoExclamacion').is(':visible')) {
-            // Si está en el paso de generar, enfoca el botón
+            // Elimina advertencias previas
+            $('#advertenciaFechaTentativa').remove();
+            $('.resaltar-falta').removeClass('resaltar-falta');
+
+            // Resalta el área y muestra mensaje
+            let $target;
             if (!$('#contenedorGenerarFecha').hasClass('d-none')) {
-                $('#btnGenerarFecha').focus();
+                $target = $('#btnGenerarFecha');
+            } else if (!$('#opcionesPlazo').hasClass('d-none')) {
+                $target = $('#opcionesPlazo button[data-plazo]').first();
+            } else if (!$('#contenedorFechaGenerada').hasClass('d-none') && !$('#fecha_tentativa').val()) {
+                $target = $('#fecha_tentativa');
             }
-            // Si está en el paso de plazo, enfoca el primer botón de plazo
-            else if (!$('#opcionesPlazo').hasClass('d-none')) {
-                $('#opcionesPlazo button[data-plazo]').first().focus();
+
+            if ($target && $target.length) {
+                $target.focus();
+                // Resalta el contenedor padre visualmente
+                $target.closest('.mb-3').addClass('resaltar-falta');
+                // Muestra advertencia solo una vez
+                if ($('#advertenciaFechaTentativa').length === 0) {
+                    $target.closest('.mb-3').append(
+                        '<div id="advertenciaFechaTentativa" class="text-danger mt-2 fw-bold">Debes completar la fecha tentativa de mantenimiento.</div>'
+                    );
+                }
             }
-            // Si está en el paso de fecha generada pero el campo está vacío, enfoca el input
-            else if (!$('#contenedorFechaGenerada').hasClass('d-none') && !$('#fecha_tentativa').val()) {
-                $('#fecha_tentativa').focus();
-            }
+
             // Previene el submit
             e.preventDefault();
             return false;
