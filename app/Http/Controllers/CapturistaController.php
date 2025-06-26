@@ -298,6 +298,12 @@ class CapturistaController extends Controller
             ->addColumn('acciones', function($hidrante) {
                 return '<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">Editar <i class="bi bi-pen-fill"></i></button>';
             })
+            ->editColumn('numero_estacion', function($hidrante) {
+                if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
+                    return 'N/A';
+                }
+                return str_pad((string)$hidrante->numero_estacion, 2, '0', STR_PAD_LEFT);
+            })
             ->editColumn('calle', function($hidrante) {
                 if (is_null($hidrante->id_calle)) {
                     return 'Sin definir';
