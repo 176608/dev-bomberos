@@ -471,6 +471,13 @@ $(document).ready(function() {
 
     // Agregar manejador de submit del formulario
     $('#formCrearHidrante').submit(function(e) {
+        // Si el icono de exclamación está visible, no enviar el formulario
+        if ($('#iconoExclamacion').is(':visible')) {
+            alert('Falta generar la fecha tentativa de mantenimiento.');
+            e.preventDefault();
+            return false;
+        }
+
         const fields = ['calle', 'y_calle', 'colonia'];
         const pendienteChecked = $('#ubicacionPendiente').is(':checked');
         
