@@ -270,8 +270,15 @@
                 </div>
 
                 <div class="modal-footer">
-                    <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Falta de generar una fecha tentativa de mantenimiento, en la primera sección(Información Básica).">
-                        <button type="submit" class="btn btn-primary" id="btnRegistrarHidrante" disabled>Registrar Hidrante</button>
+                    <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante"
+                          data-bs-toggle="popover"
+                          data-bs-trigger="hover focus"
+                          data-bs-placement="top"
+                          title="¡Atención!"
+                          data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
+                        <button type="submit" class="btn btn-danger btn-lg" id="btnRegistrarHidrante" disabled>
+                            Registrar Hidrante
+                        </button>
                     </span>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
@@ -326,6 +333,27 @@
 /* Ajustar el padding del contenedor del modal */
 .modal-body .select2-container {
     display: block;
+}
+
+/* Personaliza el fondo y texto del título del popover */
+.popover-header {
+    background-color: #dc3545 !important; /* Rojo Bootstrap */
+    color: #fff !important;               /* Letras blancas */
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #fff;
+}
+
+/* Personaliza el contenido del popover */
+.popover-body {
+    color: #212529 !important;            /* Texto oscuro */
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Opcional: cambia el borde del popover */
+.popover {
+    border: 2px solid #dc3545;
 }
 </style>
 
