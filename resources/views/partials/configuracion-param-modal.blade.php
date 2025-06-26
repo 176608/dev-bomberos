@@ -154,9 +154,7 @@ $(function() {
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
-                    if (typeof cargarTablaHidrantes === 'function') {
-                        cargarTablaHidrantes();
-                    }
+                    location.reload();
                 }
             },
             error: function(xhr) {

@@ -389,7 +389,6 @@ $(document).ready(function() {
             $(modalElement).on('hidden.bs.modal', function () {
                 $(this).remove();
                 $('#spinnerConfiguracion').addClass('d-none');
-                //cargarTablaHidrantes();
             });
         });
     });
