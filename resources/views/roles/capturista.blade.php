@@ -366,6 +366,16 @@ $(document).ready(function() {
         cargarTablaHidrantes();
     });
 
+    // Detecta el parámetro mostrar_tabla en la URL y carga la tabla automáticamente
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mostrar_tabla') === '1') {
+        cargarTablaHidrantes();
+        // Opcional: limpia el parámetro de la URL para evitar recargar la tabla si el usuario refresca
+        const url = new URL(window.location);
+        url.searchParams.delete('mostrar_tabla');
+        window.history.replaceState({}, document.title, url);
+    }
+
     // Mostrar spinner al hacer click en el botón
     $('#btnConfiguracion').on('click', function() {
         $('#spinnerConfiguracion').removeClass('d-none');
