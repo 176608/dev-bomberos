@@ -155,9 +155,6 @@ $(function() {
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
                     location.reload();
-                    if (typeof cargarTablaHidrantes === 'function') {
-                        cargarTablaHidrantes();
-                    }
                 }
             },
             error: function(xhr) {
