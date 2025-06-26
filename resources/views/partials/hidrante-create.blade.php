@@ -513,18 +513,23 @@ $(document).ready(function() {
             $('.resaltar-falta').removeClass('resaltar-falta');
 
             // Resalta el área y muestra mensaje
-            let $target;
+            let $target, $scrollTarget;
             if (!$('#contenedorGenerarFecha').hasClass('d-none')) {
                 $target = $('#btnGenerarFecha');
+                $scrollTarget = $target;
             } else if (!$('#opcionesPlazo').hasClass('d-none')) {
                 $target = $('#opcionesPlazo button[data-plazo]').first();
+                $scrollTarget = $target;
             } else if (!$('#contenedorFechaGenerada').hasClass('d-none') && !$('#fecha_tentativa').val()) {
-                $target = $('#fecha_tentativa');
+                $target = $('#iconoExclamacion');
+                $scrollTarget = $target;
             }
 
             if ($target && $target.length) {
-                $target.focus();
-                // Resalta el contenedor padre visualmente
+                // Scroll al área y resalta
+                $('html, body').animate({
+                    scrollTop: $target.offset().top - 100
+                }, 300);
                 $target.closest('.mb-3').addClass('resaltar-falta');
                 // Muestra advertencia solo una vez
                 if ($('#advertenciaFechaTentativa').length === 0) {
@@ -532,6 +537,8 @@ $(document).ready(function() {
                         '<div id="advertenciaFechaTentativa" class="text-danger mt-2 fw-bold">Debes completar la fecha tentativa de mantenimiento.</div>'
                     );
                 }
+                // Opcional: focus al botón o al icono
+                $target.focus();
             }
 
             // Previene el submit
