@@ -497,6 +497,7 @@ $(document).ready(function() {
 
     $('#formCrearHidrante').on('submit', function(e) {
         if ($('#iconoExclamacion').is(':visible')) {
+            console.log('Fecha tentativa de mantenimiento no generada.');
             alert('Falta generar la fecha tentativa de mantenimiento.');
             e.preventDefault();
             return false;
