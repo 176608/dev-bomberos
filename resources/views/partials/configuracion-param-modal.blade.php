@@ -93,13 +93,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="col-6">
-                    Notas
-                </div>
-                <div class="col-6">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="guardarConfiguracion">Guardar cambios</button>
-                </div>
             </div>
         </div>
     </div>
@@ -154,7 +149,8 @@ $(function() {
                     const modalElement = document.getElementById('configuracionModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
-                    location.reload();
+                    //location.reload();
+                    window.location = window.location.pathname + '?mostrar_tabla=1';
                 }
             },
             error: function(xhr) {
