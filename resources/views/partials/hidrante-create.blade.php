@@ -45,7 +45,7 @@
                                             </button>
                                         </div>
                                         <div class="d-none mb-2" id="contenedorFechaGenerada">
-                                            <input type="date" class="form-control" name="fecha_tentativa" id="fecha_tentativa" required>
+                                            <input type="date" class="form-control" name="fecha_tentativa" id="fecha_tentativa">
                                             <button type="button" class="btn btn-outline-secondary mt-2 btn-sm" id="btnResetFecha">
                                                 <i class="bi bi-arrow-left"></i> Cambiar plazo
                                             </button>
