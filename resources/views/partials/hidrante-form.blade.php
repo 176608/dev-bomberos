@@ -520,10 +520,18 @@ $(document).ready(function() {
             initSelect2();
             $(window).trigger('resize');
             // Flujo de fecha tentativa
-            const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
-            if (fechaTentativaVal) {
+            const $fechaTentativa = $('#edit_fecha_tentativa{{ $hidrante->id }}');
+            const fechaTentativaVal = $fechaTentativa.val();
+            // Verifica si hay una fecha válida (YYYY-MM-DD y no es 0000-00-00)
+            const esFechaValida = fechaTentativaVal && !isNaN(Date.parse(fechaTentativaVal)) && !/^0{4}-0{2}-0{2}$/.test(fechaTentativaVal);
+
+            if (esFechaValida) {
+                // Muestra el paso final y habilita el botón guardar
                 edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
+                $fechaTentativa.val(fechaTentativaVal);
             } else {
+                // Inicia el flujo desde el principio
+                $fechaTentativa.val('');
                 edit_mostrarPasoGenerar{{ $hidrante->id }}();
             }
             setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
