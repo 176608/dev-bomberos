@@ -57,7 +57,7 @@
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="" selected disabled>Seleccione estación...</option>
+                                            <option value="S/I" selected disabled>Seleccione estación...</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>
@@ -148,7 +148,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante" required>
-                                            <option value="" selected disabled>Sin definir, selecciona una...</option>
+                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
                                             <option value="Pentagono">Pentágono</option>
                                             <option value="Cuadro">Cuadro</option>
                                         </select>
@@ -157,7 +157,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
-                                            <option value="" selected disabled>Sin definir, selecciona una...</option>
+                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
                                             <option value="Mala">Mala</option>
                                             <option value="Buena">Buena</option>
                                             <option value="Sin agua">Sin agua</option>
@@ -169,15 +169,16 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa" required>
-                                            <option value="" selected disabled>Sin definir, selecciona una...</option>
+                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
                                             <option value="Cuadro">Cuadro</option>
                                             <option value="Volante">Volante</option>
+                                            <option value="Otra">Otra</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Conectado a Tubo de:</label>
                                         <select class="form-select" name="hidrante_conectado_tubo" required>
-                                            <option value="" selected disabled>Sin definir, selecciona una...</option>
+                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
                                             <option value="4'">4'</option>
                                             <option value="6'">6'</option>
                                             <option value="8'">8'</option>
@@ -210,13 +211,8 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color:</label>
-                                        <select class="form-select" name="color" required>
-                                            <option value=""selected disabled>Seleccione...</option>
-                                            <option value="Rojo">Rojo</option>
-                                            <option value="Amarillo">Amarillo</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
+                                        <label class="form-label">Marca:</label>
+                                        <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Año:</label>
@@ -228,15 +224,20 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante" required>
-                                            <option value="" selected disabled>Sin definir, selecciona una...</option>
+                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
                                             <option value="Servicio">Servicio</option>
                                             <option value="Fuera de servicio">Fuera de servicio</option>
                                             <option value="Solo Base">Solo Base</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca*:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="Ejemplo: MUELLER" required>
+                                        <label class="form-label">Color:</label>
+                                        <select class="form-select" name="color" required>
+                                            <option value="S/I"selected disabled>Sin definir, dejar pendiente..</option>
+                                            <option value="Rojo">Rojo</option>
+                                            <option value="Amarillo">Amarillo</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
                                     </div>
                                 </div>
 

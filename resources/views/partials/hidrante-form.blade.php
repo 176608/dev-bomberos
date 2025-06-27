@@ -198,13 +198,9 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color:</label>
-                                        <select class="form-select" name="color">
-                                            <option value="" {{ empty($hidrante->color) ? 'selected' : '' }} disabled >S/D</option>
-                                            <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
-                                            <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
-                                            <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
-                                        </select>
+                                        <label class="form-label">Marca:</label>
+                                        <input type="text" class="form-control" name="marca"
+                                               value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Año:</label>
@@ -223,9 +219,13 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca*:</label>
-                                        <input type="text" class="form-control" name="marca"
-                                               value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
+                                        <label class="form-label">Color:</label>
+                                        <select class="form-select" name="color">
+                                            <option value="" {{ empty($hidrante->color) ? 'selected' : '' }} disabled >S/D</option>
+                                            <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
+                                            <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
+                                            <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                        </select>
                                     </div>
                                 </div>
                                 
