@@ -521,15 +521,23 @@ $(document).ready(function() {
             $(window).trigger('resize');
             // Flujo de fecha tentativa
             const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
-            // Considera válida si tiene valor y es una fecha válida
             if (fechaTentativaVal && !isNaN(Date.parse(fechaTentativaVal))) {
-                // Muestra el paso final y habilita el botón guardar
-                edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
-                $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaTentativaVal);
+                // Marca la bandera y muestra el paso final
+                edit_fechaTentativaGenerada{{ $hidrante->id }} = true;
+                $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').addClass('d-none');
+                $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
+                $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').removeClass('d-none');
+                $('#edit_iconoExclamacion{{ $hidrante->id }}').addClass('d-none');
+                edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
             } else {
                 // Inicia el flujo desde el principio
+                edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
                 $('#edit_fecha_tentativa{{ $hidrante->id }}').val('');
-                edit_mostrarPasoGenerar{{ $hidrante->id }}();
+                $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').removeClass('d-none');
+                $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
+                $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').addClass('d-none');
+                $('#edit_iconoExclamacion{{ $hidrante->id }}').removeClass('d-none');
+                edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
             }
             setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
         })
