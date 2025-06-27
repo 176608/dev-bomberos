@@ -43,7 +43,12 @@
                                             </button>
                                         </div>
                                         <div class="d-none mb-2" id="edit_contenedorFechaGenerada{{ $hidrante->id }}">
-                                            <input type="date" class="form-control" name="fecha_tentativa" id="edit_fecha_tentativa{{ $hidrante->id }}">
+                                            <input type="date" class="form-control" name="fecha_tentativa" id="edit_fecha_tentativa{{ $hidrante->id }}"
+                                                {{-- Mostrar valor si existe una fecha tentativa válida --}}
+                                                @if($hidrante->fecha_tentativa)
+                                                    value="{{ $hidrante->fecha_tentativa instanceof \Carbon\Carbon ? $hidrante->fecha_tentativa->format('Y-m-d') : $hidrante->fecha_tentativa }}"
+                                                @endif
+                                            >
                                             <button type="button" class="btn btn-outline-secondary mt-2 btn-sm" id="edit_btnResetFecha{{ $hidrante->id }}">
                                                 <i class="bi bi-arrow-left"></i> Cambiar plazo
                                             </button>
@@ -520,18 +525,13 @@ $(document).ready(function() {
             initSelect2();
             $(window).trigger('resize');
             // Flujo de fecha tentativa
-            const $fechaTentativa = $('#edit_fecha_tentativa{{ $hidrante->id }}');
-            const fechaTentativaVal = $fechaTentativa.val();
-            // Verifica si hay una fecha válida (YYYY-MM-DD y no es 0000-00-00)
-            const esFechaValida = fechaTentativaVal && !isNaN(Date.parse(fechaTentativaVal)) && !/^0{4}-0{2}-0{2}$/.test(fechaTentativaVal);
-
-            if (esFechaValida) {
-                // Muestra el paso final y habilita el botón guardar
+            const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
+            if (fechaTentativaVal) {
+                // Si hay valor, mostrar el input y habilitar guardar
                 edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
-                $fechaTentativa.val(fechaTentativaVal);
+                $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaTentativaVal); // Asegura que el valor se muestre
             } else {
-                // Inicia el flujo desde el principio
-                $fechaTentativa.val('');
+                // Si no hay valor, iniciar desde el principio
                 edit_mostrarPasoGenerar{{ $hidrante->id }}();
             }
             setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
