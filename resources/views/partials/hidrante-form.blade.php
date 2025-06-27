@@ -36,7 +36,7 @@
                                                 Generar fecha tentativa
                                             </button>
                                         </div>
-                                        <div class="btn-group w-100 mb-2 {{ $hidrante->fecha_tentativa ? '' : 'd-none' }}" id="edit_opcionesPlazo{{ $hidrante->id }}">
+                                        <div class="btn-group w-100 mb-2 {{ $hidrante->fecha_tentativa ? 'd-none' : '' }}" id="edit_opcionesPlazo{{ $hidrante->id }}">
                                             <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
                                             <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
                                             <button type="button" class="btn btn-outline-secondary" id="edit_btnRegresarGenerar{{ $hidrante->id }}">
