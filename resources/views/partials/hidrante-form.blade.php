@@ -262,7 +262,7 @@
                         data-bs-placement="top"
                         title="¡Atención!"
                         data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
-                        <button type="submit" class="btn btn-primary" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
+                        <button type="submit" class="btn btn-danger" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
                             Guardar Cambios
                         </button>
                     </span>
@@ -521,9 +521,14 @@ $(document).ready(function() {
             $(window).trigger('resize');
             // Flujo de fecha tentativa
             const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
-            if (fechaTentativaVal) {
+            // Considera válida si tiene valor y es una fecha válida
+            if (fechaTentativaVal && !isNaN(Date.parse(fechaTentativaVal))) {
+                // Muestra el paso final y habilita el botón guardar
                 edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
+                $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaTentativaVal);
             } else {
+                // Inicia el flujo desde el principio
+                $('#edit_fecha_tentativa{{ $hidrante->id }}').val('');
                 edit_mostrarPasoGenerar{{ $hidrante->id }}();
             }
             setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
