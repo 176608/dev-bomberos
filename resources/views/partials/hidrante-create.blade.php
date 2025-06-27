@@ -55,9 +55,11 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
-                                        <label class="form-label">Número de Estación:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionNEstacion"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span> <!-- Este icono debe desaparecer si se cambia de valor-->
+                                        Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="S/I" selected disabled>Seleccione estación...</option>
+                                            <option value="" selected disabled>Seleccione estación...</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>
@@ -84,12 +86,12 @@
 
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                                 <span>Ubicación</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="ubicacionPendiente">
-                                    <label class="form-check-label text-white" for="ubicacionPendiente">
-                                        Información pendiente de capturar
-                                    </label>
-                                </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="ubicacionPendiente">
+                                        <label class="form-check-label text-white" for="ubicacionPendiente">
+                                            Información pendiente de capturar
+                                        </label>
+                                    </div>
                             </div>
 
                             <div class="card-body">
@@ -146,18 +148,22 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Hidrante:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionLlaveHi"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante" required>
-                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                             <option value="Pentagono">Pentágono</option>
                                             <option value="Cuadro">Cuadro</option>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Presión de Agua:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionPresionA"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
-                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                             <option value="Mala">Mala</option>
                                             <option value="Buena">Buena</option>
                                             <option value="Sin agua">Sin agua</option>
@@ -167,18 +173,22 @@
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Llave Fosa:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionLlaveFosa"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa" required>
-                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
+                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                             <option value="Cuadro">Cuadro</option>
                                             <option value="Volante">Volante</option>
                                             <option value="Otra">Otra</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Conectado a Tubo de:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionHCT"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Conectado a Tubo de:</label>
                                         <select class="form-select" name="hidrante_conectado_tubo" required>
-                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
+                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                             <option value="4'">4'</option>
                                             <option value="6'">6'</option>
                                             <option value="8'">8'</option>
@@ -188,7 +198,9 @@
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
-                                        <label class="form-label">Ubicación Fosa:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionUbiFosa"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span> <!-- Este icono debe desaparecer on change del input, si el usuario deja sin nada este input regresa el simbolo de exclamacion-->
+                                        Ubicación Fosa:</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
                                     </div>
                                 </div>
@@ -211,29 +223,37 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span> <!-- Este icono debe desaparecer on change del input, si el usuario deja sin nada este input regresa el simbolo de exclamacion-->
+                                        Marca:</label>
                                         <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionYY"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span> <!-- Este icono debe desaparecer on change del input, si el usuario deja sin nada este input regresa el simbolo de exclamacion-->
+                                        Año:</label>
                                         <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Estado Hidrante:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionEstadoH"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante" required>
-                                            <option value="S/I" selected disabled>Sin definir, dejar pendiente...</option>
+                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                             <option value="Servicio">Servicio</option>
                                             <option value="Fuera de servicio">Fuera de servicio</option>
                                             <option value="Solo Base">Solo Base</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Color:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionColor"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia del valor por defecto, regresa si se cambia al valor por defecto, en este caso: S/I -->
+                                        Color:</label>
                                         <select class="form-select" name="color" required>
-                                            <option value="S/I"selected disabled>Sin definir, dejar pendiente..</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente..</option>
                                             <option value="Rojo">Rojo</option>
                                             <option value="Amarillo">Amarillo</option>
                                             <option value="Otro">Otro</option>
@@ -262,7 +282,9 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Oficial:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionOficial"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span> <!-- Este icono debe desaparecer on change del input, si el usuario deja sin nada este input regresa el simbolo de exclamacion-->
+                                        Oficial:</label>
                                         <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
                                     </div>
                                 </div>
