@@ -8,7 +8,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="background-color: rgba(201, 201, 201, 0.8);">
-                    <!-- Campo fecha_inspeccion -->
+                    
                     <div class="row">
                         
                         <div class="card text-center p-0">
@@ -588,6 +588,31 @@ $(document).ready(function() {
         mostrarPasoGenerar();
         $('#fecha_tentativa').val('');
         setTimeout(initPopover, 200); // Espera a que el DOM esté listo
+    });
+
+    const camposConExclamacion = [
+        { select: 'llave_hidrante', icon: 'iconoExclamacionLlaveHi' },
+        { select: 'presion_agua', icon: 'iconoExclamacionPresionA' },
+        { select: 'llave_fosa', icon: 'iconoExclamacionLlaveFosa' },
+        { select: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHCT' },
+        { select: 'estado_hidrante', icon: 'iconoExclamacionEstadoH' },
+        { select: 'color', icon: 'iconoExclamacionColor' }
+    ];
+
+    camposConExclamacion.forEach(function(campo) {
+        $(`select[name="${campo.select}"]`).on('change', function() {
+            if ($(this).val() === 'S/I') {
+                $(`#${campo.icon}`).removeClass('d-none');
+            } else {
+                $(`#${campo.icon}`).addClass('d-none');
+            }
+        });
+        // Inicializa el estado al cargar
+        if ($(`select[name="${campo.select}"]`).val() === 'S/I') {
+            $(`#${campo.icon}`).removeClass('d-none');
+        } else {
+            $(`#${campo.icon}`).addClass('d-none');
+        }
     });
 });
 </script>
