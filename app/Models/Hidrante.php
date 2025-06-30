@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hidrante extends Model
 {
-    public $timestamps = true; // Deshabilita/Habilita created_at y updated_at
+    public $timestamps = true;
     
     protected $table = 'hidrantes';
     protected $fillable = [
