@@ -59,7 +59,7 @@
                                             <span id="iconoExclamacionNEstacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia de valor-->
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="" selected disabled>Seleccione estación...</option>
+                                            <option value="S/I" selected>Seleccione estación...</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>
@@ -591,27 +591,48 @@ $(document).ready(function() {
     });
 
     const camposConExclamacion = [
-        { select: 'llave_hidrante', icon: 'iconoExclamacionLlaveHi' },
-        { select: 'presion_agua', icon: 'iconoExclamacionPresionA' },
-        { select: 'llave_fosa', icon: 'iconoExclamacionLlaveFosa' },
-        { select: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHCT' },
-        { select: 'estado_hidrante', icon: 'iconoExclamacionEstadoH' },
-        { select: 'color', icon: 'iconoExclamacionColor' }
+        { name: 'numero_estacion', icon: 'iconoExclamacionNEstacion', tipo: 'select' },
+        { name: 'llave_hidrante', icon: 'iconoExclamacionLlaveHi', tipo: 'select' },
+        { name: 'presion_agua', icon: 'iconoExclamacionPresionA', tipo: 'select' },
+        { name: 'llave_fosa', icon: 'iconoExclamacionLlaveFosa', tipo: 'select' },
+        { name: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHCT', tipo: 'select' },
+        { name: 'estado_hidrante', icon: 'iconoExclamacionEstadoH', tipo: 'select' },
+        { name: 'color', icon: 'iconoExclamacionColor', tipo: 'select' },
+        { name: 'marca', icon: 'iconoExclamacionMarca', tipo: 'input' },
+        { name: 'anio', icon: 'iconoExclamacionYY', tipo: 'input' },
+        { name: 'oficial', icon: 'iconoExclamacionOficial', tipo: 'input' },
+        { name: 'ubicacion_fosa', icon: 'iconoExclamacionUbiFosa', tipo: 'input' }
     ];
 
     camposConExclamacion.forEach(function(campo) {
-        $(`select[name="${campo.select}"]`).on('change', function() {
-            if ($(this).val() === 'S/I') {
+        if (campo.tipo === 'select') {
+            $(`select[name="${campo.name}"]`).on('change', function() {
+                if ($(this).val() === 'S/I' || $(this).val() === '' || $(this).val() === null) {
+                    $(`#${campo.icon}`).removeClass('d-none');
+                } else {
+                    $(`#${campo.icon}`).addClass('d-none');
+                }
+            });
+            // Estado inicial
+            if ($(`select[name="${campo.name}"]`).val() === 'S/I' || $(`select[name="${campo.name}"]`).val() === '' || $(`select[name="${campo.name}"]`).val() === null) {
                 $(`#${campo.icon}`).removeClass('d-none');
             } else {
                 $(`#${campo.icon}`).addClass('d-none');
             }
-        });
-        // Inicializa el estado al cargar
-        if ($(`select[name="${campo.select}"]`).val() === 'S/I') {
-            $(`#${campo.icon}`).removeClass('d-none');
-        } else {
-            $(`#${campo.icon}`).addClass('d-none');
+        } else if (campo.tipo === 'input') {
+            $(`input[name="${campo.name}"]`).on('input', function() {
+                if ($(this).val() === '' || $(this).val() === null) {
+                    $(`#${campo.icon}`).removeClass('d-none');
+                } else {
+                    $(`#${campo.icon}`).addClass('d-none');
+                }
+            });
+            // Estado inicial
+            if ($(`input[name="${campo.name}"]`).val() === '' || $(`input[name="${campo.name}"]`).val() === null) {
+                $(`#${campo.icon}`).removeClass('d-none');
+            } else {
+                $(`#${campo.icon}`).addClass('d-none');
+            }
         }
     });
 });
