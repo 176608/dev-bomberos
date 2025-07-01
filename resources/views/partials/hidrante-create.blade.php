@@ -559,6 +559,7 @@ $(document).ready(function() {
     $('#switchNoCalle').change(function() {
         if ($(this).is(':checked')) {
             $('#id_calle').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
+            $('#iconoExclamacionCalle').addClass('d-none'); // Oculta icono
             // Agrega campo oculto para enviar id_calle = 0
             if (!$('input[name="id_calle"][type="hidden"]').length) {
                 $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo('#formCrearHidrante');
@@ -568,6 +569,10 @@ $(document).ready(function() {
             }
         } else {
             $('#id_calle').prop('disabled', false).removeClass('input-disabled');
+            // Si el campo sigue vacío, muestra el icono
+            if (!$('#id_calle').val()) {
+                $('#iconoExclamacionCalle').removeClass('d-none');
+            }
             $('input[name="id_calle"][type="hidden"]').remove();
             $('input[name="calle"][type="hidden"]').remove();
         }
@@ -576,6 +581,7 @@ $(document).ready(function() {
     $('#switchNoYCalle').change(function() {
         if ($(this).is(':checked')) {
             $('#id_y_calle').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
+            $('#iconoExclamacionYCalle').addClass('d-none');
             if (!$('input[name="id_y_calle"][type="hidden"]').length) {
                 $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('#formCrearHidrante');
             }
@@ -584,6 +590,9 @@ $(document).ready(function() {
             }
         } else {
             $('#id_y_calle').prop('disabled', false).removeClass('input-disabled');
+            if (!$('#id_y_calle').val()) {
+                $('#iconoExclamacionYCalle').removeClass('d-none');
+            }
             $('input[name="id_y_calle"][type="hidden"]').remove();
             $('input[name="y_calle"][type="hidden"]').remove();
         }
@@ -592,6 +601,7 @@ $(document).ready(function() {
     $('#switchNoColonia').change(function() {
         if ($(this).is(':checked')) {
             $('#id_colonia').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
+            $('#iconoExclamacionColonia').addClass('d-none');
             if (!$('input[name="id_colonia"][type="hidden"]').length) {
                 $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('#formCrearHidrante');
             }
@@ -600,6 +610,9 @@ $(document).ready(function() {
             }
         } else {
             $('#id_colonia').prop('disabled', false).removeClass('input-disabled');
+            if (!$('#id_colonia').val()) {
+                $('#iconoExclamacionColonia').removeClass('d-none');
+            }
             $('input[name="id_colonia"][type="hidden"]').remove();
             $('input[name="colonia"][type="hidden"]').remove();
         }
