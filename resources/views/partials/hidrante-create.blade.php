@@ -56,7 +56,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionNEstacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> <!-- Este icono debe desaparecer si se cambia de valor-->
+                                            <span id="iconoExclamacionNEstacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
                                             <option value="S/I" selected>Seleccione estación...</option>
@@ -89,10 +89,12 @@
                             </div>
 
                             <div class="card-body">
-
+                                
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionCalle"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        Calle:</label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_calle" id="id_calle">
                                                 <option value="">Buscar calle principal...</option>
@@ -109,7 +111,9 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Y Calle:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionYCalle"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                        Y Calle:</label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
                                                 <option value="">Buscar calle secundaria...</option>
@@ -129,7 +133,9 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Colonia:</label>
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionColonia"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                        Colonia:</label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_colonia" id="id_colonia">
                                                 <option value="">Buscar colonia...</option>
@@ -509,7 +515,7 @@ $(document).ready(function() {
         mostrarPasoPlazo();
     });
 
-    // --- UBICACIÓN PENDIENTE --- 
+    // --- UBICACION PENDIENTE --- 
     /*
     $('#ubicacionPendiente').change(function() {
         const isChecked = $(this).is(':checked');
@@ -675,7 +681,10 @@ $(document).ready(function() {
         { name: 'marca', icon: 'iconoExclamacionMarca', tipo: 'input' },
         { name: 'anio', icon: 'iconoExclamacionYY', tipo: 'input' },
         { name: 'oficial', icon: 'iconoExclamacionOficial', tipo: 'input' },
-        { name: 'ubicacion_fosa', icon: 'iconoExclamacionUbiFosa', tipo: 'input' }
+        { name: 'ubicacion_fosa', icon: 'iconoExclamacionUbiFosa', tipo: 'input' },
+        { name: 'id_calle', icon: 'iconoExclamacionCalle', tipo: 'select' },
+        { name: 'id_y_calle', icon: 'iconoExclamacionYCalle', tipo: 'select' },
+        { name: 'id_colonia', icon: 'iconoExclamacionColonia', tipo: 'select' }
     ];
 
     camposConExclamacion.forEach(function(campo) {
