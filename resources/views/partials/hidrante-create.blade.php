@@ -225,7 +225,7 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionUbiFosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         Ubicación Fosa:</label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
+                                        <input type="text" class="form-control" name="ubicacion_fosa" id="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
                                     </div>
                                 </div>
 
@@ -250,13 +250,13 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Marca:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
+                                        <input type="text" class="form-control" name="marca" id="marca" placeholder="MUELLER" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionYY"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Año:</label>
-                                        <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
+                                        <input type="number" class="form-control" name="anio" id="anio" placeholder="Año de inicio del servicio del hidrante" required>
                                     </div>
                                 </div>
                                 
@@ -309,7 +309,7 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionOficial"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Oficial:</label>
-                                        <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                        <input type="text" class="form-control" name="oficial" id="oficial" placeholder="Nombre del oficial responsable" required>
                                     </div>
                                 </div>
                             </div>
@@ -515,46 +515,6 @@ $(document).ready(function() {
         mostrarPasoPlazo();
     });
 
-    // --- UBICACION PENDIENTE --- 
-    /*
-    $('#ubicacionPendiente').change(function() {
-        const isChecked = $(this).is(':checked');
-        const selects = $('#id_calle, #id_y_calle, #id_colonia');
-        const fields = [
-            { name: 'calle', id: 'id_calle' },
-            { name: 'y_calle', id: 'id_y_calle' },
-            { name: 'colonia', id: 'id_colonia' }
-        ];
-        
-        selects.prop('disabled', isChecked);
-        
-        // Remover campos ocultos previos
-        fields.forEach(field => {
-            $(`input[name="${field.name}"][type="hidden"]`).remove();
-            $(`input[name="${field.id}"][type="hidden"]`).remove();
-        });
-        
-        if (isChecked) {
-            // Limpiar selects
-            selects.val(null).trigger('change');
-            
-            // Agregar campos con valor "Pendiente" y id = 0
-            fields.forEach(field => {
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.name,
-                    value: 'Pendiente'
-                }).appendTo('#formCrearHidrante');
-                
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: field.id,
-                    value: '0'
-                }).appendTo('#formCrearHidrante');
-            });
-        }
-    });*/
-
     // --- SWITCHES DE UBICACIÓN INDIVIDUAL ---
     $('#switchNoCalle').change(function() {
         if ($(this).is(':checked')) {
@@ -728,6 +688,42 @@ $(document).ready(function() {
                 $(`#${campo.icon}`).removeClass('d-none');
             } else {
                 $(`#${campo.icon}`).addClass('d-none');
+            }
+        }
+    });
+
+    function camposUbicacionFaltantes() {
+        let faltantes = [];
+        if ($('#id_calle').is(':enabled') && !$('#id_calle').val()) faltantes.push('Calle');
+        if ($('#ubicacion_fosa').is(':enabled') && !$('#ubicacion_fosa').val()) faltantes.push('Ubicación Fosa');
+        if ($('#oficial').is(':enabled') && !$('#oficial').val()) faltantes.push('Oficial');
+        if ($('#marca').is(':enabled') && !$('#marca').val()) faltantes.push('Marca');
+        if ($('#anio').is(':enabled') && !$('#anio').val()) faltantes.push('Año');
+        return faltantes;
+    }
+
+    $('#btnGuardarHidrante').on('mouseenter focus', function() {
+        let faltantes = camposUbicacionFaltantes();
+        let popoverMsg = '';
+        if (!fechaTentativaGenerada) {
+            popoverMsg = 'Falta generar una fecha tentativa de mantenimiento.';
+        } else if (faltantes.length > 0) {
+            popoverMsg = 'Faltan campos obligatorios: ' + faltantes.join(', ');
+        }
+        if (popoverMsg) {
+            $(this)
+                .attr('data-bs-toggle', 'popover')
+                .attr('data-bs-trigger', 'hover focus')
+                .attr('data-bs-content', popoverMsg);
+            if (bootstrap.Popover.getInstance(this)) {
+                bootstrap.Popover.getInstance(this).setContent({ '.popover-body': popoverMsg });
+            } else {
+                new bootstrap.Popover(this);
+            }
+        } else {
+            $(this).removeAttr('data-bs-toggle data-bs-trigger data-bs-content');
+            if (bootstrap.Popover.getInstance(this)) {
+                bootstrap.Popover.getInstance(this).dispose();
             }
         }
     });
