@@ -94,13 +94,24 @@ class CapturistaController extends Controller
                 $validated['y_calle'] = 'Pendiente';
                 $validated['colonia'] = 'Pendiente';
             } else {
-                // Lógica existente para obtener nombres de calles y colonia
-                $validated['calle'] = $request->id_calle ? 
-                    (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '') : '';
-                $validated['y_calle'] = $request->id_y_calle ? 
-                    (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '') : '';
-                $validated['colonia'] = $request->id_colonia ? 
-                    (Colonias::find($request->id_colonia)?->NOMBRE ?? '') : '';
+                // Manejar campos de ubicación individualmente
+                $validated['calle'] = ($request->id_calle == 0)
+                    ? 'Pendiente'
+                    : ($request->id_calle
+                        ? (CatalogoCalle::find($request->id_calle)?->Nomvial ?? '')
+                        : '');
+
+                $validated['y_calle'] = ($request->id_y_calle == 0)
+                    ? 'Pendiente'
+                    : ($request->id_y_calle
+                        ? (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? '')
+                        : '');
+
+                $validated['colonia'] = ($request->id_colonia == 0)
+                    ? 'Pendiente'
+                    : ($request->id_colonia
+                        ? (Colonias::find($request->id_colonia)?->NOMBRE ?? '')
+                        : '');
             }
 
             // Remover valores nulos
