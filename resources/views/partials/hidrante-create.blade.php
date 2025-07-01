@@ -536,6 +536,7 @@ $(document).ready(function() {
             $('input[name="id_calle"][type="hidden"]').remove();
             $('input[name="calle"][type="hidden"]').remove();
         }
+        actualizarEstadoBotonRegistrar();
     });
 
     $('#switchNoYCalle').change(function() {
@@ -620,7 +621,18 @@ $(document).ready(function() {
     }
 
     function actualizarEstadoBotonRegistrar() {
-        if (fechaTentativaGenerada) {
+        // Verifica si la fecha tentativa ya fue generada
+        let fechaOk = fechaTentativaGenerada;
+
+        // Verifica si el campo calle está cubierto (valor válido o switch activo)
+        let calleOk = false;
+        if ($('#switchNoCalle').is(':checked')) {
+            calleOk = true;
+        } else if ($('#id_calle').val() && $('#id_calle').val() !== '' && $('#id_calle').val() !== null) {
+            calleOk = true;
+        }
+
+        if (fechaOk && calleOk) {
             $('#btnRegistrarHidrante').prop('disabled', false);
             $('#popoverRegistrarHidrante').removeAttr('data-bs-toggle').removeAttr('data-bs-trigger').removeAttr('data-bs-content');
             if (bootstrap.Popover.getInstance(document.getElementById('popoverRegistrarHidrante'))) {
@@ -631,8 +643,8 @@ $(document).ready(function() {
             $('#popoverRegistrarHidrante')
                 .attr('data-bs-toggle', 'popover')
                 .attr('data-bs-trigger', 'hover focus')
-                .attr('data-bs-content', 'Falta generar la fecha tentativa de mantenimiento.');
-            initPopover();
+                .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
+            if (typeof initPopover === 'function') initPopover();
         }
     }
 
@@ -690,6 +702,10 @@ $(document).ready(function() {
                 $(`#${campo.icon}`).addClass('d-none');
             }
         }
+    });
+
+    $('#id_calle').on('change', function() {
+        actualizarEstadoBotonRegistrar();
     });
 });
 </script>
