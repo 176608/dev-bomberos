@@ -86,46 +86,64 @@
 
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                                 <span>Ubicación</span>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="ubicacionPendiente">
-                                        <label class="form-check-label text-white" for="ubicacionPendiente">
-                                            Información pendiente de capturar
-                                        </label>
-                                    </div>
                             </div>
 
                             <div class="card-body">
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Principal:</label>
-                                        <select class="form-select select2-search" name="id_calle" id="id_calle">
-                                            <option value="">Buscar calle principal...</option>
-                                            @foreach($calles as $calle)
-                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label class="form-label">Calle:</label>
+                                        <div class="input-group">
+                                            <select class="form-select select2-search" name="id_calle" id="id_calle">
+                                                <option value="">Buscar calle principal...</option>
+                                                @foreach($calles as $calle)
+                                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-text bg-white border-0">
+                                                <div class="form-check form-switch m-0">
+                                                    <input class="form-check-input" type="checkbox" id="switchNoCalle">
+                                                    <label class="form-check-label small" for="switchNoCalle">No aparece la calle</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Calle Secundaria(Y Calle):</label>
-                                        <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
-                                            <option value="">Buscar calle secundaria...</option>
-                                            @foreach($calles as $calle)
-                                                <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label class="form-label">Y Calle:</label>
+                                        <div class="input-group">
+                                            <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
+                                                <option value="">Buscar calle secundaria...</option>
+                                                @foreach($calles as $calle)
+                                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-text bg-white border-0">
+                                                <div class="form-check form-switch m-0">
+                                                    <input class="form-check-input" type="checkbox" id="switchNoYCalle">
+                                                    <label class="form-check-label small" for="switchNoYCalle">No aparece la calle</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
-                                        <select class="form-select select2-search" name="id_colonia" id="id_colonia">
-                                            <option value="">Buscar colonia...</option>
-                                            @foreach($colonias as $colonia)
-                                                <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <select class="form-select select2-search" name="id_colonia" id="id_colonia">
+                                                <option value="">Buscar colonia...</option>
+                                                @foreach($colonias as $colonia)
+                                                    <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-text bg-white border-0">
+                                                <div class="form-check form-switch m-0">
+                                                    <input class="form-check-input" type="checkbox" id="switchNoColonia">
+                                                    <label class="form-check-label small" for="switchNoColonia">No aparece la colonia</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -485,7 +503,8 @@ $(document).ready(function() {
         mostrarPasoPlazo();
     });
 
-    // --- UBICACIÓN PENDIENTE ---
+    // --- UBICACIÓN PENDIENTE --- 
+    /*
     $('#ubicacionPendiente').change(function() {
         const isChecked = $(this).is(':checked');
         const selects = $('#id_calle, #id_y_calle, #id_colonia');
@@ -521,6 +540,56 @@ $(document).ready(function() {
                     value: '0'
                 }).appendTo('#formCrearHidrante');
             });
+        }
+    });*/
+
+    // --- SWITCHES DE UBICACIÓN INDIVIDUAL ---
+    $('#switchNoCalle').change(function() {
+        if ($(this).is(':checked')) {
+            $('#id_calle').prop('disabled', true).val('').trigger('change');
+            // Agrega campo oculto para enviar id_calle = 0
+            if (!$('input[name="id_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo('#formCrearHidrante');
+            }
+            if (!$('input[name="calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo('#formCrearHidrante');
+            }
+        } else {
+            $('#id_calle').prop('disabled', false);
+            $('input[name="id_calle"][type="hidden"]').remove();
+            $('input[name="calle"][type="hidden"]').remove();
+        }
+    });
+
+    $('#switchNoYCalle').change(function() {
+        if ($(this).is(':checked')) {
+            $('#id_y_calle').prop('disabled', true).val('').trigger('change');
+            if (!$('input[name="id_y_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('#formCrearHidrante');
+            }
+            if (!$('input[name="y_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'y_calle', value: 'Pendiente'}).appendTo('#formCrearHidrante');
+            }
+        } else {
+            $('#id_y_calle').prop('disabled', false);
+            $('input[name="id_y_calle"][type="hidden"]').remove();
+            $('input[name="y_calle"][type="hidden"]').remove();
+        }
+    });
+
+    $('#switchNoColonia').change(function() {
+        if ($(this).is(':checked')) {
+            $('#id_colonia').prop('disabled', true).val('').trigger('change');
+            if (!$('input[name="id_colonia"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('#formCrearHidrante');
+            }
+            if (!$('input[name="colonia"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'colonia', value: 'Pendiente'}).appendTo('#formCrearHidrante');
+            }
+        } else {
+            $('#id_colonia').prop('disabled', false);
+            $('input[name="id_colonia"][type="hidden"]').remove();
+            $('input[name="colonia"][type="hidden"]').remove();
         }
     });
 
