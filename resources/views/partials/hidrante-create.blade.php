@@ -93,7 +93,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Calle:</label>
-                                        <div class="input-group">
+                                        <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_calle" id="id_calle">
                                                 <option value="">Buscar calle principal...</option>
                                                 @foreach($calles as $calle)
@@ -103,14 +103,14 @@
                                             <div class="input-group-text bg-white border-0">
                                                 <div class="form-check form-switch m-0">
                                                     <input class="form-check-input" type="checkbox" id="switchNoCalle">
-                                                    <label class="form-check-label small" for="switchNoCalle">No aparece la calle</label>
+                                                    <label class="form-check-label small ms-2" for="switchNoCalle">No aparece la calle</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Y Calle:</label>
-                                        <div class="input-group">
+                                        <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
                                                 <option value="">Buscar calle secundaria...</option>
                                                 @foreach($calles as $calle)
@@ -120,7 +120,7 @@
                                             <div class="input-group-text bg-white border-0">
                                                 <div class="form-check form-switch m-0">
                                                     <input class="form-check-input" type="checkbox" id="switchNoYCalle">
-                                                    <label class="form-check-label small" for="switchNoYCalle">No aparece la calle</label>
+                                                    <label class="form-check-label small ms-2" for="switchNoYCalle">No aparece la calle</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -130,7 +130,7 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia:</label>
-                                        <div class="input-group">
+                                        <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_colonia" id="id_colonia">
                                                 <option value="">Buscar colonia...</option>
                                                 @foreach($colonias as $colonia)
@@ -140,7 +140,7 @@
                                             <div class="input-group-text bg-white border-0">
                                                 <div class="form-check form-switch m-0">
                                                     <input class="form-check-input" type="checkbox" id="switchNoColonia">
-                                                    <label class="form-check-label small" for="switchNoColonia">No aparece la colonia</label>
+                                                    <label class="form-check-label small ms-2" for="switchNoColonia">No aparece la colonia</label>
                                                 </div>
                                             </div>
                                         </div>
