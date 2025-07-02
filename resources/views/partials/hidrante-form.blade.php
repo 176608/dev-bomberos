@@ -57,7 +57,9 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
-                                        <label class="form-label">Número de Estación</label>
+                                        <label class="form-label">Número de Estación
+                                            <span id="edit_iconoExclamacionNEstacion{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        </label>
                                         <select class="form-select" name="numero_estacion">
                                             @foreach(['S/I', '01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
@@ -244,7 +246,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                         Marca:
-                                        <span id="iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="text" class="form-control" name="marca"
                                                value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
@@ -252,7 +254,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                         Año:
-                                        <span id="iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        <span id="edit_iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="number" class="form-control" name="anio"
                                                value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
