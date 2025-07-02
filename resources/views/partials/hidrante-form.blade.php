@@ -18,7 +18,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fecha de Inspección:</label>
+                                        <label class="form-label">Fecha de Inspección</label>
                                         <input type="date" class="form-control" name="fecha_inspeccion" 
                                                id="edit_fecha_inspeccion"
                                                value="{{ $hidrante->fecha_inspeccion ? date('Y-m-d', strtotime($hidrante->fecha_inspeccion)) : date('Y-m-d') }}" 
@@ -28,7 +28,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span>
-                                            Fecha tentativa de Mantenimiento:
+                                            Fecha tentativa de Mantenimiento
                                         </label>
                                         <div class="d-grid gap-2 mb-2 {{ $hidrante->fecha_tentativa ? 'd-none' : '' }}" id="edit_contenedorGenerarFecha{{ $hidrante->id }}">
                                             <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha{{ $hidrante->id }}">
@@ -57,7 +57,7 @@
                                 <hr class="my-2">
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
-                                        <label class="form-label">Número de Estación:</label>
+                                        <label class="form-label">Número de Estación</label>
                                         <select class="form-select" name="numero_estacion">
                                             <option value="" {{ empty($hidrante->numero_estacion) ? 'selected' : '' }} disabled >S/D</option>
                                             @foreach(['01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
@@ -83,7 +83,7 @@
                                     <!-- Calle Principal -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Calle Principal:
+                                            Calle Principal
                                             <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <div class="input-group justify-content-center">
@@ -107,7 +107,7 @@
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Calle Secundaria (Y Calle):
+                                            Calle Secundaria (Y Calle)
                                             <span id="edit_iconoExclamacionYCalle{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <div class="input-group justify-content-center">
@@ -134,7 +134,7 @@
                                     <!-- Colonia -->
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
-                                            Colonia:
+                                            Colonia
                                             <span id="edit_iconoExclamacionColonia{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <div class="input-group justify-content-center">
@@ -172,7 +172,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Llave Hidrante:
+                                            Llave Hidrante
                                             <span id="edit_iconoExclamacionLlaveHi{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_hidrante">
@@ -184,7 +184,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Presión de Agua:
+                                            Presión de Agua
                                             <span id="edit_iconoExclamacionPresionA{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="presion_agua">
@@ -199,7 +199,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Llave Fosa:
+                                            Llave Fosa
                                             <span id="edit_iconoExclamacionLlaveFosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_fosa">
@@ -211,7 +211,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Conectado a Tubo de:
+                                            Conectado a Tubo de
                                             <span id="edit_iconoExclamacionHCT{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
@@ -227,10 +227,10 @@
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">
-                                            Ubicación Fosa (N MTS.):
+                                            Ubicación Fosa (N MTS.)
                                             <span id="edit_iconoExclamacionUbiFosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa"
+                                        <input type="text" class="form-control" name="ubicacion_fosa" required
                                                value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
@@ -249,20 +249,24 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Marca:</label>
-                                        <input type="text" class="form-control" name="marca"
+                                        <label class="form-label">
+                                        Marca<span id="iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        </label>
+                                        <input type="text" class="form-control" name="marca" required
                                                value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Año:</label>
-                                        <input type="number" class="form-control" name="anio"
+                                        <label class="form-label">
+                                        Año<span id="iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        </label>
+                                        <input type="number" class="form-control" name="anio" required
                                                value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Estado Hidrante:
+                                            Estado Hidrante
                                             <span id="edit_iconoExclamacionEstadoH{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="estado_hidrante">
@@ -275,7 +279,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Color:
+                                            Color
                                             <span id="edit_iconoExclamacionColor{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="color">
@@ -302,14 +306,16 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12 mb-3">
-                                        <label class="form-label">Observaciones:</label>
+                                        <label class="form-label">Observaciones</label>
                                         <textarea class="form-control" name="observaciones" rows="3" placeholder="Sin observaciones">{{ $hidrante->observaciones ?? '' }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Oficial:</label>
-                                        <input type="text" class="form-control" name="oficial"
+                                        <label class="form-label">
+                                            <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        Oficial</label>
+                                        <input type="text" class="form-control" name="oficial" required
                                                value="{{ $hidrante->oficial ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
@@ -405,32 +411,106 @@ select2.select2-container {
 $(document).ready(function() {
     const MODAL_ID = '#editarHidranteModal{{ $hidrante->id }}';
 
-    // Configuración centralizada
-    const CONFIG = {
-        fields: ['calle', 'y_calle', 'colonia'],
-        actions: {
-            clear: {
-                value: 'Sin definir',
-                id: '',
-                disabled: true
-            },
-            pending: {
-                value: 'Pendiente',
-                id: '0',
-                disabled: true
-            },
-            enable: {
-                disabled: false
-            }
-        },
-        select2Options: {
-            theme: 'bootstrap-5',
-            width: '100%',
-            language: {
-                noResults: () => "No se encontraron resultados"
-            }
+    // --- ICONOS DE EXCLAMACIÓN Y VALIDACIÓN ---
+    // Solo para y_calle y colonia: icono solo si valor es "Pendiente" (id=0)
+    function actualizarIconoPendienteUbicacion() {
+        // Y Calle
+        if ($('#edit_id_y_calle').val() === '0') {
+            $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').removeClass('d-none');
+        } else {
+            $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
         }
-    };
+        // Colonia
+        if ($('#edit_id_colonia').val() === '0') {
+            $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').removeClass('d-none');
+        } else {
+            $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
+        }
+    }
+
+    $('#edit_id_y_calle, #edit_id_colonia').on('change', actualizarIconoPendienteUbicacion);
+
+    // Estado inicial al abrir modal
+    actualizarIconoPendienteUbicacion();
+
+    // --- SWITCHES DE UBICACIÓN INDIVIDUAL ---
+    $('#edit_switchNoYCalle{{ $hidrante->id }}').change(function() {
+        if ($(this).is(':checked')) {
+            $('#edit_id_y_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
+            if (!$('input[name="id_y_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('form');
+            }
+            if (!$('input[name="y_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'y_calle', value: 'Pendiente'}).appendTo('form');
+            }
+        } else {
+            $('#edit_id_y_calle').prop('disabled', false).removeClass('input-disabled');
+            if (!$('#edit_id_y_calle').val()) {
+                $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
+            }
+            $('input[name="id_y_calle"][type="hidden"]').remove();
+            $('input[name="y_calle"][type="hidden"]').remove();
+            $('#edit_id_y_calle').val('').trigger('change');
+        }
+        actualizarIconoPendienteUbicacion();
+    });
+
+    $('#edit_switchNoColonia{{ $hidrante->id }}').change(function() {
+        if ($(this).is(':checked')) {
+            $('#edit_id_colonia').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
+            if (!$('input[name="id_colonia"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('form');
+            }
+            if (!$('input[name="colonia"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'colonia', value: 'Pendiente'}).appendTo('form');
+            }
+        } else {
+            $('#edit_id_colonia').prop('disabled', false).removeClass('input-disabled');
+            if (!$('#edit_id_colonia').val()) {
+                $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
+            }
+            $('input[name="id_colonia"][type="hidden"]').remove();
+            $('input[name="colonia"][type="hidden"]').remove();
+            $('#edit_id_colonia').val('').trigger('change');
+        }
+        actualizarIconoPendienteUbicacion();
+    });
+
+    // Calle (principal): icono y switch como antes (no cambia)
+    $('#edit_switchNoCalle{{ $hidrante->id }}').change(function() {
+        if ($(this).is(':checked')) {
+            $('#edit_id_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
+            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
+            if (!$('input[name="id_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo('form');
+            }
+            if (!$('input[name="calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo('form');
+            }
+        } else {
+            $('#edit_id_calle').prop('disabled', false).removeClass('input-disabled');
+            if (!$('#edit_id_calle').val()) {
+                $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
+            }
+            $('input[name="id_calle"][type="hidden"]').remove();
+            $('input[name="calle"][type="hidden"]').remove();
+            $('#edit_id_calle').val('').trigger('change');
+        }
+    });
+
+    // Estado inicial de switches de ubicación
+    function autoActivarSwitchUbicacion() {
+        if ($('#edit_id_calle').val() === '0' || $('#calle_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+        if ($('#edit_id_y_calle').val() === '0' || $('#y_calle_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoYCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+        if ($('#edit_id_colonia').val() === '0' || $('#colonia_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoColonia{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+    }
+    autoActivarSwitchUbicacion();
 
     // --- UBICACIÓN ---
     function handleLocationField(field, action) {
@@ -600,6 +680,22 @@ $(document).ready(function() {
     // Inicializar eventos
     initEventHandlers();
 
+    // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente ---
+    function autoActivarSwitchUbicacion() {
+        // Calle
+        if ($('#edit_id_calle').val() === '0' || $('#calle_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+        // Y Calle
+        if ($('#edit_id_y_calle').val() === '0' || $('#y_calle_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoYCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+        // Colonia
+        if ($('#edit_id_colonia').val() === '0' || $('#colonia_actual').text().trim() === 'Pendiente') {
+            $('#edit_switchNoColonia{{ $hidrante->id }}').prop('checked', true).trigger('change');
+        }
+    }
+
     // --- ICONOS DE EXCLAMACIÓN Y VALIDACIÓN ---
     const camposConExclamacion = [
         { name: 'numero_estacion', icon: 'edit_iconoExclamacionNEstacion{{ $hidrante->id }}', tipo: 'select' },
@@ -674,7 +770,7 @@ $(document).ready(function() {
 
     $('#edit_switchNoYCalle{{ $hidrante->id }}').change(function() {
         if ($(this).is(':checked')) {
-            $('#edit_id_y_calle').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
+            $('#edit_id_y_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
             $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
             if (!$('input[name="id_y_calle"][type="hidden"]').length) {
                 $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('form');
@@ -694,7 +790,7 @@ $(document).ready(function() {
 
     $('#edit_switchNoColonia{{ $hidrante->id }}').change(function() {
         if ($(this).is(':checked')) {
-            $('#edit_id_colonia').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
+            $('#edit_id_colonia').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
             $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
             if (!$('input[name="id_colonia"][type="hidden"]').length) {
                 $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('form');
