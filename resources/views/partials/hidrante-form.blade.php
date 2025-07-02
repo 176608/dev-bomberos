@@ -76,8 +76,8 @@
                     <!-- Segunda Sección - Ubicación -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
-                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <span>Ubicación</span>
+                            <div class="card-header bg-success text-white d-flex justify-content-center align-items-center">
+                                <span class="text-center w-100">Ubicación</span>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -668,6 +668,7 @@ $(document).ready(function() {
                 edit_mostrarPasoGenerar{{ $hidrante->id }}();
             }
             setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
+            edit_actualizarIconoCalle{{ $hidrante->id }}();
         })
         .on('hidden.bs.modal', function() {
             $('.select2-search').select2('destroy');
@@ -806,9 +807,13 @@ $(document).ready(function() {
 
     // --- HABILITAR/DESHABILITAR BOTÓN GUARDAR ---
     $('#edit_id_calle').on('change', function() {
+        edit_actualizarIconoCalle{{ $hidrante->id }}();
         edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
     });
-
+    $('#edit_switchNoCalle{{ $hidrante->id }}').on('change', function() {
+        edit_actualizarIconoCalle{{ $hidrante->id }}();
+        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    });
     function edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}() {
         // Verifica si la fecha tentativa ya fue generada
         let fechaOk = edit_fechaTentativaGenerada{{ $hidrante->id }};
@@ -834,6 +839,17 @@ $(document).ready(function() {
                 .attr('data-bs-trigger', 'hover focus')
                 .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
             if (typeof edit_initPopover{{ $hidrante->id }} === 'function') edit_initPopover{{ $hidrante->id }}();
+        }
+    }
+
+    function edit_actualizarIconoCalle{{ $hidrante->id }}() {
+        // Si hay valor válido en el select de calle, oculta el icono
+        // Si está vacío, null o 0 (pendiente), muestra el icono
+        const val = $('#edit_id_calle').val();
+        if (val && val !== '' && val !== null && val !== '0') {
+            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').addClass('d-none');
+        } else {
+            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
         }
     }
 });
