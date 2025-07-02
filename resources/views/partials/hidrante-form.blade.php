@@ -842,16 +842,29 @@ $(document).ready(function() {
         }
     }
 
-    function edit_actualizarIconoCalle{{ $hidrante->id }}() {
-        // Si hay valor válido en el select de calle, oculta el icono
-        // Si está vacío, null o 0 (pendiente), muestra el icono
+    function actualizarIconoCalle() {
+        const $icon = $('#edit_iconoExclamacionCalle{{ $hidrante->id }} i');
         const val = $('#edit_id_calle').val();
-        if (val && val !== '' && val !== null && val !== '0') {
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').addClass('d-none');
+        const switchPendiente = $('#edit_switchNoCalle{{ $hidrante->id }}').is(':checked');
+
+        if (switchPendiente || val === '0') {
+            // Pendiente: amarillo
+            $icon.removeClass('text-danger d-none').addClass('text-warning');
+        } else if (!val || val === '') {
+            // Vacío y switch apagado: rojo
+            $icon.removeClass('text-warning d-none').addClass('text-danger');
         } else {
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
+            // Valor válido: ocultar icono
+            $icon.addClass('d-none');
         }
     }
+
+    // Llama a esta función en los eventos relevantes:
+    $('#edit_id_calle').on('change', actualizarIconoCalle);
+    $('#edit_switchNoCalle{{ $hidrante->id }}').on('change', actualizarIconoCalle);
+
+    // Llama también al abrir el modal para estado inicial:
+    actualizarIconoCalle();
 
     $('form').on('submit', function(e) {
         // CALLE
