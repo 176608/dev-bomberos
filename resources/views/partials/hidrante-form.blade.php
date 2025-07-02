@@ -852,5 +852,31 @@ $(document).ready(function() {
             $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
         }
     }
+
+    $('form').on('submit', function(e) {
+        // CALLE
+        if ($('#edit_switchNoCalle{{ $hidrante->id }}').is(':checked')) {
+            // Switch activo: enviar 0 y 'Pendiente'
+            $('#edit_id_calle').prop('disabled', true).val('0');
+            if (!$('input[name="id_calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
+            }
+            if (!$('input[name="calle"][type="hidden"]').length) {
+                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
+            }
+        } else {
+            // Switch apagado: debe haber valor válido
+            const val = $('#edit_id_calle').val();
+            if (!val || val === '' || val === null) {
+                e.preventDefault();
+                alert('Debes seleccionar una calle o marcar el switch de "No aparece la calle".');
+                return false;
+            }
+            // Limpia campos ocultos si existen
+            $('input[name="id_calle"][type="hidden"]').remove();
+            $('input[name="calle"][type="hidden"]').remove();
+        }
+        // ...puedes repetir lógica similar para y_calle y colonia si lo deseas...
+    });
 });
 </script>
