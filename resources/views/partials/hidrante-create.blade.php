@@ -84,8 +84,8 @@
                     <div class="row">
                         <div class="card text-center p-0">
 
-                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <span>Ubicación</span>
+                            <div class="card-header bg-success text-white d-flex justify-content-center align-items-center">
+                                <span class="text-center w-100">Ubicación</span>
                             </div>
 
                             <div class="card-body">
