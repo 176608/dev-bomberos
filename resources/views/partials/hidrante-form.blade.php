@@ -59,8 +59,7 @@
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">Número de Estación</label>
                                         <select class="form-select" name="numero_estacion">
-                                            <option value="" {{ empty($hidrante->numero_estacion) ? 'selected' : '' }} disabled >S/D</option>
-                                            @foreach(['01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
+                                            @foreach(['S/I', '01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
                                             @endforeach
                                         </select>
@@ -83,7 +82,7 @@
                                     <!-- Calle Principal -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Calle Principal
+                                            Calle
                                             <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <div class="input-group justify-content-center">
@@ -102,13 +101,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Calle actual: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Calle Secundaria (Y Calle)
-                                            <span id="edit_iconoExclamacionYCalle{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                            Y Calle
                                         </label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
@@ -126,7 +124,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Calle secundaria actual: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'Sin definir' }}</span></small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -135,7 +133,6 @@
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
                                             Colonia
-                                            <span id="edit_iconoExclamacionColonia{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
@@ -153,7 +150,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Colonia actual: <span id="colonia_actual">{{ $hidrante->colonia ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'Sin definir' }}</span></small>
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +173,6 @@
                                             <span id="edit_iconoExclamacionLlaveHi{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_hidrante">
-                                            <option value="" {{ empty($hidrante->llave_hidrante) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                             <option value="Pentagono" {{ $hidrante->llave_hidrante == 'Pentagono' ? 'selected' : '' }}>Pentagono</option>
                                             <option value="Cuadro" {{ $hidrante->llave_hidrante == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
@@ -188,7 +184,6 @@
                                             <span id="edit_iconoExclamacionPresionA{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="presion_agua">
-                                            <option value="" {{ empty($hidrante->presion_agua) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                             <option value="Mala" {{ $hidrante->presion_agua == 'Mala' ? 'selected' : '' }}>Mala</option>
                                             <option value="Buena" {{ $hidrante->presion_agua == 'Buena' ? 'selected' : '' }}>Buena</option>
@@ -203,7 +198,6 @@
                                             <span id="edit_iconoExclamacionLlaveFosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_fosa">
-                                            <option value="" {{ empty($hidrante->llave_fosa) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                             <option value="Cuadro" {{ $hidrante->llave_fosa == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
                                             <option value="Volante" {{ $hidrante->llave_fosa == 'Volante' ? 'selected' : '' }}>Volante</option>
@@ -215,7 +209,6 @@
                                             <span id="edit_iconoExclamacionHCT{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
-                                            <option value="" {{ empty($hidrante->hidrante_conectado_tubo) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                             <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4'</option>
                                             <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6'</option>
@@ -250,16 +243,18 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                        Marca<span id="iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        Marca:
+                                        <span id="iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
-                                        <input type="text" class="form-control" name="marca" required
+                                        <input type="text" class="form-control" name="marca"
                                                value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                        Año<span id="iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        Año:
+                                        <span id="iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
-                                        <input type="number" class="form-control" name="anio" required
+                                        <input type="number" class="form-control" name="anio"
                                                value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
@@ -270,7 +265,6 @@
                                             <span id="edit_iconoExclamacionEstadoH{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="estado_hidrante">
-                                            <option value="" {{ empty($hidrante->estado_hidrante) ? 'selected' : '' }} disabled > Sin Definir</option>
                                             <option value="S/I" {{ $hidrante->estado_hidrante == 'S/I' ? 'selected' : '' }}> Pendiente</option>
                                             <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
                                             <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
@@ -283,7 +277,6 @@
                                             <span id="edit_iconoExclamacionColor{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <select class="form-select" name="color">
-                                            <option value="" {{ empty($hidrante->color) ? 'selected' : '' }} disabled >S/D</option>
                                             <option value="S/I" {{ $hidrante->color == 'S/I' ? 'selected' : '' }}> Pendiente</option>
                                             <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
                                             <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
@@ -313,9 +306,10 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
+                                            Oficial:
                                             <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        Oficial</label>
-                                        <input type="text" class="form-control" name="oficial" required
+                                        </label>
+                                        <input type="text" class="form-control" name="oficial"
                                                value="{{ $hidrante->oficial ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
@@ -709,9 +703,9 @@ $(document).ready(function() {
         { name: 'anio', icon: 'edit_iconoExclamacionYY{{ $hidrante->id }}', tipo: 'input' },
         { name: 'oficial', icon: 'edit_iconoExclamacionOficial{{ $hidrante->id }}', tipo: 'input' },
         { name: 'ubicacion_fosa', icon: 'edit_iconoExclamacionUbiFosa{{ $hidrante->id }}', tipo: 'input' },
-        { name: 'id_calle', icon: 'edit_iconoExclamacionCalle{{ $hidrante->id }}', tipo: 'select' },
+        { name: 'id_calle', icon: 'edit_iconoExclamacionCalle{{ $hidrante->id }}', tipo: 'select' }/*,
         { name: 'id_y_calle', icon: 'edit_iconoExclamacionYCalle{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'id_colonia', icon: 'edit_iconoExclamacionColonia{{ $hidrante->id }}', tipo: 'select' }
+        { name: 'id_colonia', icon: 'edit_iconoExclamacionColonia{{ $hidrante->id }}', tipo: 'select' }*/
     ];
 
     camposConExclamacion.forEach(function(campo) {
