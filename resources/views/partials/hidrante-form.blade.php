@@ -85,7 +85,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Calle
-                                            <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                            <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}" class="ms-2">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning d-none"></i>
+                                            </span>
                                         </label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
@@ -405,130 +407,79 @@ select2.select2-container {
 
 <script>
 $(document).ready(function() {
-    const MODAL_ID = '#editarHidranteModal{{ $hidrante->id }}';
-    actualizarIconoCalle();
-    // --- ICONOS DE EXCLAMACIÓN Y VALIDACIÓN ---
-    // Solo para y_calle y colonia: icono solo si valor es "Pendiente" (id=0)
-    function actualizarIconoPendienteUbicacion() {
-        // Y Calle
-        if ($('#edit_id_y_calle').val() === '0') {
-            $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').removeClass('d-none');
+    // --- CONFIGURACIÓN CENTRAL ---
+    const CONFIG = {
+        hidranteId: "{{ $hidrante->id }}",
+        modalId: '#editarHidranteModal{{ $hidrante->id }}',
+        switches: [
+            {
+                field: 'calle',
+                switchId: '#edit_switchNoCalle',
+                selectId: '#edit_id_calle',
+                iconId: '#edit_iconoExclamacionCalle',
+                hidden: ['id_calle', 'calle']
+            },
+            {
+                field: 'y_calle',
+                switchId: '#edit_switchNoYCalle',
+                selectId: '#edit_id_y_calle',
+                iconId: '#edit_iconoExclamacionYCalle',
+                hidden: ['id_y_calle', 'y_calle']
+            },
+            {
+                field: 'colonia',
+                switchId: '#edit_switchNoColonia',
+                selectId: '#edit_id_colonia',
+                iconId: '#edit_iconoExclamacionColonia',
+                hidden: ['id_colonia', 'colonia']
+            }
+        ],
+        fieldsWithIcons: [
+            { name: 'numero_estacion', icon: 'edit_iconoExclamacionNEstacion', tipo: 'select' },
+            { name: 'llave_hidrante', icon: 'edit_iconoExclamacionLlaveHi', tipo: 'select' },
+            { name: 'presion_agua', icon: 'edit_iconoExclamacionPresionA', tipo: 'select' },
+            { name: 'llave_fosa', icon: 'edit_iconoExclamacionLlaveFosa', tipo: 'select' },
+            { name: 'hidrante_conectado_tubo', icon: 'edit_iconoExclamacionHCT', tipo: 'select' },
+            { name: 'estado_hidrante', icon: 'edit_iconoExclamacionEstadoH', tipo: 'select' },
+            { name: 'color', icon: 'edit_iconoExclamacionColor', tipo: 'select' },
+            { name: 'marca', icon: 'edit_iconoExclamacionMarca', tipo: 'input' },
+            { name: 'anio', icon: 'edit_iconoExclamacionYY', tipo: 'input' },
+            { name: 'oficial', icon: 'edit_iconoExclamacionOficial', tipo: 'input' },
+            { name: 'ubicacion_fosa', icon: 'edit_iconoExclamacionUbiFosa', tipo: 'input' },
+            { name: 'id_calle', icon: 'edit_iconoExclamacionCalle', tipo: 'select' }
+        ]
+    };
+
+    // --- FUNCIÓN REUTILIZABLE PARA ICONOS ---
+    function toggleExclamationIcon(iconId, value) {
+        const icon = $(`${iconId}${CONFIG.hidranteId}`);
+        if (value === 'S/I' || value === '0' || value === '' || value === null) {
+            icon.removeClass('d-none');
         } else {
-            $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
-        }
-        // Colonia
-        if ($('#edit_id_colonia').val() === '0') {
-            $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').removeClass('d-none');
-        } else {
-            $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
+            icon.addClass('d-none');
         }
     }
 
-    $('#edit_id_y_calle, #edit_id_colonia').on('change', actualizarIconoPendienteUbicacion);
-
-    // Estado inicial al abrir modal
-    actualizarIconoPendienteUbicacion();
-
-    // --- SWITCHES DE UBICACIÓN INDIVIDUAL ---
-    $('#edit_switchNoYCalle{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_y_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
-            if (!$('input[name="id_y_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('form');
+    // --- FUNCIÓN REUTILIZABLE PARA SWITCHES ---
+    function setupSwitchHandler({switchId, selectId, iconId, hidden}) {
+        $(`${switchId}${CONFIG.hidranteId}`).change(function() {
+            const $select = $(selectId);
+            const $icon = $(`${iconId}${CONFIG.hidranteId}`);
+            if ($(this).is(':checked')) {
+                $select.prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
+                $icon.addClass('d-none');
+                hidden.forEach(name => {
+                    if (!$(`input[name="${name}"][type="hidden"]`).length) {
+                        $('<input>').attr({type: 'hidden', name: name, value: name.startsWith('id_') ? '0' : 'Pendiente'}).appendTo('form');
+                    }
+                });
+            } else {
+                $select.prop('disabled', false).removeClass('input-disabled').val('').trigger('change');
+                hidden.forEach(name => $(`input[name="${name}"][type="hidden"]`).remove());
+                if (!$select.val()) $icon.removeClass('d-none');
             }
-            if (!$('input[name="y_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'y_calle', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_y_calle').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_y_calle').val()) {
-                $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
-            }
-            $('input[name="id_y_calle"][type="hidden"]').remove();
-            $('input[name="y_calle"][type="hidden"]').remove();
-            $('#edit_id_y_calle').val('').trigger('change');
-        }
-        actualizarIconoPendienteUbicacion();
-    });
-
-    $('#edit_switchNoColonia{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_colonia').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
-            if (!$('input[name="id_colonia"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('form');
-            }
-            if (!$('input[name="colonia"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'colonia', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_colonia').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_colonia').val()) {
-                $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
-            }
-            $('input[name="id_colonia"][type="hidden"]').remove();
-            $('input[name="colonia"][type="hidden"]').remove();
-            $('#edit_id_colonia').val('').trigger('change');
-        }
-        actualizarIconoPendienteUbicacion();
-    });
-
-    // Calle (principal): icono y switch como antes (no cambia)
-    $('#edit_switchNoCalle{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
-            if (!$('input[name="id_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo('form');
-            }
-            if (!$('input[name="calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_calle').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_calle').val()) {
-                $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
-            }
-            $('input[name="id_calle"][type="hidden"]').remove();
-            $('input[name="calle"][type="hidden"]').remove();
-            $('#edit_id_calle').val('').trigger('change');
-        }
-    });
-
-    // Estado inicial de switches de ubicación
-    function autoActivarSwitchUbicacion() {
-        if ($('#edit_id_calle').val() === '0' || $('#calle_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
-        if ($('#edit_id_y_calle').val() === '0' || $('#y_calle_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoYCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
-        if ($('#edit_id_colonia').val() === '0' || $('#colonia_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoColonia{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
-    }
-    autoActivarSwitchUbicacion();
-
-    // --- UBICACIÓN ---
-    function handleLocationField(field, action) {
-        const select = $(`#edit_id_${field}`);
-        const span = $(`#${field}_actual`);
-        const form = select.closest('form');
-        $(`input[name="${field}"][type="hidden"], input[name="id_${field}"][type="hidden"]`).remove();
-        const config = CONFIG.actions[action];
-        if (!config) return;
-        select.val(null).trigger('change').prop('disabled', config.disabled);
-        if (config.value) {
-            span.text(config.value);
-            $('<input>', {
-                type: 'hidden',
-                name: field,
-                value: config.value
-            }).add($('<input>', {
-                type: 'hidden',
-                name: `id_${field}`,
-                value: config.id
-            })).appendTo(form);
-        }
+            updateSaveButtonState();
+        });
     }
 
     // --- SELECT2 ---
@@ -536,58 +487,104 @@ $(document).ready(function() {
         $('.select2-search').select2({
             theme: 'bootstrap-5',
             width: '100%',
-            dropdownParent: $(`${MODAL_ID} .modal-body`),
+            dropdownParent: $(`${CONFIG.modalId} .modal-body`),
             language: {
-                noResults: function() { return "No se encontraron resultados"; },
-                searching: function() { return "Buscando..."; }
+                noResults: () => "No se encontraron resultados",
+                searching: () => "Buscando..."
             },
             placeholder: 'Comienza a escribir para buscar...',
             allowClear: true,
-            minimumInputLength: 2,
-            scrollAfterSelect: false,
-            position: function(pos, $el) {
-                pos.top += 5;
-                return pos;
-            }
-        }).on('select2:open', function() {
-            setTimeout(function() {
-                $('.select2-search__field').get(0).focus();
-            }, 10);
+            minimumInputLength: 2
         });
     }
 
-    // --- FECHA TENTATIVA ---
-    let edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
-
-    function edit_mostrarPasoGenerar{{ $hidrante->id }}() {
-        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').removeClass('d-none');
-        $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_iconoExclamacion{{ $hidrante->id }}').removeClass('d-none');
-        edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    // --- ICONOS DE ADVERTENCIA ---
+    function setupIcons() {
+        CONFIG.fieldsWithIcons.forEach(({ name, icon, tipo }) => {
+            if (tipo === 'select') {
+                $(`select[name="${name}"]`).on('change', function() {
+                    toggleExclamationIcon(`#${icon}`, $(this).val());
+                });
+                toggleExclamationIcon(`#${icon}`, $(`select[name="${name}"]`).val());
+            } else if (tipo === 'input') {
+                $(`input[name="${name}"]`).on('input', function() {
+                    toggleExclamationIcon(`#${icon}`, $(this).val());
+                });
+                toggleExclamationIcon(`#${icon}`, $(`input[name="${name}"]`).val());
+            }
+        });
     }
 
-    function edit_mostrarPasoPlazo{{ $hidrante->id }}() {
-        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_opcionesPlazo{{ $hidrante->id }}').removeClass('d-none');
-        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_iconoExclamacion{{ $hidrante->id }}').removeClass('d-none');
-        edit_fechaTentativaGenerada{{ $hidrante->id }} = false;
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente ---
+    function autoActivarSwitchUbicacion() {
+        CONFIG.switches.forEach(({switchId, selectId}) => {
+            const $switch = $(`${switchId}${CONFIG.hidranteId}`);
+            const $select = $(selectId);
+            const $actual = $(`#${$select.attr('name').replace('id_', '')}_actual`);
+            if ($select.val() === '0' || ($actual.length && $actual.text().trim() === 'Pendiente')) {
+                $switch.prop('checked', true).trigger('change');
+            }
+        });
     }
 
-    function edit_mostrarPasoFechaGenerada{{ $hidrante->id }}() {
-        $('#edit_contenedorGenerarFecha{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_opcionesPlazo{{ $hidrante->id }}').addClass('d-none');
-        $('#edit_contenedorFechaGenerada{{ $hidrante->id }}').removeClass('d-none');
-        $('#edit_iconoExclamacion{{ $hidrante->id }}').addClass('d-none');
-        edit_fechaTentativaGenerada{{ $hidrante->id }} = true;
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
+    // --- BOTÓN GUARDAR Y POPOVER ---
+    let fechaTentativaGenerada = !!$('#edit_fecha_tentativa' + CONFIG.hidranteId).val();
+
+    function updateSaveButtonState() {
+        // Verifica si la fecha tentativa ya fue generada
+        let fechaOk = fechaTentativaGenerada;
+        // Verifica si el campo calle está cubierto (valor válido o switch activo)
+        let calleOk = false;
+        if ($('#edit_switchNoCalle' + CONFIG.hidranteId).is(':checked')) {
+            calleOk = true;
+        } else if ($('#edit_id_calle').val() && $('#edit_id_calle').val() !== '' && $('#edit_id_calle').val() !== null) {
+            calleOk = true;
+        }
+        if (fechaOk && calleOk) {
+            $('#edit_btnGuardarHidrante' + CONFIG.hidranteId).prop('disabled', false);
+            $('#edit_popoverGuardarHidrante' + CONFIG.hidranteId).removeAttr('data-bs-toggle data-bs-trigger data-bs-content');
+            if (bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId))) {
+                bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId)).dispose();
+            }
+        } else {
+            $('#edit_btnGuardarHidrante' + CONFIG.hidranteId).prop('disabled', true);
+            $('#edit_popoverGuardarHidrante' + CONFIG.hidranteId)
+                .attr('data-bs-toggle', 'popover')
+                .attr('data-bs-trigger', 'hover focus')
+                .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
+            if (typeof edit_initPopover === 'function') edit_initPopover();
+        }
     }
 
-    function edit_initPopover{{ $hidrante->id }}() {
-        const popoverTrigger = document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}');
+    // --- FECHA TENTATIVA: FLUJO DE PASOS ---
+    function mostrarPasoGenerar() {
+        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).removeClass('d-none');
+        $('#edit_opcionesPlazo' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_iconoExclamacion' + CONFIG.hidranteId).removeClass('d-none');
+        fechaTentativaGenerada = false;
+        updateSaveButtonState();
+    }
+    function mostrarPasoPlazo() {
+        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_opcionesPlazo' + CONFIG.hidranteId).removeClass('d-none');
+        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_iconoExclamacion' + CONFIG.hidranteId).removeClass('d-none');
+        fechaTentativaGenerada = false;
+        updateSaveButtonState();
+    }
+    function mostrarPasoFechaGenerada() {
+        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_opcionesPlazo' + CONFIG.hidranteId).addClass('d-none');
+        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).removeClass('d-none');
+        $('#edit_iconoExclamacion' + CONFIG.hidranteId).addClass('d-none');
+        fechaTentativaGenerada = true;
+        updateSaveButtonState();
+    }
+
+    // --- POPOVER ---
+    function edit_initPopover() {
+        const popoverTrigger = document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId);
         if (popoverTrigger) {
             if (bootstrap.Popover.getInstance(popoverTrigger)) {
                 bootstrap.Popover.getInstance(popoverTrigger).dispose();
@@ -596,302 +593,83 @@ $(document).ready(function() {
         }
     }
 
-    function edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}() {
-        if (edit_fechaTentativaGenerada{{ $hidrante->id }}) {
-            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', false);
-            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}').removeAttr('data-bs-toggle').removeAttr('data-bs-trigger').removeAttr('data-bs-content');
-            if (bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}'))) {
-                bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}')).dispose();
-            }
-        } else {
-            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', true);
-            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}')
-                .attr('data-bs-toggle', 'popover')
-                .attr('data-bs-trigger', 'hover focus')
-                .attr('data-bs-content', 'Falta generar una fecha tentativa de mantenimiento.');
-            edit_initPopover{{ $hidrante->id }}();
-        }
-    }
-
     // --- EVENTOS ---
     function initEventHandlers() {
-        // Ubicación pendiente
-        $('#edit_ubicacionPendiente').change(function() {
-            const action = $(this).is(':checked') ? 'pending' : 'enable';
-            CONFIG.fields.forEach(field => handleLocationField(field, action));
-        });
+        // Switches de ubicación
+        CONFIG.switches.forEach(setupSwitchHandler);
 
-        // Botones de limpieza (si existen)
-        $('.clear-field').change(function() {
-            if ($(this).is(':checked')) {
-                handleLocationField($(this).data('field'), 'clear');
-                setTimeout(() => $(this).prop('checked', false), 100);
-            }
-        });
+        // Iconos de advertencia
+        setupIcons();
+
+        // Select2
+        initSelect2();
 
         // Fecha tentativa: flujo de pasos
-        $('#edit_btnGenerarFecha{{ $hidrante->id }}').click(function() {
-            edit_mostrarPasoPlazo{{ $hidrante->id }}();
-        });
-        $('#edit_opcionesPlazo{{ $hidrante->id }} button[data-plazo]').click(function() {
+        $('#edit_btnGenerarFecha' + CONFIG.hidranteId).click(mostrarPasoPlazo);
+        $('#edit_opcionesPlazo' + CONFIG.hidranteId + ' button[data-plazo]').click(function() {
             const plazo = $(this).data('plazo');
-            const fechaBase = new Date(); // Usar fecha actual
+            const fechaBase = new Date();
             if (plazo === 'corto') {
                 fechaBase.setMonth(fechaBase.getMonth() + 6);
             } else {
                 fechaBase.setFullYear(fechaBase.getFullYear() + 1);
             }
-            $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaBase.toISOString().split('T')[0]);
-            edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
+            $('#edit_fecha_tentativa' + CONFIG.hidranteId).val(fechaBase.toISOString().split('T')[0]);
+            mostrarPasoFechaGenerada();
         });
-        $('#edit_btnRegresarGenerar{{ $hidrante->id }}').click(function() {
-            edit_mostrarPasoGenerar{{ $hidrante->id }}();
+        $('#edit_btnRegresarGenerar' + CONFIG.hidranteId).click(mostrarPasoGenerar);
+        $('#edit_btnResetFecha' + CONFIG.hidranteId).click(mostrarPasoPlazo);
+
+        // Guardar: validación
+        $('form').on('submit', function(e) {
+            if ($('#edit_switchNoCalle' + CONFIG.hidranteId).is(':checked')) {
+                $('#edit_id_calle').prop('disabled', true).val('0');
+                if (!$('input[name="id_calle"][type="hidden"]').length) {
+                    $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
+                }
+                if (!$('input[name="calle"][type="hidden"]').length) {
+                    $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
+                }
+            } else {
+                const val = $('#edit_id_calle').val();
+                if (!val || val === '' || val === null) {
+                    e.preventDefault();
+                    alert('Debes seleccionar una calle o marcar el switch de "No aparece la calle".');
+                    return false;
+                }
+                $('input[name="id_calle"][type="hidden"]').remove();
+                $('input[name="calle"][type="hidden"]').remove();
+            }
+            // Puedes agregar validaciones adicionales aquí...
         });
-        $('#edit_btnResetFecha{{ $hidrante->id }}').click(function() {
-            edit_mostrarPasoPlazo{{ $hidrante->id }}();
-        });
+
+        // Actualizar botón guardar cuando cambian campos clave
+        $('#edit_id_calle, #edit_switchNoCalle' + CONFIG.hidranteId).on('change', updateSaveButtonState);
     }
 
     // --- INICIALIZACIÓN DEL MODAL ---
-    $(MODAL_ID)
+    $(CONFIG.modalId)
         .on('shown.bs.modal', function() {
-            initSelect2();
-            $(window).trigger('resize');
+            initEventHandlers();
+            autoActivarSwitchUbicacion();
             // Flujo de fecha tentativa
-            const fechaTentativaVal = $('#edit_fecha_tentativa{{ $hidrante->id }}').val();
+            const fechaTentativaVal = $('#edit_fecha_tentativa' + CONFIG.hidranteId).val();
             if (fechaTentativaVal) {
-                // Si hay valor, mostrar el input y habilitar guardar
-                edit_mostrarPasoFechaGenerada{{ $hidrante->id }}();
-                $('#edit_fecha_tentativa{{ $hidrante->id }}').val(fechaTentativaVal); // Asegura que el valor se muestre
+                mostrarPasoFechaGenerada();
+                $('#edit_fecha_tentativa' + CONFIG.hidranteId).val(fechaTentativaVal);
             } else {
-                // Si no hay valor, iniciar desde el principio
-                edit_mostrarPasoGenerar{{ $hidrante->id }}();
+                mostrarPasoGenerar();
             }
-            setTimeout(edit_initPopover{{ $hidrante->id }}, 200);
-            edit_actualizarIconoCalle{{ $hidrante->id }}();
+            setTimeout(edit_initPopover, 200);
         })
         .on('hidden.bs.modal', function() {
             $('.select2-search').select2('destroy');
         });
 
-    // Inicializar eventos
-    initEventHandlers();
-
-    // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente ---
-    function autoActivarSwitchUbicacion() {
-        // Calle
-        if ($('#edit_id_calle').val() === '0' || $('#calle_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
-        // Y Calle
-        if ($('#edit_id_y_calle').val() === '0' || $('#y_calle_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoYCalle{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
-        // Colonia
-        if ($('#edit_id_colonia').val() === '0' || $('#colonia_actual').text().trim() === 'Pendiente') {
-            $('#edit_switchNoColonia{{ $hidrante->id }}').prop('checked', true).trigger('change');
-        }
+    // Inicialización directa si el modal ya está abierto
+    if ($(CONFIG.modalId).is(':visible')) {
+        initEventHandlers();
+        autoActivarSwitchUbicacion();
     }
-
-    // --- ICONOS DE EXCLAMACIÓN Y VALIDACIÓN ---
-    const camposConExclamacion = [
-        { name: 'numero_estacion', icon: 'edit_iconoExclamacionNEstacion{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'llave_hidrante', icon: 'edit_iconoExclamacionLlaveHi{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'presion_agua', icon: 'edit_iconoExclamacionPresionA{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'llave_fosa', icon: 'edit_iconoExclamacionLlaveFosa{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'hidrante_conectado_tubo', icon: 'edit_iconoExclamacionHCT{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'estado_hidrante', icon: 'edit_iconoExclamacionEstadoH{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'color', icon: 'edit_iconoExclamacionColor{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'marca', icon: 'edit_iconoExclamacionMarca{{ $hidrante->id }}', tipo: 'input' },
-        { name: 'anio', icon: 'edit_iconoExclamacionYY{{ $hidrante->id }}', tipo: 'input' },
-        { name: 'oficial', icon: 'edit_iconoExclamacionOficial{{ $hidrante->id }}', tipo: 'input' },
-        { name: 'ubicacion_fosa', icon: 'edit_iconoExclamacionUbiFosa{{ $hidrante->id }}', tipo: 'input' },
-        { name: 'id_calle', icon: 'edit_iconoExclamacionCalle{{ $hidrante->id }}', tipo: 'select' }/*,
-        { name: 'id_y_calle', icon: 'edit_iconoExclamacionYCalle{{ $hidrante->id }}', tipo: 'select' },
-        { name: 'id_colonia', icon: 'edit_iconoExclamacionColonia{{ $hidrante->id }}', tipo: 'select' }*/
-    ];
-
-    camposConExclamacion.forEach(function(campo) {
-        if (campo.tipo === 'select') {
-            $(`select[name="${campo.name}"]`).on('change', function() {
-                if ($(this).val() === 'S/I' || $(this).val() === '' || $(this).val() === null) {
-                    $(`#${campo.icon}`).removeClass('d-none');
-                } else {
-                    $(`#${campo.icon}`).addClass('d-none');
-                }
-            });
-            // Estado inicial
-            if ($(`select[name="${campo.name}"]`).val() === 'S/I' || $(`select[name="${campo.name}"]`).val() === '' || $(`select[name="${campo.name}"]`).val() === null) {
-                $(`#${campo.icon}`).removeClass('d-none');
-            } else {
-                $(`#${campo.icon}`).addClass('d-none');
-            }
-        } else if (campo.tipo === 'input') {
-            $(`input[name="${campo.name}"]`).on('input', function() {
-                if ($(this).val() === '' || $(this).val() === null) {
-                    $(`#${campo.icon}`).removeClass('d-none');
-                } else {
-                    $(`#${campo.icon}`).addClass('d-none');
-                }
-            });
-            // Estado inicial
-            if ($(`input[name="${campo.name}"]`).val() === '' || $(`input[name="${campo.name}"]`).val() === null) {
-                $(`#${campo.icon}`).removeClass('d-none');
-            } else {
-                $(`#${campo.icon}`).addClass('d-none');
-            }
-        }
-    });
-
-    // --- SWITCHES DE UBICACIÓN INDIVIDUAL ---
-    $('#edit_switchNoCalle{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_calle').prop('disabled', true).addClass('input-disabled').val('').trigger('change');
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').addClass('d-none');
-            if (!$('input[name="id_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo('form');
-            }
-            if (!$('input[name="calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_calle').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_calle').val()) {
-                $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
-            }
-            $('input[name="id_calle"][type="hidden"]').remove();
-            $('input[name="calle"][type="hidden"]').remove();
-        }
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
-    });
-
-    $('#edit_switchNoYCalle{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_y_calle').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
-            $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').addClass('d-none');
-            if (!$('input[name="id_y_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo('form');
-            }
-            if (!$('input[name="y_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'y_calle', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_y_calle').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_y_calle').val()) {
-                $('#edit_iconoExclamacionYCalle{{ $hidrante->id }}').removeClass('d-none');
-            }
-            $('input[name="id_y_calle"][type="hidden"]').remove();
-            $('input[name="y_calle"][type="hidden"]').remove();
-        }
-    });
-
-    $('#edit_switchNoColonia{{ $hidrante->id }}').change(function() {
-        if ($(this).is(':checked')) {
-            $('#edit_id_colonia').prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
-            $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').addClass('d-none');
-            if (!$('input[name="id_colonia"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo('form');
-            }
-            if (!$('input[name="colonia"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'colonia', value: 'Pendiente'}).appendTo('form');
-            }
-        } else {
-            $('#edit_id_colonia').prop('disabled', false).removeClass('input-disabled');
-            if (!$('#edit_id_colonia').val()) {
-                $('#edit_iconoExclamacionColonia{{ $hidrante->id }}').removeClass('d-none');
-            }
-            $('input[name="id_colonia"][type="hidden"]').remove();
-            $('input[name="colonia"][type="hidden"]').remove();
-        }
-    });
-
-    // --- HABILITAR/DESHABILITAR BOTÓN GUARDAR ---
-    $('#edit_id_calle').on('change', function() {
-        edit_actualizarIconoCalle{{ $hidrante->id }}();
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
-    });
-    $('#edit_switchNoCalle{{ $hidrante->id }}').on('change', function() {
-        edit_actualizarIconoCalle{{ $hidrante->id }}();
-        edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}();
-    });
-    function edit_actualizarEstadoBotonGuardar{{ $hidrante->id }}() {
-        // Verifica si la fecha tentativa ya fue generada
-        let fechaOk = edit_fechaTentativaGenerada{{ $hidrante->id }};
-
-        // Verifica si el campo calle está cubierto (valor válido o switch activo)
-        let calleOk = false;
-        if ($('#edit_switchNoCalle{{ $hidrante->id }}').is(':checked')) {
-            calleOk = true;
-        } else if ($('#edit_id_calle').val() && $('#edit_id_calle').val() !== '' && $('#edit_id_calle').val() !== null) {
-            calleOk = true;
-        }
-
-        if (fechaOk && calleOk) {
-            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', false);
-            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}').removeAttr('data-bs-toggle').removeAttr('data-bs-trigger').removeAttr('data-bs-content');
-            if (bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}'))) {
-                bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante{{ $hidrante->id }}')).dispose();
-            }
-        } else {
-            $('#edit_btnGuardarHidrante{{ $hidrante->id }}').prop('disabled', true);
-            $('#edit_popoverGuardarHidrante{{ $hidrante->id }}')
-                .attr('data-bs-toggle', 'popover')
-                .attr('data-bs-trigger', 'hover focus')
-                .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
-            if (typeof edit_initPopover{{ $hidrante->id }} === 'function') edit_initPopover{{ $hidrante->id }}();
-        }
-    }
-
-    function actualizarIconoCalle() {
-        const $icon = $('#edit_iconoExclamacionCalle{{ $hidrante->id }} i');
-        const calle = $('#calle_actual').text().trim();
-        const idCalle = $('#edit_id_calle').val();
-
-        // Limpia clases previas
-        $icon.removeClass('text-warning text-danger d-none');
-
-        if (idCalle === '0') {
-            // id=0: pendiente o cadena distinta de pendiente
-            $icon.addClass('text-warning').removeClass('d-none');
-        } else if (idCalle && idCalle !== '' && idCalle !== null) {
-            // id válido: ocultar icono
-            $icon.addClass('d-none');
-        } else if (calle && calle.toLowerCase() !== 'pendiente' && idCalle === '0') {
-            // id=0 y cadena distinta de pendiente: amarillo
-            $icon.addClass('text-warning').removeClass('d-none');
-        } else if (!idCalle || idCalle === '') {
-            // Campo vacío: icono rojo
-            $icon.addClass('text-danger').removeClass('d-none');
-        } else {
-            // Cualquier otro caso: ocultar icono
-            $icon.addClass('d-none');
-        }
-    }
-
-    $('form').on('submit', function(e) {
-        // CALLE
-        if ($('#edit_switchNoCalle{{ $hidrante->id }}').is(':checked')) {
-            // Switch activo: enviar 0 y 'Pendiente'
-            $('#edit_id_calle').prop('disabled', true).val('0');
-            if (!$('input[name="id_calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
-            }
-            if (!$('input[name="calle"][type="hidden"]').length) {
-                $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
-            }
-        } else {
-            // Switch apagado: debe haber valor válido
-            const val = $('#edit_id_calle').val();
-            if (!val || val === '' || val === null) {
-                e.preventDefault();
-                alert('Debes seleccionar una calle o marcar el switch de "No aparece la calle".');
-                return false;
-            }
-            // Limpia campos ocultos si existen
-            $('input[name="id_calle"][type="hidden"]').remove();
-            $('input[name="calle"][type="hidden"]').remove();
-        }
-        // ...puedes repetir lógica similar para y_calle y colonia si lo deseas...
-    });
 });
 </script>
