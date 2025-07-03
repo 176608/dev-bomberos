@@ -364,7 +364,7 @@ $(document).ready(function() {
 
     // Display the table when the page loads
     $('#btnVerTabla').click(function() {
-        cargarTablaHidrantes();
+        window.location = window.location.pathname + '?mostrar_tabla=1';
     });
 
     // Detecta el parámetro mostrar_tabla en la URL y carga la tabla automáticamente
