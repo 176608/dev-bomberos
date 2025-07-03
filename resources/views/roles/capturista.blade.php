@@ -351,6 +351,13 @@ $(document).ready(function() {
         });
     }
 
+    function scrollToTablaHidrantes() {
+        const tabla = document.getElementById('tablaHidrantesContainer');
+        if (tabla) {
+            tabla.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
     // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
     function cargarTablaHidrantes() {
         $('#tablaHidrantesContainer').show().html('');
@@ -359,6 +366,7 @@ $(document).ready(function() {
             // Renderiza el partial de la tabla
             $('#tablaHidrantesContainer').html(response);
             inicializarDataTableServerSide();
+            scrollToTablaHidrantes();
         });
     }
 
