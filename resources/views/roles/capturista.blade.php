@@ -371,7 +371,7 @@ $(document).ready(function() {
             // Renderiza el partial de la tabla
             $('#tablaHidrantesContainer').html(response);
             inicializarDataTableServerSide();
-            scrollToTablaHidrantes(200);
+            scrollToTablaHidrantes(150); // Ajusta el offset según sea necesario
         });
     }
 

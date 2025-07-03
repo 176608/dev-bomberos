@@ -842,14 +842,26 @@ $(document).ready(function() {
         }
     }
 
-    function edit_actualizarIconoCalle{{ $hidrante->id }}() {
-        // Si hay valor válido en el select de calle, oculta el icono
-        // Si está vacío, null o 0 (pendiente), muestra el icono
-        const val = $('#edit_id_calle').val();
-        if (val && val !== '' && val !== null && val !== '0') {
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').addClass('d-none');
+    function actualizarIconoCalle() {
+        const $icon = $('#edit_iconoExclamacionCalle{{ $hidrante->id }} i');
+        const calle = $('#calle_actual').text().trim();
+        const idCalle = $('#edit_id_calle').val();
+
+        // Limpia clases previas
+        $icon.removeClass('text-warning text-danger d-none');
+
+        if (idCalle === '0') {
+            // id=0: pendiente o cadena distinta de pendiente
+            $icon.addClass('text-warning').removeClass('d-none');
+        } else if (idCalle && idCalle !== '' && idCalle !== null) {
+            // id válido: ocultar icono
+            $icon.addClass('d-none');
+        } else if (calle && calle.toLowerCase() !== 'pendiente' && idCalle === '0') {
+            // id=0 y cadena distinta de pendiente: amarillo
+            $icon.addClass('text-warning').removeClass('d-none');
         } else {
-            $('#edit_iconoExclamacionCalle{{ $hidrante->id }}').removeClass('d-none');
+            // Cualquier otro caso (vacío, null): ocultar icono
+            $icon.addClass('d-none');
         }
     }
 
