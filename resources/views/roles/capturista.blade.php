@@ -188,9 +188,9 @@ $(document).ready(function() {
                         success: function(response) {
                             if (response.success) {
                                 modalInstance.hide();
-                                location.reload();
+                                //location.reload();
                                 alert('Hidrante creado exitosamente');
-                                cargarTablaHidrantes();
+                                window.location = window.location.pathname + '?mostrar_tabla=1';
                             } else {
                                 alert('Error: ' + response.message);
                             }
@@ -254,9 +254,9 @@ $(document).ready(function() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                location.reload();
+                                //location.reload();
                                 alert('Hidrante actualizado exitosamente');
-                                cargarTablaHidrantes();
+                                window.location = window.location.pathname + '?mostrar_tabla=1';
                             } else {
                                 alert('Error: ' + response.message);
                             }
