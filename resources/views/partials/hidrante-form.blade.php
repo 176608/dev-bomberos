@@ -406,7 +406,7 @@ select2.select2-container {
 <script>
 $(document).ready(function() {
     const MODAL_ID = '#editarHidranteModal{{ $hidrante->id }}';
-
+    actualizarIconoCalle();
     // --- ICONOS DE EXCLAMACIÓN Y VALIDACIÓN ---
     // Solo para y_calle y colonia: icono solo si valor es "Pendiente" (id=0)
     function actualizarIconoPendienteUbicacion() {
