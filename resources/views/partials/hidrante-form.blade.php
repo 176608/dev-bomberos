@@ -859,8 +859,11 @@ $(document).ready(function() {
         } else if (calle && calle.toLowerCase() !== 'pendiente' && idCalle === '0') {
             // id=0 y cadena distinta de pendiente: amarillo
             $icon.addClass('text-warning').removeClass('d-none');
+        } else if (!idCalle || idCalle === '') {
+            // Campo vacío: icono rojo
+            $icon.addClass('text-danger').removeClass('d-none');
         } else {
-            // Cualquier otro caso (vacío, null): ocultar icono
+            // Cualquier otro caso: ocultar icono
             $icon.addClass('d-none');
         }
     }
