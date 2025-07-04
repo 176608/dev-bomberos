@@ -85,13 +85,13 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Calle
-                                            <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}" class="ms-2">
+                                            <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}">
                                                 <i class="bi bi-exclamation-triangle-fill text-danger"></i>
                                             </span>
                                         </label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
-                                                <option value="">Buscar nueva calle principal...</option>
+                                                <option value="">Buscar nueva calle ...</option>
                                                 @foreach($calles as $calle)
                                                     <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
                                                         {{ $calle->Nomvial }}
@@ -114,7 +114,7 @@
                                         </label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
-                                                <option value="">Buscar nueva calle secundaria...</option>
+                                                <option value="">Buscar nueva calle ...</option>
                                                 @foreach($calles as $calle)
                                                     <option value="{{ $calle->IDKEY }}" {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
                                                         {{ $calle->Nomvial }}
