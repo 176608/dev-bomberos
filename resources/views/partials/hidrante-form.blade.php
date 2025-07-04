@@ -664,6 +664,8 @@ $(document).ready(function() {
         })
         .on('hidden.bs.modal', function() {
             $('.select2-search').select2('destroy');
+            // Redirige al cerrar/cancelar el modal
+            window.location = window.location.pathname + '?mostrar_tabla=1';
         });
 
     // Inicialización directa si el modal ya está abierto
