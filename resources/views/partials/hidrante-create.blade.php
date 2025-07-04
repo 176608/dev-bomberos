@@ -458,7 +458,7 @@ $(document).ready(function() {
         ]
     };
 
-    // --- FUNCIÓN REUTILIZABLE PARA ICONOS ---
+    // --- FUNCIÓN PARA ICONOS ---
     function toggleExclamationIcon(iconId, value) {
         const icon = $(iconId);
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
@@ -468,7 +468,7 @@ $(document).ready(function() {
         }
     }
 
-    // --- FUNCIÓN REUTILIZABLE PARA SWITCHES ---
+    // --- FUNCIÓN PARA SWITCHES ---
     function setupSwitchHandler({switchId, selectId, iconId, hidden}) {
         $(switchId).change(function() {
             const $select = $(selectId);
