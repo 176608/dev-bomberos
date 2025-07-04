@@ -288,7 +288,8 @@ $(document).ready(function() {
         const originalHtml = $btn.html();
         $btn.html('<span class="spinner-border spinner-border-sm"></span> Cargando...');
 
-        $.get('/hidrantes/' + hidranteId + '/view', function(modalHtml) {
+        // Usa la función route de Laravel para generar la URL correcta:
+        $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view", function(modalHtml) {
             // Elimina cualquier modal anterior de vista
             $('.modal-view').remove();
             // Agrega el modal al body
