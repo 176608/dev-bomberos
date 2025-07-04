@@ -279,6 +279,38 @@ $(document).ready(function() {
         });
     });
 
+    // Manejador para el botón de ver hidrante
+    $(document).on('click', '.view-hidrante', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const hidranteId = $btn.data('hidrante-id');
+        $btn.prop('disabled', true);
+        const originalHtml = $btn.html();
+        $btn.html('<span class="spinner-border spinner-border-sm"></span> Cargando...');
+
+        $.get('/hidrantes/' + hidranteId + '/view', function(modalHtml) {
+            // Elimina cualquier modal anterior de vista
+            $('.modal-view').remove();
+            // Agrega el modal al body
+            const $modal = $(modalHtml).addClass('modal-view');
+            $('body').append($modal);
+
+            // Inicializa el modal (sin backdrop estático)
+            const modalInstance = new bootstrap.Modal($modal[0], {
+                backdrop: true, // backdrop normal (no 'static')
+                keyboard: true
+            });
+            modalInstance.show();
+
+            // Al cerrar, elimina el modal del DOM
+            $modal.on('hidden.bs.modal', function() {
+                $modal.remove();
+            });
+        }).always(function() {
+            $btn.prop('disabled', false).html(originalHtml);
+        });
+    });
+
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
         const headerRow = $('#configuredHeaders');

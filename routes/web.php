@@ -38,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/hidrantes/{hidrante}', [CapturistaController::class, 'update'])->name('hidrantes.update');
     Route::get('/hidrantes/{hidrante}/edit', [CapturistaController::class, 'edit'])->name('hidrantes.edit');
     Route::get('/hidrantes/data', [CapturistaController::class, 'dataTable'])->name('hidrantes.data');
+    Route::get('/hidrantes/{hidrante}/view', [CapturistaController::class, 'view'])->name('hidrantes.view');
 
     // Rutas de configuración A
     Route::prefix('configuracion')->group(function () {

@@ -304,7 +304,14 @@ class CapturistaController extends Controller
 
         return DataTables::eloquent($query)
             ->addColumn('acciones', function($hidrante) {
-                return '<button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">Editar <i class="bi bi-pen-fill"></i></button>';
+                return '
+                    <button class="btn btn-sm btn-primary view-hidrante" data-hidrante-id="'.$hidrante->id.'">
+                        Ver <i class="bi bi-eye-fill"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">
+                        Editar <i class="bi bi-pen-fill"></i>
+                    </button>
+                ';
             })
             ->editColumn('numero_estacion', function($hidrante) {
                 if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
@@ -355,5 +362,11 @@ class CapturistaController extends Controller
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 
         return view('partials.configuracion-param-modal', compact('columnas'))->render();
+    }
+
+    public function view(Hidrante $hidrante)
+    {
+        $hidrante->load(['coloniaLocacion', 'callePrincipal', 'calleSecundaria']);
+        return view('partials.hidrante-view', compact('hidrante'))->render();
     }
 }
