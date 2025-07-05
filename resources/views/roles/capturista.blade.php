@@ -451,6 +451,59 @@ $(document).ready(function() {
     });
     
 
+    // Manejador para desactivar hidrante
+    $(document).on('click', '.desactivar-hidrante', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const hidranteId = $btn.data('hidrante-id');
+        if (confirm('¿Está seguro de dar de baja este hidrante?')) {
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Desactivando...');
+            $.ajax({
+                url: "{{ url('/hidrantes') }}/" + hidranteId + "/desactivar",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location = window.location.pathname + '?mostrar_tabla=1';
+                    } else {
+                        alert('No se pudo desactivar el hidrante.');
+                    }
+                },
+                error: function() {
+                    alert('Error al desactivar el hidrante.');
+                }
+            });
+        }
+    });
+
+    // Manejador para activar hidrante
+    $(document).on('click', '.activar-hidrante', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const hidranteId = $btn.data('hidrante-id');
+        if (confirm('¿Está seguro de activar este hidrante?')) {
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Activando...');
+            $.ajax({
+                url: "{{ url('/hidrantes') }}/" + hidranteId + "/activar",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location = window.location.pathname + '?mostrar_tabla=1';
+                    } else {
+                        alert('No se pudo activar el hidrante.');
+                    }
+                },
+                error: function() {
+                    alert('Error al activar el hidrante.');
+                }
+            });
+        }
+    });
 });
 </script>
 @endsection

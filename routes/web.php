@@ -39,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hidrantes/{hidrante}/edit', [CapturistaController::class, 'edit'])->name('hidrantes.edit');
     Route::get('/hidrantes/data', [CapturistaController::class, 'dataTable'])->name('hidrantes.data');
     Route::get('/hidrantes/{hidrante}/view', [CapturistaController::class, 'view'])->name('hidrantes.view');
+    Route::post('/hidrantes/{hidrante}/desactivar', [CapturistaController::class, 'desactivar'])->name('hidrantes.desactivar');
+    Route::post('/hidrantes/{hidrante}/activar', [CapturistaController::class, 'activar'])->name('hidrantes.activar');
 
     // Rutas de configuración A
     Route::prefix('configuracion')->group(function () {

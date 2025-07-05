@@ -304,7 +304,7 @@ class CapturistaController extends Controller
 
         return DataTables::eloquent($query)
             ->addColumn('acciones', function($hidrante) {
-                return '
+                $botones = '
                     <button class="btn btn-sm btn-primary view-hidrante" data-hidrante-id="'.$hidrante->id.'">
                         Ver <i class="bi bi-eye-fill"></i>
                     </button>
@@ -312,6 +312,21 @@ class CapturistaController extends Controller
                         Editar <i class="bi bi-pen-fill"></i>
                     </button>
                 ';
+
+                if ($hidrante->stat === '000') {
+                    $botones .= '
+                        <button class="btn btn-sm btn-success activar-hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            Activar <i class="bi bi-check-circle"></i>
+                        </button>
+                    ';
+                } else {
+                    $botones .= '
+                        <button class="btn btn-sm btn-danger desactivar-hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            Desactivar <i class="bi bi-x-circle"></i>
+                        </button>
+                    ';
+                }
+                return $botones;
             })
             ->editColumn('numero_estacion', function($hidrante) {
                 if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
@@ -368,5 +383,17 @@ class CapturistaController extends Controller
     {
         $hidrante->load(['coloniaLocacion', 'callePrincipal', 'calleSecundaria']);
         return view('partials.hidrante-view', compact('hidrante'))->render();
+    }
+
+    public function desactivar(Hidrante $hidrante)
+    {
+        $hidrante->update(['stat' => '000']);
+        return response()->json(['success' => true]);
+    }
+
+    public function activar(Hidrante $hidrante)
+    {
+        $hidrante->update(['stat' => '050']);
+        return response()->json(['success' => true]);
     }
 }

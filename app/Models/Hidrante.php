@@ -10,6 +10,7 @@ class Hidrante extends Model
     
     protected $table = 'hidrantes';
     protected $fillable = [
+        'stat',
         'fecha_inspeccion',
         'fecha_tentativa',
         'numero_estacion',
