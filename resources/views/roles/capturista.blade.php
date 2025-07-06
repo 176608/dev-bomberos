@@ -77,6 +77,13 @@
         width: 80px;
     }
 
+    /* Ajuste para la columna Acciones (ahora segunda columna) */
+    #hidrantesConfigTable th:nth-child(2),
+    #hidrantesConfigTable td:nth-child(2) {
+        min-width: 120px;
+        width: 120px;
+    }
+
     #hidrantesConfigTable th:last-child,
     #hidrantesConfigTable td:last-child {
         min-width: 100px;
@@ -349,13 +356,6 @@ $(document).ready(function() {
                     className: 'text-center align-middle'
                 });
             }
-        });
-        dtColumns.push({
-            data: 'acciones',
-            name: 'acciones',
-            orderable: false,
-            searchable: false,
-            className: 'text-center align-middle'
         });
 
         let table = $('#hidrantesConfigTable').DataTable({
