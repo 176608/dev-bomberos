@@ -220,7 +220,7 @@ $(document).ready(function() {
         const button = $(this);
         
         button.prop('disabled', true)
-             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>....');
+             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span');
         
         $.ajax({
             url: `${window.location.origin}/bev-bomberos/public/hidrantes/${hidranteId}/edit`,
@@ -286,7 +286,7 @@ $(document).ready(function() {
         const hidranteId = $btn.data('hidrante-id');
         $btn.prop('disabled', true);
         const originalHtml = $btn.html();
-        $btn.html('<span class="spinner-border spinner-border-sm"></span>....');
+        $btn.html('<span class="spinner-border spinner-border-sm"></span');
 
         // Usa la función route de Laravel para generar la URL correcta:
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view", function(modalHtml) {
@@ -457,7 +457,7 @@ $(document).ready(function() {
         const $btn = $(this);
         const hidranteId = $btn.data('hidrante-id');
         if (confirm('¿Está seguro de dar de baja este hidrante?')) {
-            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> ....');
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
             $.ajax({
                 url: "{{ url('/hidrantes') }}/" + hidranteId + "/desactivar",
                 method: 'POST',
