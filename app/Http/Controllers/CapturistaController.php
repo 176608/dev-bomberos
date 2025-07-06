@@ -305,24 +305,24 @@ class CapturistaController extends Controller
         return DataTables::eloquent($query)
             ->addColumn('acciones', function($hidrante) {
                 $botones = '
-                    <button class="btn btn-sm btn-primary view-hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        Ver <i class="bi bi-eye-fill"></i>
+                    <button class="btn btn-sm btn-primary view-hidrante" title="Ver la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                        <i class="bi bi-eye-fill"></i>
                     </button>
-                    <button class="btn btn-sm btn-warning edit-hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        Editar <i class="bi bi-pen-fill"></i>
+                    <button class="btn btn-sm btn-warning edit-hidrante" title="Editar la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                        <i class="bi bi-pen-fill"></i>
                     </button>
                 ';
 
                 if ($hidrante->stat === '000') {
                     $botones .= '
-                        <button class="btn btn-sm btn-success activar-hidrante" data-hidrante-id="'.$hidrante->id.'">
-                            Activar <i class="bi bi-check-circle"></i>
+                        <button class="btn btn-sm btn-success activar-hidrante" title="Activar hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            <i class="bi bi-check-circle"></i>
                         </button>
                     ';
                 } else {
                     $botones .= '
-                        <button class="btn btn-sm btn-danger desactivar-hidrante" data-hidrante-id="'.$hidrante->id.'">
-                            Desactivar <i class="bi bi-x-circle"></i>
+                        <button class="btn btn-sm btn-danger desactivar-hidrante" title="Desactivar hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            <i class="bi bi-x-circle"></i>
                         </button>
                     ';
                 }
