@@ -383,6 +383,23 @@ $(document).ready(function() {
                 }
             }
         });
+
+        let $scrollBody = $('.dataTables_scrollBody');
+        if ($('#scroll-top-clone').length === 0) {
+            // Crea un div para el scroll superior
+            let $scrollTop = $('<div id="scroll-top-clone" style="overflow-x:auto; overflow-y:hidden; width:100%;"></div>');
+            let $inner = $('<div></div>').css('width', $scrollBody[0].scrollWidth + 'px');
+            $scrollTop.append($inner);
+            $scrollBody.before($scrollTop);
+
+            // Sincroniza el scroll de arriba y abajo
+            $scrollTop.on('scroll', function() {
+                $scrollBody.scrollLeft($(this).scrollLeft());
+            });
+            $scrollBody.on('scroll', function() {
+                $scrollTop.scrollLeft($(this).scrollLeft());
+            });
+        }
     }
 
     function scrollToTablaHidrantes() {
