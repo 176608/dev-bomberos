@@ -370,6 +370,7 @@ $(document).ready(function() {
             drawCallback: function() {
                 $('#tablaLoader').hide();
                 $('.table-responsive').show();
+                scrollToTablaHidrantes(); // <-- AQUÍ, después de renderizar la tabla
             },
             createdRow: function(row, data, dataIndex) {
                 // Si alguno de los campos contiene "Pendiente", pinta la fila de rojo
@@ -423,7 +424,7 @@ $(document).ready(function() {
             // Renderiza el partial de la tabla
             $('#tablaHidrantesContainer').html(response);
             inicializarDataTableServerSide();
-            scrollToTablaHidrantes();
+            //scrollToTablaHidrantes();
         });
     }
 
