@@ -384,15 +384,10 @@ $(document).ready(function() {
         });
     }
 
-    function scrollToTablaHidrantes(offset = 0) {
+    function scrollToTablaHidrantes() {
     const tabla = document.getElementById('tablaHidrantesContainer');
     if (tabla) {
         tabla.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (offset !== 0) {
-            setTimeout(() => {
-                window.scrollBy({ top: offset, left: 0, behavior: 'smooth' });
-            }, 400); // Espera a que termine el scroll principal
-        }
     }
 }
 
@@ -404,7 +399,7 @@ $(document).ready(function() {
             // Renderiza el partial de la tabla
             $('#tablaHidrantesContainer').html(response);
             inicializarDataTableServerSide();
-            scrollToTablaHidrantes(150); // Ajusta el offset según sea necesario
+            scrollToTablaHidrantes();
         });
     }
 
