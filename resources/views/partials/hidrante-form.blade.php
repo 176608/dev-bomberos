@@ -163,13 +163,74 @@
 
                     <hr class="my-4">
 
-                    <!-- Tercera Sección - Características Técnicas -->
+                    <!-- Tercera Sección - Estado y Características -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-primary text-white">
+                                Estado y Características
+                            </div>
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            Estado Hidrante
+                                            <span id="edit_iconoExclamacionEstadoH{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                        </label>
+                                        <select class="form-select" name="estado_hidrante">
+                                            <option value="S/I" {{ $hidrante->estado_hidrante == 'S/I' ? 'selected' : '' }}> Pendiente</option>
+                                            <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
+                                            <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
+                                            <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            Color
+                                            <span id="edit_iconoExclamacionColor{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                        </label>
+                                        <select class="form-select" name="color">
+                                            <option value="S/I" {{ $hidrante->color == 'S/I' ? 'selected' : '' }}> Pendiente</option>
+                                            <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
+                                            <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
+                                            <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                        Marca:
+                                        <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        </label>
+                                        <input type="text" class="form-control" name="marca"
+                                               value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                        Año:
+                                        <span id="edit_iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        </label>
+                                        <input type="number" class="form-control" name="anio"
+                                               value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Cuarta Sección - Características Técnicas -->
+                    <div class="row mb-4">
+                        <div class="card text-center p-0">
+                            <div class="card-header bg-success text-white">
                                 Características Técnicas
                             </div>
                             <div class="card-body">
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
@@ -195,6 +256,7 @@
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
@@ -231,63 +293,7 @@
                                                value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="Sin Definir">
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <hr class="my-4">
-
-                    <!-- Cuarta Sección - Estado y Características -->
-                    <div class="row mb-4">
-                        <div class="card text-center p-0">
-                            <div class="card-header bg-success text-white">
-                                Estado y Características
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                        Marca:
-                                        <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="text" class="form-control" name="marca"
-                                               value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                        Año:
-                                        <span id="edit_iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="number" class="form-control" name="anio"
-                                               value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Estado Hidrante
-                                            <span id="edit_iconoExclamacionEstadoH{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="estado_hidrante">
-                                            <option value="S/I" {{ $hidrante->estado_hidrante == 'S/I' ? 'selected' : '' }}> Pendiente</option>
-                                            <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
-                                            <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
-                                            <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Color
-                                            <span id="edit_iconoExclamacionColor{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="color">
-                                            <option value="S/I" {{ $hidrante->color == 'S/I' ? 'selected' : '' }}> Pendiente</option>
-                                            <option value="Rojo" {{ $hidrante->color == 'Rojo' ? 'selected' : '' }}>Rojo</option>
-                                            <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
-                                            <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

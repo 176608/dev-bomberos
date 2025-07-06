@@ -165,6 +165,62 @@
                         <div class="card text-center p-0">
 
                             <div class="card-header bg-primary text-white">
+                                Estado y Características
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionEstadoH"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                        Estado Hidrante:</label>
+                                        <select class="form-select" name="estado_hidrante" required>
+                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
+                                            <option value="Servicio">Servicio</option>
+                                            <option value="Fuera de servicio">Fuera de servicio</option>
+                                            <option value="Solo Base">Solo Base</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionColor"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                        Color:</label>
+                                        <select class="form-select" name="color" required>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente..</option>
+                                            <option value="Rojo">Rojo</option>
+                                            <option value="Amarillo">Amarillo</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
+                                        Marca:</label>
+                                        <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            <span id="iconoExclamacionYY"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
+                                        Año:</label>
+                                        <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="card text-center p-0">
+
+                            <div class="card-header bg-success text-white">
                                 Características Técnicas
                             </div>
 
@@ -226,62 +282,6 @@
                                             <span id="iconoExclamacionUbiFosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         Ubicación Fosa:</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="row">
-                        <div class="card text-center p-0">
-
-                            <div class="card-header bg-success text-white">
-                                Estado y Características
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
-                                        Marca:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionYY"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
-                                        Año:</label>
-                                        <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionEstadoH"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Estado Hidrante:</label>
-                                        <select class="form-select" name="estado_hidrante" required>
-                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
-                                            <option value="Servicio">Servicio</option>
-                                            <option value="Fuera de servicio">Fuera de servicio</option>
-                                            <option value="Solo Base">Solo Base</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionColor"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Color:</label>
-                                        <select class="form-select" name="color" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente..</option>
-                                            <option value="Rojo">Rojo</option>
-                                            <option value="Amarillo">Amarillo</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
                                     </div>
                                 </div>
 
