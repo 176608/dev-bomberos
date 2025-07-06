@@ -386,12 +386,16 @@ $(document).ready(function() {
 
         let $scrollBody = $('.dataTables_scrollBody');
         if ($('#scroll-top-clone').length === 0) {
-            // Crea un div para el scroll superior
+            // Crea un contenedor para el scroll superior
             let $scrollTop = $('<div id="scroll-top-clone" style="overflow-x:auto; overflow-y:hidden; width:100%;"></div>');
-            // Usa el ancho real de la tabla para asegurar que el scroll siempre aparece
+            // Clona solo la tabla (sin tbody para evitar duplicar filas)
             let $table = $scrollBody.find('table');
-            let $inner = $('<div></div>').css('width', $table.outerWidth() + 'px');
-            $scrollTop.append($inner);
+            let $theadClone = $table.clone().empty().append($table.find('thead').clone());
+            let $tableClone = $('<table></table>')
+                .attr('class', $table.attr('class'))
+                .css('width', $table.outerWidth() + 'px')
+                .append($theadClone.find('thead'));
+            $scrollTop.append($tableClone);
             $scrollBody.before($scrollTop);
 
             // Sincroniza el scroll de arriba y abajo
@@ -401,6 +405,11 @@ $(document).ready(function() {
             $scrollBody.on('scroll', function() {
                 $scrollTop.scrollLeft($(this).scrollLeft());
             });
+
+            // Ajusta el ancho del scroll superior si cambia el tamaño de la tabla
+            new ResizeObserver(() => {
+                $tableClone.css('width', $table.outerWidth() + 'px');
+            }).observe($table[0]);
         }
     }
 
