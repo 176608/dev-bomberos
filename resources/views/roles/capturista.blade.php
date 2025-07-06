@@ -395,17 +395,13 @@ $(document).ready(function() {
     function scrollToTablaHidrantes() {
     const tabla = document.getElementById('tablaHidrantesContainer');
     if (tabla) {
-        // Altura del navbar fijo (ajusta la clase si es necesario)
         const navbar = document.querySelector('.navbar.fixed-top');
         const navbarHeight = navbar ? navbar.offsetHeight : 0;
 
-        // Posición actual del div respecto al viewport
         const tablaTop = tabla.getBoundingClientRect().top;
 
-        // Scroll actual de la página
         const scrollY = window.scrollY || window.pageYOffset;
 
-        // Calcula el destino: posición absoluta del div menos la altura del navbar
         const destino = scrollY + tablaTop - navbarHeight;
 
         window.scrollTo({
