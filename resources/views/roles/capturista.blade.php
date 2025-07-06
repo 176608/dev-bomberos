@@ -332,7 +332,7 @@ $(document).ready(function() {
         let headerNames = window.hidrantesHeaderNames || {};
         let dtColumns = [
             { data: 'id', name: 'id', className: 'text-center align-middle' },
-            { data: 'stat', name: 'stat', className: 'text-center align-middle' } // NUEVO: stat después de id
+            { data: 'stat', name: 'stat', className: 'text-center align-middle' }
         ];
         columnas.forEach(function(col) {
             if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
@@ -365,16 +365,15 @@ $(document).ready(function() {
             info: true,
             autoWidth: false,
             scrollX: true,
-            responsive: true,
+            responsive: false,
             pageLength: 25,
             lengthMenu: [[25, 50, 100, 500], [25, 50, 100,  500]],
             drawCallback: function() {
                 $('#tablaLoader').hide();
                 $('.table-responsive').show();
-                scrollToTablaHidrantes(); // <-- AQUÍ, después de renderizar la tabla
+                scrollToTablaHidrantes();
             },
             createdRow: function(row, data, dataIndex) {
-                // Si alguno de los campos contiene "Pendiente", pinta la fila de rojo
                 if (
                     (data.calle && data.calle.toString().toLowerCase().includes('pendiente')) ||
                     (data.y_calle && data.y_calle.toString().toLowerCase().includes('pendiente')) ||

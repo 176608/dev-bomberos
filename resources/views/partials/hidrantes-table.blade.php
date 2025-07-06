@@ -12,7 +12,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th class="text-center align-middle">ID</th>
-                        <th class="text-center align-middle">stat</th> <!-- NUEVO: stat después de ID -->
+                        <th class="text-center align-middle">stat</th>
                         @foreach($columnas as $columna)
                             @if($columna !== 'id' && $columna !== 'acciones' && $columna !== 'stat')
                                 <th class="text-center align-middle">{{ $headerNames[$columna] ?? ucfirst($columna) }}</th>

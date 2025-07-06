@@ -21,13 +21,6 @@ class CapturistaController extends Controller
             return redirect()->route('login');
         }
 
-        /*// Obtener la configuración del usuario -- OLD
-        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())
-            ->first();
-        // Obtener la configuración del usuario -- OLD
-        $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
-        */
-
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 
@@ -160,7 +153,7 @@ class CapturistaController extends Controller
                 'fecha_inspeccion' => 'required|date',
                 'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
-                'id_calle' => 'nullable|integer',
+                'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
                 'calle' => 'nullable|string',
