@@ -383,34 +383,6 @@ $(document).ready(function() {
                 }
             }
         });
-
-        let $scrollBody = $('.dataTables_scrollBody');
-        if ($('#scroll-top-clone').length === 0) {
-            // Crea un contenedor para el scroll superior
-            let $scrollTop = $('<div id="scroll-top-clone" style="overflow-x:auto; overflow-y:hidden; width:100%;"></div>');
-            // Clona solo la tabla (sin tbody para evitar duplicar filas)
-            let $table = $scrollBody.find('table');
-            let $theadClone = $table.clone().empty().append($table.find('thead').clone());
-            let $tableClone = $('<table></table>')
-                .attr('class', $table.attr('class'))
-                .css('width', $table.outerWidth() + 'px')
-                .append($theadClone.find('thead'));
-            $scrollTop.append($tableClone);
-            $scrollBody.before($scrollTop);
-
-            // Sincroniza el scroll de arriba y abajo
-            $scrollTop.on('scroll', function() {
-                $scrollBody.scrollLeft($(this).scrollLeft());
-            });
-            $scrollBody.on('scroll', function() {
-                $scrollTop.scrollLeft($(this).scrollLeft());
-            });
-
-            // Ajusta el ancho del scroll superior si cambia el tamaño de la tabla
-            new ResizeObserver(() => {
-                $tableClone.css('width', $table.outerWidth() + 'px');
-            }).observe($table[0]);
-        }
     }
 
     function scrollToTablaHidrantes() {
