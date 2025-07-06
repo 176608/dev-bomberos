@@ -395,7 +395,9 @@ class CapturistaController extends Controller
 
     public function activar(Hidrante $hidrante)
     {
-        $hidrante->update(['stat' => '050']);
+        // Recalcula el stat con los datos actuales del hidrante
+        $stat = Hidrante::calcularStat($hidrante->toArray());
+        $hidrante->update(['stat' => $stat]);
         return response()->json(['success' => true]);
     }
 }
