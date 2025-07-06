@@ -102,6 +102,61 @@ class Hidrante extends Model
         }
         return $attributes;
     }
+
+    public static function calcularStat($data)
+    {
+        $total = 15;
+        $cumple = 0;
+
+        // 1. fecha_inspeccion (cuenta si tiene una fecha válida)
+        if (!empty($data['fecha_inspeccion']) && $data['fecha_inspeccion'] !== '0000-00-00') $cumple++;
+
+        // 2. fecha_tentativa (cuenta si es diferente de "0000-00-00" y no es null)
+        if (!empty($data['fecha_tentativa']) && $data['fecha_tentativa'] !== '0000-00-00') $cumple++;
+
+        // 3. numero_estacion (cuenta si NO contiene 'S/I')
+        if (!empty($data['numero_estacion']) && stripos($data['numero_estacion'], 'S/I') === false) $cumple++;
+
+        // 4. calle (cuenta si es diferente de "Pendiente")
+        if (!empty($data['calle']) && $data['calle'] !== 'Pendiente') $cumple++;
+
+        // 5. id_calle (cuenta si es diferente de 0 y no null)
+        if (!empty($data['id_calle']) && $data['id_calle'] != 0) $cumple++;
+
+        // 6. llave_hidrante (cuenta si NO contiene 'S/I')
+        if (!empty($data['llave_hidrante']) && stripos($data['llave_hidrante'], 'S/I') === false) $cumple++;
+
+        // 7. presion_agua (cuenta si NO contiene 'S/I')
+        if (!empty($data['presion_agua']) && stripos($data['presion_agua'], 'S/I') === false) $cumple++;
+
+        // 8. color (cuenta si NO contiene 'S/I')
+        if (!empty($data['color']) && stripos($data['color'], 'S/I') === false) $cumple++;
+
+        // 9. llave_fosa (cuenta si NO contiene 'S/I')
+        if (!empty($data['llave_fosa']) && stripos($data['llave_fosa'], 'S/I') === false) $cumple++;
+
+        // 10. ubicacion_fosa (cuenta si NO contiene 'S/I')
+        if (!empty($data['ubicacion_fosa']) && stripos($data['ubicacion_fosa'], 'S/I') === false) $cumple++;
+
+        // 11. hidrante_conectado_tubo (cuenta si NO contiene 'S/I')
+        if (!empty($data['hidrante_conectado_tubo']) && stripos($data['hidrante_conectado_tubo'], 'S/I') === false) $cumple++;
+
+        // 12. estado_hidrante (cuenta si NO contiene 'S/I')
+        if (!empty($data['estado_hidrante']) && stripos($data['estado_hidrante'], 'S/I') === false) $cumple++;
+
+        // 13. marca (cuenta si no es nulo ni vacío)
+        if (isset($data['marca']) && trim($data['marca']) !== '') $cumple++;
+
+        // 14. anio (cuenta si no es null y distinto de 0 y distinto de "0")
+        if (!empty($data['anio']) && $data['anio'] != 0 && $data['anio'] !== "0") $cumple++;
+
+        // 15. oficial (cuenta si NO contiene 'S/I')
+        if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
+
+        // Calcula porcentaje y lo convierte a string de 3 dígitos
+        $porcentaje = round(($cumple / $total) * 100);
+        return str_pad($porcentaje, 3, '0', STR_PAD_LEFT);
+    }
 }
 
 /*

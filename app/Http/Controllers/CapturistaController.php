@@ -116,6 +116,7 @@ class CapturistaController extends Controller
                 return $value !== null;
             });
 
+            $validated['stat'] = Hidrante::calcularStat($validated);
             Hidrante::create($validated);
             
             \DB::commit();
@@ -186,6 +187,7 @@ class CapturistaController extends Controller
             if ($validated['y_calle'] === 'Sin definir') $validated['id_y_calle'] = null;
             if ($validated['colonia'] === 'Sin definir') $validated['id_colonia'] = null;
 
+            $validated['stat'] = Hidrante::calcularStat($validated);
             $hidrante->update($validated);
             
             \DB::commit();
