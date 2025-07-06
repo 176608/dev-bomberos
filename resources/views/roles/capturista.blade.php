@@ -388,7 +388,9 @@ $(document).ready(function() {
         if ($('#scroll-top-clone').length === 0) {
             // Crea un div para el scroll superior
             let $scrollTop = $('<div id="scroll-top-clone" style="overflow-x:auto; overflow-y:hidden; width:100%;"></div>');
-            let $inner = $('<div></div>').css('width', $scrollBody[0].scrollWidth + 'px');
+            // Usa el ancho real de la tabla para asegurar que el scroll siempre aparece
+            let $table = $scrollBody.find('table');
+            let $inner = $('<div></div>').css('width', $table.outerWidth() + 'px');
             $scrollTop.append($inner);
             $scrollBody.before($scrollTop);
 
