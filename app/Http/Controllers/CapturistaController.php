@@ -90,36 +90,39 @@ class CapturistaController extends Controller
 
             // --- UBICACIÓN ---
             // CALLE
-            if ($request->has('switchNoCalle') && $request->switchNoCalle) {
+            if ($request->id_calle == 0) {
                 $validated['calle'] = 'Pendiente';
                 $validated['id_calle'] = 0;
-            } else {
+            } elseif ($request->id_calle) {
                 $validated['id_calle'] = $request->id_calle;
-                $validated['calle'] = ($validated['id_calle']
-                    ? (CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
+            } else {
+                $validated['calle'] = null;
+                $validated['id_calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->has('switchNoYCalle') && $request->switchNoYCalle) {
+            if ($request->id_y_calle == 0) {
                 $validated['y_calle'] = 'Pendiente';
-                $validated['id_y_calle'] = null;
+                $validated['id_y_calle'] = 0;
+            } elseif ($request->id_y_calle) {
+                $validated['id_y_calle'] = $request->id_y_calle;
+                $validated['y_calle'] = CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? null;
             } else {
-                $validated['id_y_calle'] = $request->id_y_calle ?: null;
-                $validated['y_calle'] = ($validated['id_y_calle']
-                    ? (CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['y_calle'] = null;
+                $validated['id_y_calle'] = null;
             }
 
             // COLONIA
-            if ($request->has('switchNoColonia') && $request->switchNoColonia) {
+            if ($request->id_colonia == 0) {
                 $validated['colonia'] = 'Pendiente';
-                $validated['id_colonia'] = null;
+                $validated['id_colonia'] = 0;
+            } elseif ($request->id_colonia) {
+                $validated['id_colonia'] = $request->id_colonia;
+                $validated['colonia'] = Colonias::find($validated['id_colonia'])?->NOMBRE ?? null;
             } else {
-                $validated['id_colonia'] = $request->id_colonia ?: null;
-                $validated['colonia'] = ($validated['id_colonia']
-                    ? (Colonias::find($validated['id_colonia'])?->NOMBRE ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['colonia'] = null;
+                $validated['id_colonia'] = null;
             }
 
             // Remover valores nulos
@@ -184,36 +187,39 @@ class CapturistaController extends Controller
 
             // --- UBICACIÓN ---
             // CALLE
-            if ($request->has('switchNoCalle') && $request->switchNoCalle) {
+            if ($request->id_calle == 0) {
                 $validated['calle'] = 'Pendiente';
                 $validated['id_calle'] = 0;
-            } else {
+            } elseif ($request->id_calle) {
                 $validated['id_calle'] = $request->id_calle;
-                $validated['calle'] = ($validated['id_calle']
-                    ? (CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
+            } else {
+                $validated['calle'] = null;
+                $validated['id_calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->has('switchNoYCalle') && $request->switchNoYCalle) {
+            if ($request->id_y_calle == 0) {
                 $validated['y_calle'] = 'Pendiente';
-                $validated['id_y_calle'] = null;
+                $validated['id_y_calle'] = 0;
+            } elseif ($request->id_y_calle) {
+                $validated['id_y_calle'] = $request->id_y_calle;
+                $validated['y_calle'] = CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? null;
             } else {
-                $validated['id_y_calle'] = $request->id_y_calle ?: null;
-                $validated['y_calle'] = ($validated['id_y_calle']
-                    ? (CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['y_calle'] = null;
+                $validated['id_y_calle'] = null;
             }
 
             // COLONIA
-            if ($request->has('switchNoColonia') && $request->switchNoColonia) {
+            if ($request->id_colonia == 0) {
                 $validated['colonia'] = 'Pendiente';
-                $validated['id_colonia'] = null;
+                $validated['id_colonia'] = 0;
+            } elseif ($request->id_colonia) {
+                $validated['id_colonia'] = $request->id_colonia;
+                $validated['colonia'] = Colonias::find($validated['id_colonia'])?->NOMBRE ?? null;
             } else {
-                $validated['id_colonia'] = $request->id_colonia ?: null;
-                $validated['colonia'] = ($validated['id_colonia']
-                    ? (Colonias::find($validated['id_colonia'])?->NOMBRE ?? 'Sin definir')
-                    : 'Sin definir');
+                $validated['colonia'] = null;
+                $validated['id_colonia'] = null;
             }
 
             // Remover valores nulos

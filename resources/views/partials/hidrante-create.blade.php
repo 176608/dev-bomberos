@@ -647,6 +647,9 @@ $(document).ready(function() {
 
         // Actualizar botón registrar cuando cambian campos clave
         $('#id_calle, #switchNoCalle').on('change', updateSaveButtonState);
+
+        // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
+        $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
     }
 
     // --- INICIALIZACIÓN DEL MODAL ---

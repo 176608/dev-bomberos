@@ -628,6 +628,9 @@ $(document).ready(function() {
 
         // Guardar: validación
         $('form').on('submit', function(e) {
+            // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
+            $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
+
             if ($('#edit_switchNoCalle' + CONFIG.hidranteId).is(':checked')) {
                 $('#edit_id_calle').prop('disabled', true).val('0');
                 if (!$('input[name="id_calle"][type="hidden"]').length) {
