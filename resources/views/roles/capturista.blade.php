@@ -484,7 +484,7 @@ $(document).ready(function() {
         const $btn = $(this);
         const hidranteId = $btn.data('hidrante-id');
         if (confirm('¿Está seguro de activar este hidrante?')) {
-            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Activando...');
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
             $.ajax({
                 url: "{{ url('/hidrantes') }}/" + hidranteId + "/activar",
                 method: 'POST',
