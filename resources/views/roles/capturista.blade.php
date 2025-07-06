@@ -332,6 +332,13 @@ $(document).ready(function() {
         let headerNames = window.hidrantesHeaderNames || {};
         let dtColumns = [
             { data: 'id', name: 'id', className: 'text-center align-middle' },
+            { 
+                data: 'acciones',
+                name: 'acciones',
+                orderable: false,
+                searchable: false,
+                className: 'text-center align-middle'
+            },
             { data: 'stat', name: 'stat', className: 'text-center align-middle' }
         ];
         columnas.forEach(function(col) {
