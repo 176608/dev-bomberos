@@ -89,27 +89,38 @@ class CapturistaController extends Controller
             $validated['update_user_id'] = auth()->id();
 
             // --- UBICACIÓN ---
-            $validated['id_calle'] = $request->id_calle;
-            $validated['id_y_calle'] = ($request->id_y_calle === null || $request->id_y_calle === '' || $request->id_y_calle === 'null') ? null : $request->id_y_calle;
-            $validated['id_colonia'] = ($request->id_colonia === null || $request->id_colonia === '' || $request->id_colonia === 'null') ? null : $request->id_colonia;
-
-            $validated['calle'] = ($validated['id_calle'] == 0)
-                ? 'Pendiente'
-                : ($validated['id_calle']
+            // CALLE
+            if ($request->has('switchNoCalle') && $request->switchNoCalle) {
+                $validated['calle'] = 'Pendiente';
+                $validated['id_calle'] = 0;
+            } else {
+                $validated['id_calle'] = $request->id_calle;
+                $validated['calle'] = ($validated['id_calle']
                     ? (CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? 'Sin definir')
                     : 'Sin definir');
+            }
 
-            $validated['y_calle'] = ($validated['id_y_calle'] == 0)
-                ? 'Pendiente'
-                : ($validated['id_y_calle']
+            // Y_CALLE
+            if ($request->has('switchNoYCalle') && $request->switchNoYCalle) {
+                $validated['y_calle'] = 'Pendiente';
+                $validated['id_y_calle'] = null;
+            } else {
+                $validated['id_y_calle'] = $request->id_y_calle ?: null;
+                $validated['y_calle'] = ($validated['id_y_calle']
                     ? (CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? 'Sin definir')
                     : 'Sin definir');
+            }
 
-            $validated['colonia'] = ($validated['id_colonia'] == 0)
-                ? 'Pendiente'
-                : ($validated['id_colonia']
+            // COLONIA
+            if ($request->has('switchNoColonia') && $request->switchNoColonia) {
+                $validated['colonia'] = 'Pendiente';
+                $validated['id_colonia'] = null;
+            } else {
+                $validated['id_colonia'] = $request->id_colonia ?: null;
+                $validated['colonia'] = ($validated['id_colonia']
                     ? (Colonias::find($validated['id_colonia'])?->NOMBRE ?? 'Sin definir')
                     : 'Sin definir');
+            }
 
             // Remover valores nulos
             $validated = array_filter($validated, function($value) {
@@ -169,27 +180,50 @@ class CapturistaController extends Controller
                 'oficial' => 'required|string'
             ]);
 
-            // Actualizar update_user_id
             $validated['update_user_id'] = auth()->id();
 
-            // Manejar campos limpiados
-            $validated['calle'] = $request->has('calle') ? $request->calle : 
-                (CatalogoCalle::find($request->id_calle)?->Nomvial ?? 'Sin definir');
-            
-            $validated['y_calle'] = $request->has('y_calle') ? $request->y_calle : 
-                (CatalogoCalle::find($request->id_y_calle)?->Nomvial ?? 'Sin definir');
-            
-            $validated['colonia'] = $request->has('colonia') ? $request->colonia : 
-                (Colonias::find($request->id_colonia)?->NOMBRE ?? 'Sin definir');
+            // --- UBICACIÓN ---
+            // CALLE
+            if ($request->has('switchNoCalle') && $request->switchNoCalle) {
+                $validated['calle'] = 'Pendiente';
+                $validated['id_calle'] = 0;
+            } else {
+                $validated['id_calle'] = $request->id_calle;
+                $validated['calle'] = ($validated['id_calle']
+                    ? (CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? 'Sin definir')
+                    : 'Sin definir');
+            }
 
-            // Limpiar IDs cuando corresponda
-            if ($validated['calle'] === 'Sin definir') $validated['id_calle'] = null;
-            if ($validated['y_calle'] === 'Sin definir') $validated['id_y_calle'] = null;
-            if ($validated['colonia'] === 'Sin definir') $validated['id_colonia'] = null;
+            // Y_CALLE
+            if ($request->has('switchNoYCalle') && $request->switchNoYCalle) {
+                $validated['y_calle'] = 'Pendiente';
+                $validated['id_y_calle'] = null;
+            } else {
+                $validated['id_y_calle'] = $request->id_y_calle ?: null;
+                $validated['y_calle'] = ($validated['id_y_calle']
+                    ? (CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? 'Sin definir')
+                    : 'Sin definir');
+            }
+
+            // COLONIA
+            if ($request->has('switchNoColonia') && $request->switchNoColonia) {
+                $validated['colonia'] = 'Pendiente';
+                $validated['id_colonia'] = null;
+            } else {
+                $validated['id_colonia'] = $request->id_colonia ?: null;
+                $validated['colonia'] = ($validated['id_colonia']
+                    ? (Colonias::find($validated['id_colonia'])?->NOMBRE ?? 'Sin definir')
+                    : 'Sin definir');
+            }
+
+            // Remover valores nulos
+            $validated = array_filter($validated, function($value) {
+                return $value !== null;
+            });
 
             $validated['stat'] = Hidrante::calcularStat($validated);
             $hidrante->update($validated);
-            
+
             \DB::commit();
 
             return response()->json([
