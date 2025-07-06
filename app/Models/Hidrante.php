@@ -109,6 +109,7 @@ class Hidrante extends Model
 Field                   Type            Null    Default     Extra               Key
 ----------------------- ----------------- ------- ----------- ------------------ ----
 id                      - int(11)       - NO    - NULL      - auto_increment    - PRI
+stat                    - varchar(4)    - YES   - NULL      *Informacion del estatus del hidrante en SISTEMA
 fecha_inspeccion        - date          - NO    - NULL
 fecha_tentativa         - date          - NO    - NULL
 numero_estacion         - char(4)       - NO    - NULL

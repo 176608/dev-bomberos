@@ -331,10 +331,11 @@ $(document).ready(function() {
         let columnas = window.hidrantesTableConfig || [];
         let headerNames = window.hidrantesHeaderNames || {};
         let dtColumns = [
-            { data: 'id', name: 'id', className: 'text-center align-middle' }
+            { data: 'id', name: 'id', className: 'text-center align-middle' },
+            { data: 'stat', name: 'stat', className: 'text-center align-middle' } // NUEVO: stat después de id
         ];
         columnas.forEach(function(col) {
-            if(col !== 'id' && col !== 'acciones') {
+            if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
                 dtColumns.push({
                     data: col,
                     name: col,
