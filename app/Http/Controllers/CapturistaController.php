@@ -306,10 +306,10 @@ class CapturistaController extends Controller
             ->addColumn('acciones', function($hidrante) {
                 $botones = '
                     <button class="btn btn-sm btn-primary view-hidrante" title="Ver la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        <i class="bi bi-eye-fill"></i>
+                        <i class="bi bi-eye"></i>
                     </button>
                     <button class="btn btn-sm btn-warning edit-hidrante" title="Editar la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        <i class="bi bi-pen-fill"></i>
+                        <i class="bi bi-pen"></i>
                     </button>
                 ';
 

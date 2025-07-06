@@ -274,7 +274,7 @@ $(document).ready(function() {
             },
             complete: function() {
                 button.prop('disabled', false)
-                      .html('Editar <i class="bi bi-pen-fill"></i>');
+                      .html('<i class="bi bi-pen-fill"></i>');
             }
         });
     });
