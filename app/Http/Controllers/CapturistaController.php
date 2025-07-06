@@ -65,7 +65,7 @@ class CapturistaController extends Controller
                 'fecha_inspeccion' => 'required|date',
                 'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
-                'id_calle' => 'nullable|integer',
+                'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
                 'calle' => 'nullable|string',
@@ -78,8 +78,8 @@ class CapturistaController extends Controller
                 'ubicacion_fosa' => 'required|string',
                 'hidrante_conectado_tubo' => 'required|string',
                 'estado_hidrante' => 'required|string',
-                'marca' => 'required|string',
-                'anio' => 'required|integer',
+                'marca' => 'nullable|string',
+                'anio' => 'nullable|integer',
                 'observaciones' => 'nullable|string',
                 'oficial' => 'required|string'
             ]);
@@ -97,12 +97,13 @@ class CapturistaController extends Controller
                 $validated['id_calle'] = $request->id_calle;
                 $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
             } else {
+                // Esto nunca debería pasar porque id_calle es required, pero por robustez:
                 $validated['calle'] = null;
                 $validated['id_calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->id_y_calle == 0) {
+            if ($request->id_y_calle === 0 || $request->id_y_calle === '0') {
                 $validated['y_calle'] = 'Pendiente';
                 $validated['id_y_calle'] = 0;
             } elseif ($request->id_y_calle) {
@@ -114,7 +115,7 @@ class CapturistaController extends Controller
             }
 
             // COLONIA
-            if ($request->id_colonia == 0) {
+            if ($request->id_colonia === 0 || $request->id_colonia === '0') {
                 $validated['colonia'] = 'Pendiente';
                 $validated['id_colonia'] = 0;
             } elseif ($request->id_colonia) {
@@ -124,11 +125,6 @@ class CapturistaController extends Controller
                 $validated['colonia'] = null;
                 $validated['id_colonia'] = null;
             }
-
-            // Remover valores nulos
-            $validated = array_filter($validated, function($value) {
-                return $value !== null;
-            });
 
             $validated['stat'] = Hidrante::calcularStat($validated);
             Hidrante::create($validated);
@@ -194,12 +190,13 @@ class CapturistaController extends Controller
                 $validated['id_calle'] = $request->id_calle;
                 $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
             } else {
+                // Esto nunca debería pasar porque id_calle es required, pero por robustez:
                 $validated['calle'] = null;
                 $validated['id_calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->id_y_calle == 0) {
+            if ($request->id_y_calle === 0 || $request->id_y_calle === '0') {
                 $validated['y_calle'] = 'Pendiente';
                 $validated['id_y_calle'] = 0;
             } elseif ($request->id_y_calle) {
@@ -211,7 +208,7 @@ class CapturistaController extends Controller
             }
 
             // COLONIA
-            if ($request->id_colonia == 0) {
+            if ($request->id_colonia === 0 || $request->id_colonia === '0') {
                 $validated['colonia'] = 'Pendiente';
                 $validated['id_colonia'] = 0;
             } elseif ($request->id_colonia) {
@@ -221,11 +218,6 @@ class CapturistaController extends Controller
                 $validated['colonia'] = null;
                 $validated['id_colonia'] = null;
             }
-
-            // Remover valores nulos
-            $validated = array_filter($validated, function($value) {
-                return $value !== null;
-            });
 
             $validated['stat'] = Hidrante::calcularStat($validated);
             $hidrante->update($validated);
