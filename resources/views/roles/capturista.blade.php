@@ -401,14 +401,6 @@ $(document).ready(function() {
         // Calcula el destino: posición absoluta del div menos la altura del navbar
         const destino = scrollY + tablaTop - navbarHeight;
 
-        // Muestra información útil para depuración
-        alert(
-            'Altura navbar: ' + navbarHeight + 'px\n' +
-            'tablaTop (desde viewport): ' + tablaTop + 'px\n' +
-            'scrollY (scroll actual): ' + scrollY + 'px\n' +
-            'Destino final de scroll: ' + destino + 'px'
-        );
-
         window.scrollTo({
             top: destino,
             behavior: 'smooth'
