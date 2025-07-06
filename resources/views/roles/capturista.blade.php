@@ -77,20 +77,11 @@
         width: 80px;
     }
 
-    /* Ajuste para la columna Acciones (segunda columna) */
+    /* Ajuste para la columna Acciones (ahora segunda columna) */
     #hidrantesConfigTable th:nth-child(2),
     #hidrantesConfigTable td:nth-child(2) {
         min-width: 120px;
         width: 120px;
-    }
-
-    /* Ajuste para la columna stat (tercera columna) */
-    #hidrantesConfigTable th:nth-child(3),
-    #hidrantesConfigTable td:nth-child(3) {
-        min-width: 60px;
-        width: 60px;
-        max-width: 80px;
-        white-space: nowrap;
     }
 
     #hidrantesConfigTable th:last-child,
