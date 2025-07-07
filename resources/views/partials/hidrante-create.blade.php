@@ -56,7 +56,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionNEstacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="iconoExclamacionNumero_estacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
                                             <option value="S/I" selected>Seleccione estación...</option>
@@ -173,7 +173,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionEstadoH"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                            <span id="iconoExclamacionEstado_hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante" required>
                                             <option value="S/I" selected >Sin definir, dejar pendiente...</option>
@@ -204,7 +204,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionYY"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
+                                            <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Año:</label>
                                         <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
                                     </div>
@@ -229,7 +229,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionLlaveHi"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                            <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante" required>
                                             <option value="S/I" selected>Sin definir, dejar pendiente...</option>
@@ -240,7 +240,7 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionPresionA"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                            <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
                                             <option value="S/I" selected>Sin definir, dejar pendiente...</option>
@@ -254,7 +254,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionLlaveFosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                            <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa" required>
                                             <option value="S/I" selected >Sin definir, dejar pendiente...</option>
@@ -265,7 +265,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionHCT"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
+                                            <span id="iconoExclamacionHidrante_conectado_tubo"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Conectado a Tubo de:</label>
                                         <select class="form-select" name="hidrante_conectado_tubo" required>
                                             <option value="S/I" selected >Sin definir, dejar pendiente...</option>
@@ -279,7 +279,7 @@
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionUbiFosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                            <span id="iconoExclamacionUbicacion_fosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         Ubicación Fosa:</label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
                                     </div>
@@ -441,17 +441,17 @@ $(document).ready(function() {
             }
         ],
         fieldsWithIcons: [
-            { name: 'numero_estacion', icon: 'iconoExclamacionNEstacion', tipo: 'select' },
-            { name: 'llave_hidrante', icon: 'iconoExclamacionLlaveHi', tipo: 'select' },
-            { name: 'presion_agua', icon: 'iconoExclamacionPresionA', tipo: 'select' },
-            { name: 'llave_fosa', icon: 'iconoExclamacionLlaveFosa', tipo: 'select' },
-            { name: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHCT', tipo: 'select' },
-            { name: 'estado_hidrante', icon: 'iconoExclamacionEstadoH', tipo: 'select' },
+            { name: 'numero_estacion', icon: 'iconoExclamacionNumero_estacion', tipo: 'select' },
+            { name: 'llave_hidrante', icon: 'iconoExclamacionLlave_Hidrante', tipo: 'select' },
+            { name: 'presion_agua', icon: 'iconoExclamacionPresion_agua', tipo: 'select' },
+            { name: 'llave_fosa', icon: 'iconoExclamacionLlave_fosa', tipo: 'select' },
+            { name: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHidrante_conectado_tubo', tipo: 'select' },
+            { name: 'estado_hidrante', icon: 'iconoExclamacionEstado_hidrante', tipo: 'select' },
             { name: 'color', icon: 'iconoExclamacionColor', tipo: 'select' },
             { name: 'marca', icon: 'iconoExclamacionMarca', tipo: 'input' },
-            { name: 'anio', icon: 'iconoExclamacionYY', tipo: 'input' },
+            { name: 'anio', icon: 'iconoExclamacionAnio', tipo: 'input' },
             { name: 'oficial', icon: 'iconoExclamacionOficial', tipo: 'input' },
-            { name: 'ubicacion_fosa', icon: 'iconoExclamacionUbiFosa', tipo: 'input' },
+            { name: 'ubicacion_fosa', icon: 'iconoExclamacionUbicacion_fosa', tipo: 'input' },
             { name: 'id_calle', icon: 'iconoExclamacionCalle', tipo: 'select' },
             { name: 'id_y_calle', icon: 'iconoExclamacionYCalle', tipo: 'select' },
             { name: 'id_colonia', icon: 'iconoExclamacionColonia', tipo: 'select' }
@@ -604,12 +604,12 @@ $(document).ready(function() {
         const iconos = [
             '#iconoExclamacionColor',
             '#iconoExclamacionMarca',
-            '#iconoExclamacionYY',
-            '#iconoExclamacionLlaveHi',
-            '#iconoExclamacionPresionA',
-            '#iconoExclamacionLlaveFosa',
-            '#iconoExclamacionHCT',
-            '#iconoExclamacionUbiFosa'
+            '#iconoExclamacionAnio',
+            '#iconoExclamacionLlave_Hidrante',
+            '#iconoExclamacionPresion_agua',
+            '#iconoExclamacionLlave_fosa',
+            '#iconoExclamacionHidrante_conectado_tubo',
+            '#iconoExclamacionUbicacion_fosa'
         ];
         campos.forEach(function(name) {
             const $input = $(`[name="${name}"]`);
