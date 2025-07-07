@@ -346,7 +346,34 @@ $(document).ready(function() {
                 searchable: false,
                 className: 'text-center align-middle'
             },
-            { data: 'stat', name: 'stat', className: 'text-center align-middle' }
+            { 
+                data: 'stat',
+                name: 'stat',
+                className: 'text-center align-middle',
+                render: function(data, type, row) {
+                    // Si stat es '000', muestra badge
+                    if (data === '000') {
+                        return `<span class="badge rounded-pill bg-danger">Dado de Baja</span>`;
+                    }
+                    // Si stat es porcentaje (ej: '25', '70', etc)
+                    let percent = parseInt(data, 10);
+                    let color = 'bg-success';
+                    if (percent <= 40) {
+                        color = 'bg-danger';
+                    } else if (percent <= 70) {
+                        color = 'bg-primary';
+                    }
+                    return `
+                        <div class="progress" style="height: 22px;">
+                          <div class="progress-bar progress-bar-striped ${color}" role="progressbar"
+                            style="width: ${percent}%"
+                            aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+                            ${percent}%
+                          </div>
+                        </div>
+                    `;
+                }
+            }
         ];
         columnas.forEach(function(col) {
             if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
