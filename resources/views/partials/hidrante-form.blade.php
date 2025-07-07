@@ -417,16 +417,6 @@ $(document).ready(function() {
     const CONFIG = {
         hidranteId: "{{ $hidrante->id }}",
         modalId: '#editarHidranteModal{{ $hidrante->id }}',
-        soloBaseIconos: [
-            '#edit_iconoExclamacionColor',
-            '#edit_iconoExclamacionMarca',
-            '#edit_iconoExclamacionYY',
-            '#edit_iconoExclamacionLlaveHi',
-            '#edit_iconoExclamacionPresionA',
-            '#edit_iconoExclamacionLlaveFosa',
-            '#edit_iconoExclamacionHCT',
-            '#edit_iconoExclamacionUbiFosa'
-        ],
         switches: [
             {
                 field: 'calle',
@@ -466,38 +456,13 @@ $(document).ready(function() {
         ]
     };
 
-    // --- NUEVA FUNCIÓN PARA OCULTAR/MOSTRAR ICONOS SEGÚN ESTADO ---
-    function updateSoloBaseIcons() {
-        const estado = $('select[name="estado_hidrante"]').val();
-        CONFIG.soloBaseIconos.forEach(function(sel) {
-            const selId = sel + CONFIG.hidranteId;
-            if (estado === 'Solo Base') {
-                $(selId).addClass('d-none');
-            } else {
-                // Solo mostrar si el campo está vacío o en valor pendiente
-                const field = sel.replace('#edit_iconoExclamacion', '').toLowerCase();
-                const $input = $(`[name="${field}"]`);
-                let value = $input.is('select') ? $input.val() : $input.val();
-                if (value === 'S/I' || value === '0' || value === '' || value === null) {
-                    $(selId).removeClass('d-none');
-                } else {
-                    $(selId).addClass('d-none');
-                }
-            }
-        });
-    }
-
-    // --- MODIFICAR toggleExclamationIcon PARA USAR updateSoloBaseIcons ---
+    // --- FUNCIÓN PARA ICONOS ---
     function toggleExclamationIcon(iconId, value) {
-        // Si el icono es de los que deben ocultarse en "Solo Base", delega a updateSoloBaseIcons
-        if (CONFIG.soloBaseIconos.some(i => iconId.startsWith(i))) {
-            updateSoloBaseIcons();
-            return;
-        }
+        const icon = $(`${iconId}${CONFIG.hidranteId}`);
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
-            $(iconId + CONFIG.hidranteId).removeClass('d-none');
+            icon.removeClass('d-none');
         } else {
-            $(iconId + CONFIG.hidranteId).addClass('d-none');
+            icon.addClass('d-none');
         }
     }
 
@@ -545,19 +510,15 @@ $(document).ready(function() {
             if (tipo === 'select') {
                 $(`select[name="${name}"]`).on('change', function() {
                     toggleExclamationIcon(`#${icon}`, $(this).val());
-                    updateSoloBaseIcons();
                 });
                 toggleExclamationIcon(`#${icon}`, $(`select[name="${name}"]`).val());
             } else if (tipo === 'input') {
                 $(`input[name="${name}"]`).on('input', function() {
                     toggleExclamationIcon(`#${icon}`, $(this).val());
-                    updateSoloBaseIcons();
                 });
                 toggleExclamationIcon(`#${icon}`, $(`input[name="${name}"]`).val());
             }
         });
-        // Ejecutar al inicio
-        updateSoloBaseIcons();
     }
 
     // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente ---
@@ -695,7 +656,7 @@ $(document).ready(function() {
         $('#edit_id_calle, #edit_switchNoCalle' + CONFIG.hidranteId).on('change', updateSaveButtonState);
     }
 
-    // --- SOLO BASE: LÓGICA DE AUTOCOMPLETADO Y ACTUALIZACIÓN DE ICONOS ---
+    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
     function handleSoloBaseState(isSoloBase) {
         // Campos de Estado y Características + Características Técnicas
         const fields = [
@@ -714,36 +675,51 @@ $(document).ready(function() {
             '#edit_iconoExclamacionHCT',
             '#edit_iconoExclamacionUbiFosa'
         ];
-        // Autocompletar valores si es Solo Base, pero NO deshabilitar
+        // Deshabilitar/habilitar y limpiar/poner valores
         fields.forEach(function(name) {
             const $input = $(`[name="${name}"]`);
             if (isSoloBase) {
                 if ($input.is('select')) {
-                    $input.val('S/I').trigger('change');
+                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
                 } else {
+                    // Marca y Ubicación Fosa texto, Año número
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
                     if (name === 'anio') $input.val('0');
+                    $input.prop('disabled', true).addClass('input-disabled');
                 }
+            } else {
+                $input.prop('disabled', false).removeClass('input-disabled');
             }
         });
-        // Actualizar iconos de todos los campos relevantes
+        // Iconos
         iconos.forEach(function(sel) {
-            const field = sel.replace('#edit_iconoExclamacion', '').toLowerCase();
-            const $input = $(`[name="${field}"]`);
-            if ($input.length) {
-                toggleExclamationIcon(sel + CONFIG.hidranteId, $input.val());
+            if (isSoloBase) {
+                $(`${sel}${CONFIG.hidranteId}`).addClass('d-none');
+            } else {
+                // Se reevalúa el icono según la lógica normal
+                const field = sel.replace('#edit_iconoExclamacion', '').replace(CONFIG.hidranteId, '').toLowerCase();
+                const $input = $(`[name="${field}"]`);
+                if ($input.length) {
+                    if ($input.is('select')) {
+                        toggleExclamationIcon(sel, $input.val());
+                    } else {
+                        toggleExclamationIcon(sel, $input.val());
+                    }
+                }
             }
         });
     }
 
     // --- EVENTO DE CAMBIO EN ESTADO HIDRANTE ---
     $(`select[name="estado_hidrante"]`).on('change', function() {
-        updateSoloBaseIcons();
+        const isSoloBase = $(this).val() === 'Solo Base';
+        handleSoloBaseState(isSoloBase);
     });
 
     // --- Al abrir el modal, aplicar si ya está en Solo Base ---
     $(CONFIG.modalId).on('shown.bs.modal', function() {
-        updateSoloBaseIcons();
+        const isSoloBase = $(`select[name="estado_hidrante"]`).val() === 'Solo Base';
+        handleSoloBaseState(isSoloBase);
     });
 
     // --- INICIALIZACIÓN DEL MODAL ---
