@@ -676,14 +676,14 @@ $(document).ready(function() {
             const $input = $(`[name="${name}"]`);
             if (isSoloBase) {
                 if ($input.is('select')) {
-                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
+                    $input.val('S/I')/*.prop('disabled', true).addClass('input-disabled')*/.trigger('change');
                 } else {
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
                     if (name === 'anio') $input.val('0');
-                    $input.prop('disabled', true).addClass('input-disabled');
+                    // $input.prop('disabled', true).addClass('input-disabled');
                 }
             } else {
-                $input.prop('disabled', false).removeClass('input-disabled');
+                // $input.prop('disabled', false).removeClass('input-disabled');
             }
         });
         // Iconos
