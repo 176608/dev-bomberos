@@ -460,11 +460,26 @@ $(document).ready(function() {
 
     // --- FUNCIÓN PARA ICONOS ---
     function toggleExclamationIcon(iconId, value) {
-        const icon = $(iconId);
+        // Iconos que deben ocultarse si es Solo Base
+        const soloBaseIconos = [
+            '#iconoExclamacionColor',
+            '#iconoExclamacionMarca',
+            '#iconoExclamacionYY',
+            '#iconoExclamacionLlaveHi',
+            '#iconoExclamacionPresionA',
+            '#iconoExclamacionLlaveFosa',
+            '#iconoExclamacionHCT',
+            '#iconoExclamacionUbiFosa'
+        ];
+        const estado = $('select[name="estado_hidrante"]').val();
+        if (estado === 'Solo Base' && soloBaseIconos.includes(iconId)) {
+            $(iconId).addClass('d-none');
+            return;
+        }
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
-            icon.removeClass('d-none');
+            $(iconId).removeClass('d-none');
         } else {
-            icon.addClass('d-none');
+            $(iconId).addClass('d-none');
         }
     }
 

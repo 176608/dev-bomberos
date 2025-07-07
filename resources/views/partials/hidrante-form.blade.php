@@ -458,11 +458,27 @@ $(document).ready(function() {
 
     // --- FUNCIÓN PARA ICONOS ---
     function toggleExclamationIcon(iconId, value) {
-        const icon = $(`${iconId}${CONFIG.hidranteId}`);
+        // Iconos que deben ocultarse si es Solo Base
+        const soloBaseIconos = [
+            '#edit_iconoExclamacionColor',
+            '#edit_iconoExclamacionMarca',
+            '#edit_iconoExclamacionYY',
+            '#edit_iconoExclamacionLlaveHi',
+            '#edit_iconoExclamacionPresionA',
+            '#edit_iconoExclamacionLlaveFosa',
+            '#edit_iconoExclamacionHCT',
+            '#edit_iconoExclamacionUbiFosa'
+        ];
+        const estado = $('select[name="estado_hidrante"]').val();
+        // iconId puede venir con el id del hidrante concatenado, así que solo compara el inicio
+        if (estado === 'Solo Base' && soloBaseIconos.some(i => iconId.startsWith(i))) {
+            $(iconId + CONFIG.hidranteId).addClass('d-none');
+            return;
+        }
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
-            icon.removeClass('d-none');
+            $(iconId + CONFIG.hidranteId).removeClass('d-none');
         } else {
-            icon.addClass('d-none');
+            $(iconId + CONFIG.hidranteId).addClass('d-none');
         }
     }
 
