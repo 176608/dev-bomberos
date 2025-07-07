@@ -652,6 +652,68 @@ $(document).ready(function() {
         $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
     }
 
+    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
+    function handleSoloBaseStateCreate(isSoloBase) {
+        // Campos de Estado y Características + Técnicas (excepto Estado Hidrante)
+        const campos = [
+            'color', 'marca', 'anio',
+            'llave_hidrante', 'presion_agua', 'llave_fosa',
+            'hidrante_conectado_tubo', 'ubicacion_fosa'
+        ];
+        // Iconos de exclamación de esas secciones
+        const iconos = [
+            '#iconoExclamacionColor',
+            '#iconoExclamacionMarca',
+            '#iconoExclamacionYY',
+            '#iconoExclamacionLlaveHi',
+            '#iconoExclamacionPresionA',
+            '#iconoExclamacionLlaveFosa',
+            '#iconoExclamacionHCT',
+            '#iconoExclamacionUbiFosa'
+        ];
+        // Deshabilitar/habilitar y limpiar/poner valores
+        campos.forEach(function(name) {
+            const $input = $(`[name="${name}"]`);
+            if (isSoloBase) {
+                if ($input.is('select')) {
+                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
+                } else {
+                    if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
+                    if (name === 'anio') $input.val('0');
+                    $input.prop('disabled', true).addClass('input-disabled');
+                }
+            } else {
+                $input.prop('disabled', false).removeClass('input-disabled');
+            }
+        });
+        // Iconos
+        iconos.forEach(function(sel) {
+            if (isSoloBase) {
+                $(sel).addClass('d-none');
+            } else {
+                // Se reevalúa el icono según la lógica normal
+                const field = sel.replace('#iconoExclamacion', '').toLowerCase();
+                const $input = $(`[name="${field}"]`);
+                if ($input.length) {
+                    toggleExclamationIcon(sel, $input.val());
+                }
+            }
+        });
+    }
+
+    // Evento de cambio en Estado Hidrante
+    $('select[name="estado_hidrante"]').on('change', function() {
+        const isSoloBase = $(this).val() === 'Solo Base';
+        handleSoloBaseStateCreate(isSoloBase);
+    });
+
+    // Al abrir el modal, aplicar si ya está en Solo Base
+    $(CONFIG.modalId).on('shown.bs.modal', function() {
+        const isSoloBase = $('select[name="estado_hidrante"]').val() === 'Solo Base';
+        handleSoloBaseStateCreate(isSoloBase);
+    });
+
+
     // --- INICIALIZACIÓN DEL MODAL ---
     $(CONFIG.modalId)
         .on('shown.bs.modal', function() {

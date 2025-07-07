@@ -656,6 +656,72 @@ $(document).ready(function() {
         $('#edit_id_calle, #edit_switchNoCalle' + CONFIG.hidranteId).on('change', updateSaveButtonState);
     }
 
+    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
+    function handleSoloBaseState(isSoloBase) {
+        // Campos de Estado y Características + Características Técnicas
+        const fields = [
+            'color', 'marca', 'anio',
+            'llave_hidrante', 'presion_agua', 'llave_fosa',
+            'hidrante_conectado_tubo', 'ubicacion_fosa'
+        ];
+        // Iconos de exclamación de esas secciones
+        const iconos = [
+            '#edit_iconoExclamacionColor',
+            '#edit_iconoExclamacionMarca',
+            '#edit_iconoExclamacionYY',
+            '#edit_iconoExclamacionLlaveHi',
+            '#edit_iconoExclamacionPresionA',
+            '#edit_iconoExclamacionLlaveFosa',
+            '#edit_iconoExclamacionHCT',
+            '#edit_iconoExclamacionUbiFosa'
+        ];
+        // Deshabilitar/habilitar y limpiar/poner valores
+        fields.forEach(function(name) {
+            const $input = $(`[name="${name}"]`);
+            if (isSoloBase) {
+                if ($input.is('select')) {
+                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
+                } else {
+                    // Marca y Ubicación Fosa texto, Año número
+                    if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
+                    if (name === 'anio') $input.val('0');
+                    $input.prop('disabled', true).addClass('input-disabled');
+                }
+            } else {
+                $input.prop('disabled', false).removeClass('input-disabled');
+            }
+        });
+        // Iconos
+        iconos.forEach(function(sel) {
+            if (isSoloBase) {
+                $(`${sel}${CONFIG.hidranteId}`).addClass('d-none');
+            } else {
+                // Se reevalúa el icono según la lógica normal
+                const field = sel.replace('#edit_iconoExclamacion', '').replace(CONFIG.hidranteId, '').toLowerCase();
+                const $input = $(`[name="${field}"]`);
+                if ($input.length) {
+                    if ($input.is('select')) {
+                        toggleExclamationIcon(sel, $input.val());
+                    } else {
+                        toggleExclamationIcon(sel, $input.val());
+                    }
+                }
+            }
+        });
+    }
+
+    // --- EVENTO DE CAMBIO EN ESTADO HIDRANTE ---
+    $(`select[name="estado_hidrante"]`).on('change', function() {
+        const isSoloBase = $(this).val() === 'Solo Base';
+        handleSoloBaseState(isSoloBase);
+    });
+
+    // --- Al abrir el modal, aplicar si ya está en Solo Base ---
+    $(CONFIG.modalId).on('shown.bs.modal', function() {
+        const isSoloBase = $(`select[name="estado_hidrante"]`).val() === 'Solo Base';
+        handleSoloBaseState(isSoloBase);
+    });
+
     // --- INICIALIZACIÓN DEL MODAL ---
     $(CONFIG.modalId)
         .on('shown.bs.modal', function() {
