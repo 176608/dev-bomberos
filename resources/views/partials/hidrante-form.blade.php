@@ -58,7 +58,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">Número de Estación
-                                            <span id="edit_iconoExclamacionNEstacion{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionNumero_estacion{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="numero_estacion">
                                             @foreach(['S/I', '01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
@@ -175,7 +175,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Estado Hidrante
-                                            <span id="edit_iconoExclamacionEstadoH{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionEstado_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="estado_hidrante">
                                             <option value="S/I" {{ $hidrante->estado_hidrante == 'S/I' ? 'selected' : '' }}> Pendiente</option>
@@ -210,7 +210,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                         Año:
-                                        <span id="edit_iconoExclamacionYY{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                        <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="number" class="form-control" name="anio"
                                                value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
@@ -235,7 +235,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Llave Hidrante
-                                            <span id="edit_iconoExclamacionLlaveHi{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionLlave_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_hidrante">
                                             <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
@@ -246,7 +246,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Presión de Agua
-                                            <span id="edit_iconoExclamacionPresionA{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="presion_agua">
                                             <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
@@ -261,7 +261,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Llave Fosa
-                                            <span id="edit_iconoExclamacionLlaveFosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionLlave_Fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="llave_fosa">
                                             <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
@@ -272,7 +272,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Conectado a Tubo de
-                                            <span id="edit_iconoExclamacionHCT{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacionHidrante_conectado_tubo{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
                                             <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
@@ -287,7 +287,7 @@
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <label class="form-label">
                                             Ubicación Fosa (N MTS.)
-                                            <span id="edit_iconoExclamacionUbiFosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
+                                            <span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" required
                                                value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="Sin Definir">
@@ -441,17 +441,17 @@ $(document).ready(function() {
             }
         ],
         fieldsWithIcons: [
-            { name: 'numero_estacion', icon: 'edit_iconoExclamacionNEstacion', tipo: 'select' },
-            { name: 'llave_hidrante', icon: 'edit_iconoExclamacionLlaveHi', tipo: 'select' },
-            { name: 'presion_agua', icon: 'edit_iconoExclamacionPresionA', tipo: 'select' },
-            { name: 'llave_fosa', icon: 'edit_iconoExclamacionLlaveFosa', tipo: 'select' },
-            { name: 'hidrante_conectado_tubo', icon: 'edit_iconoExclamacionHCT', tipo: 'select' },
-            { name: 'estado_hidrante', icon: 'edit_iconoExclamacionEstadoH', tipo: 'select' },
+            { name: 'numero_estacion', icon: 'edit_iconoExclamacionNumero_estacion', tipo: 'select' },
+            { name: 'llave_hidrante', icon: 'edit_iconoExclamacionLlave_Hidrante', tipo: 'select' },
+            { name: 'presion_agua', icon: 'edit_iconoExclamacionPresion_agua', tipo: 'select' },
+            { name: 'llave_fosa', icon: 'edit_iconoExclamacionLlave_Fosa', tipo: 'select' },
+            { name: 'hidrante_conectado_tubo', icon: 'edit_iconoExclamacionHidrante_conectado_tubo', tipo: 'select' },
+            { name: 'estado_hidrante', icon: 'edit_iconoExclamacionEstado_Hidrante', tipo: 'select' },
             { name: 'color', icon: 'edit_iconoExclamacionColor', tipo: 'select' },
             { name: 'marca', icon: 'edit_iconoExclamacionMarca', tipo: 'input' },
-            { name: 'anio', icon: 'edit_iconoExclamacionYY', tipo: 'input' },
+            { name: 'anio', icon: 'edit_iconoExclamacionAnio', tipo: 'input' },
             { name: 'oficial', icon: 'edit_iconoExclamacionOficial', tipo: 'input' },
-            { name: 'ubicacion_fosa', icon: 'edit_iconoExclamacionUbiFosa', tipo: 'input' },
+            { name: 'ubicacion_fosa', icon: 'edit_iconoExclamacionUbicacion_fosa', tipo: 'input' },
             { name: 'id_calle', icon: 'edit_iconoExclamacionCalle', tipo: 'select' }
         ]
     };
@@ -668,27 +668,23 @@ $(document).ready(function() {
         const iconos = [
             '#edit_iconoExclamacionColor',
             '#edit_iconoExclamacionMarca',
-            '#edit_iconoExclamacionYY',
-            '#edit_iconoExclamacionLlaveHi',
-            '#edit_iconoExclamacionPresionA',
-            '#edit_iconoExclamacionLlaveFosa',
-            '#edit_iconoExclamacionHCT',
-            '#edit_iconoExclamacionUbiFosa'
+            '#edit_iconoExclamacionAnio',
+            '#edit_iconoExclamacionLlave_Hidrante',
+            '#edit_iconoExclamacionPresion_agua',
+            '#edit_iconoExclamacionLlave_Fosa',
+            '#edit_iconoExclamacionHidrante_conectado_tubo',
+            '#edit_iconoExclamacionUbicacion_fosa'
         ];
-        // Deshabilitar/habilitar y limpiar/poner valores
         fields.forEach(function(name) {
             const $input = $(`[name="${name}"]`);
             if (isSoloBase) {
                 if ($input.is('select')) {
-                    $input.val('S/I')/*.prop('disabled', true).addClass('input-disabled')*/.trigger('change');
+                    $input.val('S/I').trigger('change');
                 } else {
-                    // Marca y Ubicación Fosa texto, Año número
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
                     if (name === 'anio') $input.val('0');
-                    // $input.prop('disabled', true).addClass('input-disabled');
                 }
             } else {
-                // $input.prop('disabled', false).removeClass('input-disabled');
             }
         });
         // Iconos
