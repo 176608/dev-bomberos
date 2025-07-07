@@ -656,7 +656,7 @@ $(document).ready(function() {
         $('#edit_id_calle, #edit_switchNoCalle' + CONFIG.hidranteId).on('change', updateSaveButtonState);
     }
 
-    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
+    // --- SOLO BASE: LÓGICA DE AUTOCOMPLETADO Y ACTUALIZACIÓN DE ICONOS ---
     function handleSoloBaseState(isSoloBase) {
         // Campos de Estado y Características + Características Técnicas
         const fields = [
@@ -675,37 +675,24 @@ $(document).ready(function() {
             '#edit_iconoExclamacionHCT',
             '#edit_iconoExclamacionUbiFosa'
         ];
-        // Deshabilitar/habilitar y limpiar/poner valores
+        // Autocompletar valores si es Solo Base, pero NO deshabilitar
         fields.forEach(function(name) {
             const $input = $(`[name="${name}"]`);
             if (isSoloBase) {
                 if ($input.is('select')) {
-                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
+                    $input.val('S/I').trigger('change');
                 } else {
-                    // Marca y Ubicación Fosa texto, Año número
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
                     if (name === 'anio') $input.val('0');
-                    $input.prop('disabled', true).addClass('input-disabled');
                 }
-            } else {
-                $input.prop('disabled', false).removeClass('input-disabled');
             }
         });
-        // Iconos
+        // Actualizar iconos de todos los campos relevantes
         iconos.forEach(function(sel) {
-            if (isSoloBase) {
-                $(`${sel}${CONFIG.hidranteId}`).addClass('d-none');
-            } else {
-                // Se reevalúa el icono según la lógica normal
-                const field = sel.replace('#edit_iconoExclamacion', '').replace(CONFIG.hidranteId, '').toLowerCase();
-                const $input = $(`[name="${field}"]`);
-                if ($input.length) {
-                    if ($input.is('select')) {
-                        toggleExclamationIcon(sel, $input.val());
-                    } else {
-                        toggleExclamationIcon(sel, $input.val());
-                    }
-                }
+            const field = sel.replace('#edit_iconoExclamacion', '').toLowerCase();
+            const $input = $(`[name="${field}"]`);
+            if ($input.length) {
+                toggleExclamationIcon(sel + CONFIG.hidranteId, $input.val());
             }
         });
     }

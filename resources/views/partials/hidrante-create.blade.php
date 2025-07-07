@@ -652,7 +652,7 @@ $(document).ready(function() {
         $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
     }
 
-    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
+    // --- SOLO BASE: LÓGICA DE AUTOCOMPLETADO Y ACTUALIZACIÓN DE ICONOS ---
     function handleSoloBaseStateCreate(isSoloBase) {
         // Campos de Estado y Características + Técnicas (excepto Estado Hidrante)
         const campos = [
@@ -671,32 +671,24 @@ $(document).ready(function() {
             '#iconoExclamacionHCT',
             '#iconoExclamacionUbiFosa'
         ];
-        // Deshabilitar/habilitar y limpiar/poner valores
+        // Autocompletar valores si es Solo Base, pero NO deshabilitar
         campos.forEach(function(name) {
             const $input = $(`[name="${name}"]`);
             if (isSoloBase) {
                 if ($input.is('select')) {
-                    $input.val('S/I').prop('disabled', true).addClass('input-disabled').trigger('change');
+                    $input.val('S/I').trigger('change');
                 } else {
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
                     if (name === 'anio') $input.val('0');
-                    $input.prop('disabled', true).addClass('input-disabled');
                 }
-            } else {
-                $input.prop('disabled', false).removeClass('input-disabled');
             }
         });
-        // Iconos
+        // Actualizar iconos de todos los campos relevantes
         iconos.forEach(function(sel) {
-            if (isSoloBase) {
-                $(sel).addClass('d-none');
-            } else {
-                // Se reevalúa el icono según la lógica normal
-                const field = sel.replace('#iconoExclamacion', '').toLowerCase();
-                const $input = $(`[name="${field}"]`);
-                if ($input.length) {
-                    toggleExclamationIcon(sel, $input.val());
-                }
+            const field = sel.replace('#iconoExclamacion', '').toLowerCase();
+            const $input = $(`[name="${field}"]`);
+            if ($input.length) {
+                toggleExclamationIcon(sel, $input.val());
             }
         });
     }
