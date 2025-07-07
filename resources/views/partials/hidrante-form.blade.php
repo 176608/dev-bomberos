@@ -506,17 +506,28 @@ $(document).ready(function() {
 
     // --- ICONOS DE ADVERTENCIA ---
     function setupIcons() {
+        // Detecta el valor actual de estado_hidrante al cargar
+        const estado = $('select[name="estado_hidrante"]').val();
+        const esSoloBase = estado === 'Solo Base';
+
         CONFIG.fieldsWithIcons.forEach(({ name, icon, tipo }) => {
-            if (tipo === 'select') {
-                $(`select[name="${name}"]`).on('change', function() {
-                    toggleExclamationIcon(`#${icon}`, $(this).val());
-                });
-                toggleExclamationIcon(`#${icon}`, $(`select[name="${name}"]`).val());
-            } else if (tipo === 'input') {
-                $(`input[name="${name}"]`).on('input', function() {
-                    toggleExclamationIcon(`#${icon}`, $(this).val());
-                });
-                toggleExclamationIcon(`#${icon}`, $(`input[name="${name}"]`).val());
+            const iconSelector = `#${icon}${CONFIG.hidranteId}`;
+            if (esSoloBase) {
+                // Oculta todos los iconos pertinentes si es Solo Base
+                $(iconSelector).addClass('d-none');
+            } else {
+                // Lógica normal: muestra/oculta según el valor del campo
+                if (tipo === 'select') {
+                    $(`select[name="${name}"]`).on('change', function() {
+                        toggleExclamationIcon(`#${icon}`, $(this).val());
+                    });
+                    toggleExclamationIcon(`#${icon}`, $(`select[name="${name}"]`).val());
+                } else if (tipo === 'input') {
+                    $(`input[name="${name}"]`).on('input', function() {
+                        toggleExclamationIcon(`#${icon}`, $(this).val());
+                    });
+                    toggleExclamationIcon(`#${icon}`, $(`input[name="${name}"]`).val());
+                }
             }
         });
     }
@@ -731,6 +742,7 @@ $(document).ready(function() {
             } else {
                 mostrarPasoGenerar();
             }
+            setupIcons(); // <-- Asegúrate de llamar aquí
             setTimeout(edit_initPopover, 200);
         })
         .on('hidden.bs.modal', function() {
@@ -743,6 +755,7 @@ $(document).ready(function() {
     if ($(CONFIG.modalId).is(':visible')) {
         initEventHandlers();
         autoActivarSwitchUbicacion();
+        setupIcons(); // <-- Asegúrate de llamar aquí
     }
 });
 </script>
