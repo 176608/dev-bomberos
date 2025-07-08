@@ -25,10 +25,8 @@ class ConfiguracionCapturista extends Model
     public static function getDefaultConfig()
     {
         return [
-            'id',
             'calle',
-            'y_calle',
-            'acciones'
+            'y_calle'
         ];
     }
 

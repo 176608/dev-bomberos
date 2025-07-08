@@ -32,12 +32,12 @@
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="calle" id="col_calle"
                                     {{ in_array('calle', $columnas ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="col_calle">Calle Principal</label>
+                                <label class="form-check-label" for="col_calle">Calle</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="y_calle" id="col_y_calle"
                                     {{ in_array('y_calle', $columnas ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="col_y_calle">Calle Secundaria</label>
+                                <label class="form-check-label" for="col_y_calle">Y Calle</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="colonia" id="col_colonia"
@@ -158,6 +158,21 @@ $(function() {
                 alert('Error al guardar la configuración desde partial');
             }
         });
+    });
+
+    // Impide deseleccionar la última opción seleccionada
+    $(document).on('change', '.column-toggle', function(e) {
+        // Cuenta cuántos checkboxes están seleccionados
+        const $checkboxes = $('.column-toggle');
+        const checkedCount = $checkboxes.filter(':checked').length;
+
+        // Si solo queda una seleccionada y se intenta desmarcar, lo evitamos
+        if (checkedCount === 0) {
+            // Siempre debe haber al menos una seleccionada, así que volvemos a marcar esta
+            $(this).prop('checked', true);
+            // Opcional: muestra un mensaje al usuario
+            alert('Debes dejar al menos una columna seleccionada.');
+        }
     });
 });
 </script>

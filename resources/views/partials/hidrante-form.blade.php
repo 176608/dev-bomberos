@@ -27,7 +27,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-warning"></i></span>
+                                            <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span>
                                             Fecha tentativa de Mantenimiento
                                         </label>
                                         <div class="d-grid gap-2 mb-2 {{ $hidrante->fecha_tentativa ? 'd-none' : '' }}" id="edit_contenedorGenerarFecha{{ $hidrante->id }}">
@@ -81,7 +81,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <!-- Calle Principal -->
+                                    <!-- Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Calle

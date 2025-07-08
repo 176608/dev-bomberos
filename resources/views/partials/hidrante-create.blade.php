@@ -97,7 +97,7 @@
                                         Calle:</label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_calle" id="id_calle">
-                                                <option value="">Buscar calle principal...</option>
+                                                <option value="">Buscar calle...</option>
                                                 @foreach($calles as $calle)
                                                     <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                                 @endforeach
@@ -116,7 +116,7 @@
                                         Y Calle:</label>
                                         <div class="input-group justify-content-center">
                                             <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
-                                                <option value="">Buscar calle secundaria...</option>
+                                                <option value="">Buscar calle...</option>
                                                 @foreach($calles as $calle)
                                                     <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
                                                 @endforeach
