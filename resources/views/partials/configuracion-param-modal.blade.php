@@ -17,11 +17,6 @@
                                 <label class="form-check-label" for="col_fecha_inspeccion">Fecha de Inspección</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="fecha_tentativa" id="col_fecha_tentativa"
-                                    {{ in_array('fecha_tentativa', $columnas ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="col_fecha_tentativa">Fecha Tentativa</label>
-                            </div>
-                            <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="numero_estacion" id="col_numero_estacion"
                                     {{ in_array('numero_estacion', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_numero_estacion">Número de Estación</label>
@@ -59,11 +54,6 @@
                                 <input class="form-check-input column-toggle" type="checkbox" value="presion_agua" id="col_presion_agua"
                                     {{ in_array('presion_agua', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_presion_agua">Presión de Agua</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input column-toggle" type="checkbox" value="color" id="col_color"
-                                    {{ in_array('color', $columnas ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="col_color">Color</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="estado_hidrante" id="col_estado_hidrante"

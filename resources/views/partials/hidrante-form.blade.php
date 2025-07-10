@@ -447,7 +447,6 @@ $(document).ready(function() {
             { name: 'llave_fosa', icon: 'edit_iconoExclamacionLlave_Fosa', tipo: 'select' },
             { name: 'hidrante_conectado_tubo', icon: 'edit_iconoExclamacionHidrante_conectado_tubo', tipo: 'select' },
             { name: 'estado_hidrante', icon: 'edit_iconoExclamacionEstado_Hidrante', tipo: 'select' },
-            { name: 'color', icon: 'edit_iconoExclamacionColor', tipo: 'select' },
             { name: 'marca', icon: 'edit_iconoExclamacionMarca', tipo: 'input' },
             { name: 'anio', icon: 'edit_iconoExclamacionAnio', tipo: 'input' },
             { name: 'oficial', icon: 'edit_iconoExclamacionOficial', tipo: 'input' },
@@ -545,11 +544,7 @@ $(document).ready(function() {
     }
 
     // --- BOTÓN GUARDAR Y POPOVER ---
-    let fechaTentativaGenerada = !!$('#edit_fecha_tentativa' + CONFIG.hidranteId).val();
-
     function updateSaveButtonState() {
-        // Verifica si la fecha tentativa ya fue generada
-        let fechaOk = fechaTentativaGenerada;
         // Verifica si el campo calle está cubierto (valor válido o switch activo)
         let calleOk = false;
         if ($('#edit_switchNoCalle' + CONFIG.hidranteId).is(':checked')) {
@@ -557,7 +552,14 @@ $(document).ready(function() {
         } else if ($('#edit_id_calle').val() && $('#edit_id_calle').val() !== '' && $('#edit_id_calle').val() !== null) {
             calleOk = true;
         }
-        if (fechaOk && calleOk) {
+        // Verifica si el estado de hidrante está definido (no es 'S/I')
+        let estadoOk = false;
+        const estadoVal = $(`select[name="estado_hidrante"]`).val();
+        if (estadoVal && estadoVal !== 'S/I') {
+            estadoOk = true;
+        }
+
+        if (calleOk && estadoOk) {
             $('#edit_btnGuardarHidrante' + CONFIG.hidranteId).prop('disabled', false);
             $('#edit_popoverGuardarHidrante' + CONFIG.hidranteId).removeAttr('data-bs-toggle data-bs-trigger data-bs-content');
             if (bootstrap.Popover.getInstance(document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId))) {
@@ -565,10 +567,11 @@ $(document).ready(function() {
             }
         } else {
             $('#edit_btnGuardarHidrante' + CONFIG.hidranteId).prop('disabled', true);
+            let mensaje = 'Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.';
             $('#edit_popoverGuardarHidrante' + CONFIG.hidranteId)
                 .attr('data-bs-toggle', 'popover')
                 .attr('data-bs-trigger', 'hover focus')
-                .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
+                .attr('data-bs-content', mensaje);
             if (typeof edit_initPopover === 'function') edit_initPopover();
         }
     }
@@ -671,7 +674,7 @@ $(document).ready(function() {
     function handleSoloBaseState(isSoloBase) {
         // Campos de Estado y Características + Características Técnicas
         const fields = [
-            'color', 'marca', 'anio',
+            'marca', 'anio',
             'llave_hidrante', 'presion_agua', 'llave_fosa',
             'hidrante_conectado_tubo', 'ubicacion_fosa'
         ];

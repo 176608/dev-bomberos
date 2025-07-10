@@ -12,7 +12,6 @@ class Hidrante extends Model
     protected $fillable = [
         'stat',
         'fecha_inspeccion',
-        'fecha_tentativa',
         'numero_estacion',
         'id_calle',
         'calle',
@@ -22,7 +21,6 @@ class Hidrante extends Model
         'colonia',
         'llave_hidrante',
         'presion_agua',
-        'color',
         'llave_fosa',
         'ubicacion_fosa',
         'hidrante_conectado_tubo',
@@ -37,18 +35,17 @@ class Hidrante extends Model
 
     protected $casts = [
         'fecha_inspeccion' => 'date',
-        'fecha_tentativa' => 'date', 
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
-
-    protected function getFechaTentativaAttribute($value)
+//Solo la funcion getFechaTentativaAttribute se elimina, ya que no se usa en el modelo
+    /*protected function getFechaTentativaAttribute($value)
     {
         if (!$value || $value === '0000-00-00') {
             return null;
         }
         return \Carbon\Carbon::parse($value);
-    }
+    }*/
 
     public function coloniaLocacion()
     {
@@ -105,55 +102,51 @@ class Hidrante extends Model
 
     public static function calcularStat($data)
     {
-        $total = 15;
+        $total = 14; // Antes era 15, ahora sin color ni fecha_tentativa
         $cumple = 0;
 
-        // 1. fecha_inspeccion (cuenta si tiene una fecha válida)
+        // 1. fecha_inspeccion
         if (!empty($data['fecha_inspeccion']) && $data['fecha_inspeccion'] !== '0000-00-00') $cumple++;
 
-        // 2. fecha_tentativa (cuenta si es diferente de "0000-00-00" y no es null)
-        if (!empty($data['fecha_tentativa']) && $data['fecha_tentativa'] !== '0000-00-00') $cumple++;
-
-        // 3. numero_estacion (cuenta si NO contiene 'S/I')
+        // 2. numero_estacion
         if (!empty($data['numero_estacion']) && stripos($data['numero_estacion'], 'S/I') === false) $cumple++;
 
-        // 4. calle (cuenta si es diferente de "Pendiente")
+        // 3. calle
         if (!empty($data['calle']) && $data['calle'] !== 'Pendiente') $cumple++;
 
-        // 5. id_calle (cuenta si es diferente de 0 y no null)
+        // 4. id_calle
         if (!empty($data['id_calle']) && $data['id_calle'] != 0) $cumple++;
 
-        // 6. llave_hidrante (cuenta si NO contiene 'S/I')
+        // 5. llave_hidrante
         if (!empty($data['llave_hidrante']) && stripos($data['llave_hidrante'], 'S/I') === false) $cumple++;
 
-        // 7. presion_agua (cuenta si NO contiene 'S/I')
+        // 6. presion_agua
         if (!empty($data['presion_agua']) && stripos($data['presion_agua'], 'S/I') === false) $cumple++;
 
-        // 8. color (cuenta si NO contiene 'S/I')
-        if (!empty($data['color']) && stripos($data['color'], 'S/I') === false) $cumple++;
-
-        // 9. llave_fosa (cuenta si NO contiene 'S/I')
+        // 7. llave_fosa
         if (!empty($data['llave_fosa']) && stripos($data['llave_fosa'], 'S/I') === false) $cumple++;
 
-        // 10. ubicacion_fosa (cuenta si NO contiene 'S/I')
+        // 8. ubicacion_fosa
         if (!empty($data['ubicacion_fosa']) && stripos($data['ubicacion_fosa'], 'S/I') === false) $cumple++;
 
-        // 11. hidrante_conectado_tubo (cuenta si NO contiene 'S/I')
+        // 9. hidrante_conectado_tubo
         if (!empty($data['hidrante_conectado_tubo']) && stripos($data['hidrante_conectado_tubo'], 'S/I') === false) $cumple++;
 
-        // 12. estado_hidrante (cuenta si NO contiene 'S/I')
+        // 10. estado_hidrante
         if (!empty($data['estado_hidrante']) && stripos($data['estado_hidrante'], 'S/I') === false) $cumple++;
 
-        // 13. marca (cuenta si no es nulo ni vacío)
+        // 11. marca
         if (isset($data['marca']) && trim($data['marca']) !== '') $cumple++;
 
-        // 14. anio (cuenta si no es null y distinto de 0 y distinto de "0")
+        // 12. anio
         if (!empty($data['anio']) && $data['anio'] != 0 && $data['anio'] !== "0") $cumple++;
 
-        // 15. oficial (cuenta si NO contiene 'S/I')
+        // 13. oficial
         if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
 
-        // Calcula porcentaje y lo convierte a string de 3 dígitos
+        // 14. colonia (puedes ajustar si quieres que colonia cuente)
+        if (!empty($data['colonia']) && $data['colonia'] !== 'Pendiente') $cumple++;
+
         $porcentaje = round(($cumple / $total) * 100);
         return str_pad($porcentaje, 3, '0', STR_PAD_LEFT);
     }

@@ -26,14 +26,12 @@ class CapturistaController extends Controller
 
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
-            'fecha_tentativa' => 'Fecha Tentativa', 
             'numero_estacion' => 'N° Estación',
             'calle' => 'Calle',
             'y_calle' => 'Y Calle',
             'colonia' => 'Colonia',
             'llave_hidrante' => 'Llave Hidrante',
             'presion_agua' => 'Presión Agua',
-            'color' => 'Color',
             'estado_hidrante' => 'Estado',
             'marca' => 'Marca',
             'anio' => 'Año',
@@ -56,7 +54,6 @@ class CapturistaController extends Controller
 
             $validated = $request->validate([
                 'fecha_inspeccion' => 'required|date',
-                'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
                 'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
@@ -66,7 +63,6 @@ class CapturistaController extends Controller
                 'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
                 'presion_agua' => 'required|string',
-                'color' => 'required|string',
                 'llave_fosa' => 'required|string',
                 'ubicacion_fosa' => 'required|string',
                 'hidrante_conectado_tubo' => 'required|string',
@@ -151,7 +147,6 @@ class CapturistaController extends Controller
 
             $validated = $request->validate([
                 'fecha_inspeccion' => 'required|date',
-                'fecha_tentativa' => 'required|date',
                 'numero_estacion' => 'required|string',
                 'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
@@ -161,7 +156,6 @@ class CapturistaController extends Controller
                 'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
                 'presion_agua' => 'required|string',
-                'color' => 'required|string',
                 'llave_fosa' => 'required|string',
                 'ubicacion_fosa' => 'required|string',
                 'hidrante_conectado_tubo' => 'required|string',

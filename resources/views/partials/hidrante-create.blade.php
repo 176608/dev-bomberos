@@ -27,7 +27,7 @@
                                             value="{{ date('Y-m-d') }}" required>
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <!--<div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacion"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                             Fecha tentativa de Mantenimiento:
@@ -50,7 +50,7 @@
                                                 <i class="bi bi-arrow-left"></i> Cambiar plazo
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
@@ -182,7 +182,7 @@
                                             <option value="Solo Base">Solo Base</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <!--<div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionColor"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Color:</label>
@@ -192,7 +192,7 @@
                                             <option value="Amarillo">Amarillo</option>
                                             <option value="Otro">Otro</option>
                                         </select>
-                                    </div>
+                                    </div>-->
                                 </div>
 
                                 <div class="row">
@@ -447,7 +447,6 @@ $(document).ready(function() {
             { name: 'llave_fosa', icon: 'iconoExclamacionLlave_fosa', tipo: 'select' },
             { name: 'hidrante_conectado_tubo', icon: 'iconoExclamacionHidrante_conectado_tubo', tipo: 'select' },
             { name: 'estado_hidrante', icon: 'iconoExclamacionEstado_hidrante', tipo: 'select' },
-            { name: 'color', icon: 'iconoExclamacionColor', tipo: 'select' },
             { name: 'marca', icon: 'iconoExclamacionMarca', tipo: 'input' },
             { name: 'anio', icon: 'iconoExclamacionAnio', tipo: 'input' },
             { name: 'oficial', icon: 'iconoExclamacionOficial', tipo: 'input' },
@@ -532,14 +531,22 @@ $(document).ready(function() {
     let fechaTentativaGenerada = false;
 
     function updateSaveButtonState() {
-        let fechaOk = fechaTentativaGenerada;
+        // Verifica si el campo calle está cubierto (valor válido o switch activo)
         let calleOk = false;
         if ($('#switchNoCalle').is(':checked')) {
             calleOk = true;
         } else if ($('#id_calle').val() && $('#id_calle').val() !== '' && $('#id_calle').val() !== null) {
             calleOk = true;
         }
-        if (fechaOk && calleOk) {
+
+        // Verifica si el estado de hidrante está definido (no es 'S/I')
+        let estadoOk = false;
+        const estadoVal = $('select[name="estado_hidrante"]').val();
+        if (estadoVal && estadoVal !== 'S/I') {
+            estadoOk = true;
+        }
+
+        if (calleOk && estadoOk) {
             $('#btnRegistrarHidrante').prop('disabled', false);
             $('#popoverRegistrarHidrante').removeAttr('data-bs-toggle data-bs-trigger data-bs-content');
             if (bootstrap.Popover.getInstance(document.getElementById('popoverRegistrarHidrante'))) {
@@ -547,10 +554,11 @@ $(document).ready(function() {
             }
         } else {
             $('#btnRegistrarHidrante').prop('disabled', true);
+            let mensaje = 'Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.';
             $('#popoverRegistrarHidrante')
                 .attr('data-bs-toggle', 'popover')
                 .attr('data-bs-trigger', 'hover focus')
-                .attr('data-bs-content', 'Debe generar la fecha tentativa y seleccionar una calle.');
+                .attr('data-bs-content', mensaje);
             if (typeof initPopover === 'function') initPopover();
         }
     }
@@ -596,7 +604,7 @@ $(document).ready(function() {
     function handleSoloBaseStateCreate(isSoloBase) {
         // Campos de Estado y Características + Técnicas (excepto Estado Hidrante)
         const campos = [
-            'color', 'marca', 'anio',
+            /*'color',*/ 'marca', 'anio',
             'llave_hidrante', 'presion_agua', 'llave_fosa',
             'hidrante_conectado_tubo', 'ubicacion_fosa'
         ];
@@ -665,10 +673,7 @@ $(document).ready(function() {
 
         // Guardar: validación
         $(CONFIG.formId).on('submit', function(e) {
-            if (!fechaTentativaGenerada) {
-                e.preventDefault();
-                return false;
-            }
+            // Solo validamos calle y estado_hidrante
             if ($('#switchNoCalle').is(':checked')) {
                 $('#id_calle').val('0');
                 if (!$('input[name="id_calle"][type="hidden"]').length) {
@@ -687,10 +692,17 @@ $(document).ready(function() {
                 $('input[name="id_calle"][type="hidden"]').remove();
                 $('input[name="calle"][type="hidden"]').remove();
             }
+            // Validación de estado_hidrante
+            const estadoVal = $('select[name="estado_hidrante"]').val();
+            if (!estadoVal || estadoVal === 'S/I') {
+                e.preventDefault();
+                alert('Debes definir el Estado del Hidrante.');
+                return false;
+            }
         });
 
         // Actualizar botón registrar cuando cambian campos clave
-        $('#id_calle, #switchNoCalle').on('change', updateSaveButtonState);
+        $('#id_calle, #switchNoCalle, select[name="estado_hidrante"]').on('change', updateSaveButtonState);
 
         // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
         $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
