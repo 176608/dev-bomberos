@@ -51,6 +51,11 @@
                                 <label class="form-check-label" for="col_llave_hidrante">Llave Hidrante</label>
                             </div>
                             <div class="form-check mb-2">
+                                <input class="form-check-input column-toggle" type="checkbox" value="llave_fosa" id="col_llave_fosa"
+                                    {{ in_array('llave_fosa', $columnas ?? []) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="col_llave_fosa">Llave Fosa</label>
+                            </div>
+                            <div class="form-check mb-2">
                                 <input class="form-check-input column-toggle" type="checkbox" value="presion_agua" id="col_presion_agua"
                                     {{ in_array('presion_agua', $columnas ?? []) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="col_presion_agua">Presión de Agua</label>
