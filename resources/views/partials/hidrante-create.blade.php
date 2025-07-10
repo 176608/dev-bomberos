@@ -155,7 +155,7 @@
                                             <option value="S/I" selected >Dejar pendiente</option>
                                             <option value="EN SERVICIO">En servicio</option>
                                             <option value="FUERA DE SERVICIO">Fuera de servicio</option>
-                                            <option value="SOLO BASE">Solo Base</option>
+                                            <option value="SOLO BASE">Solo base</option>
                                         </select>
                                     </div>
                                 </div>
@@ -628,16 +628,16 @@ $(document).ready(function() {
         // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
         $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
 
-        // Estado Hidrante: Solo Base
+        // Estado Hidrante: SOLO BASE
         $('select[name="estado_hidrante"]').on('change', function() {
-            const isSoloBase = $(this).val() === 'Solo Base';
+            const isSoloBase = $(this).val() === 'SOLO BASE';
             handleSoloBaseStateCreate(isSoloBase);
         });
     }
 
-    // Al abrir el modal, aplicar si ya está en Solo Base
+    // Al abrir el modal, aplicar si ya está en SOLO BASE
     $(CONFIG.modalId).on('shown.bs.modal', function() {
-        const isSoloBase = $('select[name="estado_hidrante"]').val() === 'Solo Base';
+        const isSoloBase = $('select[name="estado_hidrante"]').val() === 'SOLO BASE';
         handleSoloBaseStateCreate(isSoloBase);
     });
 

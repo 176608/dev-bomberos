@@ -497,12 +497,12 @@ $(document).ready(function() {
     function setupIcons() {
         // Detecta el valor actual de estado_hidrante al cargar
         const estado = $('select[name="estado_hidrante"]').val();
-        const esSoloBase = estado === 'Solo Base';
+        const esSoloBase = estado === 'SOLO BASE';
 
         CONFIG.fieldsWithIcons.forEach(({ name, icon, tipo }) => {
             const iconSelector = `#${icon}${CONFIG.hidranteId}`;
             if (esSoloBase) {
-                // Oculta todos los iconos pertinentes si es Solo Base
+                // Oculta todos los iconos pertinentes si es SOLO BASE
                 $(iconSelector).addClass('d-none');
             } else {
                 // Lógica normal: muestra/oculta según el valor del campo
@@ -669,13 +669,13 @@ $(document).ready(function() {
 
     // --- EVENTO DE CAMBIO EN ESTADO HIDRANTE ---
     $(`select[name="estado_hidrante"]`).on('change', function() {
-        const isSoloBase = $(this).val() === 'Solo Base';
+        const isSoloBase = $(this).val() === 'SOLO BASE';
         handleSoloBaseState(isSoloBase);
     });
 
-    // --- Al abrir el modal, aplicar si ya está en Solo Base ---
+    // --- Al abrir el modal, aplicar si ya está en SOLO BASE ---
     $(CONFIG.modalId).on('shown.bs.modal', function() {
-        const isSoloBase = $(`select[name="estado_hidrante"]`).val() === 'Solo Base';
+        const isSoloBase = $(`select[name="estado_hidrante"]`).val() === 'SOLO BASE';
         handleSoloBaseState(isSoloBase);
     });
 
