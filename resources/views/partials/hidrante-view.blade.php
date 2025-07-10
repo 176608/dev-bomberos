@@ -25,8 +25,6 @@
                     <dd class="col-sm-8">{{ $hidrante->llave_hidrante }}</dd>
                     <dt class="col-sm-4">Presión Agua</dt>
                     <dd class="col-sm-8">{{ $hidrante->presion_agua }}</dd>
-                    <dt class="col-sm-4">Color</dt>
-                    <dd class="col-sm-8">{{ $hidrante->color }}</dd>
                     <dt class="col-sm-4">Llave Fosa</dt>
                     <dd class="col-sm-8">{{ $hidrante->llave_fosa }}</dd>
                     <dt class="col-sm-4">Ubicación Fosa</dt>

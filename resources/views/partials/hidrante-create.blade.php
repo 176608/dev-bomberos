@@ -604,13 +604,12 @@ $(document).ready(function() {
     function handleSoloBaseStateCreate(isSoloBase) {
         // Campos de Estado y Características + Técnicas (excepto Estado Hidrante)
         const campos = [
-            /*'color',*/ 'marca', 'anio',
+            'marca', 'anio',
             'llave_hidrante', 'presion_agua', 'llave_fosa',
             'hidrante_conectado_tubo', 'ubicacion_fosa'
         ];
         // Iconos de exclamación de esas secciones
         const iconos = [
-            '#iconoExclamacionColor',
             '#iconoExclamacionMarca',
             '#iconoExclamacionAnio',
             '#iconoExclamacionLlave_Hidrante',

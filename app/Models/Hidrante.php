@@ -170,7 +170,6 @@ colonia                 - varchar(255)  - YES   - NULL
 id_colonia              - int(10)       - YES   - NULL
 llave_hidrante          - varchar(255)  - YES   - NULL
 presion_agua            - varchar(50)   - YES   - NULL
-color                   - varchar(50)   - YES   - NULL
 llave_fosa              - varchar(255)  - YES   - NULL
 ubicacion_fosa          - varchar(255)  - YES   - NULL
 hidrante_conectado_tubo - varchar(255)  - YES   - NULL

@@ -184,9 +184,9 @@
                                             <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <!--<div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Color
+                                            Color Para borrar
                                             <span id="edit_iconoExclamacionColor{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="color">
@@ -195,7 +195,7 @@
                                             <option value="Amarillo" {{ $hidrante->color == 'Amarillo' ? 'selected' : '' }}>Amarillo</option>
                                             <option value="Otro" {{ $hidrante->color == 'Otro' ? 'selected' : '' }}>Otro</option>
                                         </select>
-                                    </div>
+                                    </div>-->
                                 </div>
 
                                 <div class="row">
@@ -680,7 +680,6 @@ $(document).ready(function() {
         ];
         // Iconos de exclamación de esas secciones
         const iconos = [
-            '#edit_iconoExclamacionColor',
             '#edit_iconoExclamacionMarca',
             '#edit_iconoExclamacionAnio',
             '#edit_iconoExclamacionLlave_Hidrante',
