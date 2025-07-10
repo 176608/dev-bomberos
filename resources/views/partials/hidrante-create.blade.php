@@ -182,17 +182,6 @@
                                             <option value="Solo Base">Solo Base</option>
                                         </select>
                                     </div>
-                                    <!--<div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionColor"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Color:</label>
-                                        <select class="form-select" name="color" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente..</option>
-                                            <option value="Rojo">Rojo</option>
-                                            <option value="Amarillo">Amarillo</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
-                                    </div>-->
                                 </div>
 
                                 <div class="row">

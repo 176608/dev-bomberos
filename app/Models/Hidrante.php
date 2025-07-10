@@ -102,7 +102,7 @@ class Hidrante extends Model
 
     public static function calcularStat($data)
     {
-        $total = 14; // Antes era 15, ahora sin color ni fecha_tentativa
+        $total = 14;
         $cumple = 0;
 
         // 1. fecha_inspeccion
