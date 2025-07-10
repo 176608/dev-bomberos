@@ -25,7 +25,7 @@
                                                required>
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <!--<div class="col-md-6 mb-3"> 
                                         <label class="form-label">
                                             <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span>
                                             Fecha tentativa de Mantenimiento
@@ -52,7 +52,7 @@
                                                 <i class="bi bi-arrow-left"></i> Cambiar plazo
                                             </button>
                                         </div>
-                                    </div>
+                                    </div>-->
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
@@ -321,7 +321,7 @@
                         data-bs-trigger="hover focus"
                         data-bs-placement="top"
                         title="¡Atención!"
-                        data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
+                        data-bs-content="Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.">
                         <button type="submit" class="btn btn-danger" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
                             Guardar Cambios
                         </button>
@@ -564,32 +564,6 @@ $(document).ready(function() {
         }
     }
 
-    // --- FECHA TENTATIVA: FLUJO DE PASOS ---
-    function mostrarPasoGenerar() {
-        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).removeClass('d-none');
-        $('#edit_opcionesPlazo' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_iconoExclamacion' + CONFIG.hidranteId).removeClass('d-none');
-        fechaTentativaGenerada = false;
-        updateSaveButtonState();
-    }
-    function mostrarPasoPlazo() {
-        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_opcionesPlazo' + CONFIG.hidranteId).removeClass('d-none');
-        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_iconoExclamacion' + CONFIG.hidranteId).removeClass('d-none');
-        fechaTentativaGenerada = false;
-        updateSaveButtonState();
-    }
-    function mostrarPasoFechaGenerada() {
-        $('#edit_contenedorGenerarFecha' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_opcionesPlazo' + CONFIG.hidranteId).addClass('d-none');
-        $('#edit_contenedorFechaGenerada' + CONFIG.hidranteId).removeClass('d-none');
-        $('#edit_iconoExclamacion' + CONFIG.hidranteId).addClass('d-none');
-        fechaTentativaGenerada = true;
-        updateSaveButtonState();
-    }
-
     // --- POPOVER ---
     function edit_initPopover() {
         const popoverTrigger = document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId);
@@ -611,22 +585,6 @@ $(document).ready(function() {
 
         // Select2
         initSelect2();
-
-        // Fecha tentativa: flujo de pasos
-        $('#edit_btnGenerarFecha' + CONFIG.hidranteId).click(mostrarPasoPlazo);
-        $('#edit_opcionesPlazo' + CONFIG.hidranteId + ' button[data-plazo]').click(function() {
-            const plazo = $(this).data('plazo');
-            const fechaBase = new Date();
-            if (plazo === 'corto') {
-                fechaBase.setMonth(fechaBase.getMonth() + 6);
-            } else {
-                fechaBase.setFullYear(fechaBase.getFullYear() + 1);
-            }
-            $('#edit_fecha_tentativa' + CONFIG.hidranteId).val(fechaBase.toISOString().split('T')[0]);
-            mostrarPasoFechaGenerada();
-        });
-        $('#edit_btnRegresarGenerar' + CONFIG.hidranteId).click(mostrarPasoGenerar);
-        $('#edit_btnResetFecha' + CONFIG.hidranteId).click(mostrarPasoPlazo);
 
         // Guardar: validación
         $('form').on('submit', function(e) {
@@ -724,15 +682,7 @@ $(document).ready(function() {
         .on('shown.bs.modal', function() {
             initEventHandlers();
             autoActivarSwitchUbicacion();
-            // Flujo de fecha tentativa
-            const fechaTentativaVal = $('#edit_fecha_tentativa' + CONFIG.hidranteId).val();
-            if (fechaTentativaVal) {
-                mostrarPasoFechaGenerada();
-                $('#edit_fecha_tentativa' + CONFIG.hidranteId).val(fechaTentativaVal);
-            } else {
-                mostrarPasoGenerar();
-            }
-            setupIcons(); // <-- Asegúrate de llamar aquí
+            setupIcons();
             setTimeout(edit_initPopover, 200);
         })
         .on('hidden.bs.modal', function() {

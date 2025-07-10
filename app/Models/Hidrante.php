@@ -159,9 +159,7 @@ Field                   Type            Null    Default     Extra               
 id                      - int(11)       - NO    - NULL      - auto_increment    - PRI
 stat                    - varchar(4)    - YES   - NULL      *Informacion del estatus del hidrante en SISTEMA
 fecha_inspeccion        - date          - NO    - NULL
-fecha_tentativa         - date          - NO    - NULL
 numero_estacion         - char(4)       - NO    - NULL
-numero_hidrante AAjustar- int(11)       - YES   - NULL      BORRAR PRONTO************
 calle                   - varchar(255)  - YES   - NULL
 id_calle                - int(11)       - YES   - NULL
 y_calle                 - varchar(255)  - YES   - NULL

@@ -385,9 +385,6 @@ class CapturistaController extends Controller
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
             })
-            ->editColumn('fecha_tentativa', function($hidrante) {
-                return $hidrante->fecha_tentativa ? $hidrante->fecha_tentativa->format('Y-m-d') : 'N/A';
-            })
             ->rawColumns(['acciones'])
             ->make(true);
     }

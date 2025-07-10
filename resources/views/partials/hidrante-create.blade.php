@@ -27,30 +27,6 @@
                                             value="{{ date('Y-m-d') }}" required>
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
-                                    <!--<div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacion"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                            Fecha tentativa de Mantenimiento:
-                                        </label>
-                                        <div class="d-grid gap-2 mb-2" id="contenedorGenerarFecha">
-                                            <button type="button" class="btn btn-primary" id="btnGenerarFecha">
-                                                Generar fecha tentativa
-                                            </button>
-                                        </div>
-                                        <div class="btn-group d-none w-100 mb-2" id="opcionesPlazo">
-                                            <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
-                                            <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
-                                            <button type="button" class="btn btn-outline-secondary" id="btnRegresarGenerar">
-                                                <i class="bi bi-arrow-left"></i>
-                                            </button>
-                                        </div>
-                                        <div class="d-none mb-2" id="contenedorFechaGenerada">
-                                            <input type="date" class="form-control" name="fecha_tentativa" id="fecha_tentativa">
-                                            <button type="button" class="btn btn-outline-secondary mt-2 btn-sm" id="btnResetFecha">
-                                                <i class="bi bi-arrow-left"></i> Cambiar plazo
-                                            </button>
-                                        </div>
-                                    </div> -->
                                 </div>
                                 <hr class="my-2">
                                 <div class="row">
@@ -313,7 +289,7 @@
                           data-bs-trigger="hover focus"
                           data-bs-placement="top"
                           title="¡Atención!"
-                          data-bs-content="Falta generar una fecha tentativa de mantenimiento.">
+                          data-bs-content="Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.">
                         <button type="submit" class="btn btn-danger" id="btnRegistrarHidrante" disabled>
                             Registrar Hidrante
                         </button>
@@ -517,8 +493,6 @@ $(document).ready(function() {
     }
 
     // --- BOTÓN REGISTRAR Y POPOVER ---
-    let fechaTentativaGenerada = false;
-
     function updateSaveButtonState() {
         // Verifica si el campo calle está cubierto (valor válido o switch activo)
         let calleOk = false;
@@ -550,32 +524,6 @@ $(document).ready(function() {
                 .attr('data-bs-content', mensaje);
             if (typeof initPopover === 'function') initPopover();
         }
-    }
-
-    // --- FECHA TENTATIVA: FLUJO DE PASOS ---
-    function mostrarPasoGenerar() {
-        $('#contenedorGenerarFecha').removeClass('d-none');
-        $('#opcionesPlazo').addClass('d-none');
-        $('#contenedorFechaGenerada').addClass('d-none');
-        $('#iconoExclamacion').removeClass('d-none');
-        fechaTentativaGenerada = false;
-        updateSaveButtonState();
-    }
-    function mostrarPasoPlazo() {
-        $('#contenedorGenerarFecha').addClass('d-none');
-        $('#opcionesPlazo').removeClass('d-none');
-        $('#contenedorFechaGenerada').addClass('d-none');
-        $('#iconoExclamacion').removeClass('d-none');
-        fechaTentativaGenerada = false;
-        updateSaveButtonState();
-    }
-    function mostrarPasoFechaGenerada() {
-        $('#contenedorGenerarFecha').addClass('d-none');
-        $('#opcionesPlazo').addClass('d-none');
-        $('#contenedorFechaGenerada').removeClass('d-none');
-        $('#iconoExclamacion').addClass('d-none');
-        fechaTentativaGenerada = true;
-        updateSaveButtonState();
     }
 
     // --- POPOVER ---
@@ -643,22 +591,6 @@ $(document).ready(function() {
         // Select2
         initSelect2();
 
-        // Fecha tentativa: flujo de pasos
-        $('#btnGenerarFecha').click(mostrarPasoPlazo);
-        $('#opcionesPlazo button[data-plazo]').click(function() {
-            const plazo = $(this).data('plazo');
-            const fechaInspeccion = new Date($('#fecha_inspeccion').val());
-            if (plazo === 'corto') {
-                fechaInspeccion.setMonth(fechaInspeccion.getMonth() + 6);
-            } else {
-                fechaInspeccion.setFullYear(fechaInspeccion.getFullYear() + 1);
-            }
-            $('#fecha_tentativa').val(fechaInspeccion.toISOString().split('T')[0]);
-            mostrarPasoFechaGenerada();
-        });
-        $('#btnRegresarGenerar').click(mostrarPasoGenerar);
-        $('#btnResetFecha').click(mostrarPasoPlazo);
-
         // Guardar: validación
         $(CONFIG.formId).on('submit', function(e) {
             // Solo validamos calle y estado_hidrante
@@ -711,9 +643,7 @@ $(document).ready(function() {
     // --- INICIALIZACIÓN DEL MODAL ---
     $(CONFIG.modalId)
         .on('shown.bs.modal', function() {
-            $('#fecha_tentativa').val('');
             initEventHandlers();
-            mostrarPasoGenerar();
             setTimeout(initPopover, 200);
         })
         .on('hidden.bs.modal', function() {

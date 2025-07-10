@@ -11,8 +11,6 @@
                     <dd class="col-sm-8">{{ $hidrante->stat }}</dd>
                     <dt class="col-sm-4">Fecha Inspección</dt>
                     <dd class="col-sm-8">{{ $hidrante->fecha_inspeccion }}</dd>
-                    <dt class="col-sm-4">Fecha Tentativa</dt>
-                    <dd class="col-sm-8">{{ $hidrante->fecha_tentativa }}</dd>
                     <dt class="col-sm-4">N° Estación</dt>
                     <dd class="col-sm-8">{{ $hidrante->numero_estacion }}</dd>
                     <dt class="col-sm-4">Calle</dt>
