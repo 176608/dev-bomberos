@@ -25,38 +25,7 @@
                                                required>
                                         <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
-                                    <!--<div class="col-md-6 mb-3"> 
-                                        <label class="form-label">
-                                            <span id="edit_iconoExclamacion{{ $hidrante->id }}"><i class="bi bi-exclamation-diamond-fill text-danger"></i></span>
-                                            Fecha tentativa de Mantenimiento
-                                        </label>
-                                        <div class="d-grid gap-2 mb-2 {{ $hidrante->fecha_tentativa ? 'd-none' : '' }}" id="edit_contenedorGenerarFecha{{ $hidrante->id }}">
-                                            <button type="button" class="btn btn-primary" id="edit_btnGenerarFecha{{ $hidrante->id }}">
-                                                Generar fecha tentativa
-                                            </button>
-                                        </div>
-                                        <div class="btn-group w-100 mb-2 d-none" id="edit_opcionesPlazo{{ $hidrante->id }}">
-                                            <button type="button" class="btn btn-outline-primary" data-plazo="corto">Corto plazo</button>
-                                            <button type="button" class="btn btn-outline-primary" data-plazo="largo">Largo plazo</button>
-                                            <button type="button" class="btn btn-outline-secondary" id="edit_btnRegresarGenerar{{ $hidrante->id }}">
-                                                <i class="bi bi-arrow-left"></i>
-                                            </button>
-                                        </div>
-                                        <div class="mb-2 {{ $hidrante->fecha_tentativa ? '' : 'd-none' }}" id="edit_contenedorFechaGenerada{{ $hidrante->id }}">
-                                            <input type="date" class="form-control" name="fecha_tentativa" id="edit_fecha_tentativa{{ $hidrante->id }}"
-                                                @if($hidrante->fecha_tentativa)
-                                                    value="{{ $hidrante->fecha_tentativa instanceof \Carbon\Carbon ? $hidrante->fecha_tentativa->format('Y-m-d') : $hidrante->fecha_tentativa }}"
-                                                @endif
-                                            >
-                                            <button type="button" class="btn btn-outline-secondary mt-2 btn-sm" id="edit_btnResetFecha{{ $hidrante->id }}">
-                                                <i class="bi bi-arrow-left"></i> Cambiar plazo
-                                            </button>
-                                        </div>
-                                    </div>-->
-                                </div>
-                                <hr class="my-2">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3 offset-md-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Número de Estación
                                             <span id="edit_iconoExclamacionNumero_estacion{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
@@ -67,6 +36,10 @@
                                         </select>
                                     </div>
                                 </div>
+                                <!--<hr class="my-2">
+                                <div class="row">
+                                    
+                                </div>-->
                             </div>
                         </div>
                     </div>
@@ -172,7 +145,7 @@
                             <div class="card-body">
 
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">
                                             Estado Hidrante
                                             <span id="edit_iconoExclamacionEstado_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>

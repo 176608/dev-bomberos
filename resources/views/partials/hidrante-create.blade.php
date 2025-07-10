@@ -27,15 +27,12 @@
                                             value="{{ date('Y-m-d') }}" required>
                                             <small class="form-text text-muted">Formato: DD-MM-YYYY</small>
                                     </div>
-                                </div>
-                                <hr class="my-2">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3 offset-md-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionNumero_estacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="S/I" selected>Seleccione estación...</option>
+                                            <option value="S/I" selected>Sin el dato...</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>
@@ -48,6 +45,12 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <!--<hr class="my-2">
+
+                                <div class="row">
+                                    
+                                </div>-->
 
                             </div>
 
@@ -147,7 +150,7 @@
                             <div class="card-body">
 
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionEstado_hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Estado Hidrante:</label>
@@ -247,7 +250,7 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionUbicacion_fosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         Ubicación Fosa:</label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="(N MTS.) Ejemplo: 5 MTS." required>
+                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="A + N + metros, $Texto despues de numero$" required>
                                     </div>
                                 </div>
 
