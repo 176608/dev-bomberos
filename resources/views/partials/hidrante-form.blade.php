@@ -179,9 +179,9 @@
                                         </label>
                                         <select class="form-select" name="estado_hidrante">
                                             <option value="S/I" {{ $hidrante->estado_hidrante == 'S/I' ? 'selected' : '' }}> Pendiente</option>
-                                            <option value="Servicio" {{ $hidrante->estado_hidrante == 'Servicio' ? 'selected' : '' }}>Servicio</option>
-                                            <option value="Fuera de servicio" {{ $hidrante->estado_hidrante == 'Fuera de servicio' ? 'selected' : '' }}>Fuera de servicio</option>
-                                            <option value="Solo Base" {{ $hidrante->estado_hidrante == 'Solo Base' ? 'selected' : '' }}>Solo Base</option>
+                                            <option value="EN SERVICIO" {{ $hidrante->estado_hidrante == 'EN SERVICIO' ? 'selected' : '' }}>En servicio</option>
+                                            <option value="FUERA DE SERVICIO" {{ $hidrante->estado_hidrante == 'FUERA DE SERVICIO' ? 'selected' : '' }}>Fuera de servicio</option>
+                                            <option value="SOLO BASE" {{ $hidrante->estado_hidrante == 'SOLO BASE' ? 'selected' : '' }}>Solo Base</option>
                                         </select>
                                     </div>
                                 </div>
@@ -227,8 +227,8 @@
                                         </label>
                                         <select class="form-select" name="llave_hidrante">
                                             <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="Pentagono" {{ $hidrante->llave_hidrante == 'Pentagono' ? 'selected' : '' }}>Pentagono</option>
-                                            <option value="Cuadro" {{ $hidrante->llave_hidrante == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
+                                            <option value="PENTAGONO" {{ $hidrante->llave_hidrante == 'PENTAGONO' ? 'selected' : '' }}>Pentagono</option>
+                                            <option value="CUADRO" {{ $hidrante->llave_hidrante == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
@@ -237,10 +237,12 @@
                                             <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="presion_agua">
-                                            <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="Mala" {{ $hidrante->presion_agua == 'Mala' ? 'selected' : '' }}>Mala</option>
-                                            <option value="Buena" {{ $hidrante->presion_agua == 'Buena' ? 'selected' : '' }}>Buena</option>
-                                            <option value="Sin agua" {{ $hidrante->presion_agua == 'Sin agua' ? 'selected' : '' }}>Sin agua</option>
+                                            <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Sin el dato</option>
+                                            <option value="NULA" {{ $hidrante->presion_agua == 'NULA' ? 'selected' : '' }}>Nula</option>
+                                            <option value="BAJA" {{ $hidrante->presion_agua == 'BAJA' ? 'selected' : '' }}>Baja</option>
+                                            <option value="REGULAR" {{ $hidrante->presion_agua == 'REGULAR' ? 'selected' : '' }}>Regular</option>
+                                            <option value="ALTA" {{ $hidrante->presion_agua == 'ALTA' ? 'selected' : '' }}>Alta</option>
+                                            <option value="BUENA" {{ $hidrante->presion_agua == 'BUENA' ? 'selected' : '' }}>Buena</option>
                                         </select>
                                     </div>
                                 </div>
@@ -253,8 +255,8 @@
                                         </label>
                                         <select class="form-select" name="llave_fosa">
                                             <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="Cuadro" {{ $hidrante->llave_fosa == 'Cuadro' ? 'selected' : '' }}>Cuadro</option>
-                                            <option value="Volante" {{ $hidrante->llave_fosa == 'Volante' ? 'selected' : '' }}>Volante</option>
+                                            <option value="CUADRO" {{ $hidrante->llave_fosa == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
+                                            <option value="VOLANTE" {{ $hidrante->llave_fosa == 'VOLANTE' ? 'selected' : '' }}>Volante</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">

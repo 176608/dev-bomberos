@@ -152,10 +152,10 @@
                                             <span id="iconoExclamacionEstado_hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante" required>
-                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
-                                            <option value="Servicio">Servicio</option>
-                                            <option value="Fuera de servicio">Fuera de servicio</option>
-                                            <option value="Solo Base">Solo Base</option>
+                                            <option value="S/I" selected >Dejar pendiente</option>
+                                            <option value="EN SERVICIO">En servicio</option>
+                                            <option value="FUERA DE SERVICIO">Fuera de servicio</option>
+                                            <option value="SOLO BASE">Solo Base</option>
                                         </select>
                                     </div>
                                 </div>
@@ -197,9 +197,9 @@
                                             <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
-                                            <option value="Pentagono">Pentágono</option>
-                                            <option value="Cuadro">Cuadro</option>
+                                            <option value="S/I" selected>Sin el dato</option>
+                                            <option value="PENTAGONO">Pentágono</option>
+                                            <option value="CUADRO">Cuadro</option>
                                         </select>
                                     </div>
 
@@ -208,10 +208,12 @@
                                             <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
-                                            <option value="Mala">Mala</option>
-                                            <option value="Buena">Buena</option>
-                                            <option value="Sin agua">Sin agua</option>
+                                            <option value="S/I" selected>Sin el dato</option>
+                                            <option value="NULA">Nula</option>
+                                            <option value="BAJA">Baja</option>
+                                            <option value="REGULAR">Regular</option>
+                                            <option value="ALTA">Alta</option>
+                                            <option value="BUENA">Buena</option>
                                         </select>
                                     </div>
                                 </div>
@@ -222,10 +224,9 @@
                                             <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa" required>
-                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
-                                            <option value="Cuadro">Cuadro</option>
-                                            <option value="Volante">Volante</option>
-                                            <option value="Otra">Otra</option>
+                                            <option value="S/I" selected >Sin dato</option>
+                                            <option value="CUADRO">Cuadro</option>
+                                            <option value="VOLANTE">Volante</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
