@@ -23,13 +23,14 @@ class CapturistaController extends Controller
 
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
-
+//Aca se agregan nuevos campos a las columnas
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
             'numero_estacion' => 'N° Estación',
             'calle' => 'Calle',
             'y_calle' => 'Y Calle',
             'colonia' => 'Colonia',
+            'llave_fosa' => 'Llave Fosa',
             'llave_hidrante' => 'Llave Hidrante',
             'presion_agua' => 'Presión Agua',
             'estado_hidrante' => 'Estado',
