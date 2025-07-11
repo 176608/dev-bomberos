@@ -144,10 +144,27 @@ class Hidrante extends Model
         // 13. oficial
         if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
 
-        // 14. colonia (puedes ajustar si quieres que colonia cuente)
-        if (!empty($data['colonia']) && $data['colonia'] !== 'Pendiente') $cumple++;
+        // 15 y 16--- y_calle & id_y_calle ---
+        if (!is_null($data['id_y_calle'])) {
+            $total++; // Consideramos y_calle
+            if (!empty($data['y_calle']) && $data['y_calle'] !== 'Pendiente') $cumple++;
+            if ($data['id_y_calle'] != 0) {
+                $total++; // Consideramos id_y_calle
+                if (!empty($data['id_y_calle'])) $cumple++;
+            }
+        }
 
-        $porcentaje = round(($cumple / $total) * 100);
+        // 17 y 18--- colonia & id_colonia ---
+        if (!is_null($data['id_colonia'])) {
+            $total++; // Consideramos colonia
+            if (!empty($data['colonia']) && $data['colonia'] !== 'Pendiente') $cumple++;
+            if ($data['id_colonia'] != 0) {
+                $total++; // Consideramos id_colonia
+                if (!empty($data['id_colonia'])) $cumple++;
+            }
+        }
+
+        $porcentaje = $total > 0 ? round(($cumple / $total) * 100) : 0;
         return str_pad($porcentaje, 3, '0', STR_PAD_LEFT);
     }
 }

@@ -215,7 +215,6 @@
                                             <option value="BAJA" {{ $hidrante->presion_agua == 'BAJA' ? 'selected' : '' }}>Baja</option>
                                             <option value="REGULAR" {{ $hidrante->presion_agua == 'REGULAR' ? 'selected' : '' }}>Regular</option>
                                             <option value="ALTA" {{ $hidrante->presion_agua == 'ALTA' ? 'selected' : '' }}>Alta</option>
-                                            <option value="BUENA" {{ $hidrante->presion_agua == 'BUENA' ? 'selected' : '' }}>Buena</option>
                                         </select>
                                     </div>
                                 </div>
@@ -658,6 +657,7 @@ $(document).ready(function() {
             initEventHandlers();
             autoActivarSwitchUbicacion();
             setupIcons();
+            updateSaveButtonState(); // <-- AQUI
             setTimeout(edit_initPopover, 200);
         })
         .on('hidden.bs.modal', function() {
@@ -670,7 +670,8 @@ $(document).ready(function() {
     if ($(CONFIG.modalId).is(':visible')) {
         initEventHandlers();
         autoActivarSwitchUbicacion();
-        setupIcons(); // <-- Asegúrate de llamar aquí
+        setupIcons();
+        updateSaveButtonState(); // <-- AQUI
     }
 });
 </script>

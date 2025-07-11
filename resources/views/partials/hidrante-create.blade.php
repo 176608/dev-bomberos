@@ -216,7 +216,6 @@
                                             <option value="BAJA">Baja</option>
                                             <option value="REGULAR">Regular</option>
                                             <option value="ALTA">Alta</option>
-                                            <option value="BUENA">Buena</option>
                                         </select>
                                     </div>
                                 </div>
