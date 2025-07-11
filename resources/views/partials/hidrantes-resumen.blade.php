@@ -4,7 +4,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped text-center align-middle">
+            <table id="tablaResumenHidrantes" class="table table-bordered table-striped text-center align-middle">
                 <thead class="table-primary">
                     <tr>
                         <th>ESTACION</th>
@@ -27,14 +27,14 @@
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot class="fw-bold">
-                    <tr>
-                        <td>TOTALES</td>
-                        <td>{{ $totales['EN SERVICIO'] }}</td>
-                        <td>{{ $totales['FUERA DE SERVICIO'] }}</td>
-                        <td>{{ $totales['SOLO BASE'] }}</td>
-                        <td>{{ $totales['TOTAL'] }}</td>
-                        <td>{{ $totales['FUERA DE SERVICIO'] + $totales['SOLO BASE'] }}</td>
+                <tfoot>
+                    <tr class="no-sort">
+                        <td><b>TOTALES</b></td>
+                        <td><b>{{ $totales['EN SERVICIO'] }}</b></td>
+                        <td><b>{{ $totales['FUERA DE SERVICIO'] }}</b></td>
+                        <td><b>{{ $totales['SOLO BASE'] }}</b></td>
+                        <td><b>{{ $totales['TOTAL'] }}</b></td>
+                        <td><b>{{ $totales['FUERA DE SERVICIO'] + $totales['SOLO BASE'] }}</b></td>
                     </tr>
                 </tfoot>
             </table>
@@ -51,3 +51,34 @@
         </div>
     </div>
 </div>
+
+<!-- DataTables CSS/JS (si no lo tienes ya en tu layout) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"/>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Inicializa DataTable solo sobre el tbody (no afecta tfoot)
+    $('#tablaResumenHidrantes').DataTable({
+        paging: false,
+        searching: false,
+        info: false,
+        orderCellsTop: true,
+        order: [],
+        columnDefs: [
+            { orderable: false, targets: [] } // Todas las columnas ordenables
+        ],
+        // Evita que el tfoot se ordene
+        drawCallback: function(settings) {
+            // Siempre deja el row de totales al final
+            var api = this.api();
+            var $tfoot = $(api.table().footer());
+            if ($tfoot.length) {
+                var $tfootRow = $tfoot.find('tr');
+                $tfootRow.detach().appendTo($(api.table().find('tbody').parent()));
+            }
+        }
+    });
+});
+</script>
