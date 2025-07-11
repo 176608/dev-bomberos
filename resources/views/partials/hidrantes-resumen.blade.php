@@ -59,7 +59,6 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializa DataTable solo sobre el tbody (no afecta tfoot)
     $('#tablaResumenHidrantes').DataTable({
         paging: false,
         searching: false,
@@ -67,9 +66,8 @@ $(document).ready(function() {
         orderCellsTop: true,
         order: [],
         columnDefs: [
-            { orderable: false, targets: [] } // Todas las columnas ordenables
-        ],
-        
+            { className: "text-center align-middle", targets: "_all" }
+        ]
     });
 });
 </script>
