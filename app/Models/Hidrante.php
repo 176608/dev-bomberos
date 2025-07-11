@@ -100,7 +100,7 @@ class Hidrante extends Model
         return $attributes;
     }
 
-    public static function calcularStat($data, $debug = false)
+    public static function calcularStat($data)
     {
         $total = 14;
         $cumple = 0;
@@ -144,39 +144,28 @@ class Hidrante extends Model
         // 13. oficial
         if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
 
-        // --- y_calle & id_y_calle ---
+        // 15 y 16--- y_calle & id_y_calle ---
         if (!is_null($data['id_y_calle'])) {
-            $total++;
+            $total++; // Consideramos y_calle
             if (!empty($data['y_calle']) && $data['y_calle'] !== 'Pendiente') $cumple++;
             if ($data['id_y_calle'] != 0) {
-                $total++;
+                $total++; // Consideramos id_y_calle
                 if (!empty($data['id_y_calle'])) $cumple++;
             }
         }
 
-        // --- colonia & id_colonia ---
+        // 17 y 18--- colonia & id_colonia ---
         if (!is_null($data['id_colonia'])) {
-            $total++;
+            $total++; // Consideramos colonia
             if (!empty($data['colonia']) && $data['colonia'] !== 'Pendiente') $cumple++;
             if ($data['id_colonia'] != 0) {
-                $total++;
+                $total++; // Consideramos id_colonia
                 if (!empty($data['id_colonia'])) $cumple++;
             }
         }
 
         $porcentaje = $total > 0 ? round(($cumple / $total) * 100) : 0;
-        $stat = str_pad($porcentaje, 3, '0', STR_PAD_LEFT);
-
-        if ($debug) {
-            return [
-                'stat' => $stat,
-                'total' => $total,
-                'cumple' => $cumple,
-                'data' => $data
-            ];
-        }
-
-        return $stat;
+        return str_pad($porcentaje, 3, '0', STR_PAD_LEFT);
     }
 }
 
