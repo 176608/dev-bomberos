@@ -78,7 +78,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span></small>
                                     </div>
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
@@ -101,7 +101,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span></small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -127,7 +127,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'Sin definir' }}</span></small>
+                                        <small class="form-text text-muted">Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span></small>
                                     </div>
                                 </div>
                             </div>
@@ -166,7 +166,7 @@
                                         <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="text" class="form-control" name="marca"
-                                               value="{{ $hidrante->marca ?? '' }}" placeholder="Sin Definir">
+                                               value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
@@ -174,7 +174,7 @@
                                         <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="number" class="form-control" name="anio"
-                                               value="{{ $hidrante->anio ?? '' }}" placeholder="Sin Definir">
+                                               value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                     </div>
                                 </div>
 
@@ -253,7 +253,7 @@
                                             <span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="text" class="form-control" name="ubicacion_fosa" required
-                                               value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="Sin Definir">
+                                               value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="N/A">
                                     </div>
                                 </div>
 
@@ -283,7 +283,7 @@
                                             <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
                                         <input type="text" class="form-control" name="oficial"
-                                               value="{{ $hidrante->oficial ?? '' }}" placeholder="Sin Definir">
+                                               value="{{ $hidrante->oficial ?? '' }}" placeholder="N/A">
                                     </div>
                                 </div>
                             </div>

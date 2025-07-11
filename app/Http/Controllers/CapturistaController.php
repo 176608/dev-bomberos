@@ -358,30 +358,30 @@ class CapturistaController extends Controller
             })
             ->editColumn('calle', function($hidrante) {
                 if (is_null($hidrante->id_calle)) {
-                    return 'Sin definir';
+                    return 'N/A';
                 }
                 if ($hidrante->id_calle == 0) {
                     return 'Pendiente';
                 }
-                return $hidrante->callePrincipal?->Nomvial ?? 'Sin definir';
+                return $hidrante->callePrincipal?->Nomvial ?? 'N/A';
             })
             ->editColumn('y_calle', function($hidrante) {
                 if (is_null($hidrante->id_y_calle)) {
-                    return 'Sin definir';
+                    return 'N/A';
                 }
                 if ($hidrante->id_y_calle == 0) {
                     return 'Pendiente';
                 }
-                return $hidrante->calleSecundaria?->Nomvial ?? 'Sin definir';
+                return $hidrante->calleSecundaria?->Nomvial ?? 'N/A';
             })
             ->editColumn('colonia', function($hidrante) {
                 if (is_null($hidrante->id_colonia)) {
-                    return 'Sin definir';
+                    return 'N/A';
                 }
                 if ($hidrante->id_colonia == 0) {
                     return 'Pendiente';
                 }
-                return $hidrante->coloniaLocacion?->NOMBRE ?? 'Sin definir';
+                return $hidrante->coloniaLocacion?->NOMBRE ?? 'N/A';
             })
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';

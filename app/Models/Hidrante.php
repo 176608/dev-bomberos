@@ -75,10 +75,10 @@ class Hidrante extends Model
 
     protected function setDefaultValues($attributes)
     {
-        // Para campos sin definir
+        // Para campos N/A';
         foreach(['calle', 'y_calle', 'colonia'] as $field) {
             if (empty($attributes[$field])) {
-                $attributes[$field] = 'Sin definir';
+                $attributes[$field] = 'N/A';
                 $attributes['id_' . $field] = null;
             }
         }
