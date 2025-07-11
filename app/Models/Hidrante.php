@@ -139,7 +139,7 @@ class Hidrante extends Model
         if (isset($data['marca']) && trim($data['marca']) !== '') $cumple++;
 
         // 12. anio
-        if (!empty($data['anio']) && $data['anio'] != 0 && $data['anio'] !== "0") $cumple++;
+        if (!empty($data['anio']) && stripos($data['anio'], 'S/I') === false) $cumple++;
 
         // 13. oficial
         if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
