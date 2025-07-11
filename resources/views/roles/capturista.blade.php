@@ -203,9 +203,16 @@ $(document).ready(function() {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
+                            if (response.stat_debug) {
+                                alert(
+                                    'STAT DEBUG:\n' +
+                                    'Total campos considerados: ' + response.stat_debug.total + '\n' +
+                                    'Campos que cumplen: ' + response.stat_debug.cumple + '\n' +
+                                    'Resultado stat: ' + response.stat_debug.stat
+                                );
+                            }
                             if (response.success) {
                                 modalInstance.hide();
-                                //location.reload();
                                 alert('Hidrante creado exitosamente');
                                 window.location = window.location.pathname + '?mostrar_tabla=1';
                             } else {
@@ -269,6 +276,14 @@ $(document).ready(function() {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
+                            if (response.stat_debug) {
+                                alert(
+                                    'STAT DEBUG:\n' +
+                                    'Total campos considerados: ' + response.stat_debug.total + '\n' +
+                                    'Campos que cumplen: ' + response.stat_debug.cumple + '\n' +
+                                    'Resultado stat: ' + response.stat_debug.stat
+                                );
+                            }
                             if(response.success) {
                                 modalInstance.hide();
                                 //location.reload();

@@ -116,14 +116,18 @@ class CapturistaController extends Controller
                 $validated['id_colonia'] = null;
             }
 
-            $validated['stat'] = Hidrante::calcularStat($validated);
+            // Para debug:
+            $statDebug = Hidrante::calcularStat($validated, true);
+            $validated['stat'] = $statDebug['stat'];
+
             Hidrante::create($validated);
             
             \DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Hidrante creado exitosamente'
+                'message' => 'Hidrante creado exitosamente',
+                'stat_debug' => $statDebug // <-- agrega esto
             ]);
 
         } catch (\Exception $e) {
@@ -208,13 +212,16 @@ class CapturistaController extends Controller
             }
 
             $validated['stat'] = Hidrante::calcularStat($validated);
+            $validated['stat'] = $statDebug['stat'];
+
             $hidrante->update($validated);
 
             \DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Hidrante actualizado exitosamente'
+                'message' => 'Hidrante actualizado exitosamente',
+                'stat_debug' => $statDebug
             ]);
 
         } catch (\Exception $e) {
