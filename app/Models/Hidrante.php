@@ -136,7 +136,7 @@ class Hidrante extends Model
         if (!empty($data['estado_hidrante']) && stripos($data['estado_hidrante'], 'S/I') === false) $cumple++;
 
         // 11. marca
-        if (isset($data['marca']) && trim($data['marca']) !== '') $cumple++;
+        if (isset($data['marca']) && trim($data['marca']) !== 'S/I') $cumple++;
 
         // 12. anio
         if (!empty($data['anio']) && stripos($data['anio'], 'S/I') === false) $cumple++;
