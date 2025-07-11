@@ -140,6 +140,11 @@
                     <button class="btn btn-success mb-2" id="btnVerTabla">
                         <i class="bi bi-table"></i> Ver la tabla
                     </button>
+                    <button class="btn btn-info mb-2" id="btnResumen">
+                        <i class="bi bi-gear-fill"></i>
+                        <span class="button-text">Ver resumen de hidrantes</span>
+                        <span class="spinner-border spinner-border-sm ms-1 d-none" id="spinnerResumen" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -148,6 +153,11 @@
     <div id="tablaHidrantesContainer" style="display:none;">
         <!-- Aquí se cargará la tabla con AJAX -->
     </div>
+
+    <div id="resumenHidrantesContainer" style="display:none;">
+        <!-- Aquí se cargaria la tabla con AJAX -->
+    </div>
+
 </div>
 
 @endsection
@@ -545,6 +555,19 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    $('#btnResumen').on('click', function() {
+        $('#resumenHidrantesContainer').show().html('');
+        $('#spinnerResumen').removeClass('d-none');
+        $('#tablaHidrantesContainer').hide();
+
+        $.get("{{ route('hidrantes.resumen') }}", function(response) {
+            $('#resumenHidrantesContainer').html(response);
+            $('#spinnerResumen').addClass('d-none');
+            // Reutiliza tu función de focus si quieres:
+            scrollToTablaHidrantes();
+        });
     });
 });
 </script>

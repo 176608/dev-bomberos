@@ -417,4 +417,52 @@ class CapturistaController extends Controller
         $hidrante->update(['stat' => $stat]);
         return response()->json(['success' => true]);
     }
+
+    public function resumenHidrantes()
+    {
+        // Obtén todos los hidrantes
+        $hidrantes = Hidrante::all();
+
+        // Agrupa por estación y estado
+        $estaciones = [];
+        $estados = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
+        $totales = [
+            'EN SERVICIO' => 0,
+            'FUERA DE SERVICIO' => 0,
+            'SOLO BASE' => 0,
+            'TOTAL' => 0
+        ];
+
+        foreach ($hidrantes as $h) {
+            $est = $h->numero_estacion ?: 'N/A';
+            if (!isset($estaciones[$est])) {
+                $estaciones[$est] = [
+                    'EN SERVICIO' => 0,
+                    'FUERA DE SERVICIO' => 0,
+                    'SOLO BASE' => 0,
+                    'TOTAL' => 0
+                ];
+            }
+            $estado = strtoupper(trim($h->estado_hidrante));
+            if (!in_array($estado, $estados)) $estado = 'EN SERVICIO'; // Default/fallback
+            $estaciones[$est][$estado]++;
+            $estaciones[$est]['TOTAL']++;
+            $totales[$estado]++;
+            $totales['TOTAL']++;
+        }
+
+        // Totales F.S. + S.B. por estación
+        foreach ($estaciones as $est => &$row) {
+            $row['FS_SB'] = $row['FUERA DE SERVICIO'] + $row['SOLO BASE'];
+        }
+
+        // Porcentajes
+        $porcentajes = [
+            'EN SERVICIO' => $totales['TOTAL'] ? round($totales['EN SERVICIO'] / $totales['TOTAL'] * 100) : 0,
+            'FUERA DE SERVICIO' => $totales['TOTAL'] ? round($totales['FUERA DE SERVICIO'] / $totales['TOTAL'] * 100) : 0,
+            'SOLO BASE' => $totales['TOTAL'] ? round($totales['SOLO BASE'] / $totales['TOTAL'] * 100) : 0,
+        ];
+
+        return view('partials.hidrantes-resumen', compact('estaciones', 'totales', 'porcentajes'));
+    }
 }
