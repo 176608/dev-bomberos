@@ -69,16 +69,7 @@ $(document).ready(function() {
         columnDefs: [
             { orderable: false, targets: [] } // Todas las columnas ordenables
         ],
-        // Evita que el tfoot se ordene
-        drawCallback: function(settings) {
-            // Siempre deja el row de totales al final
-            var api = this.api();
-            var $tfoot = $(api.table().footer());
-            if ($tfoot.length) {
-                var $tfootRow = $tfoot.find('tr');
-                $tfootRow.detach().appendTo($(api.table().find('tbody').parent()));
-            }
-        }
+        
     });
 });
 </script>
