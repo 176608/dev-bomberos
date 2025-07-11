@@ -102,7 +102,7 @@ class Hidrante extends Model
 
     public static function calcularStat($data)
     {
-        $total = 14;
+        $total = 13;
         $cumple = 0;
 
         // 1. fecha_inspeccion
@@ -144,7 +144,7 @@ class Hidrante extends Model
         // 13. oficial
         if (!empty($data['oficial']) && stripos($data['oficial'], 'S/I') === false) $cumple++;
 
-        // 15 y 16--- y_calle & id_y_calle ---
+        // 14 y 15--- y_calle & id_y_calle ---
         if (!is_null($data['id_y_calle'])) {
             $total++; // Consideramos y_calle
             if (!empty($data['y_calle']) && $data['y_calle'] !== 'Pendiente') $cumple++;
@@ -154,7 +154,7 @@ class Hidrante extends Model
             }
         }
 
-        // 17 y 18--- colonia & id_colonia ---
+        // 16 y 17--- colonia & id_colonia ---
         if (!is_null($data['id_colonia'])) {
             $total++; // Consideramos colonia
             if (!empty($data['colonia']) && $data['colonia'] !== 'Pendiente') $cumple++;
