@@ -36,29 +36,45 @@
                         </div>
                     </div>
                     <hr>
-                    <!-- Ubicación en horizontal -->
-                    <div class="row  mb-2 align-items-center">
-                        <div class="col-md-6 offset-md-5">
-                            <label class="form-label fw-bold mb-1">Ubicacion</label>
+                    <!-- Ubicación en horizontal --> <!--  -->
+
+                    <div class="card text-center">
+                        <div class="card-header">
+                            Ubicación del Hidrante
                         </div>
-                    </div>
-                    <div class="row mb-2 align-items-center">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold mb-0">Calle:</label>
-                            <span class="ms-1">{{ $hidrante->callePrincipal?->Nomvial ?? $hidrante->calle }}</span>
+                        <div class="card-body">
+                            {{-- Primer row: ubicación textual --}}
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    @if($hidrante->callePrincipal && !$hidrante->calleSecundaria)
+                                        {{-- Caso A: Solo calle principal --}}
+                                        Sobre {{ $hidrante->callePrincipal->Tipovial }} {{ $hidrante->callePrincipal->Nomvial }}.
+                                    @elseif($hidrante->callePrincipal && $hidrante->calleSecundaria)
+                                        {{-- Caso B: Calle principal y secundaria --}}
+                                        Entre {{ $hidrante->callePrincipal->Tipovial }} {{ $hidrante->callePrincipal->Nomvial }}
+                                        y {{ $hidrante->calleSecundaria->Tipovial }} {{ $hidrante->calleSecundaria->Nomvial }}.
+                                    @else
+                                        {{-- Fallback si no hay datos --}}
+                                        {{ $hidrante->calle }}
+                                    @endif
+                                </div>
+                            </div>
+                            {{-- Segundo row: colonia textual --}}
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    @if($hidrante->coloniaLocacion)
+                                        En {{ $hidrante->coloniaLocacion->TIPO }} {{ $hidrante->coloniaLocacion->NOMBRE }}.
+                                    @else
+                                        {{ $hidrante->colonia }}
+                                    @endif
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold mb-0">Y Calle:</label>
-                            <span class="ms-1">{{ $hidrante->calleSecundaria?->Nomvial ?? $hidrante->y_calle }}</span>
+                        <div class="card-footer text-body-secondary">
+                            Última actualización realizada: {{ $hidrante->updated_at ? \Carbon\Carbon::parse($hidrante->updated_at)->format('d/m/Y H:i') : 'N/A' }}
                         </div>
                     </div>
 
-                    <div class="row mb-2 align-items-center">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold mb-0">Colonia:</label>
-                            <span class="ms-1">{{ $hidrante->coloniaLocacion?->NOMBRE ?? $hidrante->colonia }}</span>
-                        </div>
-                    </div>
                     <hr>
                     <!-- Llave, presión y color en horizontal -->
                     <div class="row mb-2 align-items-center">
