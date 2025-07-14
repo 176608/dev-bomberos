@@ -110,10 +110,6 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-6">
-                        <label class="form-label">Color</label>
-                        <input type="text" class="form-control" value="{{ $hidrante->color }}" readonly>
-                    </div>
-                    <div class="col-sm-6">
                         <label class="form-label">Ubicación de Fosa</label>
                         <input type="text" class="form-control" value="{{ $hidrante->ubicacion_fosa }}" readonly>
                     </div>
