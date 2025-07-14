@@ -328,15 +328,6 @@ $(document).ready(function() {
         });
     });
 
-    // Si usas jQuery para seleccionar el modal:
-    function viewHidranteModal(hidranteId) {
-        const $modal = $('#viewHidranteModal' + hidranteId);
-        if ($modal.length) {
-            const modalInstance = new bootstrap.Modal($modal[0]);
-            modalInstance.show();
-        }
-    }
-
     // Función para actualizar los headers de la tabla configurada
     function updateConfiguredTableHeaders(configuracion) {
         const headerRow = $('#configuredHeaders');
