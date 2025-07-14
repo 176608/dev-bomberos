@@ -2,7 +2,6 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white align-items-center">
-                
                 <div class="w-100 text-center">
                     <h5 class="modal-title mb-0">Departamento de Bomberos</h5>
                     <div class="small">Registro de Hidrantes</div>
@@ -11,36 +10,48 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <!-- Dispuestos en forma de lista a la derecha (SOLO los campos) -->
-                    <div class="row mb-2">
-                        <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" style="height:60px; margin-right:15px;"> <!-- Dispuesta a la izquierda, AL LADO de estos TRES campos -->
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold mb-0">Fecha de Inspección:</label>
-                            <span class="ms-1">{{ \Carbon\Carbon::parse($hidrante->fecha_inspeccion)->format('d/m/Y') }}</span>
+                    <!-- Quiero que simule que la imagen abarca 6 columnas y los datos las otras 6 columnas. Esto en 3 renglones (para que los campos se visualicen en forma de lista) -->
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-md-6 d-flex justify-content-center align-items-center">
+                            <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" style="height:90px;">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold mb-0">N° Estación:</label>
-                            <span class="ms-1">{{ $hidrante->numero_estacion }}</span>
+                        <div class="col-md-6">
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold mb-0">Fecha de Inspección:</label>
+                                    <span class="ms-1">{{ \Carbon\Carbon::parse($hidrante->fecha_inspeccion)->format('d/m/Y') }}</span>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold mb-0">N° Estación:</label>
+                                    <span class="ms-1">{{ $hidrante->numero_estacion }}</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold mb-0">N° Hidrante:</label>
+                                    <span class="ms-1">{{ $hidrante->id }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold mb-0">N° Hidrante:</label>
-                            <span class="ms-1">{{ $hidrante->id }}</span>
-                        </div>
-                        <!-- Quiero que simule que la imagen abarca 6 columnas y los datos las otras 6 columnas. Esto en 3 renglones (para que los campos se visualicen en forma de lista) -->
                     </div>
                     <hr>
                     <!-- Ubicación en horizontal -->
                     <div class="row mb-2 align-items-center">
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Calle:</label>
                             <span class="ms-1">{{ $hidrante->callePrincipal?->Nomvial ?? $hidrante->calle }}</span>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Y Calle:</label>
                             <span class="ms-1">{{ $hidrante->calleSecundaria?->Nomvial ?? $hidrante->y_calle }}</span>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold mb-0">Colonia:</label> <!-- Colonia va en su propio row, centrado -->
+                    </div>
+
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-md-6 offset-md-3">
+                            <label class="form-label fw-bold mb-0">Colonia:</label>
                             <span class="ms-1">{{ $hidrante->coloniaLocacion?->NOMBRE ?? $hidrante->colonia }}</span>
                         </div>
                     </div>
@@ -94,11 +105,13 @@
                     <hr>
                     <!-- Observaciones y oficial -->
                     <div class="row mb-2 align-items-center">
-                        <div class="col-md-8">
+                        <div class="col-md-8 offset-md-2">
                             <label class="form-label fw-bold mb-0">Observaciones:</label>
                             <span class="ms-1">{{ $hidrante->observaciones }}</span>
-                        </div>
-                        <div class="col-md-4">
+                        </div> 
+                    </div>
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-md-8 offset-md-2">
                             <label class="form-label fw-bold mb-0">Oficial:</label>
                             <span class="ms-1">{{ $hidrante->oficial }}</span>
                         </div>
