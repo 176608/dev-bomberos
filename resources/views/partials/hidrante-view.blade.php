@@ -1,102 +1,105 @@
 <div class="modal fade" id="viewHidranteModal{{ $hidrante->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title w-100 text-center">Departamento de Bomberos</h5>
+            <div class="modal-header bg-primary text-white align-items-center">
+                <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" style="height:60px; margin-right:15px;">
+                <div class="w-100 text-center">
+                    <h5 class="modal-title mb-0">Departamento de Bomberos</h5>
+                    <div class="small">Registro de Hidrantes</div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <h6 class="text-center mb-3">Registro de Hidrantes</h6>
                 <form>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Fecha de Inspección (DD/MM/YYYY):</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->fecha_inspeccion }}" readonly> <!--Quiero que solo disponga la fecha, no la hora. Y de la forma Dia/Mes/Año asi como en horizontal con su campo respectivo -->
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Numero de Estación:</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->numero_estacion }}" readonly> <!-- Solo que este dispuesto en forma horizontal, como todos -->
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Número de Hidrante:</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->id }}" readonly> <!-- Dispuesto en forma horizontal -->
-                        </div>
-                    </div>
-                    <hr>
-                    <h6 class="fw-bold">Ubicación</h6>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Calle</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->callePrincipal?->Nomvial ?? $hidrante->calle }}" readonly> <!-- Dispuesto en forma horizontal -->
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Y Calle</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->calleSecundaria?->Nomvial ?? $hidrante->y_calle }}" readonly> <!-- Dispuesto en forma horizontal -->
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Colonia</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->coloniaLocacion?->NOMBRE ?? $hidrante->colonia }}" readonly> <!-- Dispuesto en forma horizontal -->
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row mb-2">
+                    <!-- Fechas y números en horizontal -->
+                    <div class="row mb-2 align-items-end">
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Estado de Hidrante</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->estado_hidrante }}" readonly>
+                            <label class="form-label fw-bold mb-0">Fecha de Inspección:</label>
+                            <span class="ms-1">{{ \Carbon\Carbon::parse($hidrante->fecha_inspeccion)->format('d/m/Y') }}</span>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Presión del Agua</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->presion_agua }}" readonly>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row mb-2">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Llave de Hidrante</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->llave_hidrante }}" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Llave de Fosa</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->llave_fosa }}" readonly>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Ubicación de Fosa</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->ubicacion_fosa }}" readonly>
+                            <label class="form-label fw-bold mb-0">N° Estación:</label>
+                            <span class="ms-1">{{ $hidrante->numero_estacion }}</span>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Hidrante Conectado a Tubo de</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->hidrante_conectado_tubo }}" readonly>
+                            <label class="form-label fw-bold mb-0">N° Hidrante:</label>
+                            <span class="ms-1">{{ $hidrante->id }}</span>
                         </div>
                     </div>
                     <hr>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Marca</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->marca }}" readonly>
+                    <!-- Ubicación en horizontal -->
+                    <div class="row mb-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold mb-0">Calle:</label>
+                            <span class="ms-1">{{ $hidrante->callePrincipal?->Nomvial ?? $hidrante->calle }}</span>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold mb-0">Y Calle:</label>
+                            <span class="ms-1">{{ $hidrante->calleSecundaria?->Nomvial ?? $hidrante->y_calle }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold mb-0">Colonia:</label>
+                            <span class="ms-1">{{ $hidrante->coloniaLocacion?->NOMBRE ?? $hidrante->colonia }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- Llave, presión y color en horizontal -->
+                    <div class="row mb-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold mb-0">Llave de Hidrante:</label>
+                            <span class="ms-1">{{ $hidrante->llave_hidrante }}</span>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Año</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->anio }}" readonly>
+                            <label class="form-label fw-bold mb-0">Presión del Agua:</label>
+                            <span class="ms-1">{{ $hidrante->presion_agua }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold mb-0">Color:</label>
+                            <span class="ms-1">{{ $hidrante->color ?? '' }}</span>
                         </div>
                     </div>
                     <hr>
-                    <div class="row mb-2">
+                    <!-- Ubicación de fosa y llave de fosa -->
+                    <div class="row mb-2 align-items-end">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Oficial</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->oficial }}" readonly>
+                            <label class="form-label fw-bold mb-0">Ubicación de Fosa:</label>
+                            <span class="ms-1">{{ $hidrante->ubicacion_fosa }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold mb-0">Llave de Fosa:</label>
+                            <span class="ms-1">{{ $hidrante->llave_fosa }}</span>
                         </div>
                     </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Observaciones</label>
-                            <input type="text" class="form-control" value="{{ $hidrante->observaciones }}" readonly>
+                    <hr>
+                    <!-- Tubo, año, estado, marca en horizontal -->
+                    <div class="row mb-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold mb-0">Hidrante Conectado a Tubo de:</label>
+                            <span class="ms-1">{{ $hidrante->hidrante_conectado_tubo }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold mb-0">Año:</label>
+                            <span class="ms-1">{{ $hidrante->anio }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold mb-0">Estado de Hidrante:</label>
+                            <span class="ms-1">{{ $hidrante->estado_hidrante }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold mb-0">Marca:</label>
+                            <span class="ms-1">{{ $hidrante->marca }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- Observaciones y oficial -->
+                    <div class="row mb-2 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold mb-0">Observaciones:</label>
+                            <span class="ms-1">{{ $hidrante->observaciones }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold mb-0">Oficial:</label>
+                            <span class="ms-1">{{ $hidrante->oficial }}</span>
                         </div>
                     </div>
                 </form>
