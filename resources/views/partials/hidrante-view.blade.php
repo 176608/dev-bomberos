@@ -38,7 +38,7 @@
                     <hr>
                     <!-- Ubicación en horizontal -->
                     <div class="row  mb-2 align-items-center">
-                        <div class="col-md-6">
+                        <div class="col-md-6 offset-md-3">
                             <label class="form-label fw-bold mb-1">Ubicacion</label>
                         </div>
                     </div>
