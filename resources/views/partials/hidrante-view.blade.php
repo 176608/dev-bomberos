@@ -10,7 +10,6 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <!-- Quiero que simule que la imagen abarca 6 columnas y los datos las otras 6 columnas. Esto en 3 renglones (para que los campos se visualicen en forma de lista) -->
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6 d-flex justify-content-center align-items-center">
                             <img src="{{ asset('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" style="height:90px;">
@@ -38,6 +37,11 @@
                     </div>
                     <hr>
                     <!-- Ubicación en horizontal -->
+                    <div class="row  mb-2 align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold mb-1">Ubicacion</label>
+                        </div>
+                    </div>
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Calle:</label>
