@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="row mb-2 align-items-center">
-                        <div class="col-md-6 offset-md-3">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Colonia:</label>
                             <span class="ms-1">{{ $hidrante->coloniaLocacion?->NOMBRE ?? $hidrante->colonia }}</span>
                         </div>
@@ -95,7 +95,17 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Ubicación de Fosa:</label>
-                            <span class="ms-1">{{ $hidrante->ubicacion_fosa }}</span>
+                            <span class="ms-1">
+                                <?php
+                                    // Verificar si ubicacion_fosa es numérico y está entre 1 y 100
+                                    $valor = $hidrante->ubicacion_fosa;
+                                    if (is_numeric($valor) && $valor >= 1 && $valor <= 100) {
+                                        echo "A {$valor} Metros.";
+                                    } else {
+                                        echo $valor;
+                                    }
+                                ?>
+                            </span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Hidrante Conectado a Tubo de:</label>
@@ -105,13 +115,13 @@
                     <hr>
                     <!-- Observaciones y oficial -->
                     <div class="row mb-2 align-items-center">
-                        <div class="col-md-8 offset-md-2">
+                        <div class="col-md-12">
                             <label class="form-label fw-bold mb-0">Observaciones:</label>
                             <span class="ms-1">{{ $hidrante->observaciones }}</span>
                         </div> 
                     </div>
                     <div class="row mb-2 align-items-center">
-                        <div class="col-md-8 offset-md-2">
+                        <div class="col-md-12">
                             <label class="form-label fw-bold mb-0">Oficial:</label>
                             <span class="ms-1">{{ $hidrante->oficial }}</span>
                         </div>
