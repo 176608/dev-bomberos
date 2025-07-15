@@ -78,11 +78,23 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Estado de Hidrante:</label>
-                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->estado_hidrante)) }}</span>
+                            <span class="ms-1">
+                                @if($hidrante->estado_hidrante === 'S/I')
+                                    S/I
+                                @else
+                                    {{ ucfirst(strtolower($hidrante->estado_hidrante)) }}
+                                @endif
+                            </span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Presión del Agua:</label>
-                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->presion_agua)) }}</span>
+                            <span class="ms-1">
+                                @if($hidrante->presion_agua === 'S/I')
+                                    S/I
+                                @else
+                                    {{ ucfirst(strtolower($hidrante->presion_agua)) }}
+                                @endif
+                            </span>
                         </div>
                     </div>
                     <hr>
@@ -101,11 +113,23 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Llave de Hidrante:</label>
-                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->llave_hidrante)) }}</span>
+                            <span class="ms-1">
+                                @if($hidrante->llave_hidrante === 'S/I')
+                                    S/I
+                                @else
+                                    {{ ucfirst(strtolower($hidrante->llave_hidrante)) }}
+                                @endif
+                            </span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Llave de Fosa:</label>
-                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->llave_fosa)) }}</span>
+                            <span class="ms-1">
+                                @if($hidrante->llave_fosa === 'S/I')
+                                    S/I
+                                @else
+                                    {{ ucfirst(strtolower($hidrante->llave_fosa)) }}
+                                @endif
+                            </span>
                         </div>
                     </div>
                     <hr>
@@ -114,20 +138,35 @@
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Ubicación de Fosa:</label>
                             <span class="ms-1">
-                                <?php
-                                    // Verificar si ubicacion_fosa es numérico y está entre 1 y 100
-                                    $valor = $hidrante->ubicacion_fosa;
-                                    if (is_numeric($valor) && $valor >= 1 && $valor <= 100) {
-                                        echo "A {$valor} Metros.";
-                                    } else {
-                                        echo $valor;
-                                    }
-                                ?>
+                                @if($hidrante->ubicacion_fosa === 'S/I')
+                                    S/I
+                                @elseif(is_numeric($hidrante->ubicacion_fosa) && $hidrante->ubicacion_fosa >= 1 && $hidrante->ubicacion_fosa <= 100)
+                                    A {{ $hidrante->ubicacion_fosa }} Metros.
+                                @else
+                                    {{ ucfirst(strtolower($hidrante->ubicacion_fosa)) }}
+                                @endif
                             </span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Hidrante Conectado a Tubo de:</label>
-                            <span class="ms-1">{{ $hidrante->hidrante_conectado_tubo }}</span>
+                            <span class="ms-1">
+                                @switch($hidrante->hidrante_conectado_tubo)
+                                    @case("S/I")
+                                        S/I
+                                        @break
+                                    @case("4'")
+                                        4 Pulgadas
+                                        @break
+                                    @case("6'")
+                                        6 Pulgadas
+                                        @break
+                                    @case("8'")
+                                        8 Pulgadas
+                                        @break
+                                    @default
+                                        {{ ucfirst(strtolower($hidrante->hidrante_conectado_tubo)) }}
+                                @endswitch
+                            </span>
                         </div>
                     </div>
                     <hr>
@@ -141,7 +180,7 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-12">
                             <label class="form-label fw-bold mb-0">Oficial:</label>
-                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->oficial)) }}</span>
+                            <span class="ms-1">{{ $hidrante->oficial }}</span>
                         </div>
                     </div>
                 </form>
