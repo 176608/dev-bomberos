@@ -361,32 +361,44 @@ class CapturistaController extends Controller
                     return 'N/A';
                 }
                 if ($hidrante->id_calle == 0) {
-                    return 'Pendiente';
+                    return $hidrante->calle ? $hidrante->calle . '*' : 'Pendiente';
                 }
-                return $hidrante->callePrincipal?->Nomvial ?? 'N/A';
+                if ($hidrante->callePrincipal) {
+                    return '<span title="' . $hidrante->callePrincipal->Tipovial . '">' 
+                        . $hidrante->callePrincipal->Nomvial . '</span>';
+                }
+                return 'N/A';
             })
             ->editColumn('y_calle', function($hidrante) {
                 if (is_null($hidrante->id_y_calle)) {
                     return 'N/A';
                 }
                 if ($hidrante->id_y_calle == 0) {
-                    return 'Pendiente';
+                    return $hidrante->y_calle ? $hidrante->y_calle . '*' : 'Pendiente';
                 }
-                return $hidrante->calleSecundaria?->Nomvial ?? 'N/A';
+                if ($hidrante->calleSecundaria) {
+                    return '<span title="' . $hidrante->calleSecundaria->Tipovial . '">' 
+                        . $hidrante->calleSecundaria->Nomvial . '</span>';
+                }
+                return 'N/A';
             })
             ->editColumn('colonia', function($hidrante) {
                 if (is_null($hidrante->id_colonia)) {
                     return 'N/A';
                 }
                 if ($hidrante->id_colonia == 0) {
-                    return 'Pendiente';
+                    return $hidrante->colonia ? $hidrante->colonia . '*' : 'Pendiente';
                 }
-                return $hidrante->coloniaLocacion?->NOMBRE ?? 'N/A';
+                if ($hidrante->coloniaLocacion) {
+                    return '<span title="' . $hidrante->coloniaLocacion->TIPO . '">' 
+                        . $hidrante->coloniaLocacion->NOMBRE . '</span>';
+                }
+                return 'N/A';
             })
             ->editColumn('fecha_inspeccion', function($hidrante) {
                 return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
             })
-            ->rawColumns(['acciones'])
+            ->rawColumns(['acciones', 'calle', 'y_calle', 'colonia'])
             ->make(true);
     }
 
