@@ -418,10 +418,6 @@ $(document).ready(function() {
             },
             createdRow: function(row, data, dataIndex) {
                 if (
-                    // Verifica textos 'pendiente'
-                    (data.calle && data.calle.toString().toLowerCase().includes('pendiente')) ||
-                    (data.y_calle && data.y_calle.toString().toLowerCase().includes('pendiente')) ||
-                    (data.colonia && data.colonia.toString().toLowerCase().includes('pendiente')) ||
                     // Verifica IDs en 0
                     data.id_calle === 0 ||
                     data.id_y_calle === 0 ||
