@@ -9,13 +9,6 @@ class Colonias extends Model
     protected $table = 'colonias';
     protected $primaryKey = 'IDKEY';
     public $timestamps = false;
-
-    protected $fillable = [
-        'ID_COLO',
-        'NOMBRE',
-        'ETIQUETA',
-        'TIPO'
-    ];
 }
 
 /*
