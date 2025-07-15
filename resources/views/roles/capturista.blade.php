@@ -390,14 +390,14 @@ $(document).ready(function() {
                     data: col,
                     name: col,
                     className: 'text-center align-middle',
-                    // Agregar render para buscar tanto el valor original como con asterisco
                     render: function(data, type, row) {
                         if (type === 'display') {
                             return data;
                         }
-                        // Para búsqueda, incluir tanto el valor original como con asterisco
-                        if (type === 'filter') {
-                            return data + ' ' + data + '*';
+                        if (type === 'filter' || type === 'search') {
+                            // Elimina el asterisco para la búsqueda y agrega variantes
+                            const cleanData = data ? data.replace('*', '') : '';
+                            return cleanData + ' ' + cleanData + '*';
                         }
                         return data;
                     }
