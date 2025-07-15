@@ -45,24 +45,34 @@
                         <div class="card-body">
                             <div class="row mb-2">
                                 <div class="col-12">
-                                    @if($hidrante->callePrincipal && !$hidrante->calleSecundaria)
-                                        {{-- Caso A: Solo calle principal --}}
-                                        Sobre {{ $hidrante->callePrincipal->Tipovial }} {{ $hidrante->callePrincipal->Nomvial }}.
-                                    @elseif($hidrante->callePrincipal && $hidrante->calleSecundaria)
-                                        {{-- Caso B: Calle principal y secundaria --}}
-                                        Entre {{ $hidrante->callePrincipal->Tipovial }} {{ $hidrante->callePrincipal->Nomvial }}
-                                        y {{ $hidrante->calleSecundaria->Tipovial }} {{ $hidrante->calleSecundaria->Nomvial }}.
-                                    @else
-                                        {{-- Fallback si no hay datos --}}
-                                        En {{ $hidrante->calle }}*.
+                                    @php
+                                        $callePrincipal = $hidrante->callePrincipal 
+                                            ? $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial
+                                            : ($hidrante->calle ? $hidrante->calle . '*' : null);
+                                            
+                                        $calleSecundaria = $hidrante->calleSecundaria 
+                                            ? $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial
+                                            : ($hidrante->y_calle ? $hidrante->y_calle . '*' : null);
+                                    @endphp
+
+                                    @if($callePrincipal)
+                                        @if($calleSecundaria)
+                                            {{-- Caso: Ambas calles (pueden ser mixtas) --}}
+                                            Entre {{ $callePrincipal }} y {{ $calleSecundaria }}.
+                                        @else
+                                            {{-- Caso: Solo calle principal --}}
+                                            Sobre {{ $callePrincipal }}.
+                                        @endif
                                     @endif
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-12">
                                     @if($hidrante->coloniaLocacion)
+                                        {{-- Caso 1: Colonia con relación --}}
                                         En {{ $hidrante->coloniaLocacion->TIPO }} {{ $hidrante->coloniaLocacion->NOMBRE }}.
-                                    @else
+                                    @elseif($hidrante->colonia && $hidrante->colonia !== NULL)
+                                        {{-- Caso 2: Solo campo colonia sin relación --}}
                                         En {{ $hidrante->colonia }}*.
                                     @endif
                                 </div>
