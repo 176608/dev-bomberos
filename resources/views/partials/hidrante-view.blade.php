@@ -43,7 +43,6 @@
                             Ubicación del Hidrante
                         </div>
                         <div class="card-body">
-                            {{-- Primer row: ubicación textual --}}
                             <div class="row mb-2">
                                 <div class="col-12">
                                     @if($hidrante->callePrincipal && !$hidrante->calleSecundaria)
@@ -55,17 +54,16 @@
                                         y {{ $hidrante->calleSecundaria->Tipovial }} {{ $hidrante->calleSecundaria->Nomvial }}.
                                     @else
                                         {{-- Fallback si no hay datos --}}
-                                        {{ $hidrante->calle }}
+                                        En {{ $hidrante->calle }}*.
                                     @endif
                                 </div>
                             </div>
-                            {{-- Segundo row: colonia textual --}}
                             <div class="row mb-2">
                                 <div class="col-12">
                                     @if($hidrante->coloniaLocacion)
                                         En {{ $hidrante->coloniaLocacion->TIPO }} {{ $hidrante->coloniaLocacion->NOMBRE }}.
                                     @else
-                                        {{ $hidrante->colonia }}
+                                        En {{ $hidrante->colonia }}*.
                                     @endif
                                 </div>
                             </div>
@@ -80,11 +78,11 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Estado de Hidrante:</label>
-                            <span class="ms-1">{{ $hidrante->estado_hidrante }}</span>
+                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->estado_hidrante)) }}</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Presión del Agua:</label>
-                            <span class="ms-1">{{ $hidrante->presion_agua }}</span>
+                            <span class="ms-1">{{ $hidrante->presion_agua }} {{ ucfirst(strtolower($hidrante->presion_agua)) }}</span>
                         </div>
                     </div>
                     <hr>
@@ -103,11 +101,11 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Llave de Hidrante:</label>
-                            <span class="ms-1">{{ $hidrante->llave_hidrante }}</span>
+                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->llave_hidrante)) }}</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Llave de Fosa:</label>
-                            <span class="ms-1">{{ $hidrante->llave_fosa }}</span>
+                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->llave_fosa)) }}</span>
                         </div>
                     </div>
                     <hr>
@@ -143,7 +141,7 @@
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-12">
                             <label class="form-label fw-bold mb-0">Oficial:</label>
-                            <span class="ms-1">{{ $hidrante->oficial }}</span>
+                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->oficial)) }}</span>
                         </div>
                     </div>
                 </form>
