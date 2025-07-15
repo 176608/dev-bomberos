@@ -389,7 +389,18 @@ $(document).ready(function() {
                 dtColumns.push({
                     data: col,
                     name: col,
-                    className: 'text-center align-middle'
+                    className: 'text-center align-middle',
+                    // Agregar render para buscar tanto el valor original como con asterisco
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            return data;
+                        }
+                        // Para búsqueda, incluir tanto el valor original como con asterisco
+                        if (type === 'filter') {
+                            return data + ' ' + data + '*';
+                        }
+                        return data;
+                    }
                 });
             }
         });
@@ -410,21 +421,11 @@ $(document).ready(function() {
             scrollX: true,
             responsive: false,
             pageLength: 25,
-            lengthMenu: [[25, 50, 100, 500], [25, 50, 100,  500]],
+            lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
             drawCallback: function() {
                 $('#tablaLoader').hide();
                 $('.table-responsive').show();
                 scrollToTablaHidrantes();
-            },
-            createdRow: function(row, data, dataIndex) {
-                if (
-                    // Verifica IDs en 0
-                    data.id_calle === 0 ||
-                    data.id_y_calle === 0 ||
-                    data.id_colonia === 0
-                ) {
-                    $(row).addClass('table-danger').css('color', 'red');
-                }
             }
         });
     }
