@@ -82,7 +82,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Presión del Agua:</label>
-                            <span class="ms-1">{{ $hidrante->presion_agua }} {{ ucfirst(strtolower($hidrante->presion_agua)) }}</span>
+                            <span class="ms-1">{{ ucfirst(strtolower($hidrante->presion_agua)) }}</span>
                         </div>
                     </div>
                     <hr>
