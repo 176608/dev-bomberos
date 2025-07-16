@@ -179,17 +179,23 @@ $(function() {
                 }
             });
             
+            // Depurar los filtros
+            console.log('Filtros visibles:', filtrosVisibles);
+            console.log('Filtros no visibles:', filtrosNoVisibles);
+            console.log('Columnas configuradas:', columnas);
+            
             // Aplicar filtros visibles directamente en DataTables
             Object.keys(filtrosVisibles).forEach(campo => {
                 const valor = filtrosVisibles[campo];
                 const columnIndex = columnas.indexOf(campo);
                 if (columnIndex >= 0) {
                     // El +3 es por las columnas fijas (id, acciones, stat)
+                    console.log(`Aplicando filtro a columna ${campo} (índice ${columnIndex + 3}): "${valor}"`);
                     if (valor === '') {
-                        // Filtro para valores vacíos (usando expresión regular)
+                        // Filtro para valores vacíos
                         table.column(columnIndex + 3).search('^$|^N/A$', true, false);
                     } else {
-                        // Filtro para valores normales
+                        // Filtro para valores normales - usar regex para coincidencia exacta
                         table.column(columnIndex + 3).search('^' + $.fn.dataTable.util.escapeRegex(valor) + '$', true, false);
                     }
                 }
@@ -197,14 +203,20 @@ $(function() {
             
             // Si hay filtros para columnas no visibles, recargar la tabla con filtros server-side
             if (Object.keys(filtrosNoVisibles).length > 0) {
+                // Guardar los filtros no visibles globalmente para la recarga
+                window.filtrosNoVisibles = filtrosNoVisibles;
+                
                 // Guardar los filtros no visibles en la configuración de AJAX
                 const ajaxUrl = new URL(table.ajax.url());
                 ajaxUrl.searchParams.set('filtros_adicionales', JSON.stringify(filtrosNoVisibles));
                 
                 // Actualizar la URL de AJAX y recargar
+                console.log('Recargando tabla con filtros server-side:', filtrosNoVisibles);
                 table.ajax.url(ajaxUrl.toString()).load();
             } else {
                 // Si no hay filtros para columnas no visibles, solo redibujamos
+                // Y limpiamos cualquier filtro server-side anterior
+                window.filtrosNoVisibles = {};
                 table.draw();
             }
         }

@@ -522,6 +522,15 @@ class CapturistaController extends Controller
                     $query->where('presion_agua', $keyword);
                 }
             })
+            ->filterColumn('colonia', function($query, $keyword) {
+                if ($keyword === '') {
+                    $query->where(function($q) {
+                        $q->whereNull('colonia')->orWhere('colonia', '');
+                    });
+                } else {
+                    $query->where('colonia', $keyword);
+                }
+            })
             // Añade aquí más filterColumn para otros campos que necesiten filtrado exacto
             ->editColumn('numero_estacion', function($hidrante) {
                 if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {

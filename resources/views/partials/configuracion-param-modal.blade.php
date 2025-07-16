@@ -105,6 +105,27 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Colonia</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_colonia" data-column="colonia"
+                                            {{ in_array('colonia', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_colonia">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_colonia" data-column="colonia"
+                                            {{ in_array('colonia:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_colonia">
+                                            Activar filtro
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <hr>

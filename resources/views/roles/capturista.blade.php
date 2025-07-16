@@ -388,10 +388,12 @@ $(document).ready(function() {
                 }
             }
         ];
+        
+        // Asegurarse que todas las columnas configuradas existen en los datos
         columnas.forEach(function(col) {
             if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
                 dtColumns.push({
-                    data: col,
+                    data: col, // Aquí se especifica la propiedad de los datos
                     name: col,
                     className: 'text-center align-middle',
                     render: function(data, type, row) {
@@ -414,6 +416,11 @@ $(document).ready(function() {
             serverSide: true,
             ajax: {
                 url: "{{ route('hidrantes.data') }}",
+                // Depurar la respuesta para ver qué columnas faltan
+                dataSrc: function(json) {
+                    console.log("DataTables response:", json);
+                    return json.data;
+                },
                 data: function(d) {
                     // Añadir filtros adicionales si existen
                     const filtrosAdicionales = window.filtrosNoVisibles || {};
@@ -423,6 +430,7 @@ $(document).ready(function() {
                     return d;
                 }
             },
+            columns: dtColumns, // Asegúrate de pasar las columnas correctamente
             language: {
                 url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
             },
@@ -444,6 +452,7 @@ $(document).ready(function() {
         
         // Hacer disponible la tabla globalmente
         window.hidrantesTable = table;
+        window.configTable = table; // Asegurar que configTable también está disponible
     }
 
     function scrollToTablaHidrantes() {
