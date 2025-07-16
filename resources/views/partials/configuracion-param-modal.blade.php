@@ -6,76 +6,103 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2">Configuración de columnas y filtros</h6>
+                            <p class="mb-0">Seleccione las columnas que desea ver en la tabla y active los filtros que necesite.</p>
+                        </div>
+                    </div>
+                </div>
                 <form id="formConfiguracion">
                     <div class="row">
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Básica</h6>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Fecha de Inspección</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('fecha_inspeccion', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="fecha_inspeccion">
-                                        {{ in_array('fecha_inspeccion', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('fecha_inspeccion:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="fecha_inspeccion">
-                                        {{ in_array('fecha_inspeccion:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Fecha de Inspección</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_fecha_inspeccion" data-column="fecha_inspeccion"
+                                            {{ in_array('fecha_inspeccion', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_fecha_inspeccion">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_fecha_inspeccion" data-column="fecha_inspeccion"
+                                            {{ in_array('fecha_inspeccion:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_fecha_inspeccion">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Número de Estación</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('numero_estacion', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="numero_estacion">
-                                        {{ in_array('numero_estacion', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('numero_estacion:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="numero_estacion">
-                                        {{ in_array('numero_estacion:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Número de Estación</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_numero_estacion" data-column="numero_estacion"
+                                            {{ in_array('numero_estacion', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_numero_estacion">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_numero_estacion" data-column="numero_estacion"
+                                            {{ in_array('numero_estacion:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_numero_estacion">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Ubicación</h6>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Calle</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('calle', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="calle">
-                                        {{ in_array('calle', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('calle:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="calle">
-                                        {{ in_array('calle:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Calle</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_calle" data-column="calle"
+                                            {{ in_array('calle', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_calle">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_calle" data-column="calle"
+                                            {{ in_array('calle:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_calle">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Y Calle</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('y_calle', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="y_calle">
-                                        {{ in_array('y_calle', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('y_calle:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="y_calle">
-                                        {{ in_array('y_calle:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="d-block mb-2">Colonia</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('colonia', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="colonia">
-                                        {{ in_array('colonia', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('colonia:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="colonia">
-                                        {{ in_array('colonia:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Y Calle</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_y_calle" data-column="y_calle"
+                                            {{ in_array('y_calle', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_y_calle">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_y_calle" data-column="y_calle"
+                                            {{ in_array('y_calle:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_y_calle">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -85,97 +112,153 @@
                         <div class="col-md-6">
                             <h6 class="mb-3">Características</h6>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Llave Hidrante</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('llave_hidrante', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="llave_hidrante">
-                                        {{ in_array('llave_hidrante', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('llave_hidrante:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="llave_hidrante">
-                                        {{ in_array('llave_hidrante:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Llave Hidrante</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_llave_hidrante" data-column="llave_hidrante"
+                                            {{ in_array('llave_hidrante', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_llave_hidrante">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_llave_hidrante" data-column="llave_hidrante"
+                                            {{ in_array('llave_hidrante:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_llave_hidrante">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Llave Fosa</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('llave_fosa', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="llave_fosa">
-                                        {{ in_array('llave_fosa', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('llave_fosa:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="llave_fosa">
-                                        {{ in_array('llave_fosa:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Llave Fosa</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_llave_fosa" data-column="llave_fosa"
+                                            {{ in_array('llave_fosa', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_llave_fosa">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_llave_fosa" data-column="llave_fosa"
+                                            {{ in_array('llave_fosa:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_llave_fosa">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Presión de Agua</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('presion_agua', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="presion_agua">
-                                        {{ in_array('presion_agua', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('presion_agua:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="presion_agua">
-                                        {{ in_array('presion_agua:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Presión de Agua</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_presion_agua" data-column="presion_agua"
+                                            {{ in_array('presion_agua', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_presion_agua">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_presion_agua" data-column="presion_agua"
+                                            {{ in_array('presion_agua:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_presion_agua">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Estado</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('estado_hidrante', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="estado_hidrante">
-                                        {{ in_array('estado_hidrante', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('estado_hidrante:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="estado_hidrante">
-                                        {{ in_array('estado_hidrante:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Estado</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_estado_hidrante" data-column="estado_hidrante"
+                                            {{ in_array('estado_hidrante', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_estado_hidrante">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_estado_hidrante" data-column="estado_hidrante"
+                                            {{ in_array('estado_hidrante:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_estado_hidrante">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="mb-3">Información Adicional</h6>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Marca</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('marca', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="marca">
-                                        {{ in_array('marca', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('marca:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="marca">
-                                        {{ in_array('marca:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Marca</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_marca" data-column="marca"
+                                            {{ in_array('marca', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_marca">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_marca" data-column="marca"
+                                            {{ in_array('marca:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_marca">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Año</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('anio', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="anio">
-                                        {{ in_array('anio', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('anio:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="anio">
-                                        {{ in_array('anio:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Año</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_anio" data-column="anio"
+                                            {{ in_array('anio', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_anio">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_anio" data-column="anio"
+                                            {{ in_array('anio:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_anio">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="d-block mb-2">Oficial</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm column-toggle-view {{ in_array('oficial', $columnas ?? []) ? 'btn-primary' : 'btn-outline-primary' }}" 
-                                        data-column="oficial">
-                                        {{ in_array('oficial', $columnas ?? []) ? 'Remover de la tabla' : 'Ver en la tabla' }}
-                                    </button>
-                                    <button type="button" class="btn btn-sm column-toggle-filter {{ in_array('oficial:0', $filtros_act ?? []) ? 'btn-success' : 'btn-outline-success' }}"
-                                        data-column="oficial">
-                                        {{ in_array('oficial:0', $filtros_act ?? []) ? 'Desactivar filtro' : 'Activar filtro' }}
-                                    </button>
+                                <label class="form-label">Oficial</label>
+                                <div class="d-flex">
+                                    <div class="form-check form-switch me-4">
+                                        <input class="form-check-input column-toggle-view" type="checkbox" 
+                                            id="toggleColumn_oficial" data-column="oficial"
+                                            {{ in_array('oficial', $columnas ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleColumn_oficial">
+                                            Ver en tabla
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input column-toggle-filter" type="checkbox" 
+                                            id="toggleFilter_oficial" data-column="oficial"
+                                            {{ in_array('oficial:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="toggleFilter_oficial">
+                                            Activar filtro
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -204,70 +287,39 @@ $(function() {
     console.log("Columnas cargadas:", columnasVisibles);
     console.log("Filtros cargados:", filtrosActivos);
 
-    // Actualizar UI para botones de visualización
-    $('.column-toggle-view').each(function() {
+    // Manejar cambios en visibilidad de columnas
+    $('.column-toggle-view').change(function() {
         const column = $(this).data('column');
-        const isVisible = columnasVisibles.includes(column);
+        const isChecked = $(this).prop('checked');
         
-        $(this)
-            .toggleClass('btn-primary', isVisible)
-            .toggleClass('btn-outline-primary', !isVisible)
-            .text(isVisible ? 'Remover de la tabla' : 'Ver en la tabla');
-    });
-    
-    // Actualizar UI para botones de filtro
-    $('.column-toggle-filter').each(function() {
-        const column = $(this).data('column');
-        const filterKey = column + ':0';
-        const isActive = filtrosActivos.some(filter => filter === filterKey);
-        
-        $(this)
-            .toggleClass('btn-success', isActive)
-            .toggleClass('btn-outline-success', !isActive)
-            .text(isActive ? 'Desactivar filtro' : 'Activar filtro');
-    });
-
-    // Manejar clic en botones de visualización de columnas
-    $(document).on('click', '.column-toggle-view', function() {
-        const column = $(this).data('column');
-        const isCurrentlyVisible = columnasVisibles.includes(column);
-        
-        if (isCurrentlyVisible) {
+        if (isChecked) {
+            if (!columnasVisibles.includes(column)) {
+                columnasVisibles.push(column);
+            }
+        } else {
             // No permitir desactivar si es la única columna visible
-            if (columnasVisibles.length <= 1) {
+            if (columnasVisibles.length <= 1 && columnasVisibles.includes(column)) {
                 alert('Debe haber al menos una columna visible en la tabla.');
+                $(this).prop('checked', true);
                 return;
             }
             
-            // Remover de las columnas visibles
             columnasVisibles = columnasVisibles.filter(col => col !== column);
-            $(this).removeClass('btn-primary').addClass('btn-outline-primary');
-            $(this).text('Ver en la tabla');
-        } else {
-            // Agregar a las columnas visibles
-            columnasVisibles.push(column);
-            $(this).removeClass('btn-outline-primary').addClass('btn-primary');
-            $(this).text('Remover de la tabla');
         }
     });
     
-    // Manejar clic en botones de filtros
-    $(document).on('click', '.column-toggle-filter', function() {
+    // Manejar cambios en activación de filtros
+    $('.column-toggle-filter').change(function() {
         const column = $(this).data('column');
+        const isChecked = $(this).prop('checked');
         const filterKey = column + ':0';
-        const filterIndex = filtrosActivos.findIndex(filter => filter === filterKey);
-        const isCurrentlyActive = filterIndex !== -1;
         
-        if (isCurrentlyActive) {
-            // Desactivar filtro
-            filtrosActivos.splice(filterIndex, 1);
-            $(this).removeClass('btn-success').addClass('btn-outline-success');
-            $(this).text('Activar filtro');
+        if (isChecked) {
+            if (!filtrosActivos.some(f => f === filterKey)) {
+                filtrosActivos.push(filterKey);
+            }
         } else {
-            // Activar filtro
-            filtrosActivos.push(filterKey);
-            $(this).removeClass('btn-outline-success').addClass('btn-success');
-            $(this).text('Desactivar filtro');
+            filtrosActivos = filtrosActivos.filter(f => f !== filterKey);
         }
     });
 

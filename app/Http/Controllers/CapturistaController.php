@@ -327,9 +327,24 @@ class CapturistaController extends Controller
                 'filtros_act' => 'required|array'
             ]);
 
+            // Asegurarse de que no hay campos duplicados
+            $filtrosUnicos = [];
+            $camposVistos = [];
+
+            foreach ($validated['filtros_act'] as $filtro) {
+                $partes = explode(':', $filtro);
+                $campo = $partes[0];
+                
+                // Si es estado_hidrante, permitimos repeticiones
+                if ($campo === 'estado_hidrante' || !in_array($campo, $camposVistos)) {
+                    $filtrosUnicos[] = $filtro;
+                    $camposVistos[] = $campo;
+                }
+            }
+
             $config = ConfiguracionCapturista::updateOrCreate(
                 ['user_id' => auth()->id()],
-                ['filtros_act' => $validated['filtros_act']]
+                ['filtros_act' => $filtrosUnicos]
             );
 
             return response()->json([
@@ -346,6 +361,32 @@ class CapturistaController extends Controller
                 'message' => 'Error al actualizar filtros: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // Agregar este método para obtener valores únicos para los filtros
+    private function getDistinctValues($campo)
+    {
+        $values = Cache::remember("distinct_values_{$campo}", 60*60, function() use ($campo) {
+            // Para campos especiales como fecha_inspeccion, podríamos querer formatear
+            if ($campo === 'fecha_inspeccion') {
+                return Hidrante::whereNotNull($campo)
+                    ->select(\DB::raw("DATE_FORMAT(fecha_inspeccion, '%Y-%m-%d') as value"))
+                    ->distinct()
+                    ->orderBy('value')
+                    ->pluck('value')
+                    ->toArray();
+            }
+            
+            // Para campos comunes
+            return Hidrante::whereNotNull($campo)
+                ->where($campo, '!=', '')
+                ->distinct($campo)
+                ->orderBy($campo)
+                ->pluck($campo)
+                ->toArray();
+        });
+        
+        return $values;
     }
 
     public function cargarPanelAuxiliar(Request $request)
@@ -371,7 +412,20 @@ class CapturistaController extends Controller
             'oficial' => 'Oficial'
         ];
         
-        return view('partials.configuracion-param-auxiliar', compact('filtros_act', 'modo', 'headerNames'))->render();
+        // Obtener opciones para los selectores de filtro
+        $opciones_filtro = [];
+        foreach ($filtros_act as $filtro) {
+            $partes = explode(':', $filtro);
+            $campo = $partes[0];
+            
+            if (!isset($opciones_filtro[$campo])) {
+                $opciones_filtro[$campo] = $this->getDistinctValues($campo);
+            }
+        }
+        
+        return view('partials.configuracion-param-auxiliar', 
+            compact('filtros_act', 'modo', 'headerNames', 'opciones_filtro'))
+            ->render();
     }
 
     public function dataTable(Request $request)

@@ -32,10 +32,16 @@
                                 </div>
                                 <div class="card-body py-2">
                                     <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control filtro-valor" 
-                                            data-campo="{{ $campo }}" 
-                                            value="{{ $valor !== '0' ? $valor : '' }}" 
-                                            placeholder="Filtrar por {{ $nombreCampo }}">
+                                        <select class="form-select filtro-valor" data-campo="{{ $campo }}">
+                                            <option value="">Filtrar por {{ $nombreCampo }}</option>
+                                            @if(isset($opciones_filtro[$campo]))
+                                                @foreach($opciones_filtro[$campo] as $opcion)
+                                                    <option value="{{ $opcion }}" {{ $valor == $opcion ? 'selected' : '' }}>
+                                                        {{ $opcion }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                         <button class="btn btn-outline-secondary aplicar-filtro" data-campo="{{ $campo }}">
                                             <i class="fas fa-filter"></i>
                                         </button>
@@ -84,6 +90,13 @@ $(function() {
         
         // Actualizar el valor del filtro en la lista de filtros activos
         actualizarFiltroActivo(campo, valor);
+        
+        // Aplicar solo este filtro a la tabla
+        const filtros = {};
+        if (valor) {
+            filtros[campo] = valor;
+        }
+        aplicarFiltrosATabla(filtros);
     });
     
     // Aplicar todos los filtros
@@ -133,7 +146,6 @@ $(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                // Opcional: mostrar notificación
                 console.log('Filtro actualizado:', campo, valor);
             },
             error: function(xhr) {
@@ -155,12 +167,16 @@ $(function() {
                 
                 // Encontrar la columna correspondiente en DataTables
                 const columnas = window.hidrantesTableConfig || [];
-                // Sumar 3 porque las primeras tres columnas son id, acciones y stat
                 const columnIndex = columnas.indexOf(campo);
                 
+                // Aplicar filtro en la columna correspondiente (+3 por columnas fijas)
                 if (columnIndex >= 0) {
-                    // Aplicar filtro en la columna correspondiente (+3 por las columnas fijas)
                     table.column(columnIndex + 3).search(valor);
+                } else {
+                    // Si la columna no está visible, buscar en todas las columnas
+                    // Esta es una implementación básica, puede necesitar ajustes según tu estructura
+                    const allData = table.rows().data();
+                    table.search(valor);
                 }
             });
             
