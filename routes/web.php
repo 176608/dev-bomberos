@@ -52,6 +52,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/capturista/configuracion-modal', [CapturistaController::class, 'configuracionModal'])
         ->name('capturista.configuracion-modal')
         ->middleware('auth');
+
+    // Para actualizar filtros
+    Route::post('/configuracion/update-filtros', [CapturistaController::class, 'updateFiltros'])->name('configuracion.update-filtros');
+
+    // Para cargar el panel auxiliar
+    Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])->name('capturista.panel-auxiliar');
 });
 
 // Rutas específicas para el reseteo de contraseña
