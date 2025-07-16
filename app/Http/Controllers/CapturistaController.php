@@ -464,8 +464,9 @@ class CapturistaController extends Controller
     {
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
+        $filtros_act = $configuracion ? $configuracion->filtros_act : ConfiguracionCapturista::getDefaultFilters();
 
-        return view('partials.configuracion-param-modal', compact('columnas'))->render();
+        return view('partials.configuracion-param-modal', compact('columnas', 'filtros_act'))->render();
     }
 
     public function view(Hidrante $hidrante)

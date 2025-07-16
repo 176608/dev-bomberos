@@ -198,47 +198,33 @@ $(function() {
     });
 
     // Variables para almacenar el estado actual
-    let columnasVisibles = [];
-    let filtrosActivos = [];
+    let columnasVisibles = @json($columnas ?? []);
+    let filtrosActivos = @json($filtros_act ?? []);
 
-    // Cargar configuración al abrir el modal
-    $('#configuracionModal').on('show.bs.modal', function () {
-        $.get("{{ route('configuracion.get') }}")
-            .done(function(response) {
-                // Limpiar estados anteriores
-                columnasVisibles = response.configuracion || [];
-                filtrosActivos = response.filtros_act || [];
-                
-                // Actualizar UI para botones de visualización
-                $('.column-toggle-view').each(function() {
-                    const column = $(this).data('column');
-                    const isVisible = columnasVisibles.includes(column);
-                    
-                    $(this)
-                        .toggleClass('btn-primary', isVisible)
-                        .toggleClass('btn-outline-primary', !isVisible)
-                        .text(isVisible ? 'Remover de la tabla' : 'Ver en la tabla');
-                });
-                
-                // Actualizar UI para botones de filtro
-                $('.column-toggle-filter').each(function() {
-                    const column = $(this).data('column');
-                    const filterKey = column + ':0';
-                    const isActive = filtrosActivos.includes(filterKey);
-                    
-                    $(this)
-                        .toggleClass('btn-success', isActive)
-                        .toggleClass('btn-outline-success', !isActive)
-                        .text(isActive ? 'Desactivar filtro' : 'Activar filtro');
-                });
-                
-                $('#spinnerConfiguracion').addClass('d-none');
-            })
-            .fail(function(error) {
-                console.error('Error al cargar configuración:', error);
-                alert('Error al cargar la configuración');
-                $('#spinnerConfiguracion').addClass('d-none');
-            });
+    console.log("Columnas cargadas:", columnasVisibles);
+    console.log("Filtros cargados:", filtrosActivos);
+
+    // Actualizar UI para botones de visualización
+    $('.column-toggle-view').each(function() {
+        const column = $(this).data('column');
+        const isVisible = columnasVisibles.includes(column);
+        
+        $(this)
+            .toggleClass('btn-primary', isVisible)
+            .toggleClass('btn-outline-primary', !isVisible)
+            .text(isVisible ? 'Remover de la tabla' : 'Ver en la tabla');
+    });
+    
+    // Actualizar UI para botones de filtro
+    $('.column-toggle-filter').each(function() {
+        const column = $(this).data('column');
+        const filterKey = column + ':0';
+        const isActive = filtrosActivos.some(filter => filter === filterKey);
+        
+        $(this)
+            .toggleClass('btn-success', isActive)
+            .toggleClass('btn-outline-success', !isActive)
+            .text(isActive ? 'Desactivar filtro' : 'Activar filtro');
     });
 
     // Manejar clic en botones de visualización de columnas
@@ -269,11 +255,12 @@ $(function() {
     $(document).on('click', '.column-toggle-filter', function() {
         const column = $(this).data('column');
         const filterKey = column + ':0';
-        const isCurrentlyActive = filtrosActivos.includes(filterKey);
+        const filterIndex = filtrosActivos.findIndex(filter => filter === filterKey);
+        const isCurrentlyActive = filterIndex !== -1;
         
         if (isCurrentlyActive) {
             // Desactivar filtro
-            filtrosActivos = filtrosActivos.filter(filter => filter !== filterKey);
+            filtrosActivos.splice(filterIndex, 1);
             $(this).removeClass('btn-success').addClass('btn-outline-success');
             $(this).text('Activar filtro');
         } else {

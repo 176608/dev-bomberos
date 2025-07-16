@@ -459,6 +459,11 @@ function cargarPanelAuxiliar(modo) {
     
     $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
         $('#AuxContainer').html(response);
+        
+        // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
+        if (modo === 'tabla') {
+            window.configTable = $('#hidrantesConfigTable').DataTable();
+        }
     });
 }
 

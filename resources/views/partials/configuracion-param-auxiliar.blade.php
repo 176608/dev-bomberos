@@ -143,30 +143,30 @@ $(function() {
     }
     
     function aplicarFiltrosATabla(filtros) {
-        // Si estamos usando DataTables, podemos aplicar los filtros así:
-        if (typeof configTable !== 'undefined') {
+        // Si estamos usando DataTables
+        const table = $('#hidrantesConfigTable').DataTable();
+        if (table) {
+            // Limpiar búsquedas anteriores
+            table.search('').columns().search('');
+            
             // Recorrer cada filtro y aplicarlo a la tabla
             Object.keys(filtros).forEach(campo => {
                 const valor = filtros[campo];
                 
                 // Encontrar la columna correspondiente en DataTables
-                const columnIndex = encontrarIndiceColumna(campo);
+                const columnas = window.hidrantesTableConfig || [];
+                // Sumar 3 porque las primeras tres columnas son id, acciones y stat
+                const columnIndex = columnas.indexOf(campo);
+                
                 if (columnIndex >= 0) {
-                    // Aplicar filtro en la columna correspondiente
-                    configTable.column(columnIndex).search(valor);
+                    // Aplicar filtro en la columna correspondiente (+3 por las columnas fijas)
+                    table.column(columnIndex + 3).search(valor);
                 }
             });
             
             // Redibujar la tabla con los filtros aplicados
-            configTable.draw();
+            table.draw();
         }
-    }
-    
-    function encontrarIndiceColumna(campo) {
-        // Esta función debe buscar el índice de la columna en DataTables
-        // basado en el nombre del campo
-        const columnas = window.hidrantesTableConfig || [];
-        return columnas.indexOf(campo);
     }
 });
 </script>

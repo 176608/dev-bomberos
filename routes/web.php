@@ -45,8 +45,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas de configuración A
     Route::prefix('configuracion')->group(function () {
-        Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
+        Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
     });
     // Rutas de configuración B
     Route::get('/capturista/configuracion-modal', [CapturistaController::class, 'configuracionModal'])
