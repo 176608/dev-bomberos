@@ -150,6 +150,10 @@
         </div>
     </div>
 
+    <div id="AuxContainer" style="display:none;">
+        <!-- **Aquí se cargará la card auxiliar** -->
+    </div>
+
     <div id="tablaHidrantesContainer" style="display:none;">
         <!-- Aquí se cargará la tabla con AJAX -->
     </div>
@@ -449,59 +453,72 @@ $(document).ready(function() {
     }
 }
 
-    // Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
-    function cargarTablaHidrantes() {
-        $('#tablaHidrantesContainer').show().html('');
-        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-            // Renderiza el partial de la tabla
-            $('#tablaHidrantesContainer').html(response);
-            inicializarDataTableServerSide();
-            //scrollToTablaHidrantes();
-        });
-    }
-
-    // Display the table when the page loads
-    $('#btnVerTabla').click(function() {
-        window.location = window.location.pathname + '?mostrar_tabla=1';
+    // Función para cargar el panel auxiliar
+function cargarPanelAuxiliar(modo) {
+    $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
+    
+    $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
+        $('#AuxContainer').html(response);
     });
+}
 
-    // Detecta el parámetro mostrar_tabla en la URL y carga la tabla automáticamente
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('mostrar_tabla') === '1') {
-        cargarTablaHidrantes();
-        // Opcional: limpia el parámetro de la URL para evitar recargar la tabla si el usuario refresca
-        const url = new URL(window.location);
-        url.searchParams.delete('mostrar_tabla');
-        window.history.replaceState({}, document.title, url);
-    }
+// Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
+function cargarTablaHidrantes() {
+    $('#tablaHidrantesContainer').show().html('');
+    $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+    
+    // Primero cargamos el panel auxiliar
+    cargarPanelAuxiliar('tabla');
+    
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza el partial de la tabla
+        $('#tablaHidrantesContainer').html(response);
+        inicializarDataTableServerSide();
+        //scrollToTablaHidrantes();
+    });
+}
 
-    // Mostrar spinner al hacer click en el botón
-    $('#btnConfiguracion').on('click', function() {
-        $('#spinnerConfiguracion').removeClass('d-none');
-        // Elimina cualquier modal anterior para evitar duplicados
-        $('#configuracionModal').remove();
+// Display the table when the page loads
+$('#btnVerTabla').click(function() {
+    window.location = window.location.pathname + '?mostrar_tabla=1';
+});
 
-        $.get("{{ route('capturista.configuracion-modal') }}", function(modalHtml) {
-            $('body').append(modalHtml);
-            const modalElement = document.getElementById('configuracionModal');
-            const modalInstance = new bootstrap.Modal(modalElement, {
-                backdrop: 'static',
-                keyboard: false
-            });
-            modalInstance.show();
+// Detecta el parámetro mostrar_tabla en la URL y carga la tabla automáticamente
+const params = new URLSearchParams(window.location.search);
+if (params.get('mostrar_tabla') === '1') {
+    cargarTablaHidrantes();
+    // Opcional: limpia el parámetro de la URL para evitar recargar la tabla si el usuario refresca
+    const url = new URL(window.location);
+    url.searchParams.delete('mostrar_tabla');
+    window.history.replaceState({}, document.title, url);
+}
 
-            // Oculta el spinner cuando el modal se muestre
-            $(modalElement).on('shown.bs.modal', function () {
-                $('#spinnerConfiguracion').addClass('d-none');
-            });
-            // Limpia el modal del DOM al cerrarse para evitar duplicados
-            $(modalElement).on('hidden.bs.modal', function () {
-                $(this).remove();
-                $('#spinnerConfiguracion').addClass('d-none');
-            });
+// Mostrar spinner al hacer click en el botón
+$('#btnConfiguracion').on('click', function() {
+    $('#spinnerConfiguracion').removeClass('d-none');
+    // Elimina cualquier modal anterior para evitar duplicados
+    $('#configuracionModal').remove();
+
+    $.get("{{ route('capturista.configuracion-modal') }}", function(modalHtml) {
+        $('body').append(modalHtml);
+        const modalElement = document.getElementById('configuracionModal');
+        const modalInstance = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        modalInstance.show();
+
+        // Oculta el spinner cuando el modal se muestre
+        $(modalElement).on('shown.bs.modal', function () {
+            $('#spinnerConfiguracion').addClass('d-none');
+        });
+        // Limpia el modal del DOM al cerrarse para evitar duplicados
+        $(modalElement).on('hidden.bs.modal', function () {
+            $(this).remove();
+            $('#spinnerConfiguracion').addClass('d-none');
         });
     });
+});
     
 
     // Manejador para desactivar hidrante
@@ -562,11 +579,13 @@ $(document).ready(function() {
         $('#resumenHidrantesContainer').show().html('');
         $('#spinnerResumen').removeClass('d-none');
         $('#tablaHidrantesContainer').hide();
-
+        
+        // Cargar panel auxiliar para resumen
+        cargarPanelAuxiliar('resumen');
+        
         $.get("{{ route('hidrantes.resumen') }}", function(response) {
             $('#resumenHidrantesContainer').html(response);
             $('#spinnerResumen').addClass('d-none');
-            // Reutiliza tu función de focus si quieres:
             scrollToTablaHidrantes();
         });
     });

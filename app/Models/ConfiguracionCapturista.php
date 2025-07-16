@@ -10,11 +10,13 @@ class ConfiguracionCapturista extends Model
     
     protected $fillable = [
         'user_id',
-        'configuracion'
+        'configuracion',
+        'filtros_act'
     ];
 
     protected $casts = [
-        'configuracion' => 'array'
+        'configuracion' => 'array',
+        'filtros_act' => 'array'
     ];
 
     public function user()
@@ -30,8 +32,18 @@ class ConfiguracionCapturista extends Model
         ];
     }
 
+    public static function getDefaultFilters()
+    {
+        return [];
+    }
+
     public function getConfiguracionAttribute($value)
     {
         return $value ? json_decode($value, true) : self::getDefaultConfig();
+    }
+    
+    public function getFiltrosActAttribute($value)
+    {
+        return $value ? json_decode($value, true) : self::getDefaultFilters();
     }
 }

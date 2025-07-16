@@ -273,29 +273,33 @@ class CapturistaController extends Controller
     {
         try {
             $validated = $request->validate([
-                'configuracion' => 'required|array'
+                'configuracion' => 'required|array',
+                'filtros_act' => 'nullable|array'
             ]);
+
+            $filtros_act = $request->filtros_act ?? [];
 
             $config = ConfiguracionCapturista::updateOrCreate(
                 ['user_id' => auth()->id()],
-                ['configuracion' => $validated['configuracion']]
+                [
+                    'configuracion' => $validated['configuracion'],
+                    'filtros_act' => $filtros_act
+                ]
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Configuración guardada exitosamente',
-                'configuracion' => $config->configuracion
+                'configuracion' => $config->configuracion,
+                'filtros_act' => $config->filtros_act
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error guardando configuración backend:', [
-                'user_id' => auth()->id(),
+            \Log::error('Error guardando configuración:', [
                 'error' => $e->getMessage()
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Error al guardar la configuración backend: ' . $e->getMessage()
+                'message' => 'Error al guardar la configuración: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -303,17 +307,71 @@ class CapturistaController extends Controller
     public function getConfiguracion()
     {
         try {
-            $config = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+            $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+
             return response()->json([
-                'success' => true,
-                'configuracion' => $config ? $config->configuracion : null
+                'configuracion' => $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig(),
+                'filtros_act' => $configuracion ? $configuracion->filtros_act : ConfiguracionCapturista::getDefaultFilters()
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener la configuración de backend'
+                'message' => 'Error al obtener la configuración: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function updateFiltros(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'filtros_act' => 'required|array'
+            ]);
+
+            $config = ConfiguracionCapturista::updateOrCreate(
+                ['user_id' => auth()->id()],
+                ['filtros_act' => $validated['filtros_act']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'filtros_act' => $config->filtros_act
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error actualizando filtros:', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Error al actualizar filtros: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function cargarPanelAuxiliar(Request $request)
+    {
+        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+        $filtros_act = $configuracion ? $configuracion->filtros_act : [];
+        
+        $modo = $request->input('modo', 'tabla');
+        
+        // Nombres para los encabezados
+        $headerNames = [
+            'fecha_inspeccion' => 'Fecha Inspección',
+            'numero_estacion' => 'N° Estación',
+            'calle' => 'Calle',
+            'y_calle' => 'Y Calle',
+            'colonia' => 'Colonia',
+            'llave_fosa' => 'Llave Fosa',
+            'llave_hidrante' => 'Llave Hidrante',
+            'presion_agua' => 'Presión Agua',
+            'estado_hidrante' => 'Estado',
+            'marca' => 'Marca',
+            'anio' => 'Año',
+            'oficial' => 'Oficial'
+        ];
+        
+        return view('partials.configuracion-param-auxiliar', compact('filtros_act', 'modo', 'headerNames'))->render();
     }
 
     public function dataTable(Request $request)
