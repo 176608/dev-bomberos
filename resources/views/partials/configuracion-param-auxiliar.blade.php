@@ -33,16 +33,16 @@
                                 <div class="card-body py-2">
                                     <div class="input-group input-group-sm">
                                         <select class="form-select filtro-valor" data-campo="{{ $campo }}">
-                                            <option value="">Filtrar por {{ $nombreCampo }}</option>
+                                            <option value="">Todos</option>
                                             @if(isset($opciones_filtro[$campo]))
                                                 @foreach($opciones_filtro[$campo] as $opcion)
-                                                    <option value="{{ $opcion }}" {{ $valor == $opcion ? 'selected' : '' }}>
-                                                        {{ $opcion }}
+                                                    <option value="{{ $opcion }}" {{ $valor == $opcion && $valor != '0' ? 'selected' : '' }}>
+                                                        {{ $opcion ?: 'Vacío' }}
                                                     </option>
                                                 @endforeach
                                             @endif
                                         </select>
-                                        <button class="btn btn-outline-secondary aplicar-filtro" data-campo="{{ $campo }}">
+                                        <button class="btn btn-outline-primary aplicar-filtro" data-campo="{{ $campo }}">
                                             <i class="fas fa-filter"></i>
                                         </button>
                                     </div>
@@ -161,27 +161,52 @@ $(function() {
             // Limpiar búsquedas anteriores
             table.search('').columns().search('');
             
-            // Recorrer cada filtro y aplicarlo a la tabla
+            // Separar filtros en visibles y no visibles
+            const columnas = window.hidrantesTableConfig || [];
+            const filtrosVisibles = {};
+            const filtrosNoVisibles = {};
+            
             Object.keys(filtros).forEach(campo => {
                 const valor = filtros[campo];
-                
-                // Encontrar la columna correspondiente en DataTables
-                const columnas = window.hidrantesTableConfig || [];
                 const columnIndex = columnas.indexOf(campo);
                 
-                // Aplicar filtro en la columna correspondiente (+3 por columnas fijas)
                 if (columnIndex >= 0) {
-                    table.column(columnIndex + 3).search(valor);
+                    // Es una columna visible, filtramos del lado del cliente
+                    filtrosVisibles[campo] = valor;
                 } else {
-                    // Si la columna no está visible, buscar en todas las columnas
-                    // Esta es una implementación básica, puede necesitar ajustes según tu estructura
-                    const allData = table.rows().data();
-                    table.search(valor);
+                    // Es una columna no visible, filtraremos del lado del servidor
+                    filtrosNoVisibles[campo] = valor;
                 }
             });
             
-            // Redibujar la tabla con los filtros aplicados
-            table.draw();
+            // Aplicar filtros visibles directamente en DataTables
+            Object.keys(filtrosVisibles).forEach(campo => {
+                const valor = filtrosVisibles[campo];
+                const columnIndex = columnas.indexOf(campo);
+                if (columnIndex >= 0) {
+                    // El +3 es por las columnas fijas (id, acciones, stat)
+                    if (valor === '') {
+                        // Filtro para valores vacíos (usando expresión regular)
+                        table.column(columnIndex + 3).search('^$|^N/A$', true, false);
+                    } else {
+                        // Filtro para valores normales
+                        table.column(columnIndex + 3).search('^' + $.fn.dataTable.util.escapeRegex(valor) + '$', true, false);
+                    }
+                }
+            });
+            
+            // Si hay filtros para columnas no visibles, recargar la tabla con filtros server-side
+            if (Object.keys(filtrosNoVisibles).length > 0) {
+                // Guardar los filtros no visibles en la configuración de AJAX
+                const ajaxUrl = new URL(table.ajax.url());
+                ajaxUrl.searchParams.set('filtros_adicionales', JSON.stringify(filtrosNoVisibles));
+                
+                // Actualizar la URL de AJAX y recargar
+                table.ajax.url(ajaxUrl.toString()).load();
+            } else {
+                // Si no hay filtros para columnas no visibles, solo redibujamos
+                table.draw();
+            }
         }
     }
 });

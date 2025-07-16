@@ -412,8 +412,17 @@ $(document).ready(function() {
         let table = $('#hidrantesConfigTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('hidrantes.data') }}",
-            columns: dtColumns,
+            ajax: {
+                url: "{{ route('hidrantes.data') }}",
+                data: function(d) {
+                    // Añadir filtros adicionales si existen
+                    const filtrosAdicionales = window.filtrosNoVisibles || {};
+                    if (Object.keys(filtrosAdicionales).length > 0) {
+                        d.filtros_adicionales = JSON.stringify(filtrosAdicionales);
+                    }
+                    return d;
+                }
+            },
             language: {
                 url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
             },
@@ -432,6 +441,9 @@ $(document).ready(function() {
                 scrollToTablaHidrantes();
             }
         });
+        
+        // Hacer disponible la tabla globalmente
+        window.hidrantesTable = table;
     }
 
     function scrollToTablaHidrantes() {

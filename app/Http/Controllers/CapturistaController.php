@@ -366,8 +366,8 @@ class CapturistaController extends Controller
     // Agregar este método para obtener valores únicos para los filtros
     private function getDistinctValues($campo)
     {
-        $values = Cache::remember("distinct_values_{$campo}", 60*60, function() use ($campo) {
-            // Para campos especiales como fecha_inspeccion, podríamos querer formatear
+        $values = Cache::remember("distinct_values_{$campo}", 60*30, function() use ($campo) {
+            // Para campos de tipo fecha que requieren formateo
             if ($campo === 'fecha_inspeccion') {
                 return Hidrante::whereNotNull($campo)
                     ->select(\DB::raw("DATE_FORMAT(fecha_inspeccion, '%Y-%m-%d') as value"))
@@ -376,14 +376,25 @@ class CapturistaController extends Controller
                     ->pluck('value')
                     ->toArray();
             }
-            
-            // Para campos comunes
-            return Hidrante::whereNotNull($campo)
-                ->where($campo, '!=', '')
-                ->distinct($campo)
-                ->orderBy($campo)
-                ->pluck($campo)
-                ->toArray();
+            // Para campos numéricos que requieren ordenamiento numérico
+            else if (in_array($campo, ['numero_estacion', 'anio'])) {
+                return Hidrante::whereNotNull($campo)
+                    ->where($campo, '!=', '')
+                    ->distinct($campo)
+                    ->orderByRaw("CAST({$campo} AS UNSIGNED)")
+                    ->pluck($campo)
+                    ->toArray();
+            }
+            // Para el resto de campos (ordenamiento alfabético)
+            else {
+                return Hidrante::select($campo)
+                    ->whereNotNull($campo)
+                    ->where($campo, '!=', '')
+                    ->distinct()
+                    ->orderBy($campo)
+                    ->pluck($campo)
+                    ->toArray();
+            }
         });
         
         return $values;
@@ -436,6 +447,27 @@ class CapturistaController extends Controller
             'calleSecundaria'
         ]);
 
+        // Procesar filtros adicionales para columnas no visibles
+        if ($request->has('filtros_adicionales')) {
+            $filtrosAdicionales = json_decode($request->filtros_adicionales, true);
+            
+            if (is_array($filtrosAdicionales)) {
+                foreach ($filtrosAdicionales as $campo => $valor) {
+                    if (\Schema::hasColumn('hidrantes', $campo)) {
+                        // Si el valor está vacío, buscamos registros vacíos o NULL
+                        if ($valor === '') {
+                            $query->where(function($q) use ($campo) {
+                                $q->whereNull($campo)->orWhere($campo, '');
+                            });
+                        } else {
+                            // Búsqueda exacta para valores no vacíos
+                            $query->where($campo, $valor);
+                        }
+                    }
+                }
+            }
+        }
+
         return DataTables::eloquent($query)
             ->addColumn('acciones', function($hidrante) {
                 $botones = '
@@ -462,6 +494,35 @@ class CapturistaController extends Controller
                 }
                 return $botones;
             })
+            ->filterColumn('numero_estacion', function($query, $keyword) {
+                // Si es búsqueda vacía
+                if ($keyword === '') {
+                    $query->where(function($q) {
+                        $q->whereNull('numero_estacion')->orWhere('numero_estacion', '');
+                    });
+                } else {
+                    $query->where('numero_estacion', $keyword);
+                }
+            })
+            ->filterColumn('estado_hidrante', function($query, $keyword) {
+                if ($keyword === '') {
+                    $query->where(function($q) {
+                        $q->whereNull('estado_hidrante')->orWhere('estado_hidrante', '');
+                    });
+                } else {
+                    $query->where('estado_hidrante', $keyword);
+                }
+            })
+            ->filterColumn('presion_agua', function($query, $keyword) {
+                if ($keyword === '') {
+                    $query->where(function($q) {
+                        $q->whereNull('presion_agua')->orWhere('presion_agua', '');
+                    });
+                } else {
+                    $query->where('presion_agua', $keyword);
+                }
+            })
+            // Añade aquí más filterColumn para otros campos que necesiten filtrado exacto
             ->editColumn('numero_estacion', function($hidrante) {
                 if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
                     return 'N/A';
