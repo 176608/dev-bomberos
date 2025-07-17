@@ -209,8 +209,8 @@ $(document).ready(function() {
                         success: function(response) {
                             if (response.success) {
                                 modalInstance.hide();
-                                alert('Hidrante creado exitosamente');
-                                window.location = window.location.pathname + '?mostrar_tabla=1';
+                                //alert('Hidrante creado exitosamente'); window.location = window.location.pathname + '?mostrar_tabla=1';
+                                recargarSoloTabla();
                             } else {
                                 alert('Error: ' + response.message);
                             }
@@ -260,6 +260,7 @@ $(document).ready(function() {
                 
                 modalInstance.show();
                 
+                // En el manejador de submit del formulario de edición
                 $(`#editarHidranteModal${hidranteId} form`).on('submit', function(e) {
                     e.preventDefault();
                     const form = $(this);
@@ -274,9 +275,10 @@ $(document).ready(function() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                //location.reload();
-                                alert('Hidrante actualizado exitosamente');
-                                window.location = window.location.pathname + '?mostrar_tabla=1';
+                                //alert('Hidrante actualizado exitosamente');
+                                
+                                // En lugar de recargar la página, usamos nuestra nueva función
+                                recargarSoloTabla();
                             } else {
                                 alert('Error: ' + response.message);
                             }
@@ -494,6 +496,9 @@ function cargarPanelAuxiliar(modo) {
         // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
         if (modo === 'tabla') {
             window.configTable = $('#hidrantesConfigTable').DataTable();
+            
+            // Aplicar filtros guardados después de cargar el panel
+            setTimeout(aplicarFiltrosGuardados, 200);
         }
     });
 }
@@ -514,7 +519,7 @@ function cargarTablaHidrantes() {
     });
 }
 
-// Display the table when the page loads
+
 $('#btnVerTabla').click(function() {
     window.location = window.location.pathname + '?mostrar_tabla=1';
 });
@@ -572,7 +577,7 @@ $('#btnConfiguracion').on('click', function() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location = window.location.pathname + '?mostrar_tabla=1';
+                        recargarSoloTabla();
                     } else {
                         alert('No se pudo desactivar el hidrante.');
                     }
@@ -599,7 +604,7 @@ $('#btnConfiguracion').on('click', function() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location = window.location.pathname + '?mostrar_tabla=1';
+                        recargarSoloTabla();
                     } else {
                         alert('No se pudo activar el hidrante.');
                     }
@@ -625,6 +630,84 @@ $('#btnConfiguracion').on('click', function() {
             scrollToTablaHidrantes();
         });
     });
-});
+
+// En capturista.blade.php, agrega estas funciones
+function guardarEstadoFiltros() {
+    const filtrosActivos = {};
+    
+    // Guardar los valores seleccionados de cada filtro
+    $('.filtro-valor').each(function() {
+        const campo = $(this).data('campo');
+        const valor = $(this).val();
+        if (valor) {
+            filtrosActivos[campo] = valor;
+        }
+    });
+    
+    // Guardar en localStorage para persistencia
+    localStorage.setItem('hidrantesFilterState', JSON.stringify(filtrosActivos));
+    return filtrosActivos;
+}
+
+function recuperarEstadoFiltros() {
+    const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
+    return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
+}
+
+function aplicarFiltrosGuardados() {
+    const filtros = recuperarEstadoFiltros();
+    
+    // Solo aplicar filtros si hay alguno guardado
+    if (Object.keys(filtros).length > 0) {
+        // Esperar a que los elementos del filtro estén disponibles
+        const checkFilters = setInterval(function() {
+            if ($('.filtro-valor').length > 0) {
+                clearInterval(checkFilters);
+                
+                // Establecer los valores en los selectores
+                $('.filtro-valor').each(function() {
+                    const campo = $(this).data('campo');
+                    if (filtros[campo]) {
+                        $(this).val(filtros[campo]);
+                    }
+                });
+                
+                // Aplicar los filtros a la tabla
+                if (window.configTable) {
+                    aplicarFiltrosATabla(filtros);
+                }
+            }
+        }, 100);
+    }
+}
+
+function recargarSoloTabla() {
+    // Guardar los filtros actuales
+    const filtros = guardarEstadoFiltros();
+    
+    // Mostrar indicador de carga
+    $('#tablaHidrantesContainer').append(
+        '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
+        '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
+        '</div>'
+    );
+    
+    // Recargar solo la tabla
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza la nueva tabla
+        $('#tablaHidrantesContainer').html(response);
+        
+        // Reinicializar DataTable
+        inicializarDataTableServerSide();
+        
+        // Recargar el panel auxiliar con los filtros
+        cargarPanelAuxiliar('tabla');
+        
+        // Aplicar los filtros guardados después de que todo esté cargado
+        setTimeout(function() {
+            aplicarFiltrosGuardados();
+        }, 500);
+    });
+}
 </script>
 @endsection

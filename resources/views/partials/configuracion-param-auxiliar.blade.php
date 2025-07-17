@@ -161,6 +161,9 @@ $(function() {
     }
     
     function aplicarFiltrosATabla(filtros) {
+        // Guardar el estado de los filtros
+        localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
+        
         // Si estamos usando DataTables
         const table = $('#hidrantesConfigTable').DataTable();
         if (table) {
