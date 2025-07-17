@@ -168,37 +168,102 @@
 
 @section('scripts')
 <script>
+// 1. Variables globales y configuración
 $(document).ready(function() {
     const headerNames = @json($headerNames);
     var configTable;
+    
+    // 2. Inicialización y detección de parámetros URL
+    initializeFromUrlParams();
+    
+    // 3. Manejadores de eventos para botones principales
+    setupMainButtons();
+    
+    // 4. Manejadores para operaciones CRUD
+    setupCrudHandlers();
+});
 
-    // Manejador para el botón de nuevo hidrante
+// ========================
+// FUNCIONES DE INICIALIZACIÓN
+// ========================
+
+/**
+ * Inicializa la página según los parámetros de la URL
+ */
+function initializeFromUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mostrar_tabla') === '1') {
+        cargarTablaHidrantes();
+        // Limpiar parámetro de la URL
+        const url = new URL(window.location);
+        url.searchParams.delete('mostrar_tabla');
+        window.history.replaceState({}, document.title, url);
+    }
+}
+
+/**
+ * Configura los botones principales de la interfaz
+ */
+function setupMainButtons() {
+    // Botón Ver Tabla
+    $('#btnVerTabla').click(function() {
+        cargarTablaHidrantes();
+    });
+    
+    // Botón Configuración
+    $('#btnConfiguracion').on('click', function() {
+        $('#spinnerConfiguracion').removeClass('d-none');
+        // Elimina cualquier modal anterior para evitar duplicados
+        $('#configuracionModal').remove();
+
+        $.get("{{ route('capturista.configuracion-modal') }}", function(modalHtml) {
+            $('body').append(modalHtml);
+            const modalElement = document.getElementById('configuracionModal');
+            const modalInstance = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modalInstance.show();
+
+            // Oculta el spinner cuando el modal se muestre
+            $(modalElement).on('shown.bs.modal', function() {
+                $('#spinnerConfiguracion').addClass('d-none');
+            });
+            // Limpia el modal del DOM al cerrarse para evitar duplicados
+            $(modalElement).on('hidden.bs.modal', function () {
+                $(this).remove();
+                $('#spinnerConfiguracion').addClass('d-none');
+            });
+        });
+    });
+    
+    // Botón Nuevo Hidrante
     $('#btnNuevoHidrante').click(function() {
         const button = $(this);
         const buttonText = button.find('.button-text');
         const spinner = button.find('.spinner-border');
-
+        
         button.prop('disabled', true);
         buttonText.text('Cargando...');
         spinner.removeClass('d-none');
-
+        
         $.get("{{ route('hidrantes.create') }}")
             .done(function(response) {
                 $('.modal-create, .modal-edit, .modal-backdrop').remove();
                 $('body').append(response);
-
+                
                 const modalElement = document.getElementById('crearHidranteModal');
                 const modalInstance = new bootstrap.Modal(modalElement, {
                     backdrop: 'static',
                     keyboard: false
                 });
-
+                
                 modalInstance.show();
-
+                
                 $('#formCrearHidrante').on('submit', function(e) {
                     e.preventDefault();
                     const form = $(this);
-
+                    
                     $.ajax({
                         url: form.attr('action'),
                         method: 'POST',
@@ -209,7 +274,6 @@ $(document).ready(function() {
                         success: function(response) {
                             if (response.success) {
                                 modalInstance.hide();
-                                //alert('Hidrante creado exitosamente'); window.location = window.location.pathname + '?mostrar_tabla=1';
                                 recargarSoloTabla();
                             } else {
                                 alert('Error: ' + response.message);
@@ -232,7 +296,28 @@ $(document).ready(function() {
                 spinner.addClass('d-none');
             });
     });
+    
+    // Botón Resumen
+    $('#btnResumen').on('click', function() {
+        $('#resumenHidrantesContainer').show().html('');
+        $('#spinnerResumen').removeClass('d-none');
+        $('#tablaHidrantesContainer').hide();
+        
+        // Cargar panel auxiliar para resumen
+        cargarPanelAuxiliar('resumen');
+        
+        $.get("{{ route('hidrantes.resumen') }}", function(response) {
+            $('#resumenHidrantesContainer').html(response);
+            $('#spinnerResumen').addClass('d-none');
+            scrollToTablaHidrantes();
+        });
+    });
+}
 
+/**
+ * Configura los manejadores para operaciones CRUD
+ */
+function setupCrudHandlers() {
     // Manejador para el botón de editar hidrante
     $(document).on('click', '.edit-hidrante', function(e) {
         e.preventDefault();
@@ -240,7 +325,7 @@ $(document).ready(function() {
         const button = $(this);
         
         button.prop('disabled', true)
-             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span');
+             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         
         $.ajax({
             url: `${window.location.origin}/bev-bomberos/public/hidrantes/${hidranteId}/edit`,
@@ -275,9 +360,6 @@ $(document).ready(function() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                //alert('Hidrante actualizado exitosamente');
-                                
-                                // En lugar de recargar la página, usamos nuestra nueva función
                                 recargarSoloTabla();
                             } else {
                                 alert('Error: ' + response.message);
@@ -300,7 +382,7 @@ $(document).ready(function() {
             }
         });
     });
-
+    
     // Manejador para el botón de ver hidrante
     $(document).on('click', '.view-hidrante', function(e) {
         e.preventDefault();
@@ -308,7 +390,7 @@ $(document).ready(function() {
         const hidranteId = $btn.data('hidrante-id');
         $btn.prop('disabled', true);
         const originalHtml = $btn.html();
-        $btn.html('<span class="spinner-border spinner-border-sm"></span');
+        $btn.html('<span class="spinner-border spinner-border-sm"></span>');
 
         // Usa la función route de Laravel para generar la URL correcta:
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view", function(modalHtml) {
@@ -333,235 +415,7 @@ $(document).ready(function() {
             $btn.prop('disabled', false).html(originalHtml);
         });
     });
-
-    // Función para actualizar los headers de la tabla configurada
-    function updateConfiguredTableHeaders(configuracion) {
-        const headerRow = $('#configuredHeaders');
-        headerRow.find('th:not(:first-child):not(:last-child)').remove();
-        
-        // Ahora headerNames está disponible aquí
-        const lastHeader = headerRow.find('th:last');
-        configuracion.forEach(column => {
-            $('<th>', {
-                text: headerNames[column] || column
-            }).insertBefore(lastHeader);
-        });
-    }
-
-    // Inicializa DataTable con server-side
-    function inicializarDataTableServerSide() {
-        let columnas = window.hidrantesTableConfig || [];
-        let headerNames = window.hidrantesHeaderNames || {};
-        let dtColumns = [
-            { data: 'id', name: 'id', className: 'text-center align-middle' },
-            { 
-                data: 'acciones',
-                name: 'acciones',
-                orderable: false,
-                searchable: false,
-                className: 'text-center align-middle'
-            },
-            { 
-                data: 'stat',
-                name: 'stat',
-                className: 'text-center align-middle',
-                render: function(data, type, row) {
-                    // Si stat es '000', muestra badge
-                    if (data === '000') {
-                        return `<span class="badge rounded-pill bg-danger">Dado de Baja</span>`;
-                    }
-                    // Si stat es porcentaje (ej: '25', '70', etc)
-                    let percent = parseInt(data, 10);
-                    let color = 'bg-success';
-                    if (percent <= 40) {
-                        color = 'bg-danger';
-                    } else if (percent <= 70) {
-                        color = 'bg-primary';
-                    }
-                    return `
-                        <div class="progress" style="height: 22px;">
-                          <div class="progress-bar progress-bar-striped ${color}" role="progressbar"
-                            style="width: ${percent}%"
-                            aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-                            ${percent}%
-                          </div>
-                        </div>
-                    `;
-                }
-            }
-        ];
-        
-        // Asegurarse que todas las columnas configuradas existen en los datos
-        columnas.forEach(function(col) {
-            if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
-                dtColumns.push({
-                    data: col, // Aquí se especifica la propiedad de los datos
-                    name: col,
-                    className: 'text-center align-middle',
-                    render: function(data, type, row) {
-                        if (type === 'display') {
-                            return data;
-                        }
-                        if (type === 'filter' || type === 'search') {
-                            // Elimina el asterisco para la búsqueda y agrega variantes
-                            const cleanData = data ? data.replace('*', '') : '';
-                            return cleanData + ' ' + cleanData + '*';
-                        }
-                        return data;
-                    }
-                });
-            }
-        });
-
-        // Debug para verificar columnas disponibles
-        console.log("Columnas configuradas:", columnas);
-        console.log("Header names:", headerNames);
-        
-        let table = $('#hidrantesConfigTable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "{{ route('hidrantes.data') }}",
-                dataSrc: function(json) {
-                    console.log("DataTables response:", json);
-                    if (json.data && json.data.length > 0) {
-                        // Verificar las propiedades disponibles en los datos
-                        console.log("Propiedades disponibles en los datos:", Object.keys(json.data[0]));
-                    }
-                    return json.data;
-                },
-                data: function(d) {
-                    // Añadir filtros adicionales si existen
-                    const filtrosAdicionales = window.filtrosNoVisibles || {};
-                    if (Object.keys(filtrosAdicionales).length > 0) {
-                        d.filtros_adicionales = JSON.stringify(filtrosAdicionales);
-                    }
-                    return d;
-                },
-                error: function(xhr, error, thrown) {
-                    console.error("Error en la petición AJAX:", error, thrown, xhr);
-                }
-            },
-            columns: dtColumns,
-            language: {
-                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-            },
-            order: [[0, 'desc']],
-            paging: true,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            scrollX: true,
-            responsive: false,
-            pageLength: 25,
-            lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
-            drawCallback: function() {
-                $('#tablaLoader').hide();
-                $('.table-responsive').show();
-                scrollToTablaHidrantes();
-            }
-        });
-        
-        // Hacer disponible la tabla globalmente
-        window.hidrantesTable = table;
-        window.configTable = table; 
-    }
-
-    function scrollToTablaHidrantes() {
-    const tabla = document.getElementById('tablaHidrantesContainer');
-    if (tabla) {
-        const navbar = document.querySelector('.navbar.fixed-top');
-        const navbarHeight = navbar ? navbar.offsetHeight : 0;
-
-        const tablaTop = tabla.getBoundingClientRect().top;
-
-        const scrollY = window.scrollY || window.pageYOffset;
-
-        const destino = scrollY + tablaTop - navbarHeight;
-
-        window.scrollTo({
-            top: destino,
-            behavior: 'smooth'
-        });
-    }
-}
-
-    // Función para cargar el panel auxiliar
-function cargarPanelAuxiliar(modo) {
-    $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
     
-    $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
-        $('#AuxContainer').html(response);
-        
-        // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
-        if (modo === 'tabla') {
-            window.configTable = $('#hidrantesConfigTable').DataTable();
-            
-            // Aplicar filtros guardados después de cargar el panel
-            setTimeout(aplicarFiltrosGuardados, 200);
-        }
-    });
-}
-
-// Mostrar la tabla al dar click en "Ver la tabla", "Alta de hidrante" o "Editar parámetros"
-function cargarTablaHidrantes() {
-    $('#tablaHidrantesContainer').show().html('');
-    $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-    
-    // Primero cargamos el panel auxiliar
-    cargarPanelAuxiliar('tabla');
-    
-    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Renderiza el partial de la tabla
-        $('#tablaHidrantesContainer').html(response);
-        inicializarDataTableServerSide();
-        //scrollToTablaHidrantes();
-    });
-}
-
-
-$('#btnVerTabla').click(function() {
-    window.location = window.location.pathname + '?mostrar_tabla=1';
-});
-
-// Detecta el parámetro mostrar_tabla en la URL y carga la tabla automáticamente
-const params = new URLSearchParams(window.location.search);
-if (params.get('mostrar_tabla') === '1') {
-    cargarTablaHidrantes();
-    // Opcional: limpia el parámetro de la URL para evitar recargar la tabla si el usuario refresca
-    const url = new URL(window.location);
-    url.searchParams.delete('mostrar_tabla');
-    window.history.replaceState({}, document.title, url);
-}
-
-// Mostrar spinner al hacer click en el botón
-$('#btnConfiguracion').on('click', function() {
-    $('#spinnerConfiguracion').removeClass('d-none');
-    // Elimina cualquier modal anterior para evitar duplicados
-    $('#configuracionModal').remove();
-
-    $.get("{{ route('capturista.configuracion-modal') }}", function(modalHtml) {
-        $('body').append(modalHtml);
-        const modalElement = document.getElementById('configuracionModal');
-        const modalInstance = new bootstrap.Modal(modalElement, {
-            backdrop: 'static',
-            keyboard: false
-        });
-        modalInstance.show();
-
-        // Oculta el spinner cuando el modal se muestre
-        $(modalElement).on('shown.bs.modal', function () {
-            $('#spinnerConfiguracion').addClass('d-none');
-        });
-        // Limpia el modal del DOM al cerrarse para evitar duplicados
-        $(modalElement).on('hidden.bs.modal', function () {
-            $(this).remove();
-            $('#spinnerConfiguracion').addClass('d-none');
-        });
-    });
-});
-    
-
     // Manejador para desactivar hidrante
     $(document).on('click', '.desactivar-hidrante', function(e) {
         e.preventDefault();
@@ -588,7 +442,7 @@ $('#btnConfiguracion').on('click', function() {
             });
         }
     });
-
+    
     // Manejador para activar hidrante
     $(document).on('click', '.activar-hidrante', function(e) {
         e.preventDefault();
@@ -615,23 +469,221 @@ $('#btnConfiguracion').on('click', function() {
             });
         }
     });
+}
 
-    $('#btnResumen').on('click', function() {
-        $('#resumenHidrantesContainer').show().html('');
-        $('#spinnerResumen').removeClass('d-none');
-        $('#tablaHidrantesContainer').hide();
-        
-        // Cargar panel auxiliar para resumen
-        cargarPanelAuxiliar('resumen');
-        
-        $.get("{{ route('hidrantes.resumen') }}", function(response) {
-            $('#resumenHidrantesContainer').html(response);
-            $('#spinnerResumen').addClass('d-none');
-            scrollToTablaHidrantes();
-        });
+// ========================
+// FUNCIONES DE TABLA Y FILTROS
+// ========================
+
+/**
+ * Inicializa DataTable con server-side
+ */
+function inicializarDataTableServerSide() {
+    let columnas = window.hidrantesTableConfig || [];
+    let headerNames = window.hidrantesHeaderNames || {};
+    let dtColumns = [
+        { data: 'id', name: 'id', className: 'text-center align-middle' },
+        { 
+            data: 'acciones',
+            name: 'acciones',
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle'
+        },
+        { 
+            data: 'stat',
+            name: 'stat',
+            className: 'text-center align-middle',
+            render: function(data, type, row) {
+                // Si stat es '000', muestra badge
+                if (data === '000') {
+                    return `<span class="badge rounded-pill bg-danger">Dado de Baja</span>`;
+                }
+                // Si stat es porcentaje (ej: '25', '70', etc)
+                let percent = parseInt(data, 10);
+                let color = 'bg-success';
+                if (percent <= 40) {
+                    color = 'bg-danger';
+                } else if (percent <= 70) {
+                    color = 'bg-primary';
+                }
+                return `
+                    <div class="progress" style="height: 22px;">
+                      <div class="progress-bar progress-bar-striped ${color}" role="progressbar"
+                        style="width: ${percent}%"
+                        aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+                        ${percent}%
+                      </div>
+                    </div>
+                `;
+            }
+        }
+    ];
+    
+    // Asegurarse que todas las columnas configuradas existen en los datos
+    columnas.forEach(function(col) {
+        if(col !== 'id' && col !== 'acciones' && col !== 'stat') {
+            dtColumns.push({
+                data: col,
+                name: col,
+                className: 'text-center align-middle',
+                render: function(data, type, row) {
+                    if (type === 'display') {
+                        return data;
+                    }
+                    if (type === 'filter' || type === 'search') {
+                        const cleanData = data ? data.replace('*', '') : '';
+                        return cleanData + ' ' + cleanData + '*';
+                    }
+                    return data;
+                }
+            });
+        }
     });
 
-// En capturista.blade.php, agrega estas funciones
+    // Debug para verificar columnas disponibles
+    console.log("Columnas configuradas:", columnas);
+    console.log("Header names:", headerNames);
+    
+    let table = $('#hidrantesConfigTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('hidrantes.data') }}",
+            dataSrc: function(json) {
+                console.log("DataTables response:", json);
+                if (json.data && json.data.length > 0) {
+                    console.log("Propiedades disponibles en los datos:", Object.keys(json.data[0]));
+                }
+                return json.data;
+            },
+            data: function(d) {
+                const filtrosAdicionales = window.filtrosNoVisibles || {};
+                if (Object.keys(filtrosAdicionales).length > 0) {
+                    d.filtros_adicionales = JSON.stringify(filtrosAdicionales);
+                }
+                return d;
+            },
+            error: function(xhr, error, thrown) {
+                console.error("Error en la petición AJAX:", error, thrown, xhr);
+            }
+        },
+        columns: dtColumns,
+        language: {
+            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+        },
+        order: [[0, 'desc']],
+        paging: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        scrollX: true,
+        responsive: false,
+        pageLength: 25,
+        lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
+        drawCallback: function() {
+            $('#tablaLoader').hide();
+            $('.table-responsive').show();
+            scrollToTablaHidrantes();
+        }
+    });
+    
+    // Hacer disponible la tabla globalmente
+    window.hidrantesTable = table;
+    window.configTable = table; 
+}
+
+/**
+ * Carga el panel auxiliar según el modo especificado
+ */
+function cargarPanelAuxiliar(modo) {
+    $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
+    
+    $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
+        $('#AuxContainer').html(response);
+        
+        // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
+        if (modo === 'tabla') {
+            setTimeout(function() {
+                // Recargar el panel auxiliar con los filtros
+                aplicarFiltrosGuardados();
+            }, 200);
+        }
+    });
+}
+
+/**
+ * Carga la tabla de hidrantes
+ */
+function cargarTablaHidrantes() {
+    $('#tablaHidrantesContainer').show().html('');
+    $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+    $('#resumenHidrantesContainer').hide();
+    
+    // Primero cargamos el panel auxiliar
+    cargarPanelAuxiliar('tabla');
+    
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza el partial de la tabla
+        $('#tablaHidrantesContainer').html(response);
+        inicializarDataTableServerSide();
+    });
+}
+
+/**
+ * Hace scroll a la tabla de hidrantes
+ */
+function scrollToTablaHidrantes() {
+    const tabla = document.getElementById('tablaHidrantesContainer');
+    if (tabla) {
+        const navbar = document.querySelector('.navbar.fixed-top');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
+        
+        const tablaTop = tabla.getBoundingClientRect().top;
+        const scrollY = window.scrollY || window.pageYOffset;
+        const destino = scrollY + tablaTop - navbarHeight;
+        
+        window.scrollTo({
+            top: destino,
+            behavior: 'smooth'
+        });
+    }
+}
+
+/**
+ * Recarga solo la tabla sin recargar la página completa
+ */
+function recargarSoloTabla() {
+    // Guardar los filtros actuales
+    const filtros = guardarEstadoFiltros();
+    
+    // Mostrar indicador de carga
+    $('#tablaHidrantesContainer').css('position', 'relative').append(
+        '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
+        '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
+        '</div>'
+    );
+    
+    // Recargar solo la tabla
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza la nueva tabla
+        $('#tablaHidrantesContainer').html(response);
+        
+        // Reinicializar DataTable
+        inicializarDataTableServerSide();
+        
+        // Recargar el panel auxiliar con los filtros
+        cargarPanelAuxiliar('tabla');
+    });
+}
+
+// ========================
+// FUNCIONES DE PERSISTENCIA DE FILTROS
+// ========================
+
+/**
+ * Guarda el estado de los filtros aplicados
+ */
 function guardarEstadoFiltros() {
     const filtrosActivos = {};
     
@@ -649,11 +701,17 @@ function guardarEstadoFiltros() {
     return filtrosActivos;
 }
 
+/**
+ * Recupera el estado guardado de los filtros
+ */
 function recuperarEstadoFiltros() {
     const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
     return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
 }
 
+/**
+ * Aplica los filtros guardados a la tabla actual
+ */
 function aplicarFiltrosGuardados() {
     const filtros = recuperarEstadoFiltros();
     
@@ -681,33 +739,14 @@ function aplicarFiltrosGuardados() {
     }
 }
 
-function recargarSoloTabla() {
-    // Guardar los filtros actuales
-    const filtros = guardarEstadoFiltros();
-    
-    // Mostrar indicador de carga
-    $('#tablaHidrantesContainer').append(
-        '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
-        '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
-        '</div>'
-    );
-    
-    // Recargar solo la tabla
-    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Renderiza la nueva tabla
-        $('#tablaHidrantesContainer').html(response);
-        
-        // Reinicializar DataTable
-        inicializarDataTableServerSide();
-        
-        // Recargar el panel auxiliar con los filtros
-        cargarPanelAuxiliar('tabla');
-        
-        // Aplicar los filtros guardados después de que todo esté cargado
-        setTimeout(function() {
-            aplicarFiltrosGuardados();
-        }, 500);
-    });
+/**
+ * Aplica los filtros a la tabla
+ * Esta función debe definirse en configuracion-param-auxiliar.blade.php
+ * Agregada aquí como referencia
+ */
+function aplicarFiltrosATabla(filtros) {
+    // Esta función se implementa en el archivo configuracion-param-auxiliar.blade.php
+    console.log("Aplicando filtros:", filtros);
 }
 </script>
 @endsection
