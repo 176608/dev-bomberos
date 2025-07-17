@@ -9,8 +9,15 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="alert alert-info">
-                            <h6 class="mb-2">Configuración de columnas y filtros</h6>
-                            <p class="mb-0">Seleccione las columnas que desea ver en la tabla y active los filtros que necesite.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-2">Configuración de columnas y filtros</h6>
+                                    <p class="mb-0">Seleccione las columnas que desea ver en la tabla y active los filtros que necesite.</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm d-none" id="limpiarFiltrosSeleccionados">
+                                    <i class="bi bi-eraser me-1"></i> Limpiar filtros seleccionados
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -32,7 +39,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_fecha_inspeccion" data-column="fecha_inspeccion"
-                                            {{ in_array('fecha_inspeccion:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('fecha_inspeccion', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_fecha_inspeccion">
                                             Activar filtro
                                         </label>
@@ -53,7 +60,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_numero_estacion" data-column="numero_estacion"
-                                            {{ in_array('numero_estacion:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('numero_estacion', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_numero_estacion">
                                             Activar filtro
                                         </label>
@@ -77,7 +84,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_calle" data-column="calle"
-                                            {{ in_array('calle:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('calle', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_calle">
                                             Activar filtro
                                         </label>
@@ -98,7 +105,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_y_calle" data-column="y_calle"
-                                            {{ in_array('y_calle:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('y_calle', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_y_calle">
                                             Activar filtro
                                         </label>
@@ -119,7 +126,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_colonia" data-column="colonia"
-                                            {{ in_array('colonia:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('colonia', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_colonia">
                                             Activar filtro
                                         </label>
@@ -146,7 +153,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_llave_hidrante" data-column="llave_hidrante"
-                                            {{ in_array('llave_hidrante:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('llave_hidrante', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_llave_hidrante">
                                             Activar filtro
                                         </label>
@@ -167,7 +174,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_llave_fosa" data-column="llave_fosa"
-                                            {{ in_array('llave_fosa:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('llave_fosa', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_llave_fosa">
                                             Activar filtro
                                         </label>
@@ -188,7 +195,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_presion_agua" data-column="presion_agua"
-                                            {{ in_array('presion_agua:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('presion_agua', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_presion_agua">
                                             Activar filtro
                                         </label>
@@ -209,7 +216,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_estado_hidrante" data-column="estado_hidrante"
-                                            {{ in_array('estado_hidrante:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('estado_hidrante', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_estado_hidrante">
                                             Activar filtro
                                         </label>
@@ -233,7 +240,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_marca" data-column="marca"
-                                            {{ in_array('marca:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('marca', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_marca">
                                             Activar filtro
                                         </label>
@@ -254,7 +261,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_anio" data-column="anio"
-                                            {{ in_array('anio:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('anio', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_anio">
                                             Activar filtro
                                         </label>
@@ -275,7 +282,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input column-toggle-filter" type="checkbox" 
                                             id="toggleFilter_oficial" data-column="oficial"
-                                            {{ in_array('oficial:0', $filtros_act ?? []) ? 'checked' : '' }}>
+                                            {{ in_array('oficial', $filtros_act ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="toggleFilter_oficial">
                                             Activar filtro
                                         </label>
@@ -304,9 +311,19 @@ $(function() {
     // Variables para almacenar el estado actual
     let columnasVisibles = @json($columnas ?? []);
     let filtrosActivos = @json($filtros_act ?? []);
+    
+    filtrosActivos = filtrosActivos.map(filtro => {
+        if (filtro.includes(':')) {
+            return filtro.split(':')[0];
+        }
+        return filtro;
+    });
 
     console.log("Columnas cargadas:", columnasVisibles);
     console.log("Filtros cargados:", filtrosActivos);
+    
+    // Verificar inicialmente si debemos mostrar el botón de limpiar filtros
+    actualizarBotonLimpiarFiltros();
 
     // Manejar cambios en visibilidad de columnas
     $('.column-toggle-view').change(function() {
@@ -333,16 +350,42 @@ $(function() {
     $('.column-toggle-filter').change(function() {
         const column = $(this).data('column');
         const isChecked = $(this).prop('checked');
-        const filterKey = column + ':0';
         
         if (isChecked) {
-            if (!filtrosActivos.some(f => f === filterKey)) {
-                filtrosActivos.push(filterKey);
+            if (!filtrosActivos.includes(column)) {
+                filtrosActivos.push(column);
             }
         } else {
-            filtrosActivos = filtrosActivos.filter(f => f !== filterKey);
+            filtrosActivos = filtrosActivos.filter(f => f !== column);
         }
+        
+        // Actualizar el botón de limpiar filtros
+        actualizarBotonLimpiarFiltros();
     });
+    
+    // Manejar clic en el botón de limpiar filtros
+    $('#limpiarFiltrosSeleccionados').click(function() {
+        // Desactivar todos los switches de filtros
+        $('.column-toggle-filter').each(function() {
+            $(this).prop('checked', false);
+        });
+        
+        // Limpiar array de filtros activos
+        filtrosActivos = [];
+        
+        // Ocultar el botón
+        $(this).addClass('d-none');
+    });
+    
+    // Función para actualizar la visibilidad del botón de limpiar filtros
+    function actualizarBotonLimpiarFiltros() {
+        const $btn = $('#limpiarFiltrosSeleccionados');
+        if (filtrosActivos.length >= 2) {
+            $btn.removeClass('d-none');
+        } else {
+            $btn.addClass('d-none');
+        }
+    }
 
     // Guardar configuración
     $('#guardarConfiguracion').click(function() {
@@ -351,7 +394,7 @@ $(function() {
             method: 'POST',
             data: { 
                 configuracion: columnasVisibles,
-                filtros_act: filtrosActivos 
+                filtros_act: filtrosActivos  // Ahora solo enviamos los nombres de los campos
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

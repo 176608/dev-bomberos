@@ -405,6 +405,14 @@ class CapturistaController extends Controller
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $filtros_act = $configuracion ? $configuracion->filtros_act : [];
         
+        // Convertir filtros del formato antiguo al nuevo si es necesario
+        $filtros_act = array_map(function($filtro) {
+            if (is_string($filtro) && strpos($filtro, ':') !== false) {
+                return explode(':', $filtro)[0];
+            }
+            return $filtro;
+        }, $filtros_act);
+        
         $modo = $request->input('modo', 'tabla');
         
         // Nombres para los encabezados
@@ -425,10 +433,11 @@ class CapturistaController extends Controller
         
         // Obtener opciones para los selectores de filtro
         $opciones_filtro = [];
-        foreach ($filtros_act as $filtro) {
-            $partes = explode(':', $filtro);
-            $campo = $partes[0];
-            
+        foreach ($filtros_act as $campo) {
+            // Eliminar cualquier parte de valor si existe
+            $campo = is_string($campo) && strpos($campo, ':') !== false ? 
+                explode(':', $campo)[0] : $campo;
+                
             if (!isset($opciones_filtro[$campo])) {
                 $opciones_filtro[$campo] = $this->getDistinctValues($campo);
             }
@@ -601,6 +610,14 @@ class CapturistaController extends Controller
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
         $filtros_act = $configuracion ? $configuracion->filtros_act : ConfiguracionCapturista::getDefaultFilters();
+        
+        // Convertir filtros del formato antiguo al nuevo si es necesario
+        $filtros_act = array_map(function($filtro) {
+            if (is_string($filtro) && strpos($filtro, ':') !== false) {
+                return explode(':', $filtro)[0];
+            }
+            return $filtro;
+        }, $filtros_act);
 
         return view('partials.configuracion-param-modal', compact('columnas', 'filtros_act'))->render();
     }

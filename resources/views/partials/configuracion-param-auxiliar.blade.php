@@ -18,12 +18,10 @@
                 </div>
             @else
                 <div class="row">
-                    @foreach($filtros_act as $filtro)
+                    @foreach($filtros_act as $campo)
                         @php
-                            $partes = explode(':', $filtro);
-                            $campo = $partes[0];
-                            $valor = $partes[1] ?? '0';
                             $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));
+                            $valorSeleccionado = $request->input("filtro_{$campo}", '');
                         @endphp
                         <div class="col-md-4 mb-3">
                             <div class="card h-100 border-primary">
@@ -36,7 +34,7 @@
                                             <option value="">Todos</option>
                                             @if(isset($opciones_filtro[$campo]))
                                                 @foreach($opciones_filtro[$campo] as $opcion)
-                                                    <option value="{{ $opcion }}" {{ $valor == $opcion && $valor != '0' ? 'selected' : '' }}>
+                                                    <option value="{{ $opcion }}" {{ $valorSeleccionado == $opcion ? 'selected' : '' }}>
                                                         {{ $opcion ?: 'Vacío' }}
                                                     </option>
                                                 @endforeach
@@ -125,23 +123,32 @@ $(function() {
         // Obtener la lista actual de filtros activos
         let filtrosActivos = @json($filtros_act) || [];
         
+        // Convertir cualquier formato antiguo
+        filtrosActivos = filtrosActivos.map(filtro => {
+            return typeof filtro === 'string' && filtro.includes(':') ? 
+                filtro.split(':')[0] : filtro;
+        });
+        
         // Buscar si ya existe un filtro para este campo
-        const filtroIndex = filtrosActivos.findIndex(f => f.startsWith(campo + ':'));
+        const filtroIndex = filtrosActivos.indexOf(campo);
         
-        // Actualizar o agregar el filtro
-        const nuevoFiltro = campo + ':' + (valor || '0');
+        // Guardar la información del valor seleccionado por separado
+        const valoresFiltros = {};
+        valoresFiltros[campo] = valor;
         
-        if (filtroIndex >= 0) {
-            filtrosActivos[filtroIndex] = nuevoFiltro;
-        } else {
-            filtrosActivos.push(nuevoFiltro);
+        // Actualizar o agregar el campo a los filtros activos
+        if (filtroIndex === -1) {
+            filtrosActivos.push(campo);
         }
         
-        // Guardar los filtros actualizados
+        // Guardar los filtros actualizados y los valores
         $.ajax({
             url: "{{ route('configuracion.update-filtros') }}",
             method: 'POST',
-            data: { filtros_act: filtrosActivos },
+            data: { 
+                filtros_act: filtrosActivos,
+                valores_filtros: valoresFiltros
+            },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
