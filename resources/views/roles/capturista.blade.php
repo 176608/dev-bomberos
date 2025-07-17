@@ -411,14 +411,21 @@ $(document).ready(function() {
             }
         });
 
+        // Debug para verificar columnas disponibles
+        console.log("Columnas configuradas:", columnas);
+        console.log("Header names:", headerNames);
+        
         let table = $('#hidrantesConfigTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('hidrantes.data') }}",
-                // Depurar la respuesta para ver qué columnas faltan
                 dataSrc: function(json) {
                     console.log("DataTables response:", json);
+                    if (json.data && json.data.length > 0) {
+                        // Verificar las propiedades disponibles en los datos
+                        console.log("Propiedades disponibles en los datos:", Object.keys(json.data[0]));
+                    }
                     return json.data;
                 },
                 data: function(d) {
@@ -428,9 +435,12 @@ $(document).ready(function() {
                         d.filtros_adicionales = JSON.stringify(filtrosAdicionales);
                     }
                     return d;
+                },
+                error: function(xhr, error, thrown) {
+                    console.error("Error en la petición AJAX:", error, thrown, xhr);
                 }
             },
-            columns: dtColumns, // Asegúrate de pasar las columnas correctamente
+            columns: dtColumns,
             language: {
                 url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
             },
@@ -452,7 +462,7 @@ $(document).ready(function() {
         
         // Hacer disponible la tabla globalmente
         window.hidrantesTable = table;
-        window.configTable = table; // Asegurar que configTable también está disponible
+        window.configTable = table; 
     }
 
     function scrollToTablaHidrantes() {

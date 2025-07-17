@@ -441,147 +441,159 @@ class CapturistaController extends Controller
 
     public function dataTable(Request $request)
     {
-        $query = Hidrante::with([
-            'coloniaLocacion',
-            'callePrincipal',
-            'calleSecundaria'
-        ]);
+        try {
+            $query = Hidrante::with([
+                'coloniaLocacion',
+                'callePrincipal',
+                'calleSecundaria'
+            ]);
 
-        // Procesar filtros adicionales para columnas no visibles
-        if ($request->has('filtros_adicionales')) {
-            $filtrosAdicionales = json_decode($request->filtros_adicionales, true);
-            
-            if (is_array($filtrosAdicionales)) {
-                foreach ($filtrosAdicionales as $campo => $valor) {
-                    if (\Schema::hasColumn('hidrantes', $campo)) {
-                        // Si el valor está vacío, buscamos registros vacíos o NULL
-                        if ($valor === '') {
-                            $query->where(function($q) use ($campo) {
-                                $q->whereNull($campo)->orWhere($campo, '');
-                            });
-                        } else {
-                            // Búsqueda exacta para valores no vacíos
-                            $query->where($campo, $valor);
+            // Procesar filtros adicionales para columnas no visibles
+            if ($request->has('filtros_adicionales')) {
+                $filtrosAdicionales = json_decode($request->filtros_adicionales, true);
+                
+                if (is_array($filtrosAdicionales)) {
+                    \Log::info('Filtros adicionales recibidos:', $filtrosAdicionales);
+                    
+                    foreach ($filtrosAdicionales as $campo => $valor) {
+                        if (\Schema::hasColumn('hidrantes', $campo)) {
+                            // Si el valor está vacío, buscamos registros vacíos o NULL
+                            if ($valor === '') {
+                                $query->where(function($q) use ($campo) {
+                                    $q->whereNull($campo)->orWhere($campo, '');
+                                });
+                            } else {
+                                // Búsqueda exacta para valores no vacíos
+                                $query->where($campo, $valor);
+                            }
                         }
                     }
                 }
             }
+
+            return DataTables::eloquent($query)
+                ->addColumn('acciones', function($hidrante) {
+                    $botones = '
+                        <button class="btn btn-sm btn-primary view-hidrante" title="Ver el reporte del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning edit-hidrante" title="Editar la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                            <i class="bi bi-pen"></i>
+                        </button>
+                    ';
+
+                    if ($hidrante->stat === '000') {
+                        $botones .= '
+                            <button class="btn btn-sm btn-success activar-hidrante" title="Activar hidrante" data-hidrante-id="'.$hidrante->id.'">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                        ';
+                    } else {
+                        $botones .= '
+                            <button class="btn btn-sm btn-danger desactivar-hidrante" title="Desactivar hidrante" data-hidrante-id="'.$hidrante->id.'">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        ';
+                    }
+                    return $botones;
+                })
+                ->filterColumn('numero_estacion', function($query, $keyword) {
+                    // Si es búsqueda vacía
+                    if ($keyword === '') {
+                        $query->where(function($q) {
+                            $q->whereNull('numero_estacion')->orWhere('numero_estacion', '');
+                        });
+                    } else {
+                        $query->where('numero_estacion', $keyword);
+                    }
+                })
+                ->filterColumn('estado_hidrante', function($query, $keyword) {
+                    if ($keyword === '') {
+                        $query->where(function($q) {
+                            $q->whereNull('estado_hidrante')->orWhere('estado_hidrante', '');
+                        });
+                    } else {
+                        $query->where('estado_hidrante', $keyword);
+                    }
+                })
+                ->filterColumn('presion_agua', function($query, $keyword) {
+                    if ($keyword === '') {
+                        $query->where(function($q) {
+                            $q->whereNull('presion_agua')->orWhere('presion_agua', '');
+                        });
+                    } else {
+                        $query->where('presion_agua', $keyword);
+                    }
+                })
+                ->filterColumn('colonia', function($query, $keyword) {
+                    if ($keyword === '') {
+                        $query->where(function($q) {
+                            $q->whereNull('colonia')->orWhere('colonia', '');
+                        });
+                    } else {
+                        $query->where('colonia', $keyword);
+                    }
+                })
+                // Añade aquí más filterColumn para otros campos que necesiten filtrado exacto
+                ->editColumn('numero_estacion', function($hidrante) {
+                    if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
+                        return 'N/A';
+                    }
+                    return $hidrante->numero_estacion;
+                })
+                ->editColumn('calle', function($hidrante) {
+                    if (is_null($hidrante->id_calle)) {
+                        return 'N/A';
+                    }
+                    if ($hidrante->id_calle == 0) {
+                        return $hidrante->calle ? $hidrante->calle . '*' : 'Pendiente';
+                    }
+                    if ($hidrante->callePrincipal) {
+                        return '<span title="' . $hidrante->callePrincipal->Tipovial . '">' 
+                            . $hidrante->callePrincipal->Nomvial . '</span>';
+                    }
+                    return 'N/A';
+                })
+                ->editColumn('y_calle', function($hidrante) {
+                    if (is_null($hidrante->id_y_calle)) {
+                        return 'N/A';
+                    }
+                    if ($hidrante->id_y_calle == 0) {
+                        return $hidrante->y_calle ? $hidrante->y_calle . '*' : 'Pendiente';
+                    }
+                    if ($hidrante->calleSecundaria) {
+                        return '<span title="' . $hidrante->calleSecundaria->Tipovial . '">' 
+                            . $hidrante->calleSecundaria->Nomvial . '</span>';
+                    }
+                    return 'N/A';
+                })
+                ->editColumn('colonia', function($hidrante) {
+                    if (is_null($hidrante->id_colonia)) {
+                        return 'N/A';
+                    }
+                    if ($hidrante->id_colonia == 0) {
+                        return $hidrante->colonia ? $hidrante->colonia . '*' : 'Pendiente';
+                    }
+                    if ($hidrante->coloniaLocacion) {
+                        return '<span title="' . $hidrante->coloniaLocacion->TIPO . '">' 
+                            . $hidrante->coloniaLocacion->NOMBRE . '</span>';
+                    }
+                    return 'N/A';
+                })
+                ->editColumn('fecha_inspeccion', function($hidrante) {
+                    return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
+                })
+                ->rawColumns(['acciones', 'calle', 'y_calle', 'colonia'])
+                ->make(true);
+        } catch (\Exception $e) {
+            \Log::error('Error en dataTable:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'error' => 'Error al procesar la solicitud'
+            ], 500);
         }
-
-        return DataTables::eloquent($query)
-            ->addColumn('acciones', function($hidrante) {
-                $botones = '
-                    <button class="btn btn-sm btn-primary view-hidrante" title="Ver el reporte del hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-warning edit-hidrante" title="Editar la información del hidrante" data-hidrante-id="'.$hidrante->id.'">
-                        <i class="bi bi-pen"></i>
-                    </button>
-                ';
-
-                if ($hidrante->stat === '000') {
-                    $botones .= '
-                        <button class="btn btn-sm btn-success activar-hidrante" title="Activar hidrante" data-hidrante-id="'.$hidrante->id.'">
-                            <i class="bi bi-check-circle"></i>
-                        </button>
-                    ';
-                } else {
-                    $botones .= '
-                        <button class="btn btn-sm btn-danger desactivar-hidrante" title="Desactivar hidrante" data-hidrante-id="'.$hidrante->id.'">
-                            <i class="bi bi-x-circle"></i>
-                        </button>
-                    ';
-                }
-                return $botones;
-            })
-            ->filterColumn('numero_estacion', function($query, $keyword) {
-                // Si es búsqueda vacía
-                if ($keyword === '') {
-                    $query->where(function($q) {
-                        $q->whereNull('numero_estacion')->orWhere('numero_estacion', '');
-                    });
-                } else {
-                    $query->where('numero_estacion', $keyword);
-                }
-            })
-            ->filterColumn('estado_hidrante', function($query, $keyword) {
-                if ($keyword === '') {
-                    $query->where(function($q) {
-                        $q->whereNull('estado_hidrante')->orWhere('estado_hidrante', '');
-                    });
-                } else {
-                    $query->where('estado_hidrante', $keyword);
-                }
-            })
-            ->filterColumn('presion_agua', function($query, $keyword) {
-                if ($keyword === '') {
-                    $query->where(function($q) {
-                        $q->whereNull('presion_agua')->orWhere('presion_agua', '');
-                    });
-                } else {
-                    $query->where('presion_agua', $keyword);
-                }
-            })
-            ->filterColumn('colonia', function($query, $keyword) {
-                if ($keyword === '') {
-                    $query->where(function($q) {
-                        $q->whereNull('colonia')->orWhere('colonia', '');
-                    });
-                } else {
-                    $query->where('colonia', $keyword);
-                }
-            })
-            // Añade aquí más filterColumn para otros campos que necesiten filtrado exacto
-            ->editColumn('numero_estacion', function($hidrante) {
-                if (is_null($hidrante->numero_estacion) || $hidrante->numero_estacion === '') {
-                    return 'N/A';
-                }
-                return $hidrante->numero_estacion;
-            })
-            ->editColumn('calle', function($hidrante) {
-                if (is_null($hidrante->id_calle)) {
-                    return 'N/A';
-                }
-                if ($hidrante->id_calle == 0) {
-                    return $hidrante->calle ? $hidrante->calle . '*' : 'Pendiente';
-                }
-                if ($hidrante->callePrincipal) {
-                    return '<span title="' . $hidrante->callePrincipal->Tipovial . '">' 
-                        . $hidrante->callePrincipal->Nomvial . '</span>';
-                }
-                return 'N/A';
-            })
-            ->editColumn('y_calle', function($hidrante) {
-                if (is_null($hidrante->id_y_calle)) {
-                    return 'N/A';
-                }
-                if ($hidrante->id_y_calle == 0) {
-                    return $hidrante->y_calle ? $hidrante->y_calle . '*' : 'Pendiente';
-                }
-                if ($hidrante->calleSecundaria) {
-                    return '<span title="' . $hidrante->calleSecundaria->Tipovial . '">' 
-                        . $hidrante->calleSecundaria->Nomvial . '</span>';
-                }
-                return 'N/A';
-            })
-            ->editColumn('colonia', function($hidrante) {
-                if (is_null($hidrante->id_colonia)) {
-                    return 'N/A';
-                }
-                if ($hidrante->id_colonia == 0) {
-                    return $hidrante->colonia ? $hidrante->colonia . '*' : 'Pendiente';
-                }
-                if ($hidrante->coloniaLocacion) {
-                    return '<span title="' . $hidrante->coloniaLocacion->TIPO . '">' 
-                        . $hidrante->coloniaLocacion->NOMBRE . '</span>';
-                }
-                return 'N/A';
-            })
-            ->editColumn('fecha_inspeccion', function($hidrante) {
-                return $hidrante->fecha_inspeccion ? $hidrante->fecha_inspeccion->format('Y-m-d') : 'N/A';
-            })
-            ->rawColumns(['acciones', 'calle', 'y_calle', 'colonia'])
-            ->make(true);
     }
 
     public function configuracionModal()

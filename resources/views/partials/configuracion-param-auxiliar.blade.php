@@ -184,19 +184,31 @@ $(function() {
             console.log('Filtros no visibles:', filtrosNoVisibles);
             console.log('Columnas configuradas:', columnas);
             
+            // Primero limpiar todos los filtros anteriores
+            table.columns().search('').draw();
+            
             // Aplicar filtros visibles directamente en DataTables
             Object.keys(filtrosVisibles).forEach(campo => {
                 const valor = filtrosVisibles[campo];
                 const columnIndex = columnas.indexOf(campo);
                 if (columnIndex >= 0) {
-                    // El +3 es por las columnas fijas (id, acciones, stat)
-                    console.log(`Aplicando filtro a columna ${campo} (índice ${columnIndex + 3}): "${valor}"`);
-                    if (valor === '') {
-                        // Filtro para valores vacíos
-                        table.column(columnIndex + 3).search('^$|^N/A$', true, false);
+                    // Determinar el índice real de la columna en la tabla
+                    // Las primeras 3 columnas son: id, acciones, stat
+                    const realIndex = columnIndex + 3;
+                    
+                    console.log(`Aplicando filtro a columna ${campo} (índice ${realIndex}): "${valor}"`);
+                    
+                    // Verificar primero que la columna existe en la tabla
+                    if (realIndex < table.columns().nodes().length) {
+                        if (valor === '') {
+                            // Filtro para valores vacíos
+                            table.column(realIndex).search('^$|^N/A$', true, false);
+                        } else {
+                            // Usar un filtro exacto (sin regex) para evitar problemas
+                            table.column(realIndex).search(valor, false, false);
+                        }
                     } else {
-                        // Filtro para valores normales - usar regex para coincidencia exacta
-                        table.column(columnIndex + 3).search('^' + $.fn.dataTable.util.escapeRegex(valor) + '$', true, false);
+                        console.error(`La columna con índice ${realIndex} no existe en la tabla`);
                     }
                 }
             });
@@ -206,19 +218,26 @@ $(function() {
                 // Guardar los filtros no visibles globalmente para la recarga
                 window.filtrosNoVisibles = filtrosNoVisibles;
                 
-                // Guardar los filtros no visibles en la configuración de AJAX
-                const ajaxUrl = new URL(table.ajax.url());
-                ajaxUrl.searchParams.set('filtros_adicionales', JSON.stringify(filtrosNoVisibles));
-                
-                // Actualizar la URL de AJAX y recargar
-                console.log('Recargando tabla con filtros server-side:', filtrosNoVisibles);
-                table.ajax.url(ajaxUrl.toString()).load();
+                try {
+                    // Guardar los filtros no visibles en la configuración de AJAX
+                    const ajaxUrl = new URL(table.ajax.url());
+                    ajaxUrl.searchParams.set('filtros_adicionales', JSON.stringify(filtrosNoVisibles));
+                    
+                    // Actualizar la URL de AJAX y recargar
+                    console.log('Recargando tabla con filtros server-side:', filtrosNoVisibles);
+                    table.ajax.url(ajaxUrl.toString()).load();
+                } catch (error) {
+                    console.error('Error al aplicar filtros no visibles:', error);
+                    alert('Error al aplicar los filtros. Por favor, inténtelo de nuevo.');
+                }
             } else {
                 // Si no hay filtros para columnas no visibles, solo redibujamos
                 // Y limpiamos cualquier filtro server-side anterior
                 window.filtrosNoVisibles = {};
                 table.draw();
             }
+        } else {
+            console.error('La tabla DataTables no está inicializada correctamente');
         }
     }
 });
