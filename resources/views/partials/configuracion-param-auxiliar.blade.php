@@ -20,8 +20,7 @@
                 <div class="row">
                     @foreach($filtros_act as $campo)
                         @php
-                            $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));
-                            $valorSeleccionado = $request->input("filtro_{$campo}", '');
+                            $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));                            $valorSeleccionado = ''; // Valor por defecto
                         @endphp
                         <div class="col-md-4 mb-3">
                             <div class="card h-100 border-primary">
@@ -34,7 +33,7 @@
                                             <option value="">Todos</option>
                                             @if(isset($opciones_filtro[$campo]))
                                                 @foreach($opciones_filtro[$campo] as $opcion)
-                                                    <option value="{{ $opcion }}" {{ $valorSeleccionado == $opcion ? 'selected' : '' }}>
+                                                    <option value="{{ $opcion }}">
                                                         {{ $opcion ?: 'Vacío' }}
                                                     </option>
                                                 @endforeach
