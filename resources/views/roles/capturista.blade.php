@@ -558,11 +558,7 @@ function normalizarEstilosTabla() {
         'border-right': 'none',
         'border-bottom': 'none'
     });
-});
-
-// ========================
-// FUNCIONES DE TABLA Y FILTROS
-// ========================
+}
 
 /**
  * Inicializa DataTable with server-side processing
