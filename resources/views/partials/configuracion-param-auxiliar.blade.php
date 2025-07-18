@@ -6,7 +6,7 @@
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
             <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir/Contraer panel de filtros">
-                <i class="fas fa-chevron-down"></i>
+                <i class="bi bi-arrows-collapse"></i>
             </button>
         </div>
     </div>
@@ -43,7 +43,7 @@
                                         <button class="btn btn-outline-primary aplicar-filtro" 
                                                 data-campo="{{ $campo }}" 
                                                 title="Aplicar solo este filtro">
-                                            <i class="bi bi-gear-fill"></i>
+                                            <i class="bi bi-funnel"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -54,10 +54,10 @@
                 <div class="row mt-3">
                     <div class="col-12 text-center">
                         <button class="btn btn-primary" id="aplicarTodosFiltros" title="Aplicar todos los filtros seleccionados">
-                            <i class="fas fa-search me-1"></i> Aplicar Filtros
+                            <i class="bi bi-search-fill"></i> Aplicar Filtros
                         </button>
                         <button class="btn btn-outline-secondary ms-2" id="limpiarFiltros" title="Limpiar todos los filtros">
-                            <i class="fas fa-eraser me-1"></i> Limpiar Filtros
+                            <i class="bi bi-eraser"></i> Limpiar Filtros
                         </button>
                     </div>
                 </div>
