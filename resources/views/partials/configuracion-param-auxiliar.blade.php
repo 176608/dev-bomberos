@@ -4,8 +4,8 @@
             <h5 class="mb-0 w-100 text-center">
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
-            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Contraer panel de filtros">
-                <i class="bi bi-arrows-collapse"></i>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Contraer panel">
+                <i class="bi bi-arrow-bar-up"></i>
             </button>
         </div>
     </div>
@@ -81,14 +81,14 @@ $(function() {
         $container.slideToggle();
         
         // Cambiar el icono y el título según el estado actual
-        if ($icon.hasClass('bi-arrows-collapse')) {
+        if ($icon.hasClass('bi-arrow-bar-up')) {
              // Está contrayendo, cambiar al icono de expandir
-            $icon.removeClass('bi-arrows-collapse').addClass('bi-arrows-expand');
-            $(this).attr('title', 'Expandir panel de filtros');
+            $icon.removeClass('bi-arrow-bar-up').addClass('bi-arrow-bar-down');
+            $(this).attr('title', 'Expandir panel');
         } else {
             // Está expandiendo, cambiar al icono de contraer
-            $icon.removeClass('bi-arrows-expand').addClass('bi-arrows-collapse');
-            $(this).attr('title', 'Contraer panel de filtros');
+            $icon.removeClass('bi-arrow-bar-down').addClass('bi-arrow-bar-up');
+            $(this).attr('title', 'Contraer panel');
         }
     });
     

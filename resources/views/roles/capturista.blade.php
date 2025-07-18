@@ -142,6 +142,31 @@
     .toast-info {
         border-left-color: #0dcaf0;
     }
+
+    /* Corrección para evitar bordes adicionales en DataTables */
+    #hidrantesConfigTable tbody tr {
+        border-bottom: 1px solid #dee2e6 !important;
+        border-top: none !important;
+    }
+    
+    #hidrantesConfigTable tbody td {
+        border-left: none !important;
+        border-right: none !important;
+    }
+    
+    /* Asegurar que los estilos de filas alternadas se mantienen consistentes */
+    #hidrantesConfigTable tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9 !important;
+    }
+    
+    #hidrantesConfigTable tbody tr:nth-of-type(even) {
+        background-color: #ffffff !important;
+    }
+    
+    /* Asegurar que los bordes horizontales sean ligeros */
+    .dataTables_wrapper .dataTable {
+        border-collapse: collapse !important;
+    }
 </style>
 
 <div class="container mt-4">
@@ -237,6 +262,9 @@ function setupMainButtons() {
     // Botón Ver Tabla
     $('#btnVerTabla').click(function() {
         cargarTablaHidrantes();
+        
+        // Normalizar estilos después de que la tabla se haga visible
+        setTimeout(normalizarEstilosTabla, 500);
     });
     
     // Botón Configuración
@@ -510,6 +538,28 @@ function setupCrudHandlers() {
     });
 }
 
+/**
+ * Función para normalizar los estilos de la tabla después de cambiar entre vistas
+ */
+function normalizarEstilosTabla() {
+    // Eliminar bordes adicionales
+    $('#hidrantesConfigTable tbody tr').css({
+        'border-bottom': '1px solid #dee2e6',
+        'border-top': 'none'
+    });
+    
+    // Restaurar el estilo alternado de filas
+    $('#hidrantesConfigTable tbody tr:nth-child(odd)').css('background-color', '#f9f9f9');
+    $('#hidrantesConfigTable tbody tr:nth-child(even)').css('background-color', '#ffffff');
+    
+    // Eliminar cualquier borde adicional en celdas
+    $('#hidrantesConfigTable td').css({
+        'border-left': 'none',
+        'border-right': 'none',
+        'border-bottom': 'none'
+    });
+});
+
 // ========================
 // FUNCIONES DE TABLA Y FILTROS
 // ========================
@@ -702,18 +752,15 @@ function recargarSoloTabla(callback) {
     
     // Recargar solo la tabla
     $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Renderiza la nueva tabla
         $('#tablaHidrantesContainer').html(response);
-        
-        // Reinicializar DataTable
         inicializarDataTableServerSide();
-        
-        // Recargar el panel auxiliar con los filtros
         cargarPanelAuxiliar('tabla');
         
-        // Ejecutar el callback si se proporcionó uno
+        // Normalizar estilos después de cargar la tabla
+        setTimeout(normalizarEstilosTabla, 100);
+        
         if (typeof callback === 'function') {
-            setTimeout(callback, 500); // Pequeño retraso para asegurar que todo se cargó
+            setTimeout(callback, 500);
         }
     });
 }
