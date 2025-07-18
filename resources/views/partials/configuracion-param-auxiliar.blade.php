@@ -72,6 +72,8 @@
     </div>
 </div>
 
+<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
 <script>
 $(function() {
     // Toggle para expandir/contraer el panel de filtros
@@ -117,8 +119,33 @@ $(function() {
     
     // Limpiar todos los filtros
     $('#limpiarFiltros').click(function() {
+        // Limpiar los selectores visuales
         $('.filtro-valor').val('');
+        
+        // Limpiar localStorage
+        localStorage.removeItem('hidrantesFilterState');
+        
+        // Limpiar filtros globales no visibles
+        window.filtrosNoVisibles = {};
+        
+        // Aplicar filtros vacíos para limpiar todo
         aplicarFiltrosATabla({});
+        
+        // Opcional: Mostrar mensaje de confirmación
+        const toast = `<div class="toast align-items-center text-bg-light border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle text-success me-2"></i> Filtros limpiados exitosamente
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>`;
+        
+        // Agregar el toast al DOM y mostrarlo
+        $('#toastContainer').html(toast);
+        const toastEl = document.querySelector('.toast');
+        const bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        bsToast.show();
     });
     
     function actualizarFiltroActivo(campo, valor) {
@@ -173,6 +200,28 @@ $(function() {
             // Limpiar búsquedas anteriores
             table.search('').columns().search('');
             
+            // Verificar si estamos limpiando todos los filtros
+            const limpiandoTodo = Object.keys(filtros).length === 0;
+            
+            if (limpiandoTodo) {
+                // Si estamos limpiando todo, asegurémonos de limpiar también filtros server-side
+                window.filtrosNoVisibles = {};
+                
+                try {
+                    // Restaurar URL de AJAX a su estado original sin parámetros adicionales
+                    let ajaxUrl = new URL(table.ajax.url());
+                    ajaxUrl.searchParams.delete('filtros_adicionales');
+                    
+                    // Recargar la tabla sin filtros
+                    console.log('Recargando tabla sin filtros');
+                    table.ajax.url(ajaxUrl.toString()).load();
+                    return; // Terminamos aquí para evitar código adicional
+                } catch (error) {
+                    console.error('Error al limpiar filtros:', error);
+                }
+            }
+            
+            // Código existente para filtros normales...
             // Separar filtros en visibles y no visibles
             const columnas = window.hidrantesTableConfig || [];
             const filtrosVisibles = {};
@@ -244,9 +293,25 @@ $(function() {
                 }
             } else {
                 // Si no hay filtros para columnas no visibles, solo redibujamos
-                // Y limpiamos cualquier filtro server-side anterior
-                window.filtrosNoVisibles = {};
-                table.draw();
+                // Y limpiamos cualquier filtro server-side anterior si estaba presente antes
+                if (window.filtrosNoVisibles && Object.keys(window.filtrosNoVisibles).length > 0) {
+                    // Había filtros server-side antes, necesitamos recargar para limpiarlos
+                    window.filtrosNoVisibles = {};
+                    try {
+                        // Restaurar URL de AJAX a su estado original
+                        const ajaxUrl = new URL(table.ajax.url());
+                        ajaxUrl.searchParams.delete('filtros_adicionales');
+                        
+                        // Recargar tabla sin filtros server-side
+                        table.ajax.url(ajaxUrl.toString()).load();
+                    } catch (error) {
+                        console.error('Error al limpiar filtros server-side:', error);
+                        table.draw(); // Como fallback
+                    }
+                } else {
+                    // No había filtros server-side antes, solo redibujamos
+                    table.draw();
+                }
             }
         } else {
             console.error('La tabla DataTables no está inicializada correctamente');
