@@ -43,7 +43,7 @@
                                         <button class="btn btn-outline-primary aplicar-filtro" 
                                                 data-campo="{{ $campo }}" 
                                                 title="Aplicar solo este filtro">
-                                            <i class="fas fa-filter"></i>
+                                            <i class="bi bi-gear-fill"></i>
                                         </button>
                                     </div>
                                 </div>
