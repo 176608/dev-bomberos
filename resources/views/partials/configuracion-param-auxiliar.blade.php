@@ -4,7 +4,7 @@
             <h5 class="mb-0 w-100 text-center">
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
-            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir panel de filtros">
+            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Contraer panel de filtros">
                 <i class="bi bi-arrows-collapse"></i>
             </button>
         </div>
