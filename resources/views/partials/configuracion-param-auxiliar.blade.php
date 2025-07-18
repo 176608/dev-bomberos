@@ -72,8 +72,6 @@
     </div>
 </div>
 
-<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
-
 <script>
 $(function() {
     // Toggle para expandir/contraer el panel de filtros
@@ -131,21 +129,10 @@ $(function() {
         // Aplicar filtros vacíos para limpiar todo
         aplicarFiltrosATabla({});
         
-        // Opcional: Mostrar mensaje de confirmación
-        const toast = `<div class="toast align-items-center text-bg-light border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-check-circle text-success me-2"></i> Filtros limpiados exitosamente
-                </div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>`;
-        
-        // Agregar el toast al DOM y mostrarlo
-        $('#toastContainer').html(toast);
-        const toastEl = document.querySelector('.toast');
-        const bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
-        bsToast.show();
+        // Usar la función centralizada para mostrar el toast
+        if (typeof mostrarToast === 'function') {
+            mostrarToast('Filtros limpiados exitosamente');
+        }
     });
     
     function actualizarFiltroActivo(campo, valor) {

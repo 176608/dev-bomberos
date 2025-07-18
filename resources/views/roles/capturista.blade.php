@@ -162,6 +162,9 @@
         <!-- Aquí se cargaria la tabla con AJAX -->
     </div>
 
+    <!-- Toast container para mensajes -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
 </div>
 
 @endsection
@@ -743,6 +746,62 @@ function aplicarFiltrosGuardados() {
 function aplicarFiltrosATabla(filtros) {
     // Esta función se implementa en el archivo configuracion-param-auxiliar.blade.php
     console.log("Aplicando filtros:", filtros);
+}
+
+/**
+ * Muestra un mensaje toast
+ * @param {string} mensaje - El mensaje a mostrar
+ * @param {string} tipo - El tipo de mensaje (success, error, warning, info)
+ * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
+ */
+function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
+    // Definir el icono según el tipo
+    let icono = 'check-circle';
+    let colorClase = 'text-success';
+    let borderClass = 'toast-success';
+    
+    switch(tipo) {
+        case 'error':
+            icono = 'exclamation-circle';
+            colorClase = 'text-danger';
+            borderClass = 'toast-error';
+            break;
+        case 'warning':
+            icono = 'exclamation-triangle';
+            colorClase = 'text-warning';
+            borderClass = 'toast-warning';
+            break;
+        case 'info':
+            icono = 'info-circle';
+            colorClase = 'text-info';
+            borderClass = 'toast-info';
+            break;
+    }
+    
+    // Crear el HTML del toast
+    const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-${icono} ${colorClase} me-2"></i> ${mensaje}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>`;
+    
+    // Agregar el toast al DOM
+    $('#toastContainer').append(toast);
+    
+    // Obtener el último toast agregado
+    const toastEl = $('#toastContainer .toast').last()[0];
+    
+    // Inicializar y mostrar el toast
+    const bsToast = new bootstrap.Toast(toastEl, { delay: duracion });
+    bsToast.show();
+    
+    // Eliminar el toast del DOM después de ocultarse
+    $(toastEl).on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
 }
 </script>
 @endsection
