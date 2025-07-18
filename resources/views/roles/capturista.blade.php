@@ -303,11 +303,11 @@ function setupMainButtons() {
                         success: function(response) {
                             if (response.success) {
                                 modalInstance.hide();
-                                // Reemplazar alert por mostrarToast
-                                mostrarToast('Hidrante creado exitosamente');
-                                recargarSoloTabla();
+                                // Pasar el toast como callback a ejecutar después de recargar la tabla
+                                recargarSoloTabla(function() {
+                                    mostrarToast('Hidrante creado exitosamente');
+                                });
                             } else {
-                                // Reemplazar alert por mostrarToast
                                 mostrarToast('Error: ' + response.message, 'error');
                             }
                         },
@@ -393,9 +393,11 @@ function setupCrudHandlers() {
                         success: function(response) {
                             if(response.success) {
                                 modalInstance.hide();
-                                recargarSoloTabla();
+                                recargarSoloTabla(function() {
+                                    mostrarToast('Hidrante actualizado exitosamente');
+                                });
                             } else {
-                                alert('Error: ' + response.message);
+                                mostrarToast('Error: ' + response.message, 'error');
                             }
                         },
                         error: function(xhr) {
@@ -464,16 +466,14 @@ function setupCrudHandlers() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Agregar mostrarToast
-                        mostrarToast('Hidrante dado de baja exitosamente', 'info');
-                        recargarSoloTabla();
+                        recargarSoloTabla(function() {
+                            mostrarToast('Hidrante dado de baja exitosamente', 'info');
+                        });
                     } else {
-                        // Reemplazar alert por mostrarToast
                         mostrarToast('No se pudo dar de baja el hidrante', 'error');
                     }
                 },
                 error: function() {
-                    // Reemplazar alert por mostrarToast
                     mostrarToast('Error al dar de baja el hidrante', 'error');
                 }
             });
@@ -495,9 +495,11 @@ function setupCrudHandlers() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        recargarSoloTabla();
+                        recargarSoloTabla(function() {
+                            mostrarToast('Hidrante activado exitosamente');
+                        });
                     } else {
-                        alert('No se pudo activar el hidrante.');
+                        mostrarToast('No se pudo activar el hidrante', 'error');
                     }
                 },
                 error: function() {
@@ -513,7 +515,7 @@ function setupCrudHandlers() {
 // ========================
 
 /**
- * Inicializa DataTable con server-side
+ * Inicializa DataTable with server-side processing
  */
 function inicializarDataTableServerSide() {
     let columnas = window.hidrantesTableConfig || [];
@@ -685,8 +687,9 @@ function scrollToTablaHidrantes() {
 
 /**
  * Recarga solo la tabla sin recargar la página completa
+ * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
  */
-function recargarSoloTabla() {
+function recargarSoloTabla(callback) {
     // Guardar los filtros actuales
     const filtros = guardarEstadoFiltros();
     
@@ -707,6 +710,11 @@ function recargarSoloTabla() {
         
         // Recargar el panel auxiliar con los filtros
         cargarPanelAuxiliar('tabla');
+        
+        // Ejecutar el callback si se proporcionó uno
+        if (typeof callback === 'function') {
+            setTimeout(callback, 500); // Pequeño retraso para asegurar que todo se cargó
+        }
     });
 }
 
