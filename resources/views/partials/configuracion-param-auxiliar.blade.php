@@ -5,7 +5,7 @@
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
             <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir panel de filtros">
-                <i class="bi bi-arrows-expand"></i>
+                <i class="bi bi-arrows-collapse"></i>
             </button>
         </div>
     </div>
@@ -81,14 +81,14 @@ $(function() {
         $container.slideToggle();
         
         // Cambiar el icono y el título según el estado actual
-        if ($icon.hasClass('bi-arrows-expand')) {
+        if ($icon.hasClass('bi-arrows-collapse')) {
+             // Está contrayendo, cambiar al icono de expandir
+            $icon.removeClass('bi-arrows-collapse').addClass('bi-arrows-expand');
+            $(this).attr('title', 'Expandir panel de filtros');
+        } else {
             // Está expandiendo, cambiar al icono de contraer
             $icon.removeClass('bi-arrows-expand').addClass('bi-arrows-collapse');
             $(this).attr('title', 'Contraer panel de filtros');
-        } else {
-            // Está contrayendo, cambiar al icono de expandir
-            $icon.removeClass('bi-arrows-collapse').addClass('bi-arrows-expand');
-            $(this).attr('title', 'Expandir panel de filtros');
         }
     });
     
