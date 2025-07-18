@@ -69,7 +69,7 @@ class CapturistaController extends Controller
                 'hidrante_conectado_tubo' => 'required|string',
                 'estado_hidrante' => 'required|string',
                 'marca' => 'nullable|string',
-                'anio' => 'nullable|integer',
+                'anio' => 'nullable|string', // Cambiado de integer a string
                 'observaciones' => 'nullable|string',
                 'oficial' => 'required|string'
             ]);
@@ -162,7 +162,7 @@ class CapturistaController extends Controller
                 'hidrante_conectado_tubo' => 'required|string',
                 'estado_hidrante' => 'required|string',
                 'marca' => 'required|string',
-                'anio' => 'required|integer',
+                'anio' => 'required|string', // Cambiado de integer a string
                 'observaciones' => 'nullable|string',
                 'oficial' => 'required|string'
             ]);
@@ -377,7 +377,8 @@ class CapturistaController extends Controller
                     ->toArray();
             }
             // Para campos numéricos que requieren ordenamiento numérico
-            else if (in_array($campo, ['numero_estacion', 'anio'])) {
+            // Modificar esta condición para excluir 'anio'
+            else if (in_array($campo, ['numero_estacion'])) {
                 return Hidrante::whereNotNull($campo)
                     ->where($campo, '!=', '')
                     ->distinct($campo)

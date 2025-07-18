@@ -173,7 +173,7 @@
                                         Año:
                                         <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         </label>
-                                        <input type="number" class="form-control" name="anio"
+                                        <input type="text" class="form-control" name="anio"
                                                value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                     </div>
                                 </div>
@@ -615,7 +615,7 @@ $(document).ready(function() {
                     $input.val('S/I').trigger('change');
                 } else {
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
-                    if (name === 'anio') $input.val('0');
+                    if (name === 'anio') $input.val('S/I'); // Cambiado de '0' a 'S/I'
                 }
             } else {
             }

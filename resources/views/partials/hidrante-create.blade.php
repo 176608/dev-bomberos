@@ -174,7 +174,7 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Año:</label>
-                                        <input type="number" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
+                                        <input type="text" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
                                     </div>
                                 </div>
 
@@ -429,6 +429,7 @@ $(document).ready(function() {
     // Esta función muestra u oculta el icono de advertencia según el valor del campo, esto es lo que hay que revisar
     function toggleExclamationIcon(iconId, value) {
         const icon = $(iconId);
+        // Incluir 'S/I' como un valor que activa el icono de advertencia
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
             icon.removeClass('d-none');
         } else {
@@ -565,7 +566,7 @@ $(document).ready(function() {
                     $input.val('S/I').trigger('change');
                 } else {
                     if (name === 'marca' || name === 'ubicacion_fosa') $input.val('S/I');
-                    if (name === 'anio') $input.val('0');
+                    if (name === 'anio') $input.val('S/I');
                 }
             }
         });

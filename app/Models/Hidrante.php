@@ -36,7 +36,8 @@ class Hidrante extends Model
     protected $casts = [
         'fecha_inspeccion' => 'date',
         'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s'
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+        'anio' => 'string',
     ];
 //Solo la funcion getFechaTentativaAttribute se elimina, ya que no se usa en el modelo
     /*protected function getFechaTentativaAttribute($value)
