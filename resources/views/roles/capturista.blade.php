@@ -116,6 +116,32 @@
         margin-top: 1rem;
     }
 
+    /* Estilos para los toast */
+    .toast {
+        box-shadow: 0 .25rem .75rem rgba(0,0,0,.15);
+        opacity: 1;
+        backdrop-filter: blur(5px);
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        border-left: 4px solid #0d6efd;
+        max-width: 350px;
+        font-size: 0.9rem;
+    }
+
+    .toast-success {
+        border-left-color: #198754;
+    }
+
+    .toast-error {
+        border-left-color: #dc3545;
+    }
+
+    .toast-warning {
+        border-left-color: #ffc107;
+    }
+
+    .toast-info {
+        border-left-color: #0dcaf0;
+    }
 </style>
 
 <div class="container mt-4">
@@ -277,14 +303,18 @@ function setupMainButtons() {
                         success: function(response) {
                             if (response.success) {
                                 modalInstance.hide();
+                                // Reemplazar alert por mostrarToast
+                                mostrarToast('Hidrante creado exitosamente');
                                 recargarSoloTabla();
                             } else {
-                                alert('Error: ' + response.message);
+                                // Reemplazar alert por mostrarToast
+                                mostrarToast('Error: ' + response.message, 'error');
                             }
                         },
                         error: function(xhr) {
                             console.error('Error:', xhr);
-                            alert('Error al crear el hidrante');
+                            // Reemplazar alert por mostrarToast
+                            mostrarToast('Error al crear el hidrante', 'error');
                         }
                     });
                 });
@@ -434,13 +464,17 @@ function setupCrudHandlers() {
                 },
                 success: function(response) {
                     if (response.success) {
+                        // Agregar mostrarToast
+                        mostrarToast('Hidrante dado de baja exitosamente', 'info');
                         recargarSoloTabla();
                     } else {
-                        alert('No se pudo desactivar el hidrante.');
+                        // Reemplazar alert por mostrarToast
+                        mostrarToast('No se pudo dar de baja el hidrante', 'error');
                     }
                 },
                 error: function() {
-                    alert('Error al desactivar el hidrante.');
+                    // Reemplazar alert por mostrarToast
+                    mostrarToast('Error al dar de baja el hidrante', 'error');
                 }
             });
         }
