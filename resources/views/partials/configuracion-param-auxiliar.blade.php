@@ -1,11 +1,11 @@
 <div class="card mb-4">
     <div class="card-header bg-light">
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
+            <h5 class="mb-0 w-100 text-center">
                 <i class="fas fa-filter me-2"></i>
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
-            <button class="btn btn-sm btn-outline-primary" id="toggleFilters">
+            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir/Contraer panel de filtros">
                 <i class="fas fa-chevron-down"></i>
             </button>
         </div>
@@ -20,11 +20,12 @@
                 <div class="row">
                     @foreach($filtros_act as $campo)
                         @php
-                            $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));                            $valorSeleccionado = ''; // Valor por defecto
+                            $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));
+                            $valorSeleccionado = ''; // Valor por defecto
                         @endphp
                         <div class="col-md-4 mb-3">
                             <div class="card h-100 border-primary">
-                                <div class="card-header bg-primary text-white py-1">
+                                <div class="card-header bg-primary text-white py-1 text-center">
                                     {{ $nombreCampo }}
                                 </div>
                                 <div class="card-body py-2">
@@ -39,7 +40,9 @@
                                                 @endforeach
                                             @endif
                                         </select>
-                                        <button class="btn btn-outline-primary aplicar-filtro" data-campo="{{ $campo }}">
+                                        <button class="btn btn-outline-primary aplicar-filtro" 
+                                                data-campo="{{ $campo }}" 
+                                                title="Aplicar solo este filtro">
                                             <i class="fas fa-filter"></i>
                                         </button>
                                     </div>
@@ -48,12 +51,12 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <button class="btn btn-primary btn-sm" id="aplicarTodosFiltros">
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <button class="btn btn-primary" id="aplicarTodosFiltros" title="Aplicar todos los filtros seleccionados">
                             <i class="fas fa-search me-1"></i> Aplicar Filtros
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm ms-2" id="limpiarFiltros">
+                        <button class="btn btn-outline-secondary ms-2" id="limpiarFiltros" title="Limpiar todos los filtros">
                             <i class="fas fa-eraser me-1"></i> Limpiar Filtros
                         </button>
                     </div>
