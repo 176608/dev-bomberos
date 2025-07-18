@@ -2,11 +2,10 @@
     <div class="card-header bg-light">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0 w-100 text-center">
-                <i class="fas fa-filter me-2"></i>
                 {{ $modo === 'tabla' ? 'Filtros Activos de Búsqueda' : 'Resumen de Hidrantes' }}
             </h5>
-            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir/Contraer panel de filtros">
-                <i class="bi bi-arrows-collapse"></i>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFilters" title="Expandir panel de filtros">
+                <i class="bi bi-arrows-expand"></i>
             </button>
         </div>
     </div>
@@ -54,7 +53,7 @@
                 <div class="row mt-3">
                     <div class="col-12 text-center">
                         <button class="btn btn-primary" id="aplicarTodosFiltros" title="Aplicar todos los filtros seleccionados">
-                            <i class="bi bi-search-fill"></i> Aplicar Filtros
+                            <i class="bi bi-search"></i> Aplicar Filtros
                         </button>
                         <button class="btn btn-outline-secondary ms-2" id="limpiarFiltros" title="Limpiar todos los filtros">
                             <i class="bi bi-eraser"></i> Limpiar Filtros
@@ -80,7 +79,17 @@ $(function() {
         const $container = $('#filterContainer');
         
         $container.slideToggle();
-        $icon.toggleClass('fa-chevron-down fa-chevron-up');
+        
+        // Cambiar el icono y el título según el estado actual
+        if ($icon.hasClass('bi-arrows-expand')) {
+            // Está expandiendo, cambiar al icono de contraer
+            $icon.removeClass('bi-arrows-expand').addClass('bi-arrows-collapse');
+            $(this).attr('title', 'Contraer panel de filtros');
+        } else {
+            // Está contrayendo, cambiar al icono de expandir
+            $icon.removeClass('bi-arrows-collapse').addClass('bi-arrows-expand');
+            $(this).attr('title', 'Expandir panel de filtros');
+        }
     });
     
     // Manejo de filtros individuales
