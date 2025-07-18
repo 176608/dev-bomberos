@@ -541,29 +541,6 @@ function inicializarDataTableServerSide() {
         }
     });
 
-    // Agregar columna de año
-    // Verificar si la columna 'anio' ya está incluida en las columnas configuradas
-    if (!columnas.includes('anio')) {
-        // Solo agregar si no existe
-        dtColumns.push({
-            data: 'anio',
-            name: 'anio',
-            className: 'text-center align-middle',
-            render: function(data, type, row) {
-                // Si es nulo o vacío, mostrar 'N/A'
-                if (data === null || data === '') {
-                    return 'N/A';
-                }
-                // Si no, devolver el valor como texto
-                return data;
-            }
-        });
-    }
-
-    // Debug para verificar columnas disponibles
-    console.log("Columnas configuradas:", columnas);
-    console.log("Header names:", headerNames);
-    
     let table = $('#hidrantesConfigTable').DataTable({
         processing: true,
         serverSide: true,
