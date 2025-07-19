@@ -411,6 +411,9 @@ class CapturistaController extends Controller
 
     public function cargarPanelAuxiliar(Request $request)
     {
+        // Asegurar que Carbon use español
+        \Carbon\Carbon::setLocale('es');
+        
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $filtros_act = $configuracion ? $configuracion->filtros_act : [];
         

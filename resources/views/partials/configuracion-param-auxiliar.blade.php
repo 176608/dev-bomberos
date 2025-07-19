@@ -153,8 +153,8 @@ $(function() {
         // Limpiar filtros globales no visibles
         window.filtrosNoVisibles = {};
         
-        // Aplicar filtros vacíos para limpiar todo
-        aplicarFiltrosATabla({});
+        // Aplicar filtros vacíos para limpiar todo (con noScroll = true)
+        aplicarFiltrosATabla({}, true);
         
         // Usar la función centralizada para mostrar el toast
         if (typeof mostrarToast === 'function') {
@@ -205,7 +205,7 @@ $(function() {
     }
     
     // Reemplazo completo de la función aplicarFiltrosATabla
-    function aplicarFiltrosATabla(filtros) {
+    function aplicarFiltrosATabla(filtros, noScroll = false) {
         // Guardar el estado de los filtros
         localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
         
@@ -229,7 +229,12 @@ $(function() {
                     
                     // Recargar la tabla sin filtros
                     console.log('Recargando tabla sin filtros');
-                    table.ajax.url(ajaxUrl.toString()).load();
+                    table.ajax.url(ajaxUrl.toString()).load(function() {
+                        if (noScroll) {
+                            // Scroll hacia el panel auxiliar en lugar de la tabla
+                            scrollToAuxContainer();
+                        }
+                    });
                     return; // Terminamos aquí para evitar código adicional
                 } catch (error) {
                     console.error('Error al limpiar filtros:', error);
@@ -307,7 +312,11 @@ $(function() {
                     
                     // Actualizar la URL de AJAX y recargar
                     console.log('Recargando tabla con filtros server-side:', filtrosNoVisibles);
-                    table.ajax.url(ajaxUrl.toString()).load();
+                    table.ajax.url(ajaxUrl.toString()).load(function() {
+                        if (!noScroll) {
+                            scrollToTablaHidrantes();
+                        }
+                    });
                 } catch (error) {
                     console.error('Error al aplicar filtros no visibles:', error);
                     alert('Error al aplicar los filtros. Por favor, inténtelo de nuevo.');

@@ -677,7 +677,7 @@ function inicializarDataTableServerSide() {
 /**
  * Carga el panel auxiliar según el modo especificado
  */
-function cargarPanelAuxiliar(modo) {
+function cargarPanelAuxiliar(modo, callback) {
     $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
     
     $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
@@ -688,7 +688,14 @@ function cargarPanelAuxiliar(modo) {
             setTimeout(function() {
                 // Recargar el panel auxiliar con los filtros
                 aplicarFiltrosGuardados();
+                
+                // Ejecutar el callback si existe
+                if (typeof callback === 'function') {
+                    callback();
+                }
             }, 200);
+        } else if (typeof callback === 'function') {
+            callback();
         }
     });
 }
@@ -732,6 +739,26 @@ function scrollToTablaHidrantes() {
 }
 
 /**
+ * Hace scroll al contenedor auxiliar
+ */
+function scrollToAuxContainer() {
+    const auxContainer = document.getElementById('AuxContainer');
+    if (auxContainer) {
+        const navbar = document.querySelector('.navbar.fixed-top');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
+        
+        const auxTop = auxContainer.getBoundingClientRect().top;
+        const scrollY = window.scrollY || window.pageYOffset;
+        const destino = scrollY + auxTop - navbarHeight - 20; // 20px de margen
+        
+        window.scrollTo({
+            top: destino,
+            behavior: 'smooth'
+        });
+    }
+}
+
+/**
  * Recarga solo la tabla sin recargar la página completa
  * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
  */
@@ -750,7 +777,17 @@ function recargarSoloTabla(callback) {
     $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
         $('#tablaHidrantesContainer').html(response);
         inicializarDataTableServerSide();
-        cargarPanelAuxiliar('tabla');
+        
+        // Cargar panel auxiliar y luego restaurar los filtros
+        cargarPanelAuxiliar('tabla', function() {
+            // Restaurar los valores de filtro en los selectores
+            $('.filtro-valor').each(function() {
+                const campo = $(this).data('campo');
+                if (filtros[campo]) {
+                    $(this).val(filtros[campo]);
+                }
+            });
+        });
         
         // Normalizar estilos después de cargar la tabla
         setTimeout(normalizarEstilosTabla, 100);
