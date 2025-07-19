@@ -235,6 +235,18 @@ $(document).ready(function() {
     
     // 4. Manejadores para operaciones CRUD
     setupCrudHandlers();
+    
+    // Solución para el problema de superposición en el selector de registros
+    $(document).on('init.dt', function(e, settings) {
+        const select = $('.dataTables_length select');
+        if (select.length) {
+            select.css({
+                'min-width': '70px',
+                'padding-right': '25px',
+                'text-align': 'center'
+            });
+        }
+    });
 });
 
 // ========================
