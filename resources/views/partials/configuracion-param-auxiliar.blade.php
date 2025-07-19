@@ -204,6 +204,7 @@ $(function() {
         });
     }
     
+    // Reemplazo completo de la función aplicarFiltrosATabla
     function aplicarFiltrosATabla(filtros) {
         // Guardar el estado de los filtros
         localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
@@ -246,7 +247,7 @@ $(function() {
                 
                 // Para campos de fecha y ubicación, mandar al servidor siempre
                 if (campo === 'fecha_inspeccion' || 
-                    (in_array([campo, 'calle', 'y_calle', 'colonia']) && valor === 'Con campo pendiente')) {
+                    (['calle', 'y_calle', 'colonia'].includes(campo) && valor === 'Con campo pendiente')) {
                     filtrosNoVisibles[campo] = valor;
                     return;
                 }

@@ -369,12 +369,16 @@ class CapturistaController extends Controller
         $values = Cache::remember("distinct_values_{$campo}", 60*30, function() use ($campo) {
             // Para fecha_inspeccion: mostrar solo año-mes (YYYY-MM)
             if ($campo === 'fecha_inspeccion') {
-                return Hidrante::whereNotNull($campo)
-                    ->select(\DB::raw("DATE_FORMAT(fecha_inspeccion, '%Y-%m') as value"))
-                    ->distinct()
-                    ->orderBy('value', 'desc')
-                    ->pluck('value')
+                // Usar GROUP BY para asegurar que solo tenemos entradas únicas por año-mes
+                $values = \DB::table('hidrantes')
+                    ->selectRaw("DATE_FORMAT(fecha_inspeccion, '%Y-%m') as fecha_mes")
+                    ->whereNotNull('fecha_inspeccion')
+                    ->groupBy('fecha_mes')
+                    ->orderBy('fecha_mes', 'desc')
+                    ->pluck('fecha_mes')
                     ->toArray();
+                
+                return $values;
             }
             // Para campos numéricos que requieren ordenamiento numérico
             else if (in_array($campo, ['numero_estacion'])) {
@@ -496,7 +500,7 @@ class CapturistaController extends Controller
                     }
                 }
             }
-
+            
             return DataTables::eloquent($query)
                 ->addColumn('acciones', function($hidrante) {
                     $botones = '
