@@ -29,9 +29,27 @@
                                 </div>
                                 <div class="card-body py-2">
                                     <div class="input-group input-group-sm">
+                                        @if($campo === 'fecha_inspeccion')
+                                            <span class="input-group-text bg-light">
+                                                <i class="bi bi-calendar3"></i>
+                                            </span>
+                                        @endif
                                         <select class="form-select filtro-valor" data-campo="{{ $campo }}">
                                             <option value="">Todos</option>
-                                            @if(isset($opciones_filtro[$campo]))
+                                            @if(isset($opciones_filtro[$campo]) && $campo === 'fecha_inspeccion')
+                                                @foreach($opciones_filtro[$campo] as $opcion)
+                                                    @php
+                                                        $displayDate = $opcion;
+                                                        if (preg_match('/^\d{4}-\d{2}$/', $opcion)) {
+                                                            $date = \Carbon\Carbon::createFromFormat('Y-m', $opcion);
+                                                            $displayDate = $date->translatedFormat('F Y');
+                                                        }
+                                                    @endphp
+                                                    <option value="{{ $opcion }}">
+                                                        {{ ucfirst($displayDate) }}
+                                                    </option>
+                                                @endforeach
+                                            @elseif(isset($opciones_filtro[$campo]))
                                                 @foreach($opciones_filtro[$campo] as $opcion)
                                                     <option value="{{ $opcion }}">
                                                         {{ $opcion ?: 'Vacío' }}
@@ -217,7 +235,6 @@ $(function() {
                 }
             }
             
-            // Código existente para filtros normales...
             // Separar filtros en visibles y no visibles
             const columnas = window.hidrantesTableConfig || [];
             const filtrosVisibles = {};
@@ -226,6 +243,13 @@ $(function() {
             Object.keys(filtros).forEach(campo => {
                 const valor = filtros[campo];
                 const columnIndex = columnas.indexOf(campo);
+                
+                // Para campos de fecha y ubicación, mandar al servidor siempre
+                if (campo === 'fecha_inspeccion' || 
+                    (in_array([campo, 'calle', 'y_calle', 'colonia']) && valor === 'Con campo pendiente')) {
+                    filtrosNoVisibles[campo] = valor;
+                    return;
+                }
                 
                 if (columnIndex >= 0) {
                     // Es una columna visible, filtramos del lado del cliente

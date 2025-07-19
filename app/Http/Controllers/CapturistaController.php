@@ -367,17 +367,16 @@ class CapturistaController extends Controller
     private function getDistinctValues($campo)
     {
         $values = Cache::remember("distinct_values_{$campo}", 60*30, function() use ($campo) {
-            // Para campos de tipo fecha que requieren formateo
+            // Para fecha_inspeccion: mostrar solo año-mes (YYYY-MM)
             if ($campo === 'fecha_inspeccion') {
                 return Hidrante::whereNotNull($campo)
-                    ->select(\DB::raw("DATE_FORMAT(fecha_inspeccion, '%Y-%m-%d') as value"))
+                    ->select(\DB::raw("DATE_FORMAT(fecha_inspeccion, '%Y-%m') as value"))
                     ->distinct()
-                    ->orderBy('value')
+                    ->orderBy('value', 'desc')
                     ->pluck('value')
                     ->toArray();
             }
             // Para campos numéricos que requieren ordenamiento numérico
-            // Modificar esta condición para excluir 'anio'
             else if (in_array($campo, ['numero_estacion'])) {
                 return Hidrante::whereNotNull($campo)
                     ->where($campo, '!=', '')
@@ -397,6 +396,11 @@ class CapturistaController extends Controller
                     ->toArray();
             }
         });
+        
+        // Agregar opción "Con campo pendiente" para campos de ubicación
+        if (in_array($campo, ['calle', 'y_calle', 'colonia'])) {
+            array_unshift($values, 'Con campo pendiente');
+        }
         
         return $values;
     }
@@ -466,14 +470,26 @@ class CapturistaController extends Controller
                     \Log::info('Filtros adicionales recibidos:', $filtrosAdicionales);
                     
                     foreach ($filtrosAdicionales as $campo => $valor) {
+                        // Manejar filtros de ubicación "Con campo pendiente"
+                        if (in_array($campo, ['calle', 'y_calle', 'colonia']) && $valor === 'Con campo pendiente') {
+                            $idCampo = 'id_' . $campo;
+                            $query->where($idCampo, 0);
+                            continue;
+                        }
+                        
+                        // Manejar filtro de fecha por año-mes
+                        if ($campo === 'fecha_inspeccion' && $valor) {
+                            $query->whereRaw("DATE_FORMAT(fecha_inspeccion, '%Y-%m') = ?", [$valor]);
+                            continue;
+                        }
+                        
+                        // Manejo estándar para otros campos
                         if (\Schema::hasColumn('hidrantes', $campo)) {
-                            // Si el valor está vacío, buscamos registros vacíos o NULL
                             if ($valor === '') {
                                 $query->where(function($q) use ($campo) {
                                     $q->whereNull($campo)->orWhere($campo, '');
                                 });
                             } else {
-                                // Búsqueda exacta para valores no vacíos
                                 $query->where($campo, $valor);
                             }
                         }
