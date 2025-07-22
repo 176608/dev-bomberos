@@ -50,7 +50,7 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializar DataTables
+    // Inicializar DataTables con botones de exportación
     $('#tablaResumenHidrantes').DataTable({
         paging: false,
         searching: false,
@@ -58,7 +58,60 @@ $(document).ready(function() {
         orderCellsTop: true,
         order: [],
         columnDefs: [
-            { className: "text-center align-middle", targets: "_all" }
+            { className: "text-center align-middle", targets: "_all" },
+            { targets: [1], className: 'no-export' }  // No exportar la columna de acciones
+        ],
+        
+        // Agregar configuración de botones para exportación
+        dom: "<'row'<'col-sm-12'B>>" +
+             "<'row'<'col-sm-12'tr>>",
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<i class="fas fa-copy"></i> Copiar',
+                titleAttr: 'Copiar al portapapeles',
+                className: 'btn btn-sm btn-outline-secondary'
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<i class="fas fa-file-csv"></i> CSV',
+                titleAttr: 'Exportar a CSV',
+                className: 'btn btn-sm btn-outline-success'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                titleAttr: 'Exportar a Excel',
+                className: 'btn btn-sm btn-outline-success',
+                filename: function() {
+                    const now = new Date();
+                    return 'Hidrantes_' + now.getFullYear() + 
+                           (now.getMonth() + 1).toString().padStart(2, '0') + 
+                           now.getDate().toString().padStart(2, '0');
+                },
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
+                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                titleAttr: 'Exportar a PDF',
+                className: 'btn btn-sm btn-outline-danger',
+                orientation: 'landscape',
+                pageSize: 'LEGAL',
+                customize: function(doc) {
+                    doc.defaultStyle.fontSize = 10;
+                    doc.styles.tableHeader.fontSize = 11;
+                    doc.pageMargins = [10, 10, 10, 10];
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="fas fa-print"></i> Imprimir',
+                titleAttr: 'Imprimir',
+                className: 'btn btn-sm btn-outline-info'
+            }
         ]
     });
 });

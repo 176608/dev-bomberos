@@ -151,7 +151,7 @@
                                 @if($hidrante->ubicacion_fosa === 'S/I')
                                     S/I
                                 @elseif(is_numeric($hidrante->ubicacion_fosa) && $hidrante->ubicacion_fosa >= 1 && $hidrante->ubicacion_fosa <= 100)
-                                    A {{ $hidrante->ubicacion_fosa }} Metros.
+                                    A {{ $hidrante->ubicacion_fosa }} Metros
                                 @else
                                     {{ ucfirst(strtolower($hidrante->ubicacion_fosa)) }}
                                 @endif
