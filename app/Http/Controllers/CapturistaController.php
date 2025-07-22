@@ -444,6 +444,75 @@ class CapturistaController extends Controller
             'oficial' => 'Oficial'
         ];
         
+        // Variables para el modo resumen
+        $tipo_resumen = null;
+        $porcentajes = [];
+        $columnas = [];
+        
+        if ($modo === 'resumen') {
+            $resumen_id = $configuracion ? $configuracion->resumen_id : 0;
+            $tipo_resumen = $resumen_id;
+            
+            // Obtener datos de porcentajes según el tipo de resumen
+            switch ($resumen_id) {
+                case 1: // Presión
+                    $categorias = ['ALTA', 'REGULAR', 'BAJA', 'NULA', 'SIN INFORMACION'];
+                    $columnas = [
+                        'ALTA' => ['clase' => 'bg-success text-white'],
+                        'REGULAR' => ['clase' => 'bg-info text-white'],
+                        'BAJA' => ['clase' => 'bg-warning text-dark'],
+                        'NULA' => ['clase' => 'bg-danger text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    break;
+                    
+                case 2: // Llaves Hidrante
+                    $categorias = ['CUADRO', 'PENTAGONO', 'SIN INFORMACION'];
+                    $columnas = [
+                        'CUADRO' => ['clase' => 'bg-primary text-white'],
+                        'PENTAGONO' => ['clase' => 'bg-info text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    break;
+                    
+                case 3: // Llaves Fosa
+                    $categorias = ['CUADRO', 'VOLANTE', 'SIN INFORMACION'];
+                    $columnas = [
+                        'CUADRO' => ['clase' => 'bg-primary text-white'],
+                        'VOLANTE' => ['clase' => 'bg-info text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    break;
+                    
+                default: // Estado (0)
+                    $categorias = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
+                    $columnas = [
+                        'EN SERVICIO' => ['clase' => 'bg-info text-white'],
+                        'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white'],
+                        'SOLO BASE' => ['clase' => 'bg-warning text-dark']
+                    ];
+            }
+            
+            // Calcular porcentajes
+            $totales = Hidrante::selectRaw('COUNT(*) as total')->first()->total;
+            
+            if ($totales > 0) {
+                foreach ($categorias as $categoria) {
+                    if ($resumen_id === 0) {
+                        $count = Hidrante::where('estado_hidrante', $categoria)->count();
+                    } else if ($resumen_id === 1) {
+                        $count = Hidrante::where('presion_agua', $categoria)->count();
+                    } else if ($resumen_id === 2) {
+                        $count = Hidrante::where('llave_hidrante', $categoria)->count();
+                    } else if ($resumen_id === 3) {
+                        $count = Hidrante::where('llave_fosa', $categoria)->count();
+                    }
+                    
+                    $porcentajes[$categoria] = round(($count / $totales) * 100);
+                }
+            }
+        }
+        
         // Obtener opciones para los selectores de filtro
         $opciones_filtro = [];
         foreach ($filtros_act as $campo) {
@@ -457,7 +526,7 @@ class CapturistaController extends Controller
         }
         
         return view('partials.configuracion-param-auxiliar', 
-            compact('filtros_act', 'modo', 'headerNames', 'opciones_filtro'))
+            compact('filtros_act', 'modo', 'headerNames', 'opciones_filtro', 'tipo_resumen', 'porcentajes', 'columnas'))
             ->render();
     }
 
@@ -673,11 +742,13 @@ class CapturistaController extends Controller
             $validated = $request->validate([
                 'resumen_id' => 'required|integer|between:0,3',
             ]);
-
-            $config = ConfiguracionCapturista::updateOrCreate(
-                ['user_id' => auth()->id()],
-                ['resumen_id' => $validated['resumen_id']]
-            );
+            
+            // Obtener la configuración existente primero
+            $config = ConfiguracionCapturista::firstOrNew(['user_id' => auth()->id()]);
+            
+            // Actualizar solo el campo resumen_id
+            $config->resumen_id = $validated['resumen_id'];
+            $config->save();
 
             return response()->json([
                 'success' => true,

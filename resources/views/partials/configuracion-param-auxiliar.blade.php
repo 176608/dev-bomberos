@@ -11,11 +11,13 @@
     </div>
     <div class="card-body" id="filterContainer">
         @if($modo === 'tabla')
+            <!-- Código existente para filtros en modo tabla -->
             @if(empty($filtros_act))
                 <div class="alert alert-info mb-0">
                     No hay filtros activos. Configure los filtros en el panel de configuración.
                 </div>
             @else
+                <!-- Contenido actual del modo tabla -->
                 <div class="row">
                     @foreach($filtros_act as $campo)
                         @php
@@ -80,10 +82,79 @@
                 </div>
             @endif
         @else
-            <!-- Vista específica para modo resumen -->
-            <div class="alert alert-info">
-                <p><strong>Información:</strong> Mostrando resumen de hidrantes agrupado por estaciones.</p>
-                <p class="mb-0">Seleccione un tipo de resumen con los botones del panel izquierdo.</p>
+            <!-- Modo resumen: mostrar botones y porcentajes -->
+            <div class="row">
+                <!-- Columna izquierda: botones de selección -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Tipos de Resumen</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn {{ isset($tipo_resumen) && $tipo_resumen === 0 ? 'btn-primary' : 'btn-outline-primary' }} mb-2 cambiar-resumen" 
+                                        data-resumen-id="0">
+                                    <i class="bi bi-list-check"></i> Estación y Estado
+                                </button>
+                                <button class="btn {{ isset($tipo_resumen) && $tipo_resumen === 1 ? 'btn-primary' : 'btn-outline-primary' }} mb-2 cambiar-resumen" 
+                                        data-resumen-id="1">
+                                    <i class="bi bi-speedometer"></i> Estación y Presión
+                                </button>
+                                <button class="btn {{ isset($tipo_resumen) && $tipo_resumen === 2 ? 'btn-primary' : 'btn-outline-primary' }} mb-2 cambiar-resumen" 
+                                        data-resumen-id="2">
+                                    <i class="bi bi-key"></i> Estación y Llaves de Hidrante
+                                </button>
+                                <button class="btn {{ isset($tipo_resumen) && $tipo_resumen === 3 ? 'btn-primary' : 'btn-outline-primary' }} mb-2 cambiar-resumen" 
+                                        data-resumen-id="3">
+                                    <i class="bi bi-key-fill"></i> Estación y Llaves de Fosa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Columna derecha: porcentajes (si están disponibles) -->
+                <div class="col-md-6">
+                    @if(isset($porcentajes) && count($porcentajes) > 0)
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Porcentajes</h6>
+                            </div>
+                            <div class="card-body">
+                                @foreach($porcentajes as $categoria => $porcentaje)
+                                    <div class="mb-2">
+                                        @php
+                                            $color = 'primary';
+                                            if (isset($columnas[$categoria])) {
+                                                $clase = $columnas[$categoria]['clase'];
+                                                if (strpos($clase, 'bg-success') !== false) $color = 'success';
+                                                elseif (strpos($clase, 'bg-danger') !== false) $color = 'danger';
+                                                elseif (strpos($clase, 'bg-warning') !== false) $color = 'warning';
+                                                elseif (strpos($clase, 'bg-info') !== false) $color = 'info';
+                                                elseif (strpos($clase, 'bg-secondary') !== false) $color = 'secondary';
+                                                elseif (strpos($clase, 'bg-primary') !== false) $color = 'primary';
+                                            }
+                                        @endphp
+                                        <span class="text-{{ $color }}">{{ $porcentaje }}% {{ $categoria }}</span>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-{{ $color }}" 
+                                                role="progressbar" 
+                                                style="width: {{ $porcentaje }}%" 
+                                                aria-valuenow="{{ $porcentaje }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-info">
+                            <p><strong>Información:</strong> Seleccione un tipo de resumen para ver los porcentajes.</p>
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
     </div>
@@ -347,5 +418,46 @@ $(function() {
             console.error('La tabla DataTables no está inicializada correctamente');
         }
     }
+    
+    // Manejador para los botones de resumen
+    $('.cambiar-resumen').click(function() {
+        const resumenId = $(this).data('resumen-id');
+        
+        // Actualizar apariencia de los botones
+        $('.cambiar-resumen').removeClass('btn-primary').addClass('btn-outline-primary');
+        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        
+        // Mostrar indicador de carga
+        $('#resumenHidrantesContainer').html(
+            '<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div>' +
+            '<div>Cargando resumen...</div></div>'
+        );
+        
+        // Guardar la selección del usuario en la base de datos
+        $.ajax({
+            url: "{{ route('capturista.actualizar-resumen') }}",
+            method: 'POST',
+            data: { resumen_id: resumenId },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Cargar la nueva vista de resumen
+                    $.get("{{ route('hidrantes.resumen') }}", function(html) {
+                        $('#resumenHidrantesContainer').html(html);
+                        // Recargar el panel auxiliar para actualizar los porcentajes
+                        cargarPanelAuxiliar('resumen');
+                    });
+                } else {
+                    mostrarToast('Error al cambiar el tipo de resumen', 'error');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error en actualizar-resumen:', xhr);
+                mostrarToast('Error al guardar la preferencia', 'error');
+            }
+        });
+    });
 });
 </script>
