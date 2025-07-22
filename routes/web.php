@@ -58,6 +58,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Para cargar el panel auxiliar
     Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])->name('capturista.panel-auxiliar');
+
+    // Nuevas rutas para obtener tipo de calle y colonia
+    Route::get('/calles/{calle}/tipo', [CapturistaController::class, 'getCalleTipo']);
+    Route::get('/colonias/{colonia}/tipo', [CapturistaController::class, 'getColoniaTipo']);
 });
 
 // Rutas específicas para el reseteo de contraseña

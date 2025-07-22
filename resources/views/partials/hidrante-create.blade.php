@@ -32,7 +32,7 @@
                                             <span id="iconoExclamacionNumero_estacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="S/I" selected>Sin el dato...</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente......</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>
@@ -155,7 +155,7 @@
                                             <span id="iconoExclamacionEstado_hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Estado Hidrante:</label>
                                         <select class="form-select" name="estado_hidrante" required>
-                                            <option value="S/I" selected >Dejar pendiente</option>
+                                            <option value="S/I" selected >Dejar pendiente...</option>
                                             <option value="EN SERVICIO">En servicio</option>
                                             <option value="FUERA DE SERVICIO">Fuera de servicio</option>
                                             <option value="SOLO BASE">Solo base</option>
@@ -168,13 +168,13 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Marca:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="MUELLER" required>
+                                        <input type="text" class="form-control" name="marca" placeholder="Ej. MUELLER" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
                                         Año:</label>
-                                        <input type="text" class="form-control" name="anio" placeholder="Año de inicio del servicio del hidrante" required>
+                                        <input type="text" class="form-control" name="anio" placeholder="Año del modelo del hidrante" required>
                                     </div>
                                 </div>
 
@@ -200,7 +200,7 @@
                                             <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Hidrante:</label>
                                         <select class="form-select" name="llave_hidrante" required>
-                                            <option value="S/I" selected>Sin el dato</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                             <option value="PENTAGONO">Pentágono</option>
                                             <option value="CUADRO">Cuadro</option>
                                         </select>
@@ -211,7 +211,7 @@
                                             <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Presión de Agua:</label>
                                         <select class="form-select" name="presion_agua" required>
-                                            <option value="S/I" selected>Sin el dato</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                             <option value="NULA">Nula</option>
                                             <option value="BAJA">Baja</option>
                                             <option value="REGULAR">Regular</option>
@@ -226,7 +226,7 @@
                                             <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
                                         Llave Fosa:</label>
                                         <select class="form-select" name="llave_fosa" required>
-                                            <option value="S/I" selected >Sin dato</option>
+                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                             <option value="CUADRO">Cuadro</option>
                                             <option value="VOLANTE">Volante</option>
                                         </select>
@@ -658,5 +658,64 @@ $(document).ready(function() {
     if ($(CONFIG.modalId).is(':visible')) {
         initEventHandlers();
     }
+
+    // Para inicializar la información de tipos para calles y colonias
+    function initTipoInformation() {
+        // Crear elementos para mostrar la información de tipo
+        $('.select2-search').each(function() {
+            const fieldId = $(this).attr('id');
+            const $parent = $(this).closest('.mb-3');
+            
+            if (!$parent.find('.tipo-info').length) {
+                $parent.append('<small class="form-text text-muted tipo-info" id="tipo_' + fieldId + '"></small>');
+            }
+        });
+        
+        // Event handlers para select2
+        $('#id_calle').on('change', function() {
+            updateTipoInfo($(this), 'calle', '#tipo_id_calle');
+        });
+        
+        $('#id_y_calle').on('change', function() {
+            updateTipoInfo($(this), 'calle', '#tipo_id_y_calle');
+        });
+        
+        $('#id_colonia').on('change', function() {
+            updateTipoInfo($(this), 'colonia', '#tipo_id_colonia');
+        });
+    }
+
+    function updateTipoInfo($select, type, targetSelector) {
+        const $target = $(targetSelector);
+        
+        if (!$select.val() || $select.val() === '' || $select.val() === '0') {
+            $target.text('');
+            return;
+        }
+        
+        const selectedId = $select.val();
+        const selectedText = $select.find('option:selected').text();
+        
+        if (type === 'calle') {
+            // Obtener el Tipovial del dataset o mediante AJAX
+            $.get('/calles/' + selectedId + '/tipo', function(data) {
+                $target.text('Selección: ' + data.Tipovial + ' ' + selectedText);
+            }).fail(function() {
+                $target.text('Selección: ' + selectedText);
+            });
+        } else if (type === 'colonia') {
+            // Obtener el TIPO de colonia mediante AJAX
+            $.get('/colonias/' + selectedId + '/tipo', function(data) {
+                $target.text('Selección: ' + data.TIPO + ' ' + selectedText);
+            }).fail(function() {
+                $target.text('Selección: ' + selectedText);
+            });
+        }
+    }
+
+    // Inicializar la información de tipos al abrir el modal
+    $(CONFIG.modalId).on('shown.bs.modal', function() {
+        initTipoInformation();
+    });
 });
 </script>

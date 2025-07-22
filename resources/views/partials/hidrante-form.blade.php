@@ -210,7 +210,7 @@
                                             <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="presion_agua">
-                                            <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Sin el dato</option>
+                                            <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                             <option value="NULA" {{ $hidrante->presion_agua == 'NULA' ? 'selected' : '' }}>Nula</option>
                                             <option value="BAJA" {{ $hidrante->presion_agua == 'BAJA' ? 'selected' : '' }}>Baja</option>
                                             <option value="REGULAR" {{ $hidrante->presion_agua == 'REGULAR' ? 'selected' : '' }}>Regular</option>
@@ -238,9 +238,9 @@
                                         </label>
                                         <select class="form-select" name="hidrante_conectado_tubo">
                                             <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4'</option>
-                                            <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6'</option>
-                                            <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8'</option>
+                                            <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4 pulgadas</option>
+                                            <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6 pulgadas</option>
+                                            <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8 pulgadas</option>
                                         </select>
                                     </div>
                                 </div>
@@ -674,5 +674,83 @@ $(document).ready(function() {
         setupIcons();
         updateSaveButtonState(); // <-- AQUI
     }
+
+    // Para inicializar la información de tipos para calles y colonias
+    function initTipoInformationEdit() {
+        // Actualizar los textos existentes para incluir el tipo
+        updateCalleActualInfo();
+        updateYCalleActualInfo();
+        updateColoniaActualInfo();
+        
+        // Event handlers para select2
+        $('#edit_id_calle').on('change', function() {
+            updateTipoInfoEdit($(this), 'calle', '#edit_tipo_id_calle');
+        });
+        
+        $('#edit_id_y_calle').on('change', function() {
+            updateTipoInfoEdit($(this), 'calle', '#edit_tipo_id_y_calle');
+        });
+        
+        $('#edit_id_colonia').on('change', function() {
+            updateTipoInfoEdit($(this), 'colonia', '#edit_tipo_id_colonia');
+        });
+    }
+
+    function updateTipoInfoEdit($select, type, targetSelector) {
+        const $target = $(targetSelector);
+        
+        if (!$select.val() || $select.val() === '' || $select.val() === '0') {
+            $target.text('');
+            return;
+        }
+        
+        const selectedId = $select.val();
+        const selectedText = $select.find('option:selected').text();
+        
+        if (type === 'calle') {
+            // Obtener el Tipovial del dataset o mediante AJAX
+            $.get('/calles/' + selectedId + '/tipo', function(data) {
+                $target.text('Selección: ' + data.Tipovial + ' ' + selectedText);
+            }).fail(function() {
+                $target.text('Selección: ' + selectedText);
+            });
+        } else if (type === 'colonia') {
+            // Obtener el TIPO de colonia mediante AJAX
+            $.get('/colonias/' + selectedId + '/tipo', function(data) {
+                $target.text('Selección: ' + data.TIPO + ' ' + selectedText);
+            }).fail(function() {
+                $target.text('Selección: ' + selectedText);
+            });
+        }
+    }
+
+    function updateCalleActualInfo() {
+        const calleIdKey = "{{ $hidrante->id_calle }}";
+        if (calleIdKey && calleIdKey !== '0') {
+            $.get('/calles/' + calleIdKey + '/tipo', function(data) {
+                $('#calle_actual').html(`${data.Tipovial} ${$('#calle_actual').text()}`);
+            });
+        }
+    }
+
+    function updateYCalleActualInfo() {
+        const yCalleIdKey = "{{ $hidrante->id_y_calle }}";
+        if (yCalleIdKey && yCalleIdKey !== '0') {
+            $.get('/calles/' + yCalleIdKey + '/tipo', function(data) {
+                $('#y_calle_actual').html(`${data.Tipovial} ${$('#y_calle_actual').text()}`);
+            });
+        }
+    }
+
+    function updateColoniaActualInfo() {
+        const coloniaIdKey = "{{ $hidrante->id_colonia }}";
+        if (coloniaIdKey && coloniaIdKey !== '0') {
+            $.get('/colonias/' + coloniaIdKey + '/tipo', function(data) {
+                $('#colonia_actual').html(`${data.TIPO} ${$('#colonia_actual').text()}`);
+            });
+        }
+    }
+
+    initTipoInformationEdit();
 });
 </script>
