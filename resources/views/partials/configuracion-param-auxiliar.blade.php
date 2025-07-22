@@ -82,8 +82,8 @@
         @else
             <!-- Vista específica para modo resumen -->
             <div class="alert alert-info">
-                <p><strong>Información:</strong> Mostrando resumen de hidrantes por estación y estado.</p>
-                <p class="mb-0">Utilice los filtros en la vista de tabla para análisis detallados.</p>
+                <p><strong>Información:</strong> Mostrando resumen de hidrantes agrupado por estaciones.</p>
+                <p class="mb-0">Seleccione un tipo de resumen con los botones del panel izquierdo.</p>
             </div>
         @endif
     </div>

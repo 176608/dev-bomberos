@@ -10,6 +10,7 @@ use App\Models\ConfiguracionCapturista;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class CapturistaController extends Controller
@@ -666,7 +667,55 @@ class CapturistaController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function actualizarResumenId(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'resumen_id' => 'required|integer|between:0,3',
+            ]);
+
+            $config = ConfiguracionCapturista::updateOrCreate(
+                ['user_id' => auth()->id()],
+                ['resumen_id' => $validated['resumen_id']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'resumen_id' => $config->resumen_id
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error actualizando resumen_id:', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el tipo de resumen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function resumenHidrantes()
+    {
+        // Obtener la preferencia del usuario
+        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
+        $resumen_id = $configuracion ? $configuracion->resumen_id : 0;
+        
+        // Dependiendo del tipo de resumen, llamar al método adecuado
+        switch ($resumen_id) {
+            case 1:
+                return $this->resumenPresion();
+            case 2:
+                return $this->resumenLlavesHidrante();
+            case 3:
+                return $this->resumenLlavesFosa();
+            default:
+                return $this->resumenEstadoHidrante();
+        }
+    }
+
+    // Método original renombrado
+    private function resumenEstadoHidrante()
     {
         // Obtén todos los hidrantes
         $hidrantes = Hidrante::all();
@@ -711,6 +760,210 @@ class CapturistaController extends Controller
             'SOLO BASE' => $totales['TOTAL'] ? round($totales['SOLO BASE'] / $totales['TOTAL'] * 100) : 0,
         ];
 
-        return view('partials.hidrantes-resumen', compact('estaciones', 'totales', 'porcentajes'));
+        return view('partials.hidrantes-resumen', [
+            'estaciones' => $estaciones, 
+            'totales' => $totales, 
+            'porcentajes' => $porcentajes,
+            'tipo_resumen' => 0,
+            'titulo_resumen' => 'Estado',
+            'columnas' => [
+                'FUNCIONANDO' => ['clase' => 'bg-info text-white', 'key' => 'EN SERVICIO'],
+                'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white', 'key' => 'FUERA DE SERVICIO'],
+                'SOLO BASE' => ['clase' => 'bg-warning text-dark', 'key' => 'SOLO BASE']
+            ],
+            'ultima_columna' => [
+                'titulo' => 'TOTAL F.S. + S.B.',
+                'clase' => 'bg-warning text-dark',
+                'key' => 'FS_SB'
+            ]
+        ]);
+    }
+
+    // Nuevo método para el resumen de presión
+    private function resumenPresion()
+    {
+        // Obtener los hidrantes agrupados por estación y presión
+        $estaciones = [];
+        $categorias = ['ALTA', 'REGULAR', 'BAJA', 'NULA', 'SIN INFORMACION'];
+        $totales = array_fill_keys($categorias, 0);
+        $totales['TOTAL'] = 0;
+        
+        $hidrantes = Hidrante::selectRaw('numero_estacion, presion_agua, COUNT(*) as total')
+            ->groupBy('numero_estacion', 'presion_agua')
+            ->get();
+        
+        foreach ($hidrantes as $h) {
+            $est = $h->numero_estacion ?: 'N/A';
+            $presion = strtoupper(trim($h->presion_agua));
+            
+            if (!in_array($presion, $categorias)) {
+                $presion = 'SIN INFORMACION';
+            }
+            
+            if (!isset($estaciones[$est])) {
+                $estaciones[$est] = array_fill_keys($categorias, 0);
+                $estaciones[$est]['TOTAL'] = 0;
+            }
+            
+            $estaciones[$est][$presion] += $h->total;
+            $estaciones[$est]['TOTAL'] += $h->total;
+            $totales[$presion] += $h->total;
+            $totales['TOTAL'] += $h->total;
+        }
+        
+        // Cálculo de totales de Alta+Regular por estación
+        foreach ($estaciones as $est => &$row) {
+            $row['ALTA_REGULAR'] = $row['ALTA'] + $row['REGULAR'];
+        }
+        
+        // Porcentajes
+        $porcentajes = [];
+        foreach ($categorias as $cat) {
+            $porcentajes[$cat] = $totales['TOTAL'] ? round($totales[$cat] / $totales['TOTAL'] * 100) : 0;
+        }
+        
+        return view('partials.hidrantes-resumen', [
+            'estaciones' => $estaciones, 
+            'totales' => $totales, 
+            'porcentajes' => $porcentajes,
+            'tipo_resumen' => 1,
+            'titulo_resumen' => 'Presión',
+            'columnas' => [
+                'ALTA' => ['clase' => 'bg-success text-white', 'key' => 'ALTA'],
+                'REGULAR' => ['clase' => 'bg-info text-white', 'key' => 'REGULAR'],
+                'BAJA' => ['clase' => 'bg-warning text-dark', 'key' => 'BAJA'],
+                'NULA' => ['clase' => 'bg-danger text-white', 'key' => 'NULA'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+            ],
+            'ultima_columna' => [
+                'titulo' => 'TOTAL ALTA + REGULAR',
+                'clase' => 'bg-success text-white',
+                'key' => 'ALTA_REGULAR'
+            ]
+        ]);
+    }
+
+    // Nuevo método para el resumen de llaves de hidrante
+    private function resumenLlavesHidrante()
+    {
+        // Obtener los hidrantes agrupados por estación y tipo de llave
+        $estaciones = [];
+        $categorias = ['CUADRO', 'PENTAGONO', 'SIN INFORMACION'];
+        $totales = array_fill_keys($categorias, 0);
+        $totales['TOTAL'] = 0;
+        
+        $hidrantes = Hidrante::selectRaw('numero_estacion, llave_hidrante, COUNT(*) as total')
+            ->groupBy('numero_estacion', 'llave_hidrante')
+            ->get();
+        
+        foreach ($hidrantes as $h) {
+            $est = $h->numero_estacion ?: 'N/A';
+            $llave = strtoupper(trim($h->llave_hidrante));
+            
+            if (!in_array($llave, $categorias)) {
+                $llave = 'SIN INFORMACION';
+            }
+            
+            if (!isset($estaciones[$est])) {
+                $estaciones[$est] = array_fill_keys($categorias, 0);
+                $estaciones[$est]['TOTAL'] = 0;
+            }
+            
+            $estaciones[$est][$llave] += $h->total;
+            $estaciones[$est]['TOTAL'] += $h->total;
+            $totales[$llave] += $h->total;
+            $totales['TOTAL'] += $h->total;
+        }
+        
+        // Cálculo de totales de Cuadro+Pentágono por estación
+        foreach ($estaciones as $est => &$row) {
+            $row['CUADRO_PENTAGONO'] = $row['CUADRO'] + $row['PENTAGONO'];
+        }
+        
+        // Porcentajes
+        $porcentajes = [];
+        foreach ($categorias as $cat) {
+            $porcentajes[$cat] = $totales['TOTAL'] ? round($totales[$cat] / $totales['TOTAL'] * 100) : 0;
+        }
+        
+        return view('partials.hidrantes-resumen', [
+            'estaciones' => $estaciones, 
+            'totales' => $totales, 
+            'porcentajes' => $porcentajes,
+            'tipo_resumen' => 2,
+            'titulo_resumen' => 'Llaves de Hidrante',
+            'columnas' => [
+                'CUADRO' => ['clase' => 'bg-primary text-white', 'key' => 'CUADRO'],
+                'PENTAGONO' => ['clase' => 'bg-info text-white', 'key' => 'PENTAGONO'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+            ],
+            'ultima_columna' => [
+                'titulo' => 'TOTAL CUADRO + PENTAGONO',
+                'clase' => 'bg-success text-white',
+                'key' => 'CUADRO_PENTAGONO'
+            ]
+        ]);
+    }
+
+    // Nuevo método para el resumen de llaves de fosa
+    private function resumenLlavesFosa()
+    {
+        // Obtener los hidrantes agrupados por estación y tipo de llave de fosa
+        $estaciones = [];
+        $categorias = ['CUADRO', 'VOLANTE', 'SIN INFORMACION'];
+        $totales = array_fill_keys($categorias, 0);
+        $totales['TOTAL'] = 0;
+        
+        $hidrantes = Hidrante::selectRaw('numero_estacion, llave_fosa, COUNT(*) as total')
+            ->groupBy('numero_estacion', 'llave_fosa')
+            ->get();
+        
+        foreach ($hidrantes as $h) {
+            $est = $h->numero_estacion ?: 'N/A';
+            $llave = strtoupper(trim($h->llave_fosa));
+            
+            if (!in_array($llave, $categorias)) {
+                $llave = 'SIN INFORMACION';
+            }
+            
+            if (!isset($estaciones[$est])) {
+                $estaciones[$est] = array_fill_keys($categorias, 0);
+                $estaciones[$est]['TOTAL'] = 0;
+            }
+            
+            $estaciones[$est][$llave] += $h->total;
+            $estaciones[$est]['TOTAL'] += $h->total;
+            $totales[$llave] += $h->total;
+            $totales['TOTAL'] += $h->total;
+        }
+        
+        // Cálculo de totales de Cuadro+Volante por estación
+        foreach ($estaciones as $est => &$row) {
+            $row['CUADRO_VOLANTE'] = $row['CUADRO'] + $row['VOLANTE'];
+        }
+        
+        // Porcentajes
+        $porcentajes = [];
+        foreach ($categorias as $cat) {
+            $porcentajes[$cat] = $totales['TOTAL'] ? round($totales[$cat] / $totales['TOTAL'] * 100) : 0;
+        }
+        
+        return view('partials.hidrantes-resumen', [
+            'estaciones' => $estaciones, 
+            'totales' => $totales, 
+            'porcentajes' => $porcentajes,
+            'tipo_resumen' => 3,
+            'titulo_resumen' => 'Llaves de Fosa',
+            'columnas' => [
+                'CUADRO' => ['clase' => 'bg-primary text-white', 'key' => 'CUADRO'],
+                'VOLANTE' => ['clase' => 'bg-info text-white', 'key' => 'VOLANTE'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+            ],
+            'ultima_columna' => [
+                'titulo' => 'TOTAL CUADRO + VOLANTE',
+                'clase' => 'bg-success text-white',
+                'key' => 'CUADRO_VOLANTE'
+            ]
+        ]);
     }
 }

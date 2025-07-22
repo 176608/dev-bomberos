@@ -11,12 +11,14 @@ class ConfiguracionCapturista extends Model
     protected $fillable = [
         'user_id',
         'configuracion',
-        'filtros_act'
+        'filtros_act',
+        'resumen_id'  // Nuevo campo para guardar el tipo de resumen
     ];
 
     protected $casts = [
         'configuracion' => 'array',
-        'filtros_act' => 'array'
+        'filtros_act' => 'array',
+        'resumen_id' => 'integer'
     ];
 
     public function user()
@@ -45,5 +47,11 @@ class ConfiguracionCapturista extends Model
     public function getFiltrosActAttribute($value)
     {
         return $value ? json_decode($value, true) : self::getDefaultFilters();
+    }
+    
+    // Valor por defecto para resumen_id
+    public function getResumenIdAttribute($value)
+    {
+        return $value !== null ? (int)$value : 0;
     }
 }

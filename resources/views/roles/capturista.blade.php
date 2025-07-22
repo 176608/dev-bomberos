@@ -372,7 +372,7 @@ function setupMainButtons() {
     
     // Botón Resumen
     $('#btnResumen').on('click', function() {
-        $('#resumenHidrantesContainer').show().html('');
+        $('#resumenHidrantesContainer').show().html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando resumen...</div></div>');
         $('#spinnerResumen').removeClass('d-none');
         $('#tablaHidrantesContainer').hide();
         
