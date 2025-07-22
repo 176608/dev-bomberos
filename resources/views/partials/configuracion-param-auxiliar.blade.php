@@ -419,7 +419,7 @@ $(function() {
         }
     }
     
-    // Manejador para los botones de resumen
+    // Reemplazar el manejador para los botones de resumen
     $('.cambiar-resumen').click(function() {
         const resumenId = $(this).data('resumen-id');
         
@@ -433,31 +433,43 @@ $(function() {
             '<div>Cargando resumen...</div></div>'
         );
         
-        // Guardar la selección del usuario en la base de datos
-        $.ajax({
-            url: "{{ route('capturista.actualizar-resumen') }}",
-            method: 'POST',
-            data: { resumen_id: resumenId },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Cargar la nueva vista de resumen
-                    $.get("{{ route('hidrantes.resumen') }}", function(html) {
-                        $('#resumenHidrantesContainer').html(html);
-                        // Recargar el panel auxiliar para actualizar los porcentajes
-                        cargarPanelAuxiliar('resumen');
-                    });
-                } else {
-                    mostrarToast('Error al cambiar el tipo de resumen', 'error');
-                }
-            },
-            error: function(xhr) {
-                console.error('Error en actualizar-resumen:', xhr);
-                mostrarToast('Error al guardar la preferencia', 'error');
-            }
+        // Ya no guardamos en la base de datos, solo cargamos el tipo de resumen apropiado
+        let url;
+        switch(resumenId) {
+            case 0:
+                url = "{{ route('hidrantes.resumen') }}";
+                break;
+            case 1:
+                url = "{{ route('hidrantes.resumen') }}?tipo=presion";
+                break;
+            case 2:
+                url = "{{ route('hidrantes.resumen') }}?tipo=hidrante";
+                break;
+            case 3:
+                url = "{{ route('hidrantes.resumen') }}?tipo=fosa";
+                break;
+        }
+        
+        // Cargar la nueva vista de resumen
+        $.get(url, function(html) {
+            $('#resumenHidrantesContainer').html(html);
+            
+            // Actualizar porcentajes en el panel auxiliar según el tipo seleccionado
+            actualizarPorcentajes(resumenId);
         });
     });
+    
+    // Nueva función para actualizar los porcentajes en el panel auxiliar
+    function actualizarPorcentajes(resumenId) {
+        $.get("{{ route('capturista.panel-auxiliar') }}", { 
+            modo: 'resumen',
+            tipo: resumenId
+        }, function(html) {
+            // Reemplazar solo la parte de los porcentajes, no todo el panel
+            const $newPanel = $(html);
+            const $newPorcentajes = $newPanel.find('.col-md-6:nth-child(2)').html();
+            $('.col-md-6:nth-child(2)').html($newPorcentajes);
+        });
+    }
 });
 </script>

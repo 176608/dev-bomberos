@@ -445,69 +445,26 @@ class CapturistaController extends Controller
         ];
         
         // Variables para el modo resumen
-        $tipo_resumen = null;
+        $tipo_resumen = 0; // Siempre iniciamos con el valor por defecto 0
         $porcentajes = [];
         $columnas = [];
         
         if ($modo === 'resumen') {
-            $resumen_id = $configuracion ? $configuracion->resumen_id : 0;
-            $tipo_resumen = $resumen_id;
-            
-            // Obtener datos de porcentajes según el tipo de resumen
-            switch ($resumen_id) {
-                case 1: // Presión
-                    $categorias = ['ALTA', 'REGULAR', 'BAJA', 'NULA', 'SIN INFORMACION'];
-                    $columnas = [
-                        'ALTA' => ['clase' => 'bg-success text-white'],
-                        'REGULAR' => ['clase' => 'bg-info text-white'],
-                        'BAJA' => ['clase' => 'bg-warning text-dark'],
-                        'NULA' => ['clase' => 'bg-danger text-white'],
-                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
-                    ];
-                    break;
-                    
-                case 2: // Llaves Hidrante
-                    $categorias = ['CUADRO', 'PENTAGONO', 'SIN INFORMACION'];
-                    $columnas = [
-                        'CUADRO' => ['clase' => 'bg-primary text-white'],
-                        'PENTAGONO' => ['clase' => 'bg-info text-white'],
-                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
-                    ];
-                    break;
-                    
-                case 3: // Llaves Fosa
-                    $categorias = ['CUADRO', 'VOLANTE', 'SIN INFORMACION'];
-                    $columnas = [
-                        'CUADRO' => ['clase' => 'bg-primary text-white'],
-                        'VOLANTE' => ['clase' => 'bg-info text-white'],
-                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
-                    ];
-                    break;
-                    
-                default: // Estado (0)
-                    $categorias = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
-                    $columnas = [
-                        'EN SERVICIO' => ['clase' => 'bg-info text-white'],
-                        'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white'],
-                        'SOLO BASE' => ['clase' => 'bg-warning text-dark']
-                    ];
-            }
-            
-            // Calcular porcentajes
+            // Ya no usamos el resumen_id de la base de datos
+            // Solo inicializamos con los valores por defecto
+            $categorias = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
+            $columnas = [
+                'EN SERVICIO' => ['clase' => 'bg-info text-white'],
+                'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white'],
+                'SOLO BASE' => ['clase' => 'bg-warning text-dark']
+            ];
+                
+            // Calcular porcentajes para el estado por defecto
             $totales = Hidrante::selectRaw('COUNT(*) as total')->first()->total;
             
             if ($totales > 0) {
                 foreach ($categorias as $categoria) {
-                    if ($resumen_id === 0) {
-                        $count = Hidrante::where('estado_hidrante', $categoria)->count();
-                    } else if ($resumen_id === 1) {
-                        $count = Hidrante::where('presion_agua', $categoria)->count();
-                    } else if ($resumen_id === 2) {
-                        $count = Hidrante::where('llave_hidrante', $categoria)->count();
-                    } else if ($resumen_id === 3) {
-                        $count = Hidrante::where('llave_fosa', $categoria)->count();
-                    }
-                    
+                    $count = Hidrante::where('estado_hidrante', $categoria)->count();
                     $porcentajes[$categoria] = round(($count / $totales) * 100);
                 }
             }
@@ -736,19 +693,16 @@ class CapturistaController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function resumenHidrantes()
+    public function resumenHidrantes(Request $request)
     {
-        // Obtener la preferencia del usuario
-        $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
-        $resumen_id = $configuracion ? $configuracion->resumen_id : 0;
+        $tipo = $request->query('tipo', 'estado');
         
-        // Dependiendo del tipo de resumen, llamar al método adecuado
-        switch ($resumen_id) {
-            case 1:
+        switch($tipo) {
+            case 'presion':
                 return $this->resumenPresion();
-            case 2:
+            case 'hidrante':
                 return $this->resumenLlavesHidrante();
-            case 3:
+            case 'fosa':
                 return $this->resumenLlavesFosa();
             default:
                 return $this->resumenEstadoHidrante();
