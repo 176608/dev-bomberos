@@ -465,10 +465,26 @@ class CapturistaController extends Controller
                     $totales = Hidrante::count();
                     
                     if ($totales > 0) {
-                        foreach ($categorias as $categoria) {
-                            $count = Hidrante::where('presion_agua', $categoria)->count();
-                            $porcentajes[$categoria] = round(($count / $totales) * 100);
-                        }
+                        // Contar específicamente cada categoría
+                        $alta = Hidrante::where('presion_agua', 'ALTA')->count();
+                        $regular = Hidrante::where('presion_agua', 'REGULAR')->count();
+                        $baja = Hidrante::where('presion_agua', 'BAJA')->count();
+                        $nula = Hidrante::where('presion_agua', 'NULA')->count();
+                        
+                        // Para "SIN INFORMACION" incluir nulos, vacíos, 'S/I' y 'SIN INFORMACION'
+                        $sinInfo = Hidrante::where('presion_agua', 'SIN INFORMACION')
+                            ->orWhere('presion_agua', 'S/I')
+                            ->orWhere('presion_agua', '')
+                            ->orWhereNull('presion_agua')
+                            ->count();
+                        
+                        $porcentajes = [
+                            'ALTA' => round(($alta / $totales) * 100),
+                            'REGULAR' => round(($regular / $totales) * 100),
+                            'BAJA' => round(($baja / $totales) * 100),
+                            'NULA' => round(($nula / $totales) * 100),
+                            'SIN INFORMACION' => round(($sinInfo / $totales) * 100)
+                        ];
                     }
                     break;
                     
@@ -484,10 +500,21 @@ class CapturistaController extends Controller
                     $totales = Hidrante::count();
                     
                     if ($totales > 0) {
-                        foreach ($categorias as $categoria) {
-                            $count = Hidrante::where('llave_hidrante', $categoria)->count();
-                            $porcentajes[$categoria] = round(($count / $totales) * 100);
-                        }
+                        $cuadro = Hidrante::where('llave_hidrante', 'CUADRO')->count();
+                        $pentagono = Hidrante::where('llave_hidrante', 'PENTAGONO')->count();
+                        
+                        // Para "SIN INFORMACION" incluir nulos, vacíos, 'S/I' y 'SIN INFORMACION'
+                        $sinInfo = Hidrante::where('llave_hidrante', 'SIN INFORMACION')
+                            ->orWhere('llave_hidrante', 'S/I')
+                            ->orWhere('llave_hidrante', '')
+                            ->orWhereNull('llave_hidrante')
+                            ->count();
+                        
+                        $porcentajes = [
+                            'CUADRO' => round(($cuadro / $totales) * 100),
+                            'PENTAGONO' => round(($pentagono / $totales) * 100),
+                            'SIN INFORMACION' => round(($sinInfo / $totales) * 100)
+                        ];
                     }
                     break;
                     
@@ -503,10 +530,21 @@ class CapturistaController extends Controller
                     $totales = Hidrante::count();
                     
                     if ($totales > 0) {
-                        foreach ($categorias as $categoria) {
-                            $count = Hidrante::where('llave_fosa', $categoria)->count();
-                            $porcentajes[$categoria] = round(($count / $totales) * 100);
-                        }
+                        $cuadro = Hidrante::where('llave_fosa', 'CUADRO')->count();
+                        $volante = Hidrante::where('llave_fosa', 'VOLANTE')->count();
+                        
+                        // Para "SIN INFORMACION" incluir nulos, vacíos, 'S/I' y 'SIN INFORMACION'
+                        $sinInfo = Hidrante::where('llave_fosa', 'SIN INFORMACION')
+                            ->orWhere('llave_fosa', 'S/I')
+                            ->orWhere('llave_fosa', '')
+                            ->orWhereNull('llave_fosa')
+                            ->count();
+                        
+                        $porcentajes = [
+                            'CUADRO' => round(($cuadro / $totales) * 100),
+                            'VOLANTE' => round(($volante / $totales) * 100),
+                            'SIN INFORMACION' => round(($sinInfo / $totales) * 100)
+                        ];
                     }
                     break;
                     
@@ -522,10 +560,15 @@ class CapturistaController extends Controller
                     $totales = Hidrante::count();
                     
                     if ($totales > 0) {
-                        foreach ($categorias as $categoria) {
-                            $count = Hidrante::where('estado_hidrante', $categoria)->count();
-                            $porcentajes[$categoria] = round(($count / $totales) * 100);
-                        }
+                        $enServicio = Hidrante::where('estado_hidrante', 'EN SERVICIO')->count();
+                        $fueraServicio = Hidrante::where('estado_hidrante', 'FUERA DE SERVICIO')->count();
+                        $soloBase = Hidrante::where('estado_hidrante', 'SOLO BASE')->count();
+                        
+                        $porcentajes = [
+                            'EN SERVICIO' => round(($enServicio / $totales) * 100),
+                            'FUERA DE SERVICIO' => round(($fueraServicio / $totales) * 100),
+                            'SOLO BASE' => round(($soloBase / $totales) * 100)
+                        ];
                     }
             }
         }
