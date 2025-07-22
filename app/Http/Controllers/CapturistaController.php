@@ -1071,22 +1071,4 @@ class CapturistaController extends Controller
             ]
         ]);
     }
-
-    public function getCalleTipo($id)
-    {
-        $calle = CatalogoCalle::find($id);
-        if (!$calle) {
-            return response()->json(['error' => 'Calle no encontrada'], 404);
-        }
-        return response()->json(['Tipovial' => $calle->Tipovial]);
-    }
-
-    public function getColoniaTipo($id)
-    {
-        $colonia = Colonias::find($id);
-        if (!$colonia) {
-            return response()->json(['error' => 'Colonia no encontrada'], 404);
-        }
-        return response()->json(['TIPO' => $colonia->TIPO]);
-    }
 }

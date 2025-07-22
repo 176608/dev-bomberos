@@ -78,7 +78,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span></small>
+                                        <small class="form-text text-muted">
+                                            Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span>
+                                            <div id="calle_actual_tipo" class="{{ !$hidrante->callePrincipal ? 'd-none' : '' }}">
+                                                Tipo y nombre: <span class="fw-bold">
+                                                    {{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial : '' }}
+                                                </span>
+                                            </div>
+                                        </small>
                                     </div>
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
@@ -101,7 +108,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span></small>
+                                        <small class="form-text text-muted">
+                                            y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
+                                            <div id="y_calle_actual_tipo" class="{{ !$hidrante->calleSecundaria ? 'd-none' : '' }}">
+                                                Tipo y nombre: <span class="fw-bold">
+                                                    {{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial : '' }}
+                                                </span>
+                                            </div>
+                                        </small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -127,7 +141,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span></small>
+                                        <small class="form-text text-muted">
+                                            Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span>
+                                            <div id="colonia_actual_tipo" class="{{ !$hidrante->coloniaLocacion ? 'd-none' : '' }}">
+                                                Tipo y nombre: <span class="fw-bold">
+                                                    {{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO . ' ' . $hidrante->coloniaLocacion->NOMBRE : '' }}
+                                                </span>
+                                            </div>
+                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -675,82 +696,85 @@ $(document).ready(function() {
         updateSaveButtonState(); // <-- AQUI
     }
 
-    // Para inicializar la información de tipos para calles y colonias
-    function initTipoInformationEdit() {
-        // Actualizar los textos existentes para incluir el tipo
-        updateCalleActualInfo();
-        updateYCalleActualInfo();
-        updateColoniaActualInfo();
-        
-        // Event handlers para select2
+    // --- FUNCIÓN PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
+    function setupTypeInfo() {
+        // Para calle principal
         $('#edit_id_calle').on('change', function() {
-            updateTipoInfoEdit($(this), 'calle', '#edit_tipo_id_calle');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#calle_actual_tipo').addClass('d-none');
+                return;
+            }
+            
+            // Buscar el texto del option seleccionado
+            const nombreCalle = $(this).find('option:selected').text();
+            
+            // Mostrar mensaje de carga
+            $('#calle_actual_tipo').removeClass('d-none')
+                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+            
+            // Usar AJAX para obtener el Tipovial desde el controlador actual
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    $('#calle_actual_tipo').removeClass('d-none')
+                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipovial + ' ' + nombreCalle + '</span>');
+                } else {
+                    $('#calle_actual_tipo').addClass('d-none');
+                }
+            });
         });
         
+        // Para calle secundaria (y_calle)
         $('#edit_id_y_calle').on('change', function() {
-            updateTipoInfoEdit($(this), 'calle', '#edit_tipo_id_y_calle');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#y_calle_actual_tipo').addClass('d-none');
+                return;
+            }
+            
+            const nombreCalle = $(this).find('option:selected').text();
+            
+            $('#y_calle_actual_tipo').removeClass('d-none')
+                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+            
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_y_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    $('#y_calle_actual_tipo').removeClass('d-none')
+                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipovial + ' ' + nombreCalle + '</span>');
+                } else {
+                    $('#y_calle_actual_tipo').addClass('d-none');
+                }
+            });
         });
         
+        // Para colonia
         $('#edit_id_colonia').on('change', function() {
-            updateTipoInfoEdit($(this), 'colonia', '#edit_tipo_id_colonia');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#colonia_actual_tipo').addClass('d-none');
+                return;
+            }
+            
+            const nombreColonia = $(this).find('option:selected').text();
+            
+            $('#colonia_actual_tipo').removeClass('d-none')
+                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+            
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_colonia: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipo) {
+                    $('#colonia_actual_tipo').removeClass('d-none')
+                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipo + ' ' + nombreColonia + '</span>');
+                } else {
+                    $('#colonia_actual_tipo').addClass('d-none');
+                }
+            });
         });
     }
-
-    function updateTipoInfoEdit($select, type, targetSelector) {
-        const $target = $(targetSelector);
-        
-        if (!$select.val() || $select.val() === '' || $select.val() === '0') {
-            $target.text('');
-            return;
-        }
-        
-        const selectedId = $select.val();
-        const selectedText = $select.find('option:selected').text();
-        
-        if (type === 'calle') {
-            // Obtener el Tipovial del dataset o mediante AJAX
-            $.get('/calles/' + selectedId + '/tipo', function(data) {
-                $target.text('Selección: ' + data.Tipovial + ' ' + selectedText);
-            }).fail(function() {
-                $target.text('Selección: ' + selectedText);
-            });
-        } else if (type === 'colonia') {
-            // Obtener el TIPO de colonia mediante AJAX
-            $.get('/colonias/' + selectedId + '/tipo', function(data) {
-                $target.text('Selección: ' + data.TIPO + ' ' + selectedText);
-            }).fail(function() {
-                $target.text('Selección: ' + selectedText);
-            });
-        }
-    }
-
-    function updateCalleActualInfo() {
-        const calleIdKey = "{{ $hidrante->id_calle }}";
-        if (calleIdKey && calleIdKey !== '0') {
-            $.get('/calles/' + calleIdKey + '/tipo', function(data) {
-                $('#calle_actual').html(`${data.Tipovial} ${$('#calle_actual').text()}`);
-            });
-        }
-    }
-
-    function updateYCalleActualInfo() {
-        const yCalleIdKey = "{{ $hidrante->id_y_calle }}";
-        if (yCalleIdKey && yCalleIdKey !== '0') {
-            $.get('/calles/' + yCalleIdKey + '/tipo', function(data) {
-                $('#y_calle_actual').html(`${data.Tipovial} ${$('#y_calle_actual').text()}`);
-            });
-        }
-    }
-
-    function updateColoniaActualInfo() {
-        const coloniaIdKey = "{{ $hidrante->id_colonia }}";
-        if (coloniaIdKey && coloniaIdKey !== '0') {
-            $.get('/colonias/' + coloniaIdKey + '/tipo', function(data) {
-                $('#colonia_actual').html(`${data.TIPO} ${$('#colonia_actual').text()}`);
-            });
-        }
-    }
-
-    initTipoInformationEdit();
+    
+    // Agregar la inicialización de la función de tipos
+    $(CONFIG.modalId).on('shown.bs.modal', function() {
+        // Código existente...
+        setupTypeInfo();
+    });
 });
 </script>

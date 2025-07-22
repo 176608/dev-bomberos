@@ -659,63 +659,94 @@ $(document).ready(function() {
         initEventHandlers();
     }
 
-    // Para inicializar la información de tipos para calles y colonias
-    function initTipoInformation() {
-        // Crear elementos para mostrar la información de tipo
-        $('.select2-search').each(function() {
-            const fieldId = $(this).attr('id');
-            const $parent = $(this).closest('.mb-3');
-            
-            if (!$parent.find('.tipo-info').length) {
-                $parent.append('<small class="form-text text-muted tipo-info" id="tipo_' + fieldId + '"></small>');
-            }
-        });
-        
-        // Event handlers para select2
+    // Código existente...
+    
+    // Agregamos contenedores para mostrar la información de tipo
+    // Debajo del select de calle
+    $('<small class="form-text text-muted"><div id="calle_selected_container" class="d-none">Tipo y nombre: <span id="calle_selected_tipo" class="fw-bold"></span></div></small>')
+        .insertAfter('#id_calle').closest('.input-group');
+    
+    // Debajo del select de y_calle
+    $('<small class="form-text text-muted"><div id="y_calle_selected_container" class="d-none">Tipo y nombre: <span id="y_calle_selected_tipo" class="fw-bold"></span></div></small>')
+        .insertAfter('#id_y_calle').closest('.input-group');
+    
+    // Debajo del select de colonia
+    $('<small class="form-text text-muted"><div id="colonia_selected_container" class="d-none">Tipo y nombre: <span id="colonia_selected_tipo" class="fw-bold"></span></div></small>')
+        .insertAfter('#id_colonia').closest('.input-group');
+    
+    // --- FUNCIÓN PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
+    function setupTypeInfo() {
+        // Para calle principal
         $('#id_calle').on('change', function() {
-            updateTipoInfo($(this), 'calle', '#tipo_id_calle');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#calle_selected_container').addClass('d-none');
+                return;
+            }
+            
+            const nombreCalle = $(this).find('option:selected').text();
+            
+            $('#calle_selected_container').removeClass('d-none');
+            $('#calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            $.get("{{ route('hidrantes.create') }}", { id_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    $('#calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
+                } else {
+                    $('#calle_selected_container').addClass('d-none');
+                }
+            });
         });
         
+        // Para calle secundaria (y_calle)
         $('#id_y_calle').on('change', function() {
-            updateTipoInfo($(this), 'calle', '#tipo_id_y_calle');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#y_calle_selected_container').addClass('d-none');
+                return;
+            }
+            
+            const nombreCalle = $(this).find('option:selected').text();
+            
+            $('#y_calle_selected_container').removeClass('d-none');
+            $('#y_calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            $.get("{{ route('hidrantes.create') }}", { id_y_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    $('#y_calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
+                } else {
+                    $('#y_calle_selected_container').addClass('d-none');
+                }
+            });
         });
         
+        // Para colonia
         $('#id_colonia').on('change', function() {
-            updateTipoInfo($(this), 'colonia', '#tipo_id_colonia');
+            const selectedId = $(this).val();
+            if (!selectedId || selectedId === '0' || selectedId === '') {
+                $('#colonia_selected_container').addClass('d-none');
+                return;
+            }
+            
+            const nombreColonia = $(this).find('option:selected').text();
+            
+            $('#colonia_selected_container').removeClass('d-none');
+            $('#colonia_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            $.get("{{ route('hidrantes.create') }}", { id_colonia: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipo) {
+                    $('#colonia_selected_tipo').text(data.tipo + ' ' + nombreColonia);
+                } else {
+                    $('#colonia_selected_container').addClass('d-none');
+                }
+            });
         });
     }
-
-    function updateTipoInfo($select, type, targetSelector) {
-        const $target = $(targetSelector);
-        
-        if (!$select.val() || $select.val() === '' || $select.val() === '0') {
-            $target.text('');
-            return;
-        }
-        
-        const selectedId = $select.val();
-        const selectedText = $select.find('option:selected').text();
-        
-        if (type === 'calle') {
-            // Obtener el Tipovial del dataset o mediante AJAX
-            $.get('/calles/' + selectedId + '/tipo', function(data) {
-                $target.text('Selección: ' + data.Tipovial + ' ' + selectedText);
-            }).fail(function() {
-                $target.text('Selección: ' + selectedText);
-            });
-        } else if (type === 'colonia') {
-            // Obtener el TIPO de colonia mediante AJAX
-            $.get('/colonias/' + selectedId + '/tipo', function(data) {
-                $target.text('Selección: ' + data.TIPO + ' ' + selectedText);
-            }).fail(function() {
-                $target.text('Selección: ' + selectedText);
-            });
-        }
-    }
-
-    // Inicializar la información de tipos al abrir el modal
+    
+    // Agregar la inicialización de la función de tipos
     $(CONFIG.modalId).on('shown.bs.modal', function() {
-        initTipoInformation();
+        // Código existente...
+        setupTypeInfo();
     });
 });
 </script>
