@@ -81,7 +81,7 @@
                                         <small class="form-text text-muted">
                                             Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span>
                                             <div id="calle_actual_tipo" class="{{ !$hidrante->callePrincipal ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold">
+                                                Tipo y nombre: <span class="fw-bold tipo-info">
                                                     {{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial : '' }}
                                                 </span>
                                             </div>
@@ -111,7 +111,7 @@
                                         <small class="form-text text-muted">
                                             y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
                                             <div id="y_calle_actual_tipo" class="{{ !$hidrante->calleSecundaria ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold">
+                                                Tipo y nombre: <span class="fw-bold tipo-info">
                                                     {{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial : '' }}
                                                 </span>
                                             </div>
@@ -144,7 +144,7 @@
                                         <small class="form-text text-muted">
                                             Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span>
                                             <div id="colonia_actual_tipo" class="{{ !$hidrante->coloniaLocacion ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold">
+                                                Tipo y nombre: <span class="fw-bold tipo-info">
                                                     {{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO . ' ' . $hidrante->coloniaLocacion->NOMBRE : '' }}
                                                 </span>
                                             </div>
@@ -696,85 +696,216 @@ $(document).ready(function() {
         updateSaveButtonState(); // <-- AQUI
     }
 
-    // --- FUNCIÓN PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
+    // --- FUNCIÓN MEJORADA PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
     function setupTypeInfo() {
-        // Para calle principal
-        $('#edit_id_calle').on('change', function() {
-            const selectedId = $(this).val();
-            if (!selectedId || selectedId === '0' || selectedId === '') {
+        // Crear un mapa de datos precargados para calles y colonias
+        const callesData = {};
+        const coloniasData = {};
+        
+        // Cargar datos de calles al inicializar (solo una vez)
+        $('#edit_id_calle option').each(function() {
+            const id = $(this).val();
+            if (id && id !== '0') {
+                // Intentar obtener Tipovial del data-attribute si existe
+                const tipovial = $(this).data('tipovial') || '';
+                if (tipovial) {
+                    callesData[id] = tipovial;
+                }
+            }
+        });
+        
+        // Cargar datos de colonias al inicializar (solo una vez)
+        $('#edit_id_colonia option').each(function() {
+            const id = $(this).val();
+            if (id && id !== '0') {
+                // Intentar obtener TIPO del data-attribute si existe
+                const tipo = $(this).data('tipo') || '';
+                if (tipo) {
+                    coloniasData[id] = tipo;
+                }
+            }
+        });
+        
+        // Para calle principal - usar evento select2:select
+        $('#edit_id_calle').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreCalle = data.text;
+            
+            if (!selectedId || selectedId === '0') {
                 $('#calle_actual_tipo').addClass('d-none');
                 return;
             }
             
-            // Buscar el texto del option seleccionado
-            const nombreCalle = $(this).find('option:selected').text();
+            $('#calle_actual').text(nombreCalle);
             
-            // Mostrar mensaje de carga
+            // Mostrar spinner mientras cargamos
             $('#calle_actual_tipo').removeClass('d-none')
-                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+                .find('.tipo-info').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
             
-            // Usar AJAX para obtener el Tipovial desde el controlador actual
-            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_calle: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipovial) {
-                    $('#calle_actual_tipo').removeClass('d-none')
-                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipovial + ' ' + nombreCalle + '</span>');
-                } else {
-                    $('#calle_actual_tipo').addClass('d-none');
+            // Primero intentar usar datos precargados
+            if (callesData[selectedId]) {
+                $('#calle_actual_tipo')
+                    .removeClass('d-none')
+                    .find('.tipo-info').text(callesData[selectedId] + ' ' + nombreCalle);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", 
+                { id_calle: selectedId, _only_tipo: 1 }, 
+                function(data) {
+                    if (data && data.tipovial) {
+                        // Guardar para uso futuro
+                        callesData[selectedId] = data.tipovial;
+                        
+                        $('#calle_actual_tipo')
+                            .removeClass('d-none')
+                            .find('.tipo-info').text(data.tipovial + ' ' + nombreCalle);
+                    } else {
+                        $('#calle_actual_tipo').addClass('d-none');
+                    }
                 }
+            ).fail(function() {
+                $('#calle_actual_tipo').addClass('d-none');
             });
         });
         
-        // Para calle secundaria (y_calle)
-        $('#edit_id_y_calle').on('change', function() {
-            const selectedId = $(this).val();
-            if (!selectedId || selectedId === '0' || selectedId === '') {
+        // Para calle secundaria (y_calle) - usar evento select2:select
+        $('#edit_id_y_calle').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreCalle = data.text;
+            
+            if (!selectedId || selectedId === '0') {
                 $('#y_calle_actual_tipo').addClass('d-none');
                 return;
             }
             
-            const nombreCalle = $(this).find('option:selected').text();
+            $('#y_calle_actual').text(nombreCalle);
             
+            // Mostrar spinner mientras cargamos
             $('#y_calle_actual_tipo').removeClass('d-none')
-                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+                .find('.tipo-info').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
             
-            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_y_calle: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipovial) {
-                    $('#y_calle_actual_tipo').removeClass('d-none')
-                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipovial + ' ' + nombreCalle + '</span>');
-                } else {
-                    $('#y_calle_actual_tipo').addClass('d-none');
+            // Primero intentar usar datos precargados
+            if (callesData[selectedId]) {
+                $('#y_calle_actual_tipo')
+                    .removeClass('d-none')
+                    .find('.tipo-info').text(callesData[selectedId] + ' ' + nombreCalle);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", 
+                { id_y_calle: selectedId, _only_tipo: 1 }, 
+                function(data) {
+                    if (data && data.tipovial) {
+                        // Guardar para uso futuro
+                        callesData[selectedId] = data.tipovial;
+                        
+                        $('#y_calle_actual_tipo')
+                            .removeClass('d-none')
+                            .find('.tipo-info').text(data.tipovial + ' ' + nombreCalle);
+                    } else {
+                        $('#y_calle_actual_tipo').addClass('d-none');
+                    }
                 }
+            ).fail(function() {
+                $('#y_calle_actual_tipo').addClass('d-none');
             });
         });
         
-        // Para colonia
-        $('#edit_id_colonia').on('change', function() {
-            const selectedId = $(this).val();
-            if (!selectedId || selectedId === '0' || selectedId === '') {
+        // Para colonia - usar evento select2:select
+        $('#edit_id_colonia').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreColonia = data.text;
+            
+            if (!selectedId || selectedId === '0') {
                 $('#colonia_actual_tipo').addClass('d-none');
                 return;
             }
             
-            const nombreColonia = $(this).find('option:selected').text();
+            $('#colonia_actual').text(nombreColonia);
             
+            // Mostrar spinner mientras cargamos
             $('#colonia_actual_tipo').removeClass('d-none')
-                .html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando información...');
+                .find('.tipo-info').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
             
-            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", { id_colonia: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipo) {
-                    $('#colonia_actual_tipo').removeClass('d-none')
-                        .html('Tipo y nombre: <span class="fw-bold">' + data.tipo + ' ' + nombreColonia + '</span>');
-                } else {
-                    $('#colonia_actual_tipo').addClass('d-none');
+            // Primero intentar usar datos precargados
+            if (coloniasData[selectedId]) {
+                $('#colonia_actual_tipo')
+                    .removeClass('d-none')
+                    .find('.tipo-info').text(coloniasData[selectedId] + ' ' + nombreColonia);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.edit', $hidrante->id) }}", 
+                { id_colonia: selectedId, _only_tipo: 1 }, 
+                function(data) {
+                    if (data && data.tipo) {
+                        // Guardar para uso futuro
+                        coloniasData[selectedId] = data.tipo;
+                        
+                        $('#colonia_actual_tipo')
+                            .removeClass('d-none')
+                            .find('.tipo-info').text(data.tipo + ' ' + nombreColonia);
+                    } else {
+                        $('#colonia_actual_tipo').addClass('d-none');
+                    }
                 }
+            ).fail(function() {
+                $('#colonia_actual_tipo').addClass('d-none');
             });
+        });
+        
+        // También manejar cuando se borra la selección o se activa el switch "No aparece"
+        $('#edit_switchNoCalle{{ $hidrante->id }}').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#calle_actual_tipo').addClass('d-none');
+                $('#calle_actual').text('Pendiente');
+            }
+        });
+        
+        $('#edit_switchNoYCalle{{ $hidrante->id }}').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#y_calle_actual_tipo').addClass('d-none');
+                $('#y_calle_actual').text('Pendiente');
+            }
+        });
+        
+        $('#edit_switchNoColonia{{ $hidrante->id }}').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#colonia_actual_tipo').addClass('d-none');
+                $('#colonia_actual').text('Pendiente');
+            }
+        });
+        
+        // Manejar también el clear de select2
+        $('#edit_id_calle').on('select2:clear', function() {
+            $('#calle_actual_tipo').addClass('d-none');
+            $('#calle_actual').text('N/A');
+        });
+        
+        $('#edit_id_y_calle').on('select2:clear', function() {
+            $('#y_calle_actual_tipo').addClass('d-none');
+            $('#y_calle_actual').text('N/A');
+        });
+        
+        $('#edit_id_colonia').on('select2:clear', function() {
+            $('#colonia_actual_tipo').addClass('d-none');
+            $('#colonia_actual').text('N/A');
         });
     }
     
-    // Agregar la inicialización de la función de tipos
+    // Asegurarnos de que esta función se ejecute después de inicializar Select2
     $(CONFIG.modalId).on('shown.bs.modal', function() {
-        // Código existente...
-        setupTypeInfo();
+        // Esperar a que Select2 esté completamente inicializado
+        setTimeout(function() {
+            setupTypeInfo();
+        }, 300);
     });
 });
 </script>

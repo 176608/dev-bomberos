@@ -88,6 +88,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <small class="form-text text-muted">
+                                            <div id="calle_selected_container" class="d-none">
+                                                Tipo y nombre: <span id="calle_selected_tipo" class="fw-bold"></span>
+                                            </div>
+                                        </small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
@@ -107,6 +112,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <small class="form-text text-muted">
+                                            <div id="y_calle_selected_container" class="d-none">
+                                                Tipo y nombre: <span id="y_calle_selected_tipo" class="fw-bold"></span>
+                                            </div>
+                                        </small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -129,6 +139,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <small class="form-text text-muted">
+                                            <div id="colonia_selected_container" class="d-none">
+                                                Tipo y nombre: <span id="colonia_selected_tipo" class="fw-bold"></span>
+                                            </div>
+                                        </small>
                                     </div>
                                 </div>
 
@@ -583,6 +598,158 @@ $(document).ready(function() {
             }
         });
     }
+
+    // --- FUNCIÓN PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
+    function setupTypeInfoCreate() {
+        // Crear un mapa de datos precargados para calles y colonias
+        const callesData = {};
+        const coloniasData = {};
+        
+        // Para calle principal - usar evento select2:select
+        $('#id_calle').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreCalle = data.text;
+            
+            if (!selectedId || selectedId === '0') {
+                $('#calle_selected_container').addClass('d-none');
+                return;
+            }
+            
+            // Mostrar spinner mientras cargamos
+            $('#calle_selected_container').removeClass('d-none');
+            $('#calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            // Primero intentar usar datos precargados
+            if (callesData[selectedId]) {
+                $('#calle_selected_tipo').text(callesData[selectedId] + ' ' + nombreCalle);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.create') }}", { id_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    // Guardar para uso futuro
+                    callesData[selectedId] = data.tipovial;
+                    $('#calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
+                } else {
+                    $('#calle_selected_container').addClass('d-none');
+                }
+            }).fail(function() {
+                $('#calle_selected_container').addClass('d-none');
+            });
+        });
+        
+        // Para calle secundaria (y_calle) - usar evento select2:select
+        $('#id_y_calle').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreCalle = data.text;
+            
+            if (!selectedId || selectedId === '0') {
+                $('#y_calle_selected_container').addClass('d-none');
+                return;
+            }
+            
+            // Mostrar spinner mientras cargamos
+            $('#y_calle_selected_container').removeClass('d-none');
+            $('#y_calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            // Primero intentar usar datos precargados
+            if (callesData[selectedId]) {
+                $('#y_calle_selected_tipo').text(callesData[selectedId] + ' ' + nombreCalle);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.create') }}", { id_y_calle: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipovial) {
+                    // Guardar para uso futuro
+                    callesData[selectedId] = data.tipovial;
+                    $('#y_calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
+                } else {
+                    $('#y_calle_selected_container').addClass('d-none');
+                }
+            }).fail(function() {
+                $('#y_calle_selected_container').addClass('d-none');
+            });
+        });
+        
+        // Para colonia - usar evento select2:select
+        $('#id_colonia').on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const nombreColonia = data.text;
+            
+            if (!selectedId || selectedId === '0') {
+                $('#colonia_selected_container').addClass('d-none');
+                return;
+            }
+            
+            // Mostrar spinner mientras cargamos
+            $('#colonia_selected_container').removeClass('d-none');
+            $('#colonia_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
+            
+            // Primero intentar usar datos precargados
+            if (coloniasData[selectedId]) {
+                $('#colonia_selected_tipo').text(coloniasData[selectedId] + ' ' + nombreColonia);
+                return;
+            }
+            
+            // Si no hay datos precargados, hacer la petición
+            $.get("{{ route('hidrantes.create') }}", { id_colonia: selectedId, _only_tipo: 1 }, function(data) {
+                if (data && data.tipo) {
+                    // Guardar para uso futuro
+                    coloniasData[selectedId] = data.tipo;
+                    $('#colonia_selected_tipo').text(data.tipo + ' ' + nombreColonia);
+                } else {
+                    $('#colonia_selected_container').addClass('d-none');
+                }
+            }).fail(function() {
+                $('#colonia_selected_container').addClass('d-none');
+            });
+        });
+        
+        // También manejar cuando se borra la selección o se activa el switch "No aparece"
+        $('#switchNoCalle').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#calle_selected_container').addClass('d-none');
+            }
+        });
+        
+        $('#switchNoYCalle').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#y_calle_selected_container').addClass('d-none');
+            }
+        });
+        
+        $('#switchNoColonia').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#colonia_selected_container').addClass('d-none');
+            }
+        });
+        
+        // Manejar también el clear de select2
+        $('#id_calle').on('select2:clear', function() {
+            $('#calle_selected_container').addClass('d-none');
+        });
+        
+        $('#id_y_calle').on('select2:clear', function() {
+            $('#y_calle_selected_container').addClass('d-none');
+        });
+        
+        $('#id_colonia').on('select2:clear', function() {
+            $('#colonia_selected_container').addClass('d-none');
+        });
+    }
+    
+    // Asegurarnos de que esta función se ejecute después de inicializar Select2
+    $(CONFIG.modalId).on('shown.bs.modal', function() {
+        // Esperar a que Select2 esté completamente inicializado
+        setTimeout(function() {
+            setupTypeInfoCreate();
+        }, 300);
+    });
 
     // --- EVENTOS ---
     function initEventHandlers() {

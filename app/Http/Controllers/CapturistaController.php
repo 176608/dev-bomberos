@@ -233,14 +233,36 @@ class CapturistaController extends Controller
         }
     }
 
-    public function edit(Hidrante $hidrante)
+    public function edit(Request $request, Hidrante $hidrante)
     {
         try {
-            $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
+            // Si solo necesitamos la información del tipo
+            if ($request->has('_only_tipo')) {
+                // Si se proporciona id_calle, obtenemos Tipovial
+                if ($request->has('id_calle')) {
+                    $calle = CatalogoCalle::find($request->id_calle);
+                    return response()->json(['tipovial' => $calle ? $calle->Tipovial : null]);
+                }
+                // Si se proporciona id_y_calle
+                elseif ($request->has('id_y_calle')) {
+                    $calle = CatalogoCalle::find($request->id_y_calle);
+                    return response()->json(['tipovial' => $calle ? $calle->Tipovial : null]);
+                }
+                // Si se proporciona id_colonia
+                elseif ($request->has('id_colonia')) {
+                    $colonia = Colonias::find($request->id_colonia);
+                    return response()->json(['tipo' => $colonia ? $colonia->TIPO : null]);
+                }
+                
+                return response()->json(['error' => 'ID no proporcionado']);
+            }
+
+            // Comportamiento normal del método
+            $calles = CatalogoCalle::select('IDKEY', 'Nomvial', 'Tipovial')
                 ->orderBy('Nomvial')
                 ->get();
                 
-            $colonias = Colonias::select('IDKEY', 'NOMBRE')
+            $colonias = Colonias::select('IDKEY', 'NOMBRE', 'TIPO')
                 ->orderBy('NOMBRE')
                 ->get();
             
@@ -257,17 +279,49 @@ class CapturistaController extends Controller
         }
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $calles = CatalogoCalle::select('IDKEY', 'Nomvial')
-            ->orderBy('Nomvial')
-            ->get();
+        try {
+            // Si solo necesitamos la información del tipo
+            if ($request->has('_only_tipo')) {
+                // Si se proporciona id_calle, obtenemos Tipovial
+                if ($request->has('id_calle')) {
+                    $calle = CatalogoCalle::find($request->id_calle);
+                    return response()->json(['tipovial' => $calle ? $calle->Tipovial : null]);
+                }
+                // Si se proporciona id_y_calle
+                elseif ($request->has('id_y_calle')) {
+                    $calle = CatalogoCalle::find($request->id_y_calle);
+                    return response()->json(['tipovial' => $calle ? $calle->Tipovial : null]);
+                }
+                // Si se proporciona id_colonia
+                elseif ($request->has('id_colonia')) {
+                    $colonia = Colonias::find($request->id_colonia);
+                    return response()->json(['tipo' => $colonia ? $colonia->TIPO : null]);
+                }
+                
+                return response()->json(['error' => 'ID no proporcionado']);
+            }
             
-        $colonias = Colonias::select('IDKEY', 'NOMBRE')
-            ->orderBy('NOMBRE')
-            ->get();
+            // Comportamiento normal del método
+            $calles = CatalogoCalle::select('IDKEY', 'Nomvial', 'Tipovial')
+                ->orderBy('Nomvial')
+                ->get();
+                
+            $colonias = Colonias::select('IDKEY', 'NOMBRE', 'TIPO')
+                ->orderBy('NOMBRE')
+                ->get();
         
-        return view('partials.hidrante-create', compact('calles', 'colonias'));
+            return view('partials.hidrante-create', compact('calles', 'colonias'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading create form:', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al cargar el formulario de creación'
+            ], 500);
+        }
     }
 
     public function guardarConfiguracion(Request $request)
