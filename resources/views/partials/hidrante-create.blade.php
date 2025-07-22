@@ -32,7 +32,7 @@
                                             <span id="iconoExclamacionNumero_estacion"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Número de Estación:</label>
                                         <select class="form-select" name="numero_estacion" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente......</option>
+                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                             <option value="01">01</option>
                                             <option value="02">02</option>
                                             <option value="03">03</option>

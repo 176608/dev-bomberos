@@ -79,12 +79,20 @@
                                             </div>
                                         </div>
                                         <small class="form-text text-muted">
-                                            Calle guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span>
-                                            <div id="calle_actual_tipo" class="{{ !$hidrante->callePrincipal ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold tipo-info">
-                                                    {{ $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial : '' }}
-                                                </span>
-                                            </div>
+                                            <!-- Para Calle Principal -->
+                                            @if($hidrante->id_calle && $hidrante->id_calle != '0' && $hidrante->callePrincipal)
+                                                <!-- Si hay un ID válido y existe la relación, mostrar tipo y nombre -->
+                                                <div id="calle_actual_tipo">
+                                                    Tipo y nombre: <span class="fw-bold tipo-info">
+                                                        {{ $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <!-- Si no hay ID válido o no existe la relación, mostrar solo la información guardada -->
+                                                <div id="calle_actual_container">
+                                                    Información guardada: <span id="calle_actual">{{ $hidrante->calle ?: 'N/A' }}</span>
+                                                </div>
+                                            @endif
                                         </small>
                                     </div>
                                     <!-- Y Calle -->
@@ -109,12 +117,21 @@
                                             </div>
                                         </div>
                                         <small class="form-text text-muted">
-                                            y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
-                                            <div id="y_calle_actual_tipo" class="{{ !$hidrante->calleSecundaria ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold tipo-info">
-                                                    {{ $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial : '' }}
-                                                </span>
-                                            </div>
+                                            <!-- Para Y Calle -->
+                                            @if($hidrante->id_y_calle && $hidrante->id_y_calle != '0' && $hidrante->calleSecundaria)
+                                                <!-- Si hay un ID válido y existe la relación, mostrar tipo y nombre 
+                                                y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>-->
+                                                <div id="y_calle_actual_tipo">
+                                                    Tipo y nombre: <span class="fw-bold tipo-info">
+                                                        {{ $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <!-- Si no hay ID válido o no existe la relación, mostrar solo la información guardada -->
+                                                <div id="y_calle_actual_container">
+                                                    y Calle guardada: <span id="y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
+                                                </div>
+                                            @endif
                                         </small>
                                     </div>
                                 </div>
@@ -142,12 +159,20 @@
                                             </div>
                                         </div>
                                         <small class="form-text text-muted">
-                                            Colonia guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span>
-                                            <div id="colonia_actual_tipo" class="{{ !$hidrante->coloniaLocacion ? 'd-none' : '' }}">
-                                                Tipo y nombre: <span class="fw-bold tipo-info">
-                                                    {{ $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO . ' ' . $hidrante->coloniaLocacion->NOMBRE : '' }}
-                                                </span>
-                                            </div>
+                                            <!-- Para Colonia -->
+                                            @if($hidrante->id_colonia && $hidrante->id_colonia != '0' && $hidrante->coloniaLocacion)
+                                                <!-- Si hay un ID válido y existe la relación, mostrar tipo y nombre -->
+                                                <div id="colonia_actual_tipo">
+                                                    Tipo y nombre: <span class="fw-bold tipo-info">
+                                                        {{ $hidrante->coloniaLocacion->TIPO . ' ' . $hidrante->coloniaLocacion->NOMBRE }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <!-- Si no hay ID válido o no existe la relación, mostrar solo la información guardada -->
+                                                <div id="colonia_actual_container">
+                                                    Información guardada: <span id="colonia_actual">{{ $hidrante->colonia ?: 'N/A' }}</span>
+                                                </div>
+                                            @endif
                                         </small>
                                     </div>
                                 </div>
@@ -732,14 +757,16 @@ $(document).ready(function() {
             const selectedId = data.id;
             const nombreCalle = data.text;
             
+            // Si no hay ID válido, mostrar solo información guardada
             if (!selectedId || selectedId === '0') {
                 $('#calle_actual_tipo').addClass('d-none');
+                $('#calle_actual_container').removeClass('d-none');
+                $('#calle_actual').text('Pendiente');
                 return;
             }
             
-            $('#calle_actual').text(nombreCalle);
-            
-            // Mostrar spinner mientras cargamos
+            // Ocultar información guardada, mostrar spinner mientras cargamos tipo
+            $('#calle_actual_container').addClass('d-none');
             $('#calle_actual_tipo').removeClass('d-none')
                 .find('.tipo-info').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
             
@@ -763,11 +790,17 @@ $(document).ready(function() {
                             .removeClass('d-none')
                             .find('.tipo-info').text(data.tipovial + ' ' + nombreCalle);
                     } else {
+                        // Si no se pudo obtener el tipovial, mostrar solo la información guardada
                         $('#calle_actual_tipo').addClass('d-none');
+                        $('#calle_actual_container').removeClass('d-none');
+                        $('#calle_actual').text(nombreCalle);
                     }
                 }
             ).fail(function() {
+                // En caso de error, mostrar solo la información guardada
                 $('#calle_actual_tipo').addClass('d-none');
+                $('#calle_actual_container').removeClass('d-none');
+                $('#calle_actual').text(nombreCalle);
             });
         });
         
