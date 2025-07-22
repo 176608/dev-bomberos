@@ -445,28 +445,88 @@ class CapturistaController extends Controller
         ];
         
         // Variables para el modo resumen
-        $tipo_resumen = 0; // Siempre iniciamos con el valor por defecto 0
+        $tipo_resumen = (int)$request->input('tipo', 0); // Obtener el tipo del parámetro de solicitud
         $porcentajes = [];
         $columnas = [];
         
         if ($modo === 'resumen') {
-            // Ya no usamos el resumen_id de la base de datos
-            // Solo inicializamos con los valores por defecto
-            $categorias = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
-            $columnas = [
-                'EN SERVICIO' => ['clase' => 'bg-info text-white'],
-                'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white'],
-                'SOLO BASE' => ['clase' => 'bg-warning text-dark']
-            ];
-                
-            // Calcular porcentajes para el estado por defecto
-            $totales = Hidrante::selectRaw('COUNT(*) as total')->first()->total;
-            
-            if ($totales > 0) {
-                foreach ($categorias as $categoria) {
-                    $count = Hidrante::where('estado_hidrante', $categoria)->count();
-                    $porcentajes[$categoria] = round(($count / $totales) * 100);
-                }
+            switch($tipo_resumen) {
+                case 1: // Presión
+                    $categorias = ['ALTA', 'REGULAR', 'BAJA', 'NULA', 'SIN INFORMACION'];
+                    $columnas = [
+                        'ALTA' => ['clase' => 'bg-success text-white'],
+                        'REGULAR' => ['clase' => 'bg-info text-white'],
+                        'BAJA' => ['clase' => 'bg-warning text-dark'],
+                        'NULA' => ['clase' => 'bg-danger text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    
+                    // Calcular porcentajes para presión
+                    $totales = Hidrante::count();
+                    
+                    if ($totales > 0) {
+                        foreach ($categorias as $categoria) {
+                            $count = Hidrante::where('presion_agua', $categoria)->count();
+                            $porcentajes[$categoria] = round(($count / $totales) * 100);
+                        }
+                    }
+                    break;
+                    
+                case 2: // Llave de hidrante
+                    $categorias = ['CUADRO', 'PENTAGONO', 'SIN INFORMACION'];
+                    $columnas = [
+                        'CUADRO' => ['clase' => 'bg-primary text-white'],
+                        'PENTAGONO' => ['clase' => 'bg-info text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    
+                    // Calcular porcentajes para llave de hidrante
+                    $totales = Hidrante::count();
+                    
+                    if ($totales > 0) {
+                        foreach ($categorias as $categoria) {
+                            $count = Hidrante::where('llave_hidrante', $categoria)->count();
+                            $porcentajes[$categoria] = round(($count / $totales) * 100);
+                        }
+                    }
+                    break;
+                    
+                case 3: // Llave de fosa
+                    $categorias = ['CUADRO', 'VOLANTE', 'SIN INFORMACION'];
+                    $columnas = [
+                        'CUADRO' => ['clase' => 'bg-primary text-white'],
+                        'VOLANTE' => ['clase' => 'bg-info text-white'],
+                        'SIN INFORMACION' => ['clase' => 'bg-secondary text-white']
+                    ];
+                    
+                    // Calcular porcentajes para llave de fosa
+                    $totales = Hidrante::count();
+                    
+                    if ($totales > 0) {
+                        foreach ($categorias as $categoria) {
+                            $count = Hidrante::where('llave_fosa', $categoria)->count();
+                            $porcentajes[$categoria] = round(($count / $totales) * 100);
+                        }
+                    }
+                    break;
+                    
+                default: // Estado (tipo 0)
+                    $categorias = ['EN SERVICIO', 'FUERA DE SERVICIO', 'SOLO BASE'];
+                    $columnas = [
+                        'EN SERVICIO' => ['clase' => 'bg-info text-white'],
+                        'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white'],
+                        'SOLO BASE' => ['clase' => 'bg-warning text-dark']
+                    ];
+                    
+                    // Calcular porcentajes para el estado por defecto
+                    $totales = Hidrante::count();
+                    
+                    if ($totales > 0) {
+                        foreach ($categorias as $categoria) {
+                            $count = Hidrante::where('estado_hidrante', $categoria)->count();
+                            $porcentajes[$categoria] = round(($count / $totales) * 100);
+                        }
+                    }
             }
         }
         
@@ -747,6 +807,13 @@ class CapturistaController extends Controller
         foreach ($estaciones as $est => &$row) {
             $row['FS_SB'] = $row['FUERA DE SERVICIO'] + $row['SOLO BASE'];
         }
+
+        // Ordenar estaciones numéricamente
+        uksort($estaciones, function($a, $b) {
+            if ($a === 'N/A') return 1;  // N/A siempre al final
+            if ($b === 'N/A') return -1;
+            return (int)$a - (int)$b;    // Ordenar numéricamente
+        });
 
         // Porcentajes
         $porcentajes = [

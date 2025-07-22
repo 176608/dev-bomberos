@@ -461,14 +461,30 @@ $(function() {
     
     // Nueva función para actualizar los porcentajes en el panel auxiliar
     function actualizarPorcentajes(resumenId) {
+        // Mostrar indicador de carga en los porcentajes
+        $('.col-md-6:nth-child(2)').html(
+            '<div class="card"><div class="card-body text-center">' +
+            '<div class="spinner-border spinner-border-sm text-primary"></div> ' +
+            'Actualizando porcentajes...</div></div>'
+        );
+        
         $.get("{{ route('capturista.panel-auxiliar') }}", { 
             modo: 'resumen',
             tipo: resumenId
         }, function(html) {
-            // Reemplazar solo la parte de los porcentajes, no todo el panel
+            // Parsear el HTML devuelto para extraer la sección de porcentajes
             const $newPanel = $(html);
             const $newPorcentajes = $newPanel.find('.col-md-6:nth-child(2)').html();
-            $('.col-md-6:nth-child(2)').html($newPorcentajes);
+            
+            // Actualizar la columna de porcentajes con los datos nuevos
+            if ($newPorcentajes) {
+                $('.col-md-6:nth-child(2)').html($newPorcentajes);
+            } else {
+                console.error('No se encontraron datos de porcentajes en la respuesta');
+            }
+        }).fail(function(err) {
+            console.error('Error al actualizar porcentajes:', err);
+            $('.col-md-6:nth-child(2)').html('<div class="alert alert-danger">Error al cargar porcentajes</div>');
         });
     }
 });
