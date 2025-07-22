@@ -736,36 +736,6 @@ class CapturistaController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function actualizarResumenId(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'resumen_id' => 'required|integer|between:0,3',
-            ]);
-            
-            // Obtener la configuración existente primero
-            $config = ConfiguracionCapturista::firstOrNew(['user_id' => auth()->id()]);
-            
-            // Actualizar solo el campo resumen_id
-            $config->resumen_id = $validated['resumen_id'];
-            $config->save();
-
-            return response()->json([
-                'success' => true,
-                'resumen_id' => $config->resumen_id
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error actualizando resumen_id:', [
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el tipo de resumen: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
     public function resumenHidrantes()
     {
         // Obtener la preferencia del usuario

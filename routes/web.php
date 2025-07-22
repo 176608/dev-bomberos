@@ -58,11 +58,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Para cargar el panel auxiliar
     Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])->name('capturista.panel-auxiliar');
-
-    // Ruta para actualizar resumen por Capturista
-    Route::post('/capturista/actualizar-resumen', [CapturistaController::class, 'actualizarResumenId'])
-        ->name('capturista.actualizar-resumen')
-        ->middleware(['auth', 'checkrole:Capturista']);
 });
 
 // Rutas específicas para el reseteo de contraseña
