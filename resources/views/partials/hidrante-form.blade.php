@@ -186,20 +186,20 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
+                                        <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         <div class="input-group">
                                             <span class="input-group-text">Marca:</span>
                                             <input type="text" class="form-control" name="marca"
                                                    value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
                                         </div>
-                                        <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
+                                            <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                             <span class="input-group-text">Año:</span>
                                             <input type="text" class="form-control" name="anio"
                                                    value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                         </div>
-                                        <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
 
