@@ -446,6 +446,29 @@ input[id^="manual_"] {
     display: inline-block;
     vertical-align: middle;
 }
+
+/* Añadir estos estilos al final del bloque <style> en ambos archivos */
+.input-disabled {
+    background-color: #e9ecef !important;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.tipo-field {
+    background-color: #f8f9fa !important;
+    border-left: 0 !important;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.manual-input {
+    border-left: 3px solid #28a745;
+}
+
+.manual-input:focus {
+    border-left-color: #20c997;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
 </style>
 
 <script>
