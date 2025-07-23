@@ -174,16 +174,18 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
-                                        Marca:</label>
-                                        <input type="text" class="form-control" name="marca" placeholder="Ej. MUELLER" required>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Marca:</span>
+                                            <input type="text" class="form-control" name="marca" placeholder="Ej. MUELLER" required>
+                                        </div>
+                                        <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
-                                        Año:</label>
-                                        <input type="text" class="form-control" name="anio" placeholder="Año del modelo del hidrante" required>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Año:</span>
+                                            <input type="text" class="form-control" name="anio" placeholder="Año del modelo del hidrante" required>
+                                        </div>
+                                        <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
 
@@ -205,60 +207,65 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Llave Hidrante:</label>
-                                        <select class="form-select" name="llave_hidrante" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
-                                            <option value="PENTAGONO">Pentágono</option>
-                                            <option value="CUADRO">Cuadro</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Llave Hidrante:</span>
+                                            <select class="form-select" name="llave_hidrante" required>
+                                                <option value="S/I" selected>Sin definir, dejar pendiente...</option>
+                                                <option value="PENTAGONO">Pentágono</option>
+                                                <option value="CUADRO">Cuadro</option>
+                                            </select>
+                                        </div>
+                                        <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Presión de Agua:</label>
-                                        <select class="form-select" name="presion_agua" required>
-                                            <option value="S/I" selected>Sin definir, dejar pendiente...</option>
-                                            <option value="NULA">Nula</option>
-                                            <option value="BAJA">Baja</option>
-                                            <option value="REGULAR">Regular</option>
-                                            <option value="ALTA">Alta</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Presión de Agua:</span>
+                                            <select class="form-select" name="presion_agua" required>
+                                                <option value="S/I" selected>Sin definir, dejar pendiente...</option>
+                                                <option value="NULA">Nula</option>
+                                                <option value="BAJA">Baja</option>
+                                                <option value="REGULAR">Regular</option>
+                                                <option value="ALTA">Alta</option>
+                                            </select>
+                                        </div>
+                                        <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Llave Fosa:</label>
-                                        <select class="form-select" name="llave_fosa" required>
-                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
-                                            <option value="CUADRO">Cuadro</option>
-                                            <option value="VOLANTE">Volante</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Llave Fosa:</span>
+                                            <select class="form-select" name="llave_fosa" required>
+                                                <option value="S/I" selected >Sin definir, dejar pendiente...</option>
+                                                <option value="CUADRO">Cuadro</option>
+                                                <option value="VOLANTE">Volante</option>
+                                            </select>
+                                        </div>
+                                        <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionHidrante_conectado_tubo"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span> 
-                                        Conectado a Tubo de:</label>
-                                        <select class="form-select" name="hidrante_conectado_tubo" required>
-                                            <option value="S/I" selected >Sin definir, dejar pendiente...</option>
-                                            <option value="4'">4'</option>
-                                            <option value="6'">6'</option>
-                                            <option value="8'">8'</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Conectado a Tubo de:</span>
+                                            <select class="form-select" name="hidrante_conectado_tubo" required>
+                                                <option value="S/I" selected >Sin definir, dejar pendiente...</option>
+                                                <option value="4'">4'</option>
+                                                <option value="6'">6'</option>
+                                                <option value="8'">8'</option>
+                                            </select>
+                                        </div>
+                                        <span id="iconoExclamacionHidrante_conectado_tubo"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionUbicacion_fosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        Ubicación Fosa:</label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" placeholder="A + N + metros, $Texto despues de numero$" required>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Ubicación Fosa:</span>
+                                            <input type="text" class="form-control" name="ubicacion_fosa" placeholder="A + N + metros, $Texto despues de numero$" required>
+                                        </div>
+                                        <span id="iconoExclamacionUbicacion_fosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
 
@@ -283,10 +290,11 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">
-                                            <span id="iconoExclamacionOficial"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> 
-                                        Oficial:</label>
-                                        <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Oficial:</span>
+                                            <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                        </div>
+                                        <span id="iconoExclamacionOficial"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
                             </div>

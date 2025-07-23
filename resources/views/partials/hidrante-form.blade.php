@@ -36,10 +36,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <!--<hr class="my-2">
-                                <div class="row">
-                                    
-                                </div>-->
                             </div>
                         </div>
                     </div>
@@ -190,20 +186,20 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                        Marca:
+                                        <div class="input-group">
+                                            <span class="input-group-text">Marca:</span>
+                                            <input type="text" class="form-control" name="marca"
+                                                   value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
+                                        </div>
                                         <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="text" class="form-control" name="marca"
-                                               value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                        Año:
+                                        <div class="input-group">
+                                            <span class="input-group-text">Año:</span>
+                                            <input type="text" class="form-control" name="anio"
+                                                   value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
+                                        </div>
                                         <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="text" class="form-control" name="anio"
-                                               value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                     </div>
                                 </div>
 
@@ -276,12 +272,12 @@
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
-                                        <label class="form-label">
-                                            Ubicación Fosa (N MTS.)
-                                            <span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="text" class="form-control" name="ubicacion_fosa" required
-                                               value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="N/A">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Ubicación Fosa (N MTS.):</span>
+                                            <input type="text" class="form-control" name="ubicacion_fosa" required
+                                                   value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="N/A">
+                                        </div>
+                                        <span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
 
@@ -306,12 +302,12 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">
-                                            Oficial:
-                                            <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        </label>
-                                        <input type="text" class="form-control" name="oficial"
-                                               value="{{ $hidrante->oficial ?? '' }}" placeholder="N/A">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Oficial:</span>
+                                            <input type="text" class="form-control" name="oficial"
+                                                   value="{{ $hidrante->oficial ?? '' }}" placeholder="N/A">
+                                        </div>
+                                        <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
                             </div>
