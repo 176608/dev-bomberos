@@ -60,7 +60,7 @@ class CapturistaController extends Controller
                 'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
-                'calle' => 'nullable|string',
+                'calle' => 'required|string',
                 'y_calle' => 'nullable|string',
                 'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
@@ -70,51 +70,58 @@ class CapturistaController extends Controller
                 'hidrante_conectado_tubo' => 'required|string',
                 'estado_hidrante' => 'required|string',
                 'marca' => 'nullable|string',
-                'anio' => 'nullable|string', // Cambiado de integer a string
+                'anio' => 'nullable|string',
                 'observaciones' => 'nullable|string',
                 'oficial' => 'required|string'
             ]);
 
-            // IDs de usuario
             $validated['create_user_id'] = auth()->id();
             $validated['update_user_id'] = auth()->id();
 
-            // --- UBICACIÓN ---
+            // --- UBICACIÓN CORREGIDA ---
             // CALLE
-            if ($request->id_calle == 0) {
-                $validated['calle'] = 'Pendiente';
-                $validated['id_calle'] = 0;
-            } elseif ($request->id_calle) {
+            if ($request->id_calle && $request->id_calle !== '') {
+                // Usar Select2
                 $validated['id_calle'] = $request->id_calle;
                 $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
+            } elseif ($request->calle && trim($request->calle) !== '') {
+                // Usar input manual
+                $validated['id_calle'] = 0;
+                $validated['calle'] = trim($request->calle);
             } else {
-                // Esto nunca debería pasar porque id_calle es required, pero por robustez:
-                $validated['calle'] = null;
+                // Vacío (no debería llegar aquí por validación)
                 $validated['id_calle'] = null;
+                $validated['calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->id_y_calle === 0 || $request->id_y_calle === '0') {
-                $validated['y_calle'] = 'Pendiente';
-                $validated['id_y_calle'] = 0;
-            } elseif ($request->id_y_calle) {
+            if ($request->id_y_calle && $request->id_y_calle !== '') {
+                // Usar Select2
                 $validated['id_y_calle'] = $request->id_y_calle;
                 $validated['y_calle'] = CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? null;
+            } elseif ($request->y_calle && trim($request->y_calle) !== '') {
+                // Usar input manual
+                $validated['id_y_calle'] = 0;
+                $validated['y_calle'] = trim($request->y_calle);
             } else {
-                $validated['y_calle'] = null;
+                // Vacío
                 $validated['id_y_calle'] = null;
+                $validated['y_calle'] = null;
             }
 
             // COLONIA
-            if ($request->id_colonia === 0 || $request->id_colonia === '0') {
-                $validated['colonia'] = 'Pendiente';
-                $validated['id_colonia'] = 0;
-            } elseif ($request->id_colonia) {
+            if ($request->id_colonia && $request->id_colonia !== '') {
+                // Usar Select2
                 $validated['id_colonia'] = $request->id_colonia;
                 $validated['colonia'] = Colonias::find($validated['id_colonia'])?->NOMBRE ?? null;
+            } elseif ($request->colonia && trim($request->colonia) !== '') {
+                // Usar input manual
+                $validated['id_colonia'] = 0;
+                $validated['colonia'] = trim($request->colonia);
             } else {
-                $validated['colonia'] = null;
+                // Vacío
                 $validated['id_colonia'] = null;
+                $validated['colonia'] = null;
             }
 
             $validated['stat'] = Hidrante::calcularStat($validated);
@@ -132,7 +139,7 @@ class CapturistaController extends Controller
             \Log::error('Error creating hidrante:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'data' => $validated ?? null
+                'data' => $request->all()
             ]);
 
             return response()->json([
@@ -153,7 +160,7 @@ class CapturistaController extends Controller
                 'id_calle' => 'required|integer',
                 'id_y_calle' => 'nullable|integer',
                 'id_colonia' => 'nullable|integer',
-                'calle' => 'nullable|string',
+                'calle' => 'required|string',
                 'y_calle' => 'nullable|string',
                 'colonia' => 'nullable|string',
                 'llave_hidrante' => 'required|string',
@@ -163,49 +170,57 @@ class CapturistaController extends Controller
                 'hidrante_conectado_tubo' => 'required|string',
                 'estado_hidrante' => 'required|string',
                 'marca' => 'required|string',
-                'anio' => 'required|string', // Cambiado de integer a string
+                'anio' => 'required|string',
                 'observaciones' => 'nullable|string',
                 'oficial' => 'required|string'
             ]);
 
             $validated['update_user_id'] = auth()->id();
 
-            // --- UBICACIÓN ---
+            // --- UBICACIÓN CORREGIDA ---
             // CALLE
-            if ($request->id_calle == 0) {
-                $validated['calle'] = 'Pendiente';
-                $validated['id_calle'] = 0;
-            } elseif ($request->id_calle) {
+            if ($request->id_calle && $request->id_calle !== '') {
+                // Usar Select2
                 $validated['id_calle'] = $request->id_calle;
                 $validated['calle'] = CatalogoCalle::find($validated['id_calle'])?->Nomvial ?? null;
+            } elseif ($request->calle && trim($request->calle) !== '') {
+                // Usar input manual
+                $validated['id_calle'] = 0;
+                $validated['calle'] = trim($request->calle);
             } else {
-                // Esto nunca debería pasar porque id_calle es required, pero por robustez:
-                $validated['calle'] = null;
+                // Vacío (no debería llegar aquí por validación)
                 $validated['id_calle'] = null;
+                $validated['calle'] = null;
             }
 
             // Y_CALLE
-            if ($request->id_y_calle === 0 || $request->id_y_calle === '0') {
-                $validated['y_calle'] = 'Pendiente';
-                $validated['id_y_calle'] = 0;
-            } elseif ($request->id_y_calle) {
+            if ($request->id_y_calle && $request->id_y_calle !== '') {
+                // Usar Select2
                 $validated['id_y_calle'] = $request->id_y_calle;
                 $validated['y_calle'] = CatalogoCalle::find($validated['id_y_calle'])?->Nomvial ?? null;
+            } elseif ($request->y_calle && trim($request->y_calle) !== '') {
+                // Usar input manual
+                $validated['id_y_calle'] = 0;
+                $validated['y_calle'] = trim($request->y_calle);
             } else {
-                $validated['y_calle'] = null;
+                // Vacío
                 $validated['id_y_calle'] = null;
+                $validated['y_calle'] = null;
             }
 
             // COLONIA
-            if ($request->id_colonia === 0 || $request->id_colonia === '0') {
-                $validated['colonia'] = 'Pendiente';
-                $validated['id_colonia'] = 0;
-            } elseif ($request->id_colonia) {
+            if ($request->id_colonia && $request->id_colonia !== '') {
+                // Usar Select2
                 $validated['id_colonia'] = $request->id_colonia;
                 $validated['colonia'] = Colonias::find($validated['id_colonia'])?->NOMBRE ?? null;
+            } elseif ($request->colonia && trim($request->colonia) !== '') {
+                // Usar input manual
+                $validated['id_colonia'] = 0;
+                $validated['colonia'] = trim($request->colonia);
             } else {
-                $validated['colonia'] = null;
+                // Vacío
                 $validated['id_colonia'] = null;
+                $validated['colonia'] = null;
             }
 
             $validated['stat'] = Hidrante::calcularStat($validated);

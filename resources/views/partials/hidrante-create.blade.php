@@ -74,20 +74,18 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionCalle"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                         Calle:</label>
-                                        <div class="input-group justify-content-center">
-                                            <select class="form-select select2-search" name="id_calle" id="id_calle">
-                                                <option value="">Buscar calle...</option>
-                                                @foreach($calles as $calle)
-                                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="input-group-text bg-white border-0">
-                                                <div class="form-check form-switch m-0">
-                                                    <input class="form-check-input" type="checkbox" id="switchNoCalle">
-                                                    <label class="form-check-label small ms-2" for="switchNoCalle">No aparece la calle</label>
-                                                </div>
+                                        <div class="mb-2">
+                                            <div class="input-group">
+                                                <select class="form-select select2-search" name="id_calle" id="id_calle">
+                                                    <option value="">Buscar calle...</option>
+                                                    @foreach($calles as $calle)
+                                                        <option value="{{ $calle->IDKEY }}" data-tipo="{{ $calle->Tipovial }}">{{ $calle->Nomvial }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="calle_tipo_display">
                                             </div>
                                         </div>
+                                        <input type="text" class="form-control" name="calle" id="calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
                                         <small class="form-text text-muted">
                                             <div id="calle_selected_container" class="d-none">
                                                 Tipo y nombre: <span id="calle_selected_tipo" class="fw-bold"></span>
@@ -98,20 +96,18 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionYCalle"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Y Calle:</label>
-                                        <div class="input-group justify-content-center">
-                                            <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
-                                                <option value="">Buscar calle...</option>
-                                                @foreach($calles as $calle)
-                                                    <option value="{{ $calle->IDKEY }}">{{ $calle->Nomvial }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="input-group-text bg-white border-0">
-                                                <div class="form-check form-switch m-0">
-                                                    <input class="form-check-input" type="checkbox" id="switchNoYCalle">
-                                                    <label class="form-check-label small ms-2" for="switchNoYCalle">No aparece la calle</label>
-                                                </div>
+                                        <div class="mb-2">
+                                            <div class="input-group">
+                                                <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
+                                                    <option value="">Buscar calle...</option>
+                                                    @foreach($calles as $calle)
+                                                        <option value="{{ $calle->IDKEY }}" data-tipo="{{ $calle->Tipovial }}">{{ $calle->Nomvial }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="y_calle_tipo_display">
                                             </div>
                                         </div>
+                                        <input type="text" class="form-control" name="y_calle" id="y_calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
                                         <small class="form-text text-muted">
                                             <div id="y_calle_selected_container" class="d-none">
                                                 Tipo y nombre: <span id="y_calle_selected_tipo" class="fw-bold"></span>
@@ -125,20 +121,18 @@
                                         <label class="form-label">
                                             <span id="iconoExclamacionColonia"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         Colonia:</label>
-                                        <div class="input-group justify-content-center">
-                                            <select class="form-select select2-search" name="id_colonia" id="id_colonia">
-                                                <option value="">Buscar colonia...</option>
-                                                @foreach($colonias as $colonia)
-                                                    <option value="{{ $colonia->IDKEY }}">{{ $colonia->NOMBRE }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="input-group-text bg-white border-0">
-                                                <div class="form-check form-switch m-0">
-                                                    <input class="form-check-input" type="checkbox" id="switchNoColonia">
-                                                    <label class="form-check-label small ms-2" for="switchNoColonia">No aparece la colonia</label>
-                                                </div>
+                                        <div class="mb-2">
+                                            <div class="input-group">
+                                                <select class="form-select select2-search" name="id_colonia" id="id_colonia">
+                                                    <option value="">Buscar colonia...</option>
+                                                    @foreach($colonias as $colonia)
+                                                        <option value="{{ $colonia->IDKEY }}" data-tipo="{{ $colonia->TIPO }}">{{ $colonia->NOMBRE }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="colonia_tipo_display">
                                             </div>
                                         </div>
+                                        <input type="text" class="form-control" name="colonia" id="colonia_manual" placeholder="O escribe manualmente si no aparece en la lista">
                                         <small class="form-text text-muted">
                                             <div id="colonia_selected_container" class="d-none">
                                                 Tipo y nombre: <span id="colonia_selected_tipo" class="fw-bold"></span>
@@ -400,29 +394,6 @@ $(document).ready(function() {
     const CONFIG = {
         modalId: '#crearHidranteModal',
         formId: '#formCrearHidrante',
-        switches: [
-            {
-                field: 'calle',
-                switchId: '#switchNoCalle',
-                selectId: '#id_calle',
-                iconId: '#iconoExclamacionCalle',
-                hidden: ['id_calle', 'calle']
-            },
-            {
-                field: 'y_calle',
-                switchId: '#switchNoYCalle',
-                selectId: '#id_y_calle',
-                iconId: '#iconoExclamacionYCalle',
-                hidden: ['id_y_calle', 'y_calle']
-            },
-            {
-                field: 'colonia',
-                switchId: '#switchNoColonia',
-                selectId: '#id_colonia',
-                iconId: '#iconoExclamacionColonia',
-                hidden: ['id_colonia', 'colonia']
-            }
-        ],
         fieldsWithIcons: [
             { name: 'numero_estacion', icon: 'iconoExclamacionNumero_estacion', tipo: 'select' },
             { name: 'llave_hidrante', icon: 'iconoExclamacionLlave_Hidrante', tipo: 'select' },
@@ -441,10 +412,8 @@ $(document).ready(function() {
     };
 
     // --- FUNCIÓN PARA ICONOS ---
-    // Esta función muestra u oculta el icono de advertencia según el valor del campo, esto es lo que hay que revisar
     function toggleExclamationIcon(iconId, value) {
         const icon = $(iconId);
-        // Incluir 'S/I' como un valor que activa el icono de advertencia
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
             icon.removeClass('d-none');
         } else {
@@ -452,26 +421,62 @@ $(document).ready(function() {
         }
     }
 
-    // --- FUNCIÓN PARA SWITCHES ---
-    function setupSwitchHandler({switchId, selectId, iconId, hidden}) {
-        $(switchId).change(function() {
-            const $select = $(selectId);
-            const $icon = $(iconId);
-            if ($(this).is(':checked')) {
-                $select.val('0').trigger('change');
-                $icon.addClass('d-none');
-                hidden.forEach(name => {
-                    if (!$(`input[name="${name}"][type="hidden"]`).length) {
-                        $('<input>').attr({type: 'hidden', name: name, value: name.startsWith('id_') ? '0' : 'Pendiente'}).appendTo(CONFIG.formId);
-                    }
-                });
-            } else {
-                $select.val('').trigger('change');
-                hidden.forEach(name => $(`input[name="${name}"][type="hidden"]`).remove());
-                if (!$select.val()) $icon.removeClass('d-none');
+    // --- FUNCIÓN PARA MANEJAR SELECT2 + INPUT MANUAL ---
+    function setupLocationField(selectId, manualId, tipoDisplayId, fieldType) {
+        const $select = $(selectId);
+        const $manual = $(manualId);
+        const $tipoDisplay = $(tipoDisplayId);
+        
+        // Al seleccionar en Select2
+        $select.on('select2:select', function(e) {
+            const data = e.params.data;
+            const selectedId = data.id;
+            const selectedText = data.text;
+            const tipo = $(this).find('option:selected').data('tipo');
+            
+            if (selectedId && selectedId !== '0') {
+                // Deshabilitar input manual y limpiar su contenido
+                $manual.prop('disabled', true).val('').addClass('input-disabled');
+                
+                // Mostrar tipo en el campo pequeño
+                $tipoDisplay.val(tipo || '');
+                
+                // Mostrar información en el contenedor pequeño
+                const containerId = selectId.replace('#', '#') + '_selected_container';
+                const tipoId = selectId.replace('#', '#') + '_selected_tipo';
+                $(containerId).removeClass('d-none');
+                $(tipoId).text(tipo + ' ' + selectedText);
             }
-            updateSaveButtonState();
         });
+        
+        // Al limpiar Select2
+        $select.on('select2:clear', function() {
+            // Habilitar input manual y restaurar su valor anterior si lo tenía
+            $manual.prop('disabled', false).removeClass('input-disabled');
+            
+            // Limpiar tipo display
+            $tipoDisplay.val('');
+            
+            // Ocultar información
+            const containerId = selectId.replace('#', '#') + '_selected_container';
+            $(containerId).addClass('d-none');
+        });
+        
+        // Al escribir en input manual
+        $manual.on('input', function() {
+            const value = $(this).val().trim();
+            if (value && !$select.val()) {
+                // Si hay texto y no hay selección en Select2, es válido
+                updateSaveButtonState();
+            }
+        });
+        
+        // Inicializar estado
+        if (!$select.val()) {
+            $manual.prop('disabled', false).removeClass('input-disabled');
+        } else {
+            $manual.prop('disabled', true).addClass('input-disabled');
+        }
     }
 
     // --- SELECT2 ---
@@ -513,11 +518,12 @@ $(document).ready(function() {
 
     // --- BOTÓN REGISTRAR Y POPOVER ---
     function updateSaveButtonState() {
-        // Verifica si el campo calle está cubierto (valor válido o switch activo)
+        // Verifica si el campo calle está cubierto
         let calleOk = false;
-        if ($('#switchNoCalle').is(':checked')) {
-            calleOk = true;
-        } else if ($('#id_calle').val() && $('#id_calle').val() !== '' && $('#id_calle').val() !== null) {
+        const calleSelectVal = $('#id_calle').val();
+        const calleManualVal = $('#calle_manual').val().trim();
+        
+        if ((calleSelectVal && calleSelectVal !== '') || calleManualVal) {
             calleOk = true;
         }
 
@@ -536,7 +542,7 @@ $(document).ready(function() {
             }
         } else {
             $('#btnRegistrarHidrante').prop('disabled', true);
-            let mensaje = 'Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.';
+            let mensaje = 'Debe seleccionar una calle (o escribir manualmente) y definir el Estado del Hidrante.';
             $('#popoverRegistrarHidrante')
                 .attr('data-bs-toggle', 'popover')
                 .attr('data-bs-trigger', 'hover focus')
@@ -558,13 +564,11 @@ $(document).ready(function() {
 
     // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
     function handleSoloBaseStateCreate(isSoloBase) {
-        // Campos de Estado y Características + Técnicas (excepto Estado Hidrante)
         const campos = [
             'marca', 'anio',
             'llave_hidrante', 'presion_agua', 'llave_fosa',
             'hidrante_conectado_tubo', 'ubicacion_fosa'
         ];
-        // Iconos de exclamación de esas secciones
         const iconos = [
             '#iconoExclamacionMarca',
             '#iconoExclamacionAnio',
@@ -589,7 +593,6 @@ $(document).ready(function() {
             if (isSoloBase) {
                 $(sel).addClass('d-none');
             } else {
-                // Se reevalúa el icono según la lógica normal
                 const field = sel.replace('#iconoExclamacion', '').toLowerCase();
                 const $input = $(`[name="${field}"]`);
                 if ($input.length) {
@@ -599,190 +602,34 @@ $(document).ready(function() {
         });
     }
 
-    // --- FUNCIÓN PARA MOSTRAR INFORMACIÓN DE TIPO AL CAMBIAR SELECCIÓN ---
-    function setupTypeInfoCreate() {
-        // Crear un mapa de datos precargados para calles y colonias
-        const callesData = {};
-        const coloniasData = {};
-        
-        // Para calle principal - usar evento select2:select
-        $('#id_calle').on('select2:select', function(e) {
-            const data = e.params.data;
-            const selectedId = data.id;
-            const nombreCalle = data.text;
-            
-            if (!selectedId || selectedId === '0') {
-                $('#calle_selected_container').addClass('d-none');
-                return;
-            }
-            
-            // Mostrar spinner mientras cargamos
-            $('#calle_selected_container').removeClass('d-none');
-            $('#calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
-            
-            // Primero intentar usar datos precargados
-            if (callesData[selectedId]) {
-                $('#calle_selected_tipo').text(callesData[selectedId] + ' ' + nombreCalle);
-                return;
-            }
-            
-            // Si no hay datos precargados, hacer la petición
-            $.get("{{ route('hidrantes.create') }}", { id_calle: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipovial) {
-                    // Guardar para uso futuro
-                    callesData[selectedId] = data.tipovial;
-                    $('#calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
-                } else {
-                    $('#calle_selected_container').addClass('d-none');
-                }
-            }).fail(function() {
-                $('#calle_selected_container').addClass('d-none');
-            });
-        });
-        
-        // Para calle secundaria (y_calle) - usar evento select2:select
-        $('#id_y_calle').on('select2:select', function(e) {
-            const data = e.params.data;
-            const selectedId = data.id;
-            const nombreCalle = data.text;
-            
-            if (!selectedId || selectedId === '0') {
-                $('#y_calle_selected_container').addClass('d-none');
-                return;
-            }
-            
-            // Mostrar spinner mientras cargamos
-            $('#y_calle_selected_container').removeClass('d-none');
-            $('#y_calle_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
-            
-            // Primero intentar usar datos precargados
-            if (callesData[selectedId]) {
-                $('#y_calle_selected_tipo').text(callesData[selectedId] + ' ' + nombreCalle);
-                return;
-            }
-            
-            // Si no hay datos precargados, hacer la petición
-            $.get("{{ route('hidrantes.create') }}", { id_y_calle: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipovial) {
-                    // Guardar para uso futuro
-                    callesData[selectedId] = data.tipovial;
-                    $('#y_calle_selected_tipo').text(data.tipovial + ' ' + nombreCalle);
-                } else {
-                    $('#y_calle_selected_container').addClass('d-none');
-                }
-            }).fail(function() {
-                $('#y_calle_selected_container').addClass('d-none');
-            });
-        });
-        
-        // Para colonia - usar evento select2:select
-        $('#id_colonia').on('select2:select', function(e) {
-            const data = e.params.data;
-            const selectedId = data.id;
-            const nombreColonia = data.text;
-            
-            if (!selectedId || selectedId === '0') {
-                $('#colonia_selected_container').addClass('d-none');
-                return;
-            }
-            
-            // Mostrar spinner mientras cargamos
-            $('#colonia_selected_container').removeClass('d-none');
-            $('#colonia_selected_tipo').html('<span class="spinner-border spinner-border-sm" role="status"></span> Cargando...');
-            
-            // Primero intentar usar datos precargados
-            if (coloniasData[selectedId]) {
-                $('#colonia_selected_tipo').text(coloniasData[selectedId] + ' ' + nombreColonia);
-                return;
-            }
-            
-            // Si no hay datos precargados, hacer la petición
-            $.get("{{ route('hidrantes.create') }}", { id_colonia: selectedId, _only_tipo: 1 }, function(data) {
-                if (data && data.tipo) {
-                    // Guardar para uso futuro
-                    coloniasData[selectedId] = data.tipo;
-                    $('#colonia_selected_tipo').text(data.tipo + ' ' + nombreColonia);
-                } else {
-                    $('#colonia_selected_container').addClass('d-none');
-                }
-            }).fail(function() {
-                $('#colonia_selected_container').addClass('d-none');
-            });
-        });
-        
-        // También manejar cuando se borra la selección o se activa el switch "No aparece"
-        $('#switchNoCalle').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#calle_selected_container').addClass('d-none');
-            }
-        });
-        
-        $('#switchNoYCalle').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#y_calle_selected_container').addClass('d-none');
-            }
-        });
-        
-        $('#switchNoColonia').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#colonia_selected_container').addClass('d-none');
-            }
-        });
-        
-        // Manejar también el clear de select2
-        $('#id_calle').on('select2:clear', function() {
-            $('#calle_selected_container').addClass('d-none');
-        });
-        
-        $('#id_y_calle').on('select2:clear', function() {
-            $('#y_calle_selected_container').addClass('d-none');
-        });
-        
-        $('#id_colonia').on('select2:clear', function() {
-            $('#colonia_selected_container').addClass('d-none');
-        });
-    }
-    
-    // Asegurarnos de que esta función se ejecute después de inicializar Select2
-    $(CONFIG.modalId).on('shown.bs.modal', function() {
-        // Esperar a que Select2 esté completamente inicializado
-        setTimeout(function() {
-            setupTypeInfoCreate();
-        }, 300);
-    });
-
     // --- EVENTOS ---
     function initEventHandlers() {
-        // Switches de ubicación
-        CONFIG.switches.forEach(setupSwitchHandler);
-
         // Iconos de advertencia
         setupIcons();
 
         // Select2
         initSelect2();
 
+        // Configurar campos de ubicación
+        setupLocationField('#id_calle', '#calle_manual', '#calle_tipo_display', 'calle');
+        setupLocationField('#id_y_calle', '#y_calle_manual', '#y_calle_tipo_display', 'calle');
+        setupLocationField('#id_colonia', '#colonia_manual', '#colonia_tipo_display', 'colonia');
+
         // Guardar: validación
         $(CONFIG.formId).on('submit', function(e) {
-            // Solo validamos calle y estado_hidrante
-            if ($('#switchNoCalle').is(':checked')) {
-                $('#id_calle').val('0');
-                if (!$('input[name="id_calle"][type="hidden"]').length) {
-                    $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
-                }
-                if (!$('input[name="calle"][type="hidden"]').length) {
-                    $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
-                }
-            } else {
-                const val = $('#id_calle').val();
-                if (!val || val === '' || val === null) {
-                    e.preventDefault();
-                    alert('Debes seleccionar una calle o marcar el switch de "No aparece la calle".');
-                    return false;
-                }
-                $('input[name="id_calle"][type="hidden"]').remove();
-                $('input[name="calle"][type="hidden"]').remove();
+            // Validar calle (obligatoria)
+            const calleSelectVal = $('#id_calle').val();
+            const calleManualVal = $('#calle_manual').val().trim();
+            
+            if (!calleSelectVal && !calleManualVal) {
+                e.preventDefault();
+                alert('El campo Calle es obligatorio. Selecciona una opción o escribe manualmente.');
+                return false;
             }
+            
+            // NO PROCESAR NADA - Solo enviar tal como está
+            // El servidor decidirá qué usar basándose en qué campo tiene contenido
+            
             // Validación de estado_hidrante
             const estadoVal = $('select[name="estado_hidrante"]').val();
             if (!estadoVal || estadoVal === 'S/I') {
@@ -793,10 +640,7 @@ $(document).ready(function() {
         });
 
         // Actualizar botón registrar cuando cambian campos clave
-        $('#id_calle, #switchNoCalle, select[name="estado_hidrante"]').on('change', updateSaveButtonState);
-
-        // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
-        $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
+        $('#id_calle, #calle_manual, select[name="estado_hidrante"]').on('change input', updateSaveButtonState);
 
         // Estado Hidrante: SOLO BASE
         $('select[name="estado_hidrante"]').on('change', function() {
