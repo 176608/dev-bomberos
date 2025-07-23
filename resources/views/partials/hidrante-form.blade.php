@@ -73,9 +73,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                   style="max-width: 100px;" id="edit_calle_tipo_display" 
-                                                   value="{{ $hidrante->id_calle && $hidrante->id_calle != '0' && $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial : '' }}">
                                         </div>
                                         <input type="text" class="form-control manual-input" name="calle" id="edit_calle_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
@@ -108,9 +105,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                   style="max-width: 100px;" id="edit_y_calle_tipo_display"
-                                                   value="{{ $hidrante->id_y_calle && $hidrante->id_y_calle != '0' && $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial : '' }}">
                                         </div>
                                         <input type="text" class="form-control manual-input" name="y_calle" id="edit_y_calle_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
@@ -146,9 +140,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                   style="max-width: 100px;" id="edit_colonia_tipo_display"
-                                                   value="{{ $hidrante->id_colonia && $hidrante->id_colonia != '0' && $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO : '' }}">
                                         </div>
                                         <input type="text" class="form-control manual-input" name="colonia" id="edit_colonia_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
@@ -446,13 +437,6 @@ input[id^="manual_"] {
     background-color: #e9ecef !important;
     opacity: 0.7;
     pointer-events: none;
-}
-
-.tipo-field {
-    background-color: #f8f9fa !important;
-    border-left: 0 !important;
-    font-size: 0.85rem;
-    color: #6c757d;
 }
 
 .manual-input {
