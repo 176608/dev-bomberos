@@ -219,54 +219,54 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Llave Hidrante
-                                            <span id="edit_iconoExclamacionLlave_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="llave_hidrante">
-                                            <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="PENTAGONO" {{ $hidrante->llave_hidrante == 'PENTAGONO' ? 'selected' : '' }}>Pentagono</option>
-                                            <option value="CUADRO" {{ $hidrante->llave_hidrante == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Llave Hidrante:</span>
+                                            <select class="form-select" name="llave_hidrante">
+                                                <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
+                                                <option value="PENTAGONO" {{ $hidrante->llave_hidrante == 'PENTAGONO' ? 'selected' : '' }}>Pentagono</option>
+                                                <option value="CUADRO" {{ $hidrante->llave_hidrante == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
+                                            </select>
+                                        </div>
+                                        <span id="edit_iconoExclamacionLlave_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Presión de Agua
-                                            <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="presion_agua">
-                                            <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="NULA" {{ $hidrante->presion_agua == 'NULA' ? 'selected' : '' }}>Nula</option>
-                                            <option value="BAJA" {{ $hidrante->presion_agua == 'BAJA' ? 'selected' : '' }}>Baja</option>
-                                            <option value="REGULAR" {{ $hidrante->presion_agua == 'REGULAR' ? 'selected' : '' }}>Regular</option>
-                                            <option value="ALTA" {{ $hidrante->presion_agua == 'ALTA' ? 'selected' : '' }}>Alta</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Presión de Agua:</span>
+                                            <select class="form-select" name="presion_agua">
+                                                <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
+                                                <option value="NULA" {{ $hidrante->presion_agua == 'NULA' ? 'selected' : '' }}>Nula</option>
+                                                <option value="BAJA" {{ $hidrante->presion_agua == 'BAJA' ? 'selected' : '' }}>Baja</option>
+                                                <option value="REGULAR" {{ $hidrante->presion_agua == 'REGULAR' ? 'selected' : '' }}>Regular</option>
+                                                <option value="ALTA" {{ $hidrante->presion_agua == 'ALTA' ? 'selected' : '' }}>Alta</option>
+                                            </select>
+                                        </div>
+                                        <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Llave Fosa
-                                            <span id="edit_iconoExclamacionLlave_Fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="llave_fosa">
-                                            <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="CUADRO" {{ $hidrante->llave_fosa == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
-                                            <option value="VOLANTE" {{ $hidrante->llave_fosa == 'VOLANTE' ? 'selected' : '' }}>Volante</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Llave Fosa:</span>
+                                            <select class="form-select" name="llave_fosa">
+                                                <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
+                                                <option value="CUADRO" {{ $hidrante->llave_fosa == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
+                                                <option value="VOLANTE" {{ $hidrante->llave_fosa == 'VOLANTE' ? 'selected' : '' }}>Volante</option>
+                                            </select>
+                                        </div>
+                                        <span id="edit_iconoExclamacionLlave_Fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Conectado a Tubo de
-                                            <span id="edit_iconoExclamacionHidrante_conectado_tubo{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        </label>
-                                        <select class="form-select" name="hidrante_conectado_tubo">
-                                            <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
-                                            <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4 pulgadas</option>
-                                            <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6 pulgadas</option>
-                                            <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8 pulgadas</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Conectado a Tubo de:</span>
+                                            <select class="form-select" name="hidrante_conectado_tubo">
+                                                <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
+                                                <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4 pulgadas</option>
+                                                <option value="6'" {{ $hidrante->hidrante_conectado_tubo == "6'" ? 'selected' : '' }}>6 pulgadas</option>
+                                                <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8 pulgadas</option>
+                                            </select>
+                                        </div>
+                                        <span id="edit_iconoExclamacionHidrante_conectado_tubo{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
