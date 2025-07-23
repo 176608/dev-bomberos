@@ -187,14 +187,14 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Marca: <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> </span>
+                                            <span class="input-group-text"> <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i></span> Marca: </span>
                                             <input type="text" class="form-control" name="marca"
                                                    value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text"> <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span> Año:</span>
+                                            <span class="input-group-text"> <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger mx-2"></i></span> Año:</span>
                                             <input type="text" class="form-control" name="anio"
                                                    value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                         </div>
