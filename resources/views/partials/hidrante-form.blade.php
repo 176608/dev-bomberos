@@ -417,6 +417,37 @@ select2.select2-container {
 .popover {
     border: 2px solid #dc3545;
 }
+
+/* Añadir estos estilos al bloque <style> existente */
+.fade-transition {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.fade-in {
+    opacity: 1;
+}
+
+/* Estilo para destacar el campo manual */
+input[id^="manual_"] {
+    border-left: 3px solid #28a745;
+    padding-left: 10px;
+}
+
+/* Badge para indicar entrada manual */
+.manual-badge {
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    margin-left: 5px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
 </style>
 
 <script>
@@ -478,19 +509,116 @@ $(document).ready(function() {
         $(`${switchId}${CONFIG.hidranteId}`).change(function() {
             const $select = $(selectId);
             const $icon = $(`${iconId}${CONFIG.hidranteId}`);
+            const $container = $select.closest('.input-group');
+            const fieldName = hidden[1]; // calle, y_calle o colonia
+            
+            // Guardar el contenedor original para poder restaurarlo después
+            if (!$container.data('originalHtml') && $container.html()) {
+                $container.data('originalHtml', $container.html());
+            }
+            
             if ($(this).is(':checked')) {
-                $select.prop('disabled', true).addClass('input-disabled').val('0').trigger('change');
+                // Guardar el valor actual del select si existe
+                const currentSelectValue = $select.val();
+                const currentSelectText = $select.find('option:selected').text();
+                
+                // Crear input de texto para reemplazar el select
+                let inputValue = '';
+                
+                // Si hay un valor seleccionado en el Select2, usarlo como valor inicial
+                if (currentSelectValue && currentSelectValue !== '0' && currentSelectText && currentSelectText !== 'Buscar nueva calle ...' && currentSelectText !== 'Buscar nueva colonia...') {
+                    inputValue = currentSelectText;
+                }
+                
+                const inputHtml = `
+                    <input type="text" class="form-control" name="${fieldName}" id="manual_${fieldName}" 
+                           value="${inputValue}" 
+                           placeholder="Ingresa manualmente el nombre de la ${fieldName.replace('_', ' ')}">
+                    <div class="input-group-text bg-white border-0">
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" id="${switchId.substring(1)}${CONFIG.hidranteId}" checked>
+                            <label class="form-check-label small ms-2" for="${switchId.substring(1)}${CONFIG.hidranteId}">No aparece la ${fieldName.replace('_', ' ')}</label>
+                        </div>
+                    </div>
+                `;
+                
+                // Reemplazar el select con el input de texto
+                $container.html(inputHtml);
+                
+                // Ocultar información tipo/nombre si existe
+                if (fieldName === 'calle') {
+                    $('#calle_actual_tipo').addClass('d-none');
+                    $('#calle_actual_container').removeClass('d-none');
+                    $('#calle_actual').text('Personalizado');
+                } else if (fieldName === 'y_calle') {
+                    $('#y_calle_actual_tipo').addClass('d-none');
+                    $('#y_calle_actual_container').removeClass('d-none');
+                    $('#y_calle_actual').text('Personalizado');
+                } else if (fieldName === 'colonia') {
+                    $('#colonia_actual_tipo').addClass('d-none');
+                    $('#colonia_actual_container').removeClass('d-none');
+                    $('#colonia_actual').text('Personalizado');
+                }
+                
+                // Agregar inputs hidden para ID (ya que ahora tenemos un input con name=fieldName)
+                if (!$(`input[name="${hidden[0]}"][type="hidden"]`).length) {
+                    $('<input>').attr({
+                        type: 'hidden', 
+                        name: hidden[0], 
+                        value: '0'
+                    }).appendTo('form');
+                }
+                
                 $icon.addClass('d-none');
-                hidden.forEach(name => {
-                    if (!$(`input[name="${name}"][type="hidden"]`).length) {
-                        $('<input>').attr({type: 'hidden', name: name, value: name.startsWith('id_') ? '0' : 'Pendiente'}).appendTo('form');
+                
+                // Volver a conectar el evento change del switch
+                $(`#${switchId.substring(1)}${CONFIG.hidranteId}`).on('change', function() {
+                    if (!$(this).is(':checked')) {
+                        // Recuperar el valor manual ingresado para usarlo si se vuelve a activar el switch
+                        const manualValue = $(`#manual_${fieldName}`).val();
+                        if (manualValue) {
+                            $container.data('lastManualValue', manualValue);
+                        }
+                        
+                        // Restaurar el select original
+                        if ($container.data('originalHtml')) {
+                            $container.html($container.data('originalHtml'));
+                        }
+                        
+                        // Eliminar inputs hidden
+                        hidden.forEach(name => $(`input[name="${name}"][type="hidden"]`).remove());
+                        
+                        // Reinicializar Select2
+                        $(selectId).select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            dropdownParent: $(`${CONFIG.modalId} .modal-body`),
+                            language: {
+                                noResults: () => "No se encontraron resultados",
+                                searching: () => "Buscando..."
+                            },
+                            placeholder: 'Comienza a escribir para buscar...',
+                            allowClear: true,
+                            minimumInputLength: 2
+                        });
+                        
+                        // Reconectar eventos del switch
+                        setupSwitchHandler({switchId, selectId, iconId, hidden});
+                        
+                        // Actualizar estado de botón guardar
+                        updateSaveButtonState();
+                        
+                        // Mostrar icono de advertencia si no hay valor seleccionado
+                        if (!$(selectId).val()) {
+                            $icon.removeClass('d-none');
+                        }
                     }
                 });
+                
             } else {
-                $select.prop('disabled', false).removeClass('input-disabled').val('').trigger('change');
-                hidden.forEach(name => $(`input[name="${name}"][type="hidden"]`).remove());
-                if (!$select.val()) $icon.removeClass('d-none');
+                // Este caso se maneja cuando se restaura el select (arriba)
             }
+            
             updateSaveButtonState();
         });
     }
@@ -539,14 +667,33 @@ $(document).ready(function() {
         });
     }
 
-    // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente ---
+    // --- AUTOACTIVAR SWITCHES DE UBICACIÓN SI VALOR ES 0/Pendiente Y AÑADIR VALORES MANUALES ---
     function autoActivarSwitchUbicacion() {
-        CONFIG.switches.forEach(({switchId, selectId}) => {
+        CONFIG.switches.forEach(({switchId, selectId, field}) => {
             const $switch = $(`${switchId}${CONFIG.hidranteId}`);
             const $select = $(selectId);
-            const $actual = $(`#${$select.attr('name').replace('id_', '')}_actual`);
+            const $container = $select.closest('.input-group');
+            
+            // Nombre del campo sin 'id_'
+            const fieldName = field || selectId.replace('#edit_id_', '');
+            const $actual = $(`#${fieldName}_actual`);
+            
             if ($select.val() === '0' || ($actual.length && $actual.text().trim() === 'Pendiente')) {
+                // Guardar cualquier valor manual que ya existiera en el sistema
+                const fieldValue = $(`#${fieldName}_actual`).text().trim();
+                if (fieldValue && fieldValue !== 'Pendiente' && fieldValue !== 'N/A') {
+                    $container.data('lastManualValue', fieldValue);
+                }
+                
+                // Activar el switch, lo que desencadenará la sustitución por input
                 $switch.prop('checked', true).trigger('change');
+                
+                // Si hay un valor manual guardado, establecerlo en el input
+                if ($container.data('lastManualValue')) {
+                    setTimeout(() => {
+                        $(`#manual_${fieldName}`).val($container.data('lastManualValue'));
+                    }, 100); // Un pequeño delay para asegurarnos que el input ya está creado
+                }
             }
         });
     }
@@ -609,27 +756,64 @@ $(document).ready(function() {
         // Guardar: validación
         $('form').on('submit', function(e) {
             // Limpia todos los inputs ocultos de ubicación antes de agregar los necesarios
-            $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="y_calle"], input[type="hidden"][name="id_colonia"], input[type="hidden"][name="colonia"]').remove();
+            $('input[type="hidden"][name="id_calle"], input[type="hidden"][name="id_y_calle"], input[type="hidden"][name="id_colonia"]').remove();
 
+            // Validar campo calle (ahora puede ser input text o select)
             if ($('#edit_switchNoCalle' + CONFIG.hidranteId).is(':checked')) {
-                $('#edit_id_calle').prop('disabled', true).val('0');
-                if (!$('input[name="id_calle"][type="hidden"]').length) {
-                    $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
-                }
-                if (!$('input[name="calle"][type="hidden"]').length) {
-                    $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
+                // Si es input manual, verificar que tenga contenido
+                const manualInput = $('#manual_calle');
+                if (manualInput.length) {
+                    if (!manualInput.val().trim()) {
+                        e.preventDefault();
+                        alert('El campo Calle no puede estar vacío');
+                        manualInput.focus();
+                        return false;
+                    }
+                    // No necesitamos añadir hidden para id_calle, porque tenemos un input con name=calle
+                    // y un input hidden con name=id_calle y value=0
+                    if (!$('input[name="id_calle"][type="hidden"]').length) {
+                        $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
+                    }
+                } else {
+                    // Comportamiento original (no debería ocurrir con la nueva implementación)
+                    if (!$('input[name="id_calle"][type="hidden"]').length) {
+                        $('<input>').attr({type: 'hidden', name: 'id_calle', value: '0'}).appendTo(this);
+                    }
+                    if (!$('input[name="calle"][type="hidden"]').length) {
+                        $('<input>').attr({type: 'hidden', name: 'calle', value: 'Pendiente'}).appendTo(this);
+                    }
                 }
             } else {
+                // Validación para select
                 const val = $('#edit_id_calle').val();
                 if (!val || val === '' || val === null) {
                     e.preventDefault();
                     alert('Debes seleccionar una calle o marcar el switch de "No aparece la calle".');
                     return false;
                 }
-                $('input[name="id_calle"][type="hidden"]').remove();
-                $('input[name="calle"][type="hidden"]').remove();
             }
-            // Puedes agregar validaciones adicionales aquí...
+            
+            // Validar campo y_calle (opcional, pero si se activa el switch y hay input manual, no puede estar vacío)
+            if ($('#edit_switchNoYCalle' + CONFIG.hidranteId).is(':checked')) {
+                const manualInput = $('#manual_y_calle');
+                if (manualInput.length) {
+                    
+                    if (!$('input[name="id_y_calle"][type="hidden"]').length) {
+                        $('<input>').attr({type: 'hidden', name: 'id_y_calle', value: '0'}).appendTo(this);
+                    }
+                }
+            }
+            
+            // Validar campo colonia (opcional, pero si se activa el switch y hay input manual, no puede estar vacío)
+            if ($('#edit_switchNoColonia' + CONFIG.hidranteId).is(':checked')) {
+                const manualInput = $('#manual_colonia');
+                if (manualInput.length) {
+                    
+                    if (!$('input[name="id_colonia"][type="hidden"]').length) {
+                        $('<input>').attr({type: 'hidden', name: 'id_colonia', value: '0'}).appendTo(this);
+                    }
+                }
+            }
         });
 
         // Actualizar botón guardar cuando cambian campos clave
