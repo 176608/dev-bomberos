@@ -1,5 +1,5 @@
 <div class="modal fade modal-edit" id="editarHidranteModal{{ $hidrante->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl"> <!-- Cambio de modal-lg a modal-xl -->
         <div class="modal-content">
             <form action="{{ route('hidrantes.update', $hidrante->id) }}" method="POST">
                 @csrf
@@ -62,24 +62,22 @@
                                                 <i class="bi bi-exclamation-triangle-fill text-danger"></i>
                                             </span>
                                         </label>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
-                                                    <option value="">Buscar nueva calle ...</option>
-                                                    @foreach($calles as $calle)
-                                                        <option value="{{ $calle->IDKEY }}" 
-                                                                data-tipo="{{ $calle->Tipovial }}"
-                                                                {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
-                                                            {{ $calle->Nomvial }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                       style="max-width: 100px;" id="edit_calle_tipo_display" 
-                                                       value="{{ $hidrante->id_calle && $hidrante->id_calle != '0' && $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial : '' }}">
-                                            </div>
+                                        <div class="input-group mb-2">
+                                            <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
+                                                <option value="">Buscar nueva calle ...</option>
+                                                @foreach($calles as $calle)
+                                                    <option value="{{ $calle->IDKEY }}" 
+                                                            data-tipo="{{ $calle->Tipovial }}"
+                                                            {{ $hidrante->id_calle == $calle->IDKEY ? 'selected' : '' }}>
+                                                        {{ $calle->Nomvial }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
+                                                   style="max-width: 100px;" id="edit_calle_tipo_display" 
+                                                   value="{{ $hidrante->id_calle && $hidrante->id_calle != '0' && $hidrante->callePrincipal ? $hidrante->callePrincipal->Tipovial : '' }}">
                                         </div>
-                                        <input type="text" class="form-control" name="calle" id="edit_calle_manual" 
+                                        <input type="text" class="form-control manual-input" name="calle" id="edit_calle_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
                                                value="{{ $hidrante->id_calle == '0' ? $hidrante->calle : '' }}">
                                         <small class="form-text text-muted">
@@ -99,24 +97,22 @@
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Y Calle</label>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
-                                                    <option value="">Buscar nueva calle ...</option>
-                                                    @foreach($calles as $calle)
-                                                        <option value="{{ $calle->IDKEY }}" 
-                                                                data-tipo="{{ $calle->Tipovial }}"
-                                                                {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
-                                                            {{ $calle->Nomvial }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                       style="max-width: 100px;" id="edit_y_calle_tipo_display"
-                                                       value="{{ $hidrante->id_y_calle && $hidrante->id_y_calle != '0' && $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial : '' }}">
-                                            </div>
+                                        <div class="input-group mb-2">
+                                            <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
+                                                <option value="">Buscar nueva calle ...</option>
+                                                @foreach($calles as $calle)
+                                                    <option value="{{ $calle->IDKEY }}" 
+                                                            data-tipo="{{ $calle->Tipovial }}"
+                                                            {{ $hidrante->id_y_calle == $calle->IDKEY ? 'selected' : '' }}>
+                                                        {{ $calle->Nomvial }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
+                                                   style="max-width: 100px;" id="edit_y_calle_tipo_display"
+                                                   value="{{ $hidrante->id_y_calle && $hidrante->id_y_calle != '0' && $hidrante->calleSecundaria ? $hidrante->calleSecundaria->Tipovial : '' }}">
                                         </div>
-                                        <input type="text" class="form-control" name="y_calle" id="edit_y_calle_manual" 
+                                        <input type="text" class="form-control manual-input" name="y_calle" id="edit_y_calle_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
                                                value="{{ $hidrante->id_y_calle == '0' ? $hidrante->y_calle : '' }}">
                                         <small class="form-text text-muted">
@@ -139,24 +135,22 @@
                                     <!-- Colonia -->
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">Colonia</label>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
-                                                    <option value="">Buscar nueva colonia...</option>
-                                                    @foreach($colonias as $colonia)
-                                                        <option value="{{ $colonia->IDKEY }}" 
-                                                                data-tipo="{{ $colonia->TIPO }}"
-                                                                {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
-                                                            {{ $colonia->NOMBRE }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
-                                                       style="max-width: 100px;" id="edit_colonia_tipo_display"
-                                                       value="{{ $hidrante->id_colonia && $hidrante->id_colonia != '0' && $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO : '' }}">
-                                            </div>
+                                        <div class="input-group mb-2">
+                                            <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
+                                                <option value="">Buscar nueva colonia...</option>
+                                                @foreach($colonias as $colonia)
+                                                    <option value="{{ $colonia->IDKEY }}" 
+                                                            data-tipo="{{ $colonia->TIPO }}"
+                                                            {{ $hidrante->id_colonia == $colonia->IDKEY ? 'selected' : '' }}>
+                                                        {{ $colonia->NOMBRE }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" 
+                                                   style="max-width: 100px;" id="edit_colonia_tipo_display"
+                                                   value="{{ $hidrante->id_colonia && $hidrante->id_colonia != '0' && $hidrante->coloniaLocacion ? $hidrante->coloniaLocacion->TIPO : '' }}">
                                         </div>
-                                        <input type="text" class="form-control" name="colonia" id="edit_colonia_manual" 
+                                        <input type="text" class="form-control manual-input" name="colonia" id="edit_colonia_manual" 
                                                placeholder="O escribe manualmente si no aparece en la lista"
                                                value="{{ $hidrante->id_colonia == '0' ? $hidrante->colonia : '' }}">
                                         <small class="form-text text-muted">
