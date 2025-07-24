@@ -8,7 +8,7 @@
                     <h5 class="modal-title text-center">Editar Hidrante #{{ $hidrante->id }}</h5>
                     <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="background-color: rgba(255, 185, 185, 0.51);">
+                <div class="modal-body" style="background-color:rgba(188, 250, 240, 0.54);">
                     <!-- Primera Sección - Información Básica -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
