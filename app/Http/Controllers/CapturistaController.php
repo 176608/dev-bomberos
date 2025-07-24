@@ -781,7 +781,7 @@ class CapturistaController extends Controller
                         return $hidrante->calle ? $hidrante->calle . '*' : 'Pendiente';
                     }
                     if ($hidrante->callePrincipal) {
-                        return '<span title="' . $hidrante->callePrincipal->Tipovial . '">' 
+                        return '<span>' . $hidrante->callePrincipal->Tipovial . ' '
                             . $hidrante->callePrincipal->Nomvial . '</span>';
                     }
                     return 'N/A';
@@ -794,7 +794,7 @@ class CapturistaController extends Controller
                         return $hidrante->y_calle ? $hidrante->y_calle . '*' : 'Pendiente';
                     }
                     if ($hidrante->calleSecundaria) {
-                        return '<span title="' . $hidrante->calleSecundaria->Tipovial . '">' 
+                        return '<span>' . $hidrante->calleSecundaria->Tipovial . ' '
                             . $hidrante->calleSecundaria->Nomvial . '</span>';
                     }
                     return 'N/A';
@@ -807,7 +807,7 @@ class CapturistaController extends Controller
                         return $hidrante->colonia ? $hidrante->colonia . '*' : 'Pendiente';
                     }
                     if ($hidrante->coloniaLocacion) {
-                        return '<span title="' . $hidrante->coloniaLocacion->TIPO . '">' 
+                        return '<span>' . $hidrante->coloniaLocacion->TIPO . ' '
                             . $hidrante->coloniaLocacion->NOMBRE . '</span>';
                     }
                     return 'N/A';

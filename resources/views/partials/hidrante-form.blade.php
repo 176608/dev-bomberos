@@ -116,7 +116,7 @@
                                                 </div>
                                             @else
                                                 <div id="edit_y_calle_actual_container">
-                                                    y Calle guardada: <span id="edit_y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
+                                                    Información guardada: <span id="edit_y_calle_actual">{{ $hidrante->y_calle ?: 'N/A' }}</span>
                                                 </div>
                                             @endif
                                         </small>
