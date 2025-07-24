@@ -128,12 +128,12 @@
                                             $color = 'primary';
                                             if (isset($columnas[$categoria])) {
                                                 $clase = $columnas[$categoria]['clase'];
-                                                if (strpos($clase, 'bg-success') !== false) $color = 'success';
-                                                elseif (strpos($clase, 'bg-danger') !== false) $color = 'danger';
-                                                elseif (strpos($clase, 'bg-warning') !== false) $color = 'warning';
-                                                elseif (strpos($clase, 'bg-info') !== false) $color = 'info';
-                                                elseif (strpos($clase, 'bg-secondary') !== false) $color = 'secondary';
-                                                elseif (strpos($clase, 'bg-primary') !== false) $color = 'primary';
+                                                if (strpos($clase, 'bg-success fw-bold') !== false) $color = 'success';
+                                                elseif (strpos($clase, 'bg-danger fw-bold') !== false) $color = 'danger';
+                                                elseif (strpos($clase, 'bg-warning fw-bold') !== false) $color = 'warning';
+                                                elseif (strpos($clase, 'bg-info fw-bold') !== false) $color = 'info';
+                                                elseif (strpos($clase, 'bg-secondary fw-bold') !== false) $color = 'secondary';
+                                                elseif (strpos($clase, 'bg-primary fw-bold') !== false) $color = 'primary';
                                             }
                                         @endphp
                                         <span class="text-{{ $color }}">{{ $porcentaje }}% {{ $categoria }}</span>
