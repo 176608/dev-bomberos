@@ -12,7 +12,7 @@
     }
 
     .card-body {
-        background-color: rgba(165, 165, 165, 0.8);
+        background-color: rgba(214, 214, 214, 0.8);
     }
 
     .card-title {
