@@ -1117,7 +1117,7 @@ function aplicarFiltrosATabla(filtros, noScroll = false) {
  * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
  */
 function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
-    // Definir el icono según el tipo
+    // Definir el icono según el tipo usando Bootstrap Icons
     let icono = 'check-circle';
     let colorClase = 'text-success';
     let borderClass = 'toast-success';
@@ -1140,11 +1140,11 @@ function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
             break;
     }
     
-    // Crear el HTML del toast
+    // Crear el HTML del toast con Bootstrap Icons
     const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
-                <i class="fas fa-${icono} ${colorClase} me-2"></i> ${mensaje}
+                <i class="bi bi-${icono} ${colorClase} me-2"></i> ${mensaje}
             </div>
             <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
