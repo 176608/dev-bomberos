@@ -500,29 +500,62 @@ function setupCrudHandlers() {
 
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view")
             .done(function(modalHtml) {
-                // Eliminar modales anteriores
-                $('.modal-view, .modal-backdrop').remove();
+                // Eliminar modales anteriores completamente
+                $('.modal-view').each(function() {
+                    const modalInstance = bootstrap.Modal.getInstance(this);
+                    if (modalInstance) {
+                        modalInstance.dispose();
+                    }
+                    $(this).remove();
+                });
+                
+                // Eliminar cualquier backdrop residual
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
                 
                 // Crear el modal y agregarlo al DOM
                 const $modal = $(modalHtml).addClass('modal-view');
                 $('body').append($modal);
 
-                // Esperar un momento antes de inicializar el modal
+                // Usar un timeout más largo para asegurar que el DOM esté listo
                 setTimeout(function() {
-                    const modalInstance = new bootstrap.Modal($modal[0], {
-                        backdrop: true,
-                        keyboard: true,
-                        focus: true
-                    });
-                    
-                    modalInstance.show();
+                    try {
+                        const modalElement = $modal[0];
+                        
+                        // Verificar que el elemento modal existe y tiene los atributos necesarios
+                        if (!modalElement || !modalElement.classList.contains('modal')) {
+                            console.error('Elemento modal no válido');
+                            return;
+                        }
+                        
+                        const modalInstance = new bootstrap.Modal(modalElement, {
+                            backdrop: 'static',
+                            keyboard: true,
+                            focus: true
+                        });
+                        
+                        modalInstance.show();
 
-                    // Limpiar cuando se cierre
-                    $modal.on('hidden.bs.modal', function() {
-                        modalInstance.dispose();
+                        // Limpiar cuando se cierre
+                        $modal.on('hidden.bs.modal', function() {
+                            try {
+                                modalInstance.dispose();
+                            } catch (e) {
+                                console.warn('Error al limpiar modal:', e);
+                            }
+                            $(this).remove();
+                            
+                            // Limpiar cualquier residuo
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open');
+                        });
+                        
+                    } catch (error) {
+                        console.error('Error al inicializar modal:', error);
                         $modal.remove();
-                    });
-                }, 100);
+                        mostrarToast('Error al mostrar los detalles del hidrante', 'error');
+                    }
+                }, 200);
             })
             .fail(function(xhr) {
                 console.error('Error al cargar modal:', xhr);
