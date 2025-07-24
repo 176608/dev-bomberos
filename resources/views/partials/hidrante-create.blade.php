@@ -446,6 +446,12 @@ $(document).ready(function() {
         const $manual = $(manualId);
         const $tipoDisplay = $(tipoDisplayId);
         
+        // INICIALIZACIÓN: Mostrar valor por defecto
+        function initializeField() {
+            const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
+            $tipoDisplay.text(defaultText).removeClass('d-none');
+        }
+        
         // Al seleccionar en Select2
         $select.on('select2:select', function(e) {
             const data = e.params.data;
@@ -454,58 +460,43 @@ $(document).ready(function() {
             const tipo = $(this).find('option:selected').data('tipo');
             
             if (selectedId && selectedId !== '0') {
-                // Deshabilitar input manual y limpiar su contenido
-                $manual.prop('disabled', true).val('').addClass('input-disabled');
+                // Ocultar y deshabilitar input manual
+                $manual.hide().prop('disabled', true).val('').addClass('input-disabled');
                 
-                // Mostrar tipo en el label SIN PARÉNTESIS
-                $tipoDisplay.text(`${tipo}`).removeClass('d-none');
-                
-                // Para formulario de edición: manejar contenedores
-                if (selectId.includes('edit_')) {
-                    const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
-                    const tipoId = selectId.replace('#edit_id_', '#edit_') + '_selected_tipo';
-                    const actualContainer = selectId.replace('#edit_id_', '#edit_') + '_actual_container';
-                    
-                    $(containerId).removeClass('d-none');
-                    $(actualContainer).addClass('d-none');
-                    $(tipoId).text(tipo + ' ' + selectedText);
-                }
+                // Mostrar tipo en el label
+                $tipoDisplay.text(tipo || (fieldType === 'colonia' ? 'Colonia' : 'Calle')).removeClass('d-none');
             }
         });
         
         // Al limpiar Select2
         $select.on('select2:clear', function() {
-            // Habilitar input manual y restaurar su valor anterior si lo tenía
-            $manual.prop('disabled', false).removeClass('input-disabled');
+            // Mostrar y habilitar input manual
+            $manual.show().prop('disabled', false).removeClass('input-disabled');
             
-            // Ocultar tipo en el label
-            $tipoDisplay.addClass('d-none');
-            
-            // Para formulario de edición: manejar contenedores
-            if (selectId.includes('edit_')) {
-                const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
-                const actualContainer = selectId.replace('#edit_id_', '#edit_') + '_actual_container';
-                
-                $(containerId).addClass('d-none');
-                $(actualContainer).removeClass('d-none');
-            }
+            // Mostrar valor por defecto en label
+            const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
+            $tipoDisplay.text(defaultText).removeClass('d-none');
         });
         
         // Al escribir en input manual
         $manual.on('input', function() {
             const value = $(this).val().trim();
-            if (value && !$select.val()) {
-                // Si hay texto y no hay selección en Select2, es válido
-                updateSaveButtonState();
+            if (value.length > 0) {
+                // Ocultar y deshabilitar Select2
+                $select.hide().prop('disabled', true).val(null).trigger('change');
+                
+                // Mostrar valor por defecto en label
+                const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
+                $tipoDisplay.text(defaultText).removeClass('d-none');
+            } else {
+                // Si se borra todo, mostrar Select2 nuevamente
+                $select.show().prop('disabled', false);
             }
+            updateSaveButtonState();
         });
         
-        // Inicializar estado
-        if (!$select.val()) {
-            $manual.prop('disabled', false).removeClass('input-disabled');
-        } else {
-            $manual.prop('disabled', true).addClass('input-disabled');
-        }
+        // Inicializar el campo
+        initializeField();
     }
 
     // --- SELECT2 ---
