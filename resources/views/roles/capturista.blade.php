@@ -609,7 +609,7 @@ function inicializarDataTableServerSide() {
         },
         { 
             data: 'stat',
-            name: 'Estatus',
+            name: 'stat',
             className: 'text-center align-middle',
             render: function(data, type, row) {
                 // Si stat es '000', muestra badge
