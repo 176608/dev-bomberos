@@ -3,7 +3,16 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Resumen de Hidrantes por Estación y {{ $titulo_resumen }}</h5>
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <h5 class="mb-0">Resumen de Hidrantes por Estación y {{ $titulo_resumen }}</h5>
+                    </div>
+                    <div class="col-6">
+                        <div id="exportButtonsContainerResumen" class="d-flex justify-content-end">
+                            <!-- Los botones se moverán aquí automáticamente -->
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -52,7 +61,7 @@
 <script>
 $(document).ready(function() {
     // Inicializar DataTables con botones de exportación
-    $('#tablaResumenHidrantes').DataTable({
+    let table = $('#tablaResumenHidrantes').DataTable({
         paging: false,
         searching: false,
         info: false,
@@ -63,30 +72,27 @@ $(document).ready(function() {
             { targets: [1], className: 'no-export' }  // No exportar la columna de acciones
         ],
         
-        // Agregar configuración de botones para exportación
-        dom: "<'row'<'col-sm-12 d-flex justify-content-between flex-wrap'B>>" +
+        // Ocultar los botones originales de DataTables
+        dom: "<'row d-none'<'col-sm-12'B>>" +
              "<'row'<'col-sm-12'tr>>",
         buttons: [
             {
                 extend: 'copyHtml5',
-                text: '<i class="bi bi-clipboard"></i> Copiar',
-                titleAttr: 'Copiar al portapapeles',
-                className: 'btn btn-sm btn-outline-secondary flex-fill mx-1'
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
+                }
             },
             {
                 extend: 'csvHtml5',
-                text: '<i class="bi bi-filetype-csv"></i> CSV',
-                titleAttr: 'Exportar a CSV',
-                className: 'btn btn-sm btn-outline-success flex-fill mx-1'
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
+                }
             },
             {
                 extend: 'excelHtml5',
-                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
-                titleAttr: 'Exportar a Excel',
-                className: 'btn btn-sm btn-outline-success flex-fill mx-1',
                 filename: function() {
                     const now = new Date();
-                    return 'Hidrantes_' + now.getFullYear() + 
+                    return 'Hidrantes_Resumen_' + now.getFullYear() + 
                            (now.getMonth() + 1).toString().padStart(2, '0') + 
                            now.getDate().toString().padStart(2, '0');
                 },
@@ -96,24 +102,91 @@ $(document).ready(function() {
             },
             {
                 extend: 'pdfHtml5',
-                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
-                titleAttr: 'Exportar a PDF',
-                className: 'btn btn-sm btn-outline-danger flex-fill mx-1',
                 orientation: 'landscape',
                 pageSize: 'LEGAL',
                 customize: function(doc) {
                     doc.defaultStyle.fontSize = 10;
                     doc.styles.tableHeader.fontSize = 11;
                     doc.pageMargins = [10, 10, 10, 10];
+                },
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
                 }
             },
             {
                 extend: 'print',
-                text: '<i class="bi bi-printer"></i> Imprimir',
-                titleAttr: 'Imprimir',
-                className: 'btn btn-sm btn-outline-info flex-fill mx-1'
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
+                }
             }
-        ]
+        ],
+        drawCallback: function() {
+            // Mover los botones al header después de que la tabla se inicialice
+            setTimeout(moverBotonesAlHeader, 100);
+        }
     });
+    
+    // Función para mover los botones al header
+    function moverBotonesAlHeader() {
+        const contenedorBotones = document.getElementById('exportButtonsContainerResumen');
+        
+        if (contenedorBotones && table) {
+            // Limpiar el contenedor si ya tiene botones
+            contenedorBotones.innerHTML = '';
+            
+            // Crear los botones manualmente
+            const botonesConfig = [
+                {
+                    text: '<i class="bi bi-clipboard"></i>',
+                    className: 'btn btn-sm btn-outline-light',
+                    action: 'copy',
+                    title: 'Copiar al portapapeles'
+                },
+                {
+                    text: '<i class="bi bi-filetype-csv"></i>',
+                    className: 'btn btn-sm btn-outline-light',
+                    action: 'csv',
+                    title: 'Exportar a CSV'
+                },
+                {
+                    text: '<i class="bi bi-file-earmark-excel"></i>',
+                    className: 'btn btn-sm btn-outline-light',
+                    action: 'excel',
+                    title: 'Exportar a Excel'
+                },
+                {
+                    text: '<i class="bi bi-file-earmark-pdf"></i>',
+                    className: 'btn btn-sm btn-outline-light',
+                    action: 'pdf',
+                    title: 'Exportar a PDF'
+                },
+                {
+                    text: '<i class="bi bi-printer"></i>',
+                    className: 'btn btn-sm btn-outline-light',
+                    action: 'print',
+                    title: 'Imprimir'
+                }
+            ];
+            
+            botonesConfig.forEach(function(config, index) {
+                const btnElement = document.createElement('button');
+                btnElement.className = config.className;
+                btnElement.innerHTML = config.text;
+                btnElement.title = config.title;
+                btnElement.style.marginLeft = '3px';
+                
+                // Agregar el evento click
+                btnElement.addEventListener('click', function() {
+                    try {
+                        table.button(index).trigger();
+                    } catch (e) {
+                        console.error('Error al activar botón:', e);
+                    }
+                });
+                
+                contenedorBotones.appendChild(btnElement);
+            });
+        }
+    }
 });
 </script>
