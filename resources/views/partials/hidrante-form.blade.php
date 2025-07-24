@@ -187,14 +187,16 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text"> <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i></span> Marca: </span>
+                                            <span class="input-group-text"> <span id="edit_iconoExclamacionMarca{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i></span> Marca: </span>
                                             <input type="text" class="form-control" name="marca"
                                                    value="{{ $hidrante->marca ?? '' }}" placeholder="N/A">
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text"> <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger mx-2"></i></span> Año:</span>
+                                            <span class="input-group-text"> <span id="edit_iconoExclamacionAnio{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger mx-2"></i></span> Año:</span>
                                             <input type="text" class="form-control" name="anio"
                                                    value="{{ $hidrante->anio ?? '' }}" placeholder="N/A">
                                         </div>
@@ -218,18 +220,19 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Llave Hidrante:</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionLlave_Hidrante{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning mx-2"></i></span>Llave Hidrante:</span>
                                             <select class="form-select" name="llave_hidrante">
                                                 <option value="S/I" {{ $hidrante->llave_hidrante == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                                 <option value="PENTAGONO" {{ $hidrante->llave_hidrante == 'PENTAGONO' ? 'selected' : '' }}>Pentagono</option>
                                                 <option value="CUADRO" {{ $hidrante->llave_hidrante == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
                                             </select>
                                         </div>
-                                        <span id="edit_iconoExclamacionLlave_Hidrante{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Presión de Agua:</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning mx-2"></i></span>Presión de Agua:</span>
                                             <select class="form-select" name="presion_agua">
                                                 <option value="S/I" {{ $hidrante->presion_agua == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                                 <option value="NULA" {{ $hidrante->presion_agua == 'NULA' ? 'selected' : '' }}>Nula</option>
@@ -238,25 +241,25 @@
                                                 <option value="ALTA" {{ $hidrante->presion_agua == 'ALTA' ? 'selected' : '' }}>Alta</option>
                                             </select>
                                         </div>
-                                        <span id="edit_iconoExclamacionPresion_agua{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Llave Fosa:</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionLlave_Fosa{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning mx-2"></i></span>Llave Fosa:</span>
                                             <select class="form-select" name="llave_fosa">
                                                 <option value="S/I" {{ $hidrante->llave_fosa == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                                 <option value="CUADRO" {{ $hidrante->llave_fosa == 'CUADRO' ? 'selected' : '' }}>Cuadro</option>
                                                 <option value="VOLANTE" {{ $hidrante->llave_fosa == 'VOLANTE' ? 'selected' : '' }}>Volante</option>
                                             </select>
                                         </div>
-                                        <span id="edit_iconoExclamacionLlave_Fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Conectado a Tubo de:</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionHidrante_conectado_tubo{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning mx-2"></i></span>Conectado a Tubo de:</span>
                                             <select class="form-select" name="hidrante_conectado_tubo">
                                                 <option value="S/I" {{ $hidrante->hidrante_conectado_tubo == 'S/I' ? 'selected' : '' }}>Información Pendiente</option>
                                                 <option value="4'" {{ $hidrante->hidrante_conectado_tubo == "4'" ? 'selected' : '' }}>4 pulgadas</option>
@@ -264,18 +267,17 @@
                                                 <option value="8'" {{ $hidrante->hidrante_conectado_tubo == "8'" ? 'selected' : '' }}>8 pulgadas</option>
                                             </select>
                                         </div>
-                                        <span id="edit_iconoExclamacionHidrante_conectado_tubo{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Ubicación Fosa (N MTS.):</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger mx-2"></i></span>Ubicación Fosa (N MTS.):</span>
                                             <input type="text" class="form-control" name="ubicacion_fosa" required
                                                    value="{{ $hidrante->ubicacion_fosa ?? '' }}" placeholder="N/A">
                                         </div>
-                                        <span id="edit_iconoExclamacionUbicacion_fosa{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
 
@@ -301,11 +303,11 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <div class="input-group">
-                                            <span class="input-group-text">Oficial:</span>
+                                            <span class="input-group-text"><span id="edit_iconoExclamacionOficial{{ $hidrante->id }}">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger mx-2"></i></span>Oficial:</span>
                                             <input type="text" class="form-control" name="oficial"
                                                    value="{{ $hidrante->oficial ?? '' }}" placeholder="N/A">
                                         </div>
-                                        <span id="edit_iconoExclamacionOficial{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
                             </div>
