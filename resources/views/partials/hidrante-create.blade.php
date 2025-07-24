@@ -73,7 +73,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionCalle"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        Calle:</label>
+                                        Entre <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="calle_tipo_display"> -Calle-:</label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_calle" id="id_calle">
@@ -82,7 +82,6 @@
                                                         <option value="{{ $calle->IDKEY }}" data-tipo="{{ $calle->Tipovial }}">{{ $calle->Nomvial }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="calle_tipo_display">
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="calle" id="calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
@@ -95,7 +94,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="iconoExclamacionYCalle"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        Y Calle:</label>
+                                        Y <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="y_calle_tipo_display">:</label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
@@ -104,7 +103,7 @@
                                                         <option value="{{ $calle->IDKEY }}" data-tipo="{{ $calle->Tipovial }}">{{ $calle->Nomvial }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="y_calle_tipo_display">
+                                                
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="y_calle" id="y_calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
@@ -120,7 +119,7 @@
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
                                             <span id="iconoExclamacionColonia"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        Colonia:</label>
+                                        En <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="colonia_tipo_display">:</label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_colonia" id="id_colonia">
@@ -129,7 +128,7 @@
                                                         <option value="{{ $colonia->IDKEY }}" data-tipo="{{ $colonia->TIPO }}">{{ $colonia->NOMBRE }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="colonia_tipo_display">
+                                                
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="colonia" id="colonia_manual" placeholder="O escribe manualmente si no aparece en la lista">
