@@ -616,7 +616,6 @@ function inicializarDataTableServerSide() {
                 if (data === '000') {
                     return `<span class="badge rounded-pill bg-danger">Dado de Baja</span>`;
                 }
-                // Si stat es porcentaje (ej: '25', '70', etc)
                 let percent = parseInt(data, 10);
                 let color = 'bg-success';
                 if (percent <= 40) {
@@ -698,31 +697,26 @@ function inicializarDataTableServerSide() {
         pageLength: 25,
         lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
         
-        // DOM sin botones en la tabla principal
+        // Incluir los botones en el DOM pero ocultarlos
         dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
              "<'row'<'col-sm-12'tr>>" +
-             "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+             "<'row'<'col-sm-5'i><'col-sm-7'p>>" +
+             "<'row d-none'<'col-sm-12'B>>", // Ocultar los botones originales
         buttons: [
             {
                 extend: 'copyHtml5',
-                text: '<i class="fas fa-copy"></i> Copiar',
-                titleAttr: 'Copiar al portapapeles',
-                className: 'btn btn-sm btn-outline-secondary'
+                exportOptions: {
+                    columns: ':visible:not(.no-export)'
+                }
             },
             {
                 extend: 'csvHtml5',
-                text: '<i class="fas fa-file-csv"></i> CSV',
-                titleAttr: 'Exportar a CSV',
-                className: 'btn btn-sm btn-outline-success',
                 exportOptions: {
                     columns: ':visible:not(.no-export)'
                 }
             },
             {
                 extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                titleAttr: 'Exportar a Excel',
-                className: 'btn btn-sm btn-outline-success',
                 filename: function() {
                     const now = new Date();
                     return 'Hidrantes_' + now.getFullYear() + 
@@ -735,9 +729,6 @@ function inicializarDataTableServerSide() {
             },
             {
                 extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                titleAttr: 'Exportar a PDF',
-                className: 'btn btn-sm btn-outline-danger',
                 orientation: 'landscape',
                 pageSize: 'LEGAL',
                 exportOptions: {
@@ -751,9 +742,6 @@ function inicializarDataTableServerSide() {
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print"></i> Imprimir',
-                titleAttr: 'Imprimir',
-                className: 'btn btn-sm btn-outline-info',
                 exportOptions: {
                     columns: ':visible:not(.no-export)'
                 }
@@ -764,7 +752,7 @@ function inicializarDataTableServerSide() {
             $('.table-responsive').show();
             
             // Mover los botones al área del título después de que la tabla se inicialice
-            moverBotonesAlTitulo();
+            setTimeout(moverBotonesAlTitulo, 100);
             
             scrollToTablaHidrantes();
         }
@@ -786,21 +774,49 @@ function moverBotonesAlTitulo() {
         // Limpiar el contenedor si ya tiene botones
         contenedorBotones.innerHTML = '';
         
-        // Obtener los botones de DataTables
-        const botones = window.hidrantesTable.buttons();
+        // Crear los botones manualmente basándose en la configuración
+        const botonesConfig = [
+            {
+                text: '<i class="fas fa-copy"></i> Copiar',
+                className: 'btn btn-sm btn-outline-secondary',
+                action: 'copy'
+            },
+            {
+                text: '<i class="fas fa-file-csv"></i> CSV',
+                className: 'btn btn-sm btn-outline-success',
+                action: 'csv'
+            },
+            {
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-sm btn-outline-success',
+                action: 'excel'
+            },
+            {
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-sm btn-outline-danger',
+                action: 'pdf'
+            },
+            {
+                text: '<i class="fas fa-print"></i> Imprimir',
+                className: 'btn btn-sm btn-outline-info',
+                action: 'print'
+            }
+        ];
         
-        // Crear los botones manualmente y agregarlos al contenedor personalizado
-        botones.each(function(button, index) {
-            const btnConfig = window.hidrantesTable.button(index).inst.s.buttons[index];
+        botonesConfig.forEach(function(config, index) {
             const btnElement = document.createElement('button');
-            btnElement.className = btnConfig.className;
-            btnElement.innerHTML = btnConfig.text;
-            btnElement.title = btnConfig.titleAttr;
+            btnElement.className = config.className;
+            btnElement.innerHTML = config.text;
             btnElement.style.marginRight = '5px';
             
             // Agregar el evento click
             btnElement.addEventListener('click', function() {
-                window.hidrantesTable.button(index).trigger();
+                // Obtener el botón correspondiente de DataTables y activarlo
+                try {
+                    window.hidrantesTable.button(index).trigger();
+                } catch (e) {
+                    console.error('Error al activar botón:', e);
+                }
             });
             
             contenedorBotones.appendChild(btnElement);
