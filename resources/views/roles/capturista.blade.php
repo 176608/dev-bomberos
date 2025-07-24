@@ -698,11 +698,11 @@ function inicializarDataTableServerSide() {
         pageLength: 25,
         lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
         
-        // Agregar configuración de botones para exportación
-        dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+        // Cambiar configuración del DOM para mover los botones arriba
+        dom: "<'row'<'col-sm-12'B>>" +
+             "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
              "<'row'<'col-sm-12'tr>>" +
-             "<'row'<'col-sm-5'i><'col-sm-7'p>>" +
-             "<'row'<'col-sm-12'B>>",
+             "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         buttons: [
             {
                 extend: 'copyHtml5',
