@@ -488,7 +488,9 @@ function setupCrudHandlers() {
         const $btn = $(this);
         const hidranteId = $btn.data('hidrante-id');
         
-        // Verificar que el hidranteId existe
+        console.log('=== DEBUG VIEW HIDRANTE ===');
+        console.log('Hidrante ID:', hidranteId);
+        
         if (!hidranteId) {
             console.error('ID de hidrante no encontrado');
             return;
@@ -500,10 +502,25 @@ function setupCrudHandlers() {
 
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view")
             .done(function(modalHtml) {
+                console.log('=== MODAL HTML RECIBIDO ===');
+                console.log('Tipo de respuesta:', typeof modalHtml);
+                console.log('Longitud:', modalHtml.length);
+                console.log('Primeros 200 caracteres:', modalHtml.substring(0, 200));
+                
+                // Verificar si es HTML válido
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = modalHtml;
+                console.log('HTML parseado válido:', tempDiv.children.length > 0);
+                
+                // Verificar si contiene un modal
+                const hasModal = modalHtml.includes('class="modal"') || modalHtml.includes("class='modal'");
+                console.log('Contiene clase modal:', hasModal);
+                
                 // Eliminar modales anteriores completamente
                 $('.modal-view').each(function() {
                     const modalInstance = bootstrap.Modal.getInstance(this);
                     if (modalInstance) {
+                        console.log('Eliminando instancia modal anterior');
                         modalInstance.dispose();
                     }
                     $(this).remove();
@@ -512,22 +529,39 @@ function setupCrudHandlers() {
                 // Eliminar cualquier backdrop residual
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open');
+                console.log('Modales anteriores eliminados');
                 
                 // Crear el modal y agregarlo al DOM
                 const $modal = $(modalHtml).addClass('modal-view');
+
+                // Asegurar que tiene los atributos necesarios
+                $modal.attr({
+                    'tabindex': '-1',
+                    'aria-labelledby': 'modalLabel',
+                    'aria-hidden': 'true'
+                });
+
                 $('body').append($modal);
 
-                // Usar un timeout más largo para asegurar que el DOM esté listo
                 setTimeout(function() {
                     try {
                         const modalElement = $modal[0];
                         
-                        // Verificar que el elemento modal existe y tiene los atributos necesarios
-                        if (!modalElement || !modalElement.classList.contains('modal')) {
-                            console.error('Elemento modal no válido');
-                            return;
+                        // Verificación más exhaustiva
+                        if (!modalElement) {
+                            throw new Error('Modal element is null');
                         }
                         
+                        if (!modalElement.classList) {
+                            throw new Error('Modal element does not have classList');
+                        }
+                        
+                        if (!modalElement.classList.contains('modal')) {
+                            console.warn('Adding modal class manually');
+                            modalElement.classList.add('modal');
+                        }
+                        
+                        // Intentar inicializar
                         const modalInstance = new bootstrap.Modal(modalElement, {
                             backdrop: 'static',
                             keyboard: true,
@@ -535,30 +569,38 @@ function setupCrudHandlers() {
                         });
                         
                         modalInstance.show();
-
-                        // Limpiar cuando se cierre
-                        $modal.on('hidden.bs.modal', function() {
-                            try {
-                                modalInstance.dispose();
-                            } catch (e) {
-                                console.warn('Error al limpiar modal:', e);
-                            }
-                            $(this).remove();
-                            
-                            // Limpiar cualquier residuo
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open');
-                        });
                         
                     } catch (error) {
-                        console.error('Error al inicializar modal:', error);
-                        $modal.remove();
-                        mostrarToast('Error al mostrar los detalles del hidrante', 'error');
+                        console.error('Detailed error:', {
+                            message: error.message,
+                            stack: error.stack,
+                            modalElement: modalElement,
+                            modalHtml: modalHtml.substring(0, 500)
+                        });
                     }
-                }, 200);
+                }, 300);
+
+                // Limpiar cuando se cierre
+                $modal.on('hidden.bs.modal', function() {
+                    console.log('Modal cerrado, limpiando...');
+                    try {
+                        modalInstance.dispose();
+                    } catch (e) {
+                        console.warn('Error al limpiar modal:', e);
+                    }
+                    $(this).remove();
+                    
+                    // Limpiar cualquier residuo
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open');
+                });
+                
             })
             .fail(function(xhr) {
-                console.error('Error al cargar modal:', xhr);
+                console.error('=== ERROR EN PETICIÓN AJAX ===');
+                console.error('Status:', xhr.status);
+                console.error('Status Text:', xhr.statusText);
+                console.error('Response Text:', xhr.responseText);
                 mostrarToast('Error al cargar los detalles del hidrante', 'error');
             })
             .always(function() {
