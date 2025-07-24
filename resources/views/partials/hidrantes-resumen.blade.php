@@ -64,26 +64,26 @@ $(document).ready(function() {
         ],
         
         // Agregar configuración de botones para exportación
-        dom: "<'row'<'col-sm-12'B>>" +
+        dom: "<'row'<'col-sm-12 d-flex justify-content-between flex-wrap'B>>" +
              "<'row'<'col-sm-12'tr>>",
         buttons: [
             {
                 extend: 'copyHtml5',
-                text: '<i class="fas fa-copy"></i> Copiar',
+                text: '<i class="bi bi-clipboard"></i> Copiar',
                 titleAttr: 'Copiar al portapapeles',
-                className: 'btn btn-sm btn-outline-secondary'
+                className: 'btn btn-sm btn-outline-secondary flex-fill mx-1'
             },
             {
                 extend: 'csvHtml5',
-                text: '<i class="fas fa-file-csv"></i> CSV',
+                text: '<i class="bi bi-filetype-csv"></i> CSV',
                 titleAttr: 'Exportar a CSV',
-                className: 'btn btn-sm btn-outline-success'
+                className: 'btn btn-sm btn-outline-success flex-fill mx-1'
             },
             {
                 extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
+                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
                 titleAttr: 'Exportar a Excel',
-                className: 'btn btn-sm btn-outline-success',
+                className: 'btn btn-sm btn-outline-success flex-fill mx-1',
                 filename: function() {
                     const now = new Date();
                     return 'Hidrantes_' + now.getFullYear() + 
@@ -96,9 +96,9 @@ $(document).ready(function() {
             },
             {
                 extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
+                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
                 titleAttr: 'Exportar a PDF',
-                className: 'btn btn-sm btn-outline-danger',
+                className: 'btn btn-sm btn-outline-danger flex-fill mx-1',
                 orientation: 'landscape',
                 pageSize: 'LEGAL',
                 customize: function(doc) {
@@ -109,9 +109,9 @@ $(document).ready(function() {
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print"></i> Imprimir',
+                text: '<i class="bi bi-printer"></i> Imprimir',
                 titleAttr: 'Imprimir',
-                className: 'btn btn-sm btn-outline-info'
+                className: 'btn btn-sm btn-outline-info flex-fill mx-1'
             }
         ]
     });
