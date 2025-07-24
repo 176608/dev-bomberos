@@ -777,27 +777,27 @@ function moverBotonesAlTitulo() {
         // Crear los botones manualmente basándose en la configuración
         const botonesConfig = [
             {
-                text: '<i class="fas fa-copy"></i> Copiar',
+                text: '<i class="bi bi-clipboard"></i> Copiar',
                 className: 'btn btn-sm btn-outline-secondary',
                 action: 'copy'
             },
             {
-                text: '<i class="fas fa-file-csv"></i> CSV',
+                text: '<i class="bi bi-filetype-csv"></i> CSV',
                 className: 'btn btn-sm btn-outline-success',
                 action: 'csv'
             },
             {
-                text: '<i class="fas fa-file-excel"></i> Excel',
+                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
                 className: 'btn btn-sm btn-outline-success',
                 action: 'excel'
             },
             {
-                text: '<i class="fas fa-file-pdf"></i> PDF',
+                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
                 className: 'btn btn-sm btn-outline-danger',
                 action: 'pdf'
             },
             {
-                text: '<i class="fas fa-print"></i> Imprimir',
+                text: '<i class="bi bi-printer"></i> Imprimir',
                 className: 'btn btn-sm btn-outline-info',
                 action: 'print'
             }
