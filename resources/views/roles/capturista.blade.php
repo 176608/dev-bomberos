@@ -487,32 +487,50 @@ function setupCrudHandlers() {
         e.preventDefault();
         const $btn = $(this);
         const hidranteId = $btn.data('hidrante-id');
+        
+        // Verificar que el hidranteId existe
+        if (!hidranteId) {
+            console.error('ID de hidrante no encontrado');
+            return;
+        }
+        
         $btn.prop('disabled', true);
         const originalHtml = $btn.html();
         $btn.html('<span class="spinner-border spinner-border-sm"></span>');
 
-        // Usa la función route de Laravel para generar la URL correcta:
-        $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view", function(modalHtml) {
-            // Elimina cualquier modal anterior de vista
-            $('.modal-view').remove();
-            // Agrega el modal al body
-            const $modal = $(modalHtml).addClass('modal-view');
-            $('body').append($modal);
+        $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view")
+            .done(function(modalHtml) {
+                // Eliminar modales anteriores
+                $('.modal-view, .modal-backdrop').remove();
+                
+                // Crear el modal y agregarlo al DOM
+                const $modal = $(modalHtml).addClass('modal-view');
+                $('body').append($modal);
 
-            // Inicializa el modal (sin backdrop estático)
-            const modalInstance = new bootstrap.Modal($modal[0], {
-                backdrop: true, // backdrop normal (no 'static')
-                keyboard: true
-            });
-            modalInstance.show();
+                // Esperar un momento antes de inicializar el modal
+                setTimeout(function() {
+                    const modalInstance = new bootstrap.Modal($modal[0], {
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
+                    });
+                    
+                    modalInstance.show();
 
-            // Al cerrar, elimina el modal del DOM
-            $modal.on('hidden.bs.modal', function() {
-                $modal.remove();
+                    // Limpiar cuando se cierre
+                    $modal.on('hidden.bs.modal', function() {
+                        modalInstance.dispose();
+                        $modal.remove();
+                    });
+                }, 100);
+            })
+            .fail(function(xhr) {
+                console.error('Error al cargar modal:', xhr);
+                mostrarToast('Error al cargar los detalles del hidrante', 'error');
+            })
+            .always(function() {
+                $btn.prop('disabled', false).html(originalHtml);
             });
-        }).always(function() {
-            $btn.prop('disabled', false).html(originalHtml);
-        });
     });
     
     // Manejador para desactivar hidrante
