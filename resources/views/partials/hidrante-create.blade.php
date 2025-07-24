@@ -7,7 +7,7 @@
                     <h5 class="modal-title">Registrar Hidrante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="background-color: rgba(201, 201, 201, 0.8);">
+                <div class="modal-body" style="background-color: rgba(120, 255, 232, 0.8);">
                     
                     <div class="row">
                         <div class="card text-center p-0">
@@ -66,7 +66,7 @@
                                             <span id="iconoExclamacionCalle">
                                                 <i class="bi bi-exclamation-triangle-fill text-danger"></i>
                                             </span>
-                                            Entre <span id="calle_tipo_display" class="d-none fw-bold text-primary"></span> -Calle-:
+                                            Entre <span id="calle_tipo_display" class="d-none fw-bold text-primary"></span>:
                                         </label>
                                         <div class="mb-2">
                                             <div class="input-group">
@@ -87,9 +87,6 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionYCalle">
-                                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
-                                            </span>
                                             Y <span id="y_calle_tipo_display" class="d-none fw-bold text-primary"></span>:
                                         </label>
                                         <div class="mb-2">
@@ -114,9 +111,6 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionColonia">
-                                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
-                                            </span>
                                             En <span id="colonia_tipo_display" class="d-none fw-bold text-primary"></span>:
                                         </label>
                                         <div class="mb-2">
@@ -278,7 +272,7 @@
                                                 </span>
                                                 Ubicación Fosa:
                                             </span>
-                                            <input type="text" class="form-control" name="ubicacion_fosa" placeholder="A + N + metros, $Texto despues de numero$" required>
+                                            <input type="text" class="form-control" name="ubicacion_fosa" placeholder="Numero en metros o texto descriptivo" required>
                                         </div>
                                     </div>
                                 </div>
@@ -309,7 +303,7 @@
                                                 </span>
                                                 Oficial:
                                             </span>
-                                            <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
+                                            <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable de la inspección" required>
                                         </div>
                                     </div>
                                 </div>
