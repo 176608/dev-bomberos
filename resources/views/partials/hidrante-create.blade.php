@@ -7,7 +7,7 @@
                     <h5 class="modal-title">Registrar Hidrante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="background-color: rgba(196, 255, 245, 0.8);">
+                <div class="modal-body" style="background-color: rgba(188, 250, 240, 0.54);">
                     
                     <div class="row">
                         <div class="card text-center p-0">
