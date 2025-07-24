@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers;
 
 use App\Models\User;

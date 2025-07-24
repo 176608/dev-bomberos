@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;

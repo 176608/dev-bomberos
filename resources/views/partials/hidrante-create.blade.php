@@ -1,3 +1,4 @@
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 <div class="modal fade modal-create" id="crearHidranteModal" tabindex="-1">
     <div class="modal-dialog modal-xl"> <!-- Cambio de modal-lg a modal-xl -->
         <div class="modal-content">

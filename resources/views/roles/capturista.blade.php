@@ -1,9 +1,9 @@
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
 @section('title', 'Bomberos')
 
 @section('content')
-
 <style>
     .custom-image-size {
         width: 40vw;

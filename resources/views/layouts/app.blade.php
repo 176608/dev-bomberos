@@ -1,3 +1,4 @@
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

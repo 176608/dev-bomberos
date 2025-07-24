@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DesarrolladorController;

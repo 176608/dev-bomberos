@@ -1,3 +1,4 @@
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 <div class="modal fade modal-params" id="configuracionModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

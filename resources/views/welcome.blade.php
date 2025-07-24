@@ -1,3 +1,4 @@
+<!-- Archivo Bomberos - Revisar archivo - NO ELIMINAR COMENTARIO -->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

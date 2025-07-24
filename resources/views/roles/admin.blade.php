@@ -1,3 +1,4 @@
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
 @section('title', 'Panel de Administrador')

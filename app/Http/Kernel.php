@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;

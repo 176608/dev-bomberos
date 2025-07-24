@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos & SIGEM- NO ELIMINAR COMENTARIO --> */
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;

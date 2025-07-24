@@ -1,5 +1,5 @@
 <?php
-
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
