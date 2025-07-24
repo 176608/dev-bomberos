@@ -118,22 +118,22 @@
                 <div class="col-md-6">
                     @if(isset($porcentajes) && count($porcentajes) > 0)
                         <div class="card">
-                            <div class="card-header bg-light">
+                            <div class="card-header">
                                 <h6 class="mb-0">Porcentajes</h6>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body bg-light">
                                 @foreach($porcentajes as $categoria => $porcentaje)
-                                    <div class="mb-2">
+                                    <div class="mb-2 fw-bold">
                                         @php
                                             $color = 'primary';
                                             if (isset($columnas[$categoria])) {
                                                 $clase = $columnas[$categoria]['clase'];
-                                                if (strpos($clase, 'bg-success fw-bold') !== false) $color = 'success';
-                                                elseif (strpos($clase, 'bg-danger fw-bold') !== false) $color = 'danger';
-                                                elseif (strpos($clase, 'bg-warning fw-bold') !== false) $color = 'warning';
-                                                elseif (strpos($clase, 'bg-info fw-bold') !== false) $color = 'info';
-                                                elseif (strpos($clase, 'bg-secondary fw-bold') !== false) $color = 'secondary';
-                                                elseif (strpos($clase, 'bg-primary fw-bold') !== false) $color = 'primary';
+                                                if (strpos($clase, 'bg-success') !== false) $color = 'success';
+                                                elseif (strpos($clase, 'bg-danger') !== false) $color = 'danger';
+                                                elseif (strpos($clase, 'bg-warning') !== false) $color = 'warning';
+                                                elseif (strpos($clase, 'bg-info') !== false) $color = 'info';
+                                                elseif (strpos($clase, 'bg-secondary') !== false) $color = 'secondary';
+                                                elseif (strpos($clase, 'bg-primary') !== false) $color = 'primary';
                                             }
                                         @endphp
                                         <span class="text-{{ $color }}">{{ $porcentaje }}% {{ $categoria }}</span>
