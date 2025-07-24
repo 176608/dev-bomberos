@@ -76,7 +76,7 @@
                                         <small class="form-text text-muted">
                                             @if($hidrante->id_calle && $hidrante->id_calle != '0' && $hidrante->callePrincipal)
                                                 <div id="edit_calle_selected_container">
-                                                    Tipo y nombre: <span id="edit_calle_selected_tipo" class="fw-bold tipo-info">
+                                                    Información guardada: <span id="edit_calle_selected_tipo" class="fw-bold tipo-info">
                                                         {{ $hidrante->callePrincipal->Tipovial . ' ' . $hidrante->callePrincipal->Nomvial }}
                                                     </span>
                                                 </div>
@@ -110,7 +110,7 @@
                                         <small class="form-text text-muted">
                                             @if($hidrante->id_y_calle && $hidrante->id_y_calle != '0' && $hidrante->calleSecundaria)
                                                 <div id="edit_y_calle_selected_container">
-                                                    Tipo y nombre: <span id="edit_y_calle_selected_tipo" class="fw-bold tipo-info">
+                                                    Información guardada: <span id="edit_y_calle_selected_tipo" class="fw-bold tipo-info">
                                                         {{ $hidrante->calleSecundaria->Tipovial . ' ' . $hidrante->calleSecundaria->Nomvial }}
                                                     </span>
                                                 </div>
@@ -147,7 +147,7 @@
                                         <small class="form-text text-muted">
                                             @if($hidrante->id_colonia && $hidrante->id_colonia != '0' && $hidrante->coloniaLocacion)
                                                 <div id="edit_colonia_selected_container">
-                                                    Tipo y nombre: <span id="edit_colonia_selected_tipo" class="fw-bold tipo-info">
+                                                    Información guardada: <span id="edit_colonia_selected_tipo" class="fw-bold tipo-info">
                                                         {{ $hidrante->coloniaLocacion->TIPO . ' ' . $hidrante->coloniaLocacion->NOMBRE }}
                                                     </span>
                                                 </div>

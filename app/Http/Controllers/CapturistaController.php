@@ -28,9 +28,9 @@ class CapturistaController extends Controller
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
             'numero_estacion' => 'N° Estación',
-            'calle' => 'Calle',
-            'y_calle' => 'Y Calle',
-            'colonia' => 'Colonia',
+            'calle' => 'Sobre Vía',
+            'y_calle' => 'Y Vía',
+            'colonia' => 'En Zona',
             'llave_fosa' => 'Llave Fosa',
             'llave_hidrante' => 'Llave Hidrante',
             'presion_agua' => 'Presión Agua',
@@ -87,7 +87,7 @@ class CapturistaController extends Controller
             } elseif ($request->calle && trim($request->calle) !== '') {
                 // Usar input manual
                 $validated['id_calle'] = 0;
-                $validated['calle'] = trim($request->calle);
+                $validated['calle'] = strtoupper(trim($request->calle)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío (no debería llegar aquí por validación)
                 $validated['id_calle'] = null;
@@ -102,7 +102,7 @@ class CapturistaController extends Controller
             } elseif ($request->y_calle && trim($request->y_calle) !== '') {
                 // Usar input manual
                 $validated['id_y_calle'] = 0;
-                $validated['y_calle'] = trim($request->y_calle);
+                $validated['y_calle'] = strtoupper(trim($request->y_calle)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío
                 $validated['id_y_calle'] = null;
@@ -117,7 +117,7 @@ class CapturistaController extends Controller
             } elseif ($request->colonia && trim($request->colonia) !== '') {
                 // Usar input manual
                 $validated['id_colonia'] = 0;
-                $validated['colonia'] = trim($request->colonia);
+                $validated['colonia'] = strtoupper(trim($request->colonia)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío
                 $validated['id_colonia'] = null;
@@ -186,7 +186,7 @@ class CapturistaController extends Controller
             } elseif ($request->calle && trim($request->calle) !== '') {
                 // Usar input manual
                 $validated['id_calle'] = 0;
-                $validated['calle'] = trim($request->calle);
+                $validated['calle'] = strtoupper(trim($request->calle)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío (no debería llegar aquí por validación)
                 $validated['id_calle'] = null;
@@ -201,7 +201,7 @@ class CapturistaController extends Controller
             } elseif ($request->y_calle && trim($request->y_calle) !== '') {
                 // Usar input manual
                 $validated['id_y_calle'] = 0;
-                $validated['y_calle'] = trim($request->y_calle);
+                $validated['y_calle'] = strtoupper(trim($request->y_calle)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío
                 $validated['id_y_calle'] = null;
@@ -216,7 +216,7 @@ class CapturistaController extends Controller
             } elseif ($request->colonia && trim($request->colonia) !== '') {
                 // Usar input manual
                 $validated['id_colonia'] = 0;
-                $validated['colonia'] = trim($request->colonia);
+                $validated['colonia'] = strtoupper(trim($request->colonia)); // ← AGREGAR strtoupper()
             } else {
                 // Vacío
                 $validated['id_colonia'] = null;
@@ -501,9 +501,9 @@ class CapturistaController extends Controller
         $headerNames = [
             'fecha_inspeccion' => 'Fecha Inspección',
             'numero_estacion' => 'N° Estación',
-            'calle' => 'Calle',
-            'y_calle' => 'Y Calle',
-            'colonia' => 'Colonia',
+            'calle' => 'Sobre Vía',
+            'y_calle' => 'Y Vía',
+            'colonia' => 'En Zona',
             'llave_fosa' => 'Llave Fosa',
             'llave_hidrante' => 'Llave Hidrante',
             'presion_agua' => 'Presión Agua',
