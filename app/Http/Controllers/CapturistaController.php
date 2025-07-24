@@ -941,13 +941,13 @@ class CapturistaController extends Controller
             'tipo_resumen' => 0,
             'titulo_resumen' => 'Estado',
             'columnas' => [
-                'FUNCIONANDO' => ['clase' => 'bg-info text-white', 'key' => 'EN SERVICIO'],
-                'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white', 'key' => 'FUERA DE SERVICIO'],
-                'SOLO BASE' => ['clase' => 'bg-warning text-dark', 'key' => 'SOLO BASE']
+                'FUNCIONANDO' => ['clase' => 'bg-info text-white fw-bold', 'key' => 'EN SERVICIO'],
+                'FUERA DE SERVICIO' => ['clase' => 'bg-danger text-white fw-bold', 'key' => 'FUERA DE SERVICIO'],
+                'SOLO BASE' => ['clase' => 'bg-warning text-dark fw-bold', 'key' => 'SOLO BASE']
             ],
             'ultima_columna' => [
                 'titulo' => 'TOTAL F.S. + S.B.',
-                'clase' => 'bg-warning text-dark',
+                'clase' => 'bg-warning text-dark fw-bold',
                 'key' => 'FS_SB'
             ]
         ]);
@@ -1003,15 +1003,15 @@ class CapturistaController extends Controller
             'tipo_resumen' => 1,
             'titulo_resumen' => 'Presión',
             'columnas' => [
-                'ALTA' => ['clase' => 'bg-success text-white', 'key' => 'ALTA'],
-                'REGULAR' => ['clase' => 'bg-info text-white', 'key' => 'REGULAR'],
-                'BAJA' => ['clase' => 'bg-warning text-dark', 'key' => 'BAJA'],
-                'NULA' => ['clase' => 'bg-danger text-white', 'key' => 'NULA'],
-                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+                'ALTA' => ['clase' => 'bg-success text-white fw-bold', 'key' => 'ALTA'],
+                'REGULAR' => ['clase' => 'bg-info text-white fw-bold', 'key' => 'REGULAR'],
+                'BAJA' => ['clase' => 'bg-warning text-dark fw-bold', 'key' => 'BAJA'],
+                'NULA' => ['clase' => 'bg-danger text-white fw-bold', 'key' => 'NULA'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white fw-bold', 'key' => 'SIN INFORMACION']
             ],
             'ultima_columna' => [
                 'titulo' => 'TOTAL ALTA + REGULAR',
-                'clase' => 'bg-success text-white',
+                'clase' => 'bg-success text-white fw-bold',
                 'key' => 'ALTA_REGULAR'
             ]
         ]);
@@ -1067,13 +1067,13 @@ class CapturistaController extends Controller
             'tipo_resumen' => 2,
             'titulo_resumen' => 'Llaves de Hidrante',
             'columnas' => [
-                'CUADRO' => ['clase' => 'bg-primary text-white', 'key' => 'CUADRO'],
-                'PENTAGONO' => ['clase' => 'bg-info text-white', 'key' => 'PENTAGONO'],
-                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+                'CUADRO' => ['clase' => 'bg-primary text-white fw-bold', 'key' => 'CUADRO'],
+                'PENTAGONO' => ['clase' => 'bg-info text-white fw-bold', 'key' => 'PENTAGONO'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white fw-bold', 'key' => 'SIN INFORMACION']
             ],
             'ultima_columna' => [
                 'titulo' => 'TOTAL CUADRO + PENTAGONO',
-                'clase' => 'bg-success text-white',
+                'clase' => 'bg-success text-white fw-bold',
                 'key' => 'CUADRO_PENTAGONO'
             ]
         ]);
@@ -1129,13 +1129,13 @@ class CapturistaController extends Controller
             'tipo_resumen' => 3,
             'titulo_resumen' => 'Llaves de Fosa',
             'columnas' => [
-                'CUADRO' => ['clase' => 'bg-primary text-white', 'key' => 'CUADRO'],
-                'VOLANTE' => ['clase' => 'bg-info text-white', 'key' => 'VOLANTE'],
-                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white', 'key' => 'SIN INFORMACION']
+                'CUADRO' => ['clase' => 'bg-primary text-white fw-bold', 'key' => 'CUADRO'],
+                'VOLANTE' => ['clase' => 'bg-info text-white fw-bold', 'key' => 'VOLANTE'],
+                'SIN INFORMACION' => ['clase' => 'bg-secondary text-white fw-bold', 'key' => 'SIN INFORMACION']
             ],
             'ultima_columna' => [
                 'titulo' => 'TOTAL CUADRO + VOLANTE',
-                'clase' => 'bg-success text-white',
+                'clase' => 'bg-success text-white fw-bold',
                 'key' => 'CUADRO_VOLANTE'
             ]
         ]);
