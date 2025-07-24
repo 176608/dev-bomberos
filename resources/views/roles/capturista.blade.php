@@ -500,62 +500,88 @@ function setupCrudHandlers() {
 
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view")
             .done(function(modalHtml) {
-                // Eliminar modales anteriores completamente
-                $('.modal-view').each(function() {
-                    const modalInstance = bootstrap.Modal.getInstance(this);
-                    if (modalInstance) {
-                        modalInstance.dispose();
+                debugModal(modalHtml); // Agregar esta línea para debugging
+                
+                try {
+                    // Limpiar modales anteriores de forma más segura
+                    $('.modal').each(function() {
+                        const modalInstance = bootstrap.Modal.getInstance(this);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                            modalInstance.dispose();
+                        }
+                    });
+                    
+                    // Eliminar todos los modales del DOM
+                    $('.modal').remove();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('padding-right', '');
+                    
+                    // Verificar que el HTML del modal es válido
+                    if (!modalHtml || modalHtml.trim() === '') {
+                        throw new Error('HTML del modal está vacío');
                     }
-                    $(this).remove();
-                });
-                
-                // Eliminar cualquier backdrop residual
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-                
-                // Crear el modal y agregarlo al DOM
-                const $modal = $(modalHtml).addClass('modal-view');
-                $('body').append($modal);
-
-                // Usar un timeout más largo para asegurar que el DOM esté listo
-                setTimeout(function() {
-                    try {
-                        const modalElement = $modal[0];
-                        
-                        // Verificar que el elemento modal existe y tiene los atributos necesarios
-                        if (!modalElement || !modalElement.classList.contains('modal')) {
-                            console.error('Elemento modal no válido');
-                            return;
+                    
+                    // Crear el modal como elemento jQuery
+                    const $modal = $(modalHtml);
+                    
+                    // Verificar que se creó correctamente
+                    if ($modal.length === 0) {
+                        throw new Error('No se pudo crear el elemento modal');
+                    }
+                    
+                    // Agregar al DOM
+                    $('body').append($modal);
+                    
+                    // Buscar el elemento modal real (puede estar anidado)
+                    let modalElement = $modal.hasClass('modal') ? $modal[0] : $modal.find('.modal')[0];
+                    
+                    if (!modalElement) {
+                        throw new Error('No se encontró elemento modal válido');
+                    }
+                    
+                    // Asegurar que tiene las clases necesarias
+                    if (!modalElement.classList.contains('modal')) {
+                        modalElement.classList.add('modal');
+                    }
+                    
+                    // Crear la instancia del modal
+                    const modalInstance = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: true,
+                        focus: true
+                    });
+                    
+                    // Mostrar el modal
+                    modalInstance.show();
+                    
+                    // Configurar limpieza cuando se cierre
+                    $(modalElement).on('hidden.bs.modal', function() {
+                        try {
+                            modalInstance.dispose();
+                        } catch (e) {
+                            console.warn('Error al limpiar modal:', e);
                         }
                         
-                        const modalInstance = new bootstrap.Modal(modalElement, {
-                            backdrop: 'static',
-                            keyboard: true,
-                            focus: true
-                        });
-                        
-                        modalInstance.show();
-
-                        // Limpiar cuando se cierre
-                        $modal.on('hidden.bs.modal', function() {
-                            try {
-                                modalInstance.dispose();
-                            } catch (e) {
-                                console.warn('Error al limpiar modal:', e);
-                            }
-                            $(this).remove();
-                            
-                            // Limpiar cualquier residuo
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open');
-                        });
-                        
-                    } catch (error) {
-                        console.error('Error al inicializar modal:', error);
+                        // Remover del DOM
                         $modal.remove();
-                        mostrarToast('Error al mostrar los detalles del hidrante', 'error');
-                    }
-                }, 200);
+                        
+                        // Limpiar backdrop residual
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css('padding-right', '');
+                    });
+                    
+                } catch (error) {
+                    console.error('Error al procesar modal:', error);
+                    console.log('HTML recibido:', modalHtml);
+                    
+                    // Limpiar en caso de error
+                    $('.modal').remove();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('padding-right', '');
+                    
+                    mostrarToast('Error al mostrar los detalles del hidrante', 'error');
+                }
             })
             .fail(function(xhr) {
                 console.error('Error al cargar modal:', xhr);
@@ -1026,6 +1052,18 @@ function recargarSoloTabla(callback) {
             setTimeout(callback, 500);
         }
     });
+}
+
+/**
+ * Función auxiliar para debugging de modales
+ */
+function debugModal(modalHtml) {
+    console.log('=== DEBUG MODAL ===');
+    console.log('HTML length:', modalHtml.length);
+    console.log('Starts with:', modalHtml.substring(0, 100));
+    console.log('Contains modal class:', modalHtml.includes('class="modal"'));
+    console.log('Contains modal-dialog:', modalHtml.includes('modal-dialog'));
+    console.log('===================');
 }
 
 // ========================
