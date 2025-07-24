@@ -488,7 +488,6 @@ function setupCrudHandlers() {
         const $btn = $(this);
         const hidranteId = $btn.data('hidrante-id');
         
-        // Verificar que el hidranteId existe
         if (!hidranteId) {
             console.error('ID de hidrante no encontrado');
             return;
@@ -500,91 +499,69 @@ function setupCrudHandlers() {
 
         $.get("{{ url('/hidrantes') }}/" + hidranteId + "/view")
             .done(function(modalHtml) {
-                debugModal(modalHtml); // Agregar esta línea para debugging
-                
                 try {
-                    // Limpiar modales anteriores de forma más segura
+                    // Limpiar cualquier modal anterior completamente
                     $('.modal').each(function() {
-                        const modalInstance = bootstrap.Modal.getInstance(this);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                            modalInstance.dispose();
+                        try {
+                            const instance = bootstrap.Modal.getInstance(this);
+                            if (instance) {
+                                instance.dispose();
+                            }
+                        } catch (e) {
+                            // Ignorar errores de instancias
                         }
                     });
                     
-                    // Eliminar todos los modales del DOM
-                    $('.modal').remove();
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open').css('padding-right', '');
+                    // Remover elementos del DOM
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
                     
-                    // Verificar que el HTML del modal es válido
-                    if (!modalHtml || modalHtml.trim() === '') {
-                        throw new Error('HTML del modal está vacío');
+                    // Verificar que recibimos HTML válido
+                    if (!modalHtml || modalHtml.trim().length === 0) {
+                        throw new Error('Modal HTML vacío');
                     }
                     
-                    // Crear el modal como elemento jQuery
-                    const $modal = $(modalHtml);
+                    // Crear un contenedor temporal para verificar el contenido
+                    const $temp = $('<div>').html(modalHtml);
+                    const $modalElement = $temp.find('.modal').first();
                     
-                    // Verificar que se creó correctamente
-                    if ($modal.length === 0) {
-                        throw new Error('No se pudo crear el elemento modal');
+                    if ($modalElement.length === 0) {
+                        throw new Error('No se encontró elemento .modal en el HTML recibido');
                     }
                     
-                    // Agregar al DOM
-                    $('body').append($modal);
+                    // Agregar el modal al DOM
+                    $('body').append($modalElement);
                     
-                    // Buscar el elemento modal real (puede estar anidado)
-                    let modalElement = $modal.hasClass('modal') ? $modal[0] : $modal.find('.modal')[0];
-                    
-                    if (!modalElement) {
-                        throw new Error('No se encontró elemento modal válido');
-                    }
-                    
-                    // Asegurar que tiene las clases necesarias
-                    if (!modalElement.classList.contains('modal')) {
-                        modalElement.classList.add('modal');
-                    }
-                    
-                    // Crear la instancia del modal
+                    // Crear la instancia del modal usando el elemento real
+                    const modalElement = $modalElement[0];
                     const modalInstance = new bootstrap.Modal(modalElement, {
                         backdrop: 'static',
-                        keyboard: true,
-                        focus: true
+                        keyboard: true
                     });
                     
                     // Mostrar el modal
                     modalInstance.show();
                     
-                    // Configurar limpieza cuando se cierre
-                    $(modalElement).on('hidden.bs.modal', function() {
-                        try {
-                            modalInstance.dispose();
-                        } catch (e) {
-                            console.warn('Error al limpiar modal:', e);
-                        }
-                        
-                        // Remover del DOM
-                        $modal.remove();
-                        
-                        // Limpiar backdrop residual
+                    // Limpiar cuando se cierre
+                    $modalElement.on('hidden.bs.modal', function() {
+                        modalInstance.dispose();
+                        $modalElement.remove();
                         $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').css('padding-right', '');
+                        $('body').removeClass('modal-open').removeAttr('style');
                     });
                     
                 } catch (error) {
-                    console.error('Error al procesar modal:', error);
-                    console.log('HTML recibido:', modalHtml);
+                    console.error('Error al mostrar modal:', error.message);
                     
                     // Limpiar en caso de error
-                    $('.modal').remove();
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open').css('padding-right', '');
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
                     
                     mostrarToast('Error al mostrar los detalles del hidrante', 'error');
                 }
             })
             .fail(function(xhr) {
-                console.error('Error al cargar modal:', xhr);
+                console.error('Error al cargar modal:', xhr.status, xhr.statusText);
                 mostrarToast('Error al cargar los detalles del hidrante', 'error');
             })
             .always(function() {
