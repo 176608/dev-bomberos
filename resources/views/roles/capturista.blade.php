@@ -11,6 +11,10 @@
         object-fit: contain;
     }
 
+    .card-body {
+        background-color: rgba(165, 165, 165, 0.8);
+    }
+
     .card-title {
         margin-left: 1rem;
         font-weight: bold;
@@ -211,7 +215,7 @@
                     <button class="btn btn-success mb-2" id="btnVerTabla">
                         <i class="bi bi-table"></i> Ver la tabla
                     </button>
-                    <button class="btn btn-info mb-2" id="btnResumen">
+                    <button class="btn btn-success mb-2" id="btnResumen">
                         <i class="bi bi-gear-fill"></i>
                         <span class="button-text">Ver resumen de hidrantes</span>
                         <span class="spinner-border spinner-border-sm ms-1 d-none" id="spinnerResumen" role="status" aria-hidden="true"></span>
@@ -581,7 +585,7 @@ function normalizarEstilosTabla() {
     });
     
     // Restaurar el estilo alternado de filas
-    $('#hidrantesConfigTable tbody tr:nth-child(odd)').css('background-color', '#f9f9f9');
+    $('#hidrantesConfigTable tbody tr:nth-child(odd)').css('background-color', '#eee2e2ff');
     $('#hidrantesConfigTable tbody tr:nth-child(even)').css('background-color', '#ffffff');
     
     // Eliminar cualquier borde adicional en celdas

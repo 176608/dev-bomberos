@@ -2,7 +2,7 @@
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-secondary text-white">
                 <div class="row align-items-center">
                     <div class="col-6">
                         <h5 class="mb-0">Resumen de Hidrantes por Estación y {{ $titulo_resumen }}</h5>
