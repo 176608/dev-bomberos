@@ -1,9 +1,13 @@
 <div class="card mt-4 mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="card-title m-0">Reporte Hidrantes Configurado</h4>
-            <div id="exportButtonsContainer" class="d-flex">
-                <!-- Los botones se moverán aquí automáticamente -->
+        <div class="row align-items-center mb-3">
+            <div class="col-6">
+                <h4 class="card-title m-0">Reporte Hidrantes Configurado</h4>
+            </div>
+            <div class="col-6">
+                <div id="exportButtonsContainer" class="d-flex justify-content-end">
+                    <!-- Los botones se moverán aquí automáticamente -->
+                </div>
             </div>
         </div>
         <div id="tablaLoader" class="text-center my-5">
