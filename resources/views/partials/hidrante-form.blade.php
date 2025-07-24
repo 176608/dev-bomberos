@@ -4,9 +4,9 @@
             <form action="{{ route('hidrantes.update', $hidrante->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="modal-header">
-                    <h5 class="modal-title">Editar Hidrante #{{ $hidrante->id }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header d-flex justify-content-center">
+                    <h5 class="modal-title text-center">Editar Hidrante #{{ $hidrante->id }}</h5>
+                    <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="background-color: rgba(255, 185, 185, 0.51);">
                     <!-- Primera Sección - Información Básica -->
@@ -53,10 +53,10 @@
                                     <!-- Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            Calle
                                             <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}">
                                                 <i class="bi bi-exclamation-triangle-fill text-danger"></i>
                                             </span>
+                                            Entre <span id="edit_calle_tipo_display" class="d-none fw-bold text-primary"></span>:
                                         </label>
                                         <div class="input-group mb-2">
                                             <select class="form-select select2-search" name="id_calle" id="edit_id_calle">
@@ -89,7 +89,9 @@
                                     </div>
                                     <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Y Calle</label>
+                                        <label class="form-label">
+                                            Y <span id="edit_y_calle_tipo_display" class="d-none fw-bold text-primary"></span>:
+                                        </label>
                                         <div class="input-group mb-2">
                                             <select class="form-select select2-search" name="id_y_calle" id="edit_id_y_calle">
                                                 <option value="">Buscar nueva calle ...</option>
@@ -124,7 +126,9 @@
                                 <div class="row">
                                     <!-- Colonia -->
                                     <div class="col-md-8 mb-3 offset-md-2">
-                                        <label class="form-label">Colonia</label>
+                                        <label class="form-label">
+                                            En <span id="edit_colonia_tipo_display" class="d-none fw-bold text-primary"></span>:
+                                        </label>
                                         <div class="input-group mb-2">
                                             <select class="form-select select2-search" name="id_colonia" id="edit_id_colonia">
                                                 <option value="">Buscar nueva colonia...</option>
@@ -314,14 +318,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-center">
                     <span class="d-inline-block" tabindex="0" id="edit_popoverGuardarHidrante{{ $hidrante->id }}"
                         data-bs-toggle="popover"
                         data-bs-trigger="hover focus"
                         data-bs-placement="top"
                         title="¡Atención!"
                         data-bs-content="Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.">
-                        <button type="submit" class="btn btn-danger" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
+                        <button type="submit" class="btn btn-danger me-2" id="edit_btnGuardarHidrante{{ $hidrante->id }}" disabled>
                             Guardar Cambios
                         </button>
                     </span>

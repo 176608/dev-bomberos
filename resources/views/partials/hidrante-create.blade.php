@@ -3,8 +3,8 @@
         <div class="modal-content">
             <form action="{{ route('hidrantes.store') }}" method="POST" id="formCrearHidrante">
                 @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Registrar Hidrante</h5>
+                <div class="modal-header d-flex justify-content-center">
+                    <h5 class="modal-title text-center">Registrar Hidrante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="background-color: rgba(188, 250, 240, 0.54);">
@@ -79,11 +79,6 @@
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="calle" id="calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
-                                        <small class="form-text text-muted">
-                                            <div id="calle_selected_container" class="d-none">
-                                                Tipo y nombre: <span id="calle_selected_tipo" class="fw-bold"></span>
-                                            </div>
-                                        </small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
@@ -100,11 +95,6 @@
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="y_calle" id="y_calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
-                                        <small class="form-text text-muted">
-                                            <div id="y_calle_selected_container" class="d-none">
-                                                Tipo y nombre: <span id="y_calle_selected_tipo" class="fw-bold"></span>
-                                            </div>
-                                        </small>
                                     </div>
                                 </div>
                                 <hr class="my-2">
@@ -124,11 +114,6 @@
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="colonia" id="colonia_manual" placeholder="O escribe manualmente si no aparece en la lista">
-                                        <small class="form-text text-muted">
-                                            <div id="colonia_selected_container" class="d-none">
-                                                Tipo y nombre: <span id="colonia_selected_tipo" class="fw-bold"></span>
-                                            </div>
-                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -313,14 +298,14 @@
                     
                 </div>
 
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-center">
                     <span class="d-inline-block" tabindex="0" id="popoverRegistrarHidrante"
                           data-bs-toggle="popover"
                           data-bs-trigger="hover focus"
                           data-bs-placement="top"
                           title="¡Atención!"
                           data-bs-content="Debe seleccionar una calle (o marcar como pendiente) y definir el Estado del Hidrante.">
-                        <button type="submit" class="btn btn-danger" id="btnRegistrarHidrante" disabled>
+                        <button type="submit" class="btn btn-danger me-2" id="btnRegistrarHidrante" disabled>
                             Registrar Hidrante
                         </button>
                     </span>
