@@ -698,9 +698,8 @@ function inicializarDataTableServerSide() {
         pageLength: 25,
         lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
         
-        // Cambiar configuración del DOM para mover los botones arriba
-        dom: "<'row'<'col-sm-12'B>>" +
-             "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+        // DOM sin botones en la tabla principal
+        dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         buttons: [
@@ -763,6 +762,10 @@ function inicializarDataTableServerSide() {
         drawCallback: function() {
             $('#tablaLoader').hide();
             $('.table-responsive').show();
+            
+            // Mover los botones al área del título después de que la tabla se inicialice
+            moverBotonesAlTitulo();
+            
             scrollToTablaHidrantes();
         }
     });
@@ -770,6 +773,39 @@ function inicializarDataTableServerSide() {
     // Hacer disponible la tabla globalmente
     window.hidrantesTable = table;
     window.configTable = table; 
+}
+
+/**
+ * Mueve los botones de exportación al área del título
+ */
+function moverBotonesAlTitulo() {
+    // Buscar el contenedor de botones personalizado en el HTML
+    const contenedorBotones = document.getElementById('exportButtonsContainer');
+    
+    if (contenedorBotones && window.hidrantesTable) {
+        // Limpiar el contenedor si ya tiene botones
+        contenedorBotones.innerHTML = '';
+        
+        // Obtener los botones de DataTables
+        const botones = window.hidrantesTable.buttons();
+        
+        // Crear los botones manualmente y agregarlos al contenedor personalizado
+        botones.each(function(button, index) {
+            const btnConfig = window.hidrantesTable.button(index).inst.s.buttons[index];
+            const btnElement = document.createElement('button');
+            btnElement.className = btnConfig.className;
+            btnElement.innerHTML = btnConfig.text;
+            btnElement.title = btnConfig.titleAttr;
+            btnElement.style.marginRight = '5px';
+            
+            // Agregar el evento click
+            btnElement.addEventListener('click', function() {
+                window.hidrantesTable.button(index).trigger();
+            });
+            
+            contenedorBotones.appendChild(btnElement);
+        });
+    }
 }
 
 /**

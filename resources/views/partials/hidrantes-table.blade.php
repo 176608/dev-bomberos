@@ -1,7 +1,10 @@
 <div class="card mt-4 mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title m-0">Reporte Hidrantes Configurado</h5>
+            <h4 class="card-title m-0">Reporte Hidrantes Configurado</h4>
+            <div id="exportButtonsContainer" class="d-flex">
+                <!-- Los botones se moverán aquí automáticamente -->
+            </div>
         </div>
         <div id="tablaLoader" class="text-center my-5">
             <div class="spinner-border text-primary" role="status"></div>
