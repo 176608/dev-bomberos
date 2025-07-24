@@ -1,5 +1,5 @@
 <div class="modal fade modal-create" id="crearHidranteModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl"> <!-- Cambio de modal-lg a modal-xl -->
         <div class="modal-content">
             <form action="{{ route('hidrantes.store') }}" method="POST" id="formCrearHidrante">
                 @csrf
@@ -10,15 +10,11 @@
                 <div class="modal-body" style="background-color: rgba(201, 201, 201, 0.8);">
                     
                     <div class="row">
-                        
                         <div class="card text-center p-0">
-
                             <div class="card-header bg-primary text-white">
                                 Información Básica
                             </div>
-
                             <div class="card-body">
-
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Fecha de Inspección:</label>
@@ -53,27 +49,25 @@
                                 </div>-->
 
                             </div>
-
                         </div>
-
                     </div>
 
                     <hr class="my-4">
 
                     <div class="row">
                         <div class="card text-center p-0">
-
                             <div class="card-header bg-success text-white d-flex justify-content-center align-items-center">
                                 <span class="text-center w-100">Ubicación</span>
                             </div>
-
                             <div class="card-body">
-                                
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionCalle"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
-                                        Entre <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="calle_tipo_display"> -Calle-:</label>
+                                            <span id="iconoExclamacionCalle">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                            </span>
+                                            Entre <span id="calle_tipo_display" class="d-none fw-bold text-primary"></span> -Calle-:
+                                        </label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_calle" id="id_calle">
@@ -93,8 +87,11 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionYCalle"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        Y <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="y_calle_tipo_display">:</label>
+                                            <span id="iconoExclamacionYCalle">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                            </span>
+                                            Y <span id="y_calle_tipo_display" class="d-none fw-bold text-primary"></span>:
+                                        </label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_y_calle" id="id_y_calle">
@@ -103,7 +100,6 @@
                                                         <option value="{{ $calle->IDKEY }}" data-tipo="{{ $calle->Tipovial }}">{{ $calle->Nomvial }}</option>
                                                     @endforeach
                                                 </select>
-                                                
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="y_calle" id="y_calle_manual" placeholder="O escribe manualmente si no aparece en la lista">
@@ -118,8 +114,11 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <label class="form-label">
-                                            <span id="iconoExclamacionColonia"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
-                                        En <input type="text" class="form-control tipo-field" readonly placeholder="Tipo" style="max-width: 100px;" id="colonia_tipo_display">:</label>
+                                            <span id="iconoExclamacionColonia">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                            </span>
+                                            En <span id="colonia_tipo_display" class="d-none fw-bold text-primary"></span>:
+                                        </label>
                                         <div class="mb-2">
                                             <div class="input-group">
                                                 <select class="form-select select2-search" name="id_colonia" id="id_colonia">
@@ -128,7 +127,6 @@
                                                         <option value="{{ $colonia->IDKEY }}" data-tipo="{{ $colonia->TIPO }}">{{ $colonia->NOMBRE }}</option>
                                                     @endforeach
                                                 </select>
-                                                
                                             </div>
                                         </div>
                                         <input type="text" class="form-control" name="colonia" id="colonia_manual" placeholder="O escribe manualmente si no aparece en la lista">
@@ -139,24 +137,18 @@
                                         </small>
                                     </div>
                                 </div>
-
                             </div>
-                            
                         </div>
                     </div>
 
                     <hr class="my-4">
 
-                    
                     <div class="row">
                         <div class="card text-center p-0">
-
                             <div class="card-header bg-primary text-white">
                                 Estado y Características
                             </div>
-
                             <div class="card-body">
-
                                 <div class="row">
                                     <div class="col-md-6 mb-3 offset-md-3">
                                         <label class="form-label">
@@ -174,22 +166,28 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Marca:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionMarca">
+                                                    <i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i>
+                                                </span>
+                                                Marca:
+                                            </span>
                                             <input type="text" class="form-control" name="marca" placeholder="Ej. MUELLER" required>
                                         </div>
-                                        <span id="iconoExclamacionMarca"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Año:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionAnio">
+                                                    <i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i>
+                                                </span>
+                                                Año:
+                                            </span>
                                             <input type="text" class="form-control" name="anio" placeholder="Año del modelo del hidrante" required>
                                         </div>
-                                        <span id="iconoExclamacionAnio"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
 
@@ -197,29 +195,35 @@
 
                     <div class="row">
                         <div class="card text-center p-0">
-
                             <div class="card-header bg-success text-white">
                                 Características Técnicas
                             </div>
-
                             <div class="card-body">
-
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Llave Hidrante:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionLlave_Hidrante">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning mx-1"></i>
+                                                </span>
+                                                Llave Hidrante:
+                                            </span>
                                             <select class="form-select" name="llave_hidrante" required>
                                                 <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                                 <option value="PENTAGONO">Pentágono</option>
                                                 <option value="CUADRO">Cuadro</option>
                                             </select>
                                         </div>
-                                        <span id="iconoExclamacionLlave_Hidrante"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Presión de Agua:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionPresion_agua">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning mx-1"></i>
+                                                </span>
+                                                Presión de Agua:
+                                            </span>
                                             <select class="form-select" name="presion_agua" required>
                                                 <option value="S/I" selected>Sin definir, dejar pendiente...</option>
                                                 <option value="NULA">Nula</option>
@@ -228,25 +232,33 @@
                                                 <option value="ALTA">Alta</option>
                                             </select>
                                         </div>
-                                        <span id="iconoExclamacionPresion_agua"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Llave Fosa:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionLlave_fosa">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning mx-1"></i>
+                                                </span>
+                                                Llave Fosa:
+                                            </span>
                                             <select class="form-select" name="llave_fosa" required>
                                                 <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                                 <option value="CUADRO">Cuadro</option>
                                                 <option value="VOLANTE">Volante</option>
                                             </select>
                                         </div>
-                                        <span id="iconoExclamacionLlave_fosa"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Conectado a Tubo de:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionHidrante_conectado_tubo">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning mx-1"></i>
+                                                </span>
+                                                Conectado a Tubo de:
+                                            </span>
                                             <select class="form-select" name="hidrante_conectado_tubo" required>
                                                 <option value="S/I" selected >Sin definir, dejar pendiente...</option>
                                                 <option value="4'">4'</option>
@@ -254,22 +266,23 @@
                                                 <option value="8'">8'</option>
                                             </select>
                                         </div>
-                                        <span id="iconoExclamacionHidrante_conectado_tubo"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 offset-md-3 mb-3">
                                         <div class="input-group">
-                                            <span class="input-group-text">Ubicación Fosa:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionUbicacion_fosa">
+                                                    <i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i>
+                                                </span>
+                                                Ubicación Fosa:
+                                            </span>
                                             <input type="text" class="form-control" name="ubicacion_fosa" placeholder="A + N + metros, $Texto despues de numero$" required>
                                         </div>
-                                        <span id="iconoExclamacionUbicacion_fosa"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
 
@@ -290,10 +303,14 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3 offset-md-2">
                                         <div class="input-group">
-                                            <span class="input-group-text">Oficial:</span>
+                                            <span class="input-group-text">
+                                                <span id="iconoExclamacionOficial">
+                                                    <i class="bi bi-exclamation-triangle-fill text-danger mx-1"></i>
+                                                </span>
+                                                Oficial:
+                                            </span>
                                             <input type="text" class="form-control" name="oficial" placeholder="Nombre del oficial responsable" required>
                                         </div>
-                                        <span id="iconoExclamacionOficial"><i class="bi bi-exclamation-triangle-fill text-danger"></i></span>
                                     </div>
                                 </div>
                             </div>
@@ -461,8 +478,8 @@ $(document).ready(function() {
                 // Deshabilitar input manual y limpiar su contenido
                 $manual.prop('disabled', true).val('').addClass('input-disabled');
                 
-                // Mostrar tipo en el campo pequeño
-                $tipoDisplay.val(tipo || '');
+                // Mostrar tipo en el label
+                $tipoDisplay.text(`(${tipo})`).removeClass('d-none');
                 
                 // Mostrar información en el contenedor pequeño
                 const containerId = selectId.replace('#', '#') + '_selected_container';
@@ -477,8 +494,8 @@ $(document).ready(function() {
             // Habilitar input manual y restaurar su valor anterior si lo tenía
             $manual.prop('disabled', false).removeClass('input-disabled');
             
-            // Limpiar tipo display
-            $tipoDisplay.val('');
+            // Ocultar tipo en el label
+            $tipoDisplay.addClass('d-none');
             
             // Ocultar información
             const containerId = selectId.replace('#', '#') + '_selected_container';
@@ -649,9 +666,6 @@ $(document).ready(function() {
                 alert('El campo Calle es obligatorio. Selecciona una opción o escribe manualmente.');
                 return false;
             }
-            
-            // NO PROCESAR NADA - Solo enviar tal como está
-            // El servidor decidirá qué usar basándose en qué campo tiene contenido
             
             // Validación de estado_hidrante
             const estadoVal = $('select[name="estado_hidrante"]').val();
