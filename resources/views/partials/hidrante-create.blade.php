@@ -457,14 +457,19 @@ $(document).ready(function() {
                 // Deshabilitar input manual y limpiar su contenido
                 $manual.prop('disabled', true).val('').addClass('input-disabled');
                 
-                // Mostrar tipo en el label
-                $tipoDisplay.text(`(${tipo})`).removeClass('d-none');
+                // Mostrar tipo en el label SIN PARÉNTESIS
+                $tipoDisplay.text(`${tipo}`).removeClass('d-none');
                 
-                // Mostrar información en el contenedor pequeño
-                const containerId = selectId.replace('#', '#') + '_selected_container';
-                const tipoId = selectId.replace('#', '#') + '_selected_tipo';
-                $(containerId).removeClass('d-none');
-                $(tipoId).text(tipo + ' ' + selectedText);
+                // Para formulario de edición: manejar contenedores
+                if (selectId.includes('edit_')) {
+                    const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
+                    const tipoId = selectId.replace('#edit_id_', '#edit_') + '_selected_tipo';
+                    const actualContainer = selectId.replace('#edit_id_', '#edit_') + '_actual_container';
+                    
+                    $(containerId).removeClass('d-none');
+                    $(actualContainer).addClass('d-none');
+                    $(tipoId).text(tipo + ' ' + selectedText);
+                }
             }
         });
         
@@ -476,9 +481,14 @@ $(document).ready(function() {
             // Ocultar tipo en el label
             $tipoDisplay.addClass('d-none');
             
-            // Ocultar información
-            const containerId = selectId.replace('#', '#') + '_selected_container';
-            $(containerId).addClass('d-none');
+            // Para formulario de edición: manejar contenedores
+            if (selectId.includes('edit_')) {
+                const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
+                const actualContainer = selectId.replace('#edit_id_', '#edit_') + '_actual_container';
+                
+                $(containerId).addClass('d-none');
+                $(actualContainer).removeClass('d-none');
+            }
         });
         
         // Al escribir en input manual
