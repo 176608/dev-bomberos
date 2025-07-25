@@ -16,7 +16,7 @@ class CheckRole
         $user = auth()->user();
         
         // CAMBIO PRINCIPAL: Desarrollador tiene acceso a todo
-        if ($user->hasRole('desarrollador')) {
+        if ($user->hasRole('Desarrollador')) {
             return $next($request);
         }
         
@@ -28,11 +28,11 @@ class CheckRole
         }
 
         // Si no tiene el rol requerido, redirigir según su rol actual
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('Administrador')) {
             return redirect()->route('admin.panel');
-        } elseif ($user->hasRole('capturista')) {
+        } elseif ($user->hasRole('Capturista')) {
             return redirect()->route('capturista.panel');
-        } elseif ($user->hasRole('desarrollador')) {
+        } elseif ($user->hasRole('Desarrollador')) {
             return redirect()->route('dev.panel');
         }
 

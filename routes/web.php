@@ -28,30 +28,30 @@ Route::post('/password/reset', [PasswordResetController::class, 'update'])
 // Rutas protegidas por autenticación
 Route::middleware(['auth'])->group(function () {
     
-    // Admin panel - DESARROLLADOR INCLUIDO
+    // Admin panel - CORREGIR NOMBRES DE ROLES
     Route::get('/admin', [AdminController::class, 'index'])
         ->name('admin.panel')
-        ->middleware('role:admin,desarrollador');
+        ->middleware('role:Administrador,Desarrollador');
         
     // Desarrollador panel
     Route::get('/desarrollador', [DesarrolladorController::class, 'index'])
         ->name('dev.panel')
-        ->middleware('role:desarrollador');
+        ->middleware('role:Desarrollador');
         
-    // Capturista panel - DESARROLLADOR INCLUIDO
+    // Capturista panel - CORREGIR NOMBRES DE ROLES
     Route::get('/capturista', [CapturistaController::class, 'index'])
         ->name('capturista.panel')
-        ->middleware('role:capturista,desarrollador');
+        ->middleware('role:Capturista,Desarrollador');
 
-    // Admin CRUD routes - DESARROLLADOR INCLUIDO
-    Route::middleware('role:admin,desarrollador')->group(function () {
+    // Admin CRUD routes - CORREGIR NOMBRES DE ROLES
+    Route::middleware('role:Administrador,Desarrollador')->group(function () {
         Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
         Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     });
 
-    // Rutas de hidrantes - DESARROLLADOR INCLUIDO
-    Route::middleware('role:capturista,admin,desarrollador')->group(function () {
+    // Rutas de hidrantes - CORREGIR NOMBRES DE ROLES
+    Route::middleware('role:Capturista,Administrador,Desarrollador')->group(function () {
         Route::get('/hidrantes/create', [CapturistaController::class, 'create'])->name('hidrantes.create');
         Route::post('/hidrantes', [CapturistaController::class, 'store'])->name('hidrantes.store');
         Route::put('/hidrantes/{hidrante}', [CapturistaController::class, 'update'])->name('hidrantes.update');
@@ -63,8 +63,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/hidrantes/resumen', [CapturistaController::class, 'resumenHidrantes'])->name('hidrantes.resumen');
     });
 
-    // Rutas de configuración - DESARROLLADOR INCLUIDO
-    Route::prefix('configuracion')->middleware('role:capturista,admin,desarrollador')->group(function () {
+    // Rutas de configuración - CORREGIR NOMBRES DE ROLES
+    Route::prefix('configuracion')->middleware('role:Capturista,Administrador,Desarrollador')->group(function () {
         Route::post('/save', [CapturistaController::class, 'guardarConfiguracion'])->name('configuracion.save');
         Route::get('/get', [CapturistaController::class, 'getConfiguracion'])->name('configuracion.get');
         Route::get('/capturista/configuracion-modal', [CapturistaController::class, 'configuracionModal'])
@@ -72,8 +72,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update-filtros', [CapturistaController::class, 'updateFiltros'])->name('configuracion.update-filtros');
     });
 
-    // Para cargar el panel auxiliar - DESARROLLADOR INCLUIDO
+    // Para cargar el panel auxiliar - CORREGIR NOMBRES DE ROLES
     Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])
         ->name('capturista.panel-auxiliar')
-        ->middleware('role:capturista,desarrollador');
+        ->middleware('role:Capturista,Desarrollador');
 });

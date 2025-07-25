@@ -57,7 +57,12 @@ class User extends Authenticatable
      */
     public function hasRole($role)
     {
-        // Normalizar para ser case-insensitive y manejar variaciones
+        // Primero comparar exacto (case-sensitive)
+        if ($this->role === $role) {
+            return true;
+        }
+        
+        // Si no coincide exacto, hacer comparación case-insensitive
         $userRole = strtolower($this->role);
         $checkRole = strtolower($role);
         
@@ -70,7 +75,6 @@ class User extends Authenticatable
             'dev' => 'desarrollador',
         ];
         
-        // Usar el mapeo si existe, sino usar el rol tal como viene
         $normalizedCheckRole = $roleMap[$checkRole] ?? $checkRole;
         $normalizedUserRole = $roleMap[$userRole] ?? $userRole;
         
@@ -95,14 +99,6 @@ class User extends Authenticatable
         }
 
         return false;
-    }
-
-    /**
-     * Obtener el rol en minúsculas para comparaciones
-     */
-    public function getRoleAttribute($value)
-    {
-        return $value; // Mantener el valor original de la DB
     }
 
     /**
