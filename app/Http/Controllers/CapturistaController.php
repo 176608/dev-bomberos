@@ -18,7 +18,8 @@ class CapturistaController extends Controller
 
     public function index(Request $request)
     {
-        if (!auth()->check() || auth()->user()->role !== 'Capturista') {
+        // CAMBIO: Permitir acceso a Capturista Y Desarrollador
+        if (!auth()->check() || (auth()->user()->role !== 'Capturista' && auth()->user()->role !== 'Desarrollador')) {
             return redirect()->route('login');
         }
 
