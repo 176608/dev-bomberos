@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Bomberos\Auth;
 
 use App\Http\Controllers\Bomberos\Controller;
 use App\Providers\RouteServiceProvider;
-use App\Models\Bomberos\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
