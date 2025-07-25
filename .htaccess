@@ -1,11 +1,41 @@
 <IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
     RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Si la petición es para la carpeta public directamente, redirigir a la raíz
+    RewriteCond %{THE_REQUEST} \s/+public/index\.php[?\s] [NC]
+    RewriteRule ^public/index\.php$ / [R=301,L]
     
-    # Redirigir todo el tráfico a la carpeta public
+    # Si la petición es para /public/, redirigir a la raíz
+    RewriteCond %{THE_REQUEST} \s/+public/([^\s]*) [NC]
+    RewriteRule ^public/(.*)$ /$1 [R=301,L]
+
+    # Si no es un archivo o directorio que existe en la raíz
+    # y no está ya apuntando a public, redirigir internamente a public
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ /public/$1 [L]
-    
-    # Redirigir /public/index.php a solo /
-    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+public/index\.php[\s?] [NC]
-    RewriteRule ^ / [R=301,L]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # En public: Send Requests To Front Controller...
+    RewriteCond %{REQUEST_URI} ^/public/
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^public/(.*)$ /public/index.php [L]
 </IfModule>
