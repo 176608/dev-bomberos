@@ -46,7 +46,6 @@
     <!-- Reemplazada la sección de la barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
-            <img src="{{ asset('img/logo/IMIP_logo00.png') }}" alt="Logo imip" height="50" class="d-inline-block align-text-top">
             <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -63,10 +62,33 @@
                             {{-- CAMBIO: Desarrollador ve todas las opciones --}}
                             @if(auth()->user()->role === 'Desarrollador')
                                 {{-- Panel Desarrollador --}}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('dev.panel') }}">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
                                     </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ route('dev.panel') }}">Panel Principal</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        
+                                        {{-- SIGEM Original (PHP) --}}
+                                        <li><h6 class="dropdown-header">SIGEM Original</h6></li>
+                                        <li><a class="dropdown-item" href="/geografico">
+                                            <i class="bi bi-geo-alt text-primary"></i> SIGEM Público Original
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('subtema.index') }}">
+                                            <i class="bi bi-shield-check text-primary"></i> SIGEM Admin Original
+                                        </a></li>
+                                        
+                                        {{-- SIGEM Laravel (Nuevo) --}}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><h6 class="dropdown-header">SIGEM Laravel</h6></li>
+                                        <li><a class="dropdown-item" href="{{ route('sigem.laravel.public') }}">
+                                            <i class="bi bi-geo-alt text-success"></i> SIGEM Laravel Público
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('sigem.laravel.admin') }}">
+                                            <i class="bi bi-shield-check text-success"></i> SIGEM Laravel Admin
+                                        </a></li>
+                                    </ul>
                                 </li>
                                 {{-- Panel Admin (acceso desarrollador) --}}
                                 <li class="nav-item">
@@ -89,8 +111,21 @@
                             @else
                                 {{-- Menú normal para otros roles --}}
                                 @if(auth()->user()->role === 'Administrador')
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-gear"></i> SIGEM
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/geografico">
+                                                <i class="bi bi-eye"></i> Vista Pública
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="{{ route('subtema.index') }}">
+                                                <i class="bi bi-tools"></i> Panel Admin
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="{{ route('sigem.laravel.admin') }}">
+                                                <i class="bi bi-gear"></i> Nuevo Admin Laravel
+                                            </a></li>
+                                        </ul>
                                     </li>
                                 @elseif(auth()->user()->role === 'Capturista') 
                                     <li class="nav-item">
