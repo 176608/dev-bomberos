@@ -1,0 +1,21 @@
+﻿Registro,Dato,Fecha
+"Temperatura más alta",45.5°C,"30 de junio de 1994"
+"Primer día con 32°C o más",32.7°C,"18 de marzo de 1907"
+"Último día con 32°C o más",32.2°C,"26 de octubre de 1979"
+"Promedio de días con 38°C o más","15.4 días",
+"Primer día con 38°C o más",37.7°C,"7 de mayo de 2020"
+"Último día con 38°C o más",38.33°C,"16 de septiembre de 1956"
+"Mayor número de días con 38°C o más","66 días",1884
+"Menor número de días con 38°C o más","1 día",1967
+"Número de días consecutivos con 38°C o más",23,"23 de junio al 15 de julio de 1994"
+"Número de días consecutivos con 32°C o más",106,"27 de mayo al 9 de septiembre de 2015"
+"Promedio anual de temperaturas máximas y mínimas","25.06°C max/11.17°C min",
+"Temperatura más baja",-22°C,"11 de enero de 1962"
+"Primera ocurrencia de la primer helada del otoño",-1.11°C,"16 de octubre de 1880"
+"Última ocurrencia de la primer helada del otoño",0°C,"20 de diciembre de 1939"
+"Primera ocurrencia de la última helada de la primavera",-2.8°C,"28 de enero de 1925"
+"Última ocurrencia de la última helada de la primavera",-0.5°C,"2 de mayo de 1967"
+"Promedio de fechas de la primera/última helada",0°C,"13 de noviembre/17 de marzo"
+"Máxima más baja",-9.4°C,"2 de febrero de 2011"
+"Mínima más alta",29.4°C,"1 y 3 de julio de 1994"
+"Mayor número de horas consecutivas con temperaturas bajo 0","114 hrs","8:20 PM del 30 de diciembre de 1946 hasta las 2:20 PM del 4 de enero de 1947"

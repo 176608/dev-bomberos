@@ -1,5 +1,5 @@
 <?php
-
+/*ARCHIVO BOMBEROS - NO ELIMINAR COMENTARIO */
 namespace App\Http\Middleware;
 
 use Closure;
