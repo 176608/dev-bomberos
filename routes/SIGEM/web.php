@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\TemaController;
 use App\Http\Controllers\SubtemaController;
-use App\Http\Controllers\GeograficoController;
+//use App\Http\Controllers\GeograficoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ImagenesController;
 use App\Http\Controllers\ConsultaExpressDatoController;
