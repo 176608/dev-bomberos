@@ -1,4 +1,5 @@
 <?php
+/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 
 return [
     /*
@@ -61,8 +62,10 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Bomberos\User::class, // ← CAMBIO: Agregar Bomberos
         ],
+
+        // Si tienes otros providers, mantenerlos igual
     ],
 
     /*
