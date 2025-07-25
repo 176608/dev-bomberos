@@ -8,6 +8,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
+// IMPORTANTE: Crear la ruta dashboard.default que falta
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.default');
+
 // Ruta raíz que redirige según autenticación
 Route::get('/', function () {
     if (auth()->check()) {
@@ -22,29 +25,13 @@ Route::get('/', function () {
             return redirect()->route('dev.panel');
         }
         
-        // Si no tiene rol específico, ir al dashboard
+        // Si no tiene rol específico, ir al dashboard (LANDING PAGE)
         return redirect()->route('dashboard.default');
     }
     
-    // Si no está autenticado, mostrar página de inicio o redirigir al login
-    return redirect()->route('login');
+    // CAMBIO IMPORTANTE: Si no está autenticado, ir al dashboard (landing page), NO al login
+    return redirect()->route('dashboard.default');
 })->name('home');
-
-// Ruta específica para el dashboard público
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.default');
-
-// Manejar rutas legacy y variaciones de URL
-Route::get('/bev-bomberos', function () {
-    return redirect('/');
-});
-
-Route::get('/public', function () {
-    return redirect('/');
-});
-
-Route::get('/index.php', function () {
-    return redirect('/');
-});
 
 // Rutas de autenticación
 Route::middleware('web')->group(function () {
@@ -52,6 +39,12 @@ Route::middleware('web')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
+
+// Rutas de reseteo de contraseña
+Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
+    ->name('password.reset.form');
+Route::post('/password/reset', [PasswordResetController::class, 'update'])
+    ->name('password.reset.update');
 
 // Rutas por rol (protegidas)
 Route::middleware(['auth'])->group(function () {
@@ -99,14 +92,11 @@ Route::middleware(['auth'])->group(function () {
     // Para cargar el panel auxiliar
     Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])->name('capturista.panel-auxiliar');
 });
-
+/*
 // Rutas específicas para el reseteo de contraseña
 Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
     ->name('password.reset.form');
 Route::post('/password/reset', [PasswordResetController::class, 'update'])
     ->name('password.reset.update');
-
-// Ruta para verificar el email en el login
-Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
-
+*/
 
