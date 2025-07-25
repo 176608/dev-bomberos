@@ -1,21 +1,16 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Models;
+namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
-class Calles extends Model
+
+class CatalogoCalle extends Model
 {
     protected $table = 'catalogocalle';
     
     protected $primaryKey = 'IDKEY';
 
-    protected $fillable = [
-        'Nomvial',
-        'Tipovial',
-        'CLAVE'
-    ];
-
-    public $timestamps = false; // If the table doesn't have created_at and updated_at columns
+    public $timestamps = false;
 }
 
 /*

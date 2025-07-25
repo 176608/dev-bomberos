@@ -1,6 +1,6 @@
 <?php
 /* <!-- Archivo Bomberos & SIGEM- NO ELIMINAR COMENTARIO --> */
-namespace App\Models;
+namespace App\Models\Bomberos;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

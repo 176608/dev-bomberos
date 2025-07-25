@@ -1,14 +1,14 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Bomberos;
 
-use App\Models\Hidrante;
-use App\Models\Colonias;
-use App\Models\Calles;
-use App\Models\CatalogoCalle;
-use App\Models\ConfiguracionCapturista;
+use App\Models\Bomberos\Hidrante;
+use App\Models\Bomberos\Colonias;
+use App\Models\Bomberos\Calles;
+use App\Models\Bomberos\CatalogoCalle;
+use App\Models\Bomberos\ConfiguracionCapturista;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;

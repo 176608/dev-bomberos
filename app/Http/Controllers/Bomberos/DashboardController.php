@@ -1,8 +1,8 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Bomberos;
 
-use App\Models\Hidrante;
+use App\Models\Bomberos\Hidrante;
 
 class DashboardController extends Controller
 {

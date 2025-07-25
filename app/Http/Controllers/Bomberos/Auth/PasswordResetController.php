@@ -1,9 +1,9 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Bomberos\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Controllers\Bomberos\Controller;
+use App\Models\Bomberos\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;

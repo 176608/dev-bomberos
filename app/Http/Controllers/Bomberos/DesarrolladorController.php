@@ -1,10 +1,10 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Bomberos;
 
-use App\Models\Colonias;
+use App\Models\Bomberos\Colonias;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Bomberos\Controller;
 
 class DesarrolladorController extends Controller
 {

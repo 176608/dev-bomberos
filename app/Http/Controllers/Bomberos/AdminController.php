@@ -1,12 +1,12 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Bomberos;
 
-use App\Models\User;
+use App\Models\Bomberos\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Bomberos\Controller;
 
 class AdminController extends Controller
 {

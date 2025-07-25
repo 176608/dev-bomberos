@@ -1,6 +1,6 @@
 <?php
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Models;
+namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
 
