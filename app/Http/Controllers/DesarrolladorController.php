@@ -20,6 +20,7 @@ class DesarrolladorController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('desarrollador.index');
+        // CAMBIO: Corregir la ruta de la vista
+        return view('roles.desarrollador');
     }
 }
