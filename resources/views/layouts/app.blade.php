@@ -67,17 +67,8 @@
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('dev.panel') }}">Panel Principal</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('dev.panel') }}">Panel desarrollador</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        
-                                        {{-- SIGEM Original (PHP) --}}
-                                        <li><h6 class="dropdown-header">SIGEM Original</h6></li>
-                                        <li><a class="dropdown-item" href="/geografico">
-                                            <i class="bi bi-geo-alt text-primary"></i> SIGEM Público Original
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('subtema.index') }}">
-                                            <i class="bi bi-shield-check text-primary"></i> SIGEM Admin Original
-                                        </a></li>
                                         
                                         {{-- SIGEM Laravel (Nuevo) --}}
                                         <li><hr class="dropdown-divider"></li>
@@ -116,10 +107,10 @@
                                             <i class="bi bi-gear"></i> SIGEM
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="/geografico">
+                                            <li><a class="dropdown-item" href="#">
                                                 <i class="bi bi-eye"></i> Vista Pública
                                             </a></li>
-                                            <li><a class="dropdown-item" href="{{ route('subtema.index') }}">
+                                            <li><a class="dropdown-item" href="#">
                                                 <i class="bi bi-tools"></i> Panel Admin
                                             </a></li>
                                             <li><a class="dropdown-item" href="{{ route('sigem.laravel.admin') }}">
