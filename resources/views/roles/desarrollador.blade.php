@@ -83,7 +83,7 @@
                     <i class="bi bi-geo display-4 text-primary mb-3"></i>
                     <h5 class="card-title">SIGEM Original Público</h5>
                     <p class="card-text">Sistema original PHP en funcionamiento</p>
-                    <a href="/geografico" class="btn btn-primary" target="_blank">
+                    <a href="/bev-bomberos/public/vistas_SIGEM/cartografia.php" class="btn btn-primary" target="_blank">
                         <i class="bi bi-eye"></i> Abrir Original
                     </a>
                 </div>
