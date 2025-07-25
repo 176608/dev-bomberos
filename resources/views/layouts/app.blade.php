@@ -60,18 +60,43 @@
                     </li>
                     @auth
                         @if(auth()->user()->log_in_status === 0)
-                            @if(auth()->user()->role === 'Administrador')
+                            {{-- CAMBIO: Desarrollador ve todas las opciones --}}
+                            @if(auth()->user()->role === 'Desarrollador')
+                                {{-- Panel Desarrollador --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
+                                    <a class="nav-link" href="{{ route('dev.panel') }}">
+                                        <i class="bi bi-code-slash"></i> Panel Desarrollador
+                                    </a>
                                 </li>
-                            @elseif(auth()->user()->role === 'Desarrollador')
+                                {{-- Panel Admin (acceso desarrollador) --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('dev.panel') }}">Panel Desarrollador</a>
+                                    <a class="nav-link" href="{{ route('admin.panel') }}">
+                                        <i class="bi bi-gear"></i> Panel Administrador
+                                    </a>
                                 </li>
-                            @elseif(auth()->user()->role === 'Capturista') 
+                                {{-- Panel Capturista (acceso desarrollador) --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
+                                    <a class="nav-link" href="{{ route('capturista.panel') }}">
+                                        <i class="bi bi-fire"></i> Panel Bomberos
+                                    </a>
                                 </li>
+                                {{-- Indicador visual de modo desarrollador --}}
+                                <li class="nav-item">
+                                    <span class="nav-link text-warning">
+                                        <i class="bi bi-tools"></i> DEV MODE
+                                    </span>
+                                </li>
+                            @else
+                                {{-- Menú normal para otros roles --}}
+                                @if(auth()->user()->role === 'Administrador')
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('admin.panel') }}">Panel Administrador</a>
+                                    </li>
+                                @elseif(auth()->user()->role === 'Capturista') 
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
+                                    </li>
+                                @endif
                             @endif
                         @endif
                     @endauth

@@ -15,6 +15,12 @@ class CheckRole
 
         $user = auth()->user();
         
+        // CAMBIO PRINCIPAL: Desarrollador tiene acceso a todo
+        if ($user->hasRole('desarrollador')) {
+            return $next($request);
+        }
+        
+        // Para otros roles, verificar permisos normalmente
         foreach ($roles as $role) {
             if ($user->hasRole($role)) {
                 return $next($request);
