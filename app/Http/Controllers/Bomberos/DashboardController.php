@@ -2,18 +2,14 @@
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\Bomberos;
 
-use App\Models\Bomberos\Hidrante;
+use App\Http\Controllers\Bomberos\Controller;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        // No aplicamos middleware de auth aquí para permitir acceso público
-    }
-
     public function index()
     {
-        $registros = Hidrante::all();
-        return view('dashboard', compact('registros'));
+        // Vista principal/landing page
+        return view('dashboard'); // o la vista que corresponda
     }
 }
