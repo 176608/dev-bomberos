@@ -1,50 +1,31 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
-@section('title', 'Panel de Desarrollador')
+@section('title', 'Panel Desarrollador')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h2>Gestión de Colonias</h2>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="coloniasTable" class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Fecha reg IMIP</th>
-                        <th>Nombre</th>
-                        <th>Tipo</th>
-                        <th>IDKEY</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($colonias as $colonia)
-                        <tr>
-                            <td>{{ $colonia->FECHAUBICAIMIP }}</td>
-                            <td>{{ $colonia->NOMBRE }}</td>
-                            <td>{{ $colonia->TIPO }}</td>
-                            <td>{{ $colonia->IDKEY }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+<div class="container">
+    <h1>Panel Desarrollador</h1>
+    <p>Bienvenido al panel de desarrollador, {{ auth()->user()->name }}</p>
+    <p>Rol: {{ auth()->user()->role }}</p>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Acceso a Admin</h5>
+                    <a href="{{ route('admin.panel') }}" class="btn btn-primary">Ir a Admin</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Acceso a Capturista</h5>
+                    <a href="{{ route('capturista.panel') }}" class="btn btn-success">Ir a Bomberos</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-@endsection
-
-@section('scripts')
-<script>
-    $(document).ready(function() {
-        $('#coloniasTable').DataTable({
-            language: {
-                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
-            },
-            order: [[0, 'asc']]
-        });
-    });
-</script>
 @endsection

@@ -10,11 +10,16 @@ class DesarrolladorController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || auth()->user()->role !== 'Desarrollador') {
+        // Verificar que el usuario esté autenticado
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        // Verificar que tenga el rol correcto
+        if (!auth()->user()->hasRole('Desarrollador')) {
             return redirect()->route('dashboard');
         }
 
-        $colonias = Colonias::all();
-        return view('roles.desarrollador', compact('colonias'));
+        return view('desarrollador.index');
     }
 }

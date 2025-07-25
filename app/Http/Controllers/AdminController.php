@@ -12,7 +12,13 @@ class AdminController extends Controller
 {
     public function index(Request $request)
     {
-        if (!auth()->check() || auth()->user()->role !== 'Administrador') {
+        // Verificar que el usuario esté autenticado
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        // Verificar que tenga el rol correcto (admin o desarrollador)
+        if (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador')) {
             return redirect()->route('dashboard');
         }
 
