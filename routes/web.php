@@ -8,37 +8,16 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
-// IMPORTANTE: Crear la ruta dashboard.default que falta
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.default');
-
-// Ruta raíz que redirige según autenticación
-Route::get('/', function () {
-    if (auth()->check()) {
-        $user = auth()->user();
-        
-        // Redirigir según el rol del usuario
-        if ($user->hasRole('admin') || $user->hasRole('administrador')) {
-            return redirect()->route('admin.panel');
-        } elseif ($user->hasRole('capturista')) {
-            return redirect()->route('capturista.panel');
-        } elseif ($user->hasRole('desarrollador')) {
-            return redirect()->route('dev.panel');
-        }
-        
-        // Si no tiene rol específico, ir al dashboard (LANDING PAGE)
-        return redirect()->route('dashboard.default');
-    }
-    
-    // CAMBIO IMPORTANTE: Si no está autenticado, ir al dashboard (landing page), NO al login
-    return redirect()->route('dashboard.default');
-})->name('home');
+// Ruta principal - Dashboard público
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 // Rutas de autenticación
-Route::middleware('web')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-});
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Verificar email en el login
+Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
 
 // Rutas de reseteo de contraseña
 Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
@@ -46,16 +25,20 @@ Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
 Route::post('/password/reset', [PasswordResetController::class, 'update'])
     ->name('password.reset.update');
 
-// Rutas por rol (protegidas)
+// Rutas protegidas por autenticación
 Route::middleware(['auth'])->group(function () {
+    
+    // Admin panel
     Route::get('/admin', [AdminController::class, 'index'])
         ->name('admin.panel')
         ->middleware('role:admin');
         
+    // Desarrollador panel
     Route::get('/desarrollador', [DesarrolladorController::class, 'index'])
         ->name('dev.panel')
         ->middleware('role:desarrollador');
         
+    // Capturista panel
     Route::get('/capturista', [CapturistaController::class, 'index'])
         ->name('capturista.panel')
         ->middleware('role:capturista');
@@ -67,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     });
 
-    // Rutas de hidrantes (capturista y admin)
+    // Rutas de hidrantes
     Route::middleware('role:capturista,admin')->group(function () {
         Route::get('/hidrantes/create', [CapturistaController::class, 'create'])->name('hidrantes.create');
         Route::post('/hidrantes', [CapturistaController::class, 'store'])->name('hidrantes.store');
@@ -92,11 +75,3 @@ Route::middleware(['auth'])->group(function () {
     // Para cargar el panel auxiliar
     Route::get('/capturista/panel-auxiliar', [CapturistaController::class, 'cargarPanelAuxiliar'])->name('capturista.panel-auxiliar');
 });
-/*
-// Rutas específicas para el reseteo de contraseña
-Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
-    ->name('password.reset.form');
-Route::post('/password/reset', [PasswordResetController::class, 'update'])
-    ->name('password.reset.update');
-*/
-
