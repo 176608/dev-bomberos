@@ -55,79 +55,53 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">Información Pública</a>
+                        <a class="nav-link" href="/">Información Pública</a>
                     </li>
+                    
                     @auth
                         @if(auth()->user()->log_in_status === 0)
-                            {{-- CAMBIO: Desarrollador ve todas las opciones --}}
                             @if(auth()->user()->role === 'Desarrollador')
-                                {{-- Panel Desarrollador --}}
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                {{-- 4 pestañas para desarrollador --}}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('dev.panel') }}">
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('dev.panel') }}">Panel desarrollador</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        
-                                        {{-- SIGEM Laravel (Nuevo) --}}
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><h6 class="dropdown-header">SIGEM Laravel</h6></li>
-                                        <li><a class="dropdown-item" href="{{ route('sigem.laravel.public') }}">
-                                            <i class="bi bi-geo-alt text-success"></i> SIGEM Laravel Público
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('sigem.laravel.admin') }}">
-                                            <i class="bi bi-shield-check text-success"></i> SIGEM Laravel Admin
-                                        </a></li>
-                                    </ul>
                                 </li>
-                                {{-- Panel Admin (acceso desarrollador) --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('admin.panel') }}">
                                         <i class="bi bi-gear"></i> Panel Administrador
                                     </a>
                                 </li>
-                                {{-- Panel Capturista (acceso desarrollador) --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('capturista.panel') }}">
-                                        <i class="bi bi-fire"></i> Panel Bomberos
+                                        <i class="bi bi-fire"></i> Panel Capturista
                                     </a>
                                 </li>
-                                {{-- Indicador visual de modo desarrollador --}}
+                                {{-- Indicador visual --}}
                                 <li class="nav-item">
                                     <span class="nav-link text-warning">
                                         <i class="bi bi-tools"></i> DEV MODE
                                     </span>
                                 </li>
-                            @else
-                                {{-- Menú normal para otros roles --}}
-                                @if(auth()->user()->role === 'Administrador')
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                            <i class="bi bi-gear"></i> SIGEM
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">
-                                                <i class="bi bi-eye"></i> Vista Pública
-                                            </a></li>
-                                            <li><a class="dropdown-item" href="#">
-                                                <i class="bi bi-tools"></i> Panel Admin
-                                            </a></li>
-                                            <li><a class="dropdown-item" href="{{ route('sigem.laravel.admin') }}">
-                                                <i class="bi bi-gear"></i> Nuevo Admin Laravel
-                                            </a></li>
-                                        </ul>
-                                    </li>
-                                @elseif(auth()->user()->role === 'Capturista') 
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('capturista.panel') }}">Panel Bomberos</a>
-                                    </li>
-                                @endif
+                                
+                            @elseif(auth()->user()->role === 'Administrador')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.panel') }}">
+                                        <i class="bi bi-gear"></i> Panel Administrador
+                                    </a>
+                                </li>
+                                
+                            @elseif(auth()->user()->role === 'Capturista') 
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('capturista.panel') }}">
+                                        <i class="bi bi-fire"></i> Panel Capturista
+                                    </a>
+                                </li>
                             @endif
                         @endif
                     @endauth
                 </ul>
-
+                
                 <ul class="navbar-nav">
                     @guest
                         <li class="nav-item d-flex align-items-center me-3">
