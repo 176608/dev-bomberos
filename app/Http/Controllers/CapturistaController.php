@@ -15,15 +15,13 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CapturistaController extends Controller
 {
-    public function __construct()
-    {
-        // Aplicar middleware de autenticación y roles
-        $this->middleware('auth');
-        $this->middleware('role:Capturista,Desarrollador');
-    }
 
     public function index(Request $request)
     {
+        if (!auth()->check() || auth()->user()->role !== 'Capturista') {
+            return redirect()->route('login');
+        }
+
         $configuracion = ConfiguracionCapturista::where('user_id', auth()->id())->first();
         $columnas = $configuracion ? $configuracion->configuracion : ConfiguracionCapturista::getDefaultConfig();
 //Aca se agregan nuevos campos a las columnas
