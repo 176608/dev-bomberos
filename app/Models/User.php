@@ -50,6 +50,68 @@ class User extends Authenticatable
             'log_in_status' => 'integer',
         ];
     }
+
+    /**
+     * Verificar si el usuario tiene un rol específico
+     * Compatible con los valores enum: 'Capturista', 'Desarrollador', 'Administrador'
+     */
+    public function hasRole($role)
+    {
+        // Normalizar para ser case-insensitive y manejar variaciones
+        $userRole = strtolower($this->role);
+        $checkRole = strtolower($role);
+        
+        // Mapear variaciones comunes
+        $roleMap = [
+            'admin' => 'administrador',
+            'administrador' => 'administrador',
+            'capturista' => 'capturista',
+            'desarrollador' => 'desarrollador',
+            'dev' => 'desarrollador',
+        ];
+        
+        // Usar el mapeo si existe, sino usar el rol tal como viene
+        $normalizedCheckRole = $roleMap[$checkRole] ?? $checkRole;
+        $normalizedUserRole = $roleMap[$userRole] ?? $userRole;
+        
+        return $normalizedUserRole === $normalizedCheckRole;
+    }
+
+    /**
+     * Verificar si el usuario tiene alguno de los roles especificados
+     */
+    public function hasAnyRole($roles)
+    {
+        if (is_string($roles)) {
+            return $this->hasRole($roles);
+        }
+
+        if (is_array($roles)) {
+            foreach ($roles as $role) {
+                if ($this->hasRole($role)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtener el rol en minúsculas para comparaciones
+     */
+    public function getRoleAttribute($value)
+    {
+        return $value; // Mantener el valor original de la DB
+    }
+
+    /**
+     * Verificar si el usuario está activo
+     */
+    public function isActive()
+    {
+        return $this->status == 1;
+    }
 }
 
 
