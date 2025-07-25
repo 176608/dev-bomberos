@@ -1,4 +1,6 @@
 <?php
+/*|--------------------------------------------------------------------------
+
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -7,7 +9,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\TemaController;
 use App\Http\Controllers\SubtemaController;
-//use App\Http\Controllers\GeograficoController;
+use App\Http\Controllers\GeograficoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ImagenesController;
 use App\Http\Controllers\ConsultaExpressDatoController;
@@ -19,6 +21,8 @@ use App\Models\ConsultaExpressContenido;
 | Rutas Públicas (sin login)
 |--------------------------------------------------------------------------
 */
+
+/* ****************************************
 
 // Página pública de bienvenida o redirección al panel si admin está logueado
 Route::get('/', function () {
@@ -56,6 +60,8 @@ Route::put('/contenido/{id}', [ConsultaExpressContenidoController::class, 'updat
 |--------------------------------------------------------------------------
 */
 
+/* ****************************************
+
 Route::middleware(['auth', 'onlyadmin'])->group(function () {
 
     // CRUD de temas
@@ -75,3 +81,5 @@ Route::middleware(['auth', 'onlyadmin'])->group(function () {
     Route::post('/consulta-express-dato', [ConsultaExpressDatoController::class, 'store'])->name('consulta-express-dato.store');
     Route::delete('/consulta-express-dato/{id}', [ConsultaExpressDatoController::class, 'destroy'])->name('consulta-express-dato.destroy');
 });
+
+End comment */ 
