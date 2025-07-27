@@ -130,9 +130,9 @@
 <body>
 
 <div class="top-bar">
-    <div>Instituto Municipal de Investigación y Planeación</div>
+    <div>Instituto Municipal de Investigación y Planeación (Cartografía)</div>
     <div class="right-section">
-        <div>Ciudad Juárez, Chihuahua</div>
+        <div>Ciudad Juárez, Chihuahua (Cartografía)</div>
         <div class="user-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#2a6e48" class="bi bi-person" viewBox="0 0 16 16">
                 <path d="M10 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>

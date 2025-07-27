@@ -77,12 +77,6 @@
                                         <i class="bi bi-fire"></i> Panel Capturista
                                     </a>
                                 </li>
-                                {{-- Indicador visual --}}
-                                <li class="nav-item">
-                                    <span class="nav-link text-warning">
-                                        <i class="bi bi-tools"></i> DEV MODE
-                                    </span>
-                                </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
                                 <li class="nav-item">
