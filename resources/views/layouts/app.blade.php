@@ -33,15 +33,43 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 </head>
+
+<style>
+    .top-bar {
+            background-color: #2a6e48;
+            color: white;
+            padding: 5px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-bar .right-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .top-bar .user-icon {
+            width: 28px;
+            height: 28px;
+            background-color: white;
+            color: #2a6e48;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+</style>
+
 <body>
     <!-- TOP BAR: Información institucional + sesión -->
-    <div class="bg-dark text-white py-1">
+    <div class="top-bar text-white py-1">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <!-- Información institucional -->
                 <div>
                     <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
-                        <i class="bi bi-building"></i> Instituto Municipal de Investigación y Planeación
+                       Instituto Municipal de Investigación y Planeación
                     </a>
                     <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
                 </div>
