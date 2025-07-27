@@ -36,46 +36,57 @@
 
 <style>
     .top-bar {
-            background-color: #2a6e48;
-            color: white;
-            padding: 5px 15px;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .top-bar .right-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .top-bar .user-icon {
-            width: 28px;
-            height: 28px;
-            background-color: white;
-            color: #2a6e48;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        background-color: #2a6e48;
+        color: white;
+        padding: 8px 0; /* Cambio: padding vertical en lugar de general */
+        font-size: 14px;
+    }
+    
+    .top-bar a {
+        color: white !important;
+        text-decoration: none !important;
+    }
+    
+    .top-bar .left-section {
+        /* Asegurar que esté pegado a la izquierda */
+        margin-right: auto;
+    }
+    
+    .top-bar .right-section {
+        /* Asegurar que esté pegado a la derecha */
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .top-bar .user-icon {
+        width: 28px;
+        height: 28px;
+        background-color: white;
+        color: #2a6e48;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 
 <body>
     <!-- TOP BAR: Información institucional + sesión -->
     <div class="top-bar text-white">
-        <div class="container">
-            <div class="d-flex">
-                <!-- Información institucional -->
-                <div class="left-section align-items-left">
+        <div class="container-fluid"> {{-- CAMBIO: usar container-fluid en lugar de container --}}
+            <div class="d-flex justify-content-between align-items-center w-100"> {{-- AGREGAR: w-100 --}}
+                <!-- Información institucional (IZQUIERDA) -->
+                <div class="left-section">
                     <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
                        Instituto Municipal de Investigación y Planeación
                     </a>
                     <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
                 </div>
                 
-                <!-- Información de sesión -->
-                <div class="right-section d-flex align-items-right">
+                <!-- Información de sesión (DERECHA) -->
+                <div class="d-flex align-items-center">
                     @guest
                         <span class="me-3">
                             <i class="bi bi-person-circle"></i> Invitado
