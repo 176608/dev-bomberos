@@ -156,9 +156,9 @@
                         <span class="me-3">
                             <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
                         </span>
-                        <button type="button" class="btn btn-link text-white p-0" 
+                        <button type="button" class="text-white" 
                                 onclick="handleLogout(event)" style="text-decoration: none;">
-                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
                         </button>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
