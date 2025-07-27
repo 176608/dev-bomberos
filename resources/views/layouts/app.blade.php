@@ -183,10 +183,17 @@
                 <ul class="navbar-nav me-auto">
                     <!-- Información Pública (siempre visible) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}" title= "Panel de Consulta de hidrantes"> <i class="bi bi-binoculars-fill"></i> Consultor </a>
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
+                           href="{{ route('dashboard') }}" title="Panel de Consulta de hidrantes">
+                            <i class="bi bi-binoculars-fill"></i> Consultor
+                        </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('sigem.laravel.public') }}" title= "Panel de consulta público de SIGEM"> <i class="bi bi-binoculars-fill"></i> SIGEM </a>
+                        <a class="nav-link {{ request()->routeIs('sigem.laravel.public') ? 'active' : '' }}" 
+                           href="{{ route('sigem.laravel.public') }}" title="Panel de consulta público de SIGEM">
+                            <i class="bi bi-binoculars-fill"></i> SIGEM
+                        </a>
                     </li>
                     
                     <!-- Paneles según rol (solo si está logueado y activo) -->
@@ -195,22 +202,29 @@
                             @if(auth()->user()->role === 'Desarrollador')
                                 {{-- Desarrollador: 4 pestañas --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('dev.panel') }}" title= "Panel de Desarrollador">
+                                    <a class="nav-link {{ request()->routeIs('dev.panel') ? 'active' : '' }}" 
+                                       href="{{ route('dev.panel') }}" title="Panel de Desarrollador">
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
                                     </a>
                                 </li>
+                                
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.panel') }}" title= "Panel de Administración de Bomberos">
+                                    <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
+                                       href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
                                         <i class="bi bi-gear"></i> BOMBEROS
                                     </a>
                                 </li>
+                                
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('sigem.laravel.admin') }}" title= "Panel de Administración de SIGEM">
+                                    <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM
                                     </a>
                                 </li>
+                                
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('capturista.panel') }}" title= "Panel de Captura de Hidrantes">
+                                    <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
+                                       href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
                                         <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
@@ -218,12 +232,15 @@
                             @elseif(auth()->user()->role === 'Administrador')
                                 {{-- Administrador: solo su panel --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.panel') }}" title= "Panel de Administración de Bomberos">
+                                    <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
+                                       href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
                                         <i class="bi bi-gear"></i> BOMBEROS
                                     </a>
                                 </li>
+                                
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('sigem.laravel.admin') }}" title= "Panel de Administración de SIGEM">
+                                    <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM
                                     </a>
                                 </li>
@@ -231,7 +248,8 @@
                             @elseif(auth()->user()->role === 'Capturista') 
                                 {{-- Capturista: solo su panel --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('capturista.panel') }}" title= "Panel de Captura de Hidrantes">
+                                    <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
+                                       href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
                                         <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
