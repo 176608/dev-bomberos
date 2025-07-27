@@ -38,7 +38,7 @@
     .top-bar {
         background-color: #2a6e48;
         color: white;
-        padding: 8px 0; /* Cambio: padding vertical en lugar de general */
+        padding: 8px 0;
         font-size: 14px;
     }
     
@@ -48,12 +48,10 @@
     }
     
     .top-bar .left-section {
-        /* Asegurar que esté pegado a la izquierda */
         margin-right: auto;
     }
     
     .top-bar .right-section {
-        /* Asegurar que esté pegado a la derecha */
         margin-left: auto;
         display: flex;
         align-items: center;
@@ -69,6 +67,66 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    /* EFECTOS NAVBAR */
+    .navbar .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        margin: 0 2px;
+        font-weight: 500;
+    }
+
+    /* Efecto HOVER */
+    .navbar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #2a6e48 !important;
+        background-color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estado ACTIVE */
+    .navbar .nav-link.active {
+        background-color: #2a6e48;
+        color: white !important;
+        font-weight: bold;
+        box-shadow: 0 2px 6px rgba(42, 110, 72, 0.3);
+    }
+
+    .navbar .nav-link.active:hover {
+        background-color: #1e4d35;
+        color: white !important;
+        transform: none;
+    }
+
+    /* Indicador visual para active */
+    .navbar .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 3px;
+        background-color: #ffd700;
+        border-radius: 2px;
+    }
+
+    /* Modo desarrollador destacado */
+    .navbar-text.text-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #dc3545;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
     }
 </style>
 
@@ -125,7 +183,10 @@
                 <ul class="navbar-nav me-auto">
                     <!-- Información Pública (siempre visible) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}"> <i class="bi bi-binoculars-fill"></i> Consultor </a>
+                        <a class="nav-link" href="{{ route('dashboard') }}" title= "Panel de Consulta de hidrantes"> <i class="bi bi-binoculars-fill"></i> Consultor </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('sigem.laravel.public') }}" title= "Panel de consulta público de SIGEM"> <i class="bi bi-binoculars-fill"></i> SIGEM </a>
                     </li>
                     
                     <!-- Paneles según rol (solo si está logueado y activo) -->
@@ -152,8 +213,13 @@
                             @elseif(auth()->user()->role === 'Administrador')
                                 {{-- Administrador: solo su panel --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.panel') }}">
-                                        <i class="bi bi-gear"></i> Panel Administrador
+                                    <a class="nav-link" href="{{ route('admin.panel') }}" title= "Panel de Administración de Bomberos">
+                                        <i class="bi bi-gear"></i> BOMBEROS
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('sigem.laravel.admin') }}" title= "Panel de Administración de SIGEM">
+                                        <i class="bi bi-gear"></i> SIGEM
                                     </a>
                                 </li>
                                 
