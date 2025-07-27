@@ -46,7 +46,7 @@
     <!-- Reemplazada la sección de la barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">Cartografía</a>
+            <a class="navbar-brand" href="https://www.imip.org.mx/">Pagina IMIP</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -55,7 +55,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Información Pública</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}">Información Pública</a>
                     </li>
                     
                     @auth
