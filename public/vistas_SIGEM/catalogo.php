@@ -95,6 +95,8 @@
 </div>
 
 <?php include 'menuprincipal.php'; ?>
+<!-- 
+Quiero que esto sea un partial, que cargara segun si se selecciona en el menu Catalogo, requiere datos de bd
 
 <div class="main-card">
     <h2 class="mb-4 text-center">Catálogo de Cuadros Estadísticos</h2>
@@ -104,7 +106,7 @@
 
     <div class="d-flex mb-5 flex-wrap">
         <div class="me-4" style="min-width:300px;">
-            <!-- Aquí va la tabla de temas -->
+            ** Aquí va la tabla de temas por tanto en controller publico debe cargar los temas correspondientes **
         </div>
 
         <div class="flex-fill">
@@ -129,7 +131,7 @@
                     </tr>
                 </thead>
                 <tbody>
-
+Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a base de datos y habilitarla
                 <?php
                 $temaActual = '';
                 foreach ($cuadros as $fila):
@@ -148,15 +150,13 @@
                 </tr>
                 <?php endforeach; ?>
 
-
-
-
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
+-->
 <div class="footer-logos">
     <img src="imagenes/sige2.png" alt="SIGEM Footer Logo">
     <img src="imagenes/logosfinales2.png" alt="IMIP Footer Logo">

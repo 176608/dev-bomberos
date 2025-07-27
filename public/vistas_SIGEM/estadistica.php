@@ -168,6 +168,10 @@ include '../controllers/sesionController.php';
 
 <?php include 'menuprincipal.php'; ?>
 
+        <!-- 
+Quiero que esto sea un blade, que cargara segun si se selecciona en el menu Estadística
+        
+
 <div class="main-card">
     <div class="estadistica-header">
         <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
@@ -177,7 +181,7 @@ include '../controllers/sesionController.php';
             Los cuadros estadísticos están categorizados en los siguientes temas:
         </p>
     </div>
-
+**Esto cargaria partials de estadisticas por tema**
     <div class="botones-temas">
         <a href="geografico.php">Geográfico</a>
         <a href="medioambiente.php">Medio Ambiente</a>
@@ -186,12 +190,12 @@ include '../controllers/sesionController.php';
         <a href="economico.php">Económico</a>
         <a href="sectorpublico.php">Sector Público</a>
     </div>
-
+** - **
     <div class="catalogo mt-4">
         <a href="catalogo.php"><span style="font-size: 22px;">📄</span> Catálogo completo de cuadros estadísticos</a>
     </div>
 </div>
-
+-->
 <div class="footer-logos mt-5">
     <img src="imagenes/sige2.png" alt="SIGEM Footer Logo">
     <img src="imagenes/logosfinales2.png" alt="IMIP Footer Logo">

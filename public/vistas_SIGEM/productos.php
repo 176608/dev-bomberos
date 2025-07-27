@@ -108,10 +108,7 @@ $usuario = $_SESSION['usuario'] ?? 'Público';
     <div class="right-section">
         <div>Ciudad Juárez, Chihuahua</div>
         <div class="user-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#2a6e48" class="bi bi-person" viewBox="0 0 16 16">
-                <path d="M10 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
-                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-6a6 6 0 0 0-4.472 10.118C4.723 11.29 6.299 11 8 11s3.277.29 4.472.618A6 6 0 0 0 8 2z"/>
-            </svg>
+            <svg width="18" height="18" fill="#2a6e48" class="bi bi-person"></svg>
         </div>
         <div><strong><?php echo htmlspecialchars($usuario); ?></strong></div>
         <?php if ($usuario !== 'Público'): ?>
@@ -136,6 +133,8 @@ $usuario = $_SESSION['usuario'] ?? 'Público';
 </div>
 
 <?php include 'menuprincipal.php'; ?>
+<!-- 
+Quiero que esto sea un partial, que cargara segun si se selecciona en el menu Productos
 
 <div class="main-card">
 
@@ -176,6 +175,8 @@ $usuario = $_SESSION['usuario'] ?? 'Público';
         <a href="https://www.imip.org.mx/imip/publicaciones-en-linea" target="_blank">la página web del Instituto Municipal de Investigación y Planeación</a>
     </p>
 </div>
+
+        -->
 
 <div class="footer-logos mt-5">
     <img src="imagenes/sige2.png" alt="SIGEM Footer Logo">

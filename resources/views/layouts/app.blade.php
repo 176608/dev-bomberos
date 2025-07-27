@@ -34,34 +34,70 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 </head>
 <body>
+    <!-- TOP BAR: Información institucional + sesión -->
     <div class="bg-dark text-white py-1">
-        <div class="container"> 
-            <div class="d-flex justify-content-between">
-                <div>Instituto Municipal de Investigación y Planeación</div>
-                <div>Ciudad Juárez, Chihuahua</div>
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Información institucional -->
+                <div>
+                    <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
+                        <i class="bi bi-building"></i> Instituto Municipal de Investigación y Planeación
+                    </a>
+                    <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
+                </div>
+                
+                <!-- Información de sesión -->
+                <div class="d-flex align-items-center">
+                    @guest
+                        <span class="me-3">
+                            <i class="bi bi-person-circle"></i> Invitado
+                        </span>
+                        <a href="{{ route('login') }}" class="text-white text-decoration-none">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                        </a>
+                    @else
+                        <span class="me-3">
+                            <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
+                        </span>
+                        <button type="button" class="btn btn-link text-white p-0" 
+                                onclick="handleLogout(event)" style="text-decoration: none;">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </button>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    @endguest
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Reemplazada la sección de la barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:rgb(102, 209, 147);">
+    <!-- NAVBAR: Navegación principal del sistema -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(102, 209, 147);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="https://www.imip.org.mx/">Pagina IMIP</a>
+            <!-- Logo/Brand (opcional) -->
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-geo-alt"></i> Sistema Bomberos
+            </a>
             
+            <!-- Toggle para móviles -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
+            <!-- Navegación principal -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <!-- Información Pública (siempre visible) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">Información Pública</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-house"></i> Información Pública</a>
                     </li>
                     
+                    <!-- Paneles según rol (solo si está logueado y activo) -->
                     @auth
                         @if(auth()->user()->log_in_status === 0)
                             @if(auth()->user()->role === 'Desarrollador')
-                                {{-- 4 pestañas para desarrollador --}}
+                                {{-- Desarrollador: 4 pestañas --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('dev.panel') }}">
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
@@ -79,6 +115,7 @@
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
+                                {{-- Administrador: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('admin.panel') }}">
                                         <i class="bi bi-gear"></i> Panel Administrador
@@ -86,6 +123,7 @@
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Capturista') 
+                                {{-- Capturista: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('capturista.panel') }}">
                                         <i class="bi bi-fire"></i> Panel Capturista
@@ -95,46 +133,27 @@
                         @endif
                     @endauth
                 </ul>
-                
-                <ul class="navbar-nav">
-                    @guest
-                        <li class="nav-item d-flex align-items-center me-3">
-                            <span class="nav-link">
-                                <i class="bi bi-person-circle"></i> Invitado
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link login-btn" href="{{ route('login') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                            </a>
-                        </li>
-                    @else
-                        <li class="nav-item d-flex align-items-center me-3">
-                            <span class="nav-link">
-                                <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" class="nav-link btn btn-link logout-btn" 
-                                    onclick="handleLogout(event)">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                            </button>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        </li>
-                    @endguest
-                </ul>
+
+                <!-- Indicador de rol (lado derecho) -->
+                @auth
+                    @if(auth()->user()->role === 'Desarrollador')
+                        <span class="navbar-text text-warning">
+                            <i class="bi bi-tools"></i> MODO DESARROLLADOR
+                        </span>
+                    @endif
+                @endauth
             </div>
         </div>
     </nav>
 
-    <main class="py-4 mt-4">
+    <!-- Contenido principal -->
+    <main class="py-4">
         <div class="container-fluid">
             @yield('content')
         </div>
     </main>
 
+    <!-- Footer existente -->
     <footer class="bg-light text-dark py-4 mt-2">
         <div class="container">
             <div class="row">
@@ -171,35 +190,25 @@
     @yield('scripts')
 
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Login button click handler
-    const loginBtn = document.querySelector('.login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function(e) {
-            console.log('Iniciando proceso de login...');
-        });
+    // Logout handler function
+    function handleLogout(event) {
+        event.preventDefault();
+        console.log('Iniciando proceso de logout...');
+        
+        const form = document.getElementById('logout-form');
+        if (form) {
+            form.submit();
+        } else {
+            console.error('Error: Formulario de logout no encontrado');
+        }
     }
-});
 
-// Logout handler function
-function handleLogout(event) {
-    event.preventDefault();
-    console.log('Iniciando proceso de logout...');
-    
-    const form = document.getElementById('logout-form');
-    if (form) {
-        form.submit();
-    } else {
-        console.error('Error: Formulario de logout no encontrado');
-    }
-}
-
-// Add AJAX setup for CSRF token
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-</script>
+    // AJAX setup for CSRF token
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    </script>
 </body>
 </html>
