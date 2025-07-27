@@ -155,4 +155,4 @@ function closeAdminModule() {
     document.getElementById('sigem-admin-content').innerHTML = '';
 }
 </script>
-@endsection administrador necesario
+@endsection
