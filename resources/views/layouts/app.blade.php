@@ -195,17 +195,22 @@
                             @if(auth()->user()->role === 'Desarrollador')
                                 {{-- Desarrollador: 4 pestañas --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('dev.panel') }}">
+                                    <a class="nav-link" href="{{ route('dev.panel') }}" title= "Panel de Desarrollador">
                                         <i class="bi bi-code-slash"></i> Panel Desarrollador
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.panel') }}">
-                                        <i class="bi bi-gear"></i> Panel Administrador
+                                    <a class="nav-link" href="{{ route('admin.panel') }}" title= "Panel de Administración de Bomberos">
+                                        <i class="bi bi-gear"></i> BOMBEROS
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('capturista.panel') }}">
+                                    <a class="nav-link" href="{{ route('sigem.laravel.admin') }}" title= "Panel de Administración de SIGEM">
+                                        <i class="bi bi-gear"></i> SIGEM
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('capturista.panel') }}" title= "Panel de Captura de Hidrantes">
                                         <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
@@ -226,8 +231,8 @@
                             @elseif(auth()->user()->role === 'Capturista') 
                                 {{-- Capturista: solo su panel --}}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('capturista.panel') }}">
-                                        <i class="bi bi-fire"></i> Panel Capturista
+                                    <a class="nav-link" href="{{ route('capturista.panel') }}" title= "Panel de Captura de Hidrantes">
+                                        <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
                             @endif
