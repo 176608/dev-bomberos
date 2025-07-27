@@ -114,10 +114,6 @@
     <!-- NAVBAR: Navegación principal del sistema -->
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(102, 209, 147);">
         <div class="container-fluid">
-            <!-- Logo/Brand (opcional) -->
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-geo-alt"></i> Sistema Bomberos
-            </a>
             
             <!-- Toggle para móviles -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
