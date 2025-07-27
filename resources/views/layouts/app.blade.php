@@ -125,7 +125,7 @@
                 <ul class="navbar-nav me-auto">
                     <!-- Información Pública (siempre visible) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-house"></i> Información Pública</a>
+                        <a class="nav-link" href="{{ route('dashboard') }}"> <i class="bi bi-binoculars-fill"></i> Consultor </a>
                     </li>
                     
                     <!-- Paneles según rol (solo si está logueado y activo) -->
@@ -145,7 +145,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('capturista.panel') }}">
-                                        <i class="bi bi-fire"></i> Panel Capturista
+                                        <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
                                 
@@ -172,7 +172,7 @@
                 <!-- Indicador de rol (lado derecho) -->
                 @auth
                     @if(auth()->user()->role === 'Desarrollador')
-                        <span class="navbar-text text-warning">
+                        <span class="navbar-text text-danger">
                             <i class="bi bi-tools"></i> MODO DESARROLLADOR
                         </span>
                     @endif
