@@ -72,7 +72,7 @@ function loadSigemModule(module) {
     // Usar rutas del SIGEM original (mantener funcionalidad)
     const moduleMap = {
         'geografico': '/geografico',  // ← Ruta del SIGEM original
-        'temas': '{{ route("subtema.index") }}',  // ← Ruta del SIGEM original
+        'temas': '/geografico',  // ← Ruta del SIGEM original
         'contenido': '/contenido-tema',  // ← Ruta del SIGEM original
     };
     
