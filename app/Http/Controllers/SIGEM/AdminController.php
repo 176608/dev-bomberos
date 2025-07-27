@@ -2,7 +2,7 @@
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\SIGEM\Controller;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
