@@ -63,11 +63,11 @@
 
 <body>
     <!-- TOP BAR: Información institucional + sesión -->
-    <div class="top-bar text-white py-1">
+    <div class="top-bar text-white">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex">
                 <!-- Información institucional -->
-                <div>
+                <div class="left-section align-items-left">
                     <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
                        Instituto Municipal de Investigación y Planeación
                     </a>
@@ -75,7 +75,7 @@
                 </div>
                 
                 <!-- Información de sesión -->
-                <div class="d-flex align-items-center">
+                <div class="right-section d-flex align-items-right">
                     @guest
                         <span class="me-3">
                             <i class="bi bi-person-circle"></i> Invitado
