@@ -9,7 +9,6 @@
     display: flex;
     width: 100%;
     min-height: 100px;
-    background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);
     border-bottom: 4px solid #ffd700;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
@@ -50,7 +49,7 @@
 }
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
 
 <div class="header-logos container-fluid">
     <div class="logo-section"><!-- Logo era sige1.png -->
