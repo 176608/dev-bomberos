@@ -322,24 +322,6 @@ const DynamicContent = {
                         </thead>
                         <tbody>
         Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a base de datos y habilitarla
-                        <?/*php
-                        $temaActual = '';
-                        foreach ($cuadros as $fila):
-                        ?>
-                        <tr>
-                            <td style="font-weight: bold; color: #2a6e48; text-align:center;">
-                                <?php 
-                                if ($fila[1] !== $temaActual) {
-                                    echo htmlspecialchars($fila[1]);
-                                    $temaActual = $fila[1];
-                                }
-                                ?>
-                            </td>
-                            <td style="color: #2a6e48; text-align:center;"><?php echo htmlspecialchars($fila[2]); ?></td>
-                            <td style="color: #2a6e48; text-align:left;"><?php echo htmlspecialchars($fila[3]); ?></td>
-                        </tr>
-                        <?php endforeach; */?>
-
                         </tbody>
                     </table>
                 </div>
