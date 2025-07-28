@@ -1,4 +1,7 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios autorizados pueden agregar subtemas estadísticos e imágenes asociadas.
+
 session_start();
 include '../models/conexion.php';
 include '../models/subtemaEstadistica_agregarModel.php';

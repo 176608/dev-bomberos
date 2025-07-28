@@ -1,4 +1,6 @@
 <?php
+// Este controlador gestiona contenido editable del sistema SIGEM.
+// Requiere autenticación y permisos para actualizar contenido.
 
 namespace App\Http\Controllers;
 

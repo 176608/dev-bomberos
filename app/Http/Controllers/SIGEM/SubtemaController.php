@@ -1,4 +1,6 @@
 <?php
+// Este controlador gestiona vistas restringidas del sistema SIGEM.
+// Permite la administración completa de subtemas (crear, editar, eliminar) con autenticación.
 
 namespace App\Http\Controllers;
 

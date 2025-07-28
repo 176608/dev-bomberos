@@ -1,4 +1,7 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Requiere sesión iniciada como administrador para editar archivos CSV.
+
 session_start();
 if (!isset($_SESSION['usuario']) || $_SESSION['usuario'] !== 'admin') {
     echo "<h3>❌ Acceso denegado.</h3><a href='javascript:history.back()'>Volver</a>";

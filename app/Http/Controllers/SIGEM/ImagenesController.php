@@ -1,4 +1,6 @@
 <?php
+// Este controlador gestiona una vista pública del sistema SIGEM.
+// Muestra imágenes ubicadas en el directorio público del sistema.
 
 namespace App\Http\Controllers;
 

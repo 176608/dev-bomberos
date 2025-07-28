@@ -1,4 +1,6 @@
 <?php
+// Este controlador pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios autorizados pueden visualizar el listado de usuarios registrados.
 
 namespace App\Http\Controllers;
 

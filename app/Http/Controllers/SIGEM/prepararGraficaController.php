@@ -1,7 +1,9 @@
 <?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Prepara opciones para generar gráficas a partir de archivos CSV sin requerir autenticación.
+
 require_once '../models/conexion.php';
 require_once '../models/prepararGraficaModel.php';
-
 
 $CuadroEstadistico = isset($_REQUEST['CuadroEstadistico']) ? intval($_REQUEST['CuadroEstadistico']) : 0;
 $cuadro = obtenerCuadro($conexion, $CuadroEstadistico);

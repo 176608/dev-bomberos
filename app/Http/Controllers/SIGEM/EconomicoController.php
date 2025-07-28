@@ -1,4 +1,6 @@
 <?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Muestra cuadros estadísticos del tema Económico sin requerir autenticación.
 
 require_once '../controllers/sesionController.php';
 require_once '../models/conexion.php';

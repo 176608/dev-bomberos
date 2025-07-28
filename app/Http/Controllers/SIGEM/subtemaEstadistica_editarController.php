@@ -1,4 +1,6 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios autorizados pueden editar subtemas estadísticos.
 
 require_once '../controllers/sesionController.php';
 include '../models/subtemaEstadistica_editarModel.php';

@@ -1,4 +1,6 @@
-<?php 
+<?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Muestra cuadros estadísticos del tema Medio Ambiente sin requerir autenticación.
 
 require_once 'sesionController.php';
 

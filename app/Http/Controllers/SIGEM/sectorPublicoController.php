@@ -1,4 +1,6 @@
-<?php 
+<?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Muestra cuadros estadísticos del tema Sector Público sin requerir autenticación.
 
 require_once '../controllers/sesionController.php';
 require_once '../models/sectorPublicoModel.php';
@@ -14,7 +16,6 @@ $tema_id = 'sectorpublico';
 $subtemas = obtenerSubtemasPorTema($conexion, $tema);
 
 $cuadros = obtenerCuadrosPorSubtema($conexion, $subtema_id);
-
 
 $nombre_actual = 'Subtema'; // valor por defecto
 foreach ($subtemas as $subtema) {

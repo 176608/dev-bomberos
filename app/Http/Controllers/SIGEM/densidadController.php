@@ -1,4 +1,7 @@
 <?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Muestra la densidad de población sin requerir autenticación.
+
 include '../controllers/sesionController.php';
 
 require_once '../models/densidadModel.php';

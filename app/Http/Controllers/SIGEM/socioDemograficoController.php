@@ -1,4 +1,6 @@
 <?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Muestra cuadros estadísticos del tema Sociodemográfico sin requerir autenticación.
 
 include '../controllers/sesionController.php';
 include '../models/socioDemograficoModel.php';

@@ -1,4 +1,7 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios autorizados pueden editar temas existentes.
+
 include '../models/tema_editarModel.php';
 
 $id = $_GET['id'] ?? null;

@@ -1,4 +1,6 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios con permisos pueden editar subtemas existentes.
 
 require_once '../controllers/sesionController.php';
 include '../models/subtema_editarModel.php';

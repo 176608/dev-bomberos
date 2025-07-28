@@ -1,4 +1,6 @@
 <?php
+// Este controlador gestiona modificaciones internas del sistema SIGEM.
+// Requiere autenticación para agregar o editar datos en consulta express.
 
 namespace App\Http\Controllers;
 

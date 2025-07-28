@@ -1,4 +1,7 @@
 <?php
+// Este controlador gestiona vistas públicas del sistema SIGEM.
+// No requiere autenticación para mostrar los contenidos.
+
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 

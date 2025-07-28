@@ -1,4 +1,7 @@
 <?php
+// Este script gestiona una vista pública del sistema SIGEM.
+// Genera opciones de gráficas a partir de archivos CSV sin requerir autenticación.
+
 session_start();
 
 include '../models/generarGraficaModel.php';
@@ -10,7 +13,6 @@ $subtema_id = $_GET['subtema_id'] ?? 0;
 
 $archivo = $_GET['archivo'] ?? 'NULO';
 
-
 $nombreArchivo = obtenerNombreArchivoCsv($cuadro_id);
 if ($nombreArchivo) {
     $ruta = "cuadro/uploads/$tema/csv/$nombreArchivo"; 
@@ -20,15 +22,12 @@ if ($nombreArchivo) {
 
 if (!file_exists($ruta)) die("Archivo CSV no encontrado.");
 
-
 $datos = obtenerDatosCuadro($cuadro_id);
 if ($datos) {
     $titulo = $datos['codigo_cuadro'] . " - " . $datos['titulo'];
 } else {
     echo "No se encontró el cuadro con ID dado.";
 }
-
-
 
 $csv = array_map('str_getcsv', file($ruta));
 $headers = $csv[0];

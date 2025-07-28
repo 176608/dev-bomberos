@@ -1,4 +1,7 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios con permisos pueden agregar nuevos subtemas.
+
 session_start();
 include '../models/conexion.php';
 include '../models/subtema_agregarModel.php';

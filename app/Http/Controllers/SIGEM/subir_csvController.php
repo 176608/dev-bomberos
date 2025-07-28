@@ -1,4 +1,7 @@
 <?php
+// Este script pertenece a una vista restringida del sistema SIGEM.
+// Solo usuarios administradores pueden acceder para actualizar archivos CSV.
+
 require_once '../controllers/sesionController.php';
 
 if ($usuario !== 'admin') {

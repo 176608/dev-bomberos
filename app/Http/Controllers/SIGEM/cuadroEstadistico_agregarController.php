@@ -1,4 +1,7 @@
 <?php
+// Este script gestiona una vista restringida del sistema SIGEM.
+// Solo usuarios con permisos pueden agregar cuadros estadísticos.
+
 session_start();
 include '../models/conexion.php';
 include '../models/cuadroEstadistico_agregarModel.php';
