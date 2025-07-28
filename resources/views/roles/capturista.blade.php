@@ -425,7 +425,7 @@ function setupCrudHandlers() {
              .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         
         $.ajax({
-            url: `${window.location.origin}/bev-bomberos/public/hidrantes/${hidranteId}/edit`,
+            url: `${window.location.origin}/m_aux/public/hidrantes/${hidranteId}/edit`,
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

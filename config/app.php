@@ -51,7 +51,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://imip.org.mx/bev-bomberos'),
+    'url' => env('APP_URL', 'https://imip.org.mx/m_aux'),
 
     /*
     |--------------------------------------------------------------------------
