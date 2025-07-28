@@ -162,8 +162,6 @@
 </div>
 
 <?php include 'menuprincipal.php'; ?>
-<!-- 
-Quiero que esto sea un partial, que cargara segun si se selecciona en el menu Cartografía
 
 <div class="main-card">
     <div class="title-row">
@@ -199,8 +197,6 @@ Quiero que esto sea un partial, que cargara segun si se selecciona en el menu Ca
 
     <p class="text-center">Para ver otros mapas visita <a href="https://www.imip.org.mx/imip/node/53" target="_blank">Mapas Digitales Interactivos</a></p>
 </div>
-
--->
 
 <div class="footer-logos mt-5">
     <img src="imagenes/sige2.png" alt="SIGEM Footer Logo">
