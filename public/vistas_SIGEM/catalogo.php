@@ -95,8 +95,6 @@
 </div>
 
 <?php include 'menuprincipal.php'; ?>
-<!-- 
-Quiero que esto sea un partial, que cargara segun si se selecciona en el menu Catalogo, requiere datos de bd
 
 <div class="main-card">
     <h2 class="mb-4 text-center">Catálogo de Cuadros Estadísticos</h2>
@@ -156,7 +154,6 @@ Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a b
     </div>
 </div>
 
--->
 <div class="footer-logos">
     <img src="imagenes/sige2.png" alt="SIGEM Footer Logo">
     <img src="imagenes/logosfinales2.png" alt="IMIP Footer Logo">
