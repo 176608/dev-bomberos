@@ -67,9 +67,11 @@
     <a href="#" style="color: white; text-decoration: none; padding: 10px 18px; font-weight: bold;">PRODUCTOS</a>
     <a href="#" style="color: white; text-decoration: none; padding: 10px 18px; font-weight: bold;">CATÁLOGO</a>
 </div>
-    <div id="sigem-content" class="mt-4">
-        <!-- Aquí se cargarán los partial de los distintos temas -->
+
+    <div id="sigem-content" class="container-fluid m-2">
+        AUX<!-- Aquí se cargarán los partial de los distintos temas -->
     </div>
+
 </div>
 @endsection
 
