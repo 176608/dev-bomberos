@@ -5,14 +5,7 @@
 
 @section('content')
 <style>
-.header-logos {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin: 10px 0 10px 10px;
-        }
-        .header-logos img:first-child { height: 85px; }
-        .header-logos img:last-child { height: 65px; }
+
 </style>
 
 <div class="container-fluid">
