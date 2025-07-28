@@ -4,8 +4,8 @@
 use App\Http\Controllers\SIGEM\PublicController;
 use App\Http\Controllers\SIGEM\AdminController;
 
-// Rutas públicas Laravel del módulo SIGEM (con prefijo diferente)
-Route::prefix('sigem-laravel')->group(function () {
+// Rutas públicas Laravel del módulo SIGEM
+Route::prefix('sigem')->group(function () {  
     
     // Vista principal pública
     Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
@@ -17,7 +17,7 @@ Route::prefix('sigem-laravel')->group(function () {
 });
 
 // Rutas administrativas Laravel SIGEM  
-Route::prefix('sigem-laravel')->middleware(['auth'])->group(function () {
+Route::prefix('sigem')->middleware(['auth'])->group(function () {  
     
     // Panel principal de administración
     Route::get('/admin', [AdminController::class, 'index'])
