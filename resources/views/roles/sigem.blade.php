@@ -1,4 +1,4 @@
-<!-- Archivo SIGEM - NO ELIMINAR COMENTARIO -->
+<!-- Archivo SIGEM -Base de vista sigem publica- - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
 @section('title', 'SIGEM - Sistema de Información Geográfica')
@@ -18,8 +18,8 @@
 <div class="container-fluid">
 
 <div class="header-logos">
-    <img src="imagenes/sige1.png" alt="IMIP Logo">
-    <img src="imagenes/sige2.png" alt="SIGEM Logo">
+    <img src="../imagenes/sige1.png" alt="IMIP Logo">
+    <img src="../imagenes/sige2.png" alt="SIGEM Logo">
 </div>
 
 <div class="main-menu" style="background-color: #2a6e48; border-bottom: 4px solid #ffd700; display: flex; justify-content: center;">
