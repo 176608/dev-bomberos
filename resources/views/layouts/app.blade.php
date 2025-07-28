@@ -271,14 +271,14 @@
     </nav>
 
     <!-- Contenido principal antes tenia: class="py-4" -->
-    <main>
+    <main  class="py-2">
         <div class="container-fluid">
             @yield('content')
         </div>
     </main>
 
     <!-- Footer existente -->
-    <footer class="bg-light text-dark py-4 mt-2">
+    <footer class="bg-light text-dark py-2 mt-2">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 text-md-start">
