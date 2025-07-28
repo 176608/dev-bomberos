@@ -272,10 +272,10 @@
 
     <div class="header-logos container-fluid">
         <div class="logo-section">
-            <img src="../imagenes/logoadmin.png" alt="JRZ Logo">
+            <img src="../../imagenes/logoadmin.png" alt="JRZ Logo">
         </div>
         <div class="logo-section">
-            <img src="../imagenes/sige2.png" alt="SIGEM Logo">
+            <img src="../../imagenes/sige2.png" alt="SIGEM Logo">
         </div>
     </div>
 
@@ -436,7 +436,7 @@ const DynamicContent = {
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="estadistica-header">
-                    <img src="../imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid">
+                    <img src="../../imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid">
                     <div>
                         <h3 class="text-success mb-3">
                             <i class="bi bi-bar-chart-fill"></i> Estadísticas Municipales
@@ -498,7 +498,7 @@ const DynamicContent = {
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="title-row">
-                    <img src="../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
+                    <img src="../../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
                     <h2 class="text-success mb-0">
                         <i class="bi bi-map-fill"></i> Cartografía Digital
                     </h2>
@@ -581,7 +581,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../imagenes/rad2020.png" alt="Radiografía Socioeconómica" class="img-fluid">
+                                    <img src="../../imagenes/rad2020.png" alt="Radiografía Socioeconómica" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/41" target="_blank" class="text-decoration-none">
@@ -601,7 +601,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../imagenes/PoratadaCARTO.png" alt="Cartografía 2019" class="img-fluid">
+                                    <img src="../../imagenes/PoratadaCARTO.png" alt="Cartografía 2019" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/40" target="_blank" class="text-decoration-none">
@@ -621,7 +621,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../imagenes/general.png" alt="Directorio 2014" class="img-fluid">
+                                    <img src="../../imagenes/general.png" alt="Directorio 2014" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/directorio/" target="_blank" class="text-decoration-none">
@@ -641,7 +641,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../imagenes/abigail.jpeg" alt="Biblioteca" class="img-fluid">
+                                    <img src="../../imagenes/abigail.jpeg" alt="Biblioteca" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/35" target="_blank" class="text-decoration-none">
@@ -708,7 +708,7 @@ const DynamicContent = {
                                 </h5>
                             </div>
                             <div class="card-body text-center">
-                                <img src="../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
+                                <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
                                 <div class="alert alert-light">
                                     <small>
                                         El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
