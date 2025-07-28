@@ -182,159 +182,171 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.sigem-nav-link');
     const contentContainer = document.getElementById('sigem-content');
     
-    // Contenidos simulados (luego serán partials reales)
-    const partialContent = {
-        inicio: `
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="text-success mb-4">
-                        <i class="bi bi-house-fill"></i> Bienvenido al SIGEM
-                    </h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="lead">Sistema de Información Geográfica y Estadística Municipal</p>
-                            <p>Explora los datos geográficos y estadísticos de Ciudad Juárez.</p>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="card bg-primary text-white">
-                                        <div class="card-body text-center">
-                                            <h4>125</h4>
-                                            <p>Mapas Disponibles</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-success text-white">
-                                        <div class="card-body text-center">
-                                            <h4>50</h4>
-                                            <p>Indicadores</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-info text-white">
-                                        <div class="card-body text-center">
-                                            <h4>2024</h4>
-                                            <p>Última Actualización</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+// Contenidos
+const DynamicContent = {
+    inicio: `
+        Aqui va index de SIGEM publico 
+    `,
+
+    estadistica: `
+        <div class="main-card">
+            <div class="estadistica-header">
+                <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
+                <p>
+                    Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes 
+                    Municipales, Estatales, Federales, entre otros.<br>
+                    Los cuadros estadísticos están categorizados en los siguientes temas:
+                </p>
+            </div>
+        *Esto cargaria partials de estadisticas por tema*
+            <div class="botones-temas">
+                <a href="geografico.php">Geográfico</a>
+                <a href="medioambiente.php">Medio Ambiente</a>
+                <a href="sociodemografico.php">Sociodemográfico</a>
+                <a href="inventariourbano.php">Inventario Urbano</a>
+                <a href="economico.php">Económico</a>
+                <a href="sectorpublico.php">Sector Público</a>
+            </div>
+            
+            <div class="catalogo mt-4">
+                <a href="catalogo.php"><span style="font-size: 22px;">📄</span> Catálogo completo de cuadros estadísticos</a>
+            </div>
+        </div>
+    `,
+
+    cartografia: `
+    <div class="main-card">
+        <div class="title-row">
+            <img src="imagenes/cartogde.png" alt="Cartografía">
+            <h2>Cartografía</h2>
+        </div>
+        <p class="intro-text">En este apartado podrás encontrar mapas temáticos interactivos del Municipio de Juárez.</p>
+        <div class="map-section">
+            <h5>Carta Urbana, 2018</h5>
+            <p>Mapa representativo de la superficie territorial del Municipio de Juárez, Chihuahua, que enumera los principales referentes tales como nombre de calles, vialidades principales, colonias, fraccionamientos, parques industriales, etc.</p>
+            <iframe src="https://www.imip.org.mx/imip/files/mapas/curbana/" title="Carta Urbana 2018"></iframe>
+        </div>
+        <div class="map-section">
+            <h5>Niveles de Bienestar Social 2010 - 2020</h5>
+            <p>Mapa que representa los niveles de bienestar social de la población. Incluye clasificación de zonas de rezago con base en diversos indicadores sociales.</p>
+            <iframe src="https://www.imip.org.mx/imip/files/mapas/nbienestar/index.html" title="Niveles de Bienestar"></iframe>
+        </div>
+        <div class="map-section">
+            <h5>Catálogo de sectores: Gobierno, parques, zonas industriales</h5>
+            <p>Mapa que presenta la ubicación e información de sectores industriales, parques, zonas institucionales y de servicios en la ciudad.</p>
+            <iframe src="https://www.imip.org.mx/imip/files/mapas/industria/index.html" title="Catálogo de sectores"></iframe>
+        </div>
+        <div class="map-section">
+            <h5>Cruces con mayor incidencia vial</h5>
+            <p>Ubicación de los cruceros con más alta incidencia de tránsito en el municipio, basada en información de reportes viales.</p>
+            <iframe src="https://www.imip.org.mx/imip/files/mapas/Transito/index.html" title="Cruces viales"></iframe>
+        </div>
+        <p class="text-center">Para ver otros mapas visita <a href="https://www.imip.org.mx/imip/node/53" target="_blank">Mapas Digitales Interactivos</a></p>
+    </div>
+    `,
+
+    productos: `
+        <div class="main-card">
+
+        <div class="product-section">
+            <img src="imagenes/rad2020.png" alt="Radiografía Socioeconómica">
+            <div class="product-text">
+                <h5><a href="https://www.imip.org.mx/imip/node/41" target="_blank">Radiografía Socioeconómica del Municipio de Juárez</a></h5>
+                <p>Este documento se ha convertido en una herramienta de referencia y consulta en cuanto a las diversas características socioeconómicas del municipio. Ofrece datos sobre los principales temas de interés para la toma de decisiones del sector público como privado de la región, así como de apoyo a los estudiantes y población en general.</p>
+            </div>
+        </div>
+
+        <div class="product-section">
+            <img src="imagenes/PoratadaCARTO.png" alt="Cartografía 2019">
+            <div class="product-text">
+                <h5><a href="https://www.imip.org.mx/imip/node/40" target="_blank">Cuaderno de Información Cartográfica</a></h5>
+                <p>Es una guía de información confiable y actualizada, compuesta por mapas con índice de calles, colonias y capas temáticas como escuelas, hospitales, estaciones, museos, teatros, unidades deportivas, hoteles, cines, entre otros. Disponible en formato impreso y digital.</p>
+            </div>
+        </div>
+
+        <div class="product-section">
+            <img src="imagenes/general.png" alt="Directorio 2014">
+            <div class="product-text">
+                <h5><a href="https://www.imip.org.mx/directorio/" target="_blank">Directorio Georreferenciado de Parques, Zonas Industriales e Industrias en Ciudad Juárez, 2014</a></h5>
+                <p>Incluye información estadística y geográfica de empresas manufactureras en la ciudad, clasificadas por tamaño y actividad. Contiene datos de empresas dentro y fuera de parques industriales.</p>
+            </div>
+        </div>
+
+        <div class="product-section">
+            <img src="imagenes/abigail.jpeg" alt="Biblioteca">
+            <div class="product-text">
+                <h5><a href="https://www.imip.org.mx/imip/node/35" target="_blank">Biblioteca MPDU: Abigail García Espinosa</a></h5>
+                <p>Cuenta con un amplio acervo documental y bancos de datos especializados. Ideal para investigaciones urbanas, tesis, proyectos y trabajos académicos. Forma parte de la Red de Consulta del INEGI.</p>
+            </div>
+        </div>
+
+        <p class="footer-link">
+            Encuentra además otros productos estadísticos y cartográficos en
+            <a href="https://www.imip.org.mx/imip/publicaciones-en-linea" target="_blank">la página web del Instituto Municipal de Investigación y Planeación</a>
+        </p>
+    </div>
+    `,
+
+    catalogo: `
+        <div class="main-card">
+            <h2 class="mb-4 text-center">Catálogo de Cuadros Estadísticos</h2>
+
+            <p>Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.</p>
+            <p>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+
+            <div class="d-flex mb-5 flex-wrap">
+                <div class="me-4" style="min-width:300px;">
+                    ** Aquí va la tabla de temas por tanto en controller publico debe cargar los temas correspondientes **
+                </div>
+
+                <div class="flex-fill">
+                    <p><strong>Ejemplo:</strong></p>
+                    <img src="imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3" style="max-width: 400px;">
+                    <p style="font-size: 15px;">
+                        El cuadro de “<strong>Población por Municipio</strong>” se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
+                    </p>
                 </div>
             </div>
-        `,
-        estadistica: `
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="text-success mb-4">
-                        <i class="bi bi-bar-chart-fill"></i> Estadísticas Municipales
-                    </h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <p>Módulo de estadísticas en desarrollo...</p>
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle"></i> 
-                                Aquí se mostrarán gráficos y datos estadísticos
-                            </div>
-                        </div>
-                    </div>
+
+            <h4 class="mb-3">A continuación se presenta el índice general de cuadros estadísticos:</h4>
+
+            <div style="display: flex; justify-content: center;">
+                <div class="table-responsive" style="max-width: 1200px; width: 100%;">
+                    <table class="table table-bordered mx-auto" style="background-color: #e6f4e7; border-color: #7aa037;">
+                        <thead style="background-color: #7aa037; color: white; text-align: center;">
+                            <tr>
+                                <th style="width: 25%;">Tema</th>
+                                <th style="width: 15%;">Código</th>
+                                <th style="width: 60%;">Título del cuadro estadístico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a base de datos y habilitarla
+                        <?/*php
+                        $temaActual = '';
+                        foreach ($cuadros as $fila):
+                        ?>
+                        <tr>
+                            <td style="font-weight: bold; color: #2a6e48; text-align:center;">
+                                <?php 
+                                if ($fila[1] !== $temaActual) {
+                                    echo htmlspecialchars($fila[1]);
+                                    $temaActual = $fila[1];
+                                }
+                                ?>
+                            </td>
+                            <td style="color: #2a6e48; text-align:center;"><?php echo htmlspecialchars($fila[2]); ?></td>
+                            <td style="color: #2a6e48; text-align:left;"><?php echo htmlspecialchars($fila[3]); ?></td>
+                        </tr>
+                        <?php endforeach; */?>
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        `,
-        cartografia: `
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="text-success mb-4">
-                        <i class="bi bi-map-fill"></i> Cartografía Digital
-                    </h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <p>Visualizador de mapas interactivos...</p>
-                            <div id="map-placeholder" style="height: 400px; background: #f8f9fa; border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center;">
-                                <span class="text-muted">
-                                    <i class="bi bi-geo-alt display-4"></i><br>
-                                    Mapa interactivo aquí
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-        productos: `
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="text-success mb-4">
-                        <i class="bi bi-box-seam"></i> Productos Cartográficos
-                    </h2>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Mapas Temáticos</h5>
-                                    <p>Descarga mapas especializados</p>
-                                    <button class="btn btn-success">Ver Catálogo</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Datos Geoespaciales</h5>
-                                    <p>Archivos SHP, KML, GeoJSON</p>
-                                    <button class="btn btn-info">Descargar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-        catalogo: `
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="text-success mb-4">
-                        <i class="bi bi-journal-text"></i> Catálogo de Datos
-                    </h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th>Dataset</th>
-                                            <th>Categoría</th>
-                                            <th>Última Actualización</th>
-                                            <th>Formato</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Uso de Suelo</td>
-                                            <td>Cartografía</td>
-                                            <td>2024-01-15</td>
-                                            <td>SHP</td>
-                                            <td><button class="btn btn-sm btn-success">Ver</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Población por Colonia</td>
-                                            <td>Estadística</td>
-                                            <td>2024-01-10</td>
-                                            <td>CSV</td>
-                                            <td><button class="btn btn-sm btn-info">Descargar</button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `
-    };
+        </div>
+    `
+};
     
     // Función para cargar contenido
     function loadContent(section) {
@@ -348,8 +360,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Simular delay de carga
         setTimeout(() => {
-            if (partialContent[section]) {
-                contentContainer.innerHTML = partialContent[section];
+            if (DynamicContent[section]) {
+                contentContainer.innerHTML = DynamicContent[section];
             } else {
                 contentContainer.innerHTML = `
                     <div class="alert alert-warning">
