@@ -53,8 +53,8 @@
 <div class="container-fluid">
 
 <div class="header-logos container-fluid">
-    <div class="logo-section">
-        <img src="../imagenes/sige1.png" alt="IMIP Logo">
+    <div class="logo-section"><!-- Logo era sige1.png -->
+        <img src="../imagenes/logoadmin.png" alt="JRZ Logo">
     </div>
     <div class="logo-section">
         <img src="../imagenes/sige2.png" alt="SIGEM Logo">
