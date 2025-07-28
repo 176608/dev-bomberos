@@ -4,7 +4,7 @@
 @section('title', 'Panel Desarrollador')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="bg-warning text-dark p-4 rounded mb-4">

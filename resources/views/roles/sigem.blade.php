@@ -321,49 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Contenidos
 const DynamicContent = {
     inicio: `
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <div class="row">
-                    <div class="col-12">
-                        <h2 class="text-success mb-4">
-                            <i class="bi bi-house-fill"></i> Bienvenido al SIGEM
-                        </h2>
-                        <p class="lead text-muted">Sistema de Información Geográfica y Estadística Municipal</p>
-                        <p class="mb-4">Explora los datos geográficos y estadísticos de Ciudad Juárez, Chihuahua.</p>
-                    </div>
-                </div>
-                
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="card bg-primary text-white h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <i class="bi bi-map display-4 mb-3"></i>
-                                <h4>125+</h4>
-                                <p class="mb-0">Mapas Interactivos</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-success text-white h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <i class="bi bi-bar-chart display-4 mb-3"></i>
-                                <h4>50+</h4>
-                                <p class="mb-0">Indicadores Estadísticos</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-info text-white h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <i class="bi bi-calendar display-4 mb-3"></i>
-                                <h4>2024</h4>
-                                <p class="mb-0">Última Actualización</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        INDEX
     `,
 
     estadistica: `

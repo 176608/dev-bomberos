@@ -4,7 +4,7 @@
 @section('title', 'Panel de Administrador')
 
 @section('content')
-<div class="card">
+<div class="card py-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
             <h2>Panel de Administrador</h2>
