@@ -8,29 +8,57 @@
 .header-logos {
     display: flex;
     width: 100%;
-    height: 120px;
-    background-color: white;
+    min-height: 100px;
+    background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);
     border-bottom: 4px solid #ffd700;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.header-logos img {
+.logo-section {
     flex: 1;
-    height: 100%;
-    object-fit: contain;
-    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    margin: 10px 5px;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
 }
 
-.header-logos img:first-child {
-    border-right: 1px solid #e9ecef;
+.logo-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.logo-section img {
+    max-width: 100%;
+    max-height: 80px;
+    object-fit: contain;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-logos {
+        flex-direction: column;
+        min-height: auto;
+    }
+    
+    .logo-section {
+        margin: 5px 10px;
+    }
 }
 </style>
 
 <div class="container-fluid">
 
 <div class="header-logos container-fluid">
-    <img src="../imagenes/sige1.png" alt="IMIP Logo">
-    <img src="../imagenes/sige2.png" alt="SIGEM Logo">
+    <div class="logo-section">
+        <img src="../imagenes/sige1.png" alt="IMIP Logo">
+    </div>
+    <div class="logo-section">
+        <img src="../imagenes/sige2.png" alt="SIGEM Logo">
+    </div>
 </div>
 
 <div class="main-menu container-fluid" style="background-color: #2a6e48; border-bottom: 4px solid #ffd700; display: flex; justify-content: center;">
