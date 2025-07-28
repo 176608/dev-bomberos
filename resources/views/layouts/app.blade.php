@@ -270,8 +270,8 @@
         </div>
     </nav>
 
-    <!-- Contenido principal -->
-    <main class="py-4">
+    <!-- Contenido principal antes tenia: class="py-4" -->
+    <main>
         <div class="container-fluid">
             @yield('content')
         </div>
