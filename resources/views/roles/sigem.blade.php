@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Contenidos
 const DynamicContent = {
     inicio: `
-        INDEX
+        INDEX, check cambios
     `,
 
     estadistica: `
