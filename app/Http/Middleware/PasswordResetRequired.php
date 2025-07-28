@@ -1,4 +1,7 @@
 <?php
+// Este middleware pertenece al sistema SIGEM/BOMBEROS.
+// Obliga al usuario a restablecer su contraseña si es requerido tras el inicio de sesión.
+
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Middleware;
 

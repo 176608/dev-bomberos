@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Configura los proxies de confianza y los encabezados usados para identificar la IP real del cliente.
 
 namespace App\Http\Middleware;
 

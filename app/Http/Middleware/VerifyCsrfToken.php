@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Protege la aplicación contra ataques CSRF (falsificación de solicitudes entre sitios).
 
 namespace App\Http\Middleware;
 

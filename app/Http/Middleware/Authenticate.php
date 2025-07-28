@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Se encarga de redirigir a los usuarios no autenticados al login antes de acceder a rutas protegidas.
 
 namespace App\Http\Middleware;
 
@@ -13,11 +15,9 @@ class Authenticate extends Middleware
      * @return string|null
      */
     protected function redirectTo($request)
-{
-    if (! $request->expectsJson()) {
-        return url('/login.php'); // ← Enlace directo a tu archivo PHP clásico
+    {
+        if (! $request->expectsJson()) {
+            return url('/login.php'); // ← Enlace directo a tu archivo PHP clásico
+        }
     }
 }
-}
-
-

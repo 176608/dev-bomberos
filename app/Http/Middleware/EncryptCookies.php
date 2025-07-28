@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Se encarga de cifrar automáticamente las cookies del usuario por seguridad.
 
 namespace App\Http\Middleware;
 

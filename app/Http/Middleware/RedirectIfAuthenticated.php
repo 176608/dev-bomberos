@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Redirige a usuarios autenticados si intentan acceder a rutas públicas como el login.
 
 namespace App\Http\Middleware;
 

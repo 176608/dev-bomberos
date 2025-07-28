@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Define qué dominios y subdominios son confiables para procesar solicitudes.
 
 namespace App\Http\Middleware;
 

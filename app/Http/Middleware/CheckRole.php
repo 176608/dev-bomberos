@@ -1,4 +1,7 @@
 <?php
+// Este middleware pertenece a una funcionalidad restringida del sistema SIGEM/BOMBEROS.
+// Controla el acceso a rutas según el rol del usuario autenticado.
+
 /*ARCHIVO BOMBEROS - NO ELIMINAR COMENTARIO */
 namespace App\Http\Middleware;
 

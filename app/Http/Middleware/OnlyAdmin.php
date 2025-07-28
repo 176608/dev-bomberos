@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Restringe el acceso exclusivamente al usuario con nombre 'admin'.
 
 namespace App\Http\Middleware;
 

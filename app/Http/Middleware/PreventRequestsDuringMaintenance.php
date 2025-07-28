@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Permite definir rutas accesibles durante el modo mantenimiento de la aplicación.
 
 namespace App\Http\Middleware;
 

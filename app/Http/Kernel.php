@@ -1,4 +1,7 @@
 <?php
+// Este archivo pertenece al sistema SIGEM/BOMBEROS.
+// Es el núcleo de configuración de middleware, donde se definen y agrupan los filtros HTTP.
+
 /* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
 namespace App\Http;
 

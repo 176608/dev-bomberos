@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Valida firmas en URLs para proteger rutas contra manipulaciones indebidas.
 
 namespace App\Http\Middleware;
 

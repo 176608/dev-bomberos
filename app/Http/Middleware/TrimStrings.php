@@ -1,4 +1,6 @@
 <?php
+// Este middleware pertenece al sistema SIGEM.
+// Recorta automáticamente espacios en blanco de los campos del formulario, excepto contraseñas.
 
 namespace App\Http\Middleware;
 
