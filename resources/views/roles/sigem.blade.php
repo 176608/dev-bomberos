@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<div class="main-menu container-fluid" style="background-color: #2a6e48; border-bottom: 4px solid #ffd700; display: flex; justify-content: center;">
+<div class="main-menu container-fluid p-0" style="background-color: #2a6e48; border-bottom: 4px solid #ffd700; display: flex; justify-content: center;">
     <a href="#" style="color: white; text-decoration: none; padding: 10px 18px; font-weight: bold;">INICIO</a>
     <a href="#" style="color: white; text-decoration: none; padding: 10px 18px; font-weight: bold;">ESTADÍSTICA</a>
     <a href="#" style="color: white; text-decoration: none; padding: 10px 18px; font-weight: bold;">CARTOGRAFÍA</a>
