@@ -740,7 +740,7 @@ const DynamicContent = {
                                         <i class="bi bi-box-arrow-up-right me-2"></i>Ver Mapa Interactivo
                                     </a><br>` : ''
                                 }
-                                <img src="../imagenes/${mapa.icono || 'mapa-placeholder.png'}" 
+                                <img src="../img/SIGEM_Mapas/${mapa.icono || 'mapa-placeholder.png'}" 
                                      alt="${mapa.nombre_mapa}" 
                                      class="img-fluid rounded shadow-sm"
                                      style="max-height: 300px; cursor: pointer;"
