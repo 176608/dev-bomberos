@@ -665,7 +665,9 @@ const DynamicContent = {
         
         // Simular delay de carga
         setTimeout(() => {
-            if (DynamicContent[section]) {
+            if (section === 'cartografia') {
+                loadCartografia();
+            } else if (DynamicContent[section]) {
                 contentContainer.innerHTML = DynamicContent[section];
             } else {
                 contentContainer.innerHTML = `
@@ -676,6 +678,95 @@ const DynamicContent = {
                 `;
             }
         }, 500);
+    }
+    
+    // Función para cargar contenido de cartografía dinámicamente
+    function loadCartografia() {
+        fetch('/sigem/mapas')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const mapasHtml = generateMapasHtml(data.mapas);
+                    contentContainer.innerHTML = mapasHtml;
+                } else {
+                    contentContainer.innerHTML = '<div class="alert alert-danger">Error al cargar mapas</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = '<div class="alert alert-danger">Error de conexión</div>';
+            });
+    }
+
+    // Generar HTML para los mapas
+    function generateMapasHtml(mapas) {
+        let html = `
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="title-row">
+                        <img src="../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
+                        <h2 class="text-success mb-0">
+                            <i class="bi bi-map-fill"></i> Cartografía Digital
+                        </h2>
+                    </div>
+                    
+                    <p class="intro-text">En este apartado podrás encontrar mapas temáticos interactivos del Municipio de Juárez.</p>
+                    
+                    <div class="row">
+                        <div class="col-12">
+        `;
+        
+        // Colores para las cards
+        const colores = ['success', 'info', 'warning', 'danger', 'primary', 'secondary'];
+        
+        mapas.forEach((mapa, index) => {
+            const color = colores[index % colores.length];
+            const textColor = color === 'warning' ? 'text-dark' : 'text-white';
+            
+            html += `
+                <div class="map-section">
+                    <div class="card">
+                        <div class="card-header bg-${color} ${textColor}">
+                            <h5 class="mb-0">
+                                ${mapa.icono ? `<i class="bi bi-${mapa.icono} me-2"></i>` : '<i class="bi bi-map me-2"></i>'}
+                                ${mapa.nombre_mapa}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>${mapa.descripcion}</p>
+                            <div class="text-center">
+                                ${mapa.enlace ? 
+                                    `<a href="${mapa.enlace}" target="_blank" class="btn btn-${color} mb-3">
+                                        <i class="bi bi-box-arrow-up-right me-2"></i>Ver Mapa Interactivo
+                                    </a><br>` : ''
+                                }
+                                <img src="../imagenes/${mapa.codigo_mapa || 'mapa-placeholder.png'}" 
+                                     alt="${mapa.nombre_mapa}" 
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-height: 300px; cursor: pointer;"
+                                     onclick="window.open('${mapa.enlace}', '_blank')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                            <div class="alert alert-info text-center mt-4">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                Para ver otros mapas visita 
+                                <a href="https://www.imip.org.mx/imip/node/53" target="_blank" class="alert-link fw-bold">
+                                    Mapas Digitales Interactivos <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return html;
     }
     
     // Event listeners para navegación
