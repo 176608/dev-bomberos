@@ -775,7 +775,7 @@ const DynamicContent = {
     function loadCatalogo() {
         console.log('Cargando catálogo de cuadros estadísticos...');
         
-        fetch('/sigem/catalogo')
+        fetch('{{route("sigem.laravel.catalogo")}}')
             .then(response => response.json())
             .then(data => {
                 console.log('Datos del catálogo:', data);
