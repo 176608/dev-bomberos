@@ -387,78 +387,6 @@ const DynamicContent = {
     `,
 
     cartografia: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="title-row">
-                    <img src="../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
-                    <h2 class="text-success mb-0">
-                        <i class="bi bi-map-fill"></i> Cartografía Digital
-                    </h2>
-                </div>
-                
-                <p class="intro-text">En este apartado podrás encontrar mapas temáticos interactivos del Municipio de Juárez.</p>
-                
-                <div class="row">
-                    <div class="col-12">
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0"><i class="bi bi-map me-2"></i>Carta Urbana, 2018</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa representativo de la superficie territorial del Municipio de Juárez, Chihuahua, que enumera los principales referentes tales como nombre de calles, vialidades principales, colonias, fraccionamientos, parques industriales, etc.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/curbana/" title="Carta Urbana 2018" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-info text-white">
-                                    <h5 class="mb-0"><i class="bi bi-heart-fill me-2"></i>Niveles de Bienestar Social 2010 - 2020</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa que representa los niveles de bienestar social de la población. Incluye clasificación de zonas de rezago con base en diversos indicadores sociales.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/nbienestar/index.html" title="Niveles de Bienestar" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-warning text-dark">
-                                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Catálogo de sectores: Gobierno, parques, zonas industriales</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa que presenta la ubicación e información de sectores industriales, parques, zonas institucionales y de servicios en la ciudad.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/industria/index.html" title="Catálogo de sectores" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Cruces con mayor incidencia vial</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Ubicación de los cruceros con más alta incidencia de tránsito en el municipio, basada en información de reportes viales.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/Transito/index.html" title="Cruces viales" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info text-center mt-4">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            Para ver otros mapas visita 
-                            <a href="https://www.imip.org.mx/imip/node/53" target="_blank" class="alert-link fw-bold">
-                                Mapas Digitales Interactivos <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     `,
 
     productos: `
@@ -738,30 +666,20 @@ const DynamicContent = {
             });
     }
 
-    // Generar HTML para el catálogo
+    // Generar HTML para el catálogo - VERSIÓN SIMPLE
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-success mb-4 text-center">
-                        <i class="bi bi-journal-text"></i> Catálogo de Temas y Subtemas
-                    </h2>
-
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Sistema de clasificación:</strong> El catálogo está organizado en temas principales y subtemas específicos para facilitar la navegación y búsqueda de información.
+                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo</h2>
+                    
+                    <div class="alert alert-success">
+                        <strong>Datos cargados exitosamente</strong>
                     </div>
-
-                    <div class="alert alert-warning">
-                        <i class="bi bi-hourglass-split me-2"></i>
-                        <strong>Cargando...</strong> Los datos se están obteniendo dinámicamente desde la base de datos.
-                    </div>
-
-                    <div class="alert alert-light text-center mt-4">
-                        <i class="bi bi-lightbulb me-2"></i>
-                        <strong>Nota:</strong> Este catálogo muestra la estructura organizacional de temas y subtemas. 
-                        Los datos se cargan automáticamente al seleccionar esta sección.
-                    </div>
+                    
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">
+${JSON.stringify(data, null, 2)}
+                    </pre>
                 </div>
             </div>
         `;
