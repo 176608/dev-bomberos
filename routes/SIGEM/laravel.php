@@ -16,7 +16,7 @@ Route::prefix('sigem')->group(function () {
     Route::get('/estadisticas', [PublicController::class, 'estadisticas'])->name('sigem.laravel.estadisticas');
     
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
-    
+    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     // Obtener mapas para cartografía (AJAX)
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
     

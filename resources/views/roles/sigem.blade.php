@@ -565,15 +565,18 @@ const DynamicContent = {
         <div class="card shadow-sm">
             <div class="card-body">
                 <h2 class="text-success mb-4 text-center">
-                    <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                    <i class="bi bi-journal-text"></i> Catálogo de Temas y Subtemas
                 </h2>
 
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
-                    <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
+                    <strong>Sistema de clasificación:</strong> El catálogo está organizado en temas principales y subtemas específicos para facilitar la navegación y búsqueda de información.
                 </div>
 
-                <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Se encontraron <strong>${data.total_subtemas}</strong> subtemas organizados en <strong>${data.total_temas}</strong> temas principales.
+                </div>
 
                 <div class="row mt-4">
                     <div class="col-lg-6">
@@ -584,9 +587,34 @@ const DynamicContent = {
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <p class="text-muted">** Aquí va la tabla de temas por tanto en controller publico debe cargar los temas correspondientes **</p>
-                                <div class="alert alert-warning">
-                                    <small><i class="bi bi-wrench me-1"></i> Pendiente: Integración con base de datos mediante Eloquent</small>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Tema</th>
+                                                <th>Subtemas</th>
+                                                <th>Orden</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+    `;
+    
+    // Generar resumen por tema
+    if (data.resumen && data.resumen.temas_detallados) {
+        data.resumen.temas_detallados.forEach(tema => {
+            html += `
+                <tr>
+                    <td><strong>${tema.titulo}</strong></td>
+                    <td><span class="badge bg-primary">${tema.cantidad_subtemas}</span></td>
+                    <td>${tema.orden}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += `
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -596,15 +624,34 @@ const DynamicContent = {
                         <div class="card bg-light">
                             <div class="card-header bg-info text-white">
                                 <h5 class="mb-0">
-                                    <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                                    <i class="bi bi-diagram-3 me-2"></i>Distribución por Tema
                                 </h5>
                             </div>
-                            <div class="card-body text-center">
-                                <img src="../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
-                                <div class="alert alert-light">
-                                    <small>
-                                        El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                                    </small>
+                            <div class="card-body">
+                                <div class="d-flex flex-column gap-2">
+    `;
+    
+    // Generar gráfico simple de barras
+    if (data.resumen && data.resumen.temas_detallados) {
+        const maxSubtemas = Math.max(...data.resumen.temas_detallados.map(t => t.cantidad_subtemas));
+        
+        data.resumen.temas_detallados.forEach(tema => {
+            const porcentaje = (tema.cantidad_subtemas / maxSubtemas) * 100;
+            html += `
+                <div>
+                    <div class="d-flex justify-content-between">
+                        <small><strong>${tema.titulo}</strong></small>
+                        <small>${tema.cantidad_subtemas} subtemas</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" style="width: ${porcentaje}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
                                 </div>
                             </div>
                         </div>
@@ -613,45 +660,84 @@ const DynamicContent = {
 
                 <div class="mt-5">
                     <h4 class="text-center mb-4">
-                        <i class="bi bi-table me-2"></i>Índice General de Cuadros Estadísticos
+                        <i class="bi bi-table me-2"></i>Índice Completo de Temas y Subtemas
                     </h4>
 
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th style="width: 25%;">
-                                                <i class="bi bi-tag me-2"></i>Tema
-                                            </th>
-                                            <th style="width: 15%;">
-                                                <i class="bi bi-hash me-2"></i>Código
-                                            </th>
-                                            <th style="width: 60%;">
-                                                <i class="bi bi-file-text me-2"></i>Título del cuadro estadístico
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="3" class="text-center text-muted">
-                                                <div class="alert alert-warning">
-                                                    <i class="bi bi-database me-2"></i>
-                                                    <strong>Pendiente:</strong> Cambiar el uso de PHP por Eloquent para cargar los datos después de dar alta a base de datos y habilitarla
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+    `;
+    
+    // Generar acordeón por tema
+    if (data.catalogo_estructurado) {
+        html += `<div class="accordion" id="catalogoAccordion">`;
+        
+        let temaIndex = 0;
+        Object.keys(data.catalogo_estructurado).forEach(temaNombre => {
+            const subtemas = data.catalogo_estructurado[temaNombre];
+            const collapseId = `collapse-${temaIndex}`;
+            
+            html += `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-${temaIndex}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                            <i class="bi bi-folder me-2"></i>
+                            <strong>${temaNombre}</strong>
+                            <span class="badge bg-success ms-2">${subtemas.length} subtemas</span>
+                        </button>
+                    </h2>
+                    <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#catalogoAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+            `;
+            
+            subtemas.forEach(subtema => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-light">
+                            <div class="card-body p-3">
+                                <h6 class="card-title">
+                                    <i class="bi bi-file-text me-2"></i>
+                                    ${subtema.nombre}
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">ID: ${subtema.subtema_id}</small>
+                                    <small class="text-muted">Orden: ${subtema.orden}</small>
+                                </div>
+                                ${subtema.imagen ? `<small class="text-info"><i class="bi bi-image me-1"></i>Con imagen</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
                             </div>
                         </div>
                     </div>
                 </div>
+            `;
+            temaIndex++;
+        });
+        
+        html += `</div>`;
+    }
+    
+    html += `
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-light text-center mt-4">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <strong>Nota:</strong> Este catálogo muestra la estructura organizacional de temas y subtemas. 
+                    Próximamente se integrará con los cuadros estadísticos correspondientes.
+                </div>
             </div>
         </div>
-    `
-};
+    `;
+    
+    return html;
+}
     
     // Función para cargar contenido
     function loadContent(section) {
@@ -809,17 +895,17 @@ const DynamicContent = {
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="text-success mb-4 text-center">
-                        <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                        <i class="bi bi-journal-text"></i> Catálogo de Temas y Subtemas
                     </h2>
 
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
+                        <strong>Sistema de clasificación:</strong> El catálogo está organizado en temas principales y subtemas específicos para facilitar la navegación y búsqueda de información.
                     </div>
 
                     <div class="alert alert-success">
                         <i class="bi bi-check-circle me-2"></i>
-                        Se encontraron <strong>${data.total_cuadros}</strong> cuadros estadísticos organizados en <strong>${Object.keys(data.catalogo_estructurado).length}</strong> temas principales.
+                        Se encontraron <strong>${data.total_subtemas}</strong> subtemas organizados en <strong>${data.total_temas}</strong> temas principales.
                     </div>
 
                     <div class="row mt-4">
@@ -837,28 +923,24 @@ const DynamicContent = {
                                                 <tr>
                                                     <th>Tema</th>
                                                     <th>Subtemas</th>
-                                                    <th>Cuadros</th>
+                                                    <th>Orden</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
     `;
     
     // Generar resumen por tema
-    Object.keys(data.catalogo_estructurado).forEach(tema => {
-        const subtemas = Object.keys(data.catalogo_estructurado[tema]);
-        let totalCuadros = 0;
-        subtemas.forEach(subtema => {
-            totalCuadros += data.catalogo_estructurado[tema][subtema].length;
+    if (data.resumen && data.resumen.temas_detallados) {
+        data.resumen.temas_detallados.forEach(tema => {
+            html += `
+                <tr>
+                    <td><strong>${tema.titulo}</strong></td>
+                    <td><span class="badge bg-primary">${tema.cantidad_subtemas}</span></td>
+                    <td>${tema.orden}</td>
+                </tr>
+            `;
         });
-        
-        html += `
-            <tr>
-                <td><strong>${tema}</strong></td>
-                <td>${subtemas.length}</td>
-                <td>${totalCuadros}</td>
-            </tr>
-        `;
-    });
+    }
     
     html += `
                                         </tbody>
@@ -871,15 +953,34 @@ const DynamicContent = {
                             <div class="card bg-light">
                                 <div class="card-header bg-info text-white">
                                     <h5 class="mb-0">
-                                        <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                                        <i class="bi bi-diagram-3 me-2"></i>Distribución por Tema
                                     </h5>
                                 </div>
-                                <div class="card-body text-center">
-                                    <img src="../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm">
-                                    <div class="alert alert-light">
-                                        <small>
-                                            El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                                        </small>
+                                <div class="card-body">
+                                    <div class="d-flex flex-column gap-2">
+    `;
+    
+    // Generar gráfico simple de barras
+    if (data.resumen && data.resumen.temas_detallados) {
+        const maxSubtemas = Math.max(...data.resumen.temas_detallados.map(t => t.cantidad_subtemas));
+        
+        data.resumen.temas_detallados.forEach(tema => {
+            const porcentaje = (tema.cantidad_subtemas / maxSubtemas) * 100;
+            html += `
+                <div>
+                    <div class="d-flex justify-content-between">
+                        <small><strong>${tema.titulo}</strong></small>
+                        <small>${tema.cantidad_subtemas} subtemas</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" style="width: ${porcentaje}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
                                     </div>
                                 </div>
                             </div>
@@ -888,61 +989,84 @@ const DynamicContent = {
 
                     <div class="mt-5">
                         <h4 class="text-center mb-4">
-                            <i class="bi bi-table me-2"></i>Índice General de Cuadros Estadísticos
+                            <i class="bi bi-table me-2"></i>Índice Completo de Temas y Subtemas
                         </h4>
 
                         <div class="card">
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover">
-                                        <thead class="table-success">
-                                            <tr>
-                                                <th style="width: 25%;">
-                                                    <i class="bi bi-tag me-2"></i>Tema
-                                                </th>
-                                                <th style="width: 15%;">
-                                                    <i class="bi bi-hash me-2"></i>Código
-                                                </th>
-                                                <th style="width: 60%;">
-                                                    <i class="bi bi-file-text me-2"></i>Título del cuadro estadístico
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
     `;
     
-    // Generar tabla completa
-    data.cuadros_todos.forEach(cuadro => {
-        html += `
-            <tr>
-                <td>
-                    <span class="badge bg-primary">${cuadro.tema?.nombre || 'Sin tema'}</span>
-                    <br><small class="text-muted">${cuadro.subtema?.nombre_subtema || 'Sin subtema'}</small>
-                </td>
-                <td>
-                    <code class="bg-light text-dark p-1 rounded">${cuadro.codigo_cuadro}</code>
-                </td>
-                <td>
-                    <strong>${cuadro.cuadro_estadistico_titulo}</strong>
-                    ${cuadro.cuadro_estadistico_subtitulo ? `<br><small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
-                </td>
-            </tr>
-        `;
-    });
-    
-    html += `
-                                        </tbody>
-                                    </table>
+    // Generar acordeón por tema
+    if (data.catalogo_estructurado) {
+        html += `<div class="accordion" id="catalogoAccordion">`;
+        
+        let temaIndex = 0;
+        Object.keys(data.catalogo_estructurado).forEach(temaNombre => {
+            const subtemas = data.catalogo_estructurado[temaNombre];
+            const collapseId = `collapse-${temaIndex}`;
+            
+            html += `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-${temaIndex}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                            <i class="bi bi-folder me-2"></i>
+                            <strong>${temaNombre}</strong>
+                            <span class="badge bg-success ms-2">${subtemas.length} subtemas</span>
+                        </button>
+                    </h2>
+                    <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#catalogoAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+            `;
+            
+            subtemas.forEach(subtema => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-light">
+                            <div class="card-body p-3">
+                                <h6 class="card-title">
+                                    <i class="bi bi-file-text me-2"></i>
+                                    ${subtema.nombre}
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">ID: ${subtema.subtema_id}</small>
+                                    <small class="text-muted">Orden: ${subtema.orden}</small>
                                 </div>
+                                ${subtema.imagen ? `<small class="text-info"><i class="bi bi-image me-1"></i>Con imagen</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
-    
-        return html;
+            `;
+            temaIndex++;
+        });
+        
+        html += `</div>`;
     }
+    
+    html += `
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-light text-center mt-4">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <strong>Nota:</strong> Este catálogo muestra la estructura organizacional de temas y subtemas. 
+                    Próximamente se integrará con los cuadros estadísticos correspondientes.
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return html;
+}
     
     // Event listeners para navegación
     navLinks.forEach(link => {

@@ -25,7 +25,6 @@ class Subtema extends Model
      * Campos que se pueden asignar masivamente
      */
     protected $fillable = [
-        'tema_id',
         'subtema_titulo',
         'imagen',
         'orden_indice'
