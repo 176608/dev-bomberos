@@ -682,7 +682,7 @@ const DynamicContent = {
     
     // Función para cargar contenido de cartografía dinámicamente
     function loadCartografia() {
-        fetch('/sigem/mapas')
+        fetch('{{ route("sigem.laravel.mapas") }}')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
