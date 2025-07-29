@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
+use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo
 
 class PublicController extends Controller
 {
@@ -44,70 +45,92 @@ class PublicController extends Controller
             ], 500);
         }
     }
-    
-    /**
-     * Obtener temas para estadísticas
-     */
-    public function obtenerTemas()
-    {
-        try {
-            $temas = Tema::obtenerTodos();
-            
-            return response()->json([
-                'success' => true,
-                'temas' => $temas
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar temas'
-            ], 500);
-        }
-    }
-    
-    /**
-     * Obtener subtemas por tema
-     */
-    public function obtenerSubtemas($tema)
-    {
-        try {
-            $subtemas = Subtema::obtenerPorTema($tema);
-            
-            return response()->json([
-                'success' => true,
-                'subtemas' => $subtemas
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar subtemas'
-            ], 500);
-        }
-    }
-    
-    /**
-     * Obtener datos para catálogo
+
+        /**
+     * Obtener datos para catálogo (CORREGIR función existente)
      */
     public function obtenerCatalogo()
     {
         try {
-            $temas = Tema::with('subtemas')->get();
+            // Obtener todos los cuadros con sus relaciones
+            $cuadros = CuadroEstadistico::with(['tema', 'subtema'])
+                        ->orderBy('codigo_cuadro', 'asc')
+                        ->get();
+            
+            // Agrupar por tema para la vista estructurada
+            $catalogoEstructurado = [];
+            foreach ($cuadros as $cuadro) {
+                $tema_nombre = $cuadro->tema->nombre ?? 'Sin tema';
+                $subtema_nombre = $cuadro->subtema->nombre_subtema ?? 'Sin subtema';
+                
+                if (!isset($catalogoEstructurado[$tema_nombre])) {
+                    $catalogoEstructurado[$tema_nombre] = [];
+                }
+                
+                if (!isset($catalogoEstructurado[$tema_nombre][$subtema_nombre])) {
+                    $catalogoEstructurado[$tema_nombre][$subtema_nombre] = [];
+                }
+                
+                $catalogoEstructurado[$tema_nombre][$subtema_nombre][] = [
+                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                    'codigo_cuadro' => $cuadro->codigo_cuadro,
+                    'titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'subtitulo' => $cuadro->cuadro_estadistico_subtitulo
+                ];
+            }
             
             return response()->json([
                 'success' => true,
-                'catalogo' => $temas
+                'catalogo_estructurado' => $catalogoEstructurado,
+                'cuadros_todos' => $cuadros,
+                'total_cuadros' => $cuadros->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar catálogo: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar catálogo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * CORREGIR: Función para generar índice de cuadros
+     */
+    public function generarIndiceCuadros()
+    {
+        try {
+            $cuadros = CuadroEstadistico::with(['tema', 'subtema'])->get();
+            $indice = [];
+
+            foreach ($cuadros as $cuadro) {
+                $indice[] = [
+                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                    'subtema_id' => $cuadro->subtema_id,
+                    'subtema_titulo' => $cuadro->subtema->nombre_subtema ?? '', // CORREGIR campo
+                    'tema_titulo' => $cuadro->tema->nombre ?? '', // CORREGIR campo
+                    'codigo_cuadro' => $cuadro->codigo_cuadro,
+                    'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'indice' => $indice,
+                'total' => count($indice)
             ]);
             
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cargar catálogo'
+                'message' => 'Error al generar índice: ' . $e->getMessage()
             ], 500);
         }
     }
-    
+
     /**
      * Vista dashboard público
      */

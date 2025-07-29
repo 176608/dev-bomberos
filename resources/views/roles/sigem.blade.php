@@ -667,6 +667,8 @@ const DynamicContent = {
         setTimeout(() => {
             if (section === 'cartografia') {
                 loadCartografia();
+            } else if (section === 'catalogo') {
+                loadCatalogo(); // AGREGAR esta línea
             } else if (DynamicContent[section]) {
                 contentContainer.innerHTML = DynamicContent[section];
             } else {
@@ -766,6 +768,179 @@ const DynamicContent = {
             </div>
         `;
         
+        return html;
+    }
+    
+    // Función para cargar catálogo dinámicamente
+    function loadCatalogo() {
+        console.log('Cargando catálogo de cuadros estadísticos...');
+        
+        fetch('/sigem/catalogo')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos del catálogo:', data);
+                
+                if (data.success) {
+                    const catalogoHtml = generateCatalogoHtml(data);
+                    contentContainer.innerHTML = catalogoHtml;
+                } else {
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar catálogo: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Error de conexión al cargar catálogo
+                    </div>
+                `;
+            });
+    }
+
+    // Generar HTML para el catálogo
+    function generateCatalogoHtml(data) {
+        let html = `
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-success mb-4 text-center">
+                        <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                    </h2>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Se encontraron <strong>${data.total_cuadros}</strong> cuadros estadísticos organizados en <strong>${Object.keys(data.catalogo_estructurado).length}</strong> temas principales.
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <div class="card bg-light">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-list-ol me-2"></i>Estructura de Datos
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tema</th>
+                                                    <th>Subtemas</th>
+                                                    <th>Cuadros</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+    `;
+    
+    // Generar resumen por tema
+    Object.keys(data.catalogo_estructurado).forEach(tema => {
+        const subtemas = Object.keys(data.catalogo_estructurado[tema]);
+        let totalCuadros = 0;
+        subtemas.forEach(subtema => {
+            totalCuadros += data.catalogo_estructurado[tema][subtema].length;
+        });
+        
+        html += `
+            <tr>
+                <td><strong>${tema}</strong></td>
+                <td>${subtemas.length}</td>
+                <td>${totalCuadros}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card bg-light">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm">
+                                    <div class="alert alert-light">
+                                        <small>
+                                            El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <h4 class="text-center mb-4">
+                            <i class="bi bi-table me-2"></i>Índice General de Cuadros Estadísticos
+                        </h4>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-success">
+                                            <tr>
+                                                <th style="width: 25%;">
+                                                    <i class="bi bi-tag me-2"></i>Tema
+                                                </th>
+                                                <th style="width: 15%;">
+                                                    <i class="bi bi-hash me-2"></i>Código
+                                                </th>
+                                                <th style="width: 60%;">
+                                                    <i class="bi bi-file-text me-2"></i>Título del cuadro estadístico
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+    `;
+    
+    // Generar tabla completa
+    data.cuadros_todos.forEach(cuadro => {
+        html += `
+            <tr>
+                <td>
+                    <span class="badge bg-primary">${cuadro.tema?.nombre || 'Sin tema'}</span>
+                    <br><small class="text-muted">${cuadro.subtema?.nombre_subtema || 'Sin subtema'}</small>
+                </td>
+                <td>
+                    <code class="bg-light text-dark p-1 rounded">${cuadro.codigo_cuadro}</code>
+                </td>
+                <td>
+                    <strong>${cuadro.cuadro_estadistico_titulo}</strong>
+                    ${cuadro.cuadro_estadistico_subtitulo ? `<br><small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    
         return html;
     }
     

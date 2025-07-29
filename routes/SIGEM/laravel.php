@@ -29,6 +29,9 @@ Route::prefix('sigem')->group(function () {
     // Obtener datos para catálogo (AJAX)
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     
+    // Obtener índice de cuadros estadísticos
+    Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
+    
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
     
     // Sección INICIO (datos de dashboard)
