@@ -728,7 +728,7 @@ const DynamicContent = {
                     <div class="card">
                         <div class="card-header bg-${color} ${textColor}">
                             <h5 class="mb-0">
-                                ${mapa.icono ? `<i class="bi bi-${mapa.icono} me-2"></i>` : '<i class="bi bi-map me-2"></i>'}
+                                <i class="bi bi-map me-2"></i>
                                 ${mapa.nombre_mapa}
                             </h5>
                         </div>
@@ -740,7 +740,7 @@ const DynamicContent = {
                                         <i class="bi bi-box-arrow-up-right me-2"></i>Ver Mapa Interactivo
                                     </a><br>` : ''
                                 }
-                                <img src="../imagenes/${mapa.codigo_mapa || 'mapa-placeholder.png'}" 
+                                <img src="../imagenes/${mapa.icono || 'mapa-placeholder.png'}" 
                                      alt="${mapa.nombre_mapa}" 
                                      class="img-fluid rounded shadow-sm"
                                      style="max-height: 300px; cursor: pointer;"
