@@ -321,72 +321,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // Contenidos
 const DynamicContent = {
     inicio: `
-        INDEX, check cambios
+        main, principal, inicio, sigem
     `,
 
-    estadistica: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="estadistica-header">
-                    <img src="../imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid">
-                    <div>
-                        <h3 class="text-success mb-3">
-                            <i class="bi bi-bar-chart-fill"></i> Estadísticas Municipales
-                        </h3>
-                        <p class="lead">
-                            Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes 
-                            Municipales, Estatales, Federales, entre otros.
-                        </p>
-                        <p class="text-muted">
-                            Los cuadros estadísticos están categorizados en los siguientes temas:
-                        </p>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <h5 class="mb-3 text-center">Selecciona un tema de consulta:</h5>
-                        <div class="botones-temas">
-                            <a href="geografico.php">
-                                <i class="bi bi-geo-alt-fill me-2"></i>Geográfico
-                            </a>
-                            <a href="medioambiente.php">
-                                <i class="bi bi-tree-fill me-2"></i>Medio Ambiente
-                            </a>
-                            <a href="sociodemografico.php">
-                                <i class="bi bi-people-fill me-2"></i>Sociodemográfico
-                            </a>
-                            <a href="inventariourbano.php">
-                                <i class="bi bi-building me-2"></i>Inventario Urbano
-                            </a>
-                            <a href="economico.php">
-                                <i class="bi bi-currency-dollar me-2"></i>Económico
-                            </a>
-                            <a href="sectorpublico.php">
-                                <i class="bi bi-bank me-2"></i>Sector Público
-                            </a>
-                        </div>
-                        
-                        <div class="catalogo mt-4">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <i class="bi bi-journal-text display-6"></i>
-                                    </h5>
-                                    <a href="catalogo.php" class="btn btn-success btn-lg">
-                                        <i class="bi bi-list-ul me-2"></i>
-                                        Catálogo completo de cuadros estadísticos
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    estadistica: `cargar 6 temas aca, modelo tema
     `,
 
-    cartografia: `
+    cartografia: `Cargar mapas aca, modelo mapa
     `,
 
     productos: `
@@ -489,30 +430,7 @@ const DynamicContent = {
         </div>
     `,
 
-    catalogo: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="text-success mb-4 text-center">
-                    <i class="bi bi-journal-text"></i> Catálogo de Temas y Subtemas
-                </h2>
-
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Sistema de clasificación:</strong> El catálogo está organizado en temas principales y subtemas específicos para facilitar la navegación y búsqueda de información.
-                </div>
-
-                <div class="alert alert-warning">
-                    <i class="bi bi-hourglass-split me-2"></i>
-                    <strong>Cargando...</strong> Los datos se están obteniendo dinámicamente desde la base de datos.
-                </div>
-
-                <div class="alert alert-light text-center mt-4">
-                    <i class="bi bi-lightbulb me-2"></i>
-                    <strong>Nota:</strong> Este catálogo muestra la estructura organizacional de temas y subtemas. 
-                    Los datos se cargan automáticamente al seleccionar esta sección.
-                </div>
-            </div>
-        </div>
+    catalogo: `Debe cargar modelo de catalogo aca, lista de los temas y sus respectivos subtemas
     `
 };
 
@@ -550,11 +468,18 @@ const DynamicContent = {
         fetch('{{ route("sigem.laravel.mapas") }}')
             .then(response => response.json())
             .then(data => {
+                console.log('DATOS MAPAS RECIBIDOS:', data); // AGREGAR: Para debug
+                
                 if (data.success) {
-                    const mapasHtml = generateMapasHtml(data.mapas);
+                    const mapasHtml = generateMapasHtml(data);
                     contentContainer.innerHTML = mapasHtml;
                 } else {
-                    contentContainer.innerHTML = '<div class="alert alert-danger">Error al cargar mapas</div>';
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar mapas: ${data.message}
+                        </div>
+                    `;
                 }
             })
             .catch(error => {
@@ -563,70 +488,45 @@ const DynamicContent = {
             });
     }
 
-    // Generar HTML para los mapas
-    function generateMapasHtml(mapas) {
+    // Generar HTML para los mapas - ACTUALIZADO para mostrar datos del modelo
+    function generateMapasHtml(data) {
         let html = `
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="title-row">
-                        <img src="../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
-                        <h2 class="text-success mb-0">
-                            <i class="bi bi-map-fill"></i> Cartografía Digital
-                        </h2>
+                    <h2 class="text-success mb-4">Cartografía - Datos del Modelo Mapa</h2>
+                    
+                    <div class="alert alert-success">
+                        <strong>Total de mapas:</strong> ${data.total_mapas}<br>
+                        <strong>Mensaje:</strong> ${data.message}
                     </div>
                     
-                    <p class="intro-text">En este apartado podrás encontrar mapas temáticos interactivos del Municipio de Juárez.</p>
+                    <h4>Datos Raw del Modelo:</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">
+${JSON.stringify(data, null, 2)}
+                    </pre>
                     
-                    <div class="row">
-                        <div class="col-12">
-        `;
-        
-        // Colores para las cards
-        const colores = ['success', 'info', 'warning', 'danger', 'primary', 'secondary'];
-        
-        mapas.forEach((mapa, index) => {
-            const color = colores[index % colores.length];
-            const textColor = color === 'warning' ? 'text-dark' : 'text-white';
-            
-            html += `
-                <div class="map-section">
-                    <div class="card">
-                        <div class="card-header bg-${color} ${textColor}">
-                            <h5 class="mb-0">
-                                <i class="bi bi-map me-2"></i>
-                                ${mapa.nombre_mapa}
-                            </h5>
+                    ${data.mapas && data.mapas.length > 0 ? `
+                        <h4>Mapas Individuales:</h4>
+                        <div class="row">
+                            ${data.mapas.map((mapa, index) => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header bg-info text-white">
+                                            <strong>Mapa #${index + 1}</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>ID:</strong> ${mapa.mapa_id || 'N/A'}</p>
+                                            <p><strong>Nombre:</strong> ${mapa.nombre_mapa || 'N/A'}</p>
+                                            <p><strong>Sección:</strong> ${mapa.nombre_seccion || 'N/A'}</p>
+                                            <p><strong>Descripción:</strong> ${mapa.descripcion || 'N/A'}</p>
+                                            <p><strong>Enlace:</strong> ${mapa.enlace || 'N/A'}</p>
+                                            <p><strong>Icono:</strong> ${mapa.icono || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
-                        <div class="card-body">
-                            <p>${mapa.descripcion}</p>
-                            <div class="text-center">
-                                ${mapa.enlace ? 
-                                    `<a href="${mapa.enlace}" target="_blank" class="btn btn-${color} mb-3">
-                                        <i class="bi bi-box-arrow-up-right me-2"></i>Ver Mapa Interactivo
-                                    </a><br>` : ''
-                                }
-                                <img src="../img/SIGEM_Mapas/${mapa.icono || 'mapa-placeholder.png'}" 
-                                     alt="${mapa.nombre_mapa}" 
-                                     class="img-fluid rounded shadow-sm"
-                                     style="max-height: 300px; cursor: pointer;"
-                                     onclick="window.open('${mapa.enlace}', '_blank')">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += `
-                            <div class="alert alert-info text-center mt-4">
-                                <i class="bi bi-info-circle-fill me-2"></i>
-                                Para ver otros mapas visita 
-                                <a href="https://www.imip.org.mx/imip/node/53" target="_blank" class="alert-link fw-bold">
-                                    Mapas Digitales Interactivos <i class="bi bi-box-arrow-up-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    ` : '<p>No hay mapas disponibles</p>'}
                 </div>
             </div>
         `;
@@ -641,7 +541,7 @@ const DynamicContent = {
         fetch('{{route("sigem.laravel.catalogo")}}')
             .then(response => response.json())
             .then(data => {
-                console.log('Datos del catálogo:', data);
+                console.log('DATOS CATÁLOGO RECIBIDOS:', data); // AGREGAR: Para debug
                 
                 if (data.success) {
                     const catalogoHtml = generateCatalogoHtml(data);
@@ -666,20 +566,40 @@ const DynamicContent = {
             });
     }
 
-    // Generar HTML para el catálogo - VERSIÓN SIMPLE
+    // Generar HTML para el catálogo - ACTUALIZADO para mostrar datos del modelo
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo</h2>
+                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo Catalogo</h2>
                     
                     <div class="alert alert-success">
-                        <strong>Datos cargados exitosamente</strong>
+                        <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
+                        <strong>Total de subtemas:</strong> ${data.total_subtemas || 0}<br>
+                        <strong>Mensaje:</strong> ${data.message}
                     </div>
                     
-                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">
+                    <h4>Datos Raw del Modelo:</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">
 ${JSON.stringify(data, null, 2)}
                     </pre>
+                    
+                    ${data.resumen ? `
+                        <h4>Resumen del Catálogo:</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-warning text-dark">
+                                        <strong>Estadísticas</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Total Temas:</strong> ${data.resumen.total_temas}</p>
+                                        <p><strong>Total Subtemas:</strong> ${data.resumen.total_subtemas}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;

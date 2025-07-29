@@ -2,12 +2,12 @@
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
-use App\Http\Controllers\SIGEM\Controller;
+use App\Http\Controllers\Controller; // CAMBIO: Controller base de Laravel
 use Illuminate\Http\Request;
 use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
-use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo
+use App\Models\SIGEM\Catalogo; // AGREGAR: Import del modelo Catalogo
 
 class PublicController extends Controller
 {
@@ -17,6 +17,31 @@ class PublicController extends Controller
     public function index()
     {
         return view('roles.sigem');
+    }
+    
+    /**
+     * Obtener mapas para AJAX - ACTUALIZADO
+     */
+    public function obtenerMapas()
+    {
+        try {
+            $mapas = Mapa::obtenerParaCartografia();
+            
+            return response()->json([
+                'success' => true,
+                'mapas' => $mapas,
+                'total_mapas' => $mapas->count(),
+                'message' => 'Mapas cargados exitosamente'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'mapas' => [],
+                'total_mapas' => 0,
+                'message' => 'Error al cargar mapas: ' . $e->getMessage()
+            ]);
+        }
     }
     
     public function obtenerCatalogo()
@@ -47,18 +72,6 @@ class PublicController extends Controller
                 'total_subtemas' => 0
             ]);
         }
-    }
-    
-    /**
-     * Obtener mapas para AJAX (método existente)
-     */
-    public function obtenerMapas()
-    {
-        // Implementar según tu lógica de mapas
-        return response()->json([
-            'success' => true,
-            'mapas' => []
-        ]);
     }
 
     /**
