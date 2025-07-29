@@ -47,22 +47,50 @@ class PublicController extends Controller
     }
 
         /**
-     * Obtener datos para catálogo (CORREGIR función existente)
+     * Obtener datos para catálogo (CORREGIDO)
      */
     public function obtenerCatalogo()
     {
         try {
-            // Obtener todos los cuadros con sus relaciones
-            $cuadros = CuadroEstadistico::with(['tema', 'subtema'])
+            // Obtener todos los cuadros con solo la relación subtema
+            $cuadros = CuadroEstadistico::with(['subtema'])
                         ->orderBy('codigo_cuadro', 'asc')
                         ->get();
             
+            // Obtener todos los temas por separado
+            $temas = Tema::all()->keyBy('nombre');
+            
             // Agrupar por tema para la vista estructurada
             $catalogoEstructurado = [];
+            $cuadrosFormateados = [];
+            
             foreach ($cuadros as $cuadro) {
-                $tema_nombre = $cuadro->tema->nombre ?? 'Sin tema';
-                $subtema_nombre = $cuadro->subtema->nombre_subtema ?? 'Sin subtema';
+                // Obtener subtema
+                $subtema = $cuadro->subtema;
+                $subtema_nombre = $subtema ? $subtema->nombre_subtema : 'Sin subtema';
                 
+                // Obtener tema a través del campo 'tema' del subtema
+                $tema_string = $subtema ? $subtema->tema : 'Sin tema';
+                $tema_obj = $temas->get($tema_string);
+                $tema_nombre = $tema_obj ? $tema_obj->nombre : $tema_string;
+                
+                // Formatear cuadro para la respuesta
+                $cuadroFormateado = [
+                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                    'codigo_cuadro' => $cuadro->codigo_cuadro,
+                    'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
+                    'tema' => (object)[
+                        'nombre' => $tema_nombre
+                    ],
+                    'subtema' => (object)[
+                        'nombre_subtema' => $subtema_nombre
+                    ]
+                ];
+                
+                $cuadrosFormateados[] = $cuadroFormateado;
+                
+                // Agrupar para estructura
                 if (!isset($catalogoEstructurado[$tema_nombre])) {
                     $catalogoEstructurado[$tema_nombre] = [];
                 }
@@ -82,7 +110,7 @@ class PublicController extends Controller
             return response()->json([
                 'success' => true,
                 'catalogo_estructurado' => $catalogoEstructurado,
-                'cuadros_todos' => $cuadros,
+                'cuadros_todos' => $cuadrosFormateados,
                 'total_cuadros' => $cuadros->count()
             ]);
             

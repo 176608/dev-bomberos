@@ -26,7 +26,6 @@ class CuadroEstadistico extends Model
      */
     protected $fillable = [
         'subtema_id',
-        'tema_id',
         'codigo_cuadro',
         'cuadro_estadistico_titulo',
         'cuadro_estadistico_subtitulo',
@@ -42,17 +41,11 @@ class CuadroEstadistico extends Model
     ];
     
     /**
-     * Campos ocultos para arrays/JSON
-     */
-    protected $hidden = [];
-    
-    /**
      * Casting de atributos
      */
     protected $casts = [
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
-        'tema_id' => 'integer',
         'codigo_cuadro' => 'string',
         'cuadro_estadistico_titulo' => 'string',
         'cuadro_estadistico_subtitulo' => 'string',
@@ -68,19 +61,28 @@ class CuadroEstadistico extends Model
     ];
     
     /**
-     * Relación: Un cuadro estadístico pertenece a un tema
-     */
-    public function tema()
-    {
-        return $this->belongsTo(Tema::class, 'tema_id', 'id');
-    }
-    
-    /**
-     * Relación: Un cuadro estadístico pertenece a un subtema
+     * CORREGIR: Relación con Subtema usando la clave correcta
+     * La tabla subtemas tiene 'id' como PK, cuadro_estadistico tiene 'subtema_id' como FK
      */
     public function subtema()
     {
         return $this->belongsTo(Subtema::class, 'subtema_id', 'id');
+    }
+    
+    /**
+     * CORREGIR: Relación con Tema a través de Subtema
+     * No usar campo tema_id directamente
+     */
+    public function tema()
+    {
+        return $this->hasOneThrough(
+            Tema::class,
+            Subtema::class,
+            'id', // Foreign key en tabla subtemas
+            'nombre', // Foreign key en tabla temas (tema string en subtemas)
+            'subtema_id', // Local key en cuadro_estadistico
+            'tema' // Local key en subtemas (tema string)
+        );
     }
     
     /**
@@ -93,34 +95,21 @@ class CuadroEstadistico extends Model
     
     /**
      * Obtener todos los cuadros estadísticos con relaciones
-     * Equivalente a obtenerCuadros() del archivo PHP
      */
     public static function obtenerTodos()
     {
-        return self::with(['tema', 'subtema'])
+        return self::with(['subtema'])
                   ->orderBy('codigo_cuadro', 'asc')
                   ->get();
     }
     
     /**
      * Obtener cuadro estadístico por ID con relaciones
-     * Equivalente a obtenerCuadroPorId() del archivo PHP
      */
     public static function obtenerPorId($cuadro_estadistico_id)
     {
-        return self::with(['tema', 'subtema', 'mapa'])
+        return self::with(['subtema', 'mapa'])
                   ->find($cuadro_estadistico_id);
-    }
-    
-    /**
-     * Obtener cuadros por tema
-     */
-    public static function obtenerPorTema($tema_id)
-    {
-        return self::with(['tema', 'subtema'])
-                  ->where('tema_id', $tema_id)
-                  ->orderBy('codigo_cuadro', 'asc')
-                  ->get();
     }
     
     /**
@@ -128,7 +117,7 @@ class CuadroEstadistico extends Model
      */
     public static function obtenerPorSubtema($subtema_id)
     {
-        return self::with(['tema', 'subtema'])
+        return self::with(['subtema'])
                   ->where('subtema_id', $subtema_id)
                   ->orderBy('codigo_cuadro', 'asc')
                   ->get();
