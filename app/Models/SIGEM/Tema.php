@@ -15,7 +15,7 @@ class Tema extends Model
     /**
      * Clave primaria de la tabla
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'tema_id';
     
     /**
      * Indica si el modelo debe manejar timestamps automáticamente
@@ -26,9 +26,9 @@ class Tema extends Model
      * Campos que se pueden asignar masivamente
      */
     protected $fillable = [
-        'nombre',
+        'tema_titulo',
         'nombre_archivo',
-        'descripcion'
+        'orden_indice'
     ];
     
     /**
@@ -40,10 +40,10 @@ class Tema extends Model
      * Casting de atributos
      */
     protected $casts = [
-        'id' => 'integer',
-        'nombre' => 'string',
+        'tema_id' => 'integer',
+        'tema_titulo' => 'string',
         'nombre_archivo' => 'string',
-        'descripcion' => 'string'
+        'orden_indice' => 'integer'
     ];
     
     /**
@@ -57,9 +57,9 @@ class Tema extends Model
     /**
      * Obtener tema por ID
      */
-    public static function obtenerPorId($id)
+    public static function obtenerPorId($tema_id)
     {
-        return self::find($id);
+        return self::find($tema_id);
     }
     
     /**
@@ -89,9 +89,9 @@ class Tema extends Model
     /**
      * Eliminar tema por ID (método estático)
      */
-    public static function eliminarPorId($id)
+    public static function eliminarPorId($tema_id)
     {
-        $tema = self::find($id);
+        $tema = self::find($tema_id);
         if ($tema) {
             return $tema->delete();
         }
@@ -101,25 +101,18 @@ class Tema extends Model
     /**
      * Buscar temas por nombre
      */
-    public static function buscarPorNombre($nombre)
+    public static function buscarPorTitulo($tema_titulo)
     {
-        return self::where('nombre', 'LIKE', "%{$nombre}%")->get();
+        return self::where('tema_titulo', 'LIKE', "%{$tema_titulo}%")->get();
     }
     
-    /**
-     * Obtener temas activos (si hay campo de estado)
-     */
-    public static function obtenerActivos()
-    {
-        return self::all(); // Ajustar si hay campo de estado
-    }
     
     /**
      * Scope para ordenar por nombre
      */
-    public function scopeOrdenadoPorNombre($query)
+    public function scopeOrdenadoPorTitulo($query)
     {
-        return $query->orderBy('nombre', 'asc');
+        return $query->orderBy('tema_titulo', 'asc');
     }
     
     /**
@@ -133,8 +126,33 @@ class Tema extends Model
     /**
      * Validar si el tema existe
      */
-    public static function existe($id)
+    public static function existe($tema_id)
     {
-        return self::where('id', $id)->exists();
+        return self::where('tema_id ', $tema_id)->exists();
+    }
+
+    /**
+     * Relación: Un tema tiene muchos subtemas
+     */
+    public function subtemas()
+    {
+        return $this->hasMany(Subtema::class, 'tema_id', 'tema_id')
+                   ->orderBy('orden_indice', 'asc');
+    }
+
+    /**
+     * Obtener tema con sus subtemas
+     */
+    public static function obtenerConSubtemas($tema_id)
+    {
+        return self::with('subtemas')->find($tema_id);
+    }
+
+    /**
+     * Obtener todos los temas con subtemas
+     */
+    public static function obtenerTodosConSubtemas()
+    {
+        return self::with('subtemas')->orderBy('orden_indice', 'asc')->get();
     }
 }
