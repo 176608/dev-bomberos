@@ -566,67 +566,147 @@ ${JSON.stringify(data, null, 2)}
             });
     }
 
-    // Generar HTML para el catálogo - ACTUALIZADO para mostrar claves
+    // Generar HTML para el catálogo - ACTUALIZADO con nueva estructura
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo con Claves</h2>
-                    
-                    <div class="alert alert-success">
-                        <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
-                        <strong>Total de subtemas:</strong> ${data.total_subtemas || 0}<br>
-                        <strong>Mensaje:</strong> ${data.message}
+                    <h2 class="text-success mb-4 text-center">
+                        <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                    </h2>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
                     </div>
-                    
-                    ${data.temas_detalle ? `
-                        <h4>Temas con Claves:</h4>
-                        <div class="accordion" id="temasAccordion">
-                            ${data.temas_detalle.map((tema, index) => `
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#tema${tema.tema_id}">
-                                            <strong>${tema.tema_titulo}</strong> 
-                                            <span class="badge bg-info ms-2">Clave: ${tema.clave_tema || 'Sin clave'}</span>
-                                        </button>
-                                    </h2>
-                                    <div id="tema${tema.tema_id}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#temasAccordion">
-                                        <div class="accordion-body">
-                                            <h6>Subtemas:</h6>
-                                            ${tema.subtemas.map(subtema => `
-                                                <div class="card mb-2">
-                                                    <div class="card-body p-2">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <strong>${subtema.subtema_titulo}</strong>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <small>
-                                                                    <strong>Clave Original:</strong> ${subtema.clave_original || 'Nula'}<br>
-                                                                    <strong>Clave Efectiva:</strong> <span class="badge bg-primary">${subtema.clave_efectiva || 'Sin clave'}</span><br>
-                                                                    <strong>Origen:</strong> <span class="badge bg-secondary">${subtema.clave_subtema || 'Sin clave'}</span>
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `).join('')}
-                                        </div>
+
+                    <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-6">
+                            <div class="card bg-light">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Estructura de Índice</h5>
+                                </div>
+                                <div class="card-body">
+                                    ${data.temas_detalle ? generateEstructuraIndice(data.temas_detalle) : '<p>No hay datos disponibles</p>'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card bg-light">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
+                                    <div class="alert alert-light">
+                                        <small>
+                                            El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
+                                        </small>
                                     </div>
                                 </div>
-                            `).join('')}
+                            </div>
                         </div>
-                    ` : ''}
-                    
-                    <h4 class="mt-4">Datos Raw del Modelo:</h4>
-                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">
+                    </div>
+
+                    <!-- SEGUNDA SECCIÓN: Datos Raw -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-code-square me-2"></i>Datos del Modelo (Debug)
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-success mb-3">
+                                        <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
+                                        <strong>Total de subtemas:</strong> ${data.total_subtemas || 0}<br>
+                                        <strong>Mensaje:</strong> ${data.message}
+                                    </div>
+                                    
+                                    <h6>Datos Raw del Modelo:</h6>
+                                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px; font-size: 12px;">
 ${JSON.stringify(data, null, 2)}
-                    </pre>
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
         
         return html;
+    }
+
+    // Nueva función para generar la estructura de índice similar a las imágenes
+    function generateEstructuraIndice(temasDetalle) {
+        let estructura = `
+            <div style="font-size: 12px;">
+                <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+        `;
+
+        temasDetalle.forEach((tema, temaIndex) => {
+            // Determinar el color del header basado en el número de tema
+            const colores = [
+                'background-color: #8FBC8F;', // Verde claro
+                'background-color: #87CEEB;', // Azul cielo
+                'background-color: #DDA0DD;', // Púrpura claro
+                'background-color: #F0E68C;', // Amarillo claro
+                'background-color: #FFA07A;', // Salmón
+                'background-color: #98FB98;'  // Verde pálido
+            ];
+            
+            const colorTema = colores[temaIndex % colores.length];
+
+            estructura += `
+                <div class="mb-3" style="border: 1px solid #ddd;">
+                    <!-- Header del tema -->
+                    <div class="text-center text-white fw-bold py-2" style="${colorTema}">
+                        ${temaIndex + 1}. ${tema.titulo.toUpperCase()}
+                    </div>
+                    
+                    <!-- Subtemas -->
+                    <div style="background-color: white;">
+            `;
+
+            if (tema.subtemas && tema.subtemas.length > 0) {
+                tema.subtemas.forEach((subtema, subtemaIndex) => {
+                    // Alternar colores de fondo para las filas
+                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                    
+                    estructura += `
+                        <div class="d-flex border-bottom" style="${bgColor}">
+                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                                ${subtema.clave_efectiva || subtema.clave_original || tema.clave_tema || 'N/A'}
+                            </div>
+                            <div class="px-3 py-2 flex-grow-1">
+                                ${subtema.titulo}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                estructura += `
+                    <div class="px-3 py-2 text-muted">
+                        <em>Sin subtemas disponibles</em>
+                    </div>
+                `;
+            }
+
+            estructura += `
+                    </div>
+                </div>
+            `;
+        });
+
+        estructura += `</div>`;
+        return estructura;
     }
     
     // Event listeners para navegación
