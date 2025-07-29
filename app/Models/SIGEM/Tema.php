@@ -28,7 +28,8 @@ class Tema extends Model
     protected $fillable = [
         'tema_titulo',
         'nombre_archivo',
-        'orden_indice'
+        'orden_indice',
+        'clave_tema' // AGREGAR: nuevo campo
     ];
     
     /**
@@ -43,7 +44,8 @@ class Tema extends Model
         'tema_id' => 'integer',
         'tema_titulo' => 'string',
         'nombre_archivo' => 'string',
-        'orden_indice' => 'integer'
+        'orden_indice' => 'integer',
+        'clave_tema' => 'string' // AGREGAR: nuevo campo
     ];
     
     /**
@@ -154,5 +156,43 @@ class Tema extends Model
     public static function obtenerTodosConSubtemas()
     {
         return self::with('subtemas')->orderBy('orden_indice', 'asc')->get();
+    }
+
+    /**
+     * Obtener tema con sus subtemas aplicando lógica de claves
+     */
+    public static function obtenerConSubtemasYClaves($tema_id)
+    {
+        $tema = self::with(['subtemas' => function($query) {
+            $query->orderBy('orden_indice', 'asc');
+        }])->find($tema_id);
+        
+        if ($tema) {
+            // Aplicar lógica de claves a los subtemas
+            foreach ($tema->subtemas as $subtema) {
+                $subtema->clave_efectiva = $subtema->obtenerClaveEfectiva();
+            }
+        }
+        
+        return $tema;
+    }
+
+    /**
+     * Obtener todos los temas con subtemas y lógica de claves
+     */
+    public static function obtenerTodosConSubtemasYClaves()
+    {
+        $temas = self::with(['subtemas' => function($query) {
+            $query->orderBy('orden_indice', 'asc');
+        }])->orderBy('orden_indice', 'asc')->get();
+        
+        // Aplicar lógica de claves
+        foreach ($temas as $tema) {
+            foreach ($tema->subtemas as $subtema) {
+                $subtema->clave_efectiva = $subtema->obtenerClaveEfectiva();
+            }
+        }
+        
+        return $temas;
     }
 }

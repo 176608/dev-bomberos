@@ -60,6 +60,59 @@ class Catalogo extends Model
     }
     
     /**
+     * Obtener estructura completa del catálogo organizada CON CLAVES
+     */
+    public static function obtenerEstructuraCatalogoConClaves()
+    {
+        $temas = Tema::obtenerTodosConSubtemasYClaves(); // CAMBIO: usar nueva función
+        $estructura = [];
+        $totalSubtemas = 0;
+        
+        foreach ($temas as $tema) {
+            $estructura[$tema->tema_titulo] = [];
+            
+            foreach ($tema->subtemas as $subtema) {
+                $infoClave = $subtema->obtenerInfoClave(); // AGREGAR: obtener info de clave
+                
+                $estructura[$tema->tema_titulo][] = [
+                    'subtema_id' => $subtema->subtema_id,
+                    'nombre' => $subtema->subtema_titulo,
+                    'imagen' => $subtema->imagen,
+                    'orden' => $subtema->orden_indice,
+                    'clave_original' => $subtema->clave_subtema, // AGREGAR
+                    'clave_efectiva' => $infoClave['clave_efectiva'], // AGREGAR
+                    'origen_clave' => $infoClave['origen'], // AGREGAR
+                    'clave_tema' => $infoClave['clave_tema'] // AGREGAR
+                ];
+                $totalSubtemas++;
+            }
+        }
+        
+        return [
+            'estructura' => $estructura,
+            'total_temas' => count($temas),
+            'total_subtemas' => $totalSubtemas,
+            'temas_detalle' => $temas->map(function($tema) {
+                return [
+                    'tema_id' => $tema->tema_id,
+                    'titulo' => $tema->tema_titulo,
+                    'clave_tema' => $tema->clave_tema, // AGREGAR
+                    'subtemas' => $tema->subtemas->map(function($subtema) {
+                        $infoClave = $subtema->obtenerInfoClave();
+                        return [
+                            'subtema_id' => $subtema->subtema_id,
+                            'titulo' => $subtema->subtema_titulo,
+                            'clave_original' => $subtema->clave_subtema,
+                            'clave_efectiva' => $infoClave['clave_efectiva'],
+                            'origen_clave' => $infoClave['origen']
+                        ];
+                    })
+                ];
+            })
+        ];
+    }
+    
+    /**
      * Obtener resumen estadístico del catálogo
      */
     public static function obtenerResumen()

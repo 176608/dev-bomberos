@@ -566,12 +566,12 @@ ${JSON.stringify(data, null, 2)}
             });
     }
 
-    // Generar HTML para el catálogo - ACTUALIZADO para mostrar datos del modelo
+    // Generar HTML para el catálogo - ACTUALIZADO para mostrar claves
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo Catalogo</h2>
+                    <h2 class="text-success mb-4">Catálogo - Datos del Modelo con Claves</h2>
                     
                     <div class="alert alert-success">
                         <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
@@ -579,27 +579,49 @@ ${JSON.stringify(data, null, 2)}
                         <strong>Mensaje:</strong> ${data.message}
                     </div>
                     
-                    <h4>Datos Raw del Modelo:</h4>
+                    ${data.temas_detalle ? `
+                        <h4>Temas con Claves:</h4>
+                        <div class="accordion" id="temasAccordion">
+                            ${data.temas_detalle.map((tema, index) => `
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#tema${tema.tema_id}">
+                                            <strong>${tema.titulo}</strong> 
+                                            <span class="badge bg-info ms-2">Clave: ${tema.clave_tema || 'Sin clave'}</span>
+                                        </button>
+                                    </h2>
+                                    <div id="tema${tema.tema_id}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#temasAccordion">
+                                        <div class="accordion-body">
+                                            <h6>Subtemas:</h6>
+                                            ${tema.subtemas.map(subtema => `
+                                                <div class="card mb-2">
+                                                    <div class="card-body p-2">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <strong>${subtema.titulo}</strong>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <small>
+                                                                    <strong>Clave Original:</strong> ${subtema.clave_original || 'Nula'}<br>
+                                                                    <strong>Clave Efectiva:</strong> <span class="badge bg-primary">${subtema.clave_efectiva || 'Sin clave'}</span><br>
+                                                                    <strong>Origen:</strong> <span class="badge bg-secondary">${subtema.origen_clave}</span>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <h4 class="mt-4">Datos Raw del Modelo:</h4>
                     <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">
 ${JSON.stringify(data, null, 2)}
                     </pre>
-                    
-                    ${data.resumen ? `
-                        <h4>Resumen del Catálogo:</h4>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header bg-warning text-dark">
-                                        <strong>Estadísticas</strong>
-                                    </div>
-                                    <div class="card-body">
-                                        <p><strong>Total Temas:</strong> ${data.resumen.total_temas}</p>
-                                        <p><strong>Total Subtemas:</strong> ${data.resumen.total_subtemas}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ` : ''}
                 </div>
             </div>
         `;

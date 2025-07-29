@@ -27,13 +27,10 @@ class Subtema extends Model
     protected $fillable = [
         'subtema_titulo',
         'imagen',
-        'orden_indice'
+        'orden_indice',
+        'tema_id',
+        'clave_subtema' // AGREGAR: nuevo campo
     ];
-    
-    /**
-     * Campos ocultos para arrays/JSON
-     */
-    protected $hidden = [];
     
     /**
      * Casting de atributos
@@ -43,7 +40,8 @@ class Subtema extends Model
         'tema_id' => 'integer',
         'subtema_titulo' => 'string',
         'imagen' => 'string',
-        'orden_indice' => 'integer'
+        'orden_indice' => 'integer',
+        'clave_subtema' => 'string' // AGREGAR: nuevo campo
     ];
     
     /**
@@ -174,5 +172,90 @@ class Subtema extends Model
     public static function tieneTema($tema_id)
     {
         return self::where('tema_id', $tema_id)->exists();
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Obtener clave efectiva con lógica de herencia y duplicados
+     */
+    public function obtenerClaveEfectiva()
+    {
+        // 1. Si tiene clave_subtema propia, verificar duplicados
+        if (!empty($this->clave_subtema)) {
+            // Buscar si hay otros subtemas con la misma clave
+            $duplicados = self::where('clave_subtema', $this->clave_subtema)
+                             ->where('subtema_id', '!=', $this->subtema_id)
+                             ->orderBy('orden_indice', 'asc')
+                             ->get();
+            
+            if ($duplicados->count() > 0) {
+                // Hay duplicados, verificar si este es el de menor orden_indice
+                $menorOrden = self::where('clave_subtema', $this->clave_subtema)
+                                ->min('orden_indice');
+                
+                if ($this->orden_indice == $menorOrden) {
+                    return $this->clave_subtema; // Este es el de menor orden
+                } else {
+                    // No es el de menor orden, usar clave del tema
+                    return $this->tema ? $this->tema->clave_tema : null;
+                }
+            } else {
+                // No hay duplicados, usar su propia clave
+                return $this->clave_subtema;
+            }
+        }
+        
+        // 2. Si clave_subtema es nulo, heredar del tema
+        if ($this->tema && !empty($this->tema->clave_tema)) {
+            return $this->tema->clave_tema;
+        }
+        
+        // 3. Fallback: retornar null si no hay nada
+        return null;
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener información completa de la clave
+     */
+    public function obtenerInfoClave()
+    {
+        $claveEfectiva = $this->obtenerClaveEfectiva();
+        $origen = 'null';
+        
+        if (!empty($this->clave_subtema)) {
+            // Verificar si hay duplicados
+            $duplicados = self::where('clave_subtema', $this->clave_subtema)->count();
+            
+            if ($duplicados > 1) {
+                $menorOrden = self::where('clave_subtema', $this->clave_subtema)->min('orden_indice');
+                if ($this->orden_indice == $menorOrden) {
+                    $origen = 'propia (menor orden)';
+                } else {
+                    $origen = 'heredada del tema (por duplicado)';
+                }
+            } else {
+                $origen = 'propia';
+            }
+        } elseif ($this->tema && !empty($this->tema->clave_tema)) {
+            $origen = 'heredada del tema';
+        }
+        
+        return [
+            'clave_efectiva' => $claveEfectiva,
+            'clave_original' => $this->clave_subtema,
+            'clave_tema' => $this->tema ? $this->tema->clave_tema : null,
+            'origen' => $origen,
+            'orden_indice' => $this->orden_indice
+        ];
+    }
+
+    /**
+     * Obtener todos los subtemas con información de claves
+     */
+    public static function obtenerTodosConClaves()
+    {
+        return self::with('tema')->orderBy('orden_indice', 'asc')->get()->map(function($subtema) {
+            $subtema->info_clave = $subtema->obtenerInfoClave();
+            return $subtema;
+        });
     }
 }
