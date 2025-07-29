@@ -604,7 +604,7 @@ ${JSON.stringify(data, null, 2)}
                                                                 <small>
                                                                     <strong>Clave Original:</strong> ${subtema.clave_original || 'Nula'}<br>
                                                                     <strong>Clave Efectiva:</strong> <span class="badge bg-primary">${subtema.clave_efectiva || 'Sin clave'}</span><br>
-                                                                    <strong>Origen:</strong> <span class="badge bg-secondary">${subtema.origen_clave}</span>
+                                                                    <strong>Origen:</strong> <span class="badge bg-secondary">${subtema.clave_subtema || 'Sin clave'}</span>
                                                                 </small>
                                                             </div>
                                                         </div>
