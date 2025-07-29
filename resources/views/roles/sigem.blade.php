@@ -586,7 +586,7 @@ ${JSON.stringify(data, null, 2)}
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#tema${tema.tema_id}">
-                                            <strong>${tema.titulo}</strong> 
+                                            <strong>${tema.tema_titulo}</strong> 
                                             <span class="badge bg-info ms-2">Clave: ${tema.clave_tema || 'Sin clave'}</span>
                                         </button>
                                     </h2>
@@ -598,7 +598,7 @@ ${JSON.stringify(data, null, 2)}
                                                     <div class="card-body p-2">
                                                         <div class="row">
                                                             <div class="col-md-6">
-                                                                <strong>${subtema.titulo}</strong>
+                                                                <strong>${subtema.subtema_titulo}</strong>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <small>
