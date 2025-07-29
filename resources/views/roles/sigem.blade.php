@@ -580,6 +580,22 @@ ${JSON.stringify(data, null, 2)}
                         <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
                     </div>
 
+                    <div class="card bg-light">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
+                            <div class="alert alert-light">
+                                <small>
+                                    El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
                     <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
                     <div class="row mt-4">
@@ -595,21 +611,7 @@ ${JSON.stringify(data, null, 2)}
                         </div>
 
                         <div class="col-lg-6">
-                            <div class="card bg-light">
-                                <div class="card-header bg-info text-white">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
-                                    </h5>
-                                </div>
-                                <div class="card-body text-center">
-                                    <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
-                                    <div class="alert alert-light">
-                                        <small>
-                                            El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
+                            Hola, soy la sección de <strong>Información de indice seleccionado?</strong>.<br>
                         </div>
                     </div>
 
