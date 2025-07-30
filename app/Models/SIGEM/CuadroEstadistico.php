@@ -61,8 +61,7 @@ class CuadroEstadistico extends Model
     ];
     
     /**
-     * CORREGIR: Relación con Subtema usando la clave correcta
-     * La tabla subtemas tiene 'id' como PK, cuadro_estadistico tiene 'subtema_id' como FK
+     * CORREGIR: Relación con Subtema
      */
     public function subtema()
     {
@@ -70,54 +69,38 @@ class CuadroEstadistico extends Model
     }
     
     /**
-     * CORREGIR: Relación con Tema a través de Subtema
-     * No usar campo tema_id directamente
+     * AGREGAR: Accessor para obtener el tema a través del subtema
      */
-    public function tema()
+    public function getTemaAttribute()
     {
-        return $this->hasOneThrough(
-            Tema::class,
-            Subtema::class,
-            'id', // Foreign key en tabla subtemas
-            'nombre', // Foreign key en tabla temas (tema string en subtemas)
-            'subtema_id', // Local key en cuadro_estadistico
-            'tema' // Local key en subtemas (tema string)
-        );
+        return $this->subtema ? $this->subtema->tema : null;
     }
     
     /**
-     * Relación: Un cuadro estadístico puede tener un mapa asociado
-     */
-    public function mapa()
-    {
-        return $this->belongsTo(Mapa::class, 'mapa_id', 'mapa_id');
-    }
-    
-    /**
-     * Obtener todos los cuadros estadísticos con relaciones
+     * Obtener todos los cuadros estadísticos con relaciones CORREGIDAS
      */
     public static function obtenerTodos()
     {
-        return self::with(['subtema'])
+        return self::with(['subtema.tema']) // CAMBIO: cargar tema a través de subtema
                   ->orderBy('codigo_cuadro', 'asc')
                   ->get();
     }
     
     /**
-     * Obtener cuadro estadístico por ID con relaciones
+     * Obtener cuadro estadístico por ID con relaciones CORREGIDAS
      */
     public static function obtenerPorId($cuadro_estadistico_id)
     {
-        return self::with(['subtema', 'mapa'])
+        return self::with(['subtema.tema', 'mapa']) // CAMBIO: cargar tema a través de subtema
                   ->find($cuadro_estadistico_id);
     }
     
     /**
-     * Obtener cuadros por subtema
+     * Obtener cuadros por subtema CORREGIDA
      */
     public static function obtenerPorSubtema($subtema_id)
     {
-        return self::with(['subtema'])
+        return self::with(['subtema.tema']) // CAMBIO: cargar tema a través de subtema
                   ->where('subtema_id', $subtema_id)
                   ->orderBy('codigo_cuadro', 'asc')
                   ->get();
