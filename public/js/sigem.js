@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas+
+    // FUNCIÓN: Generar HTML para mapas (USANDO URL COMPLETA)
     function generateMapasHtml(data) {
         let html = `
             <div class="mb-3">
@@ -263,40 +263,53 @@ document.addEventListener('DOMContentLoaded', function() {
                                             Ver Mapa
                                         </a>` 
                                         : 
-                                        `<span class="mapa-btn" style="background-color: #6c757d; cursor: not-allowed;">
+                                        `<span class="mapa-btn">
                                             <i class="bi bi-x-circle"></i>
                                             No disponible
                                         </span>`
                                     }
                                 </div>
                                 
-                                <!-- IFRAME: Mapa embebido -->
-                                <div class="mapa-iframe-container">
-                                    ${mapa.enlace ? 
-                                        `<iframe src="${mapa.enlace}" 
-                                                class="mapa-iframe" 
-                                                title="${mapa.nombre_mapa}"
-                                                loading="lazy"
-                                                allow="fullscreen">
-                                        </iframe>` 
-                                        : 
-                                        `<div class="mapa-placeholder">
-                                            <i class="bi bi-map"></i>
-                                            <p>Mapa no disponible</p>
-                                            <small class="text-muted">El enlace del mapa no está configurado</small>
-                                        </div>`
-                                    }
-                                </div>
-                                
-                                <!-- DESCRIPCIÓN -->
-                                <div class="mapa-descripcion">
-                                    <h5>
-                                        <i class="bi bi-card-text me-2"></i>
-                                        Descripción
-                                    </h5>
-                                    <p>
-                                        ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
-                                    </p>
+                                <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
+                                <div class="mapa-content">
+                                    <!-- IMAGEN (50% izquierda) -->
+                                    <div class="mapa-image-container">
+                                        ${mapa.tiene_imagen ? 
+                                            `<img src="${mapa.imagen_url}" 
+                                                  alt="${mapa.nombre_mapa}" 
+                                                  class="mapa-image"
+                                                  onclick="window.open('${mapa.enlace || '#'}', '_blank')"
+                                                  onerror="this.style.display='none'; this.parentNode.innerHTML='${getImagePlaceholder(mapa).replace(/'/g, '\\\'')}';"
+                                             >
+                                             <div class="mapa-image-overlay">
+                                                <i class="bi bi-zoom-in me-2"></i>
+                                                Ver Mapa Completo
+                                             </div>` 
+                                            : 
+                                            getImagePlaceholder(mapa)
+                                        }
+                                    </div>
+                                    
+                                    <!-- DESCRIPCIÓN (50% derecha) -->
+                                    <div class="mapa-descripcion">
+                                        <h5>
+                                            <i class="bi bi-card-text"></i>
+                                            Descripción
+                                        </h5>
+                                        <p>
+                                            ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
+                                        </p>
+                                        
+                                        ${mapa.codigo_mapa ? 
+                                            `<div class="mt-3">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-hash"></i>
+                                                    Código: <strong>${mapa.codigo_mapa}</strong>
+                                                </small>
+                                            </div>` 
+                                            : ''
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -318,6 +331,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         return html;
+    }
+
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
+    function getImagePlaceholder(mapa) {
+        return `
+            <div class="mapa-image-placeholder">
+                <i class="bi bi-image"></i>
+                <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                <p>
+                    ${mapa.icono ? 
+                        'Error al cargar imagen' : 
+                        'Sin imagen disponible'
+                    }
+                </p>
+                ${mapa.enlace ? 
+                    `<small class="text-primary">
+                        <i class="bi bi-cursor-fill"></i>
+                        Haz clic en "Ver Mapa" arriba
+                    </small>` 
+                    : 
+                    `<small class="text-muted">
+                        Mapa no disponible
+                    </small>`
+                }
+            </div>
+        `;
     }
 
     // FUNCIÓN: Generar estructura de índice

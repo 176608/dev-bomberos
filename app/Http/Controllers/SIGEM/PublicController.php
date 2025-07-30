@@ -21,17 +21,31 @@ class PublicController extends Controller
     }
     
     /**
-     * Obtener mapas para AJAX - ACTUALIZADO
+     * Obtener mapas para AJAX - CON RUTAS DE IMÁGENES
      */
     public function obtenerMapas()
     {
         try {
             $mapas = Mapa::obtenerParaCartografia();
             
+            // Procesar mapas para incluir URLs completas de imágenes
+            $mapasConImagenes = $mapas->map(function($mapa) {
+                // Agregar URL completa de imagen si existe
+                if ($mapa->icono) {
+                    $mapa->imagen_url = asset('imagenes/' . $mapa->icono);
+                    $mapa->tiene_imagen = true;
+                } else {
+                    $mapa->imagen_url = null;
+                    $mapa->tiene_imagen = false;
+                }
+                
+                return $mapa;
+            });
+            
             return response()->json([
                 'success' => true,
-                'mapas' => $mapas,
-                'total_mapas' => $mapas->count(),
+                'mapas' => $mapasConImagenes,
+                'total_mapas' => $mapasConImagenes->count(),
                 'message' => 'Mapas cargados exitosamente'
             ]);
             
