@@ -694,10 +694,10 @@ ${JSON.stringify(data, null, 2)}
                     estructura += `
                         <div class="d-flex border-bottom" style="${bgColor}">
                             <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                                ${subtema.clave_efectiva || subtema.clave_original || tema.clave_tema || 'N/A'}
+                                ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
                             <div class="px-3 py-2 flex-grow-1">
-                                ${subtema.tema_titulo}
+                                ${subtema.subtema_titulo}
                             </div>
                         </div>
                     `;
