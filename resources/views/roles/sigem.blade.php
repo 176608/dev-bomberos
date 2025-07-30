@@ -366,6 +366,73 @@
 
 @section('scripts')
 <script>
+// MOVER AL SCOPE GLOBAL: Funciones de focus
+function focusEnTema(numeroTema) {
+    console.log(`Focus en tema: ${numeroTema}`);
+    
+    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (temaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al tema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        temaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            temaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+function focusEnSubtema(numeroTema, ordenSubtema) {
+    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
+    
+    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (subtemaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al subtema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        subtemaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            subtemaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+function verCuadro(cuadroId, codigo) {
+    console.log(`Ver cuadro: ID=${cuadroId}, Código=${codigo}`);
+    alert(`Función para ver cuadro ${codigo} (ID: ${cuadroId})`);
+    // Aquí se implementará la lógica para mostrar el cuadro
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // Elementos del DOM
@@ -710,7 +777,7 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // ACTUALIZAR: Función generateEstructuraIndice - SIN ALTURA FIJA
+    // ACTUALIZAR: Función generateEstructuraIndice - CON MEJOR DEBUG
     function generateEstructuraIndice(temasDetalle) {
         let estructura = `
             <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
@@ -739,7 +806,7 @@ ${JSON.stringify(data, null, 2)}
                          data-tema="${numeroTema}"
                          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                         onclick="focusEnTema(${numeroTema})">
+                         onclick="console.log('Click tema ${numeroTema}'); focusEnTema(${numeroTema});">
                         ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
@@ -750,15 +817,16 @@ ${JSON.stringify(data, null, 2)}
                 tema.subtemas.forEach((subtema, subtemaIndex) => {
                     // Alternar colores de fondo para las filas
                     const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                    const ordenSubtema = subtema.orden_indice || subtemaIndex;
                     
                     estructura += `
                         <div class="d-flex border-bottom indice-subtema-row" 
                              style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
                              data-tema="${numeroTema}" 
-                             data-subtema="${subtema.orden_indice || subtemaIndex}"
+                             data-subtema="${ordenSubtema}"
                              onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
                              onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
-                             onclick="focusEnSubtema(${numeroTema}, ${subtema.orden_indice || subtemaIndex})">
+                             onclick="console.log('Click subtema ${numeroTema}-${ordenSubtema}'); focusEnSubtema(${numeroTema}, ${ordenSubtema});">
                             <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                                 ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
@@ -786,7 +854,7 @@ ${JSON.stringify(data, null, 2)}
         return estructura;
     }
 
-    // ACTUALIZAR: Función generateListaCuadros - SIN ALTURA FIJA
+    // ACTUALIZAR: Función generateListaCuadros - CON MEJOR DEBUG DE IDs
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
@@ -819,6 +887,8 @@ ${JSON.stringify(data, null, 2)}
             const numeroTema = tema.orden_indice || (temaIndex + 1);
             const temaId = `tema-cuadros-${numeroTema}`;
 
+            console.log(`Generando tema: ${numeroTema} con ID: ${temaId}`);
+
             html += `
                 <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="${temaId}">
                     <!-- Header del tema -->
@@ -832,7 +902,10 @@ ${JSON.stringify(data, null, 2)}
 
             Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
                 const subtema = tema.subtemas[subtemaKey];
-                const subtemaId = `subtema-cuadros-${numeroTema}-${subtema.orden_indice || subtemaIndex}`;
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                const subtemaId = `subtema-cuadros-${numeroTema}-${ordenSubtema}`;
+                
+                console.log(`Generando subtema: ${numeroTema}-${ordenSubtema} con ID: ${subtemaId}`);
                 
                 // Header del subtema con ID para focus
                 html += `
@@ -1062,77 +1135,6 @@ ${JSON.stringify(data, null, 2)}
         const numeroB = extraerNumero(codigoB);
         
         return numeroA - numeroB;
-    }
-
-    // NUEVA FUNCIÓN: Focus en tema específico en la lista de cuadros
-    function focusEnTema(numeroTema) {
-        console.log(`Focus en tema: ${numeroTema}`);
-        
-        const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
-        const cuadrosContainer = document.getElementById('cuadros-container');
-        
-        if (temaElement && cuadrosContainer) {
-            // Remover highlights previos
-            document.querySelectorAll('.highlight-focus').forEach(el => {
-                el.classList.remove('highlight-focus');
-            });
-            
-            // Scroll al tema
-            temaElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
-            });
-            
-            // Agregar highlight temporal
-            temaElement.classList.add('highlight-focus');
-            
-            // Remover highlight después de 3 segundos
-            setTimeout(() => {
-                temaElement.classList.remove('highlight-focus');
-            }, 3000);
-        } else {
-            console.warn(`No se encontró elemento para tema ${numeroTema}`);
-        }
-    }
-
-    // NUEVA FUNCIÓN: Focus en subtema específico en la lista de cuadros
-    function focusEnSubtema(numeroTema, ordenSubtema) {
-        console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
-        
-        const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
-        const cuadrosContainer = document.getElementById('cuadros-container');
-        
-        if (subtemaElement && cuadrosContainer) {
-            // Remover highlights previos
-            document.querySelectorAll('.highlight-focus').forEach(el => {
-                el.classList.remove('highlight-focus');
-            });
-            
-            // Scroll al subtema
-            subtemaElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
-            });
-            
-            // Agregar highlight temporal
-            subtemaElement.classList.add('highlight-focus');
-            
-            // Remover highlight después de 3 segundos
-            setTimeout(() => {
-                subtemaElement.classList.remove('highlight-focus');
-            }, 3000);
-        } else {
-            console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}`);
-        }
-    }
-
-    // NUEVA FUNCIÓN: Ver cuadro (placeholder)
-    function verCuadro(cuadroId, codigo) {
-        console.log(`Ver cuadro: ID=${cuadroId}, Código=${codigo}`);
-        alert(`Función para ver cuadro ${codigo} (ID: ${cuadroId})`);
-        // Aquí se implementará la lógica para mostrar el cuadro
     }
 
     // Event listeners para navegación
