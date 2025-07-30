@@ -131,3 +131,10 @@ Route::prefix('sigem-bridge')->middleware(['auth'])->group(function () {
         return redirect()->route('subtema.index'); // Redirige al admin original
     })->name('sigem.bridge.admin.original');
 });
+
+// === NUEVAS RUTAS PARA PARTIALS ===
+Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
+
+// === RUTAS PARA ESTADÍSTICA CON CUADRO ===
+Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
+Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');

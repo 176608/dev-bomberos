@@ -133,4 +133,29 @@ class PublicController extends Controller
             'cuadro' => null
         ]);
     }
+
+    /**
+     * NUEVA FUNCIÓN: Cargar partial específico
+     */
+    public function loadPartial($section)
+    {
+        $validSections = ['inicio', 'estadistica', 'cartografia', 'productos', 'catalogo'];
+        
+        if (!in_array($section, $validSections)) {
+            return response()->view('partials.inicio');
+        }
+        
+        return response()->view('partials.' . $section);
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Vista estadística con cuadro
+     */
+    public function estadistica($cuadro_id = null)
+    {
+        return view('layouts.asigem')->with([
+            'loadSection' => 'estadistica',
+            'cuadro_id' => $cuadro_id
+        ]);
+    }
 }

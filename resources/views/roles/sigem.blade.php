@@ -1,6 +1,6 @@
 <!-- Archivo SIGEM -Base de vista sigem publica- - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
-
+@extends('layouts.asigem')
 @section('title', 'SIGEM - Sistema de Información Geográfica')
 
 @section('content')
@@ -321,7 +321,6 @@
 }
 </style>
 @php
-    // USAR: Helper asset() para rutas absolutas
     $img1 = asset('imagenes/logoadmin.png');
     $img2 = asset('imagenes/sige2.png');
 @endphp
@@ -372,6 +371,25 @@
     </div>
 
 </div>
+@endsection
+
+@section('dynamic_content')
+    @if(isset($loadSection) && $loadSection === 'estadistica')
+        @include('partials.estadistica')
+        
+        @if(isset($cuadro_id))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadEstadisticaWithCuadro({{ $cuadro_id }});
+                });
+            </script>
+        @endif
+    @else
+        <div class="Cargando">
+            <i class="bi bi-hourglass-split"></i>
+            <p>Cargando contenido...</p>
+        </div>
+    @endif
 @endsection
 
 @section('scripts')
