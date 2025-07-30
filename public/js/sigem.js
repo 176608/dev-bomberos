@@ -49,7 +49,11 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
 
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-    const url = `/sigem/estadistica/${cuadroId}`;
+    
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    const url = `${baseUrl}/estadistica/${cuadroId}`;
+    
     window.open(url, '_blank');
 }
 
@@ -103,11 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // FUNCIÓN: Cargar contenido
+    // FUNCIÓN: Cargar contenido (usando variables globales)
     function loadContent(section) {
         console.log(`Cargando sección: ${section}`);
-        console.log(`URL que se va a llamar: /sigem/partial/${section}`);
-        console.log(`URL completa: ${window.location.origin}/sigem/partial/${section}`);
         
         // Guardar sección actual
         saveCurrentSection(section);
@@ -123,8 +125,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
+        // USAR variable global o fallback
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        const fullUrl = `${baseUrl}/partial/${section}`;
+        
+        console.log(`Base URL: ${baseUrl}`);
+        console.log(`URL completa: ${fullUrl}`);
+        
         // Cargar partial
-        fetch(`/sigem/partial/${section}`)
+        fetch(fullUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -148,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="bi bi-exclamation-triangle"></i>
                         Error al cargar contenido de <strong>${section}</strong>
                         <br><small>Error: ${error.message}</small>
+                        <br><small>URL intentada: ${fullUrl}</small>
                     </div>
                 `;
             });
@@ -155,7 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // FUNCIÓN: Cargar datos de mapas
     function loadMapasData() {
-        fetch('/sigem/mapas')
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        
+        fetch(`${baseUrl}/mapas`)
             .then(response => response.json())
             .then(data => {
                 const mapasContainer = document.getElementById('mapas-container');
@@ -170,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     mapasContainer.innerHTML = `
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle"></i>
-                            Error al cargar mapas
+                            Error al cargar mapas: ${error.message}
                         </div>
                     `;
                 }
@@ -179,7 +193,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // FUNCIÓN: Cargar datos de catálogo
     function loadCatalogoData() {
-        fetch('/sigem/catalogo')
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        
+        fetch(`${baseUrl}/catalogo`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -203,10 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cuadrosContainer = document.getElementById('cuadros-container');
                 
                 if (indiceContainer) {
-                    indiceContainer.innerHTML = `<div class="alert alert-warning">Error al cargar índice</div>`;
+                    indiceContainer.innerHTML = `<div class="alert alert-warning">Error al cargar índice: ${error.message}</div>`;
                 }
                 if (cuadrosContainer) {
-                    cuadrosContainer.innerHTML = `<div class="alert alert-warning">Error al cargar cuadros</div>`;
+                    cuadrosContainer.innerHTML = `<div class="alert alert-warning">Error al cargar cuadros: ${error.message}</div>`;
                 }
             });
     }
