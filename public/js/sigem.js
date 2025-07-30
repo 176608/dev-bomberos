@@ -308,6 +308,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                             </div>` 
                                             : ''
                                         }
+                                        
+                                        <!-- DEBUG: Mostrar URL de imagen -->
+                                        ${mapa.imagen_url ? 
+                                            `<div class="mt-2">
+                                                <small class="text-info">
+                                                    <i class="bi bi-link-45deg"></i>
+                                                    URL: ${mapa.imagen_url}
+                                                </small>
+                                            </div>` 
+                                            : ''
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -332,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // FUNCIÓN AUXILIAR: Generar placeholder para imagen 
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
     function getImagePlaceholder(mapa) {
         return `
             <div class="mapa-image-placeholder">
