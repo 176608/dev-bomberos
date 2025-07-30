@@ -91,7 +91,7 @@ class CuadroEstadistico extends Model
      */
     public static function obtenerPorId($cuadro_estadistico_id)
     {
-        return self::with(['subtema.tema', 'mapa']) // CAMBIO: cargar tema a través de subtema
+        return self::with(['subtema.tema']) // CAMBIO: cargar tema a través de subtema
                   ->find($cuadro_estadistico_id);
     }
     
