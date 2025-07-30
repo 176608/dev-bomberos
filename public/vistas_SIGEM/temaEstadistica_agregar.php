@@ -1,8 +1,14 @@
 <?php
+// ========================================================
+// Vista de ADMINISTRADOR - Agregar Tema de Estadística
+// ========================================================
+// Este archivo permite al usuario administrador registrar
+// un nuevo tema dentro de la sección de Estadística del sistema.
+// El controlador se encarga de gestionar la inserción en la base de datos.
 
 include '../controllers/temaEstadistica_agregarController.php';
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

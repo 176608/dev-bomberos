@@ -1,7 +1,12 @@
 <?php
+// ========================================================
+// VISTA DE ADMINISTRADOR - Subir o actualizar archivo PDF
+// Esta vista permite reemplazar un archivo PDF ya existente
+// en un cuadro estadístico, por lo que debe estar protegida
+// y disponible solo para el usuario con sesión 'admin'.
+// ========================================================
 
 include '../controllers/subir_pdfController.php';
-
 ?>
 
 <!DOCTYPE html>

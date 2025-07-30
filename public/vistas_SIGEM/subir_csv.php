@@ -1,4 +1,11 @@
 <?php
+// =========================================================
+// VISTA DE ADMINISTRADOR - Subida/actualización de CSV
+// Esta vista permite reemplazar archivos CSV asociados
+// a cuadros estadísticos, por lo que debe ser accesible
+// únicamente para el usuario 'admin'.
+// =========================================================
+
 include '../controllers/subir_csvController.php';
 ?>
 

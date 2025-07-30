@@ -1,7 +1,14 @@
 <?php
-include '../controllers/subtemaEstadistica_agregarController.php';
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Agregar subtema de estadística
+// Esta vista permite registrar un nuevo subtema estadístico
+// con nombre, tema relacionado e imagen. Por lo tanto, debe
+// ser accesible únicamente por el usuario con sesión 'admin'.
+// ===========================================================
 
+include '../controllers/subtemaEstadistica_agregarController.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

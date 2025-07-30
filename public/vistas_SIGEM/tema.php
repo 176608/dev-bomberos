@@ -1,8 +1,14 @@
 <?php
+// =============================================
+// Vista de ADMINISTRADOR - Listado de Temas
+// =============================================
+// Este archivo muestra una tabla con todos los temas registrados.
+// Desde aquí el usuario administrador puede agregar, editar o eliminar temas.
+// Los datos son obtenidos por el controlador correspondiente.
 
 include '../controllers/temaController.php';
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

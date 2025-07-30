@@ -1,8 +1,9 @@
 <?php
-
+// Incluye el controlador que prepara las variables necesarias para la configuración de la gráfica.
+// Este archivo probablemente define $CuadroEstadistico, $EjeVerticalOpciones y $EjeHorizontalOpciones
 include '../controllers/prepararGraficaController.php';
-
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

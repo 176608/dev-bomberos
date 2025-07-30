@@ -1,8 +1,14 @@
 <?php
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Listado de subtemas
+// Esta vista permite gestionar los subtemas (ver, crear,
+// editar y eliminar). Debe estar protegida para que solo
+// el usuario con sesión 'admin' pueda acceder.
+// ===========================================================
 
 include '../controllers/subtemaController.php';
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

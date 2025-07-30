@@ -1,8 +1,14 @@
 <?php
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Agregar nuevo Tema
+// ===========================================================
+// Esta vista permite al administrador registrar un nuevo tema
+// en el sistema SIGEM. Requiere conexión al controlador para
+// manejar la lógica del guardado en base de datos.
 
 include '../controllers/tema_agregarController.php';
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

@@ -1,7 +1,9 @@
 <?php
+// Carga el controlador que obtiene los datos para el tema Sociodemográfico,
+// incluyendo subtemas, cuadros estadísticos, variables de sesión y más
 include '../controllers/socioDemograficoController.php'
-
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

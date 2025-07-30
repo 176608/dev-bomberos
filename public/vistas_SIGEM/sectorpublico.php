@@ -1,6 +1,7 @@
 <?php   
+// Se incluye el controlador correspondiente para este módulo.
+// Este archivo probablemente obtiene desde la base de datos los cuadros estadísticos, subtemas y demás datos necesarios.
 include '../controllers/sectorPublicoController.php';
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
