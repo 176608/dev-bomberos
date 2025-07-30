@@ -8,6 +8,7 @@ use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
 use App\Models\SIGEM\Catalogo;
+use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo CuadroEstadistico
 
 class PublicController extends Controller
 {
@@ -53,6 +54,9 @@ class PublicController extends Controller
             // Obtener resumen estadístico
             $resumen = Catalogo::obtenerResumen();
             
+            // AGREGAR: Obtener todos los cuadros estadísticos
+            $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
+            
             return response()->json([
                 'success' => true,
                 'catalogo_estructurado' => $catalogoData['estructura'],
@@ -60,6 +64,8 @@ class PublicController extends Controller
                 'total_subtemas' => $catalogoData['total_subtemas'],
                 'temas_detalle' => $catalogoData['temas_detalle'],
                 'resumen' => $resumen,
+                'cuadros_estadisticos' => $cuadrosEstadisticos, // AGREGAR: Lista de cuadros
+                'total_cuadros' => $cuadrosEstadisticos->count(), // AGREGAR: Total de cuadros
                 'message' => 'Catálogo cargado exitosamente'
             ]);
             
@@ -69,7 +75,9 @@ class PublicController extends Controller
                 'message' => 'Error al cargar el catálogo: ' . $e->getMessage(),
                 'catalogo_estructurado' => [],
                 'total_temas' => 0,
-                'total_subtemas' => 0
+                'total_subtemas' => 0,
+                'cuadros_estadisticos' => [], // AGREGAR: Array vacío en caso de error
+                'total_cuadros' => 0 // AGREGAR: 0 en caso de error
             ]);
         }
     }

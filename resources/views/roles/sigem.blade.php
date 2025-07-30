@@ -566,7 +566,7 @@ ${JSON.stringify(data, null, 2)}
             });
     }
 
-    // Generar HTML para el catálogo - ACTUALIZADO con nueva estructura
+    // Generar HTML para el catálogo - ACTUALIZADO con cuadros estadísticos
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
@@ -599,7 +599,7 @@ ${JSON.stringify(data, null, 2)}
                     <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
                     <div class="row mt-4">
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="card bg-light">
                                 <div class="card-header bg-success text-white">
                                     <h5 class="mb-0">Estructura de Índice</h5>
@@ -610,8 +610,18 @@ ${JSON.stringify(data, null, 2)}
                             </div>
                         </div>
 
-                        <div class="col-lg-6">
-                            Hola, soy la sección de <strong>Información de indice seleccionado?</strong>.<br>
+                        <div class="col-lg-8">
+                            <div class="card bg-light">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-table me-2"></i>Cuadros Estadísticos
+                                        <span class="badge bg-light text-dark ms-2">${data.total_cuadros || 0} cuadros</span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    ${data.cuadros_estadisticos ? generateListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -628,6 +638,7 @@ ${JSON.stringify(data, null, 2)}
                                     <div class="alert alert-success mb-3">
                                         <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
                                         <strong>Total de subtemas:</strong> ${data.total_subtemas || 0}<br>
+                                        <strong>Total de cuadros:</strong> ${data.total_cuadros || 0}<br>
                                         <strong>Mensaje:</strong> ${data.message}
                                     </div>
                                     
@@ -643,6 +654,114 @@ ${JSON.stringify(data, null, 2)}
             </div>
         `;
         
+        return html;
+    }
+
+    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos
+    function generateListaCuadros(cuadrosEstadisticos) {
+        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
+            return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
+        }
+
+        let html = `
+            <div style="max-height: 500px; overflow-y: auto;">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="width: 10%;">ID</th>
+                                <th style="width: 15%;">Código</th>
+                                <th style="width: 40%;">Título</th>
+                                <th style="width: 20%;">Subtema</th>
+                                <th style="width: 15%;">Archivos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        cuadrosEstadisticos.forEach((cuadro, index) => {
+            // Determinar color de fila alternante
+            const rowClass = index % 2 === 0 ? '' : 'table-light';
+            
+            // Generar badges para archivos disponibles
+            let archivos = [];
+            if (cuadro.excel_file && cuadro.excel_file.trim() !== '') {
+                archivos.push('<span class="badge bg-success me-1">Excel</span>');
+            }
+            if (cuadro.pdf_file && cuadro.pdf_file.trim() !== '') {
+                archivos.push('<span class="badge bg-danger me-1">PDF</span>');
+            }
+            if (cuadro.img_name && cuadro.img_name.trim() !== '') {
+                archivos.push('<span class="badge bg-info me-1">IMG</span>');
+            }
+            if (cuadro.permite_grafica) {
+                archivos.push('<span class="badge bg-warning me-1">Graf</span>');
+            }
+
+            html += `
+                <tr class="${rowClass}">
+                    <td class="text-center">
+                        <small class="fw-bold">${cuadro.cuadro_estadistico_id}</small>
+                    </td>
+                    <td>
+                        <code class="text-primary">${cuadro.codigo_cuadro || 'N/A'}</code>
+                    </td>
+                    <td>
+                        <div style="font-size: 12px;">
+                            <strong>${cuadro.cuadro_estadistico_titulo || 'Sin título'}</strong>
+                            ${cuadro.cuadro_estadistico_subtitulo ? `<br><small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                            ID: ${cuadro.subtema_id || 'N/A'}<br>
+                            ${cuadro.subtema ? cuadro.subtema.subtema_titulo || 'Sin nombre' : 'Sin subtema'}
+                        </small>
+                    </td>
+                    <td>
+                        ${archivos.length > 0 ? archivos.join('') : '<small class="text-muted">Sin archivos</small>'}
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Resumen de cuadros por tipo -->
+                <div class="mt-3">
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="text-muted d-block">Con Excel</small>
+                                <strong class="text-success">${cuadrosEstadisticos.filter(c => c.excel_file && c.excel_file.trim() !== '').length}</strong>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="text-muted d-block">Con PDF</small>
+                                <strong class="text-danger">${cuadrosEstadisticos.filter(c => c.pdf_file && c.pdf_file.trim() !== '').length}</strong>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="text-muted d-block">Con Imagen</small>
+                                <strong class="text-info">${cuadrosEstadisticos.filter(c => c.img_name && c.img_name.trim() !== '').length}</strong>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="text-muted d-block">Con Gráficas</small>
+                                <strong class="text-warning">${cuadrosEstadisticos.filter(c => c.permite_grafica).length}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         return html;
     }
 
