@@ -720,7 +720,7 @@ ${JSON.stringify(data, null, 2)}
         return estructura;
     }
 
-    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos organizada por temas
+    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos - LIMPIADA
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
@@ -731,34 +731,6 @@ ${JSON.stringify(data, null, 2)}
 
         let html = `
             <div style="max-height: 600px; overflow-y: auto;">
-                <div class="mb-3">
-                    <div class="row text-center">
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Total Cuadros</small>
-                                <strong class="text-primary">${cuadrosEstadisticos.length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con Excel</small>
-                                <strong class="text-success">${cuadrosEstadisticos.filter(c => c.excel_file && c.excel_file.trim() !== '').length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con PDF</small>
-                                <strong class="text-danger">${cuadrosEstadisticos.filter(c => c.pdf_file && c.pdf_file.trim() !== '').length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con Gráficas</small>
-                                <strong class="text-warning">${cuadrosEstadisticos.filter(c => c.permite_grafica).length}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
         `;
 
         // Colores para los headers de temas (igual que la estructura de índice)
@@ -794,11 +766,10 @@ ${JSON.stringify(data, null, 2)}
             Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
                 const subtema = tema.subtemas[subtemaKey];
                 
-                // Header del subtema
+                // Header del subtema - ELIMINAR: información de orden
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;">
                         ${subtema.clave || 'N/A'} ${subtema.nombre}
-                        <small class="text-muted ms-2">(Orden: ${subtema.orden_indice || 'N/A'})</small>
                     </div>
                 `;
 
@@ -807,20 +778,7 @@ ${JSON.stringify(data, null, 2)}
                     subtema.cuadros.forEach((cuadro, cuadroIndex) => {
                         const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
                         
-                        // Generar badges para archivos
-                        let archivos = [];
-                        if (cuadro.excel_file && cuadro.excel_file.trim() !== '') {
-                            archivos.push('<span class="badge bg-success me-1" style="font-size: 9px;">XLS</span>');
-                        }
-                        if (cuadro.pdf_file && cuadro.pdf_file.trim() !== '') {
-                            archivos.push('<span class="badge bg-danger me-1" style="font-size: 9px;">PDF</span>');
-                        }
-                        if (cuadro.img_name && cuadro.img_name.trim() !== '') {
-                            archivos.push('<span class="badge bg-info me-1" style="font-size: 9px;">IMG</span>');
-                        }
-                        if (cuadro.permite_grafica) {
-                            archivos.push('<span class="badge bg-warning me-1" style="font-size: 9px;">GRAF</span>');
-                        }
+                        // ELIMINAR: Generar badges para archivos (todo el bloque eliminado)
 
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
@@ -830,9 +788,6 @@ ${JSON.stringify(data, null, 2)}
                                 <div class="flex-grow-1 me-3" style="font-size: 12px;">
                                     <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
                                     ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
-                                </div>
-                                <div class="me-3" style="min-width: 120px;">
-                                    ${archivos.length > 0 ? archivos.join('') : '<small class="text-muted">Sin archivos</small>'}
                                 </div>
                                 <div>
                                     <a href="#" class="btn btn-sm btn-outline-primary" 
@@ -865,14 +820,14 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIDA CON ORDEN
+    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - LIMPIAR orden_indice 999
     function organizarCuadrosPorTema(cuadrosEstadisticos) {
         const organizacion = {};
 
         cuadrosEstadisticos.forEach(cuadro => {
             // CORREGIR: La información del tema viene a través del subtema
-            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 999 };
-            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 999 };
+            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
+            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
 
             const temaKey = `tema_${temaInfo.tema_id}`;
             const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
@@ -882,7 +837,7 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey] = {
                     nombre: temaInfo.tema_titulo || 'Sin Tema',
                     clave: temaInfo.clave_tema || '',
-                    orden_indice: temaInfo.orden_indice || 999, // AGREGAR: orden del tema
+                    orden_indice: temaInfo.orden_indice || 0, // CAMBIAR: de 999 a 0
                     subtemas: {}
                 };
             }
@@ -892,7 +847,7 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey].subtemas[subtemaKey] = {
                     nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
                     clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
-                    orden_indice: subtemaInfo.orden_indice || 999, // AGREGAR: orden del subtema
+                    orden_indice: subtemaInfo.orden_indice || 0, // CAMBIAR: de 999 a 0
                     cuadros: []
                 };
             }
@@ -906,8 +861,8 @@ ${JSON.stringify(data, null, 2)}
         
         // 1. Ordenar temas por orden_indice
         const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
-            const ordenA = organizacion[a].orden_indice || 999;
-            const ordenB = organizacion[b].orden_indice || 999;
+            const ordenA = organizacion[a].orden_indice || 0; // CAMBIAR: de 999 a 0
+            const ordenB = organizacion[b].orden_indice || 0; // CAMBIAR: de 999 a 0
             return ordenA - ordenB;
         });
 
@@ -922,8 +877,8 @@ ${JSON.stringify(data, null, 2)}
 
             // Ordenar subtemas por orden_indice
             const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
-                const ordenA = tema.subtemas[a].orden_indice || 999;
-                const ordenB = tema.subtemas[b].orden_indice || 999;
+                const ordenA = tema.subtemas[a].orden_indice || 0; // CAMBIAR: de 999 a 0
+                const ordenB = tema.subtemas[b].orden_indice || 0; // CAMBIAR: de 999 a 0
                 return ordenA - ordenB;
             });
 
