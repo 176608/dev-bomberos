@@ -27,8 +27,7 @@ class PublicController extends Controller
     {
         try {
             $mapas = Mapa::obtenerParaCartografia();
-            
-            // Procesar mapas para incluir URLs completas de imágenes
+            // Procesar mapas para incluir URLs completas de imágenes \public\img\SIGEM_Mapas
             $mapasConImagenes = $mapas->map(function($mapa) {
                 // Agregar URL completa de imagen si existe
                 if ($mapa->icono) {

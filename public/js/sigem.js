@@ -270,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                 </div>
                                 
-                                <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
                                 <div class="mapa-content">
                                     <!-- IMAGEN (50% izquierda) -->
                                     <div class="mapa-image-container">
@@ -333,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen 
     function getImagePlaceholder(mapa) {
         return `
             <div class="mapa-image-placeholder">
