@@ -1,4 +1,12 @@
 <?php
+// ⚙️ Vista privada de administración.
+// Este archivo muestra un listado completo de cuadros estadísticos con opciones para agregar, editar y eliminar.
+// Debe estar protegido: solo el usuario 'admin' puede acceder.
+// El controlador debe validar la sesión antes de mostrar el contenido.
+include '../controllers/cuadroEstadistico_Controller.php';
+?>
+
+<?php
 
 include '../controllers/cuadroEstadistico_Controller.php';
 

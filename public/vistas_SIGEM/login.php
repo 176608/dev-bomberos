@@ -1,4 +1,7 @@
 <?php
+// 🔐 Vista de acceso (login): permite autenticación pero no muestra ni administra contenido
+?>
+<?php
 include '../controllers/loginController.php';
 ?>
 

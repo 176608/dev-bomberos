@@ -1,4 +1,9 @@
 <?php
+//  Vista pública
+// Este archivo es el punto de entrada del sistema Laravel y se ejecuta en cada petición web.
+// No tiene restricción por sesión, ya que delega todo al framework.
+?>
+<?php
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;

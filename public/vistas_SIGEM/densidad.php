@@ -1,3 +1,9 @@
+<?php
+// 🔓 Vista pública con funciones condicionales para el administrador.
+// Muestra cuadros estadísticos del subtema 'Densidad' en el tema Geográfico.
+// Cualquier usuario puede consultar la información, pero solo el usuario 'admin' puede ver los botones de actualización (PDF, CSV, editar).
+include '../controllers/densidadController.php';
+?>
 <?php 
 
 include '../controllers/densidadController.php';

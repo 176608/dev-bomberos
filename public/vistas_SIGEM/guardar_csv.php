@@ -1,4 +1,9 @@
 <?php
+// 🔒 Vista restringida para administrador
+// Permite subir y reemplazar archivos CSV asociados a cuadros estadísticos
+// Solo debe ejecutarse si el usuario tiene sesión iniciada como 'admin'
+?>
+<?php
 
 include '../models/conexion.php';
 include '../models/guardar_csvModel.php';

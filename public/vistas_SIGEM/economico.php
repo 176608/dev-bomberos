@@ -1,3 +1,10 @@
+
+<?php
+// 🔓 Vista pública con funciones ampliadas condicionales para el usuario 'admin'.
+// Muestra los cuadros estadísticos del tema Económico por subtema.
+// Todos pueden consultar la información, pero solo el administrador puede ver y acceder a los botones de actualización de archivos.
+require_once '../controllers/EconomicoController.php';
+?>
 <?php require_once '../controllers/EconomicoController.php'; ?>
 
 <!DOCTYPE html>

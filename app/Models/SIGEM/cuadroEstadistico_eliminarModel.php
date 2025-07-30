@@ -1,4 +1,7 @@
 <?php
+// REQUIERE SESIÓN ADMIN — Este archivo permite eliminar cuadros estadísticos,
+// por lo tanto debe estar restringido exclusivamente a usuarios administradores.
+
 include 'conexion.php';
 
 function eliminarSubtemaPorId($id) {

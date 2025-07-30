@@ -1,7 +1,8 @@
 <?php
+// REQUIERE SESIÓN ADMIN — Este archivo permite consultar y actualizar cuadros estadísticos,
+// por lo que debe estar restringido a usuarios administradores.
+
 include 'conexion.php';
-
-
 
 function obtenerCuadroPorId($conexion, $id) {
     $stmt = $conexion->prepare("SELECT * FROM cuadro_estadistico WHERE cuadro_estadistico_id = ?");
@@ -13,6 +14,7 @@ function obtenerCuadroPorId($conexion, $id) {
 function obtenerTemas($conexion) {
     return $conexion->query("SELECT id, nombre FROM tema");
 }
+
 function obtenerSubtemas($conexion) {
     return $conexion->query("SELECT id, nombre_subtema, tema FROM subtemas");
 }

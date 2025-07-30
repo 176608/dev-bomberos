@@ -1,4 +1,6 @@
-<?php
+<?php 
+// REQUIERE SESIÓN ADMIN — Este archivo incluye funciones para insertar cuadros estadísticos,
+// por lo que su uso debe estar restringido a usuarios administradores.
 
 include 'conexion.php';
 
@@ -7,6 +9,7 @@ include 'conexion.php';
 function obtenerTemas($conexion) {
     return $conexion->query("SELECT id, nombre FROM tema");
 }
+
 function obtenerSubtemas($conexion) {
     return $conexion->query("SELECT id, nombre_subtema, tema FROM subtemas");
 }

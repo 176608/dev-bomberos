@@ -1,4 +1,7 @@
 <?php
+// 🔐 logout.php: destruye la sesión actual y redirige a una vista pública
+?>
+<?php
 session_start();
 session_unset();
 session_destroy();

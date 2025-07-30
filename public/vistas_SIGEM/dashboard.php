@@ -1,3 +1,11 @@
+
+<?php
+// ⚙️ Vista privada de administración.
+// Este archivo muestra el panel administrativo con accesos rápidos a módulos de gestión (temas, subtemas, cuadros).
+// Solo debe estar disponible para el usuario 'admin'.
+// Debe estar protegido por validación de sesión en el controlador o directamente aquí.
+include '../controllers/dashboardController.php';
+?>
 <?php
  include '../controllers/dashboardController.php'
 ?>

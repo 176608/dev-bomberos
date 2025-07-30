@@ -1,8 +1,10 @@
 <?php
+// ⚙️ Vista privada de administración.
+// Solo debe ser accesible por el usuario 'admin' para agregar nuevos cuadros estadísticos.
+// Este formulario permite registrar un nuevo cuadro, su tema y subtema asociado.
+// De preferencia, debe estar protegido por validación de sesión en el controlador.
 include '../controllers/cuadroEstadistico_agregarController.php';
-
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>

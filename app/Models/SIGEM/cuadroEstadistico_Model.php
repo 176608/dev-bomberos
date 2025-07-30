@@ -1,4 +1,7 @@
 <?php
+// REQUIERE SESIÓN ADMIN — Este archivo devuelve información detallada de cuadros estadísticos
+// junto con tema y subtema, generalmente para vistas de administración o panel de control.
+// Su uso debe estar restringido a usuarios administradores.
 
 require_once 'conexion.php';
 
@@ -26,9 +29,18 @@ function obtenerCuadros() {
 }
 
 /*
+De cuadro_estadistico quiero:
+    - cuadro_estadistico_id
+    - subtema_id
+    - tema_id
+    - codigo_cuadro
+    - cuadro_estadistico_titulo
 
-De cuadro_estadistico quiero cuadro_estadistico_id, subtema_id, tema_id, codigo_cuadrado, cuadrado_estadistico_titutlo
+De tema quiero:
+    - id
+    - nombre
 
-De tema quiero id, nombre.
-
-De subtemas quiero id, nombre_subtema*/
+De subtemas quiero:
+    - id
+    - nombre_subtema
+*/

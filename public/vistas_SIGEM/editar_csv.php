@@ -1,3 +1,10 @@
+<?php
+// ⚠️ Vista privada de administración.
+// Este archivo permite editar manualmente el contenido de un archivo CSV.
+// Solo debe ser accesible para el usuario 'admin'.
+// Ya depende de una sesión iniciada, pero aún puede mejorarse la validación de rol.
+require_once '../controllers/editar_csvController.php';
+?>
 <?php require_once '../controllers/editar_csvController.php'; ?>
 
 <!DOCTYPE html>

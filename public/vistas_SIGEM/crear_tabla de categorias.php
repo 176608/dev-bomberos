@@ -1,3 +1,9 @@
+
+<?php
+// ⚙️ Script privado para uso administrativo (NO es vista pública).
+// Este archivo crea una tabla en la base de datos 'sigem_replica'.
+// Debe ejecutarse una sola vez o controlarse con lógica adicional para evitar errores por tabla ya existente.
+?>
 <?php
 $mysqli = new mysqli("localhost", "root", "", "sigem_replica");
 
