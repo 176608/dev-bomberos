@@ -170,55 +170,55 @@
     </div>
 
     <!-- NAVBAR: Navegación principal del sistema -->
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(102, 209, 147);">
-        <div class="container-fluid">
-            
-            <!-- Toggle para móviles -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    @auth
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(102, 209, 147);">
+            <div class="container-fluid">
+                
+                <!-- Toggle para móviles -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <!-- Navegación principal -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Información Pública (siempre visible) -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
-                           href="{{ route('dashboard') }}" title="Panel de Consulta de hidrantes">
-                            <i class="bi bi-binoculars-fill"></i> Consultor
-                        </a>
-                    </li>
+                <!-- Navegación principal -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <!-- Información Pública (siempre visible SOLO para usuarios autenticados) -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
+                               href="{{ route('dashboard') }}" title="Panel de Consulta de hidrantes">
+                                <i class="bi bi-binoculars-fill"></i> Consultor
+                            </a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('sigem.laravel.public') ? 'active' : '' }}" 
-                           href="{{ route('sigem.laravel.public') }}" title="Panel de consulta público de SIGEM">
-                            <i class="bi bi-binoculars-fill"></i> SIGEM
-                        </a>
-                    </li>
-                    
-                    <!-- Paneles según rol (solo si está logueado y activo) -->
-                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('sigem.laravel.public') ? 'active' : '' }}" 
+                               href="{{ route('sigem.laravel.public') }}" title="Panel de consulta público de SIGEM">
+                                <i class="bi bi-binoculars-fill"></i> SIGEM
+                            </a>
+                        </li>
+                        
+                        <!-- Paneles según rol (solo si está logueado y activo) -->
                         @if(auth()->user()->log_in_status === 0)
                             @if(auth()->user()->role === 'Desarrollador')
                                 {{-- Desarrollador: 4 pestañas --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('dev.panel') ? 'active' : '' }}" 
                                        href="{{ route('dev.panel') }}" title="Panel de Desarrollador">
-                                        <i class="bi bi-code-slash"></i> Panel Desarrollador
+                                        <i class="bi bi-code-slash"></i> DEV
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
-                                        <i class="bi bi-gear"></i> BOMBEROS
+                                        <i class="bi bi-gear"></i> Usuarios
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
                                        href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
-                                        <i class="bi bi-gear"></i> SIGEM
+                                        <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
                                 </li>
                                 
@@ -234,14 +234,14 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
-                                        <i class="bi bi-gear"></i> BOMBEROS
+                                        <i class="bi bi-gear"></i> Usuarios
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
                                        href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
-                                        <i class="bi bi-gear"></i> SIGEM
+                                        <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
                                 </li>
                                 
@@ -255,20 +255,18 @@
                                 </li>
                             @endif
                         @endif
-                    @endauth
-                </ul>
+                    </ul>
 
-                <!-- Indicador de rol (lado derecho) -->
-                @auth
+                    <!-- Indicador de rol (lado derecho) -->
                     @if(auth()->user()->role === 'Desarrollador')
                         <span class="navbar-text text-danger">
                             <i class="bi bi-tools"></i> MODO DESARROLLADOR
                         </span>
                     @endif
-                @endauth
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    @endauth
 
     <!-- Contenido principal antes tenia: class="py-4" -->
     <main>
