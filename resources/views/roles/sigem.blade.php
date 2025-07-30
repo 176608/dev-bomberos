@@ -565,7 +565,7 @@ ${JSON.stringify(data, null, 2)}
             });
     }
 
-    // Generar HTML para el catálogo - ACTUALIZADO con cuadros estadísticos
+    // Generar HTML para el catálogo - CORREGIDO
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
@@ -618,7 +618,7 @@ ${JSON.stringify(data, null, 2)}
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    ${data.cuadros_estadisticos ? ListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
+                                    ${data.cuadros_estadisticos ? generateListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
                                 </div>
                             </div>
                         </div>
@@ -654,6 +654,71 @@ ${JSON.stringify(data, null, 2)}
         `;
         
         return html;
+    }
+
+    // AGREGAR: Función generateEstructuraIndice que faltaba
+    function generateEstructuraIndice(temasDetalle) {
+        let estructura = `
+            <div style="font-size: 12px;">
+                <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+        `;
+
+        temasDetalle.forEach((tema, temaIndex) => {
+            // Determinar el color del header basado en el número de tema
+            const colores = [
+                'background-color: #8FBC8F;', // Verde claro
+                'background-color: #87CEEB;', // Azul cielo
+                'background-color: #DDA0DD;', // Púrpura claro
+                'background-color: #F0E68C;', // Amarillo claro
+                'background-color: #FFA07A;', // Salmón
+                'background-color: #98FB98;'  // Verde pálido
+            ];
+            
+            const colorTema = colores[temaIndex % colores.length];
+
+            estructura += `
+                <div class="mb-3" style="border: 1px solid #ddd;">
+                    <!-- Header del tema -->
+                    <div class="text-center text-white fw-bold py-2" style="${colorTema}">
+                        ${temaIndex + 1}. ${tema.titulo.toUpperCase()}
+                    </div>
+                    
+                    <!-- Subtemas -->
+                    <div style="background-color: white;">
+            `;
+
+            if (tema.subtemas && tema.subtemas.length > 0) {
+                tema.subtemas.forEach((subtema, subtemaIndex) => {
+                    // Alternar colores de fondo para las filas
+                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                    
+                    estructura += `
+                        <div class="d-flex border-bottom" style="${bgColor}">
+                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                                ${subtema.clave_efectiva || subtema.clave_original || tema.clave_tema || 'N/A'}
+                            </div>
+                            <div class="px-3 py-2 flex-grow-1">
+                                ${subtema.titulo}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                estructura += `
+                    <div class="px-3 py-2 text-muted">
+                        <em>Sin subtemas disponibles</em>
+                    </div>
+                `;
+            }
+
+            estructura += `
+                    </div>
+                </div>
+            `;
+        });
+
+        estructura += `</div>`;
+        return estructura;
     }
 
     // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos organizada por temas
