@@ -139,10 +139,11 @@ class PublicController extends Controller
      */
     public function loadPartial($section)
     {
-        $validSections = ['inicio', 'estadistica', 'cartografia', 'productos', 'catalogo'];
+        $validSections = ['catalogo', 'estadistica', 'cartografia', 'productos'];
         
         if (!in_array($section, $validSections)) {
-            return response()->view('partials.inicio');
+            // Por defecto cargar catálogo
+            return response()->view('partials.catalogo');
         }
         
         return response()->view('partials.' . $section);

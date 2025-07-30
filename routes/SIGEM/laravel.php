@@ -29,7 +29,7 @@ Route::prefix('sigem')->group(function () {
     Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
     
     // Vistas adicionales (mantener compatibilidad)
-    Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');
+    /*Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');*/
     Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
     
     // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===
@@ -62,15 +62,13 @@ Route::prefix('sigem')->group(function () {
     })->name('sigem.redirect.catalogo');
 });
 
-// Rutas administrativas Laravel SIGEM  
+// === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
 Route::prefix('sigem')->middleware(['auth'])->group(function () {  
     
-    // Panel principal de administración
     Route::get('/admin', [AdminController::class, 'index'])
         ->name('sigem.laravel.admin')
         ->middleware('role:Administrador,Desarrollador');
     
-    // Gestión de contenidos administrativos
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
         Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.laravel.admin.temas');
         Route::get('/admin/subtemas', [AdminController::class, 'subtemas'])->name('sigem.laravel.admin.subtemas');
@@ -101,19 +99,16 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
     });
 });
 
-// Rutas de integración (Bridge entre sistemas)
+// === MANTENER RUTAS BRIDGE ===  Se va a borrar esta seccion
 Route::prefix('sigem-bridge')->middleware(['auth'])->group(function () {
-    
-    // Bridge para acceder al SIGEM original desde Laravel
     Route::get('/to-original', function() {
-        return redirect('/geografico'); // Redirige al SIGEM original
+        return redirect('/geografico');
     })->name('sigem.bridge.original');
     
-    // Bridge para acceder a panel admin original
     Route::get('/to-admin-original', function() {
         if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
             return redirect()->route('login');
         }
-        return redirect()->route('subtema.index'); // Redirige al admin original
+        return redirect()->route('subtema.index');
     })->name('sigem.bridge.admin.original');
 });

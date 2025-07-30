@@ -58,8 +58,62 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.sigem-nav-link');
     const contentContainer = document.getElementById('sigem-content');
 
-    // Función para cargar contenido
+    // PERSISTENCIA: Clave para localStorage
+    const STORAGE_KEY = 'sigem_current_section';
+
+    // FUNCIÓN: Obtener sección desde URL o localStorage
+    function getCurrentSection() {
+        // 1. Verificar parámetro URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSection = urlParams.get('section');
+        
+        if (urlSection && ['catalogo', 'estadistica', 'cartografia', 'productos'].includes(urlSection)) {
+            return urlSection;
+        }
+        
+        // 2. Verificar localStorage
+        const storedSection = localStorage.getItem(STORAGE_KEY);
+        if (storedSection && ['catalogo', 'estadistica', 'cartografia', 'productos'].includes(storedSection)) {
+            return storedSection;
+        }
+        
+        // 3. Por defecto: catálogo
+        return 'catalogo';
+    }
+
+    // FUNCIÓN: Guardar sección actual
+    function saveCurrentSection(section) {
+        localStorage.setItem(STORAGE_KEY, section);
+        
+        // Actualizar URL sin recargar página
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('section', section);
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    // FUNCIÓN: Actualizar menú activo
+    function updateActiveMenu(activeSection) {
+        navLinks.forEach(link => {
+            const section = link.getAttribute('data-section');
+            if (section === activeSection) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    // FUNCIÓN: Cargar contenido
     function loadContent(section) {
+        console.log(`Cargando sección: ${section}`);
+        
+        // Guardar sección actual
+        saveCurrentSection(section);
+        
+        // Actualizar menú
+        updateActiveMenu(section);
+        
+        // Mostrar loading
         contentContainer.innerHTML = `
             <div class="Cargando">
                 <i class="bi bi-hourglass-split"></i>
@@ -67,32 +121,37 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        setTimeout(() => {
-            fetch(`/sigem/partial/${section}`)
-                .then(response => response.text())
-                .then(html => {
-                    contentContainer.innerHTML = html;
-                    
-                    // Ejecutar funciones específicas por sección
-                    if (section === 'cartografia') {
-                        loadMapasData();
-                    } else if (section === 'catalogo') {
-                        loadCatalogoData();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    contentContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            Error al cargar contenido de <strong>${section}</strong>
-                        </div>
-                    `;
-                });
-        }, 500);
+        // Cargar partial
+        fetch(`/sigem/partial/${section}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                contentContainer.innerHTML = html;
+                
+                // Ejecutar funciones específicas por sección
+                if (section === 'cartografia') {
+                    loadMapasData();
+                } else if (section === 'catalogo') {
+                    loadCatalogoData();
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar contenido:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Error al cargar contenido de <strong>${section}</strong>
+                        <br><small>Error: ${error.message}</small>
+                    </div>
+                `;
+            });
     }
 
-    // Función para cargar datos de mapas
+    // FUNCIÓN: Cargar datos de mapas
     function loadMapasData() {
         fetch('/sigem/mapas')
             .then(response => response.json())
@@ -101,10 +160,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (mapasContainer && data.success) {
                     mapasContainer.innerHTML = generateMapasHtml(data);
                 }
+            })
+            .catch(error => {
+                console.error('Error cargando mapas:', error);
+                const mapasContainer = document.getElementById('mapas-container');
+                if (mapasContainer) {
+                    mapasContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Error al cargar mapas
+                        </div>
+                    `;
+                }
             });
     }
 
-    // Función para cargar datos de catálogo
+    // FUNCIÓN: Cargar datos de catálogo
     function loadCatalogoData() {
         fetch('/sigem/catalogo')
             .then(response => response.json())
@@ -123,10 +194,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     sincronizarAlturas();
                 }
+            })
+            .catch(error => {
+                console.error('Error cargando catálogo:', error);
+                const indiceContainer = document.getElementById('indice-container');
+                const cuadrosContainer = document.getElementById('cuadros-container');
+                
+                if (indiceContainer) {
+                    indiceContainer.innerHTML = `<div class="alert alert-warning">Error al cargar índice</div>`;
+                }
+                if (cuadrosContainer) {
+                    cuadrosContainer.innerHTML = `<div class="alert alert-warning">Error al cargar cuadros</div>`;
+                }
             });
     }
 
-    // Generar HTML para mapas
+    // FUNCIÓN: Generar HTML para mapas
     function generateMapasHtml(data) {
         let html = `<h4>Mapas disponibles (${data.total_mapas})</h4>`;
         
@@ -149,12 +232,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             });
             html += '</div>';
+        } else {
+            html += '<div class="alert alert-info">No hay mapas disponibles</div>';
         }
         
         return html;
     }
 
-    // Generar estructura de índice
+    // FUNCIÓN: Generar estructura de índice
     function generateEstructuraIndice(temasDetalle) {
         let estructura = '<div style="font-size: 12px; overflow-y: auto;">';
         
@@ -208,28 +293,50 @@ document.addEventListener('DOMContentLoaded', function() {
         return estructura;
     }
 
-    // Generar lista de cuadros (función simplificada)
+    // FUNCIÓN: Generar lista de cuadros (simplificada por ahora)
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
         }
 
-        const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
         let html = '<div style="overflow-y: auto;">';
-
-        // ... (resto de la lógica de generación de cuadros)
+        
+        // Por ahora, mostrar lista simple
+        html += `<div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Total de cuadros estadísticos: <strong>${cuadrosEstadisticos.length}</strong>
+        </div>`;
+        
+        // Lista básica de cuadros
+        html += '<div class="list-group">';
+        cuadrosEstadisticos.slice(0, 10).forEach(cuadro => { // Mostrar solo primeros 10
+            html += `
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</h6>
+                            <small class="text-muted">Código: ${cuadro.codigo_cuadro || 'N/A'}</small>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')">
+                            Ver
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        if (cuadrosEstadisticos.length > 10) {
+            html += `<div class="text-center mt-3">
+                <small class="text-muted">Mostrando 10 de ${cuadrosEstadisticos.length} cuadros</small>
+            </div>`;
+        }
         
         html += '</div>';
         return html;
     }
 
-    // Función de organización de cuadros
-    function organizarCuadrosPorTema(cuadrosEstadisticos) {
-        // ... (lógica de organización)
-        return {};
-    }
-
-    // Sincronizar alturas
+    // FUNCIÓN: Sincronizar alturas
     function sincronizarAlturas() {
         setTimeout(() => {
             const indiceContainer = document.getElementById('indice-container');
@@ -248,14 +355,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const section = this.getAttribute('data-section');
-            
-            navLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-            
             loadContent(section);
         });
     });
     
-    // Cargar contenido inicial
-    loadContent('inicio');
+    // CARGAR CONTENIDO INICIAL (con persistencia)
+    const initialSection = getCurrentSection();
+    console.log(`Sección inicial: ${initialSection}`);
+    loadContent(initialSection);
 });

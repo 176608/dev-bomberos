@@ -122,6 +122,39 @@
             100% { transform: scale(1); }
         }
 
+        /* Estilos para productos */
+        .product-section {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-section img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-text {
+            flex: 1;
+        }
+
+        /* Estilos para catálogo */
+        .catalogo-row {
+            min-height: 600px;
+        }
+
+        .catalogo-row .card-body {
+            padding: 0;
+        }
+
+        .catalogo-row .card-body > div {
+            height: 550px;
+            overflow-y: auto;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-logos {
@@ -137,6 +170,15 @@
             .main-menu a {
                 padding: 10px 15px;
                 font-size: 13px;
+            }
+
+            .product-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .product-section img {
+                max-width: 100%;
             }
         }
     </style>
@@ -160,8 +202,9 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <a href="#" data-section="inicio" class="sigem-nav-link active">
-                    <i class="bi bi-house-fill"></i> INICIO
+                <!-- ELIMINAR: inicio, cambiar orden -->
+                <a href="#" data-section="catalogo" class="sigem-nav-link active">
+                    <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
                 <a href="#" data-section="estadistica" class="sigem-nav-link">
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
@@ -171,9 +214,6 @@
                 </a>
                 <a href="#" data-section="productos" class="sigem-nav-link">
                     <i class="bi bi-box-seam"></i> PRODUCTOS
-                </a>
-                <a href="#" data-section="catalogo" class="sigem-nav-link">
-                    <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
             </div>
         </div>
