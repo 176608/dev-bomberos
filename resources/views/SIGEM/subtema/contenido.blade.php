@@ -13,34 +13,6 @@
     </div>
 @endif
 
-@php
-    session_start();
-    $esAdmin = isset($_SESSION['usuario']) && $_SESSION['usuario'] === 'admin';
-@endphp
-
-@if($esAdmin)
-    @php
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $html = mb_convert_encoding($contenido->ce_contenido, 'HTML-ENTITIES', 'UTF-8');
-        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
-        $rows = $dom->getElementsByTagName('tr');
-
-        $titulo = '';
-        $datos = [];
-
-        foreach ($rows as $i => $tr) {
-            $tds = $tr->getElementsByTagName('td');
-            if ($i === 0 && $tds->length === 1 || $tds->length === 2 && $tds[0]->getAttribute('colspan') === '2') {
-                $titulo = trim($tds[0]->nodeValue);
-            } elseif ($tds->length === 2) {
-                $datos[] = [
-                    'concepto' => trim($tds[0]->nodeValue),
-                    'valor' => trim($tds[1]->nodeValue),
-                ];
-            }
-        }
-    @endphp
 
     <form method="POST" action="{{ route('contenido.update', $contenido->ce_contenido_id) }}" id="form-edicion">
         @csrf
@@ -105,4 +77,3 @@
             });
         });
     </script>
-@endif

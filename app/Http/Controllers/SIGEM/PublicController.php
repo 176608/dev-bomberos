@@ -139,6 +139,7 @@ class PublicController extends Controller
      */
     public function loadPartial($section)
     {
+        // ACTUALIZAR: Sin 'inicio'
         $validSections = ['catalogo', 'estadistica', 'cartografia', 'productos'];
         
         if (!in_array($section, $validSections)) {
@@ -146,7 +147,15 @@ class PublicController extends Controller
             return response()->view('partials.catalogo');
         }
         
-        return response()->view('partials.' . $section);
+        try {
+            return response()->view('partials.' . $section);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Partial no encontrado',
+                'section' => $section,
+                'message' => $e->getMessage()
+            ], 404);
+        }
     }
 
     /**

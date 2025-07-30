@@ -106,6 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // FUNCIÓN: Cargar contenido
     function loadContent(section) {
         console.log(`Cargando sección: ${section}`);
+        console.log(`URL que se va a llamar: /sigem/partial/${section}`);
+        console.log(`URL completa: ${window.location.origin}/sigem/partial/${section}`);
         
         // Guardar sección actual
         saveCurrentSection(section);
