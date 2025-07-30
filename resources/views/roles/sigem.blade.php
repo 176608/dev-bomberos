@@ -1,6 +1,5 @@
 <!-- Archivo SIGEM -Base de vista sigem publica- - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
-@extends('layouts.asigem')
 @section('title', 'SIGEM - Sistema de Información Geográfica')
 
 @section('content')

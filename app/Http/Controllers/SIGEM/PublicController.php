@@ -153,7 +153,7 @@ class PublicController extends Controller
      */
     public function estadistica($cuadro_id = null)
     {
-        return view('layouts.asigem')->with([
+        return view('roles.sigem', [
             'loadSection' => 'estadistica',
             'cuadro_id' => $cuadro_id
         ]);

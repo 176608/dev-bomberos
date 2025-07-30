@@ -1,20 +1,20 @@
 <?php
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM Laravel - NO ELIMINAR COMENTARIO --> */
-// routes/SIGEM/laravel.php (nuevo archivo para evitar conflictos)
 use App\Http\Controllers\SIGEM\PublicController;
 use App\Http\Controllers\SIGEM\AdminController;
 
 // Rutas públicas Laravel del módulo SIGEM
 Route::prefix('sigem')->group(function () {  
     
-    // Vista principal pública
-    Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.index');
+    // === RUTA PRINCIPAL (UNA SOLA) ===
+    Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
     
-    // === NUEVAS RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
+    // === RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
     
-    // === RUTAS PARA ESTADÍSTICA CON CUADRO (CONSOLIDADAS) ===
+    // === RUTAS PARA ESTADÍSTICA CON CUADRO ===
     Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
+    Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
     Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
     
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
