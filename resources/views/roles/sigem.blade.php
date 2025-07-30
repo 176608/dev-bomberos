@@ -91,14 +91,14 @@
     background-color: #ffd700;
 }
 
-/* Loading indicator */
-.loading {
+/* Cargando indicator */
+.Cargando {
     text-align: center;
     padding: 40px;
     color: #2a6e48;
 }
 
-.loading i {
+.Cargando i {
     font-size: 24px;
     animation: spin 1s linear infinite;
 }
@@ -301,7 +301,7 @@
 
     <!-- CONTENEDOR DINÁMICO -->
     <div id="sigem-content" class="container mt-4">
-        <div class="loading">
+        <div class="Cargando">
             <i class="bi bi-hourglass-split"></i>
             <p>Cargando contenido...</p>
         </div>
@@ -436,20 +436,19 @@ const DynamicContent = {
 
     // Función para cargar contenido
     function loadContent(section) {
-        // Mostrar loading
+        // Mostrar C
         contentContainer.innerHTML = `
-            <div class="loading">
+            <div class="Cargando">
                 <i class="bi bi-hourglass-split"></i>
                 <p>Cargando ${section}...</p>
             </div>
         `;
         
-        // Simular delay de carga
         setTimeout(() => {
             if (section === 'cartografia') {
                 loadCartografia();
             } else if (section === 'catalogo') {
-                loadCatalogo(); // AGREGAR esta línea
+                loadCatalogo();
             } else if (DynamicContent[section]) {
                 contentContainer.innerHTML = DynamicContent[section];
             } else {
@@ -619,7 +618,7 @@ ${JSON.stringify(data, null, 2)}
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    ${data.cuadros_estadisticos ? generateListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
+                                    ${data.cuadros_estadisticos ? ListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
                                 </div>
                             </div>
                         </div>
@@ -658,7 +657,7 @@ ${JSON.stringify(data, null, 2)}
     }
 
     // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos organizada por temas
-    function generateListaCuadros(cuadrosEstadisticos) {
+    function ListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
         }
