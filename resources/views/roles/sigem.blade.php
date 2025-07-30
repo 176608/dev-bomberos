@@ -680,10 +680,9 @@ ${JSON.stringify(data, null, 2)}
                 <div class="mb-3" style="border: 1px solid #ddd;">
                     <!-- Header del tema -->
                     <div class="text-center text-white fw-bold py-2" style="${colorTema}">
-                        ${temaIndex + 1}. ${tema.titulo.toUpperCase()}
+                        ${temaIndex + 1}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
-                    <!-- Subtemas -->
                     <div style="background-color: white;">
             `;
 
@@ -698,7 +697,7 @@ ${JSON.stringify(data, null, 2)}
                                 ${subtema.clave_efectiva || subtema.clave_original || tema.clave_tema || 'N/A'}
                             </div>
                             <div class="px-3 py-2 flex-grow-1">
-                                ${subtema.titulo}
+                                ${subtema.tema_titulo}
                             </div>
                         </div>
                     `;
