@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas (USANDO URL COMPLETA)
+    // FUNCIÓN: Generar HTML para mapas (USAR URL DEL CONTROLADOR)
     function generateMapasHtml(data) {
         let html = `
             <div class="mb-3">
@@ -270,15 +270,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                 </div>
                                 
+                                <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
                                 <div class="mapa-content">
                                     <!-- IMAGEN (50% izquierda) -->
-                                    <div class="mapa-image-container">
+                                    <div class="mapa-image-container" onclick="window.open('${mapa.enlace || '#'}', '_blank')">
                                         ${mapa.tiene_imagen ? 
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onclick="window.open('${mapa.enlace || '#'}', '_blank')"
-                                                  onerror="this.style.display='none'; this.parentNode.innerHTML='${getImagePlaceholder(mapa).replace(/'/g, '\\\'')}';"
+                                                  onerror="this.parentNode.innerHTML=\`${getImagePlaceholderEscaped(mapa)}\`"
                                              >
                                              <div class="mapa-image-overlay">
                                                 <i class="bi bi-zoom-in me-2"></i>
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${mapa.enlace ? 
                     `<small class="text-primary">
                         <i class="bi bi-cursor-fill"></i>
-                        Haz clic en "Ver Mapa" arriba
+                        Haz clic para ver mapa
                     </small>` 
                     : 
                     `<small class="text-muted">
@@ -356,6 +356,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             </div>
         `;
+    }
+
+    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror
+    function getImagePlaceholderEscaped(mapa) {
+        return `<div class="mapa-image-placeholder">
+                    <i class="bi bi-image"></i>
+                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                    <p>Error al cargar imagen</p>
+                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
+                </div>`;
     }
 
     // FUNCIÓN: Generar estructura de índice
