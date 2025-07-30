@@ -226,6 +226,60 @@
     margin-bottom: 30px;
 }
 
+/* NUEVOS ESTILOS: Efectos para índice y focus */
+.indice-tema-header:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+.indice-subtema-row:hover {
+    background-color: #e8f4f8 !important;
+    transform: translateX(5px) !important;
+}
+
+.highlight-focus {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5) !important;
+    animation: pulseHighlight 1s ease-in-out;
+}
+
+@keyframes pulseHighlight {
+    0% { 
+        transform: scale(1); 
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+    50% { 
+        transform: scale(1.02); 
+        box-shadow: 0 0 25px rgba(255, 193, 7, 0.8);
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+}
+
+/* Asegurar alturas iguales */
+#indice-container, #cuadros-container {
+    overflow-y: auto;
+}
+
+/* AGREGAR: Asegurar que ambos contenedores tengan alturas mínimas iguales */
+.catalogo-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.catalogo-row .card {
+    height: 100%;
+}
+
+.catalogo-row .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-logos {
@@ -656,10 +710,10 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // AGREGAR: Función generateEstructuraIndice que faltaba
+    // ACTUALIZAR: Función generateEstructuraIndice - SIN ALTURA FIJA
     function generateEstructuraIndice(temasDetalle) {
         let estructura = `
-            <div style="font-size: 12px;">
+            <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
                 <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
         `;
 
@@ -675,12 +729,18 @@ ${JSON.stringify(data, null, 2)}
             ];
             
             const colorTema = colores[temaIndex % colores.length];
+            const numeroTema = temaIndex + 1;
 
             estructura += `
-                <div class="mb-3" style="border: 1px solid #ddd;">
+                <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
                     <!-- Header del tema -->
-                    <div class="text-center text-white fw-bold py-2" style="${colorTema}">
-                        ${temaIndex + 1}. ${tema.tema_titulo.toUpperCase()}
+                    <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                         style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
+                         data-tema="${numeroTema}"
+                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                         onclick="focusEnTema(${numeroTema})">
+                        ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
                     <div style="background-color: white;">
@@ -692,7 +752,13 @@ ${JSON.stringify(data, null, 2)}
                     const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
                     
                     estructura += `
-                        <div class="d-flex border-bottom" style="${bgColor}">
+                        <div class="d-flex border-bottom indice-subtema-row" 
+                             style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                             data-tema="${numeroTema}" 
+                             data-subtema="${subtema.orden_indice || subtemaIndex}"
+                             onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                             onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                             onclick="focusEnSubtema(${numeroTema}, ${subtema.orden_indice || subtemaIndex})">
                             <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                                 ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
@@ -720,7 +786,7 @@ ${JSON.stringify(data, null, 2)}
         return estructura;
     }
 
-    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos - LIMPIADA
+    // ACTUALIZAR: Función generateListaCuadros - SIN ALTURA FIJA
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
@@ -730,7 +796,7 @@ ${JSON.stringify(data, null, 2)}
         const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
 
         let html = `
-            <div style="max-height: 600px; overflow-y: auto;">
+            <div style="overflow-y: auto;" id="cuadros-container">
         `;
 
         // Colores para los headers de temas (igual que la estructura de índice)
@@ -751,9 +817,10 @@ ${JSON.stringify(data, null, 2)}
             
             // USAR: orden_indice del tema para mostrar el número correcto
             const numeroTema = tema.orden_indice || (temaIndex + 1);
+            const temaId = `tema-cuadros-${numeroTema}`;
 
             html += `
-                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;">
+                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="${temaId}">
                     <!-- Header del tema -->
                     <div class="text-center fw-bold py-2" style="${colorTema}">
                         ${numeroTema}. ${tema.nombre.toUpperCase()}
@@ -765,10 +832,11 @@ ${JSON.stringify(data, null, 2)}
 
             Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
                 const subtema = tema.subtemas[subtemaKey];
+                const subtemaId = `subtema-cuadros-${numeroTema}-${subtema.orden_indice || subtemaIndex}`;
                 
-                // Header del subtema - ELIMINAR: información de orden
+                // Header del subtema con ID para focus
                 html += `
-                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;">
+                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
                         ${subtema.clave || 'N/A'} ${subtema.nombre}
                     </div>
                 `;
@@ -777,8 +845,6 @@ ${JSON.stringify(data, null, 2)}
                 if (subtema.cuadros && subtema.cuadros.length > 0) {
                     subtema.cuadros.forEach((cuadro, cuadroIndex) => {
                         const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
-                        
-                        // ELIMINAR: Generar badges para archivos (todo el bloque eliminado)
 
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
@@ -820,126 +886,67 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIR ORDENAMIENTO POR SUBTEMA
-    function organizarCuadrosPorTema(cuadrosEstadisticos) {
-        const organizacion = {};
-
-        cuadrosEstadisticos.forEach(cuadro => {
-            // CORREGIR: La información del tema viene a través del subtema
-            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
-            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
-
-            const temaKey = `tema_${temaInfo.tema_id}`;
-            const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
-
-            // Inicializar tema si no existe
-            if (!organizacion[temaKey]) {
-                organizacion[temaKey] = {
-                    nombre: temaInfo.tema_titulo || 'Sin Tema',
-                    clave: temaInfo.clave_tema || '',
-                    orden_indice: temaInfo.orden_indice || 0,
-                    subtemas: {}
-                };
-            }
-
-            // Inicializar subtema si no existe
-            if (!organizacion[temaKey].subtemas[subtemaKey]) {
-                organizacion[temaKey].subtemas[subtemaKey] = {
-                    nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
-                    clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
-                    orden_indice: subtemaInfo.orden_indice || 0,
-                    subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
-                    cuadros: []
-                };
-            }
-
-            // Agregar cuadro al subtema
-            organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
-        });
-
-        // AGREGAR: Ordenar por orden_indice
-        const organizacionOrdenada = {};
-        
-        // 1. Ordenar temas por orden_indice
-        const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
-            const ordenA = organizacion[a].orden_indice || 0;
-            const ordenB = organizacion[b].orden_indice || 0;
-            return ordenA - ordenB;
-        });
-
-        // 2. Para cada tema ordenado, ordenar sus subtemas
-        temasOrdenados.forEach(temaKey => {
-            const tema = organizacion[temaKey];
+    // NUEVA FUNCIÓN: Sincronizar alturas dinámicamente
+    function sincronizarAlturas() {
+        setTimeout(() => {
+            const indiceContainer = document.getElementById('indice-container');
+            const cuadrosContainer = document.getElementById('cuadros-container');
             
-            organizacionOrdenada[temaKey] = {
-                ...tema,
-                subtemas: {}
-            };
-
-            // Ordenar subtemas por orden_indice
-            const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
-                const ordenA = tema.subtemas[a].orden_indice || 0;
-                const ordenB = tema.subtemas[b].orden_indice || 0;
-                return ordenA - ordenB;
-            });
-
-            // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
-            subtemasOrdenados.forEach(subtemaKey => {
-                const subtema = tema.subtemas[subtemaKey];
+            if (indiceContainer && cuadrosContainer) {
+                // Resetear alturas para medir contenido natural
+                indiceContainer.style.height = 'auto';
+                cuadrosContainer.style.height = 'auto';
                 
-                organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
-                    ...subtema,
-                    cuadros: subtema.cuadros.sort((a, b) => {
-                        // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
-                        return compararCodigosCuadro(
-                            a.codigo_cuadro || '', 
-                            b.codigo_cuadro || '',
-                            a.subtema || subtema.subtema_info,
-                            b.subtema || subtema.subtema_info
-                        );
-                    })
-                };
-            });
-        });
-
-        return organizacionOrdenada;
-    }
-
-    // NUEVA FUNCIÓN: Comparar códigos de cuadro por orden_indice de subtema y después numéricamente
-    function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
-        // 1. PRIMERO: Comparar por orden_indice del subtema
-        const ordenSubtemaA = subtemaInfoA.orden_indice || 0;
-        const ordenSubtemaB = subtemaInfoB.orden_indice || 0;
-        
-        if (ordenSubtemaA !== ordenSubtemaB) {
-            return ordenSubtemaA - ordenSubtemaB;
-        }
-
-        // 2. SEGUNDO: Si tienen el mismo subtema, comparar numéricamente el tercer número
-        function extraerNumero(codigo) {
-            if (!codigo) return 0;
-            
-            const partes = codigo.split('.');
-            if (partes.length >= 3) {
-                // Obtener la parte después del segundo punto y convertir a número
-                const numeroStr = partes[2];
-                const numero = parseInt(numeroStr, 10);
-                return isNaN(numero) ? 0 : numero;
+                // Medir alturas reales del contenido
+                const indiceHeight = indiceContainer.scrollHeight;
+                const cuadrosHeight = cuadrosContainer.scrollHeight;
+                
+                // Usar la mayor altura pero con límite máximo
+                const maxHeight = Math.max(indiceHeight, cuadrosHeight);
+                const alturaFinal = Math.min(maxHeight, 600); // Máximo 600px
+                
+                // Aplicar la misma altura a ambos
+                indiceContainer.style.height = alturaFinal + 'px';
+                cuadrosContainer.style.height = alturaFinal + 'px';
+                
+                console.log(`Alturas sincronizadas: ${alturaFinal}px`);
             }
-            return 0;
-        }
-
-        const numeroA = extraerNumero(codigoA);
-        const numeroB = extraerNumero(codigoB);
-        
-        return numeroA - numeroB;
+        }, 100); // Pequeño delay para asegurar que el DOM esté renderizado
     }
 
-    // NUEVA FUNCIÓN: Ver cuadro (placeholder)
-    function verCuadro(cuadroId, codigo) {
-        console.log(`Ver cuadro: ID=${cuadroId}, Código=${codigo}`);
-        alert(`Función para ver cuadro ${codigo} (ID: ${cuadroId})`);
-        // Aquí se implementará la lógica para mostrar el cuadro
+    // ACTUALIZAR función loadCatalogo para incluir sincronización
+    function loadCatalogo() {
+        console.log('Cargando catálogo de cuadros estadísticos...');
+        
+        fetch('{{route("sigem.laravel.catalogo")}}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('DATOS CATÁLOGO RECIBIDOS:', data);
+                
+                if (data.success) {
+                    const catalogoHtml = generateCatalogoHtml(data);
+                    contentContainer.innerHTML = catalogoHtml;
+                    
+                    // AGREGAR: Sincronizar alturas después de cargar contenido
+                    sincronizarAlturas();
+                } else {
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar catálogo: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Error de conexión al cargar catálogo
+                    </div>
+                `;
+            });
     }
 
     // Event listeners para navegación
