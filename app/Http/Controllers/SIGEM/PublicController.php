@@ -32,7 +32,7 @@ class PublicController extends Controller
             $mapasConImagenes = $mapas->map(function($mapa) {
                 // Agregar URL completa de imagen si existe
                 if ($mapa->icono) {
-                    $mapa->imagen_url = asset('imagenes/' . $mapa->icono);
+                    $mapa->imagen_url = asset('img/SIGEM_mapas/' . $mapa->icono);
                     $mapa->tiene_imagen = true;
                 } else {
                     $mapa->imagen_url = null;
