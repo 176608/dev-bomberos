@@ -863,7 +863,7 @@ ${JSON.stringify(data, null, 2)}
 
         cuadrosEstadisticos.forEach(cuadro => {
             // Determinar tema y subtema
-            const temaInfo = cuadro.tema || cuadro.subtema?.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema' };
+            const temaInfo = cuadro.tema || cuadro.subtema?.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info' };
             const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema' };
 
             const temaKey = `tema_${temaInfo.tema_id}`;
