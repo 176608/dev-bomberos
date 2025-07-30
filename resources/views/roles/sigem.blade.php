@@ -734,28 +734,7 @@ ${JSON.stringify(data, null, 2)}
                 <div class="mb-3">
                     <div class="row text-center">
                         <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Total Cuadros</small>
-                                <strong class="text-primary">${cuadrosEstadisticos.length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con Excel</small>
-                                <strong class="text-success">${cuadrosEstadisticos.filter(c => c.excel_file && c.excel_file.trim() !== '').length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con PDF</small>
-                                <strong class="text-danger">${cuadrosEstadisticos.filter(c => c.pdf_file && c.pdf_file.trim() !== '').length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con Gráficas</small>
-                                <strong class="text-warning">${cuadrosEstadisticos.filter(c => c.permite_grafica).length}</strong>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -779,7 +758,7 @@ ${JSON.stringify(data, null, 2)}
                 <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;">
                     <!-- Header del tema -->
                     <div class="text-center fw-bold py-2" style="${colorTema}">
-                        ${temaIndex + 1}. ${tema.nombre.toUpperCase()}
+                        ${temaIndex + 1}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
                     <!-- Subtemas y cuadros -->
@@ -792,7 +771,7 @@ ${JSON.stringify(data, null, 2)}
                 // Header del subtema
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;">
-                        ${subtema.clave || 'N/A'} ${subtema.nombre}
+                        ${subtema.clave_subtema || 'N/A'} ${subtema.subtema_titulo}
                     </div>
                 `;
 
@@ -801,20 +780,6 @@ ${JSON.stringify(data, null, 2)}
                     subtema.cuadros.forEach((cuadro, cuadroIndex) => {
                         const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
                         
-                        // Generar badges para archivos
-                        let archivos = [];
-                        if (cuadro.excel_file && cuadro.excel_file.trim() !== '') {
-                            archivos.push('<span class="badge bg-success me-1" style="font-size: 9px;">XLS</span>');
-                        }
-                        if (cuadro.pdf_file && cuadro.pdf_file.trim() !== '') {
-                            archivos.push('<span class="badge bg-danger me-1" style="font-size: 9px;">PDF</span>');
-                        }
-                        if (cuadro.img_name && cuadro.img_name.trim() !== '') {
-                            archivos.push('<span class="badge bg-info me-1" style="font-size: 9px;">IMG</span>');
-                        }
-                        if (cuadro.permite_grafica) {
-                            archivos.push('<span class="badge bg-warning me-1" style="font-size: 9px;">GRAF</span>');
-                        }
 
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
