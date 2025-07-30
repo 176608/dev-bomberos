@@ -657,7 +657,7 @@ ${JSON.stringify(data, null, 2)}
     }
 
     // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos organizada por temas
-    function ListaCuadros(cuadrosEstadisticos) {
+    function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
         }
