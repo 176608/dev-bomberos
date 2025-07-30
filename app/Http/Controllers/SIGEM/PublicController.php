@@ -21,21 +21,29 @@ class PublicController extends Controller
     }
     
     /**
-     * Obtener mapas para AJAX - CON RUTAS DE IMÁGENES
+     * Obtener mapas para AJAX - CON DEBUGGING
      */
     public function obtenerMapas()
     {
         try {
             $mapas = Mapa::obtenerParaCartografia();
-            // Procesar mapas para incluir URLs completas de imágenes \public\img\SIGEM_Mapas
+            
+            // Procesar mapas para incluir URLs completas de imágenes
             $mapasConImagenes = $mapas->map(function($mapa) {
                 // Agregar URL completa de imagen si existe
                 if ($mapa->icono) {
                     $mapa->imagen_url = asset('img/SIGEM_mapas/' . $mapa->icono);
                     $mapa->tiene_imagen = true;
+                    
+                    // DEBUG: Verificar si el archivo existe
+                    $rutaCompleta = public_path('img/SIGEM_mapas/' . $mapa->icono);
+                    $mapa->archivo_existe = file_exists($rutaCompleta);
+                    $mapa->ruta_fisica = $rutaCompleta;
                 } else {
                     $mapa->imagen_url = null;
                     $mapa->tiene_imagen = false;
+                    $mapa->archivo_existe = false;
+                    $mapa->ruta_fisica = null;
                 }
                 
                 return $mapa;
@@ -45,7 +53,14 @@ class PublicController extends Controller
                 'success' => true,
                 'mapas' => $mapasConImagenes,
                 'total_mapas' => $mapasConImagenes->count(),
-                'message' => 'Mapas cargados exitosamente'
+                'message' => 'Mapas cargados exitosamente',
+                // DEBUG: Información adicional
+                'debug_info' => [
+                    'public_path' => public_path(),
+                    'asset_url' => asset(''),
+                    'carpeta_imagenes' => public_path('img/SIGEM_mapas/'),
+                    'carpeta_existe' => is_dir(public_path('img/SIGEM_mapas/'))
+                ]
             ]);
             
         } catch (\Exception $e) {
