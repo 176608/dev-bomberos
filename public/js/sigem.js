@@ -228,31 +228,93 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas
+    // FUNCIÓN: Generar HTML para mapas+
     function generateMapasHtml(data) {
-        let html = `<h4>Mapas disponibles (${data.total_mapas})</h4>`;
+        let html = `
+            <div class="mb-3">
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Mapas disponibles: ${data.total_mapas}</strong>
+                </div>
+            </div>
+        `;
         
         if (data.mapas && data.mapas.length > 0) {
-            html += '<div class="row">';
             data.mapas.forEach((mapa, index) => {
                 html += `
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header bg-info text-white">
-                                <strong>${mapa.nombre_mapa || 'Mapa sin nombre'}</strong>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Sección:</strong> ${mapa.nombre_seccion || 'N/A'}</p>
-                                <p><strong>Descripción:</strong> ${mapa.descripcion || 'N/A'}</p>
-                                ${mapa.enlace ? `<a href="${mapa.enlace}" target="_blank" class="btn btn-primary btn-sm">Ver Mapa</a>` : ''}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mapa-row">
+                                <!-- HEADER: Título/Sección + Botón -->
+                                <div class="mapa-header">
+                                    <div class="mapa-info">
+                                        <h4 class="mapa-title">
+                                            <i class="bi bi-geo-alt-fill me-2"></i>
+                                            ${mapa.nombre_mapa || 'Mapa sin nombre'}
+                                        </h4>
+                                        <p class="mapa-seccion">
+                                            <i class="bi bi-folder-fill me-1"></i>
+                                            Sección: ${mapa.nombre_seccion || 'No especificada'}
+                                        </p>
+                                    </div>
+                                    ${mapa.enlace ? 
+                                        `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                            Ver Mapa
+                                        </a>` 
+                                        : 
+                                        `<span class="mapa-btn" style="background-color: #6c757d; cursor: not-allowed;">
+                                            <i class="bi bi-x-circle"></i>
+                                            No disponible
+                                        </span>`
+                                    }
+                                </div>
+                                
+                                <!-- IFRAME: Mapa embebido -->
+                                <div class="mapa-iframe-container">
+                                    ${mapa.enlace ? 
+                                        `<iframe src="${mapa.enlace}" 
+                                                class="mapa-iframe" 
+                                                title="${mapa.nombre_mapa}"
+                                                loading="lazy"
+                                                allow="fullscreen">
+                                        </iframe>` 
+                                        : 
+                                        `<div class="mapa-placeholder">
+                                            <i class="bi bi-map"></i>
+                                            <p>Mapa no disponible</p>
+                                            <small class="text-muted">El enlace del mapa no está configurado</small>
+                                        </div>`
+                                    }
+                                </div>
+                                
+                                <!-- DESCRIPCIÓN -->
+                                <div class="mapa-descripcion">
+                                    <h5>
+                                        <i class="bi bi-card-text me-2"></i>
+                                        Descripción
+                                    </h5>
+                                    <p>
+                                        ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
-            html += '</div>';
         } else {
-            html += '<div class="alert alert-info">No hay mapas disponibles</div>';
+            html += `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                            <h4 class="mt-3">No hay mapas disponibles</h4>
+                            <p class="mb-0">Actualmente no hay mapas configurados en el sistema.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
         
         return html;
