@@ -320,15 +320,19 @@
     }
 }
 </style>
-
+@php
+    // USAR: Helper asset() para rutas absolutas
+    $img1 = asset('imagenes/logoadmin.png');
+    $img2 = asset('imagenes/sige2.png');
+@endphp
 <div class="container-fluid" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
 
     <div class="header-logos container-fluid">
         <div class="logo-section">
-            <img src="../imagenes/logoadmin.png" alt="JRZ Logo">
+            <img src="{{ $img1 }}" alt="JRZ Logo">
         </div>
         <div class="logo-section">
-            <img src="../imagenes/sige2.png" alt="SIGEM Logo">
+            <img src="{{ $img2 }}" alt="SIGEM Logo">
         </div>
     </div>
 

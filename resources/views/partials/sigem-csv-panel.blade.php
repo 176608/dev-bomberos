@@ -1,3 +1,9 @@
+@php
+    // USAR: Helper asset() para rutas absolutas
+    $img1 = asset('imagenes/logoadmin.png');
+    $img2 = asset('imagenes/sige2.png');
+@endphp
+
 <div class="card shadow-sm">
     <div class="card-body">
         @if(isset($cuadro) && $cuadro)
