@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Cargar partial
-        fetch(`/sigem/partial/${section}`)
+        fetch(`/sigem/partials/${section}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
