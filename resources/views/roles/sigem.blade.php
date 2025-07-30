@@ -771,15 +771,20 @@ ${JSON.stringify(data, null, 2)}
             'background-color: #98FB98; color: black;'  // Verde pálido
         ];
 
-        Object.keys(cuadrosOrganizados).forEach((temaKey, temaIndex) => {
+        // CAMBIO: Usar índice basado en el orden real, no en la posición del array
+        let temaIndex = 0;
+        Object.keys(cuadrosOrganizados).forEach((temaKey) => {
             const tema = cuadrosOrganizados[temaKey];
             const colorTema = colores[temaIndex % colores.length];
+            
+            // USAR: orden_indice del tema para mostrar el número correcto
+            const numeroTema = tema.orden_indice || (temaIndex + 1);
 
             html += `
                 <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;">
                     <!-- Header del tema -->
                     <div class="text-center fw-bold py-2" style="${colorTema}">
-                        ${temaIndex + 1}. ${tema.nombre.toUpperCase()}
+                        ${numeroTema}. ${tema.nombre.toUpperCase()}
                     </div>
                     
                     <!-- Subtemas y cuadros -->
@@ -793,6 +798,7 @@ ${JSON.stringify(data, null, 2)}
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;">
                         ${subtema.clave || 'N/A'} ${subtema.nombre}
+                        <small class="text-muted ms-2">(Orden: ${subtema.orden_indice || 'N/A'})</small>
                     </div>
                 `;
 
@@ -851,20 +857,22 @@ ${JSON.stringify(data, null, 2)}
                     </div>
                 </div>
             `;
+            
+            temaIndex++; // Incrementar para el siguiente tema
         });
 
         html += `</div>`;
         return html;
     }
 
-    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema
+    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIDA CON ORDEN
     function organizarCuadrosPorTema(cuadrosEstadisticos) {
         const organizacion = {};
 
         cuadrosEstadisticos.forEach(cuadro => {
-            // Determinar tema y subtema
-            const temaInfo = cuadro.tema || cuadro.subtema?.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info' };
-            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema' };
+            // CORREGIR: La información del tema viene a través del subtema
+            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 999 };
+            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 999 };
 
             const temaKey = `tema_${temaInfo.tema_id}`;
             const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
@@ -874,6 +882,7 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey] = {
                     nombre: temaInfo.tema_titulo || 'Sin Tema',
                     clave: temaInfo.clave_tema || '',
+                    orden_indice: temaInfo.orden_indice || 999, // AGREGAR: orden del tema
                     subtemas: {}
                 };
             }
@@ -883,6 +892,7 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey].subtemas[subtemaKey] = {
                     nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
                     clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
+                    orden_indice: subtemaInfo.orden_indice || 999, // AGREGAR: orden del subtema
                     cuadros: []
                 };
             }
@@ -891,7 +901,49 @@ ${JSON.stringify(data, null, 2)}
             organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
         });
 
-        return organizacion;
+        // AGREGAR: Ordenar por orden_indice
+        const organizacionOrdenada = {};
+        
+        // 1. Ordenar temas por orden_indice
+        const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
+            const ordenA = organizacion[a].orden_indice || 999;
+            const ordenB = organizacion[b].orden_indice || 999;
+            return ordenA - ordenB;
+        });
+
+        // 2. Para cada tema ordenado, ordenar sus subtemas
+        temasOrdenados.forEach(temaKey => {
+            const tema = organizacion[temaKey];
+            
+            organizacionOrdenada[temaKey] = {
+                ...tema,
+                subtemas: {}
+            };
+
+            // Ordenar subtemas por orden_indice
+            const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
+                const ordenA = tema.subtemas[a].orden_indice || 999;
+                const ordenB = tema.subtemas[b].orden_indice || 999;
+                return ordenA - ordenB;
+            });
+
+            // 3. Para cada subtema ordenado, ordenar sus cuadros por codigo_cuadro
+            subtemasOrdenados.forEach(subtemaKey => {
+                const subtema = tema.subtemas[subtemaKey];
+                
+                organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
+                    ...subtema,
+                    cuadros: subtema.cuadros.sort((a, b) => {
+                        // Ordenar cuadros por codigo_cuadro
+                        const codigoA = a.codigo_cuadro || '';
+                        const codigoB = b.codigo_cuadro || '';
+                        return codigoA.localeCompare(codigoB);
+                    })
+                };
+            });
+        });
+
+        return organizacionOrdenada;
     }
 
     // NUEVA FUNCIÓN: Ver cuadro (placeholder)
