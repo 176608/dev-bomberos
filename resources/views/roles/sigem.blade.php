@@ -355,10 +355,16 @@
 
     <!-- CONTENEDOR DINÁMICO -->
     <div id="sigem-content" class="container mt-4">
-        <div class="Cargando">
-            <i class="bi bi-hourglass-split"></i>
-            <p>Cargando contenido...</p>
-        </div>
+        @if(isset($loadPartial) && $loadPartial)
+            <!-- CARGAR PARTIAL ESPECÍFICO -->
+            @include('partials.' . $loadPartial, compact('cuadro'))
+        @else
+            <!-- CONTENIDO NORMAL -->
+            <div class="Cargando">
+                <i class="bi bi-hourglass-split"></i>
+                <p>Cargando contenido...</p>
+            </div>
+        @endif
     </div>
 
 </div>
@@ -427,10 +433,13 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
     }
 }
 
+// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
 function verCuadro(cuadroId, codigo) {
-    console.log(`Ver cuadro: ID=${cuadroId}, Código=${codigo}`);
-    alert(`Función para ver cuadro ${codigo} (ID: ${cuadroId})`);
-    // Aquí se implementará la lógica para mostrar el cuadro
+    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
+    
+    // Abrir nueva pestaña con el cuadro específico
+    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -439,17 +448,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.sigem-nav-link');
     const contentContainer = document.getElementById('sigem-content');
     
-// Contenidos
+// Contenidos - ACTUALIZAR estadistica
 const DynamicContent = {
     inicio: `
         main, principal, inicio, sigem
     `,
 
-    estadistica: `cargar 6 temas aca, modelo tema
+    estadistica: `
+        <div class="text-center py-5">
+            <i class="bi bi-bar-chart text-success" style="font-size: 3rem;"></i>
+            <h3 class="mt-3">Sección Estadística</h3>
+            <p class="text-muted">Para ver un cuadro estadístico específico, selecciona uno desde el catálogo.</p>
+            
+            <div class="mt-4">
+                <a href="{{ route('sigem.laravel.estadistica') }}" target="_blank" class="btn btn-success">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Abrir Vista de Estadística
+                </a>
+            </div>
+        </div>
     `,
 
-    cartografia: `Cargar mapas aca, modelo mapa
-    `,
+    cartografia: `Cargar mapas aca, modelo mapa`,
 
     productos: `
         <div class="card shadow-sm">
@@ -551,8 +570,7 @@ const DynamicContent = {
         </div>
     `,
 
-    catalogo: `Debe cargar modelo de catalogo aca, lista de los temas y sus respectivos subtemas
-    `
+    catalogo: `Debe cargar modelo de catalogo aca, lista de los temas y sus respectivos subtemas`
 };
 
     // Función para cargar contenido
@@ -875,7 +893,8 @@ ${JSON.stringify(data, null, 2)}
                 const subtema = tema.subtemas[subtemaKey];
                 const ordenSubtema = subtema.orden_indice || subtemaIndex;
                 const subtemaId = `subtema-cuadros-${numeroTema}-${ordenSubtema}`;
-                
+
+
                 // Header del subtema con ID para focus
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">

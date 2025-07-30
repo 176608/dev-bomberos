@@ -13,7 +13,10 @@ Route::prefix('sigem')->group(function () {
     // Vistas públicas adicionales
     Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');
     Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
-    Route::get('/estadisticas', [PublicController::class, 'estadisticas'])->name('sigem.laravel.estadisticas');
+    
+    Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
+    Route::get('/estadistica', [PublicController::class, 'estadisticaSinParametros'])->name('sigem.laravel.estadistica');
+
     
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');

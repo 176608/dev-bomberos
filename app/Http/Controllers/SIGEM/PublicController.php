@@ -105,4 +105,32 @@ class PublicController extends Controller
     {
         return view('sigem.public.estadisticas');
     }
+    
+    /**
+     * NUEVA FUNCIÓN: Vista de cuadro estadístico individual
+     */
+    public function verCuadro(Request $request, $cuadro_id = null)
+    {
+        $cuadro = null;
+        
+        if ($cuadro_id) {
+            $cuadro = CuadroEstadistico::obtenerPorId($cuadro_id);
+        }
+        
+        return view('roles.sigem', [
+            'loadPartial' => 'sigem-csv-panel',
+            'cuadro' => $cuadro
+        ]);
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Vista estadística sin parámetros
+     */
+    public function estadisticaSinParametros()
+    {
+        return view('roles.sigem', [
+            'loadPartial' => 'sigem-csv-panel',
+            'cuadro' => null
+        ]);
+    }
 }
