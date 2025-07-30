@@ -657,82 +657,25 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos
+    // NUEVA FUNCIÓN: Generar lista de cuadros estadísticos organizada por temas
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
         }
 
+        // Organizar cuadros por tema y subtema
+        const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
+
         let html = `
-            <div style="max-height: 500px; overflow-y: auto;">
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped">
-                        <thead class="table-dark sticky-top">
-                            <tr>
-                                <th style="width: 10%;">ID</th>
-                                <th style="width: 15%;">Código</th>
-                                <th style="width: 40%;">Título</th>
-                                <th style="width: 20%;">Subtema</th>
-                                <th style="width: 15%;">Archivos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
-
-        cuadrosEstadisticos.forEach((cuadro, index) => {
-            // Determinar color de fila alternante
-            const rowClass = index % 2 === 0 ? '' : 'table-light';
-            
-            // Generar badges para archivos disponibles
-            let archivos = [];
-            if (cuadro.excel_file && cuadro.excel_file.trim() !== '') {
-                archivos.push('<span class="badge bg-success me-1">Excel</span>');
-            }
-            if (cuadro.pdf_file && cuadro.pdf_file.trim() !== '') {
-                archivos.push('<span class="badge bg-danger me-1">PDF</span>');
-            }
-            if (cuadro.img_name && cuadro.img_name.trim() !== '') {
-                archivos.push('<span class="badge bg-info me-1">IMG</span>');
-            }
-            if (cuadro.permite_grafica) {
-                archivos.push('<span class="badge bg-warning me-1">Graf</span>');
-            }
-
-            html += `
-                <tr class="${rowClass}">
-                    <td class="text-center">
-                        <small class="fw-bold">${cuadro.cuadro_estadistico_id}</small>
-                    </td>
-                    <td>
-                        <code class="text-primary">${cuadro.codigo_cuadro || 'N/A'}</code>
-                    </td>
-                    <td>
-                        <div style="font-size: 12px;">
-                            <strong>${cuadro.cuadro_estadistico_titulo || 'Sin título'}</strong>
-                            ${cuadro.cuadro_estadistico_subtitulo ? `<br><small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
-                        </div>
-                    </td>
-                    <td>
-                        <small class="text-muted">
-                            ID: ${cuadro.subtema_id || 'N/A'}<br>
-                            ${cuadro.subtema ? cuadro.subtema.subtema_titulo || 'Sin nombre' : 'Sin subtema'}
-                        </small>
-                    </td>
-                    <td>
-                        ${archivos.length > 0 ? archivos.join('') : '<small class="text-muted">Sin archivos</small>'}
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Resumen de cuadros por tipo -->
-                <div class="mt-3">
+            <div style="max-height: 600px; overflow-y: auto;">
+                <div class="mb-3">
                     <div class="row text-center">
+                        <div class="col">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="text-muted d-block">Total Cuadros</small>
+                                <strong class="text-primary">${cuadrosEstadisticos.length}</strong>
+                            </div>
+                        </div>
                         <div class="col">
                             <div class="border rounded p-2 bg-light">
                                 <small class="text-muted d-block">Con Excel</small>
@@ -747,89 +690,154 @@ ${JSON.stringify(data, null, 2)}
                         </div>
                         <div class="col">
                             <div class="border rounded p-2 bg-light">
-                                <small class="text-muted d-block">Con Imagen</small>
-                                <strong class="text-info">${cuadrosEstadisticos.filter(c => c.img_name && c.img_name.trim() !== '').length}</strong>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="border rounded p-2 bg-light">
                                 <small class="text-muted d-block">Con Gráficas</small>
                                 <strong class="text-warning">${cuadrosEstadisticos.filter(c => c.permite_grafica).length}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         `;
 
-        return html;
-    }
+        // Colores para los headers de temas (igual que la estructura de índice)
+        const colores = [
+            'background-color: #8FBC8F; color: white;', // Verde claro
+            'background-color: #87CEEB; color: white;', // Azul cielo
+            'background-color: #DDA0DD; color: white;', // Púrpura claro
+            'background-color: #F0E68C; color: black;', // Amarillo claro
+            'background-color: #FFA07A; color: white;', // Salmón
+            'background-color: #98FB98; color: black;'  // Verde pálido
+        ];
 
-    // Nueva función para generar la estructura de índice similar a las imágenes
-    function generateEstructuraIndice(temasDetalle) {
-        let estructura = `
-            <div style="font-size: 12px;">
-                <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
-        `;
-
-        temasDetalle.forEach((tema, temaIndex) => {
-            // Determinar el color del header basado en el número de tema
-            const colores = [
-                'background-color: #8FBC8F;', // Verde claro
-                'background-color: #87CEEB;', // Azul cielo
-                'background-color: #DDA0DD;', // Púrpura claro
-                'background-color: #F0E68C;', // Amarillo claro
-                'background-color: #FFA07A;', // Salmón
-                'background-color: #98FB98;'  // Verde pálido
-            ];
-            
+        Object.keys(cuadrosOrganizados).forEach((temaKey, temaIndex) => {
+            const tema = cuadrosOrganizados[temaKey];
             const colorTema = colores[temaIndex % colores.length];
 
-            estructura += `
-                <div class="mb-3" style="border: 1px solid #ddd;">
+            html += `
+                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;">
                     <!-- Header del tema -->
-                    <div class="text-center text-white fw-bold py-2" style="${colorTema}">
-                        ${temaIndex + 1}. ${tema.tema_titulo.toUpperCase()}
+                    <div class="text-center fw-bold py-2" style="${colorTema}">
+                        ${temaIndex + 1}. ${tema.nombre.toUpperCase()}
                     </div>
                     
-                    <!-- Subtemas -->
+                    <!-- Subtemas y cuadros -->
                     <div style="background-color: white;">
             `;
 
-            if (tema.subtemas && tema.subtemas.length > 0) {
-                tema.subtemas.forEach((subtema, subtemaIndex) => {
-                    // Alternar colores de fondo para las filas
-                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
-                    
-                    estructura += `
-                        <div class="d-flex border-bottom" style="${bgColor}">
-                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                                ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
-                            </div>
-                            <div class="px-3 py-2 flex-grow-1">
-                                ${subtema.subtema_titulo}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                estructura += `
-                    <div class="px-3 py-2 text-muted">
-                        <em>Sin subtemas disponibles</em>
+            Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
+                const subtema = tema.subtemas[subtemaKey];
+                
+                // Header del subtema
+                html += `
+                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;">
+                        ${subtema.clave || 'N/A'} ${subtema.nombre}
                     </div>
                 `;
-            }
 
-            estructura += `
+                // Cuadros del subtema
+                if (subtema.cuadros && subtema.cuadros.length > 0) {
+                    subtema.cuadros.forEach((cuadro, cuadroIndex) => {
+                        const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                        
+                        // Generar badges para archivos
+                        let archivos = [];
+                        if (cuadro.excel_file && cuadro.excel_file.trim() !== '') {
+                            archivos.push('<span class="badge bg-success me-1" style="font-size: 9px;">XLS</span>');
+                        }
+                        if (cuadro.pdf_file && cuadro.pdf_file.trim() !== '') {
+                            archivos.push('<span class="badge bg-danger me-1" style="font-size: 9px;">PDF</span>');
+                        }
+                        if (cuadro.img_name && cuadro.img_name.trim() !== '') {
+                            archivos.push('<span class="badge bg-info me-1" style="font-size: 9px;">IMG</span>');
+                        }
+                        if (cuadro.permite_grafica) {
+                            archivos.push('<span class="badge bg-warning me-1" style="font-size: 9px;">GRAF</span>');
+                        }
+
+                        html += `
+                            <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
+                                <div class="me-3" style="min-width: 80px;">
+                                    <code class="text-primary fw-bold">${cuadro.codigo_cuadro || 'N/A'}</code>
+                                </div>
+                                <div class="flex-grow-1 me-3" style="font-size: 12px;">
+                                    <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
+                                    ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                                </div>
+                                <div class="me-3" style="min-width: 120px;">
+                                    ${archivos.length > 0 ? archivos.join('') : '<small class="text-muted">Sin archivos</small>'}
+                                </div>
+                                <div>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" 
+                                       onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
+                                       title="Ver cuadro ${cuadro.codigo_cuadro}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="px-3 py-2 text-muted">
+                            <em>Sin cuadros estadísticos en este subtema</em>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `
                     </div>
                 </div>
             `;
         });
 
-        estructura += `</div>`;
-        return estructura;
+        html += `</div>`;
+        return html;
     }
-    
+
+    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema
+    function organizarCuadrosPorTema(cuadrosEstadisticos) {
+        const organizacion = {};
+
+        cuadrosEstadisticos.forEach(cuadro => {
+            // Determinar tema y subtema
+            const temaInfo = cuadro.tema || cuadro.subtema?.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema' };
+            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema' };
+
+            const temaKey = `tema_${temaInfo.tema_id}`;
+            const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
+
+            // Inicializar tema si no existe
+            if (!organizacion[temaKey]) {
+                organizacion[temaKey] = {
+                    nombre: temaInfo.tema_titulo || 'Sin Tema',
+                    clave: temaInfo.clave_tema || '',
+                    subtemas: {}
+                };
+            }
+
+            // Inicializar subtema si no existe
+            if (!organizacion[temaKey].subtemas[subtemaKey]) {
+                organizacion[temaKey].subtemas[subtemaKey] = {
+                    nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
+                    clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
+                    cuadros: []
+                };
+            }
+
+            // Agregar cuadro al subtema
+            organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
+        });
+
+        return organizacion;
+    }
+
+    // NUEVA FUNCIÓN: Ver cuadro (placeholder)
+    function verCuadro(cuadroId, codigo) {
+        console.log(`Ver cuadro: ID=${cuadroId}, Código=${codigo}`);
+        alert(`Función para ver cuadro ${codigo} (ID: ${cuadroId})`);
+        // Aquí se implementará la lógica para mostrar el cuadro
+    }
+
     // Event listeners para navegación
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
