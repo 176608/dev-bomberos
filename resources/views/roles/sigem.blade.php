@@ -654,39 +654,7 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
     
-    // Función para cargar catálogo dinámicamente
-    function loadCatalogo() {
-        console.log('Cargando catálogo de cuadros estadísticos...');
-        
-        fetch('{{route("sigem.laravel.catalogo")}}')
-            .then(response => response.json())
-            .then(data => {
-                console.log('DATOS CATÁLOGO RECIBIDOS:', data); // AGREGAR: Para debug
-                
-                if (data.success) {
-                    const catalogoHtml = generateCatalogoHtml(data);
-                    contentContainer.innerHTML = catalogoHtml;
-                } else {
-                    contentContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-circle"></i>
-                            Error al cargar catálogo: ${data.message}
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                contentContainer.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-circle"></i>
-                        Error de conexión al cargar catálogo
-                    </div>
-                `;
-            });
-    }
-
-    // Generar HTML para el catálogo - CORREGIDO
+    // Generar HTML para el catálogo - LIMPIO SIN DEBUG
     function generateCatalogoHtml(data) {
         let html = `
             <div class="card shadow-sm">
@@ -744,32 +712,6 @@ ${JSON.stringify(data, null, 2)}
                             </div>
                         </div>
                     </div>
-
-                    <!-- SEGUNDA SECCIÓN: Datos Raw -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header bg-warning text-dark">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-code-square me-2"></i>Datos del Modelo (Debug)
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert alert-success mb-3">
-                                        <strong>Total de temas:</strong> ${data.total_temas || 0}<br>
-                                        <strong>Total de subtemas:</strong> ${data.total_subtemas || 0}<br>
-                                        <strong>Total de cuadros:</strong> ${data.total_cuadros || 0}<br>
-                                        <strong>Mensaje:</strong> ${data.message}
-                                    </div>
-                                    
-                                    <h6>Datos Raw del Modelo:</h6>
-                                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px; font-size: 12px;">
-${JSON.stringify(data, null, 2)}
-                                    </pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         `;
@@ -777,7 +719,38 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // ACTUALIZAR: Función generateEstructuraIndice - CON MEJOR DEBUG
+    // Función para cargar catálogo dinámicamente - SIN DEBUG LOGS
+    function loadCatalogo() {
+        fetch('{{route("sigem.laravel.catalogo")}}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const catalogoHtml = generateCatalogoHtml(data);
+                    contentContainer.innerHTML = catalogoHtml;
+                    
+                    // Sincronizar alturas después de cargar contenido
+                    sincronizarAlturas();
+                } else {
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar catálogo: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Error de conexión al cargar catálogo
+                    </div>
+                `;
+            });
+    }
+
+    // ACTUALIZAR: Función generateEstructuraIndice - SIN CONSOLE.LOG
     function generateEstructuraIndice(temasDetalle) {
         let estructura = `
             <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
@@ -806,7 +779,7 @@ ${JSON.stringify(data, null, 2)}
                          data-tema="${numeroTema}"
                          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                         onclick="console.log('Click tema ${numeroTema}'); focusEnTema(${numeroTema});">
+                         onclick="focusEnTema(${numeroTema});">
                         ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
@@ -826,7 +799,7 @@ ${JSON.stringify(data, null, 2)}
                              data-subtema="${ordenSubtema}"
                              onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
                              onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
-                             onclick="console.log('Click subtema ${numeroTema}-${ordenSubtema}'); focusEnSubtema(${numeroTema}, ${ordenSubtema});">
+                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
                             <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                                 ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
@@ -854,7 +827,7 @@ ${JSON.stringify(data, null, 2)}
         return estructura;
     }
 
-    // ACTUALIZAR: Función generateListaCuadros - CON MEJOR DEBUG DE IDs
+    // ACTUALIZAR: Función generateListaCuadros - SIN CONSOLE.LOG DE DEBUG
     function generateListaCuadros(cuadrosEstadisticos) {
         if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
             return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
@@ -877,17 +850,15 @@ ${JSON.stringify(data, null, 2)}
             'background-color: #98FB98; color: black;'  // Verde pálido
         ];
 
-        // CAMBIO: Usar índice basado en el orden real, no en la posición del array
+        // Usar índice basado en el orden real
         let temaIndex = 0;
         Object.keys(cuadrosOrganizados).forEach((temaKey) => {
             const tema = cuadrosOrganizados[temaKey];
             const colorTema = colores[temaIndex % colores.length];
             
-            // USAR: orden_indice del tema para mostrar el número correcto
+            // Usar orden_indice del tema para mostrar el número correcto
             const numeroTema = tema.orden_indice || (temaIndex + 1);
             const temaId = `tema-cuadros-${numeroTema}`;
-
-            console.log(`Generando tema: ${numeroTema} con ID: ${temaId}`);
 
             html += `
                 <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="${temaId}">
@@ -904,8 +875,6 @@ ${JSON.stringify(data, null, 2)}
                 const subtema = tema.subtemas[subtemaKey];
                 const ordenSubtema = subtema.orden_indice || subtemaIndex;
                 const subtemaId = `subtema-cuadros-${numeroTema}-${ordenSubtema}`;
-                
-                console.log(`Generando subtema: ${numeroTema}-${ordenSubtema} con ID: ${subtemaId}`);
                 
                 // Header del subtema con ID para focus
                 html += `
@@ -952,14 +921,14 @@ ${JSON.stringify(data, null, 2)}
                 </div>
             `;
             
-            temaIndex++; // Incrementar para el siguiente tema
+            temaIndex++;
         });
 
         html += `</div>`;
         return html;
     }
 
-    // NUEVA FUNCIÓN: Sincronizar alturas dinámicamente
+    // NUEVA FUNCIÓN: Sincronizar alturas dinámicamente - SIN CONSOLE.LOG
     function sincronizarAlturas() {
         setTimeout(() => {
             const indiceContainer = document.getElementById('indice-container');
@@ -976,50 +945,13 @@ ${JSON.stringify(data, null, 2)}
                 
                 // Usar la mayor altura pero con límite máximo
                 const maxHeight = Math.max(indiceHeight, cuadrosHeight);
-                const alturaFinal = Math.min(maxHeight, 600); // Máximo 600px
+                const alturaFinal = Math.min(maxHeight, 2000);
                 
                 // Aplicar la misma altura a ambos
                 indiceContainer.style.height = alturaFinal + 'px';
                 cuadrosContainer.style.height = alturaFinal + 'px';
-                
-                console.log(`Alturas sincronizadas: ${alturaFinal}px`);
             }
-        }, 100); // Pequeño delay para asegurar que el DOM esté renderizado
-    }
-
-    // ACTUALIZAR función loadCatalogo para incluir sincronización
-    function loadCatalogo() {
-        console.log('Cargando catálogo de cuadros estadísticos...');
-        
-        fetch('{{route("sigem.laravel.catalogo")}}')
-            .then(response => response.json())
-            .then(data => {
-                console.log('DATOS CATÁLOGO RECIBIDOS:', data);
-                
-                if (data.success) {
-                    const catalogoHtml = generateCatalogoHtml(data);
-                    contentContainer.innerHTML = catalogoHtml;
-                    
-                    // AGREGAR: Sincronizar alturas después de cargar contenido
-                    sincronizarAlturas();
-                } else {
-                    contentContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-circle"></i>
-                            Error al cargar catálogo: ${data.message}
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                contentContainer.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-circle"></i>
-                        Error de conexión al cargar catálogo
-                    </div>
-                `;
-            });
+        }, 100);
     }
 
     // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIR ORDENAMIENTO POR SUBTEMA
