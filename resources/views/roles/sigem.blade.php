@@ -928,28 +928,35 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // NUEVA FUNCIÓN: Sincronizar alturas dinámicamente - SIN CONSOLE.LOG
+
     function sincronizarAlturas() {
         setTimeout(() => {
             const indiceContainer = document.getElementById('indice-container');
             const cuadrosContainer = document.getElementById('cuadros-container');
             
             if (indiceContainer && cuadrosContainer) {
-                // Resetear alturas para medir contenido natural
+                // 1. RESETEAR: Permitir que el índice tenga su altura natural
                 indiceContainer.style.height = 'auto';
                 cuadrosContainer.style.height = 'auto';
                 
-                // Medir alturas reales del contenido
-                const indiceHeight = indiceContainer.scrollHeight;
-                const cuadrosHeight = cuadrosContainer.scrollHeight;
+                // 2. MEDIR: La altura natural del contenido del índice
+                const alturaIndice = indiceContainer.scrollHeight;
                 
-                // Usar la mayor altura pero con límite máximo
-                const maxHeight = Math.max(indiceHeight, cuadrosHeight);
-                const alturaFinal = Math.min(maxHeight, 2000);
+                // 3. APLICAR: La altura del índice al contenedor de cuadros
+                // El índice mantiene su altura natural, los cuadros se ajustan a esa altura
+                cuadrosContainer.style.height = alturaIndice + 'px';
                 
-                // Aplicar la misma altura a ambos
-                indiceContainer.style.height = alturaFinal + 'px';
-                cuadrosContainer.style.height = alturaFinal + 'px';
+                // 4. OPCIONAL: Aplicar altura mínima si el contenido es muy pequeño
+                const alturaMinima = 300; // píxeles mínimos
+                if (alturaIndice < alturaMinima) {
+                    const alturaFinal = alturaMinima + 'px';
+                    indiceContainer.style.height = alturaFinal;
+                    cuadrosContainer.style.height = alturaFinal;
+                } else {
+                    // El índice mantiene altura automática, cuadros siguen al índice
+                    indiceContainer.style.height = 'auto';
+                    cuadrosContainer.style.height = alturaIndice + 'px';
+                }
             }
         }, 100);
     }
