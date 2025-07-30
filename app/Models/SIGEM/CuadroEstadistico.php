@@ -66,7 +66,7 @@ class CuadroEstadistico extends Model
      */
     public function subtema()
     {
-        return $this->belongsTo(Subtema::class, 'subtema_id', 'id');
+        return $this->belongsTo(Subtema::class, 'subtema_id', 'subtema_id');
     }
     
     /**
@@ -169,9 +169,9 @@ class CuadroEstadistico extends Model
     /**
      * Actualizar cuadro estadístico (método específico para compatibilidad)
      */
-    public static function actualizarCuadroEstadistico($id, $codigo, $titulo, $tema_id, $subtema_id)
+    public static function actualizarCuadroEstadistico($cuadro_estadistico_id, $codigo, $titulo, $tema_id, $subtema_id)
     {
-        $cuadro = self::find($id);
+        $cuadro = self::find($cuadro_estadistico_id);
         if ($cuadro) {
             return $cuadro->update([
                 'codigo_cuadro' => $codigo,
