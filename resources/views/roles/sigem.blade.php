@@ -820,7 +820,7 @@ ${JSON.stringify(data, null, 2)}
         return html;
     }
 
-    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - LIMPIAR orden_indice 999
+    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIR ORDENAMIENTO POR SUBTEMA
     function organizarCuadrosPorTema(cuadrosEstadisticos) {
         const organizacion = {};
 
@@ -837,7 +837,7 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey] = {
                     nombre: temaInfo.tema_titulo || 'Sin Tema',
                     clave: temaInfo.clave_tema || '',
-                    orden_indice: temaInfo.orden_indice || 0, // CAMBIAR: de 999 a 0
+                    orden_indice: temaInfo.orden_indice || 0,
                     subtemas: {}
                 };
             }
@@ -847,7 +847,8 @@ ${JSON.stringify(data, null, 2)}
                 organizacion[temaKey].subtemas[subtemaKey] = {
                     nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
                     clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
-                    orden_indice: subtemaInfo.orden_indice || 0, // CAMBIAR: de 999 a 0
+                    orden_indice: subtemaInfo.orden_indice || 0,
+                    subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
                     cuadros: []
                 };
             }
@@ -861,8 +862,8 @@ ${JSON.stringify(data, null, 2)}
         
         // 1. Ordenar temas por orden_indice
         const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
-            const ordenA = organizacion[a].orden_indice || 0; // CAMBIAR: de 999 a 0
-            const ordenB = organizacion[b].orden_indice || 0; // CAMBIAR: de 999 a 0
+            const ordenA = organizacion[a].orden_indice || 0;
+            const ordenB = organizacion[b].orden_indice || 0;
             return ordenA - ordenB;
         });
 
@@ -877,28 +878,61 @@ ${JSON.stringify(data, null, 2)}
 
             // Ordenar subtemas por orden_indice
             const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
-                const ordenA = tema.subtemas[a].orden_indice || 0; // CAMBIAR: de 999 a 0
-                const ordenB = tema.subtemas[b].orden_indice || 0; // CAMBIAR: de 999 a 0
+                const ordenA = tema.subtemas[a].orden_indice || 0;
+                const ordenB = tema.subtemas[b].orden_indice || 0;
                 return ordenA - ordenB;
             });
 
-            // 3. Para cada subtema ordenado, ordenar sus cuadros por codigo_cuadro
+            // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
             subtemasOrdenados.forEach(subtemaKey => {
                 const subtema = tema.subtemas[subtemaKey];
                 
                 organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
                     ...subtema,
                     cuadros: subtema.cuadros.sort((a, b) => {
-                        // Ordenar cuadros por codigo_cuadro
-                        const codigoA = a.codigo_cuadro || '';
-                        const codigoB = b.codigo_cuadro || '';
-                        return codigoA.localeCompare(codigoB);
+                        // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
+                        return compararCodigosCuadro(
+                            a.codigo_cuadro || '', 
+                            b.codigo_cuadro || '',
+                            a.subtema || subtema.subtema_info,
+                            b.subtema || subtema.subtema_info
+                        );
                     })
                 };
             });
         });
 
         return organizacionOrdenada;
+    }
+
+    // NUEVA FUNCIÓN: Comparar códigos de cuadro por orden_indice de subtema y después numéricamente
+    function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
+        // 1. PRIMERO: Comparar por orden_indice del subtema
+        const ordenSubtemaA = subtemaInfoA.orden_indice || 0;
+        const ordenSubtemaB = subtemaInfoB.orden_indice || 0;
+        
+        if (ordenSubtemaA !== ordenSubtemaB) {
+            return ordenSubtemaA - ordenSubtemaB;
+        }
+
+        // 2. SEGUNDO: Si tienen el mismo subtema, comparar numéricamente el tercer número
+        function extraerNumero(codigo) {
+            if (!codigo) return 0;
+            
+            const partes = codigo.split('.');
+            if (partes.length >= 3) {
+                // Obtener la parte después del segundo punto y convertir a número
+                const numeroStr = partes[2];
+                const numero = parseInt(numeroStr, 10);
+                return isNaN(numero) ? 0 : numero;
+            }
+            return 0;
+        }
+
+        const numeroA = extraerNumero(codigoA);
+        const numeroB = extraerNumero(codigoB);
+        
+        return numeroA - numeroB;
     }
 
     // NUEVA FUNCIÓN: Ver cuadro (placeholder)
