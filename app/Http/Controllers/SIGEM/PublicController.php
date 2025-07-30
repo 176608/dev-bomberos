@@ -149,7 +149,7 @@ class PublicController extends Controller
     }
 
     /**
-     * NUEVA FUNCIÓN: Vista estadística con cuadro
+     * NUEVA FUNCIÓN: Vista estadística con cuadro opcional
      */
     public function estadistica($cuadro_id = null)
     {
@@ -157,5 +157,38 @@ class PublicController extends Controller
             'loadSection' => 'estadistica',
             'cuadro_id' => $cuadro_id
         ]);
+    }
+
+    /**
+     * FUNCIÓN AJAX: Obtener datos del cuadro
+     */
+    public function obtenerCuadroData($cuadro_id)
+    {
+        try {
+            $cuadro = CuadroEstadistico::obtenerPorId($cuadro_id);
+            
+            if (!$cuadro) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cuadro estadístico no encontrado',
+                    'cuadro' => null
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Cuadro cargado exitosamente',
+                'cuadro' => $cuadro->toArray(),
+                'tema_info' => $cuadro->subtema->tema ?? null,
+                'subtema_info' => $cuadro->subtema ?? null
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar cuadro: ' . $e->getMessage(),
+                'cuadro' => null
+            ]);
+        }
     }
 }

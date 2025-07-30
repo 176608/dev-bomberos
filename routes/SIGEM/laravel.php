@@ -8,44 +8,31 @@ use App\Http\Controllers\SIGEM\AdminController;
 Route::prefix('sigem')->group(function () {  
     
     // Vista principal pública
-    Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
+    Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.index');
     
-    // Vistas públicas adicionales
-    Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');
-    Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
+    // === NUEVAS RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
+    Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
     
-    Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
-    Route::get('/estadistica', [PublicController::class, 'estadisticaSinParametros'])->name('sigem.laravel.estadistica');
-
+    // === RUTAS PARA ESTADÍSTICA CON CUADRO (CONSOLIDADAS) ===
+    Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
+    Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
     
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
-    // Obtener mapas para cartografía (AJAX)
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
-    
-    // Obtener temas para estadísticas (AJAX)
     Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
-    
-    // Obtener subtemas por tema (AJAX)
     Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
-    
-    // Obtener datos para catálogo (AJAX)
-    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
-    
-    // Obtener índice de cuadros estadísticos
     Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
     
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
-    
-    // Sección INICIO (datos de dashboard)
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
-    
-    // Sección PRODUCTOS (datos dinámicos)
     Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
     
-    // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===
+    // Vistas adicionales (mantener compatibilidad)
+    Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');
+    Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
     
-    // Redireccionar a archivos PHP específicos (mantener compatibilidad)
+    // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===
     Route::get('/redirect/geografico', function() {
         return redirect('/public/vistas_SIGEM/geografico.php');
     })->name('sigem.redirect.geografico');
@@ -93,7 +80,6 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         // === RUTAS CRUD PARA ADMINISTRACIÓN ===
         
         // CRUD Mapas
-        Route::resource('/admin/mapas', AdminController::class . '@mapas');
         Route::get('/admin/mapas', [AdminController::class, 'listarMapas'])->name('sigem.laravel.admin.mapas.index');
         Route::post('/admin/mapas', [AdminController::class, 'crearMapa'])->name('sigem.laravel.admin.mapas.store');
         Route::put('/admin/mapas/{id}', [AdminController::class, 'actualizarMapa'])->name('sigem.laravel.admin.mapas.update');
@@ -131,10 +117,3 @@ Route::prefix('sigem-bridge')->middleware(['auth'])->group(function () {
         return redirect()->route('subtema.index'); // Redirige al admin original
     })->name('sigem.bridge.admin.original');
 });
-
-// === NUEVAS RUTAS PARA PARTIALS ===
-Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
-
-// === RUTAS PARA ESTADÍSTICA CON CUADRO ===
-Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
-Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
