@@ -354,88 +354,88 @@ function sincronizarAlturas() {
 
 // FUNCIÓN EXACTA del sigem_admin que funciona
 function organizarCuadrosPorTema(cuadrosEstadisticos) {
-        const organizacion = {};
+    const organizacion = {};
 
-        cuadrosEstadisticos.forEach(cuadro => {
-            // CORREGIR: La información del tema viene a través del subtema
-            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
-            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
+    cuadrosEstadisticos.forEach(cuadro => {
+        // CORREGIR: La información del tema viene a través del subtema
+        const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
+        const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
 
-            const temaKey = `tema_${temaInfo.tema_id}`;
-            const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
+        const temaKey = `tema_${temaInfo.tema_id}`;
+        const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
 
-            // Inicializar tema si no existe
-            if (!organizacion[temaKey]) {
-                organizacion[temaKey] = {
-                    nombre: temaInfo.tema_titulo || 'Sin Tema',
-                    clave: temaInfo.clave_tema || '',
-                    orden_indice: temaInfo.orden_indice || 0,
-                    subtemas: {}
-                };
-            }
+        // Inicializar tema si no existe
+        if (!organizacion[temaKey]) {
+            organizacion[temaKey] = {
+                nombre: temaInfo.tema_titulo || 'Sin Tema',
+                clave: temaInfo.clave_tema || '',
+                orden_indice: temaInfo.orden_indice || 0,
+                subtemas: {}
+            };
+        }
 
-            // Inicializar subtema si no existe
-            if (!organizacion[temaKey].subtemas[subtemaKey]) {
-                organizacion[temaKey].subtemas[subtemaKey] = {
-                    nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
-                    clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
-                    orden_indice: subtemaInfo.orden_indice || 0,
-                    subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
-                    cuadros: []
-                };
-            }
+        // Inicializar subtema si no existe
+        if (!organizacion[temaKey].subtemas[subtemaKey]) {
+            organizacion[temaKey].subtemas[subtemaKey] = {
+                nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
+                clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
+                orden_indice: subtemaInfo.orden_indice || 0,
+                subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
+                cuadros: []
+            };
+        }
 
-            // Agregar cuadro al subtema
-            organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
-        });
+        // Agregar cuadro al subtema
+        organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
+    });
 
-        // AGREGAR: Ordenar por orden_indice
-        const organizacionOrdenada = {};
+    // AGREGAR: Ordenar por orden_indice
+    const organizacionOrdenada = {};
+    
+    // 1. Ordenar temas por orden_indice
+    const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
+        const ordenA = organizacion[a].orden_indice || 0;
+        const ordenB = organizacion[b].orden_indice || 0;
+        return ordenA - ordenB;
+    });
+
+    // 2. Para cada tema ordenado, ordenar sus subtemas
+    temasOrdenados.forEach(temaKey => {
+        const tema = organizacion[temaKey];
         
-        // 1. Ordenar temas por orden_indice
-        const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
-            const ordenA = organizacion[a].orden_indice || 0;
-            const ordenB = organizacion[b].orden_indice || 0;
+        organizacionOrdenada[temaKey] = {
+            ...tema,
+            subtemas: {}
+        };
+
+        // Ordenar subtemas por orden_indice
+        const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
+            const ordenA = tema.subtemas[a].orden_indice || 0;
+            const ordenB = tema.subtemas[b].orden_indice || 0;
             return ordenA - ordenB;
         });
 
-        // 2. Para cada tema ordenado, ordenar sus subtemas
-        temasOrdenados.forEach(temaKey => {
-            const tema = organizacion[temaKey];
+        // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
+        subtemasOrdenados.forEach(subtemaKey => {
+            const subtema = tema.subtemas[subtemaKey];
             
-            organizacionOrdenada[temaKey] = {
-                ...tema,
-                subtemas: {}
+            organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
+                ...subtema,
+                cuadros: subtema.cuadros.sort((a, b) => {
+                    // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
+                    return compararCodigosCuadro(
+                        a.codigo_cuadro || '', 
+                        b.codigo_cuadro || '',
+                        a.subtema || subtema.subtema_info,
+                        b.subtema || subtema.subtema_info
+                    );
+                })
             };
-
-            // Ordenar subtemas por orden_indice
-            const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
-                const ordenA = tema.subtemas[a].orden_indice || 0;
-                const ordenB = tema.subtemas[b].orden_indice || 0;
-                return ordenA - ordenB;
-            });
-
-            // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
-            subtemasOrdenados.forEach(subtemaKey => {
-                const subtema = tema.subtemas[subtemaKey];
-                
-                organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
-                    ...subtema,
-                    cuadros: subtema.cuadros.sort((a, b) => {
-                        // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
-                        return compararCodigosCuadro(
-                            a.codigo_cuadro || '', 
-                            b.codigo_cuadro || '',
-                            a.subtema || subtema.subtema_info,
-                            b.subtema || subtema.subtema_info
-                        );
-                    })
-                };
-            });
         });
+    });
 
-        return organizacionOrdenada;
-    }
+    return organizacionOrdenada;
+}
 
 // FUNCIÓN EXACTA del sigem_admin que funciona
 function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>`;
     }
 
-    // FUNCIÓN: Generar estructura de índice (CORREGIR - remover líneas que causan error)
+    /*// FUNCIÓN: Generar estructura de índice (CORREGIR - remover líneas que causan error)
     function generateEstructuraIndice(temasDetalle) {
         let estructura = `
             <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
@@ -903,9 +903,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         estructura += `</div>`;
         return estructura;
-    }
+    }*/
 
-    // FUNCIÓN: Generar lista de cuadros (FALTABA ESTA FUNCIÓN)
+    /*// FUNCIÓN: Generar lista de cuadros (FALTABA ESTA FUNCIÓN)
     function generateListaCuadros(cuadrosEstadisticos) {
         console.log('Generando cuadros con:', cuadrosEstadisticos);
     
@@ -986,7 +986,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         html += '</div>';
         return html;
-    }
+    }*/
 
     // Event listeners para navegación
     navLinks.forEach(link => {
