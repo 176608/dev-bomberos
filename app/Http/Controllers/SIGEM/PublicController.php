@@ -95,16 +95,16 @@ class PublicController extends Controller
                 // DATOS DEL MODELO CUADROESTADISTICO
                 'cuadros_modelo' => $cuadrosEstadisticos->toArray(),
                 
-                /*// CONTEOS SIMPLES
-                'total_temas' => $catalogoData['total_temas'] ?? 0,
-                'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
-                'total_cuadros' => $cuadrosEstadisticos->count(),
+                // CONTEOS SIMPLES
+                //'total_temas' => $catalogoData['total_temas'] ?? 0,
+                //'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
+                //'total_cuadros' => $cuadrosEstadisticos->count(),
                 
                 // PARA COMPATIBILIDAD CON EL JS EXISTENTE
-                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
+                //'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
                 'cuadros_estadisticos' => $cuadrosEstadisticos,
                 'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
-                'resumen' => [
+                /*'resumen' => [
                     'total_temas' => $catalogoData['total_temas'] ?? 0,
                     'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
                     'total_cuadros' => $cuadrosEstadisticos->count()
