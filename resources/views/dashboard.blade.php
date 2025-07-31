@@ -7,6 +7,15 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
+            <!-- Mostrar mensajes de éxito (logout, etc.) -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">
@@ -86,9 +95,17 @@
 <script>
 console.log('Dashboard de Consultor cargado correctamente');
 
-// Aquí irá la lógica del consultor cuando esté implementado
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Sistema Consultor de Hidrantes - En desarrollo');
+    
+    // Auto-ocultar alertas después de 5 segundos
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-dismissible');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
 });
 </script>
 @endsection
