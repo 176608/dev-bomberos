@@ -1,3 +1,72 @@
+/*function focusEnTema(numeroTema) {
+    console.log(`Focus en tema: ${numeroTema}`);
+    
+    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (temaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al tema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        temaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            temaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+    function focusEnSubtema(numeroTema, ordenSubtema) {
+    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
+    
+    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (subtemaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al subtema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        subtemaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            subtemaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
+function verCuadro(cuadroId, codigo) {
+    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
+    
+    // Abrir nueva pestaña con el cuadro específico
+    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');
+}*/
+
 // === FUNCIONES GLOBALES ORIGINALES (únicas, no duplicadas) ===
 function focusEnTema(numeroTema) {
     console.log(`Focus en tema: ${numeroTema}`);
@@ -759,44 +828,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // FUNCIÓN: Generar estructura de índice (CORREGIR - remover líneas que causan error)
     function generateEstructuraIndice(temasDetalle) {
-        let estructura = '';
-        let totalSubtemas = 0;
-        
+        let estructura = `
+            <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
+                <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+        `;
+
         temasDetalle.forEach((tema, temaIndex) => {
+            // Determinar el color del header basado en el número de tema
+            const colores = [
+                'background-color: #8FBC8F;', // Verde claro
+                'background-color: #87CEEB;', // Azul cielo
+                'background-color: #DDA0DD;', // Púrpura claro
+                'background-color: #F0E68C;', // Amarillo claro
+                'background-color: #FFA07A;', // Salmón
+                'background-color: #98FB98;'  // Verde pálido
+            ];
+            
+            const colorTema = colores[temaIndex % colores.length];
             const numeroTema = temaIndex + 1;
-            const temaClass = `tema-${numeroTema}`;
-            
-            // Contar subtemas
-            totalSubtemas += tema.subtemas ? tema.subtemas.length : 0;
-            
+
             estructura += `
-                <div class="tema-item" data-tema="${numeroTema}">
-                    <div class="tema-header ${temaClass}" 
-                         onclick="toggleTema(${numeroTema})"
-                         data-bs-toggle="tooltip" 
-                         title="Click para expandir/contraer">
-                        <span class="tema-numero">${numeroTema}.</span>
-                        <span class="tema-texto">${tema.tema_titulo.toUpperCase()}</span>
-                        <i class="bi bi-chevron-down tema-chevron" style="float: right;"></i>
+                <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
+                    <!-- Header del tema -->
+                    <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                         style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
+                         data-tema="${numeroTema}"
+                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                         onclick="focusEnTema(${numeroTema});">
+                        ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                     </div>
                     
-                    <div class="subtemas-list" id="subtemas-${numeroTema}" style="display: none;">
+                    <div style="background-color: white;">
             `;
 
             if (tema.subtemas && tema.subtemas.length > 0) {
                 tema.subtemas.forEach((subtema, subtemaIndex) => {
+                    // Alternar colores de fondo para las filas
+                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
                     const ordenSubtema = subtema.orden_indice || subtemaIndex;
                     
                     estructura += `
-                        <div class="subtema-item" 
-                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema})"
-                             data-tema="${numeroTema}"
+                        <div class="d-flex border-bottom indice-subtema-row" 
+                             style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                             data-tema="${numeroTema}" 
                              data-subtema="${ordenSubtema}"
-                             title="Click para ir al subtema">
-                            <div class="subtema-codigo">
+                             onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                             onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
+                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                                 ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
-                            <div class="subtema-titulo">
+                            <div class="px-3 py-2 flex-grow-1">
                                 ${subtema.subtema_titulo}
                             </div>
                         </div>
@@ -804,18 +887,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             } else {
                 estructura += `
-                    <div class="subtema-item no-subtemas">
-                        <div class="subtema-titulo text-muted">
-                            <i class="bi bi-info-circle me-2"></i>
-                            No hay subtemas disponibles
-                        </div>
+                    <div class="px-3 py-2 text-muted">
+                        <em>Sin subtemas disponibles</em>
                     </div>
                 `;
             }
 
-            estructura += '</div></div>';
+            estructura += `
+                    </div>
+                </div>
+            `;
         });
-        
+
+        estructura += `</div>`;
         return estructura;
     }
 
@@ -901,75 +985,6 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</div>';
         return html;
     }
-    
-    function focusEnTema(numeroTema) {
-    console.log(`Focus en tema: ${numeroTema}`);
-    
-    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
-    const cuadrosContainer = document.getElementById('cuadros-container');
-    
-    if (temaElement && cuadrosContainer) {
-        // Remover highlights previos
-        document.querySelectorAll('.highlight-focus').forEach(el => {
-            el.classList.remove('highlight-focus');
-        });
-        
-        // Scroll al tema en el contenedor de cuadros
-        cuadrosContainer.scrollTo({
-            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
-            behavior: 'smooth'
-        });
-        
-        // Agregar highlight temporal
-        temaElement.classList.add('highlight-focus');
-        
-        // Remover highlight después de 3 segundos
-        setTimeout(() => {
-            temaElement.classList.remove('highlight-focus');
-        }, 3000);
-    } else {
-        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
-    }
-}
-
-    function focusEnSubtema(numeroTema, ordenSubtema) {
-    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
-    
-    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
-    const cuadrosContainer = document.getElementById('cuadros-container');
-    
-    if (subtemaElement && cuadrosContainer) {
-        // Remover highlights previos
-        document.querySelectorAll('.highlight-focus').forEach(el => {
-            el.classList.remove('highlight-focus');
-        });
-        
-        // Scroll al subtema en el contenedor de cuadros
-        cuadrosContainer.scrollTo({
-            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
-            behavior: 'smooth'
-        });
-        
-        // Agregar highlight temporal
-        subtemaElement.classList.add('highlight-focus');
-        
-        // Remover highlight después de 3 segundos
-        setTimeout(() => {
-            subtemaElement.classList.remove('highlight-focus');
-        }, 3000);
-    } else {
-        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
-    }
-}
-
-// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
-function verCuadro(cuadroId, codigo) {
-    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-    
-    // Abrir nueva pestaña con el cuadro específico
-    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
-    window.open(url, '_blank');
-}
 
     // Event listeners para navegación
     navLinks.forEach(link => {
