@@ -9,25 +9,8 @@
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
         </div>
 
-        <!-- CONTROLES DE EJEMPLO (como en las screenshots) -->
-        <div class="row mb-3">
-            <div class="col-lg-4">
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="expandirTodo()">
-                        <i class="bi bi-arrows-expand"></i> Expandir Todo
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="contraerTodo()">
-                        <i class="bi bi-arrows-collapse"></i> Contraer Todo
-                    </button>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <p class="text-center lead mb-0">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
-            </div>
-        </div>
-
         <!-- ESTRUCTURA PRINCIPAL -->
-        <div class="row mt-4 catalogo-row">
+        <div class="row mt-4">
             <div class="col-lg-4">
                 <div class="card bg-light h-100">
                     <div class="card-header bg-success text-white">
@@ -37,9 +20,11 @@
                     </div>
                     <div class="card-body p-0">
                         <div id="indice-container" style="max-height: 600px; overflow-y: auto;">
-                            <div class="loading-state">
-                                <div class="loading-spinner"></div>
-                                <p>Cargando índice...</p>
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2">Cargando índice...</p>
                             </div>
                         </div>
                     </div>
@@ -56,9 +41,11 @@
                     </div>
                     <div class="card-body p-0">
                         <div id="cuadros-container" style="max-height: 600px; overflow-y: auto;">
-                            <div class="loading-state">
-                                <div class="loading-spinner"></div>
-                                <p>Cargando cuadros...</p>
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2">Cargando cuadros...</p>
                             </div>
                         </div>
                     </div>
@@ -311,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
 #indice-container::-webkit-scrollbar-track,
 #cuadros-container::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 4px;
 }
 
 #indice-container::-webkit-scrollbar-thumb,

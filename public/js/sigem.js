@@ -536,50 +536,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
+    
         const catalogoUrl = `${baseUrl}/catalogo`;
         console.log('Intentando cargar catálogo desde:', catalogoUrl);
         
         fetch(catalogoUrl)
             .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
-                // Verificar que el content-type sea JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    console.warn('Response no es JSON, content-type:', contentType);
-                    // Intentar leer como texto para debug
-                    return response.text().then(text => {
-                        console.log('Response como texto:', text.substring(0, 500) + '...');
-                        throw new Error(`Expected JSON but got ${contentType}. Response: ${text.substring(0, 200)}...`);
-                    });
-                }
-                
                 return response.json();
             })
             .then(data => {
-                // === DEBUGGING: Mostrar datos raw ===
                 console.log('=== DATOS RAW DEL CATÁLOGO ===');
                 console.log('Response completa:', data);
                 console.log('Success:', data.success);
                 console.log('Total temas:', data.total_temas);
                 console.log('Total subtemas:', data.total_subtemas);
                 console.log('Total cuadros:', data.total_cuadros);
-                console.log('Estructura catálogo:', data.catalogo_estructurado);
                 console.log('Temas detalle:', data.temas_detalle);
-                console.log('Cuadros estadísticos (primeros 5):', data.cuadros_estadisticos?.slice(0, 5));
-                console.log('Cuadros estadísticos (total items):', data.cuadros_estadisticos?.length);
+                console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
                 console.log('=== FIN DATOS RAW ===');
-                
-                // Mostrar debug visual en la página
-                if (typeof mostrarDebugData === 'function') {
-                    mostrarDebugData(data);
-                }
                 
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
@@ -587,83 +564,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const cuadrosCount = document.getElementById('cuadros-count');
                     
                     if (indiceContainer && data.temas_detalle) {
-                        console.log('Generando estructura de índice con:', data.temas_detalle.length, 'temas');
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
-                    } else {
-                        console.warn('No se encontró indice-container o temas_detalle:', {
-                            indiceContainer: !!indiceContainer,
-                            temasDetalle: !!data.temas_detalle,
-                            temasDetalleLength: data.temas_detalle?.length
-                        });
                     }
                     
                     if (cuadrosContainer && data.cuadros_estadisticos) {
-                        console.log('Generando lista de cuadros con:', data.cuadros_estadisticos.length, 'cuadros');
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
-                    } else {
-                        console.warn('No se encontró cuadros-container o cuadros_estadisticos:', {
-                            cuadrosContainer: !!cuadrosContainer,
-                            cuadrosEstadisticos: !!data.cuadros_estadisticos,
-                            cuadrosEstadisticosLength: data.cuadros_estadisticos?.length
-                        });
                     }
                     
                     if (cuadrosCount) {
                         cuadrosCount.textContent = `${data.total_cuadros || 0} cuadros`;
                     }
-                    
-                    sincronizarAlturas();
-                } else {
-                    console.error('Error en response:', data.message);
-                    
-                    // Mostrar error en la interfaz
-                    const indiceContainer = document.getElementById('indice-container');
-                    const cuadrosContainer = document.getElementById('cuadros-container');
-                    
-                    if (indiceContainer) {
-                        indiceContainer.innerHTML = `
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <strong>Error:</strong> ${data.message}
-                                ${data.debug_info ? `<br><small>Archivo: ${data.debug_info.error_file}:${data.debug_info.error_line}</small>` : ''}
-                            </div>
-                        `;
-                    }
-                    
-                    if (cuadrosContainer) {
-                        cuadrosContainer.innerHTML = `
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Error al cargar cuadros: ${data.message}
-                            </div>
-                        `;
-                    }
                 }
             })
             .catch(error => {
                 console.error('Error cargando catálogo:', error);
-                
-                const indiceContainer = document.getElementById('indice-container');
-                const cuadrosContainer = document.getElementById('cuadros-container');
-                
-                if (indiceContainer) {
-                    indiceContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-x-circle"></i>
-                            <strong>Error de conexión:</strong> ${error.message}
-                            <br><small>URL: ${catalogoUrl}</small>
-                        </div>
-                    `;
-                }
-                
-                if (cuadrosContainer) {
-                    cuadrosContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-x-circle"></i>
-                            Error al cargar cuadros: ${error.message}
-                        </div>
-                    `;
-                }
             });
     }
 
@@ -877,188 +791,112 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // FUNCIÓN: Generar lista de cuadros (FALTABA ESTA FUNCIÓN)
     function generateListaCuadros(cuadrosEstadisticos) {
-        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
-            return `
-                <div class="alert alert-warning text-center">
-                    <i class="bi bi-exclamation-triangle fs-1"></i>
-                    <h4 class="mt-3">No hay cuadros disponibles</h4>
-                    <p class="mb-0">Actualmente no hay cuadros estadísticos configurados en el sistema.</p>
-                </div>
-            `;
-        }
-
-        let html = '';
-        let currentTema = null;
-        let currentSubtema = null;
-
-        cuadrosEstadisticos.forEach((cuadro, index) => {
-            // Verificar si es un nuevo tema
-            if (currentTema !== cuadro.tema_numero) {
-                // Cerrar subtema anterior si existe
-                if (currentSubtema !== null) {
-                    html += '</div>'; // Cerrar subtema-cuadros
-                }
-                
-                // Cerrar tema anterior si existe
-                if (currentTema !== null) {
-                    html += '</div>'; // Cerrar tema-cuadros
-                }
-
-                // Nuevo tema
-                currentTema = cuadro.tema_numero;
-                currentSubtema = null;
-                
-                html += `
-                    <div class="tema-cuadros" id="tema-cuadros-${currentTema}">
-                        <div class="tema-cuadros-header">
-                            <h3>
-                                <span class="tema-numero">${currentTema}.</span>
-                                <span class="tema-titulo">${cuadro.tema_titulo}</span>
-                            </h3>
-                        </div>
-                `;
+        console.log('Generando cuadros con:', cuadrosEstadisticos);
+    
+        let html = '<div style="padding: 15px;">';
+    
+        // Array de colores que se repite
+        const colores = [
+            '#4CAF50', // Verde
+            '#81C784', // Azul claro  
+            '#E1BEE7', // Rosa
+            '#FFEB3B', // Amarillo
+            '#FF9800', // Naranja
+            '#A5D6A7'  // Verde claro
+        ];
+    
+        // Organizar por tema
+        const porTema = {};
+    
+        cuadrosEstadisticos.forEach(cuadro => {
+            const temaInfo = cuadro.subtema?.tema;
+            const temaId = temaInfo?.tema_id || 'sin_tema';
+            const temaTitulo = temaInfo?.tema_titulo || 'Sin Tema';
+            const temaOrden = temaInfo?.orden_indice || 0;
+            
+            if (!porTema[temaId]) {
+                porTema[temaId] = {
+                    titulo: temaTitulo,
+                    orden: temaOrden,
+                    cuadros: []
+                };
             }
-
-            // Verificar si es un nuevo subtema
-            if (currentSubtema !== cuadro.orden_indice) {
-                // Cerrar subtema anterior si existe
-                if (currentSubtema !== null) {
-                    html += '</div>'; // Cerrar subtema-cuadros
-                }
-
-                // Nuevo subtema
-                currentSubtema = cuadro.orden_indice;
-                
-                html += `
-                    <div class="subtema-cuadros" id="subtema-cuadros-${currentTema}-${currentSubtema}">
-                        <div class="subtema-cuadros-header">
-                            <h4>
-                                <span class="subtema-codigo">${cuadro.clave_subtema}</span>
-                                <span class="subtema-titulo">${cuadro.subtema_titulo}</span>
-                            </h4>
-                        </div>
-                        <div class="cuadros-grid">
-                `;
-            }
-
-            // Agregar cuadro individual
-            html += `
-                <div class="cuadro-item" onclick="verCuadro(${cuadro.id}, '${cuadro.codigo}')">
-                    <div class="cuadro-header">
-                        <span class="cuadro-codigo">${cuadro.codigo}</span>
-                        <i class="bi bi-box-arrow-up-right cuadro-icon"></i>
-                    </div>
-                    <div class="cuadro-body">
-                        <h6 class="cuadro-titulo">${cuadro.titulo}</h6>
-                        <p class="cuadro-descripcion">${cuadro.descripcion || 'Sin descripción disponible'}</p>
-                    </div>
-                    <div class="cuadro-footer">
-                        <small class="text-muted">
-                            <i class="bi bi-calendar3"></i>
-                            ${cuadro.created_at ? new Date(cuadro.created_at).toLocaleDateString() : 'N/A'}
-                        </small>
-                    </div>
-                </div>
-            `;
+            
+            porTema[temaId].cuadros.push(cuadro);
         });
-
-        // Cerrar containers abiertos
-        if (currentSubtema !== null) {
-            html += '</div></div>'; // Cerrar cuadros-grid y subtema-cuadros
-        }
-        if (currentTema !== null) {
-            html += '</div>'; // Cerrar tema-cuadros
-        }
-
+        
+        // Ordenar temas por orden_indice
+        const temasOrdenados = Object.keys(porTema).sort((a, b) => {
+            return porTema[a].orden - porTema[b].orden;
+        });
+        
+        temasOrdenados.forEach((temaId, temaIndex) => {
+            const tema = porTema[temaId];
+            const color = colores[temaIndex % colores.length];
+            const textColor = (color === '#FFEB3B' || color === '#E1BEE7' || color === '#A5D6A7') ? 'black' : 'white';
+            
+            html += `
+                <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden;" id="tema-cuadros-${temaIndex + 1}">
+                    <div style="background-color: ${color}; color: ${textColor}; padding: 10px; text-align: center; font-weight: bold;">
+                        ${temaIndex + 1}. ${tema.titulo.toUpperCase()}
+                    </div>
+                    <div style="background-color: white;">
+            `;
+            
+            tema.cuadros.forEach((cuadro, cuadroIndex) => {
+                const bgColor = cuadroIndex % 2 === 0 ? '#f8f9fa' : 'white';
+                
+                html += `
+                    <div style="display: flex; align-items: center; padding: 10px 15px; background-color: ${bgColor}; border-bottom: 1px solid #eee;">
+                        <div style="min-width: 80px; margin-right: 15px;">
+                            <code style="color: #007bff; font-weight: bold;">${cuadro.codigo_cuadro || 'N/A'}</code>
+                        </div>
+                        <div style="flex: 1; margin-right: 15px;">
+                            <div style="font-weight: bold; font-size: 14px;">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
+                            ${cuadro.cuadro_estadistico_subtitulo ? `<small style="color: #666;">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                        </div>
+                        <div>
+                            <button onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')" 
+                                    style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+        });
+        
+        html += '</div>';
         return html;
     }
 
-    // FUNCIÓN: Sincronizar alturas (FALTABA ESTA FUNCIÓN)
-    function sincronizarAlturas() {
-        // Función para igualar alturas entre sidebar y content si es necesario
-        setTimeout(() => {
-            const sidebar = document.querySelector('.catalogo-sidebar');
-            const mainContent = document.querySelector('.catalogo-main-content');
-            
-            if (sidebar && mainContent) {
-                const sidebarHeight = sidebar.scrollHeight;
-                const contentHeight = mainContent.scrollHeight;
-                
-                console.log(`Alturas sincronizadas - Sidebar: ${sidebarHeight}px, Content: ${contentHeight}px`);
-            }
-        }, 500);
+    // FUNCIONES DE FOCUS SIMPLES
+    function focusEnTema(numeroTema) {
+        console.log(`Focus en tema: ${numeroTema}`);
+        const elemento = document.getElementById(`tema-cuadros-${numeroTema}`);
+        if (elemento) {
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            elemento.style.boxShadow = '0 0 10px #ffc107';
+            setTimeout(() => {
+                elemento.style.boxShadow = 'none';
+            }, 2000);
+        }
     }
 
-    // FUNCIÓN: Toggle de tema (CORREGIDA - no duplicada)
-    window.toggleTema = function(numeroTema) {
-        const subtemasContainer = document.getElementById(`subtemas-${numeroTema}`);
-        const chevron = document.querySelector(`[data-tema="${numeroTema}"] .tema-chevron`);
-        const temaHeader = document.querySelector(`[data-tema="${numeroTema}"] .tema-header`);
-        
-        if (subtemasContainer && chevron) {
-            const isHidden = subtemasContainer.style.display === 'none';
-            
-            if (isHidden) {
-                // Expandir
-                subtemasContainer.style.display = 'block';
-                chevron.classList.remove('bi-chevron-down');
-                chevron.classList.add('bi-chevron-up');
-                temaHeader.classList.add('active');
-                
-                // Scroll suave hacia el tema
-                subtemasContainer.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'nearest' 
-                });
-            } else {
-                // Contraer
-                subtemasContainer.style.display = 'none';
-                chevron.classList.remove('bi-chevron-up');
-                chevron.classList.add('bi-chevron-down');
-                temaHeader.classList.remove('active');
-            }
-        }
-    };
+    function focusEnSubtema(numeroTema, numeroSubtema) {
+        console.log(`Focus en subtema: ${numeroTema}-${numeroSubtema}`);
+        focusEnTema(numeroTema);
+    }
 
-    // FUNCIÓN: Expandir todos los temas (CORREGIDA)
-    window.expandirTodo = function() {
-        const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
-        const allChevrons = document.querySelectorAll('.tema-chevron');
-        const allHeaders = document.querySelectorAll('.tema-header');
-        
-        allSubtemas.forEach(container => {
-            container.style.display = 'block';
-        });
-        
-        allChevrons.forEach(chevron => {
-            chevron.classList.remove('bi-chevron-down');
-            chevron.classList.add('bi-chevron-up');
-        });
-        
-        allHeaders.forEach(header => {
-            header.classList.add('active');
-        });
-    };
-
-    // FUNCIÓN: Contraer todos los temas (CORREGIDA)
-    window.contraerTodo = function() {
-        const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
-        const allChevrons = document.querySelectorAll('.tema-chevron');
-        const allHeaders = document.querySelectorAll('.tema-header');
-        
-        allSubtemas.forEach(container => {
-            container.style.display = 'none';
-        });
-        
-        allChevrons.forEach(chevron => {
-            chevron.classList.remove('bi-chevron-up');
-            chevron.classList.add('bi-chevron-down');
-        });
-        
-        allHeaders.forEach(header => {
-            header.classList.remove('active');
-        });
-    };
+    function verCuadro(cuadroId, codigo) {
+        console.log(`Ver cuadro: ${cuadroId} - ${codigo}`);
+        const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        const url = `${baseUrl}/estadistica/${cuadroId}`;
+        window.open(url, '_blank');
+    }
 
     // Event listeners para navegación
     navLinks.forEach(link => {
