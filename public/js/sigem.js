@@ -415,18 +415,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlSection = urlParams.get('section');
         
-        if (urlSection && ['catalogo', 'estadistica', 'cartografia', 'productos'].includes(urlSection)) {
+        // ACTUALIZAR: Incluir 'inicio'
+        if (urlSection && ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'].includes(urlSection)) {
             return urlSection;
         }
         
         // 2. Verificar localStorage
         const storedSection = localStorage.getItem(STORAGE_KEY);
-        if (storedSection && ['catalogo', 'estadistica', 'cartografia', 'productos'].includes(storedSection)) {
+        // ACTUALIZAR: Incluir 'inicio'
+        if (storedSection && ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'].includes(storedSection)) {
             return storedSection;
         }
         
-        // 3. Por defecto: catálogo
-        return 'catalogo';
+        // 3. CAMBIAR: Por defecto INICIO (en lugar de catálogo)
+        return 'inicio';
     }
 
     // FUNCIÓN: Guardar sección actual
@@ -451,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // FUNCIÓN: Cargar contenido (usando variables globales)
+    // FUNCIÓN: Cargar contenido (AGREGAR caso para inicio)
     function loadContent(section) {
         console.log(`Cargando sección: ${section}`);
         
@@ -489,7 +491,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 contentContainer.innerHTML = html;
                 
                 // Ejecutar funciones específicas por sección
-                if (section === 'cartografia') {
+                // AGREGAR: Caso para inicio
+                if (section === 'inicio') {
+                    loadInicioData();
+                } else if (section === 'cartografia') {
                     loadMapasData();
                 } else if (section === 'catalogo') {
                     loadCatalogoData();
@@ -612,6 +617,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
                 }
+            });
+    }
+
+    // FUNCIÓN: Cargar datos de inicio
+    function loadInicioData() {
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        
+        fetch(`${baseUrl}/datos-inicio`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos de inicio cargados:', data);
+                
+                if (data.success) {
+                    // Actualizar estadísticas
+                    if (data.estadisticas) {
+                        const statTemas = document.getElementById('stat-temas');
+                        const statSubtemas = document.getElementById('stat-subtemas');
+                        const statCuadros = document.getElementById('stat-cuadros');
+                        
+                        if (statTemas) statTemas.textContent = data.estadisticas.total_temas || 0;
+                        if (statSubtemas) statSubtemas.textContent = data.estadisticas.total_subtemas || 0;
+                        if (statCuadros) statCuadros.textContent = data.estadisticas.total_cuadros || 0;
+                    }
+                } else {
+                    console.warn('Error en datos de inicio:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando datos de inicio:', error);
             });
     }
 

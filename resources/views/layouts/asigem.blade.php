@@ -202,8 +202,11 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <!-- ELIMINAR: inicio, cambiar orden -->
-                <a href="#" data-section="catalogo" class="sigem-nav-link active">
+                <!-- INICIO como primera opción -->
+                <a href="#" data-section="inicio" class="sigem-nav-link active">
+                    <i class="bi bi-house-fill"></i> INICIO
+                </a>
+                <a href="#" data-section="catalogo" class="sigem-nav-link">
                     <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
                 <a href="#" data-section="estadistica" class="sigem-nav-link">

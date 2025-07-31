@@ -179,12 +179,12 @@ class PublicController extends Controller
      */
     public function loadPartial($section)
     {
-        // ACTUALIZAR: Sin 'inicio'
-        $validSections = ['catalogo', 'estadistica', 'cartografia', 'productos'];
+        // ACTUALIZAR: Incluir 'inicio'
+        $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'];
         
         if (!in_array($section, $validSections)) {
-            // Por defecto cargar catálogo
-            return response()->view('partials.catalogo');
+            // Por defecto cargar inicio
+            return response()->view('partials.inicio');
         }
         
         try {
@@ -195,6 +195,39 @@ class PublicController extends Controller
                 'section' => $section,
                 'message' => $e->getMessage()
             ], 404);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener datos para la sección inicio
+     */
+    public function obtenerDatosInicio()
+    {
+        try {
+            // Estadísticas básicas para la sección inicio
+            $totalTemas = Catalogo::count();
+            $totalSubtemas = Subtema::count();
+            $totalCuadros = CuadroEstadistico::count();
+            
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Datos de inicio cargados exitosamente',
+                'estadisticas' => [
+                    'total_temas' => $totalTemas,
+                    'total_subtemas' => $totalSubtemas,
+                    'total_cuadros' => $totalCuadros
+                ],
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar datos de inicio: ' . $e->getMessage(),
+                'estadisticas' => [],
+                'cuadros_recientes' => [],
+                'mapas_destacados' => []
+            ]);
         }
     }
 
