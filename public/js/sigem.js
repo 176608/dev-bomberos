@@ -901,32 +901,75 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</div>';
         return html;
     }
-
-    // FUNCIONES DE FOCUS SIMPLES
+    
     function focusEnTema(numeroTema) {
-        console.log(`Focus en tema: ${numeroTema}`);
-        const elemento = document.getElementById(`tema-cuadros-${numeroTema}`);
-        if (elemento) {
-            elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            elemento.style.boxShadow = '0 0 10px #ffc107';
-            setTimeout(() => {
-                elemento.style.boxShadow = 'none';
-            }, 2000);
-        }
+    console.log(`Focus en tema: ${numeroTema}`);
+    
+    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (temaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al tema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        temaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            temaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
     }
+}
 
-    function focusEnSubtema(numeroTema, numeroSubtema) {
-        console.log(`Focus en subtema: ${numeroTema}-${numeroSubtema}`);
-        focusEnTema(numeroTema);
+    function focusEnSubtema(numeroTema, ordenSubtema) {
+    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
+    
+    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (subtemaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al subtema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        subtemaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            subtemaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
     }
+}
 
-    function verCuadro(cuadroId, codigo) {
-        console.log(`Ver cuadro: ${cuadroId} - ${codigo}`);
-        const baseUrl = window.SIGEM_BASE_URL || 
-                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        const url = `${baseUrl}/estadistica/${cuadroId}`;
-        window.open(url, '_blank');
-    }
+// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
+function verCuadro(cuadroId, codigo) {
+    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
+    
+    // Abrir nueva pestaña con el cuadro específico
+    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');
+}
 
     // Event listeners para navegación
     navLinks.forEach(link => {
