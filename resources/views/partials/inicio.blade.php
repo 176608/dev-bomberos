@@ -7,9 +7,10 @@
         <div class="row mb-4">
             <div class="col-md-8">
                 <p class="lead">
-                    El <strong>Sistema de Información Geográfica y Estadística Municipal (SIGEM)</strong> 
-                    es una plataforma integral que proporciona acceso a datos estadísticos, mapas 
-                    cartográficos y productos de información del Municipio de Juárez, Chihuahua.
+                    Bienvenidos al portal del <strong>Sistema de Información Geográfica y Estadística Municipal, SIGEM</strong>, creado por el Instituto Municipal de Investigación y Planeación (<strong>IMIP</strong>) del Municipio de Juárez, el cual provee información estadística y cartográfica confiable, de calidad y alineada a estándares internacionales.
+                </p>
+                <p class="lead">
+                    Está dirigido a dependencias del sector público y privado, el sector educativo, organizaciones de la sociedad civil y al público en general. Tiene el propósito de apoyar la toma de decisiones para la gestión, diseño e instrumentación de políticas públicas, en beneficio de los habitantes del Municipio de  Juárez.
                 </p>
             </div>
             <div class="col-md-4 text-center">
