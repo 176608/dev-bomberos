@@ -9,17 +9,34 @@
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
         </div>
 
-        <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+        <!-- CONTROLES DE EJEMPLO (como en las screenshots) -->
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="expandirTodo()">
+                        <i class="bi bi-arrows-expand"></i> Expandir Todo
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="contraerTodo()">
+                        <i class="bi bi-arrows-collapse"></i> Contraer Todo
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <p class="text-center lead mb-0">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+            </div>
+        </div>
 
         <!-- ESTRUCTURA PRINCIPAL -->
-        <div class="row mt-4">
+        <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
-                <div class="card bg-light">
+                <div class="card bg-light h-100">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Estructura de Índice</h5>
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul me-2"></i>Estructura de Índice
+                        </h5>
                     </div>
-                    <div class="card-body">
-                        <div id="indice-container">
+                    <div class="card-body p-0">
+                        <div id="indice-container" style="max-height: 600px; overflow-y: auto;">
                             <div class="loading-state">
                                 <div class="loading-spinner"></div>
                                 <p>Cargando índice...</p>
@@ -30,15 +47,15 @@
             </div>
 
             <div class="col-lg-8">
-                <div class="card bg-light">
+                <div class="card bg-light h-100">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
                             <i class="bi bi-table me-2"></i>Cuadros Estadísticos
                             <span id="cuadros-count" class="badge bg-light text-dark ms-2">0 cuadros</span>
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div id="cuadros-container">
+                    <div class="card-body p-0">
+                        <div id="cuadros-container" style="max-height: 600px; overflow-y: auto;">
                             <div class="loading-state">
                                 <div class="loading-spinner"></div>
                                 <p>Cargando cuadros...</p>
@@ -61,7 +78,7 @@
             </button>
         </h5>
     </div>
-    <div class="card-body" id="raw-data-content">
+    <div class="card-body" id="raw-data-content" style="display: none;">
         <div class="row">
             <div class="col-md-6">
                 <h6><i class="bi bi-journal-text"></i> Modelo Catalogo:</h6>
@@ -108,7 +125,7 @@ function toggleRawData() {
     if (content.style.display === 'none') {
         content.style.display = 'block';
     } else {
-        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        content.style.display = 'none';
     }
 }
 
@@ -142,18 +159,57 @@ function mostrarDebugData(data) {
     console.log('=== DATOS RAW MOSTRADOS EN LA VISTA ===');
 }
 
+// Funciones globales para expandir/contraer
+window.expandirTodo = function() {
+    const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
+    const allChevrons = document.querySelectorAll('.tema-chevron');
+    const allHeaders = document.querySelectorAll('.tema-header');
+    
+    allSubtemas.forEach(container => {
+        container.style.display = 'block';
+    });
+    
+    allChevrons.forEach(chevron => {
+        chevron.classList.remove('bi-chevron-down');
+        chevron.classList.add('bi-chevron-up');
+    });
+    
+    allHeaders.forEach(header => {
+        header.classList.add('active');
+    });
+};
+
+window.contraerTodo = function() {
+    const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
+    const allChevrons = document.querySelectorAll('.tema-chevron');
+    const allHeaders = document.querySelectorAll('.tema-header');
+    
+    allSubtemas.forEach(container => {
+        container.style.display = 'none';
+    });
+    
+    allChevrons.forEach(chevron => {
+        chevron.classList.remove('bi-chevron-up');
+        chevron.classList.add('bi-chevron-down');
+    });
+    
+    allHeaders.forEach(header => {
+        header.classList.remove('active');
+    });
+};
+
 // Auto-llamar cuando la página carga
 document.addEventListener('DOMContentLoaded', function() {
-    // Hacer visible por defecto
+    // Los datos raw ocultos por defecto
     const content = document.getElementById('raw-data-content');
     if (content) {
-        content.style.display = 'block';
+        content.style.display = 'none';
     }
 });
 </script>
 
 <style>
-/* === ESTILOS COPIADOS DE SIGEM_ADMIN QUE FUNCIONAN === */
+/* === SISTEMA DE LOADING === */
 .loading-state {
     display: flex;
     flex-direction: column;
@@ -178,12 +234,14 @@ document.addEventListener('DOMContentLoaded', function() {
     100% { transform: rotate(360deg); }
 }
 
-/* === EFECTOS DE FOCUS COPIADOS DEL SIGEM_ADMIN === */
+/* === SISTEMA DE FOCUS/HIGHLIGHT === */
 .highlight-focus {
     background-color: #fff3cd !important;
     border: 2px solid #ffc107 !important;
     box-shadow: 0 0 15px rgba(255, 193, 7, 0.5) !important;
     animation: pulseHighlight 1s ease-in-out;
+    position: relative;
+    z-index: 10;
 }
 
 @keyframes pulseHighlight {
@@ -201,24 +259,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* === EFECTOS HOVER COPIADOS DEL SIGEM_ADMIN === */
+/* === EFECTOS HOVER MEJORADOS === */
 .indice-tema-header:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+    z-index: 5;
+    position: relative;
 }
 
 .indice-subtema-row:hover {
     background-color: #e8f4f8 !important;
     transform: translateX(5px) !important;
+    z-index: 3;
+    position: relative;
 }
 
-/* === ALTURAS IGUALES COPIADAS DEL SIGEM_ADMIN === */
-#indice-container, #cuadros-container {
-    overflow-y: auto;
+.cuadro-item-row:hover {
+    background-color: #e3f2fd !important;
+    transform: translateX(5px) !important;
+    z-index: 3;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* === ALTURAS SINCRONIZADAS === */
 .catalogo-row {
-    display: flex;
     align-items: stretch;
 }
 
@@ -232,16 +297,85 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 100%;
 }
 
-/* === RESPONSIVE COPIADO DEL SIGEM_ADMIN === */
+#indice-container, #cuadros-container {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* === SCROLLBARS PERSONALIZADOS === */
+#indice-container::-webkit-scrollbar,
+#cuadros-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#indice-container::-webkit-scrollbar-track,
+#cuadros-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#indice-container::-webkit-scrollbar-thumb,
+#cuadros-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#indice-container::-webkit-scrollbar-thumb:hover,
+#cuadros-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
     .catalogo-row .card-body > div {
-        height: 400px;
+        max-height: 400px !important;
+    }
+    
+    .indice-tema-header,
+    .cuadro-item-row {
+        font-size: 11px;
     }
 }
 
 @media (max-width: 576px) {
     .catalogo-row .card-body > div {
-        height: 300px;
+        max-height: 300px !important;
     }
+    
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* === ESTILOS ADICIONALES PARA MEJORAR LA APARIENCIA === */
+.indice-tema-container {
+    transition: all 0.3s ease;
+}
+
+.indice-tema-container:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cuadro-item-row code {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.btn-outline-primary:hover {
+    transform: scale(1.1);
+}
+
+/* === MEJORAS VISUALES === */
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+
+.text-success {
+    color: #2a6e48 !important;
+}
+
+.alert-info {
+    border-left: 4px solid #17a2b8;
 }
 </style>
