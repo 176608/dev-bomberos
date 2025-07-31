@@ -9,8 +9,10 @@
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
         </div>
 
+        <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+
         <!-- ESTRUCTURA PRINCIPAL -->
-        <div class="row mt-4">
+        <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
                 <div class="card bg-light h-100">
                     <div class="card-header bg-success text-white">
@@ -54,120 +56,42 @@
     </div>
 </div>
 
-<script>
-// Función para mostrar/ocultar datos raw
-function toggleRawData() {
-    const content = document.getElementById('raw-data-content');
-    if (content.style.display === 'none') {
-        content.style.display = 'block';
-    } else {
-        content.style.display = 'none';
-    }
-}
-
-// Función para mostrar datos raw (llamada desde sigem.js)
-function mostrarDebugData(data) {
-    console.log('=== MOSTRANDO DATOS RAW EN LA VISTA ===');
-    console.log('Data recibida:', data);
-    
-    // Mostrar modelo Catalogo
-    const catalogoRaw = document.getElementById('catalogo-raw');
-    if (catalogoRaw && data.catalogo_modelo) {
-        catalogoRaw.textContent = JSON.stringify(data.catalogo_modelo, null, 2);
-    }
-    
-    // Mostrar modelo CuadroEstadistico
-    const cuadrosRaw = document.getElementById('cuadros-raw');
-    if (cuadrosRaw && data.cuadros_modelo) {
-        cuadrosRaw.textContent = JSON.stringify(data.cuadros_modelo.slice(0, 10), null, 2) + 
-                                 (data.cuadros_modelo.length > 10 ? '\n\n... y ' + (data.cuadros_modelo.length - 10) + ' más' : '');
-    }
-    
-    // Mostrar estadísticas
-    const statTemas = document.getElementById('stat-temas');
-    const statSubtemas = document.getElementById('stat-subtemas');
-    const statCuadros = document.getElementById('stat-cuadros');
-    
-    if (statTemas) statTemas.textContent = data.total_temas || 0;
-    if (statSubtemas) statSubtemas.textContent = data.total_subtemas || 0;
-    if (statCuadros) statCuadros.textContent = data.total_cuadros || 0;
-    
-    console.log('=== DATOS RAW MOSTRADOS EN LA VISTA ===');
-}
-
-// Funciones globales para expandir/contraer
-window.expandirTodo = function() {
-    const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
-    const allChevrons = document.querySelectorAll('.tema-chevron');
-    const allHeaders = document.querySelectorAll('.tema-header');
-    
-    allSubtemas.forEach(container => {
-        container.style.display = 'block';
-    });
-    
-    allChevrons.forEach(chevron => {
-        chevron.classList.remove('bi-chevron-down');
-        chevron.classList.add('bi-chevron-up');
-    });
-    
-    allHeaders.forEach(header => {
-        header.classList.add('active');
-    });
-};
-
-window.contraerTodo = function() {
-    const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
-    const allChevrons = document.querySelectorAll('.tema-chevron');
-    const allHeaders = document.querySelectorAll('.tema-header');
-    
-    allSubtemas.forEach(container => {
-        container.style.display = 'none';
-    });
-    
-    allChevrons.forEach(chevron => {
-        chevron.classList.remove('bi-chevron-up');
-        chevron.classList.add('bi-chevron-down');
-    });
-    
-    allHeaders.forEach(header => {
-        header.classList.remove('active');
-    });
-};
-
-// Auto-llamar cuando la página carga
-document.addEventListener('DOMContentLoaded', function() {
-    // Los datos raw ocultos por defecto
-    const content = document.getElementById('raw-data-content');
-    if (content) {
-        content.style.display = 'none';
-    }
-});
-</script>
-
 <style>
-/* === SISTEMA DE LOADING === */
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    color: #6c757d;
-}
-
-.loading-spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #2a6e48;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+/* === ESTILOS PARA ÍNDICE DESPLEGADO (del contexto) === */
+.indice-tema-container {
+    border: 1px solid #ddd;
+    border-radius: 5px;
     margin-bottom: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.indice-tema-container:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.indice-tema-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indice-subtema-row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indice-subtema-row:hover {
+    background-color: #e8f4f8 !important;
+    transform: translateX(5px) !important;
+}
+
+.indice-subtema-row:last-child {
+    border-bottom: none;
 }
 
 /* === SISTEMA DE FOCUS/HIGHLIGHT === */
@@ -195,29 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* === EFECTOS HOVER MEJORADOS === */
-.indice-tema-header:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
-    z-index: 5;
-    position: relative;
-}
-
-.indice-subtema-row:hover {
-    background-color: #e8f4f8 !important;
-    transform: translateX(5px) !important;
-    z-index: 3;
-    position: relative;
-}
-
-.cuadro-item-row:hover {
-    background-color: #e3f2fd !important;
-    transform: translateX(5px) !important;
-    z-index: 3;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
 /* === ALTURAS SINCRONIZADAS === */
 .catalogo-row {
     align-items: stretch;
@@ -233,11 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 100%;
 }
 
-#indice-container, #cuadros-container {
-    overflow-y: auto;
-    scroll-behavior: smooth;
-}
-
 /* === SCROLLBARS PERSONALIZADOS === */
 #indice-container::-webkit-scrollbar,
 #cuadros-container::-webkit-scrollbar {
@@ -247,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 #indice-container::-webkit-scrollbar-track,
 #cuadros-container::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-radius: 4px;
 }
 
 #indice-container::-webkit-scrollbar-thumb,
@@ -265,52 +162,11 @@ document.addEventListener('DOMContentLoaded', function() {
     .catalogo-row .card-body > div {
         max-height: 400px !important;
     }
-    
-    .indice-tema-header,
-    .cuadro-item-row {
-        font-size: 11px;
-    }
 }
 
 @media (max-width: 576px) {
     .catalogo-row .card-body > div {
         max-height: 300px !important;
     }
-    
-    .btn-sm {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-}
-
-/* === ESTILOS ADICIONALES PARA MEJORAR LA APARIENCIA === */
-.indice-tema-container {
-    transition: all 0.3s ease;
-}
-
-.indice-tema-container:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.cuadro-item-row code {
-    font-weight: bold;
-    font-size: 0.9em;
-}
-
-.btn-outline-primary:hover {
-    transform: scale(1.1);
-}
-
-/* === MEJORAS VISUALES === */
-.card-header {
-    border-bottom: 2px solid rgba(0,0,0,0.1);
-}
-
-.text-success {
-    color: #2a6e48 !important;
-}
-
-.alert-info {
-    border-left: 4px solid #17a2b8;
 }
 </style>

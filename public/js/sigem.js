@@ -531,21 +531,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Cargar datos de catálogo (ACTUALIZADA con mejor manejo de errores)
+    // FUNCIÓN: Cargar datos de catálogo (REEMPLAZAR con la función del contexto)
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    
-        const catalogoUrl = `${baseUrl}/catalogo`;
-        //console.log('Intentando cargar catálogo desde:', catalogoUrl);
-        
-        fetch(catalogoUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
+
+        fetch(`${baseUrl}/catalogo`)
+            .then(response => response.json())
             .then(data => {
                 console.log('=== DATOS RAW DEL CATÁLOGO ===');
                 console.log('Response completa:', data);
@@ -560,7 +552,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
                     const cuadrosContainer = document.getElementById('cuadros-container');
-                    //const cuadrosCount = document.getElementById('cuadros-count');
                     
                     if (indiceContainer && data.temas_detalle) {
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
@@ -570,13 +561,53 @@ document.addEventListener('DOMContentLoaded', function() {
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
                     }
                     
-                    /*if (cuadrosCount) {
-                        cuadrosCount.textContent = `${data.total_cuadros || 0} cuadros`;
-                    }*/
+                    // Sincronizar alturas después de cargar contenido
+                    sincronizarAlturas();
+                } else {
+                    const indiceContainer = document.getElementById('indice-container');
+                    const cuadrosContainer = document.getElementById('cuadros-container');
+                    
+                    if (indiceContainer) {
+                        indiceContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar catálogo: ${data.message}
+                            </div>
+                        `;
+                    }
+                    
+                    if (cuadrosContainer) {
+                        cuadrosContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar cuadros estadísticos
+                            </div>
+                        `;
+                    }
                 }
             })
             .catch(error => {
-                console.error('Error cargando catálogo:', error);
+                console.error('Error:', error);
+                const indiceContainer = document.getElementById('indice-container');
+                const cuadrosContainer = document.getElementById('cuadros-container');
+                
+                if (indiceContainer) {
+                    indiceContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar catálogo
+                        </div>
+                    `;
+                }
+                
+                if (cuadrosContainer) {
+                    cuadrosContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar cuadros
+                        </div>
+                    `;
+                }
             });
     }
 
