@@ -65,7 +65,9 @@ function verCuadro(cuadroId, codigo) {
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     const url = `${baseUrl}/estadistica/${cuadroId}`;
-    
+
+    console.log(`Usando URL: ${url}`);
+
     window.open(url, '_blank');
 }
 
