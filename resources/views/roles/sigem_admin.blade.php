@@ -393,6 +393,7 @@
 
 @section('scripts')
 <script>
+    /*
 // MOVER AL SCOPE GLOBAL: Funciones de focus
 function focusEnTema(numeroTema) {
     console.log(`Focus en tema: ${numeroTema}`);
