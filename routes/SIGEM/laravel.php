@@ -29,7 +29,6 @@ Route::prefix('sigem')->group(function () {
     Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
     
     // Vistas adicionales (mantener compatibilidad)
-    /*Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('sigem.laravel.dashboard');*/
     Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
     
     // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===

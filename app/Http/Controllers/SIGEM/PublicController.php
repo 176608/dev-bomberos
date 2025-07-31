@@ -21,18 +21,46 @@ class PublicController extends Controller
     }
     
     /**
-     * Obtener mapas para AJAX - ACTUALIZADO
+     * Obtener mapas para AJAX - CON DEBUGGING
      */
     public function obtenerMapas()
     {
         try {
             $mapas = Mapa::obtenerParaCartografia();
             
+            // Procesar mapas para incluir URLs completas de imágenes
+            $mapasConImagenes = $mapas->map(function($mapa) {
+                // Agregar URL completa de imagen si existe
+                if ($mapa->icono) {
+                    $mapa->imagen_url = asset('img/SIGEM_mapas/' . $mapa->icono);
+                    $mapa->tiene_imagen = true;
+                    
+                    // DEBUG: Verificar si el archivo existe
+                    $rutaCompleta = public_path('img/SIGEM_mapas/' . $mapa->icono);
+                    $mapa->archivo_existe = file_exists($rutaCompleta);
+                    $mapa->ruta_fisica = $rutaCompleta;
+                } else {
+                    $mapa->imagen_url = null;
+                    $mapa->tiene_imagen = false;
+                    $mapa->archivo_existe = false;
+                    $mapa->ruta_fisica = null;
+                }
+                
+                return $mapa;
+            });
+            
             return response()->json([
                 'success' => true,
-                'mapas' => $mapas,
-                'total_mapas' => $mapas->count(),
-                'message' => 'Mapas cargados exitosamente'
+                'mapas' => $mapasConImagenes,
+                'total_mapas' => $mapasConImagenes->count(),
+                'message' => 'Mapas cargados exitosamente',
+                // DEBUG: Información adicional
+                'debug_info' => [
+                    'public_path' => public_path(),
+                    'asset_url' => asset(''),
+                    'carpeta_imagenes' => public_path('img/SIGEM_mapas/'),
+                    'carpeta_existe' => is_dir(public_path('img/SIGEM_mapas/'))
+                ]
             ]);
             
         } catch (\Exception $e) {
@@ -48,36 +76,48 @@ class PublicController extends Controller
     public function obtenerCatalogo()
     {
         try {
-            // Obtener estructura completa del catálogo
+            // === DATOS RAW SIMPLES ===
+            
+            // 1. Datos del modelo Catalogo
             $catalogoData = Catalogo::obtenerEstructuraCatalogo();
             
-            // Obtener resumen estadístico
-            $resumen = Catalogo::obtenerResumen();
-            
-            // AGREGAR: Obtener todos los cuadros estadísticos
+            // 2. Datos del modelo CuadroEstadistico
             $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
             
-            return response()->json([
+            // 3. Estructura simple para debug
+            $datosRaw = [
                 'success' => true,
-                'catalogo_estructurado' => $catalogoData['estructura'],
-                'total_temas' => $catalogoData['total_temas'],
-                'total_subtemas' => $catalogoData['total_subtemas'],
-                'temas_detalle' => $catalogoData['temas_detalle'],
-                'resumen' => $resumen,
-                'cuadros_estadisticos' => $cuadrosEstadisticos, // AGREGAR: Lista de cuadros
-                'total_cuadros' => $cuadrosEstadisticos->count(), // AGREGAR: Total de cuadros
-                'message' => 'Catálogo cargado exitosamente'
-            ]);
+                'message' => 'Datos raw del catálogo',
+                
+                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
+                'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
+                'cuadros_estadisticos' => $cuadrosEstadisticos,
+            ];
+            
+            // LOG SIMPLE
+            \Log::info('CATALOGO RAW DATA:', $datosRaw);
+            
+            return response()->json($datosRaw);
             
         } catch (\Exception $e) {
+            \Log::error('ERROR CATALOGO:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cargar el catálogo: ' . $e->getMessage(),
-                'catalogo_estructurado' => [],
+                'message' => 'Error: ' . $e->getMessage(),
+                'catalogo_modelo' => null,
+                'cuadros_modelo' => [],
                 'total_temas' => 0,
                 'total_subtemas' => 0,
-                'cuadros_estadisticos' => [], // AGREGAR: Array vacío en caso de error
-                'total_cuadros' => 0 // AGREGAR: 0 en caso de error
+                'total_cuadros' => 0,
+                'temas_detalle' => [],
+                'cuadros_estadisticos' => [],
+                'catalogo_estructurado' => [],
+                'resumen' => []
             ]);
         }
     }

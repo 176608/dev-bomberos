@@ -1,10 +1,8 @@
-<!-- Archivo SIGEM - NO ELIMINAR COMENTARIO -->
+<!-- Archivo SIGEM -Base de vista sigem publica- - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
-
-@section('title', 'SIGEM Administrador')
+@section('title', 'SIGEM - Sistema de Información Geográfica')
 
 @section('content')
-
 <style>
 .header-logos {
     display: flex;
@@ -92,14 +90,14 @@
     background-color: #ffd700;
 }
 
-/* Loading indicator */
-.loading {
+/* Cargando indicator */
+.Cargando {
     text-align: center;
     padding: 40px;
     color: #2a6e48;
 }
 
-.loading i {
+.Cargando i {
     font-size: 24px;
     animation: spin 1s linear infinite;
 }
@@ -227,6 +225,60 @@
     margin-bottom: 30px;
 }
 
+/* NUEVOS ESTILOS: Efectos para índice y focus */
+.indice-tema-header:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+.indice-subtema-row:hover {
+    background-color: #e8f4f8 !important;
+    transform: translateX(5px) !important;
+}
+
+.highlight-focus {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5) !important;
+    animation: pulseHighlight 1s ease-in-out;
+}
+
+@keyframes pulseHighlight {
+    0% { 
+        transform: scale(1); 
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+    50% { 
+        transform: scale(1.02); 
+        box-shadow: 0 0 25px rgba(255, 193, 7, 0.8);
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+}
+
+/* Asegurar alturas iguales */
+#indice-container, #cuadros-container {
+    overflow-y: auto;
+}
+
+/* AGREGAR: Asegurar que ambos contenedores tengan alturas mínimas iguales */
+.catalogo-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.catalogo-row .card {
+    height: 100%;
+}
+
+.catalogo-row .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-logos {
@@ -267,15 +319,18 @@
     }
 }
 </style>
-
+@php
+    $img1 = asset('imagenes/logoadmin.png');
+    $img2 = asset('imagenes/sige2.png');
+@endphp
 <div class="container-fluid" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
 
     <div class="header-logos container-fluid">
         <div class="logo-section">
-            <img src="../../imagenes/logoadmin.png" alt="JRZ Logo">
+            <img src="{{ $img1 }}" alt="JRZ Logo">
         </div>
         <div class="logo-section">
-            <img src="../../imagenes/sige2.png" alt="SIGEM Logo">
+            <img src="{{ $img2 }}" alt="SIGEM Logo">
         </div>
     </div>
 
@@ -302,123 +357,112 @@
 
     <!-- CONTENEDOR DINÁMICO -->
     <div id="sigem-content" class="container mt-4">
-        <div class="loading">
-            <i class="bi bi-hourglass-split"></i>
-            <p>Cargando contenido...</p>
-        </div>
+        @if(isset($loadPartial) && $loadPartial)
+            <!-- CARGAR PARTIAL ESPECÍFICO -->
+            @include('partials.' . $loadPartial, compact('cuadro'))
+        @else
+            <!-- CONTENIDO NORMAL -->
+            <div class="Cargando">
+                <i class="bi bi-hourglass-split"></i>
+                <p>Cargando contenido...</p>
+            </div>
+        @endif
     </div>
 
 </div>
+@endsection
 
-<!-- <div class="container-fluid">
-    @if(auth()->user()->hasRole('Desarrollador'))
-        <div class="alert alert-warning">
-            <i class="bi bi-tools"></i> Accediendo como Desarrollador
+@section('dynamic_content')
+    @if(isset($loadSection) && $loadSection === 'estadistica')
+        @include('partials.estadistica')
+        
+        @if(isset($cuadro_id))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadEstadisticaWithCuadro({{ $cuadro_id }});
+                });
+            </script>
+        @endif
+    @else
+        <div class="Cargando">
+            <i class="bi bi-hourglass-split"></i>
+            <p>Cargando contenido...</p>
         </div>
     @endif
-
-    <div class="row">
-        <div class="col-12">
-            <div class="bg-danger text-white p-4 rounded mb-4">
-                <h1 class="h2 mb-0">
-                    <i class="bi bi-shield-check"></i> SIGEM Administrador
-                </h1>
-                <p class="mb-0">Panel de administración del Sistema de Información Geográfica</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        Gestión de Estadísticas -->
-        <!--<div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-graph-up text-primary"></i> Gestión de Estadísticas
-                    </h5>
-                    <p class="card-text">Crear, editar y eliminar cuadros estadísticos</p>
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-primary" onclick="loadAdminModule('cuadroEstadistico')">
-                            <i class="bi bi-plus-circle"></i> Gestionar Estadísticas
-                        </a>
-                        <a href="#" class="btn btn-outline-primary" onclick="loadAdminModule('cuadroEstadistico_agregar')">
-                            <i class="bi bi-plus"></i> Agregar Nueva
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-         Gestión de Categorías -->
-        <!--<div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-tags text-success"></i> Gestión de Categorías
-                    </h5>
-                    <p class="card-text">Administrar categorías y temas estadísticos</p>
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-success" onclick="loadAdminModule('catalogo')">
-                            <i class="bi bi-list-ul"></i> Ver Catálogo
-                        </a>
-                        <a href="#" class="btn btn-outline-success" onclick="loadAdminModule('crear_tabla de categorias')">
-                            <i class="bi bi-plus-square"></i> Crear Categoría
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-         Gestión de Archivos CSV -->
-        <!--<div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-file-earmark-spreadsheet text-warning"></i> Archivos CSV
-                    </h5>
-                    <p class="card-text">Cargar y editar datos desde archivos CSV</p>
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-warning" onclick="loadAdminModule('mostrar_csv')">
-                            <i class="bi bi-eye"></i> Ver CSV
-                        </a>
-                        <a href="#" class="btn btn-outline-warning" onclick="loadAdminModule('editar_csv')">
-                            <i class="bi bi-pencil"></i> Editar CSV
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-         Gestión de Reportes -->
-        <!--<div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-file-pdf text-danger"></i> Reportes
-                    </h5>
-                    <p class="card-text">Generar reportes y gráficas</p>
-                    <div class="d-grid gap-2">
-                        <a href="#" class="btn btn-danger" onclick="loadAdminModule('guardar_pdf')">
-                            <i class="bi bi-file-pdf"></i> Generar PDF
-                        </a>
-                        <a href="#" class="btn btn-outline-danger" onclick="loadAdminModule('generarGrafica')">
-                            <i class="bi bi-bar-chart"></i> Generar Gráfica
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-     Contenedor para módulos de administración -->
-    <!--<div id="sigem-admin-content" class="mt-4">
-         Aquí se cargarán los módulos de administración 
-    </div>
-</div>-->
 @endsection
 
 @section('scripts')
 <script>
+    /*
+// MOVER AL SCOPE GLOBAL: Funciones de focus
+function focusEnTema(numeroTema) {
+    console.log(`Focus en tema: ${numeroTema}`);
+    
+    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (temaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al tema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        temaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            temaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+function focusEnSubtema(numeroTema, ordenSubtema) {
+    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
+    
+    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
+    const cuadrosContainer = document.getElementById('cuadros-container');
+    
+    if (subtemaElement && cuadrosContainer) {
+        // Remover highlights previos
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        // Scroll al subtema en el contenedor de cuadros
+        cuadrosContainer.scrollTo({
+            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
+            behavior: 'smooth'
+        });
+        
+        // Agregar highlight temporal
+        subtemaElement.classList.add('highlight-focus');
+        
+        // Remover highlight después de 3 segundos
+        setTimeout(() => {
+            subtemaElement.classList.remove('highlight-focus');
+        }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
+    }
+}
+
+// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
+function verCuadro(cuadroId, codigo) {
+    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
+    
+    // Abrir nueva pestaña con el cuadro específico
+    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -426,148 +470,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.sigem-nav-link');
     const contentContainer = document.getElementById('sigem-content');
     
-// Contenidos
+// Contenidos - ACTUALIZAR estadistica
 const DynamicContent = {
     inicio: `
-        INDEX
+        main, principal, inicio, sigem
     `,
 
     estadistica: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="estadistica-header">
-                    <img src="../../imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid">
-                    <div>
-                        <h3 class="text-success mb-3">
-                            <i class="bi bi-bar-chart-fill"></i> Estadísticas Municipales
-                        </h3>
-                        <p class="lead">
-                            Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes 
-                            Municipales, Estatales, Federales, entre otros.
-                        </p>
-                        <p class="text-muted">
-                            Los cuadros estadísticos están categorizados en los siguientes temas:
-                        </p>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <h5 class="mb-3 text-center">Selecciona un tema de consulta:</h5>
-                        <div class="botones-temas">
-                            <a href="geografico.php">
-                                <i class="bi bi-geo-alt-fill me-2"></i>Geográfico
-                            </a>
-                            <a href="medioambiente.php">
-                                <i class="bi bi-tree-fill me-2"></i>Medio Ambiente
-                            </a>
-                            <a href="sociodemografico.php">
-                                <i class="bi bi-people-fill me-2"></i>Sociodemográfico
-                            </a>
-                            <a href="inventariourbano.php">
-                                <i class="bi bi-building me-2"></i>Inventario Urbano
-                            </a>
-                            <a href="economico.php">
-                                <i class="bi bi-currency-dollar me-2"></i>Económico
-                            </a>
-                            <a href="sectorpublico.php">
-                                <i class="bi bi-bank me-2"></i>Sector Público
-                            </a>
-                        </div>
-                        
-                        <div class="catalogo mt-4">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <i class="bi bi-journal-text display-6"></i>
-                                    </h5>
-                                    <a href="catalogo.php" class="btn btn-success btn-lg">
-                                        <i class="bi bi-list-ul me-2"></i>
-                                        Catálogo completo de cuadros estadísticos
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="text-center py-5">
+            <i class="bi bi-bar-chart text-success" style="font-size: 3rem;"></i>
+            <h3 class="mt-3">Sección Estadística</h3>
+            <p class="text-muted">Para ver un cuadro estadístico específico, selecciona uno desde el catálogo.</p>
+            
+            <div class="mt-4">
+                <a href="{{ route('sigem.laravel.estadistica') }}" target="_blank" class="btn btn-success">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Abrir Vista de Estadística
+                </a>
             </div>
         </div>
     `,
 
-    cartografia: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="title-row">
-                    <img src="../../imagenes/cartogde.png" alt="Cartografía" class="img-fluid">
-                    <h2 class="text-success mb-0">
-                        <i class="bi bi-map-fill"></i> Cartografía Digital
-                    </h2>
-                </div>
-                
-                <p class="intro-text">En este apartado podrás encontrar mapas temáticos interactivos del Municipio de Juárez.</p>
-                
-                <div class="row">
-                    <div class="col-12">
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0"><i class="bi bi-map me-2"></i>Carta Urbana, 2018</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa representativo de la superficie territorial del Municipio de Juárez, Chihuahua, que enumera los principales referentes tales como nombre de calles, vialidades principales, colonias, fraccionamientos, parques industriales, etc.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/curbana/" title="Carta Urbana 2018" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-info text-white">
-                                    <h5 class="mb-0"><i class="bi bi-heart-fill me-2"></i>Niveles de Bienestar Social 2010 - 2020</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa que representa los niveles de bienestar social de la población. Incluye clasificación de zonas de rezago con base en diversos indicadores sociales.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/nbienestar/index.html" title="Niveles de Bienestar" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-warning text-dark">
-                                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Catálogo de sectores: Gobierno, parques, zonas industriales</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Mapa que presenta la ubicación e información de sectores industriales, parques, zonas institucionales y de servicios en la ciudad.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/industria/index.html" title="Catálogo de sectores" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="map-section">
-                            <div class="card">
-                                <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Cruces con mayor incidencia vial</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Ubicación de los cruceros con más alta incidencia de tránsito en el municipio, basada en información de reportes viales.</p>
-                                    <iframe src="https://www.imip.org.mx/imip/files/mapas/Transito/index.html" title="Cruces viales" class="rounded"></iframe>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info text-center mt-4">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            Para ver otros mapas visita 
-                            <a href="https://www.imip.org.mx/imip/node/53" target="_blank" class="alert-link fw-bold">
-                                Mapas Digitales Interactivos <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
+    cartografia: `Cargar mapas aca, modelo mapa`,
 
     productos: `
         <div class="card shadow-sm">
@@ -581,7 +504,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../../imagenes/rad2020.png" alt="Radiografía Socioeconómica" class="img-fluid">
+                                    <img src="../imagenes/rad2020.png" alt="Radiografía Socioeconómica" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/41" target="_blank" class="text-decoration-none">
@@ -601,7 +524,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../../imagenes/PoratadaCARTO.png" alt="Cartografía 2019" class="img-fluid">
+                                    <img src="../imagenes/PoratadaCARTO.png" alt="Cartografía 2019" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/40" target="_blank" class="text-decoration-none">
@@ -621,7 +544,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../../imagenes/general.png" alt="Directorio 2014" class="img-fluid">
+                                    <img src="../imagenes/general.png" alt="Directorio 2014" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/directorio/" target="_blank" class="text-decoration-none">
@@ -641,7 +564,7 @@ const DynamicContent = {
                         <div class="card h-100">
                             <div class="card-body">
                                 <div class="product-section">
-                                    <img src="../../imagenes/abigail.jpeg" alt="Biblioteca" class="img-fluid">
+                                    <img src="../imagenes/abigail.jpeg" alt="Biblioteca" class="img-fluid">
                                     <div class="product-text">
                                         <h5>
                                             <a href="https://www.imip.org.mx/imip/node/35" target="_blank" class="text-decoration-none">
@@ -669,111 +592,25 @@ const DynamicContent = {
         </div>
     `,
 
-    catalogo: `
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="text-success mb-4 text-center">
-                    <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
-                </h2>
-
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
-                </div>
-
-                <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
-
-                <div class="row mt-4">
-                    <div class="col-lg-6">
-                        <div class="card bg-light">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">
-                                    <i class="bi bi-list-ol me-2"></i>Estructura de Datos
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted">** Aquí va la tabla de temas por tanto en controller publico debe cargar los temas correspondientes **</p>
-                                <div class="alert alert-warning">
-                                    <small><i class="bi bi-wrench me-1"></i> Pendiente: Integración con base de datos mediante Eloquent</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="card bg-light">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">
-                                    <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
-                                </h5>
-                            </div>
-                            <div class="card-body text-center">
-                                <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
-                                <div class="alert alert-light">
-                                    <small>
-                                        El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-5">
-                    <h4 class="text-center mb-4">
-                        <i class="bi bi-table me-2"></i>Índice General de Cuadros Estadísticos
-                    </h4>
-
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th style="width: 25%;">
-                                                <i class="bi bi-tag me-2"></i>Tema
-                                            </th>
-                                            <th style="width: 15%;">
-                                                <i class="bi bi-hash me-2"></i>Código
-                                            </th>
-                                            <th style="width: 60%;">
-                                                <i class="bi bi-file-text me-2"></i>Título del cuadro estadístico
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="3" class="text-center text-muted">
-                                                <div class="alert alert-warning">
-                                                    <i class="bi bi-database me-2"></i>
-                                                    <strong>Pendiente:</strong> Cambiar el uso de PHP por Eloquent para cargar los datos después de dar alta a base de datos y habilitarla
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `
+    catalogo: `Debe cargar modelo de catalogo aca, lista de los temas y sus respectivos subtemas`
 };
-    
+
     // Función para cargar contenido
     function loadContent(section) {
-        // Mostrar loading
+        // Mostrar C
         contentContainer.innerHTML = `
-            <div class="loading">
+            <div class="Cargando">
                 <i class="bi bi-hourglass-split"></i>
                 <p>Cargando ${section}...</p>
             </div>
         `;
         
-        // Simular delay de carga
         setTimeout(() => {
-            if (DynamicContent[section]) {
+            if (section === 'cartografia') {
+                loadCartografia();
+            } else if (section === 'catalogo') {
+                loadCatalogo();
+            } else if (DynamicContent[section]) {
                 contentContainer.innerHTML = DynamicContent[section];
             } else {
                 contentContainer.innerHTML = `
@@ -786,6 +623,500 @@ const DynamicContent = {
         }, 500);
     }
     
+    // Función para cargar contenido de cartografía dinámicamente
+    function loadCartografia() {
+        fetch('{{ route("sigem.laravel.mapas") }}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('DATOS MAPAS RECIBIDOS:', data); // AGREGAR: Para debug
+                
+                if (data.success) {
+                    const mapasHtml = generateMapasHtml(data);
+                    contentContainer.innerHTML = mapasHtml;
+                } else {
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar mapas: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = '<div class="alert alert-danger">Error de conexión</div>';
+            });
+    }
+
+    // Generar HTML para los mapas - ACTUALIZADO para mostrar datos del modelo
+    function generateMapasHtml(data) {
+        let html = `
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-success mb-4">Cartografía - Datos del Modelo Mapa</h2>
+                    
+                    <div class="alert alert-success">
+                        <strong>Total de mapas:</strong> ${data.total_mapas}<br>
+                        <strong>Mensaje:</strong> ${data.message}
+                    </div>
+                    
+                    <h4>Datos Raw del Modelo:</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">
+${JSON.stringify(data, null, 2)}
+                    </pre>
+                    
+                    ${data.mapas && data.mapas.length > 0 ? `
+                        <h4>Mapas Individuales:</h4>
+                        <div class="row">
+                            ${data.mapas.map((mapa, index) => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header bg-info text-white">
+                                            <strong>Mapa #${index + 1}</strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>ID:</strong> ${mapa.mapa_id || 'N/A'}</p>
+                                            <p><strong>Nombre:</strong> ${mapa.nombre_mapa || 'N/A'}</p>
+                                            <p><strong>Sección:</strong> ${mapa.nombre_seccion || 'N/A'}</p>
+                                            <p><strong>Descripción:</strong> ${mapa.descripcion || 'N/A'}</p>
+                                            <p><strong>Enlace:</strong> ${mapa.enlace || 'N/A'}</p>
+                                            <p><strong>Icono:</strong> ${mapa.icono || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p>No hay mapas disponibles</p>'}
+                </div>
+            </div>
+        `;
+        
+        return html;
+    }
+    
+    // Generar HTML para el catálogo - LIMPIO SIN DEBUG
+    function generateCatalogoHtml(data) {
+        let html = `
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-success mb-4 text-center">
+                        <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                    </h2>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
+                    </div>
+
+                    <div class="card bg-light">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="../../imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
+                            <div class="alert alert-light">
+                                <small>
+                                    El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <div class="card bg-light">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Estructura de Índice</h5>
+                                </div>
+                                <div class="card-body">
+                                    ${data.temas_detalle ? generateEstructuraIndice(data.temas_detalle) : '<p>No hay datos disponibles</p>'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card bg-light">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-table me-2"></i>Cuadros Estadísticos
+                                        <span class="badge bg-light text-dark ms-2">${data.total_cuadros || 0} cuadros</span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    ${data.cuadros_estadisticos ? generateListaCuadros(data.cuadros_estadisticos) : '<p>No hay cuadros disponibles</p>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return html;
+    }
+
+    // Función para cargar catálogo dinámicamente - SIN DEBUG LOGS
+    function loadCatalogo() {
+        fetch('{{route("sigem.laravel.catalogo")}}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const catalogoHtml = generateCatalogoHtml(data);
+                    contentContainer.innerHTML = catalogoHtml;
+                    
+                    // Sincronizar alturas después de cargar contenido
+                    sincronizarAlturas();
+                } else {
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error al cargar catálogo: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Error de conexión al cargar catálogo
+                    </div>
+                `;
+            });
+    }
+
+    // ACTUALIZAR: Función generateEstructuraIndice - SIN CONSOLE.LOG
+    function generateEstructuraIndice(temasDetalle) {
+        let estructura = `
+            <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
+                <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+        `;
+
+        temasDetalle.forEach((tema, temaIndex) => {
+            // Determinar el color del header basado en el número de tema
+            const colores = [
+                'background-color: #8FBC8F;', // Verde claro
+                'background-color: #87CEEB;', // Azul cielo
+                'background-color: #DDA0DD;', // Púrpura claro
+                'background-color: #F0E68C;', // Amarillo claro
+                'background-color: #FFA07A;', // Salmón
+                'background-color: #98FB98;'  // Verde pálido
+            ];
+            
+            const colorTema = colores[temaIndex % colores.length];
+            const numeroTema = temaIndex + 1;
+
+            estructura += `
+                <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
+                    <!-- Header del tema -->
+                    <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                         style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
+                         data-tema="${numeroTema}"
+                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                         onclick="focusEnTema(${numeroTema});">
+                        ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
+                    </div>
+                    
+                    <div style="background-color: white;">
+            `;
+
+            if (tema.subtemas && tema.subtemas.length > 0) {
+                tema.subtemas.forEach((subtema, subtemaIndex) => {
+                    // Alternar colores de fondo para las filas
+                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                    const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                    
+                    estructura += `
+                        <div class="d-flex border-bottom indice-subtema-row" 
+                             style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                             data-tema="${numeroTema}" 
+                             data-subtema="${ordenSubtema}"
+                             onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                             onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
+                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                                ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
+                            </div>
+                            <div class="px-3 py-2 flex-grow-1">
+                                ${subtema.subtema_titulo}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                estructura += `
+                    <div class="px-3 py-2 text-muted">
+                        <em>Sin subtemas disponibles</em>
+                    </div>
+                `;
+            }
+
+            estructura += `
+                    </div>
+                </div>
+            `;
+        });
+
+        estructura += `</div>`;
+        return estructura;
+    }
+
+    // ACTUALIZAR: Función generateListaCuadros - SIN CONSOLE.LOG DE DEBUG
+    function generateListaCuadros(cuadrosEstadisticos) {
+        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
+            return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
+        }
+
+        // Organizar cuadros por tema y subtema
+        const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
+
+        let html = `
+            <div style="overflow-y: auto;" id="cuadros-container">
+        `;
+
+        // Colores para los headers de temas (igual que la estructura de índice)
+        const colores = [
+            'background-color: #8FBC8F; color: white;', // Verde claro
+            'background-color: #87CEEB; color: white;', // Azul cielo
+            'background-color: #DDA0DD; color: white;', // Púrpura claro
+            'background-color: #F0E68C; color: black;', // Amarillo claro
+            'background-color: #FFA07A; color: white;', // Salmón
+            'background-color: #98FB98; color: black;'  // Verde pálido
+        ];
+
+        // Usar índice basado en el orden real
+        let temaIndex = 0;
+        Object.keys(cuadrosOrganizados).forEach((temaKey) => {
+            const tema = cuadrosOrganizados[temaKey];
+            const colorTema = colores[temaIndex % colores.length];
+            
+            // Usar orden_indice del tema para mostrar el número correcto
+            const numeroTema = tema.orden_indice || (temaIndex + 1);
+            const temaId = `tema-cuadros-${numeroTema}`;
+
+            html += `
+                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="${temaId}">
+                    <!-- Header del tema -->
+                    <div class="text-center fw-bold py-2" style="${colorTema}">
+                        ${numeroTema}. ${tema.nombre.toUpperCase()}
+                    </div>
+                    
+                    <!-- Subtemas y cuadros -->
+                    <div style="background-color: white;">
+            `;
+
+            Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
+                const subtema = tema.subtemas[subtemaKey];
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                const subtemaId = `subtema-cuadros-${numeroTema}-${ordenSubtema}`;
+
+
+                // Header del subtema con ID para focus
+                html += `
+                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
+                        ${subtema.clave || 'N/A'} ${subtema.nombre}
+                    </div>
+                `;
+
+                // Cuadros del subtema
+                if (subtema.cuadros && subtema.cuadros.length > 0) {
+                    subtema.cuadros.forEach((cuadro, cuadroIndex) => {
+                        const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+
+                        html += `
+                            <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
+                                <div class="me-3" style="min-width: 80px;">
+                                    <code class="text-primary fw-bold">${cuadro.codigo_cuadro || 'N/A'}</code>
+                                </div>
+                                <div class="flex-grow-1 me-3" style="font-size: 12px;">
+                                    <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
+                                    ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                                </div>
+                                <div>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" 
+                                       onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
+                                       title="Ver cuadro ${cuadro.codigo_cuadro}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="px-3 py-2 text-muted">
+                            <em>Sin cuadros estadísticos en este subtema</em>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            temaIndex++;
+        });
+
+        html += `</div>`;
+        return html;
+    }
+
+
+    function sincronizarAlturas() {
+        setTimeout(() => {
+            const indiceContainer = document.getElementById('indice-container');
+            const cuadrosContainer = document.getElementById('cuadros-container');
+            
+            if (indiceContainer && cuadrosContainer) {
+                // 1. RESETEAR: Permitir que el índice tenga su altura natural
+                indiceContainer.style.height = 'auto';
+                cuadrosContainer.style.height = 'auto';
+                
+                // 2. MEDIR: La altura natural del contenido del índice
+                const alturaIndice = indiceContainer.scrollHeight;
+                
+                // 3. APLICAR: La altura del índice al contenedor de cuadros
+                // El índice mantiene su altura natural, los cuadros se ajustan a esa altura
+                cuadrosContainer.style.height = alturaIndice + 'px';
+                
+                // 4. OPCIONAL: Aplicar altura mínima si el contenido es muy pequeño
+                const alturaMinima = 300; // píxeles mínimos
+                if (alturaIndice < alturaMinima) {
+                    const alturaFinal = alturaMinima + 'px';
+                    indiceContainer.style.height = alturaFinal;
+                    cuadrosContainer.style.height = alturaFinal;
+                } else {
+                    // El índice mantiene altura automática, cuadros siguen al índice
+                    indiceContainer.style.height = 'auto';
+                    cuadrosContainer.style.height = alturaIndice + 'px';
+                }
+            }
+        }, 100);
+    }
+
+    // NUEVA FUNCIÓN: Organizar cuadros por tema y subtema - CORREGIR ORDENAMIENTO POR SUBTEMA
+    function organizarCuadrosPorTema(cuadrosEstadisticos) {
+        const organizacion = {};
+
+        cuadrosEstadisticos.forEach(cuadro => {
+            // CORREGIR: La información del tema viene a través del subtema
+            const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
+            const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
+
+            const temaKey = `tema_${temaInfo.tema_id}`;
+            const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
+
+            // Inicializar tema si no existe
+            if (!organizacion[temaKey]) {
+                organizacion[temaKey] = {
+                    nombre: temaInfo.tema_titulo || 'Sin Tema',
+                    clave: temaInfo.clave_tema || '',
+                    orden_indice: temaInfo.orden_indice || 0,
+                    subtemas: {}
+                };
+            }
+
+            // Inicializar subtema si no existe
+            if (!organizacion[temaKey].subtemas[subtemaKey]) {
+                organizacion[temaKey].subtemas[subtemaKey] = {
+                    nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
+                    clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
+                    orden_indice: subtemaInfo.orden_indice || 0,
+                    subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
+                    cuadros: []
+                };
+            }
+
+            // Agregar cuadro al subtema
+            organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
+        });
+
+        // AGREGAR: Ordenar por orden_indice
+        const organizacionOrdenada = {};
+        
+        // 1. Ordenar temas por orden_indice
+        const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
+            const ordenA = organizacion[a].orden_indice || 0;
+            const ordenB = organizacion[b].orden_indice || 0;
+            return ordenA - ordenB;
+        });
+
+        // 2. Para cada tema ordenado, ordenar sus subtemas
+        temasOrdenados.forEach(temaKey => {
+            const tema = organizacion[temaKey];
+            
+            organizacionOrdenada[temaKey] = {
+                ...tema,
+                subtemas: {}
+            };
+
+            // Ordenar subtemas por orden_indice
+            const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
+                const ordenA = tema.subtemas[a].orden_indice || 0;
+                const ordenB = tema.subtemas[b].orden_indice || 0;
+                return ordenA - ordenB;
+            });
+
+            // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
+            subtemasOrdenados.forEach(subtemaKey => {
+                const subtema = tema.subtemas[subtemaKey];
+                
+                organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
+                    ...subtema,
+                    cuadros: subtema.cuadros.sort((a, b) => {
+                        // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
+                        return compararCodigosCuadro(
+                            a.codigo_cuadro || '', 
+                            b.codigo_cuadro || '',
+                            a.subtema || subtema.subtema_info,
+                            b.subtema || subtema.subtema_info
+                        );
+                    })
+                };
+            });
+        });
+
+        return organizacionOrdenada;
+    }
+
+    // NUEVA FUNCIÓN: Comparar códigos de cuadro por orden_indice de subtema y después numéricamente
+    function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
+        // 1. PRIMERO: Comparar por orden_indice del subtema
+        const ordenSubtemaA = subtemaInfoA?.orden_indice || 0;
+        const ordenSubtemaB = subtemaInfoB?.orden_indice || 0;
+        
+        if (ordenSubtemaA !== ordenSubtemaB) {
+            return ordenSubtemaA - ordenSubtemaB;
+        }
+
+        // 2. SEGUNDO: Si tienen el mismo subtema, comparar numéricamente el tercer número
+        function extraerNumero(codigo) {
+            if (!codigo) return 0;
+            
+            const partes = codigo.split('.');
+            if (partes.length >= 3) {
+                // Obtener la parte después del segundo punto y convertir a número
+                const numeroStr = partes[2];
+                const numero = parseInt(numeroStr, 10);
+                return isNaN(numero) ? 0 : numero;
+            }
+            return 0;
+        }
+
+        const numeroA = extraerNumero(codigoA);
+        const numeroB = extraerNumero(codigoB);
+        
+        return numeroA - numeroB;
+    }
+
     // Event listeners para navegación
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -809,48 +1140,5 @@ const DynamicContent = {
     // Cargar contenido inicial
     loadContent('inicio');
 });
-
-/*
-function loadAdminModule(module) {
-    const contentDiv = document.getElementById('sigem-admin-content');
-    
-    // Mapeo de módulos administrativos
-    const adminModuleMap = {
-        'cuadroEstadistico': '{{ asset("vistas_SIGEM/cuadroEstadistico.php") }}',
-        'cuadroEstadistico_agregar': '{{ asset("vistas_SIGEM/cuadroEstadistico_agregar.php") }}',
-        'cuadroEstadistico_editar': '{{ asset("vistas_SIGEM/cuadroEstadistico_editar.php") }}',
-        'catalogo': '{{ asset("vistas_SIGEM/catalogo.php") }}',
-        'crear_tabla de categorias': '{{ asset("vistas_SIGEM/crear_tabla de categorias.php") }}',
-        'mostrar_csv': '{{ asset("vistas_SIGEM/mostrar_csv.php") }}',
-        'editar_csv': '{{ asset("vistas_SIGEM/editar_csv.php") }}',
-        'guardar_pdf': '{{ asset("vistas_SIGEM/guardar_pdf.php") }}',
-        'generarGrafica': '{{ asset("vistas_SIGEM/generarGrafica.php") }}'
-    };
-    
-    if (adminModuleMap[module]) {
-        contentDiv.innerHTML = `
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-tools"></i> Módulo Administrativo: ${module.replace(/_/g, ' ')}
-                    </h5>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="closeAdminModule()">
-                        <i class="bi bi-x"></i> Cerrar
-                    </button>
-                </div>
-                <div class="card-body p-0">
-                    <iframe src="${adminModuleMap[module]}" 
-                            style="width: 100%; height: 700px; border: none;"
-                            title="Módulo administrativo ${module}">
-                    </iframe>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function closeAdminModule() {
-    document.getElementById('sigem-admin-content').innerHTML = '';
-}*/
 </script>
 @endsection

@@ -1,4 +1,4 @@
-<!-- Archivo SIGEM - Vista principal que usa layout asigem - NO ELIMINAR COMENTARIO -->
+<!-- No eliminar -->
 @extends('layouts.asigem')
 
 @section('dynamic_content')

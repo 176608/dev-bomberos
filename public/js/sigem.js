@@ -1,4 +1,4 @@
-// Funciones globales de focus
+// === FUNCIONES GLOBALES ORIGINALES (únicas, no duplicadas) ===
 function focusEnTema(numeroTema) {
     console.log(`Focus en tema: ${numeroTema}`);
     
@@ -6,20 +6,26 @@ function focusEnTema(numeroTema) {
     const cuadrosContainer = document.getElementById('cuadros-container');
     
     if (temaElement && cuadrosContainer) {
+        // Remover highlights previos
         document.querySelectorAll('.highlight-focus').forEach(el => {
             el.classList.remove('highlight-focus');
         });
         
+        // Scroll al tema en el contenedor de cuadros
         cuadrosContainer.scrollTo({
             top: temaElement.offsetTop - cuadrosContainer.offsetTop,
             behavior: 'smooth'
         });
         
+        // Agregar highlight temporal
         temaElement.classList.add('highlight-focus');
         
+        // Remover highlight después de 3 segundos
         setTimeout(() => {
             temaElement.classList.remove('highlight-focus');
         }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
     }
 }
 
@@ -30,29 +36,371 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
     const cuadrosContainer = document.getElementById('cuadros-container');
     
     if (subtemaElement && cuadrosContainer) {
+        // Remover highlights previos
         document.querySelectorAll('.highlight-focus').forEach(el => {
             el.classList.remove('highlight-focus');
         });
         
+        // Scroll al subtema en el contenedor de cuadros
         cuadrosContainer.scrollTo({
             top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
             behavior: 'smooth'
         });
         
+        // Agregar highlight temporal
         subtemaElement.classList.add('highlight-focus');
         
+        // Remover highlight después de 3 segundos
         setTimeout(() => {
             subtemaElement.classList.remove('highlight-focus');
         }, 3000);
+    } else {
+        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
     }
 }
 
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-    const url = `/sigem/estadistica/${cuadroId}`;
+    
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    const url = `${baseUrl}/estadistica/${cuadroId}`;
+
+    console.log(`Usando URL: ${url}`);
+
     window.open(url, '_blank');
 }
 
+// === FUNCIONES DE GENERACIÓN HTML (copiadas exactas del sigem_admin) ===
+
+// FUNCIÓN EXACTA del sigem_admin que funciona
+function generateEstructuraIndice(temasDetalle) {
+    let estructura = `
+        <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
+            <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+    `;
+
+    temasDetalle.forEach((tema, temaIndex) => {
+        // Determinar el color del header basado en el número de tema
+        const colores = [
+            'background-color: #8FBC8F;', // Verde claro
+            'background-color: #87CEEB;', // Azul cielo
+            'background-color: #DDA0DD;', // Púrpura claro
+            'background-color: #F0E68C;', // Amarillo claro
+            'background-color: #FFA07A;', // Salmón
+            'background-color: #98FB98;'  // Verde pálido
+        ];
+        
+        const colorTema = colores[temaIndex % colores.length];
+        const numeroTema = temaIndex + 1;
+
+        estructura += `
+            <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
+                <!-- Header del tema -->
+                <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                     style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
+                     data-tema="${numeroTema}"
+                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                     onclick="focusEnTema(${numeroTema});">
+                    ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
+                </div>
+                
+                <div style="background-color: white;">
+        `;
+
+        if (tema.subtemas && tema.subtemas.length > 0) {
+            tema.subtemas.forEach((subtema, subtemaIndex) => {
+                // Alternar colores de fondo para las filas
+                const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                
+                estructura += `
+                    <div class="d-flex border-bottom indice-subtema-row" 
+                         style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                         data-tema="${numeroTema}" 
+                         data-subtema="${ordenSubtema}"
+                         onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                         onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                         onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
+                        <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
+                        </div>
+                        <div class="px-3 py-2 flex-grow-1">
+                            ${subtema.subtema_titulo}
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            estructura += `
+                <div class="px-3 py-2 text-muted">
+                    <em>Sin subtemas disponibles</em>
+                </div>
+            `;
+        }
+
+        estructura += `
+                </div>
+            </div>
+        `;
+    });
+
+    estructura += `</div>`;
+    return estructura;
+}
+
+// FUNCIÓN EXACTA del sigem_admin que funciona
+function generateListaCuadros(cuadrosEstadisticos) {
+        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
+            return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
+        }
+
+        // Organizar cuadros por tema y subtema
+        const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
+
+        let html = `
+            <div style="overflow-y: auto;" id="cuadros-container">
+        `;
+
+        // Colores para los headers de temas (igual que la estructura de índice)
+        const colores = [
+            'background-color: #8FBC8F; color: white;', // Verde claro
+            'background-color: #87CEEB; color: white;', // Azul cielo
+            'background-color: #DDA0DD; color: white;', // Púrpura claro
+            'background-color: #F0E68C; color: black;', // Amarillo claro
+            'background-color: #FFA07A; color: white;', // Salmón
+            'background-color: #98FB98; color: black;'  // Verde pálido
+        ];
+
+        // Usar índice basado en el orden real
+        let temaIndex = 0;
+        Object.keys(cuadrosOrganizados).forEach((temaKey) => {
+            const tema = cuadrosOrganizados[temaKey];
+            const colorTema = colores[temaIndex % colores.length];
+            
+            // Usar orden_indice del tema para mostrar el número correcto
+            const numeroTema = tema.orden_indice || (temaIndex + 1);
+            const temaId = `tema-cuadros-${numeroTema}`;
+
+            html += `
+                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="${temaId}">
+                    <!-- Header del tema -->
+                    <div class="text-center fw-bold py-2" style="${colorTema}">
+                        ${numeroTema}. ${tema.nombre.toUpperCase()}
+                    </div>
+                    
+                    <!-- Subtemas y cuadros -->
+                    <div style="background-color: white;">
+            `;
+
+            Object.keys(tema.subtemas).forEach((subtemaKey, subtemaIndex) => {
+                const subtema = tema.subtemas[subtemaKey];
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                const subtemaId = `subtema-cuadros-${numeroTema}-${ordenSubtema}`;
+
+
+                // Header del subtema con ID para focus
+                html += `
+                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
+                        ${subtema.clave || 'N/A'} ${subtema.nombre}
+                    </div>
+                `;
+
+                // Cuadros del subtema
+                if (subtema.cuadros && subtema.cuadros.length > 0) {
+                    subtema.cuadros.forEach((cuadro, cuadroIndex) => {
+                        const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+
+                        html += `
+                            <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
+                                <div class="me-3" style="min-width: 80px;">
+                                    <code class="text-primary fw-bold">${cuadro.codigo_cuadro || 'N/A'}</code>
+                                </div>
+                                <div class="flex-grow-1 me-3" style="font-size: 12px;">
+                                    <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
+                                    ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                                </div>
+                                <div>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" 
+                                       onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
+                                       title="Ver cuadro ${cuadro.codigo_cuadro}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="px-3 py-2 text-muted">
+                            <em>Sin cuadros estadísticos en este subtema</em>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            temaIndex++;
+        });
+
+        html += `</div>`;
+        return html;
+    }
+
+// FUNCIÓN EXACTA del sigem_admin que funciona
+function sincronizarAlturas() {
+    setTimeout(() => {
+        const indiceContainer = document.getElementById('indice-container');
+        const cuadrosContainer = document.getElementById('cuadros-container');
+        
+        if (indiceContainer && cuadrosContainer) {
+            // 1. RESETEAR: Permitir que el índice tenga su altura natural
+            indiceContainer.style.height = 'auto';
+            cuadrosContainer.style.height = 'auto';
+            
+            // 2. MEDIR: La altura natural del contenido del índice
+            const alturaIndice = indiceContainer.scrollHeight;
+            
+            // 3. APLICAR: La altura del índice al contenedor de cuadros
+            // El índice mantiene su altura natural, los cuadros se ajustan a esa altura
+            cuadrosContainer.style.height = alturaIndice + 'px';
+            
+            // 4. OPCIONAL: Aplicar altura mínima si el contenido es muy pequeño
+            const alturaMinima = 300; // píxeles mínimos
+            if (alturaIndice < alturaMinima) {
+                const alturaFinal = alturaMinima + 'px';
+                indiceContainer.style.height = alturaFinal;
+                cuadrosContainer.style.height = alturaFinal;
+            } else {
+                // El índice mantiene altura automática, cuadros siguen al índice
+                indiceContainer.style.height = 'auto';
+                cuadrosContainer.style.height = alturaIndice + 'px';
+            }
+        }
+    }, 100);
+}
+
+// FUNCIÓN EXACTA del sigem_admin que funciona
+function organizarCuadrosPorTema(cuadrosEstadisticos) {
+    const organizacion = {};
+
+    cuadrosEstadisticos.forEach(cuadro => {
+        // CORREGIR: La información del tema viene a través del subtema
+        const subtemaInfo = cuadro.subtema || { subtema_id: 'sin_subtema', subtema_titulo: 'Sin Subtema', orden_indice: 0 };
+        const temaInfo = subtemaInfo.tema || { tema_id: 'sin_tema', tema_titulo: 'Sin Tema Info', orden_indice: 0 };
+
+        const temaKey = `tema_${temaInfo.tema_id}`;
+        const subtemaKey = `subtema_${subtemaInfo.subtema_id}`;
+
+        // Inicializar tema si no existe
+        if (!organizacion[temaKey]) {
+            organizacion[temaKey] = {
+                nombre: temaInfo.tema_titulo || 'Sin Tema',
+                clave: temaInfo.clave_tema || '',
+                orden_indice: temaInfo.orden_indice || 0,
+                subtemas: {}
+            };
+        }
+
+        // Inicializar subtema si no existe
+        if (!organizacion[temaKey].subtemas[subtemaKey]) {
+            organizacion[temaKey].subtemas[subtemaKey] = {
+                nombre: subtemaInfo.subtema_titulo || 'Sin Subtema',
+                clave: subtemaInfo.clave_subtema || subtemaInfo.clave_efectiva || temaInfo.clave_tema || '',
+                orden_indice: subtemaInfo.orden_indice || 0,
+                subtema_info: subtemaInfo, // AGREGAR: Guardar info completa del subtema
+                cuadros: []
+            };
+        }
+
+        // Agregar cuadro al subtema
+        organizacion[temaKey].subtemas[subtemaKey].cuadros.push(cuadro);
+    });
+
+    // AGREGAR: Ordenar por orden_indice
+    const organizacionOrdenada = {};
+    
+    // 1. Ordenar temas por orden_indice
+    const temasOrdenados = Object.keys(organizacion).sort((a, b) => {
+        const ordenA = organizacion[a].orden_indice || 0;
+        const ordenB = organizacion[b].orden_indice || 0;
+        return ordenA - ordenB;
+    });
+
+    // 2. Para cada tema ordenado, ordenar sus subtemas
+    temasOrdenados.forEach(temaKey => {
+        const tema = organizacion[temaKey];
+        
+        organizacionOrdenada[temaKey] = {
+            ...tema,
+            subtemas: {}
+        };
+
+        // Ordenar subtemas por orden_indice
+        const subtemasOrdenados = Object.keys(tema.subtemas).sort((a, b) => {
+            const ordenA = tema.subtemas[a].orden_indice || 0;
+            const ordenB = tema.subtemas[b].orden_indice || 0;
+            return ordenA - ordenB;
+        });
+
+        // 3. Para cada subtema ordenado, ordenar sus cuadros CONSIDERANDO orden_indice del subtema
+        subtemasOrdenados.forEach(subtemaKey => {
+            const subtema = tema.subtemas[subtemaKey];
+            
+            organizacionOrdenada[temaKey].subtemas[subtemaKey] = {
+                ...subtema,
+                cuadros: subtema.cuadros.sort((a, b) => {
+                    // NUEVA LÓGICA: Ordenar considerando orden_indice del subtema primero
+                    return compararCodigosCuadro(
+                        a.codigo_cuadro || '', 
+                        b.codigo_cuadro || '',
+                        a.subtema || subtema.subtema_info,
+                        b.subtema || subtema.subtema_info
+                    );
+                })
+            };
+        });
+    });
+
+    return organizacionOrdenada;
+}
+
+// FUNCIÓN EXACTA del sigem_admin que funciona
+function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
+    // 1. PRIMERO: Comparar por orden_indice del subtema
+    const ordenSubtemaA = subtemaInfoA?.orden_indice || 0;
+    const ordenSubtemaB = subtemaInfoB?.orden_indice || 0;
+    
+    if (ordenSubtemaA !== ordenSubtemaB) {
+        return ordenSubtemaA - ordenSubtemaB;
+    }
+
+    // 2. SEGUNDO: Si tienen el mismo subtema, comparar numéricamente el tercer número
+    function extraerNumero(codigo) {
+        if (!codigo) return 0;
+        
+        const partes = codigo.split('.');
+        if (partes.length >= 3) {
+            // Obtener la parte después del segundo punto y convertir a número
+            const numeroStr = partes[2];
+            const numero = parseInt(numeroStr, 10);
+            return isNaN(numero) ? 0 : numero;
+        }
+        return 0;
+    }
+
+    const numeroA = extraerNumero(codigoA);
+    const numeroB = extraerNumero(codigoB);
+    
+    return numeroA - numeroB;
+}
+
+// === RESTO DEL CÓDIGO EXISTENTE (sin duplicaciones) ===
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos del DOM
     const navLinks = document.querySelectorAll('.sigem-nav-link');
@@ -103,11 +451,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // FUNCIÓN: Cargar contenido
+    // FUNCIÓN: Cargar contenido (usando variables globales)
     function loadContent(section) {
         console.log(`Cargando sección: ${section}`);
-        console.log(`URL que se va a llamar: /sigem/partial/${section}`);
-        console.log(`URL completa: ${window.location.origin}/sigem/partial/${section}`);
         
         // Guardar sección actual
         saveCurrentSection(section);
@@ -123,8 +469,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
+        // USAR variable global o fallback
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        const fullUrl = `${baseUrl}/partial/${section}`;
+        
+        console.log(`Base URL: ${baseUrl}`);
+        console.log(`URL completa: ${fullUrl}`);
+        
         // Cargar partial
-        fetch(`/sigem/partial/${section}`)
+        fetch(fullUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -148,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="bi bi-exclamation-triangle"></i>
                         Error al cargar contenido de <strong>${section}</strong>
                         <br><small>Error: ${error.message}</small>
+                        <br><small>URL intentada: ${fullUrl}</small>
                     </div>
                 `;
             });
@@ -155,7 +510,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // FUNCIÓN: Cargar datos de mapas
     function loadMapasData() {
-        fetch('/sigem/mapas')
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        
+        fetch(`${baseUrl}/mapas`)
             .then(response => response.json())
             .then(data => {
                 const mapasContainer = document.getElementById('mapas-container');
@@ -170,18 +528,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     mapasContainer.innerHTML = `
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle"></i>
-                            Error al cargar mapas
+                            Error al cargar mapas: ${error.message}
                         </div>
                     `;
                 }
             });
     }
 
-    // FUNCIÓN: Cargar datos de catálogo
+    // FUNCIÓN: Cargar datos de catálogo (REEMPLAZAR con la función del contexto)
     function loadCatalogoData() {
-        fetch('/sigem/catalogo')
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+
+        fetch(`${baseUrl}/catalogo`)
             .then(response => response.json())
             .then(data => {
+                console.log('=== DATOS RAW DEL CATÁLOGO ===');
+                console.log('Response completa:', data);
+                console.log('Success:', data.success);
+                console.log('Total temas:', data.total_temas);
+                console.log('Total subtemas:', data.total_subtemas);
+                console.log('Total cuadros:', data.total_cuadros);
+                console.log('Temas detalle:', data.temas_detalle);
+                console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
+                console.log('=== FIN DATOS RAW ===');
+                
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
                     const cuadrosContainer = document.getElementById('cuadros-container');
@@ -194,161 +565,200 @@ document.addEventListener('DOMContentLoaded', function() {
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
                     }
                     
+                    // Sincronizar alturas después de cargar contenido
                     sincronizarAlturas();
+                } else {
+                    const indiceContainer = document.getElementById('indice-container');
+                    const cuadrosContainer = document.getElementById('cuadros-container');
+                    
+                    if (indiceContainer) {
+                        indiceContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar catálogo: ${data.message}
+                            </div>
+                        `;
+                    }
+                    
+                    if (cuadrosContainer) {
+                        cuadrosContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar cuadros estadísticos
+                            </div>
+                        `;
+                    }
                 }
             })
             .catch(error => {
-                console.error('Error cargando catálogo:', error);
+                console.error('Error:', error);
                 const indiceContainer = document.getElementById('indice-container');
                 const cuadrosContainer = document.getElementById('cuadros-container');
                 
                 if (indiceContainer) {
-                    indiceContainer.innerHTML = `<div class="alert alert-warning">Error al cargar índice</div>`;
+                    indiceContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar catálogo
+                        </div>
+                    `;
                 }
+                
                 if (cuadrosContainer) {
-                    cuadrosContainer.innerHTML = `<div class="alert alert-warning">Error al cargar cuadros</div>`;
+                    cuadrosContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar cuadros
+                        </div>
+                    `;
                 }
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas
+    // FUNCIÓN: Generar HTML para mapas (LAYOUT LIMPIO)
     function generateMapasHtml(data) {
-        let html = `<h4>Mapas disponibles (${data.total_mapas})</h4>`;
+        let html = `
+            <div class="mb-3">
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Mapas disponibles: ${data.total_mapas}</strong>
+                </div>
+            </div>
+        `;
         
         if (data.mapas && data.mapas.length > 0) {
-            html += '<div class="row">';
             data.mapas.forEach((mapa, index) => {
                 html += `
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header bg-info text-white">
-                                <strong>${mapa.nombre_mapa || 'Mapa sin nombre'}</strong>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Sección:</strong> ${mapa.nombre_seccion || 'N/A'}</p>
-                                <p><strong>Descripción:</strong> ${mapa.descripcion || 'N/A'}</p>
-                                ${mapa.enlace ? `<a href="${mapa.enlace}" target="_blank" class="btn btn-primary btn-sm">Ver Mapa</a>` : ''}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mapa-row">
+                                <!-- HEADER: Título (10 col) + Botón (2 col) -->
+                                <div class="mapa-header">
+                                    <div class="row align-items-center">
+                                        <div class="col-10">
+                                            <h4 class="mapa-title mb-1">
+                                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                                ${mapa.nombre_mapa || 'Mapa sin nombre'}
+                                            </h4>
+                                            <p class="mapa-seccion mb-0">
+                                                <i class="bi bi-folder-fill me-1"></i>
+                                                Sección: ${mapa.nombre_seccion || 'No especificada'}
+                                            </p>
+                                        </div>
+                                        <div class="col-2 text-end">
+                                            ${mapa.enlace ? 
+                                                `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                    Ver Mapa
+                                                </a>` 
+                                                : 
+                                                `<span class="mapa-btn mapa-btn-disabled">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    No disponible
+                                                </span>`
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
+                                <div class="mapa-content">
+                                    <!-- IMAGEN (50% izquierda) - CLICKEABLE -->
+                                    <div class="mapa-image-container" ${mapa.enlace ? `onclick="window.open('${mapa.enlace}', '_blank')" style="cursor: pointer;"` : ''}>
+                                        ${mapa.tiene_imagen ? 
+                                            `<img src="${mapa.imagen_url}" 
+                                                  alt="${mapa.nombre_mapa}" 
+                                                  class="mapa-image"
+                                                  onload="console.log('✅ Imagen cargada: ${mapa.icono}')"
+                                                  onerror="console.error('❌ Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
+                                             >
+                                             ${mapa.enlace ? 
+                                                `<div class="mapa-image-overlay">
+                                                    <i class="bi bi-zoom-in me-2"></i>
+                                                    Ver Mapa Completo
+                                                </div>` 
+                                                : ''
+                                             }
+                                             <div class="image-error-placeholder" style="display: none;">
+                                                <div class="mapa-image-placeholder">
+                                                    <i class="bi bi-image"></i>
+                                                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                                                    <p>Error al cargar imagen</p>
+                                                    <small class="text-danger">Revisa la imagen: ${mapa.icono || 'N/A'}</small>
+                                                </div>
+                                             </div>` 
+                                            : 
+                                            getImagePlaceholder(mapa)
+                                        }
+                                    </div>
+                                    
+                                    <!-- DESCRIPCIÓN (50% derecha) -->
+                                    <div class="mapa-descripcion">
+                                        <h5>
+                                            <i class="bi bi-card-text"></i>
+                                            Descripción
+                                        </h5>
+                                        <p>
+                                            ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
-            html += '</div>';
         } else {
-            html += '<div class="alert alert-info">No hay mapas disponibles</div>';
-        }
-        
-        return html;
-    }
-
-    // FUNCIÓN: Generar estructura de índice
-    function generateEstructuraIndice(temasDetalle) {
-        let estructura = '<div style="font-size: 12px; overflow-y: auto;">';
-        
-        temasDetalle.forEach((tema, temaIndex) => {
-            const colores = [
-                'background-color: #8FBC8F;',
-                'background-color: #87CEEB;',
-                'background-color: #DDA0DD;',
-                'background-color: #F0E68C;',
-                'background-color: #FFA07A;',
-                'background-color: #98FB98;'
-            ];
-            
-            const colorTema = colores[temaIndex % colores.length];
-            const numeroTema = temaIndex + 1;
-
-            estructura += `
-                <div class="mb-3" style="border: 1px solid #ddd;">
-                    <div class="text-center text-white fw-bold py-2" 
-                         style="${colorTema} cursor: pointer;" 
-                         onclick="focusEnTema(${numeroTema});">
-                        ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
-                    </div>
-                    <div style="background-color: white;">
-            `;
-
-            if (tema.subtemas && tema.subtemas.length > 0) {
-                tema.subtemas.forEach((subtema, subtemaIndex) => {
-                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
-                    const ordenSubtema = subtema.orden_indice || subtemaIndex;
-                    
-                    estructura += `
-                        <div class="d-flex border-bottom" 
-                             style="${bgColor} cursor: pointer;"
-                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
-                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                                ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
-                            </div>
-                            <div class="px-3 py-2 flex-grow-1">
-                                ${subtema.subtema_titulo}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            estructura += '</div></div>';
-        });
-
-        estructura += '</div>';
-        return estructura;
-    }
-
-    // FUNCIÓN: Generar lista de cuadros (simplificada por ahora)
-    function generateListaCuadros(cuadrosEstadisticos) {
-        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
-            return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
-        }
-
-        let html = '<div style="overflow-y: auto;">';
-        
-        // Por ahora, mostrar lista simple
-        html += `<div class="alert alert-info">
-            <i class="bi bi-info-circle"></i>
-            Total de cuadros estadísticos: <strong>${cuadrosEstadisticos.length}</strong>
-        </div>`;
-        
-        // Lista básica de cuadros
-        html += '<div class="list-group">';
-        cuadrosEstadisticos.slice(0, 10).forEach(cuadro => { // Mostrar solo primeros 10
             html += `
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</h6>
-                            <small class="text-muted">Código: ${cuadro.codigo_cuadro || 'N/A'}</small>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                            <h4 class="mt-3">No hay mapas disponibles</h4>
+                            <p class="mb-0">Actualmente no hay mapas configurados en el sistema.</p>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')">
-                            Ver
-                        </button>
                     </div>
                 </div>
             `;
-        });
-        html += '</div>';
-        
-        if (cuadrosEstadisticos.length > 10) {
-            html += `<div class="text-center mt-3">
-                <small class="text-muted">Mostrando 10 de ${cuadrosEstadisticos.length} cuadros</small>
-            </div>`;
         }
         
-        html += '</div>';
         return html;
     }
 
-    // FUNCIÓN: Sincronizar alturas
-    function sincronizarAlturas() {
-        setTimeout(() => {
-            const indiceContainer = document.getElementById('indice-container');
-            const cuadrosContainer = document.getElementById('cuadros-container');
-            
-            if (indiceContainer && cuadrosContainer) {
-                const alturaIndice = indiceContainer.scrollHeight;
-                cuadrosContainer.style.height = alturaIndice + 'px';
-            }
-        }, 100);
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen (LIMPIO)
+    function getImagePlaceholder(mapa) {
+        return `
+            <div class="mapa-image-placeholder">
+                <i class="bi bi-image"></i>
+                <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                <p>
+                    ${mapa.icono ? 
+                        'Imagen no disponible' : 
+                        'Sin imagen configurada'
+                    }
+                </p>
+                ${mapa.enlace ? 
+                    `<small class="text-primary">
+                        <i class="bi bi-cursor-fill"></i>
+                        Haz clic para ver mapa
+                    </small>` 
+                    : 
+                    `<small class="text-muted">
+                        Mapa no disponible
+                    </small>`
+                }
+            </div>
+        `;
+    }
+
+    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror
+    function getImagePlaceholderEscaped(mapa) {
+        return `<div class="mapa-image-placeholder">
+                    <i class="bi bi-image"></i>
+                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                    <p>Error al cargar imagen</p>
+                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
+                </div>`;
     }
 
     // Event listeners para navegación
@@ -361,8 +771,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Event listeners para botones de control (CORREGIR UBICACIÓN)
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'btn-expandir-todo' || e.target.closest('#btn-expandir-todo')) {
+            expandirTodo();
+        }
+        
+        if (e.target.id === 'btn-contraer-todo' || e.target.closest('#btn-contraer-todo')) {
+            contraerTodo();
+        }
+    });
+    
     // CARGAR CONTENIDO INICIAL (con persistencia)
     const initialSection = getCurrentSection();
-    console.log(`Sección inicial: ${initialSection}`);
     loadContent(initialSection);
 });
