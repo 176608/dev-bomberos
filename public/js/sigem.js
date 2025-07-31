@@ -539,9 +539,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-
+    
         const catalogoUrl = `${baseUrl}/catalogo`;
-        console.log('Cargando catálogo desde:', catalogoUrl);
+        console.log('Intentando cargar catálogo desde:', catalogoUrl);
         
         fetch(catalogoUrl)
             .then(response => {
@@ -551,35 +551,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log('=== DATOS LIMPIOS DEL CATÁLOGO ===');
+                console.log('=== DATOS RAW DEL CATÁLOGO ===');
+                console.log('Response completa:', data);
                 console.log('Success:', data.success);
                 console.log('Total temas:', data.total_temas);
                 console.log('Total subtemas:', data.total_subtemas);
                 console.log('Total cuadros:', data.total_cuadros);
-                console.log('Catalogo modelo (temas+subtemas):', data.catalogo_modelo);
-                console.log('Cuadros modelo (cuadros):', data.cuadros_modelo);
-                console.log('=== FIN DATOS LIMPIOS ===');
+                console.log('Temas detalle:', data.temas_detalle);
+                console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
+                console.log('=== FIN DATOS RAW ===');
                 
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
                     const cuadrosContainer = document.getElementById('cuadros-container');
                     const cuadrosCount = document.getElementById('cuadros-count');
                     
-                    // USAR: catalogo_modelo para el índice
-                    if (indiceContainer && data.catalogo_modelo) {
-                        indiceContainer.innerHTML = generateEstructuraIndice(data.catalogo_modelo);
+                    if (indiceContainer && data.temas_detalle) {
+                        indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
                     }
                     
-                    // USAR: cuadros_modelo para los cuadros
-                    if (cuadrosContainer && data.cuadros_modelo) {
-                        cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_modelo);
+                    if (cuadrosContainer && data.cuadros_estadisticos) {
+                        cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
                     }
                     
                     if (cuadrosCount) {
                         cuadrosCount.textContent = `${data.total_cuadros || 0} cuadros`;
                     }
                     
-                    // Sincronizar alturas
+                    // IMPORTANTE: Sincronizar alturas después de cargar
                     sincronizarAlturas();
                 }
             })
