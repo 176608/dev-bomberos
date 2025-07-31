@@ -18,58 +18,252 @@
             </div>
         </div>
 
-
-        <!-- SECCIONES PRINCIPALES -->
+        <!-- MÓDULOS PRINCIPALES CON DISEÑO UNIFORME -->
         <div class="row mb-4">
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">
+            <!-- CATÁLOGO -->
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100 shadow-sm module-card">
+                    <div class="card-header bg-success text-white text-center">
+                        <h5 class="mb-0 fw-bold">
                             <i class="bi bi-journal-text me-2"></i>Catálogo
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <p>Explora nuestro catálogo completo de cuadros estadísticos organizados por temas y subtemas.</p>
-                        <button class="btn btn-success" onclick="loadContent('catalogo')">
+                    <div class="card-body text-center p-4">
+                        <!-- Imagen con efecto hover -->
+                        <div class="module-image-container mb-3" onclick="loadContent('catalogo')">
+                            <div class="module-image-wrapper">
+                                <img src="{{ asset('imagenes/sige2.png') }}" alt="Catálogo de Cuadros" class="module-image">
+                                <div class="module-overlay">
+                                    <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Descripción -->
+                        <p class="text-muted mb-3">
+                            Explora nuestro catálogo completo de cuadros estadísticos organizados por temas y subtemas con sistema de navegación intuitivo.
+                        </p>
+                        <!-- Botón -->
+                        <button class="btn btn-success btn-sm" onclick="loadContent('catalogo')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
                         </button>
-                        <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="bi bi-map-fill me-2"></i>Estadística
-                            <img src="../imagenes/iconoesta2.png" alt="Icono Estadística">
+
+            <!-- ESTADÍSTICA -->
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100 shadow-sm module-card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-bar-chart-fill me-2"></i>Estadística
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <p>menu navegable de cuadros estadisticos por tema y subtema.</p>
-                        <button class="btn btn-primary" onclick="loadContent('estadistica')">
+                    <div class="card-body text-center p-4">
+                        <!-- Imagen con efecto hover -->
+                        <div class="module-image-container mb-3" onclick="loadContent('estadistica')">
+                            <div class="module-image-wrapper">
+                                <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Módulo Estadística" class="module-image">
+                                <div class="module-overlay">
+                                    <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Descripción -->
+                        <p class="text-muted mb-3">
+                            Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
+                        </p>
+                        <!-- Botón -->
+                        <button class="btn btn-primary btn-sm" onclick="loadContent('estadistica')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="bi bi-map-fill me-2"></i>Cartografía
-                            <img src="../imagenes/cartogde.png" alt="Cartografía">
+
+            <!-- CARTOGRAFÍA -->
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100 shadow-sm module-card">
+                    <div class="card-header bg-info text-white text-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-geo-alt-fill me-2"></i>Cartografía
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <p>Accede a mapas temáticos y cartografía digital del municipio de Juárez.</p>
-                        <button class="btn btn-primary" onclick="loadContent('cartografia')">
+                    <div class="card-body text-center p-4">
+                        <!-- Imagen con efecto hover -->
+                        <div class="module-image-container mb-3" onclick="loadContent('cartografia')">
+                            <div class="module-image-wrapper">
+                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Módulo Cartografía" class="module-image">
+                                <div class="module-overlay">
+                                    <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Descripción -->
+                        <p class="text-muted mb-3">
+                            Accede a mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
+                        </p>
+                        <!-- Botón -->
+                        <button class="btn btn-info btn-sm" onclick="loadContent('cartografia')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
+<style>
+/* === ESTILOS PARA MÓDULOS CON EFECTO MIRROR === */
+.module-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.module-image-container {
+    cursor: pointer;
+    position: relative;
+    margin: 0 auto;
+    max-width: 200px;
+}
+
+.module-image-wrapper {
+    position: relative;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+    border-radius: 15px;
+    padding: 20px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.module-image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.module-image-wrapper:hover::before {
+    opacity: 1;
+    transform: translateX(100%);
+}
+
+.module-image {
+    width: 100%;
+    height: auto;
+    max-height: 120px;
+    object-fit: contain;
+    transition: all 0.4s ease;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+}
+
+.module-image-wrapper:hover .module-image {
+    transform: scale(1.1) rotateY(5deg);
+    filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4)) brightness(1.1);
+}
+
+.module-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+}
+
+.module-image-wrapper:hover .module-overlay {
+    opacity: 1;
+}
+
+.module-overlay i {
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.module-image-wrapper:hover .module-overlay i {
+    transform: scale(1);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* === EFECTOS ADICIONALES === */
+.module-card .card-header {
+    border-bottom: 3px solid rgba(255,255,255,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.module-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: all 0.5s ease;
+}
+
+.module-card:hover .card-header::before {
+    left: 100%;
+}
+
+.module-card .btn {
+    transition: all 0.3s ease;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.module-card .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .module-image-wrapper {
+        max-width: 150px;
+        margin: 0 auto;
+    }
+    
+    .module-image {
+        max-height: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .module-image-wrapper {
+        max-width: 120px;
+        padding: 15px;
+    }
+    
+    .module-image {
+        max-height: 60px;
+    }
+}
+</style>
