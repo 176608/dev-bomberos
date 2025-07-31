@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>`;
     }
 
-    // FUNCIÓN: Generar estructura de índice (NUEVA UI MODERNA)
+    // FUNCIÓN: Generar estructura de índice (CORREGIR - remover líneas que causan error)
     function generateEstructuraIndice(temasDetalle) {
         let estructura = '';
         let totalSubtemas = 0;
@@ -778,12 +778,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             estructura += '</div></div>';
         });
-        
-        // Actualizar estadísticas
-        setTimeout(() => {
-            document.getElementById('stats-temas').textContent = temasDetalle.length;
-            document.getElementById('stats-subtemas').textContent = totalSubtemas;
-        }, 100);
         
         return estructura;
     }
