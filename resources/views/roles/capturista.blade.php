@@ -869,6 +869,14 @@ function moverBotonesAlTitulo() {
             
             // Agregar el evento click
             btnElement.addEventListener('click', function() {
+            
+            // Acciones que requieren confirmación
+                const requiereConfirmacion = ['csv', 'excel', 'pdf', 'print'];
+
+                if (requiereConfirmacion.includes(config.action)) {
+                    const confirmar = confirm(¿Seguro que desea descargar el archivo en formato ${config.action.toUpperCase()}?);
+                    if (!confirmar) return; // Si cancela, no se ejecuta
+                }
                 // Obtener el botón correspondiente de DataTables y activarlo
                 try {
                     window.hidrantesTable.button(index).trigger();
