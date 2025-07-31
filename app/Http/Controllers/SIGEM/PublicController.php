@@ -76,47 +76,66 @@ class PublicController extends Controller
     public function obtenerCatalogo()
     {
         try {
-            // 1. OBTENER SOLO catalogo_modelo (estructura completa)
-            $catalogo_modelo = Catalogo::with(['subtemas' => function($query) {
-                $query->orderBy('orden_indice');
-            }])
-            ->orderBy('orden_indice')
-            ->get();
-
-            // 2. OBTENER SOLO cuadros_modelo (cuadros completos)
-            $cuadros_modelo = CuadroEstadistico::with([
-                'subtema.tema'
-            ])
-            ->orderBy('cuadro_estadistico_id')
-            ->get();
-
-            // 3. CALCULAR estadísticas básicas
-            $total_temas = $catalogo_modelo->count();
-            $total_subtemas = $catalogo_modelo->sum(function($tema) {
-                return $tema->subtemas->count();
-            });
-            $total_cuadros = $cuadros_modelo->count();
-
-            // 4. RESPUESTA LIMPIA - SOLO 2 arrays
-            return response()->json([
+            // === DATOS RAW SIMPLES ===
+            
+            // 1. Datos del modelo Catalogo
+            $catalogoData = Catalogo::obtenerEstructuraCatalogo();
+            
+            // 2. Datos del modelo CuadroEstadistico
+            $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
+            
+            // 3. Estructura simple para debug
+            $datosRaw = [
                 'success' => true,
-                'message' => 'Catálogo cargado exitosamente',
+                'message' => 'Datos raw del catálogo',
                 
-                // === DATOS PRINCIPALES (solo estos 2) ===
-                'catalogo_modelo' => $catalogo_modelo,
-                'cuadros_modelo' => $cuadros_modelo,
+                // DATOS DEL MODELO CATALOGO
+                'catalogo_modelo' => $catalogoData,
                 
-                // === ESTADÍSTICAS ===
-                'total_temas' => $total_temas,
-                'total_subtemas' => $total_subtemas,
-                'total_cuadros' => $total_cuadros
-            ]);
-
+                // DATOS DEL MODELO CUADROESTADISTICO
+                'cuadros_modelo' => $cuadrosEstadisticos->toArray(),
+                
+                // CONTEOS SIMPLES
+                'total_temas' => $catalogoData['total_temas'] ?? 0,
+                'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
+                'total_cuadros' => $cuadrosEstadisticos->count(),
+                
+                // PARA COMPATIBILIDAD CON EL JS EXISTENTE
+                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
+                'cuadros_estadisticos' => $cuadrosEstadisticos,
+                'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
+                'resumen' => [
+                    'total_temas' => $catalogoData['total_temas'] ?? 0,
+                    'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
+                    'total_cuadros' => $cuadrosEstadisticos->count()
+                ]
+            ];
+            
+            // LOG SIMPLE
+            \Log::info('CATALOGO RAW DATA:', $datosRaw);
+            
+            return response()->json($datosRaw);
+            
         } catch (\Exception $e) {
+            \Log::error('ERROR CATALOGO:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cargar catálogo: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Error: ' . $e->getMessage(),
+                'catalogo_modelo' => null,
+                'cuadros_modelo' => [],
+                'total_temas' => 0,
+                'total_subtemas' => 0,
+                'total_cuadros' => 0,
+                'temas_detalle' => [],
+                'cuadros_estadisticos' => [],
+                'catalogo_estructurado' => [],
+                'resumen' => []
+            ]);
         }
     }
 
