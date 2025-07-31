@@ -55,56 +55,6 @@
     </div>
 </div>
 
-<!-- DATOS RAW VISIBLES -->
-<div class="card mt-4 border-primary">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">
-            <i class="bi bi-database me-2"></i>Datos Raw del Sistema
-            <button type="button" class="btn btn-sm btn-outline-light float-end" onclick="toggleRawData()">
-                <i class="bi bi-eye"></i> Mostrar/Ocultar
-            </button>
-        </h5>
-    </div>
-    <div class="card-body" id="raw-data-content" style="display: none;">
-        <div class="row">
-            <div class="col-md-6">
-                <h6><i class="bi bi-journal-text"></i> Modelo Catalogo:</h6>
-                <pre id="catalogo-raw" class="bg-light p-3 border" style="max-height: 400px; overflow-y: auto; font-size: 12px;">
-                    Cargando datos del modelo Catalogo...
-                </pre>
-            </div>
-            <div class="col-md-6">
-                <h6><i class="bi bi-table"></i> Modelo CuadroEstadistico:</h6>
-                <pre id="cuadros-raw" class="bg-light p-3 border" style="max-height: 400px; overflow-y: auto; font-size: 12px;">
-                    Cargando datos del modelo CuadroEstadistico...
-                </pre>
-            </div>
-        </div>
-        
-        <div class="row mt-3">
-            <div class="col-12">
-                <h6><i class="bi bi-bar-chart"></i> Estadísticas Generales:</h6>
-                <div id="stats-raw" class="bg-success text-white p-3 rounded">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <h3 id="stat-temas">0</h3>
-                            <small>Total Temas</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h3 id="stat-subtemas">0</h3>
-                            <small>Total Subtemas</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h3 id="stat-cuadros">0</h3>
-                            <small>Total Cuadros</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 // Función para mostrar/ocultar datos raw
 function toggleRawData() {
