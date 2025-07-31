@@ -532,13 +532,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Cargar datos de catálogo (ACTUALIZADA con debug visual)
+    // FUNCIÓN: Cargar datos de catálogo (ACTUALIZADA con mejor manejo de errores)
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
         
-        fetch(`${baseUrl}/catalogo`)
-            .then(response => response.json())
+        const catalogoUrl = `${baseUrl}/catalogo`;
+        console.log('Intentando cargar catálogo desde:', catalogoUrl);
+        
+        fetch(catalogoUrl)
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Verificar que el content-type sea JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.warn('Response no es JSON, content-type:', contentType);
+                    // Intentar leer como texto para debug
+                    return response.text().then(text => {
+                        console.log('Response como texto:', text.substring(0, 500) + '...');
+                        throw new Error(`Expected JSON but got ${contentType}. Response: ${text.substring(0, 200)}...`);
+                    });
+                }
+                
+                return response.json();
+            })
             .then(data => {
                 // === DEBUGGING: Mostrar datos raw ===
                 console.log('=== DATOS RAW DEL CATÁLOGO ===');
@@ -566,11 +589,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (indiceContainer && data.temas_detalle) {
                         console.log('Generando estructura de índice con:', data.temas_detalle.length, 'temas');
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
+                    } else {
+                        console.warn('No se encontró indice-container o temas_detalle:', {
+                            indiceContainer: !!indiceContainer,
+                            temasDetalle: !!data.temas_detalle,
+                            temasDetalleLength: data.temas_detalle?.length
+                        });
                     }
                     
                     if (cuadrosContainer && data.cuadros_estadisticos) {
                         console.log('Generando lista de cuadros con:', data.cuadros_estadisticos.length, 'cuadros');
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
+                    } else {
+                        console.warn('No se encontró cuadros-container o cuadros_estadisticos:', {
+                            cuadrosContainer: !!cuadrosContainer,
+                            cuadrosEstadisticos: !!data.cuadros_estadisticos,
+                            cuadrosEstadisticosLength: data.cuadros_estadisticos?.length
+                        });
                     }
                     
                     if (cuadrosCount) {
@@ -580,18 +615,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     sincronizarAlturas();
                 } else {
                     console.error('Error en response:', data.message);
+                    
+                    // Mostrar error en la interfaz
+                    const indiceContainer = document.getElementById('indice-container');
+                    const cuadrosContainer = document.getElementById('cuadros-container');
+                    
+                    if (indiceContainer) {
+                        indiceContainer.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Error:</strong> ${data.message}
+                                ${data.debug_info ? `<br><small>Archivo: ${data.debug_info.error_file}:${data.debug_info.error_line}</small>` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    if (cuadrosContainer) {
+                        cuadrosContainer.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Error al cargar cuadros: ${data.message}
+                            </div>
+                        `;
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error cargando catálogo:', error);
+                
                 const indiceContainer = document.getElementById('indice-container');
                 const cuadrosContainer = document.getElementById('cuadros-container');
                 
                 if (indiceContainer) {
-                    indiceContainer.innerHTML = `<div class="alert alert-warning">Error al cargar índice: ${error.message}</div>`;
+                    indiceContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle"></i>
+                            <strong>Error de conexión:</strong> ${error.message}
+                            <br><small>URL: ${catalogoUrl}</small>
+                        </div>
+                    `;
                 }
+                
                 if (cuadrosContainer) {
-                    cuadrosContainer.innerHTML = `<div class="alert alert-warning">Error al cargar cuadros: ${error.message}</div>`;
+                    cuadrosContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle"></i>
+                            Error al cargar cuadros: ${error.message}
+                        </div>
+                    `;
                 }
             });
     }

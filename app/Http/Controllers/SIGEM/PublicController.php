@@ -76,20 +76,47 @@ class PublicController extends Controller
     public function obtenerCatalogo()
     {
         try {
+            // VERIFICAR: Que los modelos existan
+            if (!class_exists('App\Models\SIGEM\Catalogo')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Modelo Catalogo no encontrado',
+                    'catalogo_estructurado' => [],
+                    'total_temas' => 0,
+                    'total_subtemas' => 0,
+                    'cuadros_estadisticos' => [],
+                    'total_cuadros' => 0,
+                    'temas_detalle' => []
+                ]);
+            }
+
+            if (!class_exists('App\Models\SIGEM\CuadroEstadistico')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Modelo CuadroEstadistico no encontrado',
+                    'catalogo_estructurado' => [],
+                    'total_temas' => 0,
+                    'total_subtemas' => 0,
+                    'cuadros_estadisticos' => [],
+                    'total_cuadros' => 0,
+                    'temas_detalle' => []
+                ]);
+            }
+
             // Obtener estructura completa del catálogo
             $catalogoData = Catalogo::obtenerEstructuraCatalogo();
             
             // Obtener resumen estadístico
             $resumen = Catalogo::obtenerResumen();
             
-            // AGREGAR: Obtener todos los cuadros estadísticos
+            // Obtener todos los cuadros estadísticos
             $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
             
             // DEBUGGING: Log de los datos antes de enviar
             \Log::info('=== DEBUGGING CATÁLOGO ===');
             \Log::info('Estructura catálogo:', $catalogoData);
-            \Log::info('Total temas en estructura:', $catalogoData['total_temas']);
-            \Log::info('Total subtemas en estructura:', $catalogoData['total_subtemas']);
+            \Log::info('Total temas en estructura:', $catalogoData['total_temas'] ?? 0);
+            \Log::info('Total subtemas en estructura:', $catalogoData['total_subtemas'] ?? 0);
             \Log::info('Resumen:', $resumen);
             \Log::info('Cuadros estadísticos count:', $cuadrosEstadisticos->count());
             \Log::info('Primer cuadro (sample):', $cuadrosEstadisticos->first() ? $cuadrosEstadisticos->first()->toArray() : 'No hay cuadros');
@@ -97,20 +124,22 @@ class PublicController extends Controller
             
             return response()->json([
                 'success' => true,
-                'catalogo_estructurado' => $catalogoData['estructura'],
-                'total_temas' => $catalogoData['total_temas'],
-                'total_subtemas' => $catalogoData['total_subtemas'],
-                'temas_detalle' => $catalogoData['temas_detalle'],
+                'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
+                'total_temas' => $catalogoData['total_temas'] ?? 0,
+                'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
+                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
                 'resumen' => $resumen,
-                'cuadros_estadisticos' => $cuadrosEstadisticos, // AGREGAR: Lista de cuadros
-                'total_cuadros' => $cuadrosEstadisticos->count(), // AGREGAR: Total de cuadros
+                'cuadros_estadisticos' => $cuadrosEstadisticos,
+                'total_cuadros' => $cuadrosEstadisticos->count(),
                 'message' => 'Catálogo cargado exitosamente'
             ]);
             
         } catch (\Exception $e) {
             \Log::error('Error en obtenerCatalogo:', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             return response()->json([
@@ -119,8 +148,14 @@ class PublicController extends Controller
                 'catalogo_estructurado' => [],
                 'total_temas' => 0,
                 'total_subtemas' => 0,
-                'cuadros_estadisticos' => [], // AGREGAR: Array vacío en caso de error
-                'total_cuadros' => 0 // AGREGAR: 0 en caso de error
+                'cuadros_estadisticos' => [],
+                'total_cuadros' => 0,
+                'temas_detalle' => [],
+                'debug_info' => [
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'error_code' => $e->getCode()
+                ]
             ]);
         }
     }
