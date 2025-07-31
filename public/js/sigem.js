@@ -1,4 +1,4 @@
-// === FUNCIONES GLOBALES ORIGINALES (copiadas del archivo funcional) ===
+// === FUNCIONES GLOBALES ORIGINALES (únicas, no duplicadas) ===
 function focusEnTema(numeroTema) {
     console.log(`Focus en tema: ${numeroTema}`);
     
@@ -69,9 +69,9 @@ function verCuadro(cuadroId, codigo) {
     window.open(url, '_blank');
 }
 
-// === FUNCIONES DE GENERACIÓN DE HTML ORIGINALES ===
+// === FUNCIONES DE GENERACIÓN HTML (copiadas exactas del sigem_admin) ===
 
-// FUNCIÓN ORIGINAL: Generar estructura de índice (copiada exacta del archivo funcional)
+// FUNCIÓN EXACTA del sigem_admin que funciona
 function generateEstructuraIndice(temasDetalle) {
     let estructura = `
         <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
@@ -148,7 +148,7 @@ function generateEstructuraIndice(temasDetalle) {
     return estructura;
 }
 
-// FUNCIÓN ORIGINAL: Generar lista de cuadros (copiada exacta del archivo funcional)
+// FUNCIÓN EXACTA del sigem_admin que funciona
 function generateListaCuadros(cuadrosEstadisticos) {
     if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
         return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
@@ -249,7 +249,7 @@ function generateListaCuadros(cuadrosEstadisticos) {
     return html;
 }
 
-// FUNCIÓN ORIGINAL: Sincronizar alturas (copiada del archivo funcional)
+// FUNCIÓN EXACTA del sigem_admin que funciona
 function sincronizarAlturas() {
     setTimeout(() => {
         const indiceContainer = document.getElementById('indice-container');
@@ -282,7 +282,7 @@ function sincronizarAlturas() {
     }, 100);
 }
 
-// FUNCIÓN ORIGINAL: Organizar cuadros por tema y subtema (copiada del archivo funcional)
+// FUNCIÓN EXACTA del sigem_admin que funciona
 function organizarCuadrosPorTema(cuadrosEstadisticos) {
     const organizacion = {};
 
@@ -367,7 +367,7 @@ function organizarCuadrosPorTema(cuadrosEstadisticos) {
     return organizacionOrdenada;
 }
 
-// FUNCIÓN ORIGINAL: Comparar códigos (copiada del archivo funcional)
+// FUNCIÓN EXACTA del sigem_admin que funciona
 function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
     // 1. PRIMERO: Comparar por orden_indice del subtema
     const ordenSubtemaA = subtemaInfoA?.orden_indice || 0;
@@ -397,7 +397,7 @@ function compararCodigosCuadro(codigoA, codigoB, subtemaInfoA, subtemaInfoB) {
     return numeroA - numeroB;
 }
 
-// === RESTO DEL CÓDIGO EXISTENTE ===
+// === RESTO DEL CÓDIGO EXISTENTE (sin duplicaciones) ===
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos del DOM
     const navLinks = document.querySelectorAll('.sigem-nav-link');
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Cargar datos de catálogo (ACTUALIZADA para usar funciones originales)
+    // FUNCIÓN: Cargar datos de catálogo (CORREGIDA para usar funciones de arriba)
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');

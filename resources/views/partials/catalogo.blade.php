@@ -27,8 +27,8 @@
 
         <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
-        <!-- LAYOUT ORIGINAL FUNCIONAL: 2 columnas -->
-        <div class="row mt-4 catalogo-row">
+        <!-- USAR ESTRUCTURA EXACTA QUE FUNCIONA EN SIGEM_ADMIN -->
+        <div class="row mt-4">
             <div class="col-lg-4">
                 <div class="card bg-light">
                     <div class="card-header bg-success text-white">
@@ -68,7 +68,7 @@
 </div>
 
 <style>
-/* === ESTILOS ORIGINALES FUNCIONAIS === */
+/* === ESTILOS COPIADOS DE SIGEM_ADMIN QUE FUNCIONAN === */
 .loading-state {
     display: flex;
     flex-direction: column;
@@ -93,7 +93,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* === EFECTOS DE FOCUS ORIGINALES === */
+/* === EFECTOS DE FOCUS COPIADOS DEL SIGEM_ADMIN === */
 .highlight-focus {
     background-color: #fff3cd !important;
     border: 2px solid #ffc107 !important;
@@ -116,7 +116,7 @@
     }
 }
 
-/* === EFECTOS HOVER DEL ÍNDICE ORIGINALES === */
+/* === EFECTOS HOVER COPIADOS DEL SIGEM_ADMIN === */
 .indice-tema-header:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
@@ -127,7 +127,7 @@
     transform: translateX(5px) !important;
 }
 
-/* === ALTURAS IGUALES ORIGINALES === */
+/* === ALTURAS IGUALES COPIADAS DEL SIGEM_ADMIN === */
 #indice-container, #cuadros-container {
     overflow-y: auto;
 }
@@ -147,12 +147,7 @@
     height: 100%;
 }
 
-.catalogo-row .card-body > div {
-    height: 550px;
-    overflow-y: auto;
-}
-
-/* === RESPONSIVE ORIGINAL === */
+/* === RESPONSIVE COPIADO DEL SIGEM_ADMIN === */
 @media (max-width: 768px) {
     .catalogo-row .card-body > div {
         height: 400px;
