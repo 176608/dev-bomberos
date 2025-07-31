@@ -134,7 +134,7 @@
 
 .module-image-wrapper {
     position: relative;
-    background: #10882aff ;
+    background: #398d4b9a ;
     border-radius: 15px;
     padding: 20px;
     overflow: hidden;
