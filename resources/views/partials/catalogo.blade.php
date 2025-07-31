@@ -361,4 +361,207 @@
 .tema-4 { background: linear-gradient(135deg, #F0E68C 0%, #EDD76B 100%); }
 .tema-5 { background: linear-gradient(135deg, #FFA07A 0%, #FF8A5B 100%); }
 .tema-6 { background: linear-gradient(135deg, #98FB98 0%, #7FE57F 100%); }
+
+/* === ESTILOS PARA CUADROS === */
+.tema-cuadros {
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tema-cuadros-header {
+    background: linear-gradient(135deg, #2a6e48 0%, #66d193 100%);
+    padding: 15px 20px;
+    color: white;
+}
+
+.tema-cuadros-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.tema-numero {
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.subtema-cuadros {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.subtema-cuadros:last-child {
+    border-bottom: none;
+}
+
+.subtema-cuadros-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 12px 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.subtema-cuadros-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2a6e48;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.subtema-codigo {
+    background: #2a6e48;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+}
+
+.cuadros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: white;
+}
+
+.cuadro-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cuadro-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: #2a6e48;
+}
+
+.cuadro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.cuadro-codigo {
+    background: linear-gradient(135deg, #2a6e48 0%, #66d193 100%);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.cuadro-icon {
+    color: #6c757d;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.cuadro-item:hover .cuadro-icon {
+    color: #2a6e48;
+    transform: scale(1.2);
+}
+
+.cuadro-body {
+    margin-bottom: 12px;
+}
+
+.cuadro-titulo {
+    color: #2a6e48;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cuadro-descripcion {
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cuadro-footer {
+    padding-top: 8px;
+    border-top: 1px solid #f1f3f4;
+}
+
+.cuadro-footer small {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* === RESPONSIVE PARA CUADROS === */
+@media (max-width: 768px) {
+    .cuadros-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 15px;
+    }
+    
+    .cuadro-item {
+        padding: 12px;
+    }
+    
+    .tema-cuadros-header {
+        padding: 12px 15px;
+    }
+    
+    .tema-cuadros-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .subtema-cuadros-header {
+        padding: 10px 15px;
+    }
+    
+    .subtema-cuadros-header h4 {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .cuadros-grid {
+        padding: 10px;
+    }
+    
+    .cuadro-titulo {
+        font-size: 0.9rem;
+    }
+    
+    .cuadro-descripcion {
+        font-size: 0.8rem;
+    }
+    
+    .subtema-codigo {
+        font-size: 0.8rem;
+        padding: 3px 6px;
+    }
+}
 </style>

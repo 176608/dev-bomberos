@@ -442,7 +442,121 @@ document.addEventListener('DOMContentLoaded', function() {
         return estructura;
     }
 
-    // FUNCIÓN: Toggle de tema (expandir/contraer)
+    // FUNCIÓN: Generar lista de cuadros (FALTABA ESTA FUNCIÓN)
+    function generateListaCuadros(cuadrosEstadisticos) {
+        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
+            return `
+                <div class="alert alert-warning text-center">
+                    <i class="bi bi-exclamation-triangle fs-1"></i>
+                    <h4 class="mt-3">No hay cuadros disponibles</h4>
+                    <p class="mb-0">Actualmente no hay cuadros estadísticos configurados en el sistema.</p>
+                </div>
+            `;
+        }
+
+        let html = '';
+        let currentTema = null;
+        let currentSubtema = null;
+
+        cuadrosEstadisticos.forEach((cuadro, index) => {
+            // Verificar si es un nuevo tema
+            if (currentTema !== cuadro.tema_numero) {
+                // Cerrar subtema anterior si existe
+                if (currentSubtema !== null) {
+                    html += '</div>'; // Cerrar subtema-cuadros
+                }
+                
+                // Cerrar tema anterior si existe
+                if (currentTema !== null) {
+                    html += '</div>'; // Cerrar tema-cuadros
+                }
+
+                // Nuevo tema
+                currentTema = cuadro.tema_numero;
+                currentSubtema = null;
+                
+                html += `
+                    <div class="tema-cuadros" id="tema-cuadros-${currentTema}">
+                        <div class="tema-cuadros-header">
+                            <h3>
+                                <span class="tema-numero">${currentTema}.</span>
+                                <span class="tema-titulo">${cuadro.tema_titulo}</span>
+                            </h3>
+                        </div>
+                `;
+            }
+
+            // Verificar si es un nuevo subtema
+            if (currentSubtema !== cuadro.orden_indice) {
+                // Cerrar subtema anterior si existe
+                if (currentSubtema !== null) {
+                    html += '</div>'; // Cerrar subtema-cuadros
+                }
+
+                // Nuevo subtema
+                currentSubtema = cuadro.orden_indice;
+                
+                html += `
+                    <div class="subtema-cuadros" id="subtema-cuadros-${currentTema}-${currentSubtema}">
+                        <div class="subtema-cuadros-header">
+                            <h4>
+                                <span class="subtema-codigo">${cuadro.clave_subtema}</span>
+                                <span class="subtema-titulo">${cuadro.subtema_titulo}</span>
+                            </h4>
+                        </div>
+                        <div class="cuadros-grid">
+                `;
+            }
+
+            // Agregar cuadro individual
+            html += `
+                <div class="cuadro-item" onclick="verCuadro(${cuadro.id}, '${cuadro.codigo}')">
+                    <div class="cuadro-header">
+                        <span class="cuadro-codigo">${cuadro.codigo}</span>
+                        <i class="bi bi-box-arrow-up-right cuadro-icon"></i>
+                    </div>
+                    <div class="cuadro-body">
+                        <h6 class="cuadro-titulo">${cuadro.titulo}</h6>
+                        <p class="cuadro-descripcion">${cuadro.descripcion || 'Sin descripción disponible'}</p>
+                    </div>
+                    <div class="cuadro-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar3"></i>
+                            ${cuadro.created_at ? new Date(cuadro.created_at).toLocaleDateString() : 'N/A'}
+                        </small>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Cerrar containers abiertos
+        if (currentSubtema !== null) {
+            html += '</div></div>'; // Cerrar cuadros-grid y subtema-cuadros
+        }
+        if (currentTema !== null) {
+            html += '</div>'; // Cerrar tema-cuadros
+        }
+
+        return html;
+    }
+
+    // FUNCIÓN: Sincronizar alturas (FALTABA ESTA FUNCIÓN)
+    function sincronizarAlturas() {
+        // Función para igualar alturas entre sidebar y content si es necesario
+        setTimeout(() => {
+            const sidebar = document.querySelector('.catalogo-sidebar');
+            const mainContent = document.querySelector('.catalogo-main-content');
+            
+            if (sidebar && mainContent) {
+                const sidebarHeight = sidebar.scrollHeight;
+                const contentHeight = mainContent.scrollHeight;
+                
+                console.log(`Alturas sincronizadas - Sidebar: ${sidebarHeight}px, Content: ${contentHeight}px`);
+            }
+        }, 500);
+    }
+
+    // FUNCIÓN: Toggle de tema (CORREGIDA - no duplicada)
     window.toggleTema = function(numeroTema) {
         const subtemasContainer = document.getElementById(`subtemas-${numeroTema}`);
         const chevron = document.querySelector(`[data-tema="${numeroTema}"] .tema-chevron`);
@@ -473,7 +587,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // FUNCIÓN: Expandir todos los temas
+    // FUNCIÓN: Expandir todos los temas (CORREGIDA)
     window.expandirTodo = function() {
         const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
         const allChevrons = document.querySelectorAll('.tema-chevron');
@@ -493,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // FUNCIÓN: Contraer todos los temas
+    // FUNCIÓN: Contraer todos los temas (CORREGIDA)
     window.contraerTodo = function() {
         const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
         const allChevrons = document.querySelectorAll('.tema-chevron');
@@ -513,57 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // FUNCIÓN MEJORADA: Focus en subtema con highlight mejorado
-    window.focusEnSubtema = function(numeroTema, ordenSubtema) {
-        console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
-        
-        // Limpiar highlights anteriores
-        document.querySelectorAll('.highlight-focus').forEach(el => {
-            el.classList.remove('highlight-focus');
-        });
-        
-        document.querySelectorAll('.subtema-item.active').forEach(el => {
-            el.classList.remove('active');
-        });
-        
-        // Marcar subtema activo en sidebar
-        const subtemaItemSidebar = document.querySelector(`[data-tema="${numeroTema}"][data-subtema="${ordenSubtema}"]`);
-        if (subtemaItemSidebar) {
-            subtemaItemSidebar.classList.add('active');
-        }
-        
-        // Buscar y hacer focus en el contenido
-        const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
-        const cuadrosContainer = document.getElementById('cuadros-container');
-        
-        if (subtemaElement && cuadrosContainer) {
-            cuadrosContainer.scrollTo({
-                top: subtemaElement.offsetTop - cuadrosContainer.offsetTop - 20,
-                behavior: 'smooth'
-            });
-            
-            subtemaElement.classList.add('highlight-focus');
-            
-            setTimeout(() => {
-                subtemaElement.classList.remove('highlight-focus');
-            }, 3000);
-        }
-    };
-
-    // Event listeners para botones de control
-    document.addEventListener('DOMContentLoaded', function() {
-        // Botones de control
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'btn-expandir-todo' || e.target.closest('#btn-expandir-todo')) {
-                expandirTodo();
-            }
-            
-            if (e.target.id === 'btn-contraer-todo' || e.target.closest('#btn-contraer-todo')) {
-                contraerTodo();
-            }
-        });
-    });
-
     // Event listeners para navegación
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -572,6 +635,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const section = this.getAttribute('data-section');
             loadContent(section);
         });
+    });
+    
+    // Event listeners para botones de control (CORREGIR UBICACIÓN)
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'btn-expandir-todo' || e.target.closest('#btn-expandir-todo')) {
+            expandirTodo();
+        }
+        
+        if (e.target.id === 'btn-contraer-todo' || e.target.closest('#btn-contraer-todo')) {
+            contraerTodo();
+        }
     });
     
     // CARGAR CONTENIDO INICIAL (con persistencia)
