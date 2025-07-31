@@ -101,7 +101,7 @@ class PublicController extends Controller
                 //'total_cuadros' => $cuadrosEstadisticos->count(),
                 
                 // PARA COMPATIBILIDAD CON EL JS EXISTENTE
-                //'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
+                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
                 'cuadros_estadisticos' => $cuadrosEstadisticos,
                 'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
                 /*'resumen' => [
