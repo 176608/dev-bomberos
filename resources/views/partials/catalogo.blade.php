@@ -9,25 +9,9 @@
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
         </div>
 
-        <div class="card bg-light">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
-                </h5>
-            </div>
-            <div class="card-body text-center">
-                <img src="imagenes/ejem.png" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
-                <div class="alert alert-light">
-                    <small>
-                        El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                    </small>
-                </div>
-            </div>
-        </div>
-
         <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
-        <!-- USAR ESTRUCTURA EXACTA QUE FUNCIONA EN SIGEM_ADMIN -->
+        <!-- ESTRUCTURA PRINCIPAL -->
         <div class="row mt-4">
             <div class="col-lg-4">
                 <div class="card bg-light">
@@ -67,89 +51,105 @@
     </div>
 </div>
 
-<!-- DEBUGGING TEMPORAL: Mostrar datos raw -->
-<div class="card mt-4 border-warning" id="debug-container" style="display: none;">
-    <div class="card-header bg-warning text-dark">
+<!-- DATOS RAW VISIBLES -->
+<div class="card mt-4 border-primary">
+    <div class="card-header bg-primary text-white">
         <h5 class="mb-0">
-            <i class="bi bi-bug me-2"></i>Debug: Datos Raw del Catálogo
-            <button type="button" class="btn btn-sm btn-outline-dark float-end" onclick="toggleDebug()">
+            <i class="bi bi-database me-2"></i>Datos Raw del Sistema
+            <button type="button" class="btn btn-sm btn-outline-light float-end" onclick="toggleRawData()">
                 <i class="bi bi-eye"></i> Mostrar/Ocultar
             </button>
         </h5>
     </div>
-    <div class="card-body" id="debug-content" style="display: none;">
+    <div class="card-body" id="raw-data-content">
         <div class="row">
             <div class="col-md-6">
-                <h6>Estructura del Catálogo:</h6>
-                <pre id="debug-estructura" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
+                <h6><i class="bi bi-journal-text"></i> Modelo Catalogo:</h6>
+                <pre id="catalogo-raw" class="bg-light p-3 border" style="max-height: 400px; overflow-y: auto; font-size: 12px;">
+                    Cargando datos del modelo Catalogo...
+                </pre>
             </div>
             <div class="col-md-6">
-                <h6>Cuadros Estadísticos:</h6>
-                <pre id="debug-cuadros" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
+                <h6><i class="bi bi-table"></i> Modelo CuadroEstadistico:</h6>
+                <pre id="cuadros-raw" class="bg-light p-3 border" style="max-height: 400px; overflow-y: auto; font-size: 12px;">
+                    Cargando datos del modelo CuadroEstadistico...
+                </pre>
             </div>
         </div>
+        
         <div class="row mt-3">
-            <div class="col-md-6">
-                <h6>Temas Detalle:</h6>
-                <pre id="debug-temas" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
-            </div>
-            <div class="col-md-6">
-                <h6>Estadísticas:</h6>
-                <div id="debug-stats" class="bg-light p-2"></div>
+            <div class="col-12">
+                <h6><i class="bi bi-bar-chart"></i> Estadísticas Generales:</h6>
+                <div id="stats-raw" class="bg-success text-white p-3 rounded">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h3 id="stat-temas">0</h3>
+                            <small>Total Temas</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 id="stat-subtemas">0</h3>
+                            <small>Total Subtemas</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 id="stat-cuadros">0</h3>
+                            <small>Total Cuadros</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Función para mostrar/ocultar debug
-function toggleDebug() {
-    const debugContainer = document.getElementById('debug-container');
-    const debugContent = document.getElementById('debug-content');
-    
-    if (debugContainer.style.display === 'none') {
-        debugContainer.style.display = 'block';
-        debugContent.style.display = 'block';
+// Función para mostrar/ocultar datos raw
+function toggleRawData() {
+    const content = document.getElementById('raw-data-content');
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
     } else {
-        debugContent.style.display = debugContent.style.display === 'none' ? 'block' : 'none';
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
     }
 }
 
-// Función para mostrar datos de debug (llamada desde sigem.js)
+// Función para mostrar datos raw (llamada desde sigem.js)
 function mostrarDebugData(data) {
-    const debugContainer = document.getElementById('debug-container');
-    const debugEstructura = document.getElementById('debug-estructura');
-    const debugCuadros = document.getElementById('debug-cuadros');
-    const debugTemas = document.getElementById('debug-temas');
-    const debugStats = document.getElementById('debug-stats');
+    console.log('=== MOSTRANDO DATOS RAW EN LA VISTA ===');
+    console.log('Data recibida:', data);
     
-    if (debugContainer && data) {
-        debugContainer.style.display = 'block';
-        
-        if (debugEstructura) {
-            debugEstructura.textContent = JSON.stringify(data.catalogo_estructurado, null, 2);
-        }
-        
-        if (debugCuadros) {
-            debugCuadros.textContent = JSON.stringify(data.cuadros_estadisticos?.slice(0, 10) || [], null, 2);
-        }
-        
-        if (debugTemas) {
-            debugTemas.textContent = JSON.stringify(data.temas_detalle, null, 2);
-        }
-        
-        if (debugStats) {
-            debugStats.innerHTML = `
-                <div><strong>Total Temas:</strong> ${data.total_temas || 0}</div>
-                <div><strong>Total Subtemas:</strong> ${data.total_subtemas || 0}</div>
-                <div><strong>Total Cuadros:</strong> ${data.total_cuadros || 0}</div>
-                <div><strong>Success:</strong> ${data.success ? '✅' : '❌'}</div>
-                <div><strong>Message:</strong> ${data.message || 'N/A'}</div>
-                <div><strong>Cuadros Array Length:</strong> ${data.cuadros_estadisticos?.length || 0}</div>
-            `;
-        }
+    // Mostrar modelo Catalogo
+    const catalogoRaw = document.getElementById('catalogo-raw');
+    if (catalogoRaw && data.catalogo_modelo) {
+        catalogoRaw.textContent = JSON.stringify(data.catalogo_modelo, null, 2);
     }
+    
+    // Mostrar modelo CuadroEstadistico
+    const cuadrosRaw = document.getElementById('cuadros-raw');
+    if (cuadrosRaw && data.cuadros_modelo) {
+        cuadrosRaw.textContent = JSON.stringify(data.cuadros_modelo.slice(0, 10), null, 2) + 
+                                 (data.cuadros_modelo.length > 10 ? '\n\n... y ' + (data.cuadros_modelo.length - 10) + ' más' : '');
+    }
+    
+    // Mostrar estadísticas
+    const statTemas = document.getElementById('stat-temas');
+    const statSubtemas = document.getElementById('stat-subtemas');
+    const statCuadros = document.getElementById('stat-cuadros');
+    
+    if (statTemas) statTemas.textContent = data.total_temas || 0;
+    if (statSubtemas) statSubtemas.textContent = data.total_subtemas || 0;
+    if (statCuadros) statCuadros.textContent = data.total_cuadros || 0;
+    
+    console.log('=== DATOS RAW MOSTRADOS EN LA VISTA ===');
 }
+
+// Auto-llamar cuando la página carga
+document.addEventListener('DOMContentLoaded', function() {
+    // Hacer visible por defecto
+    const content = document.getElementById('raw-data-content');
+    if (content) {
+        content.style.display = 'block';
+    }
+});
 </script>
 
 <style>

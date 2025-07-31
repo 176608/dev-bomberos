@@ -76,86 +76,65 @@ class PublicController extends Controller
     public function obtenerCatalogo()
     {
         try {
-            // VERIFICAR: Que los modelos existan
-            if (!class_exists('App\Models\SIGEM\Catalogo')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Modelo Catalogo no encontrado',
-                    'catalogo_estructurado' => [],
-                    'total_temas' => 0,
-                    'total_subtemas' => 0,
-                    'cuadros_estadisticos' => [],
-                    'total_cuadros' => 0,
-                    'temas_detalle' => []
-                ]);
-            }
-
-            if (!class_exists('App\Models\SIGEM\CuadroEstadistico')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Modelo CuadroEstadistico no encontrado',
-                    'catalogo_estructurado' => [],
-                    'total_temas' => 0,
-                    'total_subtemas' => 0,
-                    'cuadros_estadisticos' => [],
-                    'total_cuadros' => 0,
-                    'temas_detalle' => []
-                ]);
-            }
-
-            // Obtener estructura completa del catálogo
+            // === DATOS RAW SIMPLES ===
+            
+            // 1. Datos del modelo Catalogo
             $catalogoData = Catalogo::obtenerEstructuraCatalogo();
             
-            // Obtener resumen estadístico
-            $resumen = Catalogo::obtenerResumen();
-            
-            // AGREGAR: Obtener todos los cuadros estadísticos
+            // 2. Datos del modelo CuadroEstadistico
             $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
             
-            // DEBUGGING: Log de los datos antes de enviar
-            \Log::info('=== DEBUGGING CATÁLOGO ===');
-            \Log::info('Estructura catálogo:', $catalogoData);
-            \Log::info('Total temas en estructura:', $catalogoData['total_temas'] ?? 0);
-            \Log::info('Total subtemas en estructura:', $catalogoData['total_subtemas'] ?? 0);
-            \Log::info('Resumen:', $resumen);
-            \Log::info('Cuadros estadísticos count:', $cuadrosEstadisticos->count());
-            \Log::info('Primer cuadro (sample):', $cuadrosEstadisticos->first() ? $cuadrosEstadisticos->first()->toArray() : 'No hay cuadros');
-            \Log::info('=== FIN DEBUGGING ===');
-            
-            return response()->json([
+            // 3. Estructura simple para debug
+            $datosRaw = [
                 'success' => true,
-                'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
+                'message' => 'Datos raw del catálogo',
+                
+                // DATOS DEL MODELO CATALOGO
+                'catalogo_modelo' => $catalogoData,
+                
+                // DATOS DEL MODELO CUADROESTADISTICO
+                'cuadros_modelo' => $cuadrosEstadisticos->toArray(),
+                
+                // CONTEOS SIMPLES
                 'total_temas' => $catalogoData['total_temas'] ?? 0,
                 'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
-                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
-                'resumen' => $resumen,
-                'cuadros_estadisticos' => $cuadrosEstadisticos,
                 'total_cuadros' => $cuadrosEstadisticos->count(),
-                'message' => 'Catálogo cargado exitosamente'
-            ]);
+                
+                // PARA COMPATIBILIDAD CON EL JS EXISTENTE
+                'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
+                'cuadros_estadisticos' => $cuadrosEstadisticos,
+                'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
+                'resumen' => [
+                    'total_temas' => $catalogoData['total_temas'] ?? 0,
+                    'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
+                    'total_cuadros' => $cuadrosEstadisticos->count()
+                ]
+            ];
+            
+            // LOG SIMPLE
+            \Log::info('CATALOGO RAW DATA:', $datosRaw);
+            
+            return response()->json($datosRaw);
             
         } catch (\Exception $e) {
-            \Log::error('Error en obtenerCatalogo:', [
+            \Log::error('ERROR CATALOGO:', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cargar el catálogo: ' . $e->getMessage(),
-                'catalogo_estructurado' => [],
+                'message' => 'Error: ' . $e->getMessage(),
+                'catalogo_modelo' => null,
+                'cuadros_modelo' => [],
                 'total_temas' => 0,
                 'total_subtemas' => 0,
-                'cuadros_estadisticos' => [],
                 'total_cuadros' => 0,
                 'temas_detalle' => [],
-                'debug_info' => [
-                    'error_file' => $e->getFile(),
-                    'error_line' => $e->getLine(),
-                    'error_code' => $e->getCode()
-                ]
+                'cuadros_estadisticos' => [],
+                'catalogo_estructurado' => [],
+                'resumen' => []
             ]);
         }
     }
