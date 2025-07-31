@@ -1,62 +1,74 @@
 <div class="card shadow-sm">
-    <div class="card-body">
-        <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
-        </h2>
-
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
-        </div>
-
-        <div class="card bg-light mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Ejemplo de Clasificación
-                </h5>
-            </div>
-            <div class="card-body text-center">
-                <img src="{{ asset('imagenes/ejem.png') }}" alt="Ejemplo clave estadística" class="img-fluid mb-3 rounded shadow-sm" style="max-width: 100%; height: auto;">
-                <div class="alert alert-light">
-                    <small>
-                        El cuadro de "<strong>Población por Municipio</strong>" se encuentra dentro del Tema 3. Sociodemográfico en el subtema de <strong>Población</strong>.
-                    </small>
+    <div class="card-body p-0">
+        <!-- Header del Catálogo -->
+        <div class="catalogo-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="text-success mb-3 text-center">
+                            <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
+                        </h2>
+                        
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Sistema de clasificación:</strong> Los cuadros se identifican mediante una clave conformada por el número de tema, identificador del subtema y número de cuadro.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
-
-        <div class="row mt-4 catalogo-row">
-            <div class="col-lg-4">
-                <div class="card bg-light">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Estructura de Índice</h5>
+        <!-- Layout Principal: Sidebar + Content -->
+        <div class="catalogo-main-layout">
+            <!-- SIDEBAR: Índice de Navegación -->
+            <div class="catalogo-sidebar">
+                <div class="sidebar-header">
+                    <h5>
+                        <i class="bi bi-list-ul me-2"></i>
+                        Índice de Navegación
+                    </h5>
+                    <div class="sidebar-stats">
+                        <small class="text-muted">
+                            <span id="stats-temas">0</span> temas · 
+                            <span id="stats-subtemas">0</span> subtemas
+                        </small>
                     </div>
-                    <div class="card-body">
-                        <div id="indice-container">
-                            <div class="text-center py-3">
-                                <i class="bi bi-hourglass-split"></i>
-                                <p>Cargando índice...</p>
-                            </div>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div id="indice-container">
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Cargando índice...</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-8">
-                <div class="card bg-light">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="bi bi-table me-2"></i>Cuadros Estadísticos
-                        </h5>
+            <!-- MAIN CONTENT: Lista de Cuadros -->
+            <div class="catalogo-main-content">
+                <div class="content-header">
+                    <h5>
+                        <i class="bi bi-table me-2"></i>
+                        Cuadros Estadísticos
+                    </h5>
+                    <div class="content-controls">
+                        <button class="btn btn-sm btn-outline-primary" id="btn-expandir-todo">
+                            <i class="bi bi-arrows-expand"></i>
+                            Expandir Todo
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-contraer-todo">
+                            <i class="bi bi-arrows-collapse"></i>
+                            Contraer Todo
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <div id="cuadros-container">
-                            <div class="text-center py-3">
-                                <i class="bi bi-hourglass-split"></i>
-                                <p>Cargando cuadros...</p>
-                            </div>
+                </div>
+                
+                <div class="content-body">
+                    <div id="cuadros-container">
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Cargando cuadros...</p>
                         </div>
                     </div>
                 </div>
@@ -64,3 +76,289 @@
         </div>
     </div>
 </div>
+
+<style>
+/* === LAYOUT PRINCIPAL === */
+.catalogo-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.catalogo-main-layout {
+    display: flex;
+    min-height: 70vh;
+    background-color: #fff;
+}
+
+/* === SIDEBAR ÍNDICE === */
+.catalogo-sidebar {
+    flex: 0 0 320px;
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #2a6e48;
+    color: white;
+}
+
+.sidebar-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sidebar-stats {
+    margin-top: 5px;
+}
+
+.sidebar-stats .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.85rem;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* === MAIN CONTENT === */
+.catalogo-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Para que flex funcione bien */
+}
+
+.content-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.content-header h5 {
+    margin: 0;
+    color: #2a6e48;
+    font-weight: 600;
+}
+
+.content-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.content-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* === ESTILOS DEL ÍNDICE === */
+.tema-item {
+    margin-bottom: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.tema-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.tema-header {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tema-header:hover {
+    filter: brightness(1.1);
+}
+
+.tema-header.active {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.subtemas-list {
+    background: white;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.subtema-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.subtema-item:hover {
+    background: linear-gradient(90deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding-left: 16px;
+}
+
+.subtema-item.active {
+    background: linear-gradient(90deg, #d4edda 0%, #e8f5e8 100%);
+    border-left: 3px solid #2a6e48;
+    font-weight: 600;
+}
+
+.subtema-codigo {
+    flex: 0 0 50px;
+    font-weight: 600;
+    color: #2a6e48;
+    text-align: center;
+    border-right: 1px solid #e9ecef;
+    margin-right: 10px;
+    padding-right: 10px;
+    font-size: 0.8rem;
+}
+
+.subtema-titulo {
+    flex: 1;
+    color: #495057;
+    line-height: 1.3;
+}
+
+/* === LOADING STATES === */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2a6e48;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === EFECTOS DE FOCUS === */
+.highlight-focus {
+    background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%) !important;
+    border: 2px solid #ffc107 !important;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5) !important;
+    animation: pulseHighlight 1s ease-in-out;
+}
+
+@keyframes pulseHighlight {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+    .catalogo-sidebar {
+        flex: 0 0 280px;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .content-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .catalogo-main-layout {
+        flex-direction: column;
+    }
+    
+    .catalogo-sidebar {
+        flex: none;
+        max-height: 300px;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .sidebar-content {
+        max-height: 250px;
+    }
+    
+    .tema-header {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+    
+    .subtema-item {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+    
+    .content-header {
+        position: static;
+    }
+}
+
+@media (max-width: 576px) {
+    .catalogo-header {
+        padding: 15px;
+    }
+    
+    .catalogo-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .catalogo-header .alert {
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+    
+    .content-controls .btn {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+    
+    .content-controls .btn i {
+        font-size: 0.8rem;
+    }
+}
+
+/* === COLORES PARA TEMAS === */
+.tema-1 { background: linear-gradient(135deg, #8FBC8F 0%, #7AA87A 100%); }
+.tema-2 { background: linear-gradient(135deg, #87CEEB 0%, #6BB6E6 100%); }
+.tema-3 { background: linear-gradient(135deg, #DDA0DD 0%, #D280D2 100%); }
+.tema-4 { background: linear-gradient(135deg, #F0E68C 0%, #EDD76B 100%); }
+.tema-5 { background: linear-gradient(135deg, #FFA07A 0%, #FF8A5B 100%); }
+.tema-6 { background: linear-gradient(135deg, #98FB98 0%, #7FE57F 100%); }
+</style>

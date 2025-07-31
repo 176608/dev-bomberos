@@ -374,115 +374,195 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>`;
     }
 
-    // FUNCIÓN: Generar estructura de índice
+    // FUNCIÓN: Generar estructura de índice (NUEVA UI MODERNA)
     function generateEstructuraIndice(temasDetalle) {
-        let estructura = '<div style="font-size: 12px; overflow-y: auto;">';
+        let estructura = '';
+        let totalSubtemas = 0;
         
         temasDetalle.forEach((tema, temaIndex) => {
-            const colores = [
-                'background-color: #8FBC8F;',
-                'background-color: #87CEEB;',
-                'background-color: #DDA0DD;',
-                'background-color: #F0E68C;',
-                'background-color: #FFA07A;',
-                'background-color: #98FB98;'
-            ];
-            
-            const colorTema = colores[temaIndex % colores.length];
             const numeroTema = temaIndex + 1;
-
+            const temaClass = `tema-${numeroTema}`;
+            
+            // Contar subtemas
+            totalSubtemas += tema.subtemas ? tema.subtemas.length : 0;
+            
             estructura += `
-                <div class="mb-3" style="border: 1px solid #ddd;">
-                    <div class="text-center text-white fw-bold py-2" 
-                         style="${colorTema} cursor: pointer;" 
-                         onclick="focusEnTema(${numeroTema});">
-                        ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
+                <div class="tema-item" data-tema="${numeroTema}">
+                    <div class="tema-header ${temaClass}" 
+                         onclick="toggleTema(${numeroTema})"
+                         data-bs-toggle="tooltip" 
+                         title="Click para expandir/contraer">
+                        <span class="tema-numero">${numeroTema}.</span>
+                        <span class="tema-texto">${tema.tema_titulo.toUpperCase()}</span>
+                        <i class="bi bi-chevron-down tema-chevron" style="float: right;"></i>
                     </div>
-                    <div style="background-color: white;">
+                    
+                    <div class="subtemas-list" id="subtemas-${numeroTema}" style="display: none;">
             `;
 
             if (tema.subtemas && tema.subtemas.length > 0) {
                 tema.subtemas.forEach((subtema, subtemaIndex) => {
-                    const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
                     const ordenSubtema = subtema.orden_indice || subtemaIndex;
                     
                     estructura += `
-                        <div class="d-flex border-bottom" 
-                             style="${bgColor} cursor: pointer;"
-                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
-                            <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                        <div class="subtema-item" 
+                             onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema})"
+                             data-tema="${numeroTema}"
+                             data-subtema="${ordenSubtema}"
+                             title="Click para ir al subtema">
+                            <div class="subtema-codigo">
                                 ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                             </div>
-                            <div class="px-3 py-2 flex-grow-1">
+                            <div class="subtema-titulo">
                                 ${subtema.subtema_titulo}
                             </div>
                         </div>
                     `;
                 });
+            } else {
+                estructura += `
+                    <div class="subtema-item no-subtemas">
+                        <div class="subtema-titulo text-muted">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No hay subtemas disponibles
+                        </div>
+                    </div>
+                `;
             }
 
             estructura += '</div></div>';
         });
-
-        estructura += '</div>';
+        
+        // Actualizar estadísticas
+        setTimeout(() => {
+            document.getElementById('stats-temas').textContent = temasDetalle.length;
+            document.getElementById('stats-subtemas').textContent = totalSubtemas;
+        }, 100);
+        
         return estructura;
     }
 
-    // FUNCIÓN: Generar lista de cuadros (simplificada por ahora)
-    function generateListaCuadros(cuadrosEstadisticos) {
-        if (!cuadrosEstadisticos || cuadrosEstadisticos.length === 0) {
-            return '<div class="alert alert-warning">No hay cuadros estadísticos disponibles</div>';
-        }
-
-        let html = '<div style="overflow-y: auto;">';
+    // FUNCIÓN: Toggle de tema (expandir/contraer)
+    window.toggleTema = function(numeroTema) {
+        const subtemasContainer = document.getElementById(`subtemas-${numeroTema}`);
+        const chevron = document.querySelector(`[data-tema="${numeroTema}"] .tema-chevron`);
+        const temaHeader = document.querySelector(`[data-tema="${numeroTema}"] .tema-header`);
         
-        // Por ahora, mostrar lista simple
-        html += `<div class="alert alert-info">
-            <i class="bi bi-info-circle"></i>
-            Total de cuadros estadísticos: <strong>${cuadrosEstadisticos.length}</strong>
-        </div>`;
-        
-        // Lista básica de cuadros
-        html += '<div class="list-group">';
-        cuadrosEstadisticos.slice(0, 10).forEach(cuadro => { // Mostrar solo primeros 10
-            html += `
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</h6>
-                            <small class="text-muted">Código: ${cuadro.codigo_cuadro || 'N/A'}</small>
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')">
-                            Ver
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        
-        if (cuadrosEstadisticos.length > 10) {
-            html += `<div class="text-center mt-3">
-                <small class="text-muted">Mostrando 10 de ${cuadrosEstadisticos.length} cuadros</small>
-            </div>`;
-        }
-        
-        html += '</div>';
-        return html;
-    }
-
-    // FUNCIÓN: Sincronizar alturas
-    function sincronizarAlturas() {
-        setTimeout(() => {
-            const indiceContainer = document.getElementById('indice-container');
-            const cuadrosContainer = document.getElementById('cuadros-container');
+        if (subtemasContainer && chevron) {
+            const isHidden = subtemasContainer.style.display === 'none';
             
-            if (indiceContainer && cuadrosContainer) {
-                const alturaIndice = indiceContainer.scrollHeight;
-                cuadrosContainer.style.height = alturaIndice + 'px';
+            if (isHidden) {
+                // Expandir
+                subtemasContainer.style.display = 'block';
+                chevron.classList.remove('bi-chevron-down');
+                chevron.classList.add('bi-chevron-up');
+                temaHeader.classList.add('active');
+                
+                // Scroll suave hacia el tema
+                subtemasContainer.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            } else {
+                // Contraer
+                subtemasContainer.style.display = 'none';
+                chevron.classList.remove('bi-chevron-up');
+                chevron.classList.add('bi-chevron-down');
+                temaHeader.classList.remove('active');
             }
-        }, 100);
-    }
+        }
+    };
+
+    // FUNCIÓN: Expandir todos los temas
+    window.expandirTodo = function() {
+        const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
+        const allChevrons = document.querySelectorAll('.tema-chevron');
+        const allHeaders = document.querySelectorAll('.tema-header');
+        
+        allSubtemas.forEach(container => {
+            container.style.display = 'block';
+        });
+        
+        allChevrons.forEach(chevron => {
+            chevron.classList.remove('bi-chevron-down');
+            chevron.classList.add('bi-chevron-up');
+        });
+        
+        allHeaders.forEach(header => {
+            header.classList.add('active');
+        });
+    };
+
+    // FUNCIÓN: Contraer todos los temas
+    window.contraerTodo = function() {
+        const allSubtemas = document.querySelectorAll('[id^="subtemas-"]');
+        const allChevrons = document.querySelectorAll('.tema-chevron');
+        const allHeaders = document.querySelectorAll('.tema-header');
+        
+        allSubtemas.forEach(container => {
+            container.style.display = 'none';
+        });
+        
+        allChevrons.forEach(chevron => {
+            chevron.classList.remove('bi-chevron-up');
+            chevron.classList.add('bi-chevron-down');
+        });
+        
+        allHeaders.forEach(header => {
+            header.classList.remove('active');
+        });
+    };
+
+    // FUNCIÓN MEJORADA: Focus en subtema con highlight mejorado
+    window.focusEnSubtema = function(numeroTema, ordenSubtema) {
+        console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
+        
+        // Limpiar highlights anteriores
+        document.querySelectorAll('.highlight-focus').forEach(el => {
+            el.classList.remove('highlight-focus');
+        });
+        
+        document.querySelectorAll('.subtema-item.active').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Marcar subtema activo en sidebar
+        const subtemaItemSidebar = document.querySelector(`[data-tema="${numeroTema}"][data-subtema="${ordenSubtema}"]`);
+        if (subtemaItemSidebar) {
+            subtemaItemSidebar.classList.add('active');
+        }
+        
+        // Buscar y hacer focus en el contenido
+        const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
+        const cuadrosContainer = document.getElementById('cuadros-container');
+        
+        if (subtemaElement && cuadrosContainer) {
+            cuadrosContainer.scrollTo({
+                top: subtemaElement.offsetTop - cuadrosContainer.offsetTop - 20,
+                behavior: 'smooth'
+            });
+            
+            subtemaElement.classList.add('highlight-focus');
+            
+            setTimeout(() => {
+                subtemaElement.classList.remove('highlight-focus');
+            }, 3000);
+        }
+    };
+
+    // Event listeners para botones de control
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botones de control
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'btn-expandir-todo' || e.target.closest('#btn-expandir-todo')) {
+                expandirTodo();
+            }
+            
+            if (e.target.id === 'btn-contraer-todo' || e.target.closest('#btn-contraer-todo')) {
+                contraerTodo();
+            }
+        });
+    });
 
     // Event listeners para navegación
     navLinks.forEach(link => {
