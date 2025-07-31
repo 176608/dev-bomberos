@@ -1,6 +1,12 @@
 <?php
-include '../controllers/temaEstadistica_editarController.php';
+// =============================================================
+// Vista de ADMINISTRADOR - Editar Tema de Estadística
+// =============================================================
+// Este archivo permite modificar el nombre de un tema existente
+// dentro del módulo de Estadística. Solo accesible por el admin.
+// El controlador se encarga de recuperar y actualizar los datos.
 
+include '../controllers/temaEstadistica_editarController.php';
 ?>
 
 <!DOCTYPE html>

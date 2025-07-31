@@ -1,4 +1,6 @@
 <?php
+    // Vista pública con elementos condicionales para el usuario administrador.
+    // Todos pueden acceder, pero si hay sesión iniciada como 'admin', se muestra el nombre y el botón 'Cerrar sesión'.
     include '../controllers/sesionController.php';
 ?>
 <!DOCTYPE html>

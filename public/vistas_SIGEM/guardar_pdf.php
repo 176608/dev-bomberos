@@ -1,4 +1,9 @@
 <?php
+// 🔒 Vista restringida para administrador
+// Permite subir y reemplazar archivos PDF asociados a cuadros estadísticos
+// Solo ejecutable si el usuario con sesión activa es 'admin'
+?>
+<?php
 
 include '../models/conexion.php';
 include '../models/guardar_pdfModel.php';

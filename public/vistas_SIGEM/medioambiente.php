@@ -1,3 +1,6 @@
+<?php
+// 🌿 medioambiente.php — Vista del tema "Medio Ambiente" con cuadros estadísticos, descarga de PDF, edición de CSV y gráficas
+?>
 <?php 
 
 include '../controllers/medioAmbienteController.php';

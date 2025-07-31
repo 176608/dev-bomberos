@@ -1,4 +1,10 @@
 <?php
+// ⚠️ Vista pública dinámica mediante AJAX.
+// Este archivo devuelve HTML directamente (cuadros estadísticos con botones y tablas) al recibir un subtema_id por POST.
+// Está pensado para ser cargado dentro de otra vista, por ejemplo, en respuesta a una selección de subtema.
+// No tiene control de sesión ni requiere ser admin, por lo tanto es una VISTA PÚBLICA de solo consulta.
+?>
+<?php
 require_once '../models/conexion.php';
 
 if (!isset($_POST['subtema_id'])) {

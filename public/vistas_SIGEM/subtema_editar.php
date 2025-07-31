@@ -1,7 +1,14 @@
 <?php
+// =========================================================
+// VISTA DE ADMINISTRADOR - Edición de subtemas existentes
+// Esta vista permite modificar subtemas en el sistema,
+// por lo que debe estar protegida para uso exclusivo del
+// usuario con sesión 'admin'.
+// =========================================================
 
 include '../controllers/subtema_editarController.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

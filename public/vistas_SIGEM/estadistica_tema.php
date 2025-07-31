@@ -1,3 +1,11 @@
+
+<?php
+// 🔓 Vista pública con contenido dinámico por AJAX.
+// Muestra botones de subtemas y carga los cuadros estadísticos correspondientes sin requerir autenticación.
+// No permite modificar información, solo consultar.
+// Puede ser usada tanto por usuarios públicos como por admin.
+require_once '../controllers/estadisticaTemaController.php';
+?>
 <?php
 require_once '../controllers/estadisticaTemaController.php';
 ?>

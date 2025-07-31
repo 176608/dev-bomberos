@@ -1,4 +1,9 @@
 <?php
+// Vista Pública
+// Muestra temas geográficos y subtemas disponibles.
+// No permite acciones de modificación ni funciones exclusivas de administrador.
+?>
+<?php
 
     include '../controllers/geograficoController.php';
 

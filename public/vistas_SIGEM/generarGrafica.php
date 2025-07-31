@@ -1,4 +1,10 @@
 <?php
+// 🔐 Vista de tipo ADMIN
+// Muestra un formulario de parámetros para graficar datos de cuadros estadísticos, con edición dinámica y acceso a archivos.
+// La vista permite graficar, editar el título, elegir columnas y tipo de gráfica.
+// Aunque no modifica directamente archivos, su uso está pensado exclusivamente para usuarios con sesión activa y permisos especiales.
+?>
+<?php
 
 include '../controllers/generarGraficaController.php';
 

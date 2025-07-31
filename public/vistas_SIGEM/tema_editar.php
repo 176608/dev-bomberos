@@ -1,7 +1,14 @@
 <?php
-include '../controllers/tema_editarController.php';
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Editar Tema existente
+// ===========================================================
+// Esta vista permite al usuario con rol 'admin' editar el nombre
+// de un tema ya registrado en el sistema SIGEM.
+// Se conecta al controlador que obtiene los datos actuales del tema.
 
+include '../controllers/tema_editarController.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

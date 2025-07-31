@@ -1,5 +1,8 @@
 <?php
-
+// ⚙️ Vista privada de administración.
+// Esta página permite editar cuadros estadísticos (cambiar su nombre, código o ubicación de tema/subtema).
+// Solo debe estar accesible para el usuario 'admin'.
+// Se recomienda validar sesión y rol antes de mostrar el formulario.
 include '../controllers/cuadroEstadistico_editarController.php';
 ?>
 

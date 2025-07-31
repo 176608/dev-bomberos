@@ -1,8 +1,13 @@
 <?php
-
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Listado de Subtemas Estadísticos
+// ===========================================================
+// Muestra todos los subtemas de estadística registrados.
+// Incluye botones para agregar, editar o eliminar subtemas.
+// Esta vista debe estar protegida para uso exclusivo del usuario 'admin'.
 include '../controllers/subtemaEstadistica_Controller.php';
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

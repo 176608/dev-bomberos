@@ -1,4 +1,7 @@
 <?php
+// VISTA PÚBLICA — Este archivo obtiene los cuadros estadísticos relacionados con "Densidad de Población"
+// y se utiliza en secciones visibles al público en general (por ejemplo, localidades.php o densidad.php).
+
 require_once 'conexion.php';
 
 function obtenerCuadrosDensidad($codigo_like = '1.DP.%') {

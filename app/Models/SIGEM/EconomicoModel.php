@@ -1,4 +1,8 @@
 <?php
+// VISTA PÚBLICA — Este archivo contiene funciones que obtienen cuadros, temas y subtemas 
+// para ser mostrados en secciones visibles al público (como módulos temáticos del SIGEM).
+// No realiza inserciones ni eliminaciones en la base de datos.
+
 require_once 'conexion.php';
 
 function obtenerCuadrosPorSubtema($subtema_id) {
@@ -19,7 +23,6 @@ ORDER BY
     SUBSTRING_INDEX(SUBSTRING_INDEX(ce.codigo_cuadro, '.', 2), '.', -1), -- Parte alfabética (ECO)
     CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(ce.codigo_cuadro, '.', -2), '.', 1) AS UNSIGNED), -- Número principal
     CAST(SUBSTRING_INDEX(ce.codigo_cuadro, '.', -1) AS UNSIGNED); -- Decimal final, si existe
-
     ";
 
     $stmt = $conexion->prepare($sql);
@@ -27,7 +30,6 @@ ORDER BY
     $stmt->execute();
     return $stmt->get_result();
 }
-
 
 function obtenerSubtemasOrdenadosPorCuadro($conexion, $temaNombre) {
     $sql = "
@@ -44,7 +46,6 @@ ORDER BY
     CAST(SUBSTRING_INDEX(c.codigo_cuadro, '.', 1) AS UNSIGNED),            -- Parte numérica inicial
     SUBSTRING_INDEX(SUBSTRING_INDEX(c.codigo_cuadro, '.', -2), '.', 1),    -- Parte del medio (texto)
     CAST(SUBSTRING_INDEX(c.codigo_cuadro, '.', -1) AS UNSIGNED)            -- Parte final numérica
-
     ";
 
     $stmt = $conexion->prepare($sql);

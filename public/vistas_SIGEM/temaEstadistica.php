@@ -1,4 +1,13 @@
 <?php
+// =============================================================
+// Vista de ADMINISTRADOR - Listado de Temas de Estadística
+// =============================================================
+// Esta vista permite al administrador visualizar, agregar, editar
+// y eliminar temas relacionados con la sección de Estadística.
+// Se conecta con el controlador correspondiente para obtener
+// los datos desde la base de datos.
+
+include '../controllers/temaEstadistica_Controller.php';
 
 include '../controllers/temaEstadistica_Controller.php';
 

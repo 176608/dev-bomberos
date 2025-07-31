@@ -1,7 +1,14 @@
 <?php
+// ===========================================================
+// VISTA DE ADMINISTRADOR - Edición de subtema estadístico
+// Esta vista permite modificar un subtema existente,
+// por lo tanto, debe estar protegida para que solo el
+// usuario con sesión 'admin' pueda acceder.
+// ===========================================================
 
 include '../controllers/subtemaEstadistica_editarController.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

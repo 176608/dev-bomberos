@@ -1,4 +1,7 @@
 <?php
+// 🔓 Vista pública con detección de sesión y elementos condicionales para el administrador.
+// Este archivo muestra el menú principal de los temas estadísticos del SIGEM.
+// Cualquier usuario puede acceder, pero si el usuario es 'admin' se muestra su nombre y el botón "Cerrar sesión".
 include '../controllers/sesionController.php';
 ?>
 <!DOCTYPE html>

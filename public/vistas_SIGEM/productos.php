@@ -1,5 +1,9 @@
 <?php 
+// Inicia la sesión para poder acceder a variables como $_SESSION['usuario']
 session_start();
+
+// Asigna a la variable $usuario el nombre del usuario en sesión (si existe),
+// o "Público" en caso de que no haya sesión iniciada
 $usuario = $_SESSION['usuario'] ?? 'Público';
 ?>
 <!DOCTYPE html>

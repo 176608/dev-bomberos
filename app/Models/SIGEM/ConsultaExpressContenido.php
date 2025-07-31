@@ -1,4 +1,6 @@
 <?php
+// USO INTERNO — Este modelo puede ser utilizado tanto en vistas públicas como en vistas de administrador,
+// dependiendo del controlador o la vista Blade que lo utilice.
 
 namespace App\Models;
 

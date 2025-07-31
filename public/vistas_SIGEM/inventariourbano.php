@@ -1,3 +1,7 @@
+
+<?php
+// Vista pública con controles condicionales para el administrador
+?>
 <?php 
 
 include '../controllers/inventarioUrbanoController.php';

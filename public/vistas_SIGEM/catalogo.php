@@ -1,6 +1,8 @@
 <?php 
+    // Vista pública con detección de sesión para mostrar nombre de usuario o enlace a iniciar/cerrar sesión.
+    // Todos pueden acceder, pero si el usuario ha iniciado sesión (por ejemplo, el admin), se muestra su nombre y botón "Cerrar sesión".
     include '../controllers/catalogoController.php';
- ?>
+?>
 
 <!DOCTYPE html>
 <html lang="es">

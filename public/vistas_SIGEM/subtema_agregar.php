@@ -1,7 +1,13 @@
 <?php
-include '../controllers/subtema_agregarController.php';
+// ========================================================
+// VISTA DE ADMINISTRADOR - Agregar nuevo subtema
+// Esta vista permite crear subtemas nuevos, por lo tanto
+// debe ser accesible únicamente por el usuario 'admin'.
+// ========================================================
 
+include '../controllers/subtema_agregarController.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
