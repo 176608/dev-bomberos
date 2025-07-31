@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Cargar datos de catálogo (CORREGIDA para usar funciones de arriba)
+    // FUNCIÓN: Cargar datos de catálogo (ACTUALIZADA con debug visual)
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
@@ -540,16 +540,36 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`${baseUrl}/catalogo`)
             .then(response => response.json())
             .then(data => {
+                // === DEBUGGING: Mostrar datos raw ===
+                console.log('=== DATOS RAW DEL CATÁLOGO ===');
+                console.log('Response completa:', data);
+                console.log('Success:', data.success);
+                console.log('Total temas:', data.total_temas);
+                console.log('Total subtemas:', data.total_subtemas);
+                console.log('Total cuadros:', data.total_cuadros);
+                console.log('Estructura catálogo:', data.catalogo_estructurado);
+                console.log('Temas detalle:', data.temas_detalle);
+                console.log('Cuadros estadísticos (primeros 5):', data.cuadros_estadisticos?.slice(0, 5));
+                console.log('Cuadros estadísticos (total items):', data.cuadros_estadisticos?.length);
+                console.log('=== FIN DATOS RAW ===');
+                
+                // Mostrar debug visual en la página
+                if (typeof mostrarDebugData === 'function') {
+                    mostrarDebugData(data);
+                }
+                
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
                     const cuadrosContainer = document.getElementById('cuadros-container');
                     const cuadrosCount = document.getElementById('cuadros-count');
                     
                     if (indiceContainer && data.temas_detalle) {
+                        console.log('Generando estructura de índice con:', data.temas_detalle.length, 'temas');
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
                     }
                     
                     if (cuadrosContainer && data.cuadros_estadisticos) {
+                        console.log('Generando lista de cuadros con:', data.cuadros_estadisticos.length, 'cuadros');
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
                     }
                     
@@ -558,6 +578,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     sincronizarAlturas();
+                } else {
+                    console.error('Error en response:', data.message);
                 }
             })
             .catch(error => {

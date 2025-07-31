@@ -67,6 +67,91 @@
     </div>
 </div>
 
+<!-- DEBUGGING TEMPORAL: Mostrar datos raw -->
+<div class="card mt-4 border-warning" id="debug-container" style="display: none;">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+            <i class="bi bi-bug me-2"></i>Debug: Datos Raw del Catálogo
+            <button type="button" class="btn btn-sm btn-outline-dark float-end" onclick="toggleDebug()">
+                <i class="bi bi-eye"></i> Mostrar/Ocultar
+            </button>
+        </h5>
+    </div>
+    <div class="card-body" id="debug-content" style="display: none;">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Estructura del Catálogo:</h6>
+                <pre id="debug-estructura" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
+            </div>
+            <div class="col-md-6">
+                <h6>Cuadros Estadísticos:</h6>
+                <pre id="debug-cuadros" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h6>Temas Detalle:</h6>
+                <pre id="debug-temas" class="bg-light p-2" style="max-height: 300px; overflow-y: auto; font-size: 11px;"></pre>
+            </div>
+            <div class="col-md-6">
+                <h6>Estadísticas:</h6>
+                <div id="debug-stats" class="bg-light p-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para mostrar/ocultar debug
+function toggleDebug() {
+    const debugContainer = document.getElementById('debug-container');
+    const debugContent = document.getElementById('debug-content');
+    
+    if (debugContainer.style.display === 'none') {
+        debugContainer.style.display = 'block';
+        debugContent.style.display = 'block';
+    } else {
+        debugContent.style.display = debugContent.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Función para mostrar datos de debug (llamada desde sigem.js)
+function mostrarDebugData(data) {
+    const debugContainer = document.getElementById('debug-container');
+    const debugEstructura = document.getElementById('debug-estructura');
+    const debugCuadros = document.getElementById('debug-cuadros');
+    const debugTemas = document.getElementById('debug-temas');
+    const debugStats = document.getElementById('debug-stats');
+    
+    if (debugContainer && data) {
+        debugContainer.style.display = 'block';
+        
+        if (debugEstructura) {
+            debugEstructura.textContent = JSON.stringify(data.catalogo_estructurado, null, 2);
+        }
+        
+        if (debugCuadros) {
+            debugCuadros.textContent = JSON.stringify(data.cuadros_estadisticos?.slice(0, 10) || [], null, 2);
+        }
+        
+        if (debugTemas) {
+            debugTemas.textContent = JSON.stringify(data.temas_detalle, null, 2);
+        }
+        
+        if (debugStats) {
+            debugStats.innerHTML = `
+                <div><strong>Total Temas:</strong> ${data.total_temas || 0}</div>
+                <div><strong>Total Subtemas:</strong> ${data.total_subtemas || 0}</div>
+                <div><strong>Total Cuadros:</strong> ${data.total_cuadros || 0}</div>
+                <div><strong>Success:</strong> ${data.success ? '✅' : '❌'}</div>
+                <div><strong>Message:</strong> ${data.message || 'N/A'}</div>
+                <div><strong>Cuadros Array Length:</strong> ${data.cuadros_estadisticos?.length || 0}</div>
+            `;
+        }
+    }
+}
+</script>
+
 <style>
 /* === ESTILOS COPIADOS DE SIGEM_ADMIN QUE FUNCIONAN === */
 .loading-state {

@@ -85,6 +85,16 @@ class PublicController extends Controller
             // AGREGAR: Obtener todos los cuadros estadísticos
             $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
             
+            // DEBUGGING: Log de los datos antes de enviar
+            \Log::info('=== DEBUGGING CATÁLOGO ===');
+            \Log::info('Estructura catálogo:', $catalogoData);
+            \Log::info('Total temas en estructura:', $catalogoData['total_temas']);
+            \Log::info('Total subtemas en estructura:', $catalogoData['total_subtemas']);
+            \Log::info('Resumen:', $resumen);
+            \Log::info('Cuadros estadísticos count:', $cuadrosEstadisticos->count());
+            \Log::info('Primer cuadro (sample):', $cuadrosEstadisticos->first() ? $cuadrosEstadisticos->first()->toArray() : 'No hay cuadros');
+            \Log::info('=== FIN DEBUGGING ===');
+            
             return response()->json([
                 'success' => true,
                 'catalogo_estructurado' => $catalogoData['estructura'],
@@ -98,6 +108,11 @@ class PublicController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('Error en obtenerCatalogo:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar el catálogo: ' . $e->getMessage(),
