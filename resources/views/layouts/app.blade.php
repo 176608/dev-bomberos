@@ -184,8 +184,8 @@
                     <ul class="navbar-nav me-auto">
                         <!-- Información Pública (siempre visible SOLO para usuarios autenticados) -->
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
-                               href="{{ route('dashboard') }}" title="Panel de Consulta de hidrantes">
+                            <a class="nav-link {{ request()->routeIs('consultor.dashboard') ? 'active' : '' }}" 
+                               href="{{ route('consultor.dashboard') }}" title="Panel de Consulta de hidrantes">
                                 <i class="bi bi-binoculars-fill"></i> Consultor
                             </a>
                         </li>

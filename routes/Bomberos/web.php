@@ -9,7 +9,10 @@ use App\Http\Controllers\Bomberos\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 // Ruta principal - Dashboard público
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+//Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+// ALTERNATIVA: Si hay conflicto, usar ruta específica
+Route::get('/consultor', [DashboardController::class, 'index'])->name('consultor.dashboard');
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
