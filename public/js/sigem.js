@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas (CORREGIR ESCAPE)
+    // FUNCIÓN: Generar HTML para mapas (VERSIÓN ROBUSTA)
     function generateMapasHtml(data) {
         let html = `
             <div class="mb-3">
@@ -241,9 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (data.mapas && data.mapas.length > 0) {
             data.mapas.forEach((mapa, index) => {
-                // CORREGIR: Generar placeholder escapado aquí
-                const placeholderEscapado = getImagePlaceholderEscapado(mapa).replace(/'/g, "\\'").replace(/"/g, '\\"');
-                
                 html += `
                     <div class="row">
                         <div class="col-12">
@@ -281,11 +278,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onerror="this.parentNode.innerHTML='${placeholderEscapado}'"
+                                                  onload="console.log('Imagen cargada: ${mapa.icono}')"
+                                                  onerror="console.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
                                              >
                                              <div class="mapa-image-overlay">
                                                 <i class="bi bi-zoom-in me-2"></i>
                                                 Ver Mapa Completo
+                                             </div>
+                                             <div class="image-error-placeholder" style="display: none;">
+                                                <div class="mapa-image-placeholder">
+                                                    <i class="bi bi-image"></i>
+                                                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                                                    <p>Error al cargar imagen</p>
+                                                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
+                                                </div>
                                              </div>` 
                                             : 
                                             getImagePlaceholder(mapa)
@@ -312,17 +318,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                             : ''
                                         }
                                         
-                                        <!-- DEBUG: Mostrar URL de imagen -->
+                                        <!-- DEBUG: Mostrar información de imagen -->
                                         ${mapa.imagen_url ? 
                                             `<div class="mt-2">
-                                                <small class="text-info">
+                                                <small class="text-info d-block">
                                                     <i class="bi bi-link-45deg"></i>
                                                     URL: ${mapa.imagen_url}
                                                 </small>
-                                                <br>
-                                                <small class="text-warning">
+                                                <small class="text-warning d-block">
                                                     <i class="bi bi-file-earmark-image"></i>
                                                     Archivo: ${mapa.icono || 'N/A'}
+                                                </small>
+                                                <small class="text-success d-block">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Existe físicamente: ${mapa.archivo_existe ? 'Sí' : 'No'}
                                                 </small>
                                             </div>` 
                                             : ''
@@ -351,9 +360,40 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror (SIMPLIFICADO)
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
+    function getImagePlaceholder(mapa) {
+        return `
+            <div class="mapa-image-placeholder">
+                <i class="bi bi-image"></i>
+                <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                <p>
+                    ${mapa.icono ? 
+                        'Error al cargar imagen' : 
+                        'Sin imagen disponible'
+                    }
+                </p>
+                ${mapa.enlace ? 
+                    `<small class="text-primary">
+                        <i class="bi bi-cursor-fill"></i>
+                        Haz clic para ver mapa
+                    </small>` 
+                    : 
+                    `<small class="text-muted">
+                        Mapa no disponible
+                    </small>`
+                }
+            </div>
+        `;
+    }
+
+    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror
     function getImagePlaceholderEscaped(mapa) {
-        return `<div class="mapa-image-placeholder"><i class="bi bi-image"></i><h5>${mapa.nombre_mapa || 'Mapa'}</h5><p>Error al cargar imagen</p><small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small></div>`;
+        return `<div class="mapa-image-placeholder">
+                    <i class="bi bi-image"></i>
+                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                    <p>Error al cargar imagen</p>
+                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
+                </div>`;
     }
 
     // FUNCIÓN: Generar estructura de índice
