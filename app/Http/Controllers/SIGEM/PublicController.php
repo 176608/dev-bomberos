@@ -95,7 +95,7 @@ class PublicController extends Controller
                 // DATOS DEL MODELO CUADROESTADISTICO
                 'cuadros_modelo' => $cuadrosEstadisticos->toArray(),
                 
-                // CONTEOS SIMPLES
+                /*// CONTEOS SIMPLES
                 'total_temas' => $catalogoData['total_temas'] ?? 0,
                 'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
                 'total_cuadros' => $cuadrosEstadisticos->count(),
@@ -108,7 +108,7 @@ class PublicController extends Controller
                     'total_temas' => $catalogoData['total_temas'] ?? 0,
                     'total_subtemas' => $catalogoData['total_subtemas'] ?? 0,
                     'total_cuadros' => $cuadrosEstadisticos->count()
-                ]
+                ]*/
             ];
             
             // LOG SIMPLE

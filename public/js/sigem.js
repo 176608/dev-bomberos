@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
         const catalogoUrl = `${baseUrl}/catalogo`;
-        console.log('Intentando cargar catálogo desde:', catalogoUrl);
+        //console.log('Intentando cargar catálogo desde:', catalogoUrl);
         
         fetch(catalogoUrl)
             .then(response => {
@@ -921,6 +921,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // CARGAR CONTENIDO INICIAL (con persistencia)
     const initialSection = getCurrentSection();
-    console.log(`Sección inicial: ${initialSection}`);
     loadContent(initialSection);
 });
