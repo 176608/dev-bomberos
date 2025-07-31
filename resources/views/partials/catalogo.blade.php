@@ -9,10 +9,8 @@
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
         </div>
 
-        <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
-
         <!-- ESTRUCTURA PRINCIPAL -->
-        <div class="row mt-4 catalogo-row">
+        <div class="row mt-4">
             <div class="col-lg-4">
                 <div class="card bg-light h-100">
                     <div class="card-header bg-success text-white">
@@ -223,100 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     100% { transform: rotate(360deg); }
 }
 
-/* === ESTILOS PARA ÍNDICE DESPLEGADO (copiados del admin) === */
-#indice-container {
-    overflow-y: auto;
-    scroll-behavior: smooth;
-}
-
-.indice-tema-container {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    overflow: hidden;
-}
-
-.indice-tema-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.indice-tema-header:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.indice-subtema-row {
-    display: flex;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.indice-subtema-row:hover {
-    background-color: #e8f4f8 !important;
-    transform: translateX(5px);
-}
-
-.indice-subtema-row:last-child {
-    border-bottom: none;
-}
-
-.indice-subtema-codigo {
-    padding: 8px 15px;
-    min-width: 60px;
-    border-right: 1px solid #ddd;
-    font-weight: bold;
-    text-align: center;
-    background-color: rgba(0,0,0,0.05);
-}
-
-.indice-subtema-titulo {
-    padding: 8px 15px;
-    flex: 1;
-}
-
-/* === ALTURAS SINCRONIZADAS === */
-.catalogo-row {
-    align-items: stretch;
-}
-
-.catalogo-row .card {
-    height: 100%;
-}
-
-.catalogo-row .card-body {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-/* === SCROLLBARS PERSONALIZADOS === */
-#indice-container::-webkit-scrollbar,
-#cuadros-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-#indice-container::-webkit-scrollbar-track,
-#cuadros-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-#indice-container::-webkit-scrollbar-thumb,
-#cuadros-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-#indice-container::-webkit-scrollbar-thumb:hover,
-#cuadros-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
 /* === SISTEMA DE FOCUS/HIGHLIGHT === */
 .highlight-focus {
     background-color: #fff3cd !important;
@@ -342,18 +246,80 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
+/* === EFECTOS HOVER MEJORADOS === */
+.indice-tema-header:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+    z-index: 5;
+    position: relative;
+}
+
+.indice-subtema-row:hover {
+    background-color: #e8f4f8 !important;
+    transform: translateX(5px) !important;
+    z-index: 3;
+    position: relative;
+}
+
+.cuadro-item-row:hover {
+    background-color: #e3f2fd !important;
+    transform: translateX(5px) !important;
+    z-index: 3;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* === ALTURAS SINCRONIZADAS === */
+.catalogo-row {
+    align-items: stretch;
+}
+
+.catalogo-row .card {
+    height: 100%;
+}
+
+.catalogo-row .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#indice-container, #cuadros-container {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* === SCROLLBARS PERSONALIZADOS === */
+#indice-container::-webkit-scrollbar,
+#cuadros-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#indice-container::-webkit-scrollbar-track,
+#cuadros-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#indice-container::-webkit-scrollbar-thumb,
+#cuadros-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#indice-container::-webkit-scrollbar-thumb:hover,
+#cuadros-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 /* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
     .catalogo-row .card-body > div {
         max-height: 400px !important;
     }
     
-    .indice-tema-header {
+    .indice-tema-header,
+    .cuadro-item-row {
         font-size: 11px;
-    }
-    
-    .indice-subtema-titulo {
-        font-size: 12px;
     }
 }
 
@@ -361,5 +327,41 @@ document.addEventListener('DOMContentLoaded', function() {
     .catalogo-row .card-body > div {
         max-height: 300px !important;
     }
+    
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* === ESTILOS ADICIONALES PARA MEJORAR LA APARIENCIA === */
+.indice-tema-container {
+    transition: all 0.3s ease;
+}
+
+.indice-tema-container:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cuadro-item-row code {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.btn-outline-primary:hover {
+    transform: scale(1.1);
+}
+
+/* === MEJORAS VISUALES === */
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+
+.text-success {
+    color: #2a6e48 !important;
+}
+
+.alert-info {
+    border-left: 4px solid #17a2b8;
 }
 </style>

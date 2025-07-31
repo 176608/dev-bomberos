@@ -73,60 +73,58 @@ function verCuadro(cuadroId, codigo) {
 
 // FUNCIÓN EXACTA del sigem_admin que funciona
 function generateEstructuraIndice(temasDetalle) {
-    console.log('=== GENERANDO ÍNDICE DESPLEGADO ===');
-    console.log('Temas recibidos:', temasDetalle);
-    
     let estructura = `
-        <div style="padding: 15px;">
-            <p class="text-center mb-3" style="font-size: 12px; font-weight: bold;">
-                Son ${temasDetalle.length} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos
-            </p>
+        <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
+            <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
     `;
 
-    // Array de colores que se repite cíclicamente
-    const colores = [
-        { bg: '#8FBC8F', text: 'white' }, // Verde claro
-        { bg: '#87CEEB', text: 'white' }, // Azul cielo
-        { bg: '#DDA0DD', text: 'white' }, // Púrpura claro
-        { bg: '#F0E68C', text: 'black' }, // Amarillo claro
-        { bg: '#FFA07A', text: 'white' }, // Salmón
-        { bg: '#98FB98', text: 'black' }  // Verde pálido
-    ];
-
     temasDetalle.forEach((tema, temaIndex) => {
+        // Determinar el color del header basado en el número de tema
+        const colores = [
+            'background-color: #8FBC8F;', // Verde claro
+            'background-color: #87CEEB;', // Azul cielo
+            'background-color: #DDA0DD;', // Púrpura claro
+            'background-color: #F0E68C;', // Amarillo claro
+            'background-color: #FFA07A;', // Salmón
+            'background-color: #98FB98;'  // Verde pálido
+        ];
+        
         const colorTema = colores[temaIndex % colores.length];
         const numeroTema = temaIndex + 1;
 
         estructura += `
-            <div class="indice-tema-container">
+            <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
                 <!-- Header del tema -->
-                <div class="indice-tema-header" 
-                     style="background-color: ${colorTema.bg}; color: ${colorTema.text};" 
+                <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                     style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
                      data-tema="${numeroTema}"
+                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                      onclick="focusEnTema(${numeroTema});">
                     ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                 </div>
                 
-                <!-- Subtemas SIEMPRE VISIBLES (desplegados) -->
                 <div style="background-color: white;">
         `;
 
         if (tema.subtemas && tema.subtemas.length > 0) {
             tema.subtemas.forEach((subtema, subtemaIndex) => {
                 // Alternar colores de fondo para las filas
-                const bgColor = subtemaIndex % 2 === 0 ? '#f8f9fa' : 'white';
-                const ordenSubtema = subtema.orden_indice || (subtemaIndex + 1);
+                const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
                 
                 estructura += `
-                    <div class="indice-subtema-row" 
-                         style="background-color: ${bgColor};"
+                    <div class="d-flex border-bottom indice-subtema-row" 
+                         style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
                          data-tema="${numeroTema}" 
                          data-subtema="${ordenSubtema}"
+                         onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                         onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
                          onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
-                        <div class="indice-subtema-codigo">
+                        <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                             ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
                         </div>
-                        <div class="indice-subtema-titulo">
+                        <div class="px-3 py-2 flex-grow-1">
                             ${subtema.subtema_titulo}
                         </div>
                     </div>
@@ -134,8 +132,8 @@ function generateEstructuraIndice(temasDetalle) {
             });
         } else {
             estructura += `
-                <div style="padding: 15px; color: #666; font-style: italic; text-align: center;">
-                    Sin subtemas disponibles
+                <div class="px-3 py-2 text-muted">
+                    <em>Sin subtemas disponibles</em>
                 </div>
             `;
         }
@@ -147,8 +145,6 @@ function generateEstructuraIndice(temasDetalle) {
     });
 
     estructura += `</div>`;
-    
-    console.log('=== ÍNDICE GENERADO ===');
     return estructura;
 }
 
@@ -260,29 +256,30 @@ function sincronizarAlturas() {
         const cuadrosContainer = document.getElementById('cuadros-container');
         
         if (indiceContainer && cuadrosContainer) {
-            // 1. RESETEAR: Permitir que ambos tengan altura automática
+            // 1. RESETEAR: Permitir que el índice tenga su altura natural
             indiceContainer.style.height = 'auto';
             cuadrosContainer.style.height = 'auto';
             
-            // 2. MEDIR: Las alturas naturales de ambos contenidos
+            // 2. MEDIR: La altura natural del contenido del índice
             const alturaIndice = indiceContainer.scrollHeight;
-            const alturaCuadros = cuadrosContainer.scrollHeight;
             
-            // 3. APLICAR: La altura máxima a ambos contenedores
-            const alturaMaxima = Math.max(alturaIndice, alturaCuadros);
-            const alturaMinima = 500; // píxeles mínimos
+            // 3. APLICAR: La altura del índice al contenedor de cuadros
+            // El índice mantiene su altura natural, los cuadros se ajustan a esa altura
+            cuadrosContainer.style.height = alturaIndice + 'px';
             
-            const alturaFinal = Math.max(alturaMaxima, alturaMinima);
-            
-            indiceContainer.style.height = alturaFinal + 'px';
-            cuadrosContainer.style.height = alturaFinal + 'px';
-            
-            console.log(`=== ALTURAS SINCRONIZADAS ===`);
-            console.log(`Índice natural: ${alturaIndice}px`);
-            console.log(`Cuadros natural: ${alturaCuadros}px`);
-            console.log(`Altura aplicada: ${alturaFinal}px`);
+            // 4. OPCIONAL: Aplicar altura mínima si el contenido es muy pequeño
+            const alturaMinima = 300; // píxeles mínimos
+            if (alturaIndice < alturaMinima) {
+                const alturaFinal = alturaMinima + 'px';
+                indiceContainer.style.height = alturaFinal;
+                cuadrosContainer.style.height = alturaFinal;
+            } else {
+                // El índice mantiene altura automática, cuadros siguen al índice
+                indiceContainer.style.height = 'auto';
+                cuadrosContainer.style.height = alturaIndice + 'px';
+            }
         }
-    }, 200); // Dar tiempo para que el DOM se actualice
+    }, 100);
 }
 
 // FUNCIÓN EXACTA del sigem_admin que funciona
@@ -577,9 +574,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (cuadrosCount) {
                         cuadrosCount.textContent = `${data.total_cuadros || 0} cuadros`;
                     }
-                    
-                    // IMPORTANTE: Sincronizar alturas después de cargar
-                    sincronizarAlturas();
                 }
             })
             .catch(error => {
