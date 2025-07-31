@@ -1,71 +1,26 @@
-/*function focusEnTema(numeroTema) {
-    console.log(`Focus en tema: ${numeroTema}`);
-    
-    const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
-    const cuadrosContainer = document.getElementById('cuadros-container');
-    
-    if (temaElement && cuadrosContainer) {
-        // Remover highlights previos
-        document.querySelectorAll('.highlight-focus').forEach(el => {
-            el.classList.remove('highlight-focus');
-        });
-        
-        // Scroll al tema en el contenedor de cuadros
-        cuadrosContainer.scrollTo({
-            top: temaElement.offsetTop - cuadrosContainer.offsetTop,
-            behavior: 'smooth'
-        });
-        
-        // Agregar highlight temporal
-        temaElement.classList.add('highlight-focus');
-        
-        // Remover highlight después de 3 segundos
-        setTimeout(() => {
-            temaElement.classList.remove('highlight-focus');
-        }, 3000);
-    } else {
-        console.warn(`No se encontró elemento para tema ${numeroTema}. TemaElement:`, temaElement, 'CuadrosContainer:', cuadrosContainer);
-    }
-}
+/*
 
-    function focusEnSubtema(numeroTema, ordenSubtema) {
-    console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
-    
-    const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
-    const cuadrosContainer = document.getElementById('cuadros-container');
-    
-    if (subtemaElement && cuadrosContainer) {
-        // Remover highlights previos
-        document.querySelectorAll('.highlight-focus').forEach(el => {
-            el.classList.remove('highlight-focus');
-        });
-        
-        // Scroll al subtema en el contenedor de cuadros
-        cuadrosContainer.scrollTo({
-            top: subtemaElement.offsetTop - cuadrosContainer.offsetTop,
-            behavior: 'smooth'
-        });
-        
-        // Agregar highlight temporal
-        subtemaElement.classList.add('highlight-focus');
-        
-        // Remover highlight después de 3 segundos
-        setTimeout(() => {
-            subtemaElement.classList.remove('highlight-focus');
-        }, 3000);
-    } else {
-        console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
-    }
-}
-
-// ACTUALIZAR: Función verCuadro para abrir nueva pestaña
+// Esta este
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
     
     // Abrir nueva pestaña con el cuadro específico
     const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');}
+
+    //Estaba este
+function verCuadro(cuadroId, codigo) {
+    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
+    
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    const url = `${baseUrl}/estadistica/${cuadroId}`;
+    
     window.open(url, '_blank');
-}*/
+}
+
+    
+*/
 
 // === FUNCIONES GLOBALES ORIGINALES (únicas, no duplicadas) ===
 function focusEnTema(numeroTema) {
@@ -131,12 +86,9 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
     
-    const baseUrl = window.SIGEM_BASE_URL || 
-                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    const url = `${baseUrl}/estadistica/${cuadroId}`;
-    
-    window.open(url, '_blank');
-}
+    // Abrir nueva pestaña con el cuadro específico
+    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
+    window.open(url, '_blank');}
 
 // === FUNCIONES DE GENERACIÓN HTML (copiadas exactas del sigem_admin) ===
 
