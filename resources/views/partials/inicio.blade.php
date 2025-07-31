@@ -13,49 +13,19 @@
                     Está dirigido a dependencias del sector público y privado, el sector educativo, organizaciones de la sociedad civil y al público en general. Tiene el propósito de apoyar la toma de decisiones para la gestión, diseño e instrumentación de políticas públicas, en beneficio de los habitantes del Municipio de  Juárez.
                 </p>
                 <p class="lead">
-                    Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en dos módulos:
+                    Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en tres módulos:
                 </p>
             </div>
         </div>
 
-        <!-- ESTADÍSTICAS GENERALES -->
-        <div class="row mb-4" id="estadisticas-container">
-            <div class="col-md-4">
-                <div class="card text-center bg-success text-white">
-                    <div class="card-body">
-                        <i class="bi bi-folder-fill fs-1"></i>
-                        <h4 class="mt-2 mb-1" id="stat-temas">-</h4>
-                        <p class="mb-0">Temas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center bg-primary text-white">
-                    <div class="card-body">
-                        <i class="bi bi-collection-fill fs-1"></i>
-                        <h4 class="mt-2 mb-1" id="stat-subtemas">-</h4>
-                        <p class="mb-0">Subtemas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center bg-info text-white">
-                    <div class="card-body">
-                        <i class="bi bi-table fs-1"></i>
-                        <h4 class="mt-2 mb-1" id="stat-cuadros">-</h4>
-                        <p class="mb-0">Cuadros</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- SECCIONES PRINCIPALES -->
         <div class="row mb-4">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0">
-                            <i class="bi bi-journal-text me-2"></i>Catálogo de Cuadros
+                            <i class="bi bi-journal-text me-2"></i>Catálogo
                         </h5>
                     </div>
                     <div class="card-body">
@@ -66,7 +36,22 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-map-fill me-2"></i>Estadística
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>menu navegable de cuadros estadisticos por tema y subtema.</p>
+                        <button class="btn btn-primary" onclick="loadContent('estadistica')">
+                            <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
