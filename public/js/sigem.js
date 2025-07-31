@@ -817,6 +817,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // *** AGREGAR AL FINAL DEL DOMContentLoaded: ***
+    // EXPONER FUNCIONES AL SCOPE GLOBAL para usar en onclick
+    window.loadContent = loadContent;
+    window.loadInicioData = loadInicioData;
+    
     // CARGAR CONTENIDO INICIAL (con persistencia)
     const initialSection = getCurrentSection();
     loadContent(initialSection);
