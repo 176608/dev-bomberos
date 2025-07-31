@@ -109,7 +109,7 @@ class PublicController extends Controller
             // Obtener resumen estadístico
             $resumen = Catalogo::obtenerResumen();
             
-            // Obtener todos los cuadros estadísticos
+            // AGREGAR: Obtener todos los cuadros estadísticos
             $cuadrosEstadisticos = CuadroEstadistico::obtenerTodos();
             
             // DEBUGGING: Log de los datos antes de enviar
