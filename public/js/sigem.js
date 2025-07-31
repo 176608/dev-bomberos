@@ -188,7 +188,6 @@ function generateListaCuadros(cuadrosEstadisticos) {
                     ${numeroTema}. ${tema.nombre.toUpperCase()}
                 </div>
                 
-                <!-- Subtemas y cuadros -->
                 <div style="background-color: white;">
         `;
 
@@ -561,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     const indiceContainer = document.getElementById('indice-container');
                     const cuadrosContainer = document.getElementById('cuadros-container');
-                    const cuadrosCount = document.getElementById('cuadros-count');
+                    //const cuadrosCount = document.getElementById('cuadros-count');
                     
                     if (indiceContainer && data.temas_detalle) {
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
@@ -571,9 +570,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
                     }
                     
-                    if (cuadrosCount) {
+                    /*if (cuadrosCount) {
                         cuadrosCount.textContent = `${data.total_cuadros || 0} cuadros`;
-                    }
+                    }*/
                 }
             })
             .catch(error => {
