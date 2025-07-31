@@ -89,13 +89,6 @@ class PublicController extends Controller
                 'success' => true,
                 'message' => 'Datos raw del catálogo',
                 
-                // DATOS DEL MODELO CATALOGO
-                //'catalogo_modelo' => $catalogoData,
-                
-                // DATOS DEL MODELO CUADROESTADISTICO
-                //'cuadros_modelo' => $cuadrosEstadisticos->toArray(),
-                
-                // PARA COMPATIBILIDAD CON EL JS EXISTENTE
                 'temas_detalle' => $catalogoData['temas_detalle'] ?? [],
                 'catalogo_estructurado' => $catalogoData['estructura'] ?? [],
                 'cuadros_estadisticos' => $cuadrosEstadisticos,

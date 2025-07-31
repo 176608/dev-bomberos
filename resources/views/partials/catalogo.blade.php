@@ -34,6 +34,9 @@
             <div class="col-lg-8">
                 <div class="card bg-light h-100">
                     <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2"></i>Cuadros Estadísticos
+                        </h5>
                     </div>
                     <div class="card-body p-0">
                         <div id="cuadros-container" style="max-height: 600px; overflow-y: auto;">
