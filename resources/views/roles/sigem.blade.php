@@ -1,4 +1,4 @@
-<!-- No eliminar -->
+<!-- SIGEM PUNTO BLADE PUNTO PHP -->
 @extends('layouts.asigem')
 
 @section('dynamic_content')
