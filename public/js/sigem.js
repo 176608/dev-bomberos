@@ -1,27 +1,3 @@
-/*
-
-// Esta este
-function verCuadro(cuadroId, codigo) {
-    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-    
-    // Abrir nueva pestaña con el cuadro específico
-    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
-    window.open(url, '_blank');}
-
-    //Estaba este
-function verCuadro(cuadroId, codigo) {
-    console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-    
-    const baseUrl = window.SIGEM_BASE_URL || 
-                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    const url = `${baseUrl}/estadistica/${cuadroId}`;
-    
-    window.open(url, '_blank');
-}
-
-    
-*/
-
 // === FUNCIONES GLOBALES ORIGINALES (únicas, no duplicadas) ===
 function focusEnTema(numeroTema) {
     console.log(`Focus en tema: ${numeroTema}`);
@@ -86,9 +62,12 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
     
-    // Abrir nueva pestaña con el cuadro específico
-    const url = `{{ route('sigem.laravel.cuadro', ['cuadro_id' => ':cuadro_id']) }}`.replace(':cuadro_id', cuadroId);
-    window.open(url, '_blank');}
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    const url = `${baseUrl}/estadistica/${cuadroId}`;
+    
+    window.open(url, '_blank');
+}
 
 // === FUNCIONES DE GENERACIÓN HTML (copiadas exactas del sigem_admin) ===
 
