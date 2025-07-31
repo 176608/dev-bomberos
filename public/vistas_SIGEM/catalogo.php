@@ -106,7 +106,7 @@
 
     <div class="d-flex mb-5 flex-wrap">
         <div class="me-4" style="min-width:300px;">
-            ** Aquí va la tabla de temas por tanto en controller publico debe cargar los temas correspondientes **
+            <!-- Aquí va la tabla de temas -->
         </div>
 
         <div class="flex-fill">
@@ -131,7 +131,7 @@
                     </tr>
                 </thead>
                 <tbody>
-Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a base de datos y habilitarla
+
                 <?php
                 $temaActual = '';
                 foreach ($cuadros as $fila):
@@ -149,6 +149,9 @@ Cambiar el uso de php por eloquent para cargar los datos despues de dar alta a b
                     <td style="color: #2a6e48; text-align:left;"><?php echo htmlspecialchars($fila[3]); ?></td>
                 </tr>
                 <?php endforeach; ?>
+
+
+
 
                 </tbody>
             </table>

@@ -1,7 +1,4 @@
 <?php
-// Este controlador gestiona vistas restringidas del sistema SIGEM.
-// Requiere autenticación y permisos de administrador.
-
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
