@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas (USAR URL DEL CONTROLADOR)
+    // FUNCIÓN: Generar HTML para mapas (CORREGIR ESCAPE)
     function generateMapasHtml(data) {
         let html = `
             <div class="mb-3">
@@ -241,6 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (data.mapas && data.mapas.length > 0) {
             data.mapas.forEach((mapa, index) => {
+                // CORREGIR: Generar placeholder escapado aquí
+                const placeholderEscapado = getImagePlaceholderEscapado(mapa).replace(/'/g, "\\'").replace(/"/g, '\\"');
+                
                 html += `
                     <div class="row">
                         <div class="col-12">
@@ -278,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onerror="this.parentNode.innerHTML=\`${getImagePlaceholderEscaped(mapa)}\`"
+                                                  onerror="this.parentNode.innerHTML='${placeholderEscapado}'"
                                              >
                                              <div class="mapa-image-overlay">
                                                 <i class="bi bi-zoom-in me-2"></i>
@@ -316,6 +319,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <i class="bi bi-link-45deg"></i>
                                                     URL: ${mapa.imagen_url}
                                                 </small>
+                                                <br>
+                                                <small class="text-warning">
+                                                    <i class="bi bi-file-earmark-image"></i>
+                                                    Archivo: ${mapa.icono || 'N/A'}
+                                                </small>
                                             </div>` 
                                             : ''
                                         }
@@ -343,40 +351,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
-    function getImagePlaceholder(mapa) {
-        return `
-            <div class="mapa-image-placeholder">
-                <i class="bi bi-image"></i>
-                <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
-                <p>
-                    ${mapa.icono ? 
-                        'Error al cargar imagen' : 
-                        'Sin imagen disponible'
-                    }
-                </p>
-                ${mapa.enlace ? 
-                    `<small class="text-primary">
-                        <i class="bi bi-cursor-fill"></i>
-                        Haz clic para ver mapa
-                    </small>` 
-                    : 
-                    `<small class="text-muted">
-                        Mapa no disponible
-                    </small>`
-                }
-            </div>
-        `;
-    }
-
-    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror
+    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror (SIMPLIFICADO)
     function getImagePlaceholderEscaped(mapa) {
-        return `<div class="mapa-image-placeholder">
-                    <i class="bi bi-image"></i>
-                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
-                    <p>Error al cargar imagen</p>
-                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
-                </div>`;
+        return `<div class="mapa-image-placeholder"><i class="bi bi-image"></i><h5>${mapa.nombre_mapa || 'Mapa'}</h5><p>Error al cargar imagen</p><small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small></div>`;
     }
 
     // FUNCIÓN: Generar estructura de índice
