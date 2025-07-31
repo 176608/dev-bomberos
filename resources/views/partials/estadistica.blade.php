@@ -2,6 +2,7 @@
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
             <i class="bi bi-bar-chart me-2"></i>Sección Estadística
+            <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
         </h2>
         
         <div id="cuadro-info-container">

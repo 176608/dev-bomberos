@@ -3,6 +3,8 @@
         <h2 class="text-success mb-4">
             <i class="bi bi-map me-2"></i>Cartografía
         </h2>
+
+        <img src="../imagenes/cartogde.png" alt="Cartografía">
         
         <div id="mapas-container">
             <div class="text-center py-3">

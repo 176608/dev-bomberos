@@ -33,6 +33,7 @@
                         <button class="btn btn-success" onclick="loadContent('catalogo')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
                         </button>
+                        <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
                     </div>
                 </div>
             </div>
@@ -41,6 +42,7 @@
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
                             <i class="bi bi-map-fill me-2"></i>Estadística
+                            <img src="../imagenes/iconoesta2.png" alt="Icono Estadística">
                         </h5>
                     </div>
                     <div class="card-body">
@@ -56,6 +58,7 @@
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
                             <i class="bi bi-map-fill me-2"></i>Cartografía
+                            <img src="../imagenes/cartogde.png" alt="Cartografía">
                         </h5>
                     </div>
                     <div class="card-body">
