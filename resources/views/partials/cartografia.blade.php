@@ -32,10 +32,6 @@
 .mapa-header {
     background: linear-gradient(135deg, #2a6e48 0%, #66d193 100%);
     padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
 }
 
 .mapa-title {
@@ -43,14 +39,12 @@
     font-weight: bold;
     font-size: 1.2em;
     margin: 0;
-    flex: 1;
 }
 
 .mapa-seccion {
     color: #ffd700;
     font-size: 0.9em;
     margin: 0;
-    margin-top: 5px;
 }
 
 .mapa-btn {
@@ -65,6 +59,8 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
+    font-size: 0.9em;
 }
 
 .mapa-btn:hover {
@@ -72,12 +68,18 @@
     color: #1e4d35;
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    text-decoration: none;
 }
 
-.mapa-btn:not([href]) {
-    background-color: #6c757d;
-    cursor: not-allowed;
+.mapa-btn-disabled {
+    background-color: #6c757d !important;
+    cursor: not-allowed !important;
     opacity: 0.6;
+}
+
+.mapa-btn-disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* NUEVO: Contenedor de imagen y descripción */
@@ -95,6 +97,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mapa-image-container[style*="cursor: pointer"]:hover {
+    background: linear-gradient(45deg, #e9ecef 0%, #dee2e6 100%);
 }
 
 .mapa-image {
@@ -102,7 +109,6 @@
     height: 100%;
     object-fit: cover;
     transition: all 0.4s ease;
-    cursor: pointer;
 }
 
 .mapa-image:hover {
@@ -182,16 +188,35 @@
     opacity: 1;
 }
 
+/* Estilos para manejo de errores de imagen */
+.mapa-image-container.image-error .mapa-image-overlay {
+    display: none;
+}
+
+.mapa-image-container.image-error .image-error-placeholder {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-    .mapa-header {
+    .mapa-header .row {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-start !important;
         gap: 10px;
     }
     
-    .mapa-btn {
-        align-self: flex-end;
+    .mapa-header .col-10,
+    .mapa-header .col-2 {
+        flex: none;
+        width: 100%;
+    }
+    
+    .mapa-header .col-2 {
+        text-align: left !important;
     }
     
     .mapa-content {
@@ -244,6 +269,11 @@
     
     .mapa-descripcion {
         padding: 15px;
+    }
+    
+    .mapa-btn {
+        font-size: 0.8em;
+        padding: 6px 12px;
     }
 }
 </style>

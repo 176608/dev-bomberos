@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // FUNCIÓN: Generar HTML para mapas (VERSIÓN ROBUSTA)
+    // FUNCIÓN: Generar HTML para mapas (LAYOUT LIMPIO)
     function generateMapasHtml(data) {
         let html = `
             <div class="mb-3">
@@ -245,52 +245,59 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="row">
                         <div class="col-12">
                             <div class="mapa-row">
-                                <!-- HEADER: Título/Sección + Botón -->
+                                <!-- HEADER: Título (10 col) + Botón (2 col) -->
                                 <div class="mapa-header">
-                                    <div class="mapa-info">
-                                        <h4 class="mapa-title">
-                                            <i class="bi bi-geo-alt-fill me-2"></i>
-                                            ${mapa.nombre_mapa || 'Mapa sin nombre'}
-                                        </h4>
-                                        <p class="mapa-seccion">
-                                            <i class="bi bi-folder-fill me-1"></i>
-                                            Sección: ${mapa.nombre_seccion || 'No especificada'}
-                                        </p>
+                                    <div class="row align-items-center">
+                                        <div class="col-10">
+                                            <h4 class="mapa-title mb-1">
+                                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                                ${mapa.nombre_mapa || 'Mapa sin nombre'}
+                                            </h4>
+                                            <p class="mapa-seccion mb-0">
+                                                <i class="bi bi-folder-fill me-1"></i>
+                                                Sección: ${mapa.nombre_seccion || 'No especificada'}
+                                            </p>
+                                        </div>
+                                        <div class="col-2 text-end">
+                                            ${mapa.enlace ? 
+                                                `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                    Ver Mapa
+                                                </a>` 
+                                                : 
+                                                `<span class="mapa-btn mapa-btn-disabled">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    No disponible
+                                                </span>`
+                                            }
+                                        </div>
                                     </div>
-                                    ${mapa.enlace ? 
-                                        `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
-                                            <i class="bi bi-box-arrow-up-right"></i>
-                                            Ver Mapa
-                                        </a>` 
-                                        : 
-                                        `<span class="mapa-btn">
-                                            <i class="bi bi-x-circle"></i>
-                                            No disponible
-                                        </span>`
-                                    }
                                 </div>
                                 
                                 <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
                                 <div class="mapa-content">
-                                    <!-- IMAGEN (50% izquierda) -->
-                                    <div class="mapa-image-container" onclick="window.open('${mapa.enlace || '#'}', '_blank')">
+                                    <!-- IMAGEN (50% izquierda) - CLICKEABLE -->
+                                    <div class="mapa-image-container" ${mapa.enlace ? `onclick="window.open('${mapa.enlace}', '_blank')" style="cursor: pointer;"` : ''}>
                                         ${mapa.tiene_imagen ? 
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onload="console.log('Imagen cargada: ${mapa.icono}')"
-                                                  onerror="console.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
+                                                  onload="console.log('✅ Imagen cargada: ${mapa.icono}')"
+                                                  onerror="console.error('❌ Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
                                              >
-                                             <div class="mapa-image-overlay">
-                                                <i class="bi bi-zoom-in me-2"></i>
-                                                Ver Mapa Completo
-                                             </div>
+                                             ${mapa.enlace ? 
+                                                `<div class="mapa-image-overlay">
+                                                    <i class="bi bi-zoom-in me-2"></i>
+                                                    Ver Mapa Completo
+                                                </div>` 
+                                                : ''
+                                             }
                                              <div class="image-error-placeholder" style="display: none;">
                                                 <div class="mapa-image-placeholder">
                                                     <i class="bi bi-image"></i>
                                                     <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
                                                     <p>Error al cargar imagen</p>
-                                                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
+                                                    <small class="text-danger">Revisa la imagen: ${mapa.icono || 'N/A'}</small>
                                                 </div>
                                              </div>` 
                                             : 
@@ -307,35 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <p>
                                             ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
                                         </p>
-                                        
-                                        ${mapa.codigo_mapa ? 
-                                            `<div class="mt-3">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-hash"></i>
-                                                    Código: <strong>${mapa.codigo_mapa}</strong>
-                                                </small>
-                                            </div>` 
-                                            : ''
-                                        }
-                                        
-                                        <!-- DEBUG: Mostrar información de imagen -->
-                                        ${mapa.imagen_url ? 
-                                            `<div class="mt-2">
-                                                <small class="text-info d-block">
-                                                    <i class="bi bi-link-45deg"></i>
-                                                    URL: ${mapa.imagen_url}
-                                                </small>
-                                                <small class="text-warning d-block">
-                                                    <i class="bi bi-file-earmark-image"></i>
-                                                    Archivo: ${mapa.icono || 'N/A'}
-                                                </small>
-                                                <small class="text-success d-block">
-                                                    <i class="bi bi-check-circle"></i>
-                                                    Existe físicamente: ${mapa.archivo_existe ? 'Sí' : 'No'}
-                                                </small>
-                                            </div>` 
-                                            : ''
-                                        }
                                     </div>
                                 </div>
                             </div>
@@ -360,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // FUNCIÓN AUXILIAR: Generar placeholder para imagen
+    // FUNCIÓN AUXILIAR: Generar placeholder para imagen (LIMPIO)
     function getImagePlaceholder(mapa) {
         return `
             <div class="mapa-image-placeholder">
@@ -368,8 +346,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
                 <p>
                     ${mapa.icono ? 
-                        'Error al cargar imagen' : 
-                        'Sin imagen disponible'
+                        'Imagen no disponible' : 
+                        'Sin imagen configurada'
                     }
                 </p>
                 ${mapa.enlace ? 
