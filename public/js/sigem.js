@@ -126,7 +126,7 @@ function generateEstructuraIndice(temasDetalle) {
                          onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
                          onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
                         <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                            <span class="badge text-bg-success">${subtema.clave_subtema || tema.clave_tema || 'N/A'}</span>
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
                         </div>
                         <div class="px-2 py-2 flex-grow-1">
                             ${subtema.subtema_titulo}
@@ -217,7 +217,7 @@ function generateListaCuadros(cuadrosEstadisticos) {
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
                                 <div class="me-3" style="min-width: 80px;">
-                                    <code class="text-success fw-bold">${cuadro.codigo_cuadro || 'N/A'}</code>
+                                    <span class="badge text-bg-success">${cuadro.codigo_cuadro || 'N/A'}</span>
                                 </div>
                                 <div class="flex-grow-1 me-3" style="font-size: 12px;">
                                     <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
