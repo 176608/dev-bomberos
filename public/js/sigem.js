@@ -607,7 +607,7 @@
                                 </div>
                                 <div>
                                     <button class="btn btn-sm btn-outline-success" 
-                                       onclick="SIGEMApp.verCuadro(${cuadro.cuadro_id}, '${cuadro.codigo_cuadro}')"
+                                       onclick="SIGEMApp.verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
                                        title="Ver cuadro ${cuadro.codigo_cuadro}">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -806,7 +806,7 @@
                         <img src="https://placehold.co/600x400/cccccc/969696?text=Gr%C3%A1fico+Estad%C3%ADstico" alt="Gráfico del cuadro ${cuadro.codigo_cuadro}" class="img-fluid rounded shadow-sm">
                     </div>
                     <div class="text-center mt-4">
-                        <a href="${CONFIG.BASE_URL}/descargar-cuadro/${cuadro.cuadro_id}" class="btn btn-success">
+                        <a href="${CONFIG.BASE_URL}/descargar-cuadro/${cuadro.cuadro_estadistico_id}" class="btn btn-success">
                             <i class="bi bi-download me-1"></i>Descargar Datos (CSV)
                         </a>
                         <button class="btn btn-outline-secondary ms-2" onclick="alert('Funcionalidad de compartir no implementada aún')">
