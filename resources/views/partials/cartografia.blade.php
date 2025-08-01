@@ -16,19 +16,15 @@
                     <p class="lead">
                         En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
                     </p>
-                    <p>
+                    <!-- <p>
                         Nuestra cartografía digital proporciona información geográfica actualizada y herramientas de visualización 
                         que permiten el análisis territorial y la toma de decisiones informadas para el desarrollo municipal.
-                    </p>
-                    <p class="mb-0">
-                        Explora los diferentes mapas disponibles y accede a datos geoespaciales de alta calidad 
-                        para investigación, planeación y gestión urbana.
-                    </p>
+                    </p>-->
                 </div>
             </div>
         </div>
 
-        <!-- LISTADO DE MAPAS (existente) -->
+        
         <div id="mapas-container">
             <div class="text-center py-3">
                 <i class="bi bi-hourglass-split"></i>
@@ -49,17 +45,17 @@
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
                     <div class="external-map-image-container">
-                        <img src="{{ asset('imagenes/placeholder-imip.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
+                        <img src="{{ asset('imagenes/imip_mapas.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
                         <div class="external-map-overlay">
                             <i class="bi bi-box-arrow-up-right fs-1"></i>
                         </div>
                     </div>
                     <div class="external-map-content">
-                        <h6 class="fw-bold text-primary mb-2">IMIP Mapas Digitales Interactivos</h6>
+                        <h6 class="fw-bold text-success mb-2">IMIP Mapas Digitales Interactivos</h6>
                         <p class="text-muted small mb-3">
                             Accede a la plataforma especializada de mapas interactivos del Instituto Municipal de Investigación y Planeación.
                         </p>
-                        <a href="#" class="btn btn-primary btn-sm w-100" target="_blank">
+                        <a href="https://www.imip.org.mx/imip/node/53" class="btn btn-success btn-sm w-100" target="_blank">
                             <i class="bi bi-box-arrow-up-right me-1"></i>Visitar IMIP Mapas
                         </a>
                     </div>
@@ -70,17 +66,17 @@
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
                     <div class="external-map-image-container">
-                        <img src="{{ asset('imagenes/placeholder-sigimip.png') }}" alt="SIGIMIP" class="external-map-image">
+                        <img src="{{ asset('imagenes/sigimip_mapas.png') }}" alt="SIGIMIP" class="external-map-image">
                         <div class="external-map-overlay">
                             <i class="bi bi-box-arrow-up-right fs-1"></i>
                         </div>
                     </div>
                     <div class="external-map-content">
-                        <h6 class="fw-bold text-success mb-2">SIGIMIP</h6>
+                        <h6 class="fw-bold text-primary mb-2">SIGIMIP</h6>
                         <p class="text-muted small mb-3">
                             Sistema de Información Geográfica del Instituto Municipal de Investigación y Planeación con herramientas avanzadas.
                         </p>
-                        <a href="#" class="btn btn-success btn-sm w-100" target="_blank">
+                        <a href="https://sigimip.org.mx/" class="btn btn-primary btn-sm w-100" target="_blank">
                             <i class="bi bi-box-arrow-up-right me-1"></i>Visitar SIGIMIP
                         </a>
                     </div>
