@@ -797,14 +797,13 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <p>${cuadro.pie_pagina}</p>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <strong>Nota:</strong> ${cuadro.pie_pagina}
-                    </div>
+                
                     <div class="text-center my-4">
-                        <img src="https://placehold.co/600x400/cccccc/969696?text=Gr%C3%A1fico+Estad%C3%ADstico" alt="Gráfico del cuadro ${cuadro.codigo_cuadro}" class="img-fluid rounded shadow-sm">
+                        Gráfico del cuadro ${cuadro.codigo_cuadro}"
                     </div>
+
+                    <div class="mb-3">${cuadro.pie_pagina}</div>
+
                     <div class="text-center mt-4">
                         <a href="${CONFIG.BASE_URL}/descargar-cuadro/${cuadro.cuadro_estadistico_id}" class="btn btn-success">
                             <i class="bi bi-download me-1"></i>Descargar Datos (CSV)
