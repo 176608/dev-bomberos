@@ -602,8 +602,8 @@
                                     ${cuadro.codigo_cuadro || 'N/A'}
                                 </div>
                                 <div class="flex-grow-1 me-3" style="font-size: 12px;">
-                                    <div class="fw-bold">${cuadro.titulo || 'Sin título'}</div>
-                                    ${cuadro.subtitulo ? `<small class="text-muted">${cuadro.subtitulo}</small>` : ''}
+                                    <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
+                                    ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                                 </div>
                                 <div>
                                     <button class="btn btn-sm btn-outline-success" 
