@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    /*// FUNCIÓN: Cargar datos de inicio
+    // FUNCIÓN: Cargar datos de inicio
     function loadInicioData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error cargando datos de inicio:', error);
             });
-    }*/
+    }
 
     // FUNCIÓN: Generar HTML para mapas (LAYOUT LIMPIO)
     function generateMapasHtml(data) {
