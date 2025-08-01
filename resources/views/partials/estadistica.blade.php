@@ -4,6 +4,8 @@
             <i class="bi bi-bar-chart me-2"></i>Sección Estadística
             <img src="imagenes/iconoesta2.png" alt="Icono Estadística">
         </h2>
+
+        <div id="info_cuadro_by_click" class="mt-4"></div>
         
         <div id="cuadro-info-container">
             <div class="text-center py-5">

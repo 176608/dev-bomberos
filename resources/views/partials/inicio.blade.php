@@ -134,7 +134,7 @@
 
 .module-image-wrapper {
     position: relative;
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+    background: #398d4b9a ;
     border-radius: 15px;
     padding: 20px;
     overflow: hidden;

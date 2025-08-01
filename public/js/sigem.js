@@ -64,7 +64,9 @@ function verCuadro(cuadroId, codigo) {
     
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    const url = `${baseUrl}/estadistica/${cuadroId}`;
+    
+    // NUEVA FUNCIONALIDAD: Abrir sección estadística con cuadro específico
+    const url = `${baseUrl}?section=estadistica&cuadro_id=${cuadroId}`;
 
     console.log(`Usando URL: ${url}`);
 
@@ -123,10 +125,10 @@ function generateEstructuraIndice(temasDetalle) {
                          onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
                          onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
                          onclick="focusEnSubtema(${numeroTema}, ${ordenSubtema});">
-                        <div class="px-3 py-2 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'}
+                        <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
                         </div>
-                        <div class="px-3 py-2 flex-grow-1">
+                        <div class="px-2 py-2 flex-grow-1">
                             ${subtema.subtema_titulo}
                         </div>
                     </div>
@@ -134,7 +136,7 @@ function generateEstructuraIndice(temasDetalle) {
             });
         } else {
             estructura += `
-                <div class="px-3 py-2 text-muted">
+                <div class="px-2 py-2 text-muted">
                     <em>Sin subtemas disponibles</em>
                 </div>
             `;
@@ -203,7 +205,7 @@ function generateListaCuadros(cuadrosEstadisticos) {
                 // Header del subtema con ID para focus
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
-                        ${subtema.clave || 'N/A'} ${subtema.nombre}
+                        <p class="fw-normal">${subtema.nombre}</p>
                     </div>
                 `;
 
@@ -215,14 +217,14 @@ function generateListaCuadros(cuadrosEstadisticos) {
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
                                 <div class="me-3" style="min-width: 80px;">
-                                    <code class="text-primary fw-bold">${cuadro.codigo_cuadro || 'N/A'}</code>
+                                    ${cuadro.codigo_cuadro || 'N/A'}
                                 </div>
                                 <div class="flex-grow-1 me-3" style="font-size: 12px;">
                                     <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
                                     ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                                 </div>
                                 <div>
-                                    <a href="#" class="btn btn-sm btn-outline-primary" 
+                                    <a href="#" class="btn btn-sm btn-outline-success" 
                                        onclick="verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
                                        title="Ver cuadro ${cuadro.codigo_cuadro}">
                                         <i class="bi bi-eye"></i>
@@ -453,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // FUNCIÓN: Cargar contenido (AGREGAR caso para inicio)
+    // FUNCIÓN: Cargar contenido (AGREGAR detección de cuadro_id)
     function loadContent(section) {
         console.log(`Cargando sección: ${section}`);
         
@@ -491,13 +493,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 contentContainer.innerHTML = html;
                 
                 // Ejecutar funciones específicas por sección
-                // AGREGAR: Caso para inicio
                 if (section === 'inicio') {
                     loadInicioData();
                 } else if (section === 'cartografia') {
                     loadMapasData();
                 } else if (section === 'catalogo') {
                     loadCatalogoData();
+                } else if (section === 'estadistica') {
+                    // NUEVA FUNCIONALIDAD: Cargar cuadro específico si viene en URL
+                    loadEstadisticaData();
                 }
             })
             .catch(error => {
@@ -544,16 +548,34 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-
-        fetch(`${baseUrl}/catalogo`)
+        
+        const cuadroInfoContainer = document.getElementById('cuadro-info-container');
+        const infoCuadroByClick = document.getElementById('info_cuadro_by_click');
+        
+        if (!cuadroInfoContainer) {
+            console.error('No se encontró el contenedor cuadro-info-container');
+            return;
+        }
+        
+        // Mostrar loading en el contenedor específico
+        cuadroInfoContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Cargando cuadro...</span>
+                </div>
+                <h4 class="mt-3 text-muted">Cargando cuadro estadístico</h4>
+                <p class="text-muted">ID: ${cuadroId}</p>
+            </div>
+        `;
+        
+        // Cargar datos del cuadro
+        fetch(`${baseUrl}/cuadro-data/${cuadroId}`)
             .then(response => response.json())
             .then(data => {
                 console.log('=== DATOS RAW DEL CATÁLOGO ===');
                 console.log('Response completa:', data);
                 console.log('Success:', data.success);
-                console.log('Total temas:', data.total_temas);
-                console.log('Total subtemas:', data.total_subtemas);
-                console.log('Total cuadros:', data.total_cuadros);
+                console.log('Total temas:', data);
                 console.log('Temas detalle:', data.temas_detalle);
                 console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
                 console.log('=== FIN DATOS RAW ===');
@@ -825,4 +847,304 @@ document.addEventListener('DOMContentLoaded', function() {
     // CARGAR CONTENIDO INICIAL (con persistencia)
     const initialSection = getCurrentSection();
     loadContent(initialSection);
+    
+    // NUEVA FUNCIÓN: Cargar datos de estadística (con cuadro específico)
+    function loadEstadisticaData() {
+        // Verificar si hay cuadro_id en la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const cuadroId = urlParams.get('cuadro_id');
+        
+        console.log('loadEstadisticaData - cuadroId:', cuadroId);
+        
+        if (cuadroId) {
+            console.log(`Cargando cuadro específico: ${cuadroId}`);
+            loadCuadroEspecifico(cuadroId);
+        } else {
+            console.log('Sección estadística sin cuadro específico');
+            // Mostrar mensaje por defecto
+            const cuadroInfoContainer = document.getElementById('cuadro-info-container');
+            if (cuadroInfoContainer) {
+                cuadroInfoContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3 text-muted">Selecciona un cuadro estadístico</h4>
+                        <p class="text-muted">Para ver un cuadro estadístico específico, selecciona uno desde el catálogo.</p>
+                        
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                <i class="bi bi-journal-text me-1"></i>Ir al Catálogo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // NUEVA FUNCIÓN: Cargar cuadro específico
+    function loadCuadroEspecifico(cuadroId) {
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        
+        const cuadroInfoContainer = document.getElementById('cuadro-info-container');
+        const infoCuadroByClick = document.getElementById('info_cuadro_by_click');
+        
+        if (!cuadroInfoContainer) {
+            console.error('No se encontró el contenedor cuadro-info-container');
+            return;
+        }
+        
+        // Mostrar loading en el contenedor específico
+        cuadroInfoContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Cargando cuadro...</span>
+                </div>
+                <h4 class="mt-3 text-muted">Cargando cuadro estadístico</h4>
+                <p class="text-muted">ID: ${cuadroId}</p>
+            </div>
+        `;
+        
+        // Cargar datos del cuadro
+        fetch(`${baseUrl}/cuadro-data/${cuadroId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos del cuadro cargados:', data);
+                
+                if (data.success && data.cuadro) {
+                    // Generar HTML con la información del cuadro
+                    cuadroInfoContainer.innerHTML = generateCuadroInfoHtml(data.cuadro, data.tema_info, data.subtema_info);
+                    
+                    // OPCIONAL: También mostrar en info_cuadro_by_click si existe
+                    if (infoCuadroByClick) {
+                        infoCuadroByClick.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>Cuadro cargado:</strong> ${data.cuadro.codigo_cuadro} - ${data.cuadro.cuadro_estadistico_titulo}
+                            </div>
+                        `;
+                    }
+                } else {
+                    cuadroInfoContainer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                            <h4 class="mt-3">Cuadro no encontrado</h4>
+                            <p>El cuadro con ID <strong>${cuadroId}</strong> no existe o no está disponible.</p>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                    <i class="bi bi-journal-text me-1"></i>Volver al Catálogo
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando cuadro:', error);
+                cuadroInfoContainer.innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <i class="bi bi-exclamation-triangle fs-1"></i>
+                        <h4 class="mt-3">Error al cargar cuadro</h4>
+                        <p>No se pudo cargar el cuadro estadístico.</p>
+                        <small class="text-muted">Error: ${error.message}</small>
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                <i class="bi bi-journal-text me-1"></i>Volver al Catálogo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+    // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro
+    function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
+        return `
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <div class="row align-items-center">
+                        <div class="col-10">
+                            <h4 class="mb-0">
+                                <i class="bi bi-table me-2"></i>
+                                ${cuadro.codigo_cuadro || 'Sin código'}
+                            </h4>
+                        </div>
+                        <div class="col-2 text-end">
+                            <button type="button" class="btn btn-light btn-sm" onclick="loadContent('catalogo')" title="Volver al catálogo">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Título del cuadro -->
+                    <h3 class="text-success mb-3">
+                        ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
+                    </h3>
+                    
+                    ${cuadro.cuadro_estadistico_subtitulo ? 
+                        `<h5 class="text-muted mb-4">${cuadro.cuadro_estadistico_subtitulo}</h5>` 
+                        : ''
+                    }
+                    
+                    <!-- Información del tema y subtema -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6 class="fw-bold text-primary">
+                                    <i class="bi bi-folder-fill me-1"></i>Tema
+                                </h6>
+                                <p class="mb-0">
+                                    ${temaInfo ? temaInfo.tema_titulo : 'No especificado'}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6 class="fw-bold text-info">
+                                    <i class="bi bi-collection-fill me-1"></i>Subtema
+                                </h6>
+                                <p class="mb-0">
+                                    ${subtemaInfo ? subtemaInfo.subtema_titulo : 'No especificado'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información técnica -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td class="fw-bold bg-light" style="width: 200px;">
+                                                <i class="bi bi-hash me-1"></i>ID del Cuadro
+                                            </td>
+                                            <td>${cuadro.cuadro_estadistico_id || 'N/A'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold bg-light">
+                                                <i class="bi bi-code me-1"></i>Código
+                                            </td>
+                                            <td><code class="text-primary">${cuadro.codigo_cuadro || 'N/A'}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold bg-light">
+                                                <i class="bi bi-calendar-event me-1"></i>Última actualización
+                                            </td>
+                                            <td>${cuadro.updated_at ? new Date(cuadro.updated_at).toLocaleDateString('es-ES') : 'No disponible'}</td>
+                                        </tr>
+                                        ${cuadro.descripcion ? 
+                                            `<tr>
+                                                <td class="fw-bold bg-light">
+                                                    <i class="bi bi-card-text me-1"></i>Descripción
+                                                </td>
+                                                <td>${cuadro.descripcion}</td>
+                                            </tr>` 
+                                            : ''
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-success me-2" onclick="loadContent('catalogo')">
+                            <i class="bi bi-arrow-left me-1"></i>Volver al Catálogo
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i>Imprimir Información
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // CORREGIR FUNCIÓN: loadCatalogoData (estaba confundida con cuadro)
+    function loadCatalogoData() {
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+
+        fetch(`${baseUrl}/catalogo`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('=== DATOS RAW DEL CATÁLOGO ===');
+                console.log('Response completa:', data);
+                console.log('Success:', data.success);
+                console.log('Total temas:', data);
+                console.log('Temas detalle:', data.temas_detalle);
+                console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
+                console.log('=== FIN DATOS RAW ===');
+                
+                if (data.success) {
+                    const indiceContainer = document.getElementById('indice-container');
+                    const cuadrosContainer = document.getElementById('cuadros-container');
+                    
+                    if (indiceContainer && data.temas_detalle) {
+                        indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
+                    }
+                    
+                    if (cuadrosContainer && data.cuadros_estadisticos) {
+                        cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
+                    }
+                    
+                    // Sincronizar alturas después de cargar contenido
+                    sincronizarAlturas();
+                } else {
+                    const indiceContainer = document.getElementById('indice-container');
+                    const cuadrosContainer = document.getElementById('cuadros-container');
+                    
+                    if (indiceContainer) {
+                        indiceContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar catálogo: ${data.message}
+                            </div>
+                        `;
+                    }
+                    
+                    if (cuadrosContainer) {
+                        cuadrosContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                                Error al cargar cuadros estadísticos
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const indiceContainer = document.getElementById('indice-container');
+                const cuadrosContainer = document.getElementById('cuadros-container');
+                
+                if (indiceContainer) {
+                    indiceContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar catálogo
+                        </div>
+                    `;
+                }
+                
+                if (cuadrosContainer) {
+                    cuadrosContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Error de conexión al cargar cuadros
+                        </div>
+                    `;
+                }
+            });
+    }
+
+    // *** AL FINAL: EXPONER NUEVAS FUNCIONES AL SCOPE GLOBAL ***
+    window.loadContent = loadContent;
+    window.loadInicioData = loadInicioData;
+    window.loadEstadisticaData = loadEstadisticaData; // NUEVA
+    window.loadCuadroEspecifico = loadCuadroEspecifico; // NUEVA
 });
