@@ -22,7 +22,7 @@
 
         // Inicialización de la aplicación
         init: function () {
-            console.log('Inicializando SIGEMApp (Limpio y Optimizado)...');
+            console.log('Inicializando SIGEMApp ...');
             this.determineUrls();
             this.cacheElements();
             this.bindEvents();
@@ -569,6 +569,114 @@
     // === FUNCION usada en la vista de cartografía.blade ===
     // Funcion que carga los datos del catálogo en la vista de catálogo.blade
     function generateMapasHtml(data) {
+        let html = `
+            <div class="mb-3">
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Mapas disponibles: ${data.total_mapas}</strong>
+                </div>
+            </div>
+        `;
+        
+        if (data.mapas && data.mapas.length > 0) {
+            data.mapas.forEach((mapa, index) => {
+                html += `
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mapa-row">
+                                <!-- HEADER: Título (10 col) + Botón (2 col) -->
+                                <div class="mapa-header">
+                                    <div class="row align-items-center">
+                                        <div class="col-10">
+                                            <h4 class="mapa-title mb-1">
+                                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                                ${mapa.nombre_mapa || 'Mapa sin nombre'}
+                                            </h4>
+                                            <p class="mapa-seccion mb-0">
+                                                <i class="bi bi-folder-fill me-1"></i>
+                                                Sección: ${mapa.nombre_seccion || 'No especificada'}
+                                            </p>
+                                        </div>
+                                        <div class="col-2 text-end">
+                                            ${mapa.enlace ? 
+                                                `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                    Ver Mapa
+                                                </a>` 
+                                                : 
+                                                `<span class="mapa-btn mapa-btn-disabled">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    No disponible
+                                                </span>`
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
+                                <div class="mapa-content">
+                                    <!-- IMAGEN (50% izquierda) - CLICKEABLE -->
+                                    <div class="mapa-image-container" ${mapa.enlace ? `onclick="window.open('${mapa.enlace}', '_blank')" style="cursor: pointer;"` : ''}>
+                                        ${mapa.tiene_imagen ? 
+                                            `<img src="${mapa.imagen_url}" 
+                                                  alt="${mapa.nombre_mapa}" 
+                                                  class="mapa-image"
+                                                  onload="console.log('Imagen cargada: ${mapa.icono}')"
+                                                  onerror="console.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
+                                             >
+                                             ${mapa.enlace ? 
+                                                `<div class="mapa-image-overlay">
+                                                    <i class="bi bi-zoom-in me-2"></i>
+                                                    Ver Mapa Completo
+                                                </div>` 
+                                                : ''
+                                             }
+                                             <div class="image-error-placeholder" style="display: none;">
+                                                <div class="mapa-image-placeholder">
+                                                    <i class="bi bi-image"></i>
+                                                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                                                    <p>Error al cargar imagen</p>
+                                                    <small class="text-danger">Revisa la imagen: ${mapa.icono || 'N/A'}</small>
+                                                </div>
+                                             </div>` 
+                                            : 
+                                            getImagePlaceholder(mapa)
+                                        }
+                                    </div>
+                                    
+                                    <!-- DESCRIPCIÓN (50% derecha) -->
+                                    <div class="mapa-descripcion">
+                                        <h5>
+                                            <i class="bi bi-card-text"></i>
+                                            Descripción
+                                        </h5>
+                                        <p>
+                                            ${mapa.descripcion || 'No hay descripción disponible para este mapa.'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html += `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                            <h4 class="mt-3">No hay mapas disponibles</h4>
+                            <p class="mb-0">Actualmente no hay mapas configurados en el sistema.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html;
+    
+        /*
         let html = `<div class="mb-3"><div class="alert alert-info d-flex align-items-center"><i class="bi bi-info-circle me-2"></i><strong>Mapas disponibles: ${data.total_mapas || 0}</strong></div></div>`;
         if (data.mapas && data.mapas.length > 0) {
             html += `<div class="row g-4">`;
@@ -594,7 +702,7 @@
         } else {
             html += `<div class="row"><div class="col-12"><div class="alert alert-warning text-center"><i class="bi bi-exclamation-triangle fs-1"></i><h4 class="mt-3">No hay mapas disponibles</h4><p class="mb-0">Actualmente no hay mapas configurados en el sistema.</p></div></div></div>`;
         }
-        return html;
+        return html;*/
     }
 
     // === FUNCION usada en la vista de cartografía.blade ===
