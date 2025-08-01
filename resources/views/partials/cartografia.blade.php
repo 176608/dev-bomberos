@@ -44,7 +44,7 @@
             <!-- Botón IMIP Mapas Digitales -->
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
-                    <div class="external-map-image-container">
+                    <div class="external-map-image-container" onclick="window.open('https://www.imip.org.mx/imip/node/53', '_blank')">
                         <img src="{{ asset('imagenes/imip_mapas.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
                         <div class="external-map-overlay">
                             <i class="bi bi-box-arrow-up-right fs-1"></i>
@@ -65,7 +65,7 @@
             <!-- Botón SIGIMIP -->
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
-                    <div class="external-map-image-container">
+                    <div class="external-map-image-container" onclick="window.open('https://sigimip.org.mx/', '_blank')">
                         <img src="{{ asset('imagenes/sigimip_mapas.png') }}" alt="SIGIMIP" class="external-map-image">
                         <div class="external-map-overlay">
                             <i class="bi bi-box-arrow-up-right fs-1"></i>
@@ -325,6 +325,7 @@
     height: 120px;
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     overflow: hidden;
+    cursor: pointer; /* AGREGAR: Cursor pointer para indicar clickeable */
 }
 
 .external-map-image {
@@ -359,20 +360,18 @@
     opacity: 1;
 }
 
-.external-map-content {
-    padding: 20px;
+/* AGREGAR: Efecto adicional en hover de imagen para indicar clickeable */
+.external-map-image-container:hover {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
 }
 
-.external-map-content h6 {
-    margin-bottom: 10px;
+.external-map-image-container:hover .external-map-overlay i {
+    animation: bounce 0.6s ease infinite alternate;
 }
 
-.external-map-content .btn {
-    transition: all 0.3s ease;
-}
-
-.external-map-content .btn:hover {
-    transform: translateY(-2px);
+@keyframes bounce {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
 }
 
 /* Responsive */
