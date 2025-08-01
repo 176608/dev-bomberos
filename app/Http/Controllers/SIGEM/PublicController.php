@@ -243,12 +243,12 @@ class PublicController extends Controller
     }
 
     /**
-     * FUNCIÓN AJAX: Obtener datos del cuadro
+     * FUNCIÓN AJAX: Obtener datos del cuadro (MEJORAR respuesta)
      */
     public function obtenerCuadroData($cuadro_id)
     {
         try {
-            $cuadro = CuadroEstadistico::obtenerPorId($cuadro_id);
+            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
             
             if (!$cuadro) {
                 return response()->json([
@@ -263,14 +263,22 @@ class PublicController extends Controller
                 'message' => 'Cuadro cargado exitosamente',
                 'cuadro' => $cuadro->toArray(),
                 'tema_info' => $cuadro->subtema->tema ?? null,
-                'subtema_info' => $cuadro->subtema ?? null
+                'subtema_info' => $cuadro->subtema ?? null,
+                'debug_info' => [
+                    'cuadro_id' => $cuadro_id,
+                    'timestamp' => now()
+                ]
             ]);
             
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar cuadro: ' . $e->getMessage(),
-                'cuadro' => null
+                'cuadro' => null,
+                'error_details' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
             ]);
         }
     }
