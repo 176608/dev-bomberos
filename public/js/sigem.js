@@ -498,8 +498,7 @@
             <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
                 
                 <div class="text-center text-white fw-bold py-2 indice-tema-header" 
-                     style="${colorStyle} cursor: pointer; transition: all 0.3s ease;" 
-                     data-tema="${numeroTema}"
+                     style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                      onclick="focusEnTema(${numeroTema});">
@@ -520,11 +519,9 @@
 
                     estructura += `
                     <div class="d-flex border-bottom indice-subtema-row" 
-                        style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
-                        data-tema="${numeroTema}" 
-                        data-subtema="${ordenSubtema}"
+                        style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
                         onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
-                        onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                        onmouseout="this.style.backgroundColor='${colorStyle === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
                         onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
                         <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                             ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
