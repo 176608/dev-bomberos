@@ -35,7 +35,7 @@
 
             <div class="col-lg-8">
                 <div class="card bg-light h-100">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-success text-white">
                         <h5 class="mb-0">
                             <i class="bi bi-table me-2"></i>Cuadros Estadísticos
                         </h5>
@@ -43,7 +43,7 @@
                     <div class="card-body p-0">
                         <div id="cuadros-container" style="max-height: 600px; overflow-y: auto;">
                             <div class="text-center p-4">
-                                <div class="spinner-border text-primary" role="status">
+                                <div class="spinner-border text-success" role="status">
                                     <span class="visually-hidden">Cargando...</span>
                                 </div>
                                 <p class="mt-2">Cargando cuadros...</p>
