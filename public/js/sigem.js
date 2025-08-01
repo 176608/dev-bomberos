@@ -518,10 +518,7 @@
                         <div class="mb-1"
                             onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
                         <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
-                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
-                        </div>
-                        <div class="px-2 py-2 flex-grow-1">
-                            ${subtema.subtema_titulo}
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} - ${subtema.subtema_titulo}
                         </div>
                     </div>`;
                     
