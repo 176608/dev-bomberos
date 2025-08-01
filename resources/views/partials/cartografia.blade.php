@@ -4,12 +4,87 @@
             <i class="bi bi-map me-2"></i>Cartografía
         </h2>
 
-        <img src="../imagenes/cartogde.png" alt="Cartografía">
-        
+        <!-- NUEVA SECCIÓN: Imagen + Texto descriptivo -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-lg-4 col-md-5 mb-3 mb-md-0">
+                <div class="cartografia-intro-image">
+                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-7">
+                <div class="cartografia-intro-text">
+                    <p class="lead">
+                        En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
+                    </p>
+                    <p>
+                        Nuestra cartografía digital proporciona información geográfica actualizada y herramientas de visualización 
+                        que permiten el análisis territorial y la toma de decisiones informadas para el desarrollo municipal.
+                    </p>
+                    <p class="mb-0">
+                        Explora los diferentes mapas disponibles y accede a datos geoespaciales de alta calidad 
+                        para investigación, planeación y gestión urbana.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTADO DE MAPAS (existente) -->
         <div id="mapas-container">
             <div class="text-center py-3">
                 <i class="bi bi-hourglass-split"></i>
                 <p>Cargando mapas...</p>
+            </div>
+        </div>
+
+        <!-- NUEVA SECCIÓN: Footer con botones externos -->
+        <div class="row mt-5 cartografia-footer">
+            <div class="col-12">
+                <hr class="my-4">
+                <h5 class="text-center mb-4 text-muted">
+                    <i class="bi bi-globe me-2"></i>Para ver otros mapas visita:
+                </h5>
+            </div>
+            
+            <!-- Botón IMIP Mapas Digitales -->
+            <div class="col-md-6 mb-3">
+                <div class="external-map-card h-100">
+                    <div class="external-map-image-container">
+                        <img src="{{ asset('imagenes/placeholder-imip.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
+                        <div class="external-map-overlay">
+                            <i class="bi bi-box-arrow-up-right fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="external-map-content">
+                        <h6 class="fw-bold text-primary mb-2">IMIP Mapas Digitales Interactivos</h6>
+                        <p class="text-muted small mb-3">
+                            Accede a la plataforma especializada de mapas interactivos del Instituto Municipal de Investigación y Planeación.
+                        </p>
+                        <a href="#" class="btn btn-primary btn-sm w-100" target="_blank">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar IMIP Mapas
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón SIGIMIP -->
+            <div class="col-md-6 mb-3">
+                <div class="external-map-card h-100">
+                    <div class="external-map-image-container">
+                        <img src="{{ asset('imagenes/placeholder-sigimip.png') }}" alt="SIGIMIP" class="external-map-image">
+                        <div class="external-map-overlay">
+                            <i class="bi bi-box-arrow-up-right fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="external-map-content">
+                        <h6 class="fw-bold text-success mb-2">SIGIMIP</h6>
+                        <p class="text-muted small mb-3">
+                            Sistema de Información Geográfica del Instituto Municipal de Investigación y Planeación con herramientas avanzadas.
+                        </p>
+                        <a href="#" class="btn btn-success btn-sm w-100" target="_blank">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar SIGIMIP
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -203,6 +278,107 @@
     height: 100%;
 }
 
+/* === NUEVOS ESTILOS PARA SECCIÓN INTRO === */
+.cartografia-intro-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.cartografia-intro-image img {
+    transition: all 0.3s ease;
+}
+
+.cartografia-intro-image:hover img {
+    transform: scale(1.05);
+}
+
+.cartografia-intro-text {
+    padding-left: 20px;
+}
+
+.cartografia-intro-text .lead {
+    color: #2a6e48;
+    font-weight: 600;
+}
+
+/* === NUEVOS ESTILOS PARA FOOTER EXTERNO === */
+.cartografia-footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.external-map-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.external-map-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.external-map-image-container {
+    position: relative;
+    height: 120px;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    overflow: hidden;
+}
+
+.external-map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.external-map-card:hover .external-map-image {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.external-map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.external-map-card:hover .external-map-overlay {
+    opacity: 1;
+}
+
+.external-map-content {
+    padding: 20px;
+}
+
+.external-map-content h6 {
+    margin-bottom: 10px;
+}
+
+.external-map-content .btn {
+    transition: all 0.3s ease;
+}
+
+.external-map-content .btn:hover {
+    transform: translateY(-2px);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .mapa-header .row {
@@ -234,6 +410,19 @@
     .mapa-descripcion {
         border-left: none;
         border-top: 1px solid #e0e0e0;
+        padding: 15px;
+    }
+    
+    .cartografia-intro-text {
+        padding-left: 0;
+        margin-top: 20px;
+    }
+    
+    .external-map-image-container {
+        height: 100px;
+    }
+    
+    .external-map-content {
         padding: 15px;
     }
 }
