@@ -282,4 +282,143 @@ class PublicController extends Controller
             ]);
         }
     }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener temas para estadística
+     */
+    public function obtenerTemasEstadistica()
+    {
+        try {
+            $temas = Tema::with(['subtemas'])
+                ->orderBy('orden_indice')
+                ->get()
+                ->map(function($tema) {
+                    return [
+                        'tema_id' => $tema->tema_id,
+                        'tema_titulo' => $tema->tema_titulo,
+                        'orden_indice' => $tema->orden_indice,
+                        'subtemas_count' => $tema->subtemas->count()
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'temas' => $temas,
+                'total_temas' => $temas->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar temas: ' . $e->getMessage(),
+                'temas' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener subtemas por tema
+     */
+    public function obtenerSubtemasEstadistica($tema_id)
+    {
+        try {
+            $subtemas = Subtema::with(['cuadrosEstadisticos'])
+                ->where('tema_id', $tema_id)
+                ->orderBy('orden_indice')
+                ->get()
+                ->map(function($subtema) {
+                    return [
+                        'subtema_id' => $subtema->subtema_id,
+                        'subtema_titulo' => $subtema->subtema_titulo,
+                        'orden_indice' => $subtema->orden_indice,
+                        'cuadros_count' => $subtema->cuadrosEstadisticos->count()
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'subtemas' => $subtemas,
+                'total_subtemas' => $subtemas->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar subtemas: ' . $e->getMessage(),
+                'subtemas' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener cuadros por subtema
+     */
+    public function obtenerCuadrosEstadistica($subtema_id)
+    {
+        try {
+            $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
+                ->orderBy('codigo_cuadro')
+                ->get()
+                ->map(function($cuadro) {
+                    return [
+                        'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                        'codigo_cuadro' => $cuadro->codigo_cuadro,
+                        'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                        'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'cuadros' => $cuadros,
+                'total_cuadros' => $cuadros->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar cuadros: ' . $e->getMessage(),
+                'cuadros' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener información completa del subtema
+     */
+    public function obtenerInfoSubtema($subtema_id)
+    {
+        try {
+            $subtema = Subtema::with(['tema', 'cuadrosEstadisticos'])
+                ->find($subtema_id);
+            
+            if (!$subtema) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Subtema no encontrado'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'subtema' => [
+                    'subtema_id' => $subtema->subtema_id,
+                    'subtema_titulo' => $subtema->subtema_titulo,
+                    'descripcion' => $subtema->descripcion,
+                    'imagen' => $subtema->imagen,
+                    'cuadros_count' => $subtema->cuadrosEstadisticos->count(),
+                    'tema' => $subtema->tema ? [
+                        'tema_id' => $subtema->tema->tema_id,
+                        'tema_titulo' => $subtema->tema->tema_titulo
+                    ] : null
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar información: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -17,6 +17,12 @@ Route::prefix('sigem')->group(function () {
     Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
     Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
     
+    // === NUEVAS RUTAS PARA ESTADÍSTICA ===
+    Route::get('/estadistica-temas', [PublicController::class, 'obtenerTemasEstadistica'])->name('sigem.estadistica.temas');
+    Route::get('/estadistica-subtemas/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica'])->name('sigem.estadistica.subtemas');
+    Route::get('/estadistica-cuadros/{subtema_id}', [PublicController::class, 'obtenerCuadrosEstadistica'])->name('sigem.estadistica.cuadros');
+    Route::get('/estadistica-subtema-info/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])->name('sigem.estadistica.subtema.info');
+    
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
