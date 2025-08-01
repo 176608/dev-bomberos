@@ -514,11 +514,9 @@
                         </div>`;*/
 
                     estructura += `
-                    <div class="d-flex border-bottom indice-subtema-row" 
-                        
-                        onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
-                        onmouseout="this.style.backgroundColor='${colorStyle === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
-                        onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
+                    <div class="mb-1">
+                        <div class="mb-1"
+                            onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
                         <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
                             ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
                         </div>
