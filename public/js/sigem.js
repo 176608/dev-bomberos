@@ -473,7 +473,9 @@
     // === FUNCION usada en la vista de catálogo.blade ===
     // Esta funcion se usa para generar la estructura del índice de temas y subtemas en catalogo.blade, funciones de focusEnTema y focusEnSubtema son pertinentes a esta función
     function generateEstructuraIndice(temasDetalle) {
-        let estructura = `<div style="font-size: 12px; overflow-y: auto;" id="indice-container">`;
+        let estructura = `<div style="font-size: 12px; overflow-y: auto;" id="indice-container">
+            <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+    `;
         const colores = [
             'background-color: #8FBC8F; color: white;',
             'background-color: #87CEEB; color: white;',
@@ -485,20 +487,53 @@
 
         temasDetalle.forEach((tema, index) => {
             const colorStyle = colores[index % colores.length];
-            estructura += `
+            /*estructura += `
                 <div class="mb-2">
                     <div class="p-2 rounded-top" style="${colorStyle}">
                         <strong>${tema.tema_titulo}</strong>
                     </div>
-                    <div class="border rounded-bottom p-2 bg-light">`;
+                    <div class="border rounded-bottom p-2 bg-light">`;*/
+
+            estructura += `
+            <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
+                
+                <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                     style="${colorStyle} cursor: pointer; transition: all 0.3s ease;" 
+                     data-tema="${numeroTema}"
+                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                     onclick="focusEnTema(${numeroTema});">
+                    ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
+                </div>
+                
+            <div style="background-color: white;">
+            `;
+
             if (tema.subtemas && tema.subtemas.length > 0) {
                 tema.subtemas.forEach(subtema => {
-                    estructura += `
+                    /*estructura += `
                         <div class="mb-1">
                             <a href="#" onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;" class="text-decoration-none text-dark">
                                 <i class="bi bi-arrow-right-circle me-1"></i>${subtema.subtema_titulo}
                             </a>
-                        </div>`;
+                        </div>`;*/
+
+                    estructura += `
+                    <div class="d-flex border-bottom indice-subtema-row" 
+                        style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                        data-tema="${numeroTema}" 
+                        data-subtema="${ordenSubtema}"
+                        onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                        onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                        onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
+                        <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
+                        </div>
+                        <div class="px-2 py-2 flex-grow-1">
+                            ${subtema.subtema_titulo}
+                        </div>
+                    </div>`;
+                    
                 });
             } else {
                 estructura += `<div class="fst-italic">Sin subtemas disponibles</div>`;

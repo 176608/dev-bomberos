@@ -87,7 +87,7 @@ function generateEstructuraIndice(temasDetalle) {
 
         estructura += `
             <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
-                <!-- Header del tema -->
+                
                 <div class="text-center text-white fw-bold py-2 indice-tema-header" 
                      style="${colorTema} cursor: pointer; transition: all 0.3s ease;" 
                      data-tema="${numeroTema}"
@@ -97,7 +97,7 @@ function generateEstructuraIndice(temasDetalle) {
                     ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                 </div>
                 
-                <div style="background-color: white;">
+            <div style="background-color: white;">
         `;
 
         if (tema.subtemas && tema.subtemas.length > 0) {
