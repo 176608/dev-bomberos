@@ -204,8 +204,8 @@ function generateListaCuadros(cuadrosEstadisticos) {
 
                 // Header del subtema con ID para focus
                 html += `
-                    <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
-                        <p class="fw-normal">${subtema.nombre}</p>
+                    <div class="px-1 py-1 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
+                        ${subtema.nombre}
                     </div>
                 `;
 
