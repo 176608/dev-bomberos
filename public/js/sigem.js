@@ -474,65 +474,76 @@
     // Esta funcion se usa para generar la estructura del índice de temas y subtemas en catalogo.blade, funciones de focusEnTema y focusEnSubtema son pertinentes a esta función
     function generateEstructuraIndice(temasDetalle) {
         let estructura = `<div style="font-size: 12px; overflow-y: auto;" id="indice-container">
-            <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
+        <p class="text-center mb-3"><strong>Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos</strong></p>
     `;
-        const colores = [
-            'background-color: #8FBC8F; color: white;',
-            'background-color: #87CEEB; color: white;',
-            'background-color: #DDA0DD; color: white;',
-            'background-color: #F0E68C; color: black;',
-            'background-color: #FFA07A; color: white;',
-            'background-color: #98FB98; color: black;'
-        ];
+    
+    const colores = [
+        'background-color: #8FBC8F; color: white;',
+        'background-color: #87CEEB; color: white;',
+        'background-color: #DDA0DD; color: white;',
+        'background-color: #F0E68C; color: black;',
+        'background-color: #FFA07A; color: white;',
+        'background-color: #98FB98; color: black;'
+    ];
 
-        temasDetalle.forEach((tema, index) => {
-            const colorStyle = colores[index % colores.length];
-            /*  Originales  estructura += `
-                <div class="mb-2">
-                    <div class="p-2 rounded-top" style="${colorStyle}">
-                        <strong>${tema.tema_titulo}</strong>
-                    </div>
-                    <div class="border rounded-bottom p-2 bg-light">`;*/
+    temasDetalle.forEach((tema, index) => {
+        const colorStyle = colores[index % colores.length];
+        const numeroTema = index + 1;
 
-            estructura += `
+        estructura += `
+            <div class="mb-3 indice-tema-container">
+                
                 <div class="text-center text-white fw-bold py-2 indice-tema-header" 
-                     style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
+                     style="${colorStyle} cursor: pointer; transition: all 0.3s ease;" 
+                     data-tema="${numeroTema}"
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                     onclick="SIGEMApp.focusEnTema(${tema.tema_id}, ${tema.orden_indice}); return false;">
-                    ${tema.orden_indice}. ${tema.tema_titulo}()}
+                     onclick="SIGEMApp.focusEnTema(${tema.tema_id}); return false;">
+                    ${tema.orden_indice}. ${tema.tema_titulo.toUpperCase()}
+                </div>
+                
+                <div style="background-color: white;">
+        `;
+
+        if (tema.subtemas && tema.subtemas.length > 0) {
+            tema.subtemas.forEach((subtema, subtemaIndex) => {
+                const bgColor = subtemaIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+                const ordenSubtema = subtema.orden_indice || subtemaIndex;
+                
+                estructura += `
+                    <div class="d-flex border-bottom indice-subtema-row" 
+                         style="${bgColor} cursor: pointer; transition: all 0.3s ease;"
+                         data-tema="${tema.tema_id}" 
+                         data-subtema="${ordenSubtema}"
+                         onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
+                         onmouseout="this.style.backgroundColor='${bgColor === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
+                         onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${ordenSubtema}); return false;">
+                        <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} 
+                        </div>
+                        <div class="px-2 py-2 flex-grow-1">
+                            ${subtema.subtema_titulo}
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            estructura += `
+                <div class="px-2 py-2 text-muted">
+                    <em>Sin subtemas disponibles</em>
                 </div>
             `;
+        }
 
-            if (tema.subtemas && tema.subtemas.length > 0) {
-                tema.subtemas.forEach(subtema => {
-                    /*estructura += `
-                        <div class="mb-1">
-                            <a href="#" onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;" class="text-decoration-none text-dark">
-                                <i class="bi bi-arrow-right-circle me-1"></i>${subtema.subtema_titulo}
-                            </a>
-                        </div>`;*/
+        estructura += `
+                </div>
+            </div>
+        `;
+    });
 
-                    estructura += `
-                    <div class="mb-1">
-                        <div class="mb-1"
-                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
-                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                            onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
-                        <div class="px-1 py-1 fw-bold">
-                            ${subtema.clave_subtema || tema.clave_tema || 'N/A'} - ${subtema.subtema_titulo}
-                        </div>
-                    </div>`;
-                    
-                });
-            } else {
-                estructura += `<div class="fst-italic">Sin subtemas disponibles</div>`;
-            }
-            estructura += `</div></div>`;
-        });
-        estructura += `</div>`;
-        return estructura;
-    }
+    estructura += `</div>`;
+    return estructura;
+}
 
     // === FUNCION usada en la vista de catálogo.blade ===
     // FUNCIÓN que imprime la lista de cuadros estadísticos por tema y subtema en la vista de catálogo.blade
