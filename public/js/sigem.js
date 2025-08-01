@@ -387,7 +387,7 @@
     // === FUNCION usada en la vista de estadística.blade ===
     SIGEMApp.loadEstadisticaData = function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const cuadroId = urlParams.get('cuadro_estadistico_id');
+        const cuadroId = urlParams.get('cuadroId');
         console.log('loadEstadisticaData - cuadroId:', cuadroId);
         const cuadroInfoContainer = document.getElementById('cuadro-info-container');
 
@@ -797,7 +797,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                
+
                     <div>${cuadro.pie_pagina}</div>
 
                     <div class="alert alert-info">
