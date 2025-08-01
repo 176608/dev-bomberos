@@ -433,6 +433,14 @@
                 console.log('Datos del cuadro cargados:', data);
                 if (data.success && data.cuadro) {
                     cuadroInfoContainer.innerHTML = generateCuadroInfoHtml(data.cuadro, data.tema_info, data.subtema_info);
+                    // En la función loadCuadroEspecifico o donde se cargan los datos
+                    document.dispatchEvent(new CustomEvent('cuadroDataLoaded', {
+                        detail: {
+                            cuadro: data.cuadro,
+                            subtema_info: data.subtema_info,
+                            tema_info: data.tema_info
+                        }
+                    }));
                 } else {
                     cuadroInfoContainer.innerHTML = `
                         <div class="alert alert-warning text-center">
@@ -743,33 +751,6 @@
         
         return html;
     
-        /*
-        let html = `<div class="mb-3"><div class="alert alert-info d-flex align-items-center"><i class="bi bi-info-circle me-2"></i><strong>Mapas disponibles: ${data.total_mapas || 0}</strong></div></div>`;
-        if (data.mapas && data.mapas.length > 0) {
-            html += `<div class="row g-4">`;
-            data.mapas.forEach(mapa => {
-                const imageUrl = mapa.url_imagen ? `${CONFIG.BASE_URL}/${mapa.url_imagen}` : getImagePlaceholder(mapa);
-                html += `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm">
-                            <div style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
-                                ${imageUrl}
-                            </div>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">${mapa.titulo}</h5>
-                                <p class="card-text flex-grow-1">${mapa.descripcion || 'No hay descripción disponible para este mapa.'}</p>
-                                <a href="${CONFIG.BASE_URL}/${mapa.url_documento}" target="_blank" class="btn btn-success mt-auto">
-                                    <i class="bi bi-file-earmark-pdf me-1"></i>Ver PDF
-                                </a>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            html += `</div>`;
-        } else {
-            html += `<div class="row"><div class="col-12"><div class="alert alert-warning text-center"><i class="bi bi-exclamation-triangle fs-1"></i><h4 class="mt-3">No hay mapas disponibles</h4><p class="mb-0">Actualmente no hay mapas configurados en el sistema.</p></div></div></div>`;
-        }
-        return html;*/
     }
 
     // === FUNCION usada en la vista de cartografía.blade ===
@@ -797,7 +778,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                
+
                     <div class="text-center my-4">
                         Gráfico del cuadro ${cuadro.codigo_cuadro}"
                     </div>
