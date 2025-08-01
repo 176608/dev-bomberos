@@ -858,374 +858,43 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (cuadroId) {
             console.log(`Cargando cuadro específico: ${cuadroId}`);
-            loadCuadroEspecificoEstadistica(cuadroId);
+            loadCuadroEspecifico(cuadroId);
         } else {
-            console.log('Cargando vista inicial de estadística');
-            loadVistaInicialEstadistica();
-        }
-    }
-
-    // NUEVA FUNCIÓN: Cargar vista inicial de estadística (menú de temas)
-    function loadVistaInicialEstadistica() {
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        // Ocultar vistas secundarias
-        document.getElementById('tema-selector-container').style.display = 'none';
-        document.getElementById('subtemas-vista').style.display = 'none';
-        document.getElementById('cuadro-info-container').innerHTML = '';
-        
-        // Mostrar vista inicial
-        document.getElementById('menu-temas-inicial').style.display = 'block';
-        
-        // Cargar temas
-        fetch(`${baseUrl}/estadistica-temas`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    generateTemasGrid(data.temas);
-                } else {
-                    console.error('Error cargando temas:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('temas-grid').innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            Error al cargar temas estadísticos
+            console.log('Sección estadística sin cuadro específico');
+            // Mostrar mensaje por defecto
+            const cuadroInfoContainer = document.getElementById('cuadro-info-container');
+            if (cuadroInfoContainer) {
+                cuadroInfoContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3 text-muted">Selecciona un cuadro estadístico</h4>
+                        <p class="text-muted">Para ver un cuadro estadístico específico, selecciona uno desde el catálogo.</p>
+                        
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                <i class="bi bi-journal-text me-1"></i>Ir al Catálogo
+                            </button>
                         </div>
                     </div>
                 `;
-            });
+            }
+        }
     }
 
-    // NUEVA FUNCIÓN: Generar grid de temas
-    function generateTemasGrid(temas) {
-        const temasGrid = document.getElementById('temas-grid');
-        const colores = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98'];
-        const iconos = ['bi-geo-alt-fill', 'bi-people-fill', 'bi-cash-stack', 'bi-leaf-fill', 'bi-building-fill', 'bi-shield-check'];
-        
-        let html = '';
-        temas.forEach((tema, index) => {
-            const color = colores[index % colores.length];
-            const icono = iconos[index % iconos.length];
-            
-            html += `
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card tema-card h-100" onclick="seleccionarTema(${tema.tema_id}, '${tema.tema_titulo}')">
-                        <div class="card-body">
-                            <i class="bi ${icono} tema-icon" style="color: ${color};"></i>
-                            <h5 class="card-title">${tema.orden_indice || index + 1}. ${tema.tema_titulo}</h5>
-                            <p class="card-text text-muted small">
-                                ${tema.subtemas_count || 0} subtemas disponibles
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        temasGrid.innerHTML = html;
-    }
-
-    // NUEVA FUNCIÓN: Seleccionar tema
-    function seleccionarTema(temaId, temaTitulo) {
-        console.log(`Tema seleccionado: ${temaId} - ${temaTitulo}`);
-        
-        // Ocultar vista inicial
-        document.getElementById('menu-temas-inicial').style.display = 'none';
-        
-        // Mostrar selector y vista de subtemas
-        document.getElementById('tema-selector-container').style.display = 'block';
-        document.getElementById('subtemas-vista').style.display = 'block';
-        
-        // Actualizar selector
-        actualizarSelectorTema(temaId);
-        
-        // Cargar subtemas
-        cargarSubtemasPorTema(temaId);
-    }
-
-    // NUEVA FUNCIÓN: Actualizar selector de tema
-    function actualizarSelectorTema(temaIdSeleccionado) {
+    // NUEVA FUNCIÓN: Cargar cuadro específico
+    function loadCuadroEspecifico(cuadroId) {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
         
-        fetch(`${baseUrl}/estadistica-temas`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const selector = document.getElementById('tema-selector');
-                    let html = '<option value="">-- Selecciona un tema --</option>';
-                    
-                    data.temas.forEach((tema, index) => {
-                        const selected = tema.tema_id == temaIdSeleccionado ? 'selected' : '';
-                        html += `
-                            <option value="${tema.tema_id}" ${selected}>
-                                ${tema.orden_indice || index + 1}. ${tema.tema_titulo}
-                            </option>
-                        `;
-                    });
-                    
-                    selector.innerHTML = html;
-                }
-            })
-            .catch(error => {
-                console.error('Error cargando selector:', error);
-            });
-    }
-
-    // NUEVA FUNCIÓN: Cargar subtemas por tema
-    function cargarSubtemasPorTema(temaId) {
-        if (!temaId) {
-            document.getElementById('subtemas-lista').innerHTML = `
-                <div class="text-center p-4 text-muted">
-                    <i class="bi bi-arrow-up"></i>
-                    <p>Selecciona un tema arriba</p>
-                </div>
-            `;
+        const cuadroInfoContainer = document.getElementById('cuadro-info-container');
+        const infoCuadroByClick = document.getElementById('info_cuadro_by_click');
+        
+        if (!cuadroInfoContainer) {
+            console.error('No se encontró el contenedor cuadro-info-container');
             return;
         }
         
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        // Loading
-        document.getElementById('subtemas-lista').innerHTML = `
-            <div class="text-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <p class="mt-2">Cargando subtemas...</p>
-            </div>
-        `;
-        
-        fetch(`${baseUrl}/estadistica-subtemas/${temaId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    generateSubtemasList(data.subtemas);
-                } else {
-                    console.error('Error cargando subtemas:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('subtemas-lista').innerHTML = `
-                    <div class="alert alert-danger m-3">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        Error al cargar subtemas
-                    </div>
-                `;
-            });
-    }
-
-    // NUEVA FUNCIÓN: Generar lista de subtemas
-    function generateSubtemasList(subtemas) {
-        const subtemasLista = document.getElementById('subtemas-lista');
-        
-        let html = '';
-        subtemas.forEach((subtema, index) => {
-            html += `
-                <div class="subtema-item">
-                    <div class="subtema-header" onclick="toggleSubtema(${subtema.subtema_id})" data-subtema="${subtema.subtema_id}">
-                        <div>
-                            <h6 class="mb-1">${subtema.subtema_titulo}</h6>
-                            <small class="text-muted">${subtema.cuadros_count || 0} cuadros estadísticos</small>
-                        </div>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
-                    <div class="subtema-content" id="subtema-content-${subtema.subtema_id}">
-                        <div class="text-center">
-                            <div class="spinner-border spinner-border-sm" role="status">
-                                <span class="visually-hidden">Cargando cuadros...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        subtemasLista.innerHTML = html;
-    }
-
-    // NUEVA FUNCIÓN: Toggle subtema (expandir/contraer)
-    function toggleSubtema(subtemaId) {
-        const content = document.getElementById(`subtema-content-${subtemaId}`);
-        const header = document.querySelector(`[data-subtema="${subtemaId}"] i`);
-        
-        if (content.classList.contains('show')) {
-            // Contraer
-            content.classList.remove('show');
-            header.classList.remove('bi-chevron-up');
-            header.classList.add('bi-chevron-down');
-        } else {
-            // Expandir
-            content.classList.add('show');
-            header.classList.remove('bi-chevron-down');
-            header.classList.add('bi-chevron-up');
-            
-            // Cargar cuadros si no se han cargado
-            if (content.innerHTML.includes('spinner-border')) {
-                cargarCuadrosSubtema(subtemaId);
-            }
-        }
-        
-        // Mostrar información del subtema en el panel derecho
-        mostrarInfoSubtema(subtemaId);
-    }
-
-    // NUEVA FUNCIÓN: Cargar cuadros de un subtema
-    function cargarCuadrosSubtema(subtemaId) {
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        fetch(`${baseUrl}/estadistica-cuadros/${subtemaId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const content = document.getElementById(`subtema-content-${subtemaId}`);
-                    
-                    if (data.cuadros && data.cuadros.length > 0) {
-                        let html = '';
-                        data.cuadros.forEach(cuadro => {
-                            html += `
-                                <div class="cuadro-item" onclick="seleccionarCuadroEstadistica(${cuadro.cuadro_estadistico_id})">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="flex-grow-1">
-                                            <strong class="text-primary">${cuadro.codigo_cuadro || 'N/A'}</strong>
-                                            <div class="small">${cuadro.cuadro_estadistico_titulo}</div>
-                                        </div>
-                                        <i class="bi bi-eye text-success"></i>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        content.innerHTML = html;
-                    } else {
-                        content.innerHTML = `
-                            <div class="text-center p-3 text-muted">
-                                <i class="bi bi-inbox"></i>
-                                <p class="mb-0 small">Sin cuadros estadísticos</p>
-                            </div>
-                        `;
-                    }
-                } else {
-                    content.innerHTML = `
-                        <div class="alert alert-warning alert-sm m-2">
-                            <small>Error: ${data.message}</small>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const content = document.getElementById(`subtema-content-${subtemaId}`);
-                content.innerHTML = `
-                    <div class="alert alert-danger alert-sm m-2">
-                        <small>Error al cargar cuadros</small>
-                    </div>
-                `;
-            });
-    }
-
-    // NUEVA FUNCIÓN: Mostrar información del subtema
-    function mostrarInfoSubtema(subtemaId) {
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        fetch(`${baseUrl}/estadistica-subtema-info/${subtemaId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const panel = document.getElementById('subtema-info-panel');
-                    const subtema = data.subtema;
-                    
-                    // URL de imagen con placeholder
-                    const imagenUrl = subtema.imagen ? 
-                        `${baseUrl}/img/SIGEM_subtemas/${subtema.imagen}` : 
-                        null;
-                    
-                    panel.innerHTML = `
-                        <div class="subtema-image-container">
-                            ${imagenUrl ? 
-                                `<img src="${imagenUrl}" 
-                                      alt="${subtema.subtema_titulo}" 
-                                      class="subtema-image"
-                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                 <div class="subtema-placeholder" style="display: none;">
-                                    <div>
-                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
-                                        <p class="mb-0 mt-2">${subtema.subtema_titulo}</p>
-                                        <small>Imagen no disponible</small>
-                                    </div>
-                                 </div>` 
-                                : 
-                                `<div class="subtema-placeholder">
-                                    <div>
-                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
-                                        <p class="mb-0 mt-2">${subtema.subtema_titulo}</p>
-                                        <small>Sin imagen configurada</small>
-                                    </div>
-                                 </div>`
-                            }
-                        </div>
-                        
-                        <h5 class="mt-3">${subtema.subtema_titulo}</h5>
-                        
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                <i class="bi bi-folder me-1"></i>Tema: ${subtema.tema?.tema_titulo || 'N/A'}
-                            </small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <strong class="text-primary">
-                                <i class="bi bi-table me-1"></i>${subtema.cuadros_count || 0} cuadros estadísticos
-                            </strong>
-                        </div>
-                        
-                        ${subtema.descripcion ? 
-                            `<div class="mt-3">
-                                <h6>Descripción:</h6>
-                                <p class="text-muted small">${subtema.descripcion}</p>
-                            </div>` 
-                            : ''
-                        }
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error cargando info subtema:', error);
-            });
-    }
-
-    // NUEVA FUNCIÓN: Seleccionar cuadro desde estadística
-    function seleccionarCuadroEstadistica(cuadroId) {
-        console.log(`Cuadro seleccionado desde estadística: ${cuadroId}`);
-        
-        // Ocultar vista de subtemas
-        document.getElementById('subtemas-vista').style.display = 'none';
-        
-        // Cargar cuadro específico
-        loadCuadroEspecificoEstadistica(cuadroId);
-    }
-
-    // NUEVA FUNCIÓN: Cargar cuadro específico desde estadística
-    function loadCuadroEspecificoEstadistica(cuadroId) {
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        // Mostrar selector y ocultar vistas
-        document.getElementById('tema-selector-container').style.display = 'block';
-        document.getElementById('menu-temas-inicial').style.display = 'none';
-        document.getElementById('subtemas-vista').style.display = 'none';
-        
-        const cuadroInfoContainer = document.getElementById('cuadro-info-container');
-        
-        // Loading
+        // Mostrar loading en el contenedor específico
         cuadroInfoContainer.innerHTML = `
             <div class="text-center py-5">
                 <div class="spinner-border text-success" role="status">
@@ -1240,15 +909,21 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`${baseUrl}/cuadro-data/${cuadroId}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Datos del cuadro cargados:', data);
+                
                 if (data.success && data.cuadro) {
-                    // Actualizar selector con el tema del cuadro
-                    if (data.tema_info) {
-                        actualizarSelectorTema(data.tema_info.tema_id);
+                    // Generar HTML con la información del cuadro
+                    cuadroInfoContainer.innerHTML = generateCuadroInfoHtml(data.cuadro, data.tema_info, data.subtema_info);
+                    
+                    // OPCIONAL: También mostrar en info_cuadro_by_click si existe
+                    if (infoCuadroByClick) {
+                        infoCuadroByClick.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>Cuadro cargado:</strong> ${data.cuadro.codigo_cuadro} - ${data.cuadro.cuadro_estadistico_titulo}
+                            </div>
+                        `;
                     }
-                    
-                    // Mostrar información del cuadro
-                    cuadroInfoContainer.innerHTML = generateCuadroInfoHtmlEstadistica(data.cuadro, data.tema_info, data.subtema_info);
-                    
                 } else {
                     cuadroInfoContainer.innerHTML = `
                         <div class="alert alert-warning text-center">
@@ -1256,8 +931,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <h4 class="mt-3">Cuadro no encontrado</h4>
                             <p>El cuadro con ID <strong>${cuadroId}</strong> no existe o no está disponible.</p>
                             <div class="mt-4">
-                                <button type="button" class="btn btn-success" onclick="limpiarSeleccionEstadistica()">
-                                    <i class="bi bi-arrow-left me-1"></i>Volver al Menú
+                                <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                    <i class="bi bi-journal-text me-1"></i>Volver al Catálogo
                                 </button>
                             </div>
                         </div>
@@ -1273,8 +948,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>No se pudo cargar el cuadro estadístico.</p>
                         <small class="text-muted">Error: ${error.message}</small>
                         <div class="mt-4">
-                            <button type="button" class="btn btn-success" onclick="limpiarSeleccionEstadistica()">
-                                <i class="bi bi-arrow-left me-1"></i>Volver al Menú
+                            <button type="button" class="btn btn-success" onclick="loadContent('catalogo')">
+                                <i class="bi bi-journal-text me-1"></i>Volver al Catálogo
                             </button>
                         </div>
                     </div>
@@ -1282,24 +957,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // NUEVA FUNCIÓN: Generar HTML para cuadro en estadística
-    function generateCuadroInfoHtmlEstadistica(cuadro, temaInfo, subtemaInfo) {
+    // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro
+    function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
         return `
             <div class="card border-success">
                 <div class="card-header bg-success text-white">
                     <div class="row align-items-center">
-                        <div class="col-8">
+                        <div class="col-10">
                             <h4 class="mb-0">
                                 <i class="bi bi-table me-2"></i>
                                 ${cuadro.codigo_cuadro || 'Sin código'}
                             </h4>
                         </div>
-                        <div class="col-4 text-end">
-                            <button type="button" class="btn btn-light btn-sm me-2" onclick="volverSubtemasEstadistica()" title="Volver a subtemas">
-                                <i class="bi bi-arrow-left"></i> Subtemas
-                            </button>
-                            <button type="button" class="btn btn-outline-light btn-sm" onclick="limpiarSeleccionEstadistica()" title="Limpiar selección">
-                                <i class="bi bi-house"></i>
+                        <div class="col-2 text-end">
+                            <button type="button" class="btn btn-light btn-sm" onclick="loadContent('catalogo')" title="Volver al catálogo">
+                                <i class="bi bi-arrow-left"></i>
                             </button>
                         </div>
                     </div>
@@ -1376,6 +1048,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </table>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-success me-2" onclick="loadContent('catalogo')">
+                            <i class="bi bi-arrow-left me-1"></i>Volver al Catálogo
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i>Imprimir Información
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1463,12 +1145,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // *** AL FINAL: EXPONER NUEVAS FUNCIONES AL SCOPE GLOBAL ***
     window.loadContent = loadContent;
     window.loadInicioData = loadInicioData;
-    window.loadEstadisticaData = loadEstadisticaData;
-    window.loadCuadroEspecifico = loadCuadroEspecifico;
-    window.seleccionarTema = seleccionarTema;
-    window.cargarSubtemasPorTema = cargarSubtemasPorTema;
-    window.toggleSubtema = toggleSubtema;
-    window.seleccionarCuadroEstadistica = seleccionarCuadroEstadistica;
-    window.limpiarSeleccionEstadistica = limpiarSeleccionEstadistica;
-    window.volverSubtemasEstadistica = volverSubtemasEstadistica;
+    window.loadEstadisticaData = loadEstadisticaData; // NUEVA
+    window.loadCuadroEspecifico = loadCuadroEspecifico; // NUEVA
 });
