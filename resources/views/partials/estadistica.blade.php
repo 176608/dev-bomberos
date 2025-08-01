@@ -83,6 +83,8 @@
 
         <!-- Contenedor para mensajes -->
         <div id="info_cuadro_by_click" class="mt-4"></div>
+
+        
     </div>
 </div>
 
