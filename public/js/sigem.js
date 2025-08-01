@@ -515,7 +515,7 @@
 
                     estructura += `
                     <div class="d-flex border-bottom indice-subtema-row" 
-                        style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
+                        
                         onmouseover="this.style.backgroundColor='#e8f4f8'; this.style.transform='translateX(5px)';"
                         onmouseout="this.style.backgroundColor='${colorStyle === 'background-color: #f8f9fa;' ? '#f8f9fa' : 'white'}'; this.style.transform='translateX(0)';"
                         onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
