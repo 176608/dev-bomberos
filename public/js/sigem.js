@@ -487,7 +487,7 @@
 
         temasDetalle.forEach((tema, index) => {
             const colorStyle = colores[index % colores.length];
-            /*estructura += `
+            /*  Originales  estructura += `
                 <div class="mb-2">
                     <div class="p-2 rounded-top" style="${colorStyle}">
                         <strong>${tema.tema_titulo}</strong>
@@ -500,7 +500,7 @@
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                      onclick="SIGEMApp.focusEnTema(${tema.tema_id}, ${tema.orden_indice}); return false;">
-                    ${tema.orden_indice}. ${tema.tema_titulo.toUpperCase()}
+                    ${tema.orden_indice}. ${tema.tema_titulo}()}
                 </div>
             `;
 
@@ -516,8 +516,10 @@
                     estructura += `
                     <div class="mb-1">
                         <div class="mb-1"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                             onclick="SIGEMApp.focusEnSubtema(${tema.tema_id}, ${subtema.orden_indice}); return false;">
-                        <div class="px-1 py-1 text-center fw-bold" style="min-width: 60px; border-right: 1px solid #ddd;">
+                        <div class="px-1 py-1 fw-bold">
                             ${subtema.clave_subtema || tema.clave_tema || 'N/A'} - ${subtema.subtema_titulo}
                         </div>
                     </div>`;
