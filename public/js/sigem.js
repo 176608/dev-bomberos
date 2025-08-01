@@ -205,7 +205,7 @@ function generateListaCuadros(cuadrosEstadisticos) {
                 // Header del subtema con ID para focus
                 html += `
                     <div class="px-3 py-2 bg-light border-bottom fw-bold" style="font-size: 14px;" id="${subtemaId}">
-                        ${subtema.clave || 'N/A'} ${subtema.nombre}
+                        <span class="badge text-bg-success">${subtema.clave || 'N/A'}</span> <p class="fw-normal">${subtema.nombre}</p>
                     </div>
                 `;
 
@@ -217,7 +217,7 @@ function generateListaCuadros(cuadrosEstadisticos) {
                         html += `
                             <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
                                 <div class="me-3" style="min-width: 80px;">
-                                    <span class="badge text-bg-success">${cuadro.codigo_cuadro || 'N/A'}</span>
+                                    ${cuadro.codigo_cuadro || 'N/A'}
                                 </div>
                                 <div class="flex-grow-1 me-3" style="font-size: 12px;">
                                     <div class="fw-bold">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</div>
