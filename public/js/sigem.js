@@ -786,7 +786,7 @@
                 <div class="card-header bg-success text-white">
                     <div class="row align-items-center">
                         <div class="col-10">
-                            <h4 class="mb-0">${cuadro.titulo}</h4>
+                            <h4 class="mb-0">${cuadro.cuadro_estadistico_titulo}</h4>
                             <small>${cuadro.codigo_cuadro} | ${temaInfo?.tema_titulo || 'Tema no disponible'} / ${subtemaInfo?.subtema_titulo || 'Subtema no disponible'}</small>
                         </div>
                         <div class="col-2 text-end">
@@ -797,10 +797,10 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <p>${cuadro.descripcion}</p>
+                    <p>${cuadro.pie_pagina}</p>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-1"></i>
-                        <strong>Nota:</strong> Este cuadro estadístico se presenta únicamente con fines ilustrativos.
+                        <strong>Nota:</strong> ${cuadro.pie_pagina}
                     </div>
                     <div class="text-center my-4">
                         <img src="https://placehold.co/600x400/cccccc/969696?text=Gr%C3%A1fico+Estad%C3%ADstico" alt="Gráfico del cuadro ${cuadro.codigo_cuadro}" class="img-fluid rounded shadow-sm">
