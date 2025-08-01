@@ -58,24 +58,22 @@ function focusEnSubtema(numeroTema, ordenSubtema) {
         console.warn(`No se encontró elemento para subtema ${numeroTema}-${ordenSubtema}. SubtemaElement:`, subtemaElement, 'CuadrosContainer:', cuadrosContainer);
     }
 }
-
+/*
+// Funcion de catalogo a estadistica? 
 function verCuadro(cuadroId, codigo) {
     console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
     
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
-    // NUEVA FUNCIONALIDAD: Abrir sección estadística con cuadro específico
     const url = `${baseUrl}?section=estadistica&cuadro_id=${cuadroId}`;
 
     console.log(`Usando URL: ${url}`);
 
     window.open(url, '_blank');
-}
+}*/
 
-// === FUNCIONES DE GENERACIÓN HTML (copiadas exactas del sigem_admin) ===
-
-// FUNCIÓN EXACTA del sigem_admin que funciona
+// Esta funcion se usa para generar la estructura del índice de temas y subtemas en catalogo
 function generateEstructuraIndice(temasDetalle) {
     let estructura = `
         <div style="font-size: 12px; overflow-y: auto;" id="indice-container">
@@ -83,7 +81,6 @@ function generateEstructuraIndice(temasDetalle) {
     `;
 
     temasDetalle.forEach((tema, temaIndex) => {
-        // Determinar el color del header basado en el número de tema
         const colores = [
             'background-color: #8FBC8F;', // Verde claro
             'background-color: #87CEEB;', // Azul cielo
