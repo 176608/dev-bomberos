@@ -495,8 +495,6 @@
                     <div class="border rounded-bottom p-2 bg-light">`;*/
 
             estructura += `
-            <div class="mb-3 indice-tema-container" style="border: 1px solid #ddd;">
-                
                 <div class="text-center text-white fw-bold py-2 indice-tema-header" 
                      style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
@@ -504,8 +502,6 @@
                      onclick="SIGEMApp.focusEnTema(${tema.tema_id}, ${tema.orden_indice}); return false;">
                     ${tema.orden_indice}. ${tema.tema_titulo.toUpperCase()}
                 </div>
-                
-            <div style="background-color: white;">
             `;
 
             if (tema.subtemas && tema.subtemas.length > 0) {
