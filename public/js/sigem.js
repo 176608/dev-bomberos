@@ -530,104 +530,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
-/*
-    // FUNCIÓN: Cargar datos de catálogo (REEMPLAZAR con la función del contexto)
-    function loadCatalogoData() {
-        const baseUrl = window.SIGEM_BASE_URL || 
-                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-        
-        const cuadroInfoContainer = document.getElementById('cuadro-info-container');
-        const infoCuadroByClick = document.getElementById('info_cuadro_by_click');
-        
-        if (!cuadroInfoContainer) {
-            console.error('No se encontró el contenedor cuadro-info-container');
-            return;
-        }
-        
-        // Mostrar loading en el contenedor específico
-        cuadroInfoContainer.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-success" role="status">
-                    <span class="visually-hidden">Cargando cuadro...</span>
-                </div>
-                <h4 class="mt-3 text-muted">Cargando cuadro estadístico</h4>
-                <p class="text-muted">ID: ${cuadroId}</p>
-            </div>
-        `;
-        
-        // Cargar datos del cuadro
-        fetch(`${baseUrl}/cuadro-data/${cuadroId}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('=== DATOS RAW DEL CATÁLOGO ===');
-                console.log('Response completa:', data);
-                console.log('Success:', data.success);
-                console.log('Total temas:', data);
-                console.log('Temas detalle:', data.temas_detalle);
-                console.log('Cuadros estadísticos:', data.cuadros_estadisticos);
-                console.log('=== FIN DATOS RAW ===');
-                
-                if (data.success) {
-                    const indiceContainer = document.getElementById('indice-container');
-                    const cuadrosContainer = document.getElementById('cuadros-container');
-                    
-                    if (indiceContainer && data.temas_detalle) {
-                        indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
-                    }
-                    
-                    if (cuadrosContainer && data.cuadros_estadisticos) {
-                        cuadrosContainer.innerHTML = generateListaCuadros(data.cuadros_estadisticos);
-                    }
-                    
-                    // Sincronizar alturas después de cargar contenido
-                    sincronizarAlturas();
-                } else {
-                    const indiceContainer = document.getElementById('indice-container');
-                    const cuadrosContainer = document.getElementById('cuadros-container');
-                    
-                    if (indiceContainer) {
-                        indiceContainer.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="bi bi-exclamation-circle"></i>
-                                Error al cargar catálogo: ${data.message}
-                            </div>
-                        `;
-                    }
-                    
-                    if (cuadrosContainer) {
-                        cuadrosContainer.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="bi bi-exclamation-circle"></i>
-                                Error al cargar cuadros estadísticos
-                            </div>
-                        `;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const indiceContainer = document.getElementById('indice-container');
-                const cuadrosContainer = document.getElementById('cuadros-container');
-                
-                if (indiceContainer) {
-                    indiceContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-circle"></i>
-                            Error de conexión al cargar catálogo
-                        </div>
-                    `;
-                }
-                
-                if (cuadrosContainer) {
-                    cuadrosContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-circle"></i>
-                            Error de conexión al cargar cuadros
-                        </div>
-                    `;
-                }
-            });
-    }*/
 
     // FUNCIÓN: Cargar datos de inicio.blade
     function loadInicioData() {
@@ -795,16 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // FUNCIÓN AUXILIAR: Placeholder escapado para onerror
-    function getImagePlaceholderEscaped(mapa) {
-        return `<div class="mapa-image-placeholder">
-                    <i class="bi bi-image"></i>
-                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
-                    <p>Error al cargar imagen</p>
-                    <small class="text-danger">Archivo: ${mapa.icono || 'N/A'}</small>
-                </div>`;
-    }
-
     // Event listeners para navegación
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -868,7 +760,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // FUNCIÓN: Cargar cuadro específico
+    // FUNCIÓN: Cargar cuadro específico en la vista de estadística.blade
     function loadCuadroEspecifico(cuadroId) {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
@@ -944,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro
+    // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro, es usada en loadCuadroEspecifico
     function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
         return `
             <div class="card border-success">
@@ -1051,7 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // CORREGIR FUNCIÓN: loadCatalogoData (estaba confundida con cuadro)
+    // Funcion que carga los datos del catálogo en la vista de catálogo.blade
     function loadCatalogoData() {
         const baseUrl = window.SIGEM_BASE_URL || 
                        (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
