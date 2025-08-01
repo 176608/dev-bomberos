@@ -501,7 +501,7 @@
                      style="${colorStyle} cursor: pointer; transition: all 0.3s ease;"
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                     onclick="focusEnTema(${numeroTema});">
+                     onclick="SIGEMApp.focusEnTema(${numeroTema}); return false;">
                     ${numeroTema}. ${tema.tema_titulo.toUpperCase()}
                 </div>
                 
