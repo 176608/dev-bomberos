@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (statCuadros) statCuadros.textContent = data.estadisticas.total_cuadros || 0;
                     }
                 } else {
-                    console.warn('Error en datos de inicio:', data.message);
+                    //console.warn('Error en datos de inicio:', data.message);
                 }
             })
             .catch(error => {

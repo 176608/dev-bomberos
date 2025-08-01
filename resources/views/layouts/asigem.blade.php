@@ -222,7 +222,7 @@
         </div>
 
         <!-- CONTENEDOR DINÁMICO -->
-        <div id="sigem-content" class="container m-5">
+        <div id="sigem-content" class="container my-4">
             @yield('dynamic_content')
         </div>
     </div>
