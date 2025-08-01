@@ -554,6 +554,8 @@
 
         const cuadrosOrganizados = organizarCuadrosPorTema(cuadrosEstadisticos);
         let html = `<div style="overflow-y: auto;" id="cuadros-container">`;
+        
+        // Colores para los headers de temas (igual que la estructura de índice)
         const colores = [
             'background-color: #8FBC8F; color: white;',
             'background-color: #87CEEB; color: white;',
@@ -566,37 +568,66 @@
         Object.keys(cuadrosOrganizados).forEach((temaKey, indexTema) => {
             const temaData = cuadrosOrganizados[temaKey];
             const colorStyle = colores[indexTema % colores.length];
+            
             html += `
-                <div class="mb-4" id="tema-cuadros-${temaData.tema_info.tema_id}">
-                    <div class="p-2 rounded-top" style="${colorStyle}">
-                        <h5 class="mb-0">${temaData.tema_info.tema_titulo}</h5>
+                <div class="mb-4" style="border: 1px solid #ddd; border-radius: 5px;" id="tema-cuadros-${temaData.tema_info.tema_id}">
+                    
+                    <div class="text-center fw-bold py-2" style="${colorStyle}">
+                        ${temaData.tema_info.orden_indice || (indexTema + 1)}. ${temaData.tema_info.tema_titulo.toUpperCase()}
                     </div>
-                    <div class="border rounded-bottom">`;
+                    
+                    
+                    <div style="background-color: white;">
+            `;
 
-            Object.keys(temaData.subtemas).forEach(subtemaKey => {
+            Object.keys(temaData.subtemas).forEach((subtemaKey, subtemaIndex) => {
                 const subtemaData = temaData.subtemas[subtemaKey];
+                const ordenSubtema = subtemaData.subtema_info.orden_indice || subtemaIndex;
+                
+                // Header del subtema con ID para focus
                 html += `
-                    <div class="border-bottom p-3" id="subtema-cuadros-${temaData.tema_info.tema_id}-${subtemaData.subtema_info.orden_indice}">
-                        <h6 class="text-primary">${subtemaData.subtema_info.subtema_titulo}</h6>
-                        <div class="row g-3">`;
+                    <div class="px-1 py-1 bg-light border-bottom fw-bold" style="font-size: 14px;" id="subtema-cuadros-${temaData.tema_info.tema_id}-${ordenSubtema}">
+                        ${subtemaData.subtema_info.subtema_titulo}
+                    </div>
+                `;
 
-                subtemaData.cuadros.forEach(cuadro => {
-                    html += `
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">${cuadro.titulo}</h6>
-                                    <p class="card-text flex-grow-1"><small class="text-muted">${cuadro.codigo_cuadro}</small></p>
-                                    <button class="btn btn-success mt-auto" onclick="SIGEMApp.verCuadro(${cuadro.cuadro_id}, '${cuadro.codigo_cuadro}')">
-                                        <i class="bi bi-table me-1"></i>Ver Cuadro
+                // Cuadros del subtema
+                if (subtemaData.cuadros && subtemaData.cuadros.length > 0) {
+                    subtemaData.cuadros.forEach((cuadro, cuadroIndex) => {
+                        const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
+
+                        html += `
+                            <div class="d-flex align-items-center border-bottom py-2 px-3" style="${bgColor}">
+                                <div class="me-3" style="min-width: 80px;">
+                                    ${cuadro.codigo_cuadro || 'N/A'}
+                                </div>
+                                <div class="flex-grow-1 me-3" style="font-size: 12px;">
+                                    <div class="fw-bold">${cuadro.titulo || 'Sin título'}</div>
+                                    ${cuadro.subtitulo ? `<small class="text-muted">${cuadro.subtitulo}</small>` : ''}
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-success" 
+                                       onclick="SIGEMApp.verCuadro(${cuadro.cuadro_id}, '${cuadro.codigo_cuadro}')"
+                                       title="Ver cuadro ${cuadro.codigo_cuadro}">
+                                        <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                             </div>
-                        </div>`;
-                });
-                html += `</div></div>`;
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="px-3 py-2 text-muted">
+                            <em>Sin cuadros estadísticos en este subtema</em>
+                        </div>
+                    `;
+                }
             });
-            html += `</div></div>`;
+
+            html += `
+                    </div>
+                </div>
+            `;
         });
         html += `</div>`;
         return html;
