@@ -30,7 +30,7 @@
                     </div>
                     <div class="card-body text-center p-4">
                         <!-- Imagen con efecto hover -->
-                        <div class="module-image-container mb-3" onclick="loadContent('catalogo')">
+                        <div class="module-image-container mb-3" onclick="SIGEMApp.loadContent('catalogo')">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/sige2.png') }}" alt="Catálogo de Cuadros" class="module-image">
                                 <div class="module-overlay">
@@ -43,7 +43,7 @@
                             Explora nuestro catálogo completo de cuadros estadísticos organizados por temas y subtemas con sistema de navegación intuitivo.
                         </p>
                         <!-- Botón -->
-                        <button class="btn btn-success btn-sm" onclick="loadContent('catalogo')">
+                        <button class="btn btn-success btn-sm" onclick="SIGEMApp.loadContent('catalogo')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
                         </button>
                     </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div class="card-body text-center p-4">
                         <!-- Imagen con efecto hover -->
-                        <div class="module-image-container mb-3" onclick="loadContent('estadistica')">
+                        <div class="module-image-container mb-3" onclick="SIGEMApp.loadContent('estadistica')">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Módulo Estadística" class="module-image">
                                 <div class="module-overlay">
@@ -73,7 +73,7 @@
                             Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
                         </p>
                         <!-- Botón -->
-                        <button class="btn btn-primary btn-sm" onclick="loadContent('estadistica')">
+                        <button class="btn btn-primary btn-sm" onclick="SIGEMApp.loadContent('estadistica')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
                         </button>
                     </div>
@@ -90,7 +90,7 @@
                     </div>
                     <div class="card-body text-center p-4">
                         <!-- Imagen con efecto hover -->
-                        <div class="module-image-container mb-3" onclick="loadContent('cartografia')">
+                        <div class="module-image-container mb-3" onclick="SIGEMApp.loadContent('cartografia')">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/cartogde.png') }}" alt="Módulo Cartografía" class="module-image">
                                 <div class="module-overlay">
@@ -103,7 +103,7 @@
                             Accede a mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
                         </p>
                         <!-- Botón -->
-                        <button class="btn btn-info btn-sm" onclick="loadContent('cartografia')">
+                        <button class="btn btn-info btn-sm" onclick="SIGEMApp.loadContent('cartografia')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
                         </button>
                     </div>

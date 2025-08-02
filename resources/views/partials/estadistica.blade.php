@@ -53,7 +53,7 @@
                     </div>
 
                     @if(isset($modo_vista) && $modo_vista === 'desde_catalogo')
-                        <!-- MODO DESDE CATÁLOGO: Selector + Breadcrumb + Visualización -->
+                        <!-- MODO DESDE CATÁLOGO:  -->
                         <!-- Row 2: Selector Dinámico -->
                         <div class="row g-0 border-bottom" id="selector-dinamico">
                             <div class="col-12">
@@ -102,28 +102,18 @@
                             <div class="h-100 d-flex flex-column">
                                 <div class="p-3 bg-warning bg-opacity-25 border-bottom">
                                     <h5 class="mb-0">
-                                        <i class="bi bi-table me-2"></i>Visualización de Cuadro Estadístico
+                                        <i class="bi bi-table me-2"></i>Cuadro de Estadístico
                                     </h5>
                                 </div>
+                                <!-- Aca si llegamos desde catalogo -->
                                 <div class="flex-fill p-4" id="cuadro-visualizacion">
-                                    <!-- Placeholder inicial -->
-                                    <div class="h-100 d-flex align-items-center justify-content-center text-muted" id="placeholder-inicial">
-                                        <div class="text-center">
-                                            <i class="bi bi-file-earmark-excel" style="font-size: 4rem;"></i>
-                                            <h4 class="mt-3">Área de Visualización</h4>
-                                            <p>Selecciona un cuadro estadístico para visualizar su contenido</p>
-                                        </div>
-                                    </div>
+                                    
 
-                                    <!-- Contenedor para datos del cuadro -->
-                                    <div id="cuadro-data-container" style="display: none;">
-                                        <!-- Aquí se cargarán los datos del cuadro -->
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                    @else
-                        <!-- MODO NAVEGACIÓN: Solo se ve si llegamos a estadística manualmente -->
+                    @else Comentario: [Este ELSE no debe entrar si el modo vista es 'desde_catalogo', solo si se usa la navegación (boton del menu o desde inicio)]
+                        <!-- MODO NAVEGACIÓN-->
                         <div class="flex-fill p-4">
                             <div class="row">
                                 <div class="col-12">
@@ -135,7 +125,6 @@
                                         @if(isset($temas) && $temas->count() > 0)
                                             @foreach($temas as $index => $tema)
                                                 @php 
-                                                    // Usar colores consistentes con estilo definido
                                                     $coloresEstilo = [
                                                         'background-color: #8FBC8F; color: black;',  // Verde suave
                                                         'background-color: #87CEEB; color: black;',  // Azul cielo
@@ -193,11 +182,7 @@
             </div>
         </div>
 
-        <!-- Aca esta recibiendo la informacion del cuadro desde el catalogo -->
-        <div id="cuadro-info-container">
-            
-        </div>
-
+        <!-- Aca se debe visualizar la informacion del cuadro SI viene via catalogo --><div id="cuadro-info-container"></div>
 
     </div>
 </div>
