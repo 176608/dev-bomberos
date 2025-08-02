@@ -48,6 +48,14 @@
         bindEvents: function () {
             this.elements.navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
+                    // Verificar si estamos en una ruta especial y el href no es '#'
+                    const isDirectLink = link.getAttribute('href') !== '#';
+                    if (isDirectLink) {
+                        // No prevenir el comportamiento por defecto, permitir la navegación normal
+                        return true;
+                    }
+                    
+                    // Para rutas normales, usar el comportamiento AJAX existente
                     e.preventDefault();
                     const section = link.getAttribute('data-section');
                     this.loadContent(section);
