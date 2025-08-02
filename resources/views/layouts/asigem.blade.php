@@ -198,24 +198,50 @@
             </div>
         </div>
 
+
+        @php
+            $isSpecialRoute = Str::contains(request()->path(), 'estadistica-tema') || 
+                              Str::contains(request()->path(), 'estadistica-subtema');
+        @endphp
+
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <a href="#" data-section="inicio" class="sigem-nav-link active">
-                    <i class="bi bi-house-fill"></i> INICIO
-                </a>
-                <a href="#" data-section="catalogo" class="sigem-nav-link">
-                    <i class="bi bi-journal-text"></i> CATÁLOGO
-                </a>
-                <a href="#" data-section="estadistica" class="sigem-nav-link">
-                    <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
-                </a>
-                <a href="#" data-section="cartografia" class="sigem-nav-link">
-                    <i class="bi bi-map-fill"></i> CARTOGRAFÍA
-                </a>
-                <a href="#" data-section="productos" class="sigem-nav-link">
-                    <i class="bi bi-box-seam"></i> PRODUCTOS
-                </a>
+                <!-- Si es una ruta especial, usar enlaces directos; si no, usar data-section -->
+                @if($isSpecialRoute)
+                    <a href="{{ url('/sigem?section=inicio') }}" class="sigem-nav-link {{ $section === 'inicio' ? 'active' : '' }}">
+                        <i class="bi bi-house-fill"></i> INICIO
+                    </a>
+                    <a href="{{ url('/sigem?section=catalogo') }}" class="sigem-nav-link {{ $section === 'catalogo' ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i> CATÁLOGO
+                    </a>
+                    <a href="{{ url('/sigem?section=estadistica') }}" class="sigem-nav-link {{ $section === 'estadistica' ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
+                    </a>
+                    <a href="{{ url('/sigem?section=cartografia') }}" class="sigem-nav-link {{ $section === 'cartografia' ? 'active' : '' }}">
+                        <i class="bi bi-map-fill"></i> CARTOGRAFÍA
+                    </a>
+                    <a href="{{ url('/sigem?section=productos') }}" class="sigem-nav-link {{ $section === 'productos' ? 'active' : '' }}">
+                        <i class="bi bi-box-seam"></i> PRODUCTOS
+                    </a>
+                @else
+                    <!-- Mantener el comportamiento actual para rutas normales -->
+                    <a href="#" data-section="inicio" class="sigem-nav-link {{ $section === 'inicio' ? 'active' : '' }}">
+                        <i class="bi bi-house-fill"></i> INICIO
+                    </a>
+                    <a href="#" data-section="catalogo" class="sigem-nav-link {{ $section === 'catalogo' ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i> CATÁLOGO
+                    </a>
+                    <a href="#" data-section="estadistica" class="sigem-nav-link {{ $section === 'estadistica' ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
+                    </a>
+                    <a href="#" data-section="cartografia" class="sigem-nav-link {{ $section === 'cartografia' ? 'active' : '' }}">
+                        <i class="bi bi-map-fill"></i> CARTOGRAFÍA
+                    </a>
+                    <a href="#" data-section="productos" class="sigem-nav-link {{ $section === 'productos' ? 'active' : '' }}">
+                        <i class="bi bi-box-seam"></i> PRODUCTOS
+                    </a>
+                @endif
             </div>
         </div>
 
