@@ -222,11 +222,12 @@
         <!-- CONTENEDOR DINÁMICO -->
         <div id="sigem-content" class="container my-4">
             @yield('dynamic_content')
-        {{-- Asegúrate de que esta parte exista en la vista principal --}}
+        </div>
+
         @if(isset($section) && $section === 'estadistica')
             @include('partials.estadistica')
         @endif
-        </div>
+
     </div>
 @endsection
 
