@@ -147,15 +147,15 @@
                 <!-- SIDEBAR PARA SUBTEMAS (4 columnas) -->
                 <div class="col-md-4 bg-light border-end">
                     <div class="d-flex flex-column h-100">
-                        <!-- Header del Sidebar -->
+                        
                         <div class="p-3 bg-primary text-white">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $subtema_seleccionado->tema->tema_titulo }}
                                 </h6>
-                                <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-light" title="EERR Volver a temas estadísticos">
+                                <!-- Este boton hay que borrarlo: <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-light" title="EERR Volver a temas estadísticos">
                                     <i class="bi bi-arrow-left"></i>
-                                </a>
+                                </a>-->
                             </div>
                         </div>
 
