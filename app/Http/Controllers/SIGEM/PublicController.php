@@ -13,11 +13,39 @@ use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo CuadroEsta
 class PublicController extends Controller
 {
     /**
-     * Vista principal SIGEM
+     * Página principal SIGEM
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('roles.sigem');
+        // Obtener la sección solicitada o usar 'inicio' como predeterminada
+        $section = $request->query('section', 'inicio');
+        
+        // Datos iniciales para todas las vistas
+        $viewData = [
+            'section' => $section,
+        ];
+        
+        // Si se solicita la sección de estadística, obtener los temas
+        if ($section === 'estadistica') {
+            $viewData['temas'] = Tema::orderBy('orden_indice')->get();
+        }
+
+        // Si se solicita un cuadro específico
+        if ($section === 'estadistica' && $request->has('cuadro_id')) {
+            $cuadro_id = $request->query('cuadro_id');
+            $viewData['cuadro_id'] = $cuadro_id;
+            $viewData['modo_vista'] = 'desde_catalogo';
+            
+            // Cargar los datos del cuadro
+            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
+            if ($cuadro) {
+                $viewData['cuadro_data'] = $cuadro;
+                $viewData['tema_seleccionado'] = $cuadro->subtema->tema;
+            }
+        }
+        
+        // Devolver la vista con los datos
+        return view('roles.sigem', $viewData);
     }
     
     /**

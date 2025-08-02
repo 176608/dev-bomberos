@@ -25,44 +25,61 @@
                     <h4 class="mb-4">
                         <i class="bi bi-list-task me-2"></i>Selecciona un tema para explorar:
                     </h4>
-                    
-                    <div class="row" id="temas-grid">
-                        @foreach($temas as $index => $tema)
-                            @php 
-                                $coloresEstilo = [
-                                    'background-color: #8FBC8F; color: black;',
-                                    'background-color: #87CEEB; color: black;',
-                                    'background-color: #DDA0DD; color: black;',
-                                    'background-color: #F0E68C; color: black;',
-                                    'background-color: #FFA07A; color: black;',
-                                    'background-color: #98FB98; color: black;'
-                                ];
-                                $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
-                            @endphp
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card h-100 tema-card" data-tema-id="{{ $tema->tema_id }}">
-                                    <div class="card-header text-center" style="{{ $colorTema }}">
-                                        <h5 class="mb-0 fw-bold">
-                                            {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                        </h5>
-                                    </div>
-                                    <div class="card-body text-center p-4">
-                                        <i class="bi bi-folder-fill text-muted" style="font-size: 3rem;"></i>
-                                        <p class="mt-3 mb-0">
-                                            <small class="text-muted">
-                                                {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
-                                            </small>
-                                        </p>
-                                    </div>
-                                    <div class="card-footer text-center">
-                                        <a href="{{ url('/sigem/estadistica-tema/'.$tema->tema_id) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-arrow-right me-1"></i>Ver cuadros estadísticos
-                                        </a>
+
+                    @if(!isset($temas) || $temas->isEmpty())
+                        <!-- Manejo de error cuando $temas no está definida o está vacía -->
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            No se pudieron cargar los temas estadísticos. Por favor, 
+                            <a href="{{ url('/sigem?section=estadistica') }}" class="alert-link">haz clic aquí para intentar nuevamente</a>.
+                        </div>
+
+                        <!-- Agregar un script para recargar la página después de un breve retraso -->
+                        <script>
+                            setTimeout(function() {
+                                window.location.href = '{{ route("sigem.laravel.partial", ["section" => "estadistica"]) }}';
+                            }, 3000);
+                        </script>
+                    @else
+                        <!-- El contenido normal cuando $temas está definida -->
+                        <div class="row" id="temas-grid">
+                            @foreach($temas as $index => $tema)
+                                @php 
+                                    $coloresEstilo = [
+                                        'background-color: #8FBC8F; color: black;',
+                                        'background-color: #87CEEB; color: black;',
+                                        'background-color: #DDA0DD; color: black;',
+                                        'background-color: #F0E68C; color: black;',
+                                        'background-color: #FFA07A; color: black;',
+                                        'background-color: #98FB98; color: black;'
+                                    ];
+                                    $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
+                                @endphp
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                    <div class="card h-100 tema-card" data-tema-id="{{ $tema->tema_id }}">
+                                        <div class="card-header text-center" style="{{ $colorTema }}">
+                                            <h5 class="mb-0 fw-bold">
+                                                {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                            </h5>
+                                        </div>
+                                        <div class="card-body text-center p-4">
+                                            <i class="bi bi-folder-fill text-muted" style="font-size: 3rem;"></i>
+                                            <p class="mt-3 mb-0">
+                                                <small class="text-muted">
+                                                    {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
+                                                </small>
+                                            </p>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <a href="{{ url('/sigem/estadistica-tema/'.$tema->tema_id) }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-arrow-right me-1"></i>Ver cuadros estadísticos
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
