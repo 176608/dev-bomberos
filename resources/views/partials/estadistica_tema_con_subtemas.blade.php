@@ -11,13 +11,13 @@
                             <h6 class="mb-0">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            <a href="{{ route('sigem.partial', ['section' => 'estadistica']) }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadísticos">
+                            <a href="{{ route('sigem', ['section' => 'estadistica']) }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadísticos">
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
                     </div>
 
-                    <!-- Selector de Temas (desplegable) -->
+                    <!-- Selector de Temas (tema con subtemas) -->
                     <div class="p-3 border-bottom">
                         <select class="form-select form-select-sm" id="tema-selector" onchange="cambiarTema(this.value)">
                             @foreach($temas as $tema)
