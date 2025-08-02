@@ -458,15 +458,15 @@ class PublicController extends Controller
                 $query->orderBy('orden_indice', 'asc');
             }])->findOrFail($tema_id);
             
-            // Obtener todos los temas para el selector de temas
+            // Obtener todos los temas para el selector
             $temas = Tema::orderBy('orden_indice')->get();
             
-            // Este es el punto clave: Configurar la sección correctamente
-            return view('roles.sigem', [
+            return view('layouts.asigem', [
                 'section' => 'estadistica',
                 'tema_seleccionado' => $tema,
                 'temas' => $temas,
-                'modo_vista' => 'navegacion_tema'
+                'modo_vista' => 'navegacion_tema',
+                'current_route' => 'estadistica-tema'
             ]);
         } catch (\Exception $e) {
             \Log::error('Error al cargar tema estadística:', [
@@ -484,30 +484,40 @@ class PublicController extends Controller
      */
     public function verEstadisticaSubtema($subtema_id)
     {
-        // Obtener el subtema con su tema
-        $subtema = Subtema::with(['tema'])->findOrFail($subtema_id);
-        
-        // Obtener todos los subtemas del mismo tema para la navegación lateral
-        $tema_subtemas = Subtema::where('tema_id', $subtema->tema_id)
-            ->orderBy('orden_indice')
-            ->get();
-        
-        // Obtener todos los temas para el selector
-        $temas = Tema::orderBy('orden_indice')->get();
-        
-        // Obtener cuadros del subtema
-        $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
-            ->orderBy('codigo_cuadro')
-            ->get();
-        
-        // En lugar de devolver una vista parcial, devolvemos la vista principal
-        return view('roles.sigem', [
-            'section' => 'estadistica',
-            'subtema_seleccionado' => $subtema,
-            'tema_subtemas' => $tema_subtemas,
-            'cuadros' => $cuadros,
-            'temas' => $temas,
-            'modo_vista' => 'navegacion_subtema'
-        ]);
+        try {
+            // Obtener el subtema con su tema
+            $subtema = Subtema::with(['tema'])->findOrFail($subtema_id);
+            
+            // Obtener todos los subtemas del mismo tema para la navegación lateral
+            $tema_subtemas = Subtema::where('tema_id', $subtema->tema_id)
+                ->orderBy('orden_indice')
+                ->get();
+            
+            // Obtener todos los temas para el selector
+            $temas = Tema::orderBy('orden_indice')->get();
+            
+            // Obtener cuadros del subtema
+            $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
+                ->orderBy('codigo_cuadro')
+                ->get();
+            
+            return view('layouts.asigem', [
+                'section' => 'estadistica',
+                'subtema_seleccionado' => $subtema,
+                'tema_subtemas' => $tema_subtemas,
+                'cuadros' => $cuadros,
+                'temas' => $temas,
+                'modo_vista' => 'navegacion_subtema',
+                'current_route' => 'estadistica-subtema'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar subtema estadística:', [
+                'subtema_id' => $subtema_id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('sigem.laravel.partial', ['section' => 'estadistica'])
+                ->with('error', 'No se pudo cargar el subtema seleccionado');
+        }
     }
 }

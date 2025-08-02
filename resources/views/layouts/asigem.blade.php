@@ -201,33 +201,47 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <a href="#" data-section="inicio" class="sigem-nav-link active">
+                <a href="#" data-section="inicio" class="sigem-nav-link {{ $section === 'inicio' ? 'active' : '' }}">
                     <i class="bi bi-house-fill"></i> INICIO
                 </a>
-                <a href="#" data-section="catalogo" class="sigem-nav-link">
+                <a href="#" data-section="catalogo" class="sigem-nav-link {{ $section === 'catalogo' ? 'active' : '' }}">
                     <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
-                <a href="#" data-section="estadistica" class="sigem-nav-link">
+                <a href="#" data-section="estadistica" class="sigem-nav-link {{ $section === 'estadistica' ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
-                <a href="#" data-section="cartografia" class="sigem-nav-link">
+                <a href="#" data-section="cartografia" class="sigem-nav-link {{ $section === 'cartografia' ? 'active' : '' }}">
                     <i class="bi bi-map-fill"></i> CARTOGRAFÍA
                 </a>
-                <a href="#" data-section="productos" class="sigem-nav-link">
+                <a href="#" data-section="productos" class="sigem-nav-link {{ $section === 'productos' ? 'active' : '' }}">
                     <i class="bi bi-box-seam"></i> PRODUCTOS
                 </a>
             </div>
         </div>
 
         <!-- CONTENEDOR DINÁMICO -->
-        <div id="sigem-content" class="container my-4">
-            @yield('dynamic_content')
-        </div>
+        @php
+            // Detectar si estamos en una ruta especial de estadística tema o subtema
+            $currentPath = request()->path();
+            $isEstadisticaTema = Str::contains($currentPath, 'sigem/estadistica-tema') || 
+                                Str::contains($currentPath, 'sigem/estadistica-subtema');
+        @endphp
 
-        @if(isset($section) && $section === 'estadistica')
-            @include('partials.estadistica')
+        @if($isEstadisticaTema)
+            <!-- Si estamos en una ruta de estadistica-tema, incluir directamente la vista estadistica -->
+            <div class="container my-4">
+                @include('partials.estadistica')
+            </div>
+        @else
+            <!-- CONTENEDOR NORMAL PARA OTRAS RUTAS -->
+            <div id="sigem-content" class="container my-4">
+                @yield('dynamic_content')
+                
+                @if(isset($section) && $section === 'estadistica' && !$isEstadisticaTema)
+                    @include('partials.estadistica')
+                @endif
+            </div>
         @endif
-
     </div>
 @endsection
 
