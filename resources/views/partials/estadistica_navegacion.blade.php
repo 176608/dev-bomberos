@@ -56,7 +56,7 @@
                                     </div>
                                     <div class="card-footer text-center">
                                         <a href="{{ url('/sigem/estadistica-tema/'.$tema->tema_id) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-arrow-right me-1"></i>Explorar tema
+                                            <i class="bi bi-arrow-right me-1"></i>Ver cuadros estadísticos
                                         </a>
                                     </div>
                                 </div>

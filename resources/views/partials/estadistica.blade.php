@@ -1,4 +1,3 @@
-
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/estadistica.css') }}">
 @endpush
@@ -55,7 +54,7 @@
                                 <h6 class="mb-0">
                                     <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                                 </h6>
-                                <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadistica 0">
+                                <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-light" title="Regresar a menu anterior">
                                     <i class="bi bi-arrow-left"></i>
                                 </a>
                             </div>
@@ -208,7 +207,7 @@
                                     </h5>
                                     <!-- Selector de tema -->
                                     <div class="mt-3">
-                                        <select class="form-select" onchange="window.location.href='{{ url('/sigem/estadistica-tema') }}/' + this.value">
+                                        <select class="form-select" onchange="cambiarTema(this.value)">
                                             @foreach($temas as $tema)
                                                 <option value="{{ $tema->tema_id }}" {{ $subtema_seleccionado->tema->tema_id == $tema->tema_id ? 'selected' : '' }}>
                                                     {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
@@ -350,5 +349,12 @@ function cargarDatosDesdeCatalogo() {
 function descargarExcel(fileName) {
     console.log('Descargar Excel:', fileName);
     // Implementar descarga
+}
+
+// Añadir al script existente
+function cambiarTema(tema_id) {
+    // Al cambiar de tema, dirigimos directamente a estadistica-tema 
+    // que automáticamente redirigirá al subtema con mayor índice
+    window.location.href = '{{ url('/sigem/estadistica-tema') }}/' + tema_id;
 }
 </script>

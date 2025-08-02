@@ -458,15 +458,23 @@ class PublicController extends Controller
                 $query->orderBy('orden_indice', 'asc');
             }])->findOrFail($tema_id);
             
-            // Obtener todos los temas para el selector
+            // Verificar si el tema tiene subtemas
+            if ($tema->subtemas && $tema->subtemas->count() > 0) {
+                // Obtener el subtema con el índice más bajo (el primero en la colección ordenada)
+                $subtemaConMenorIndice = $tema->subtemas->first();
+                
+                // Redireccionar a la vista de subtema
+                return redirect()->route('sigem.laravel.estadistica.subtema', ['subtema_id' => $subtemaConMenorIndice->subtema_id]);
+            }
+            
+            // Si no hay subtemas, mostrar la vista de tema normal
             $temas = Tema::orderBy('orden_indice')->get();
             
             return view('layouts.asigem', [
                 'section' => 'estadistica',
                 'tema_seleccionado' => $tema,
                 'temas' => $temas,
-                'modo_vista' => 'navegacion_tema',
-                'current_route' => 'estadistica-tema'
+                'modo_vista' => 'navegacion_tema'
             ]);
         } catch (\Exception $e) {
             \Log::error('Error al cargar tema estadística:', [
