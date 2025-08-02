@@ -33,7 +33,7 @@ Route::prefix('sigem')->group(function () {
     ->name('sigem.laravel.estadistica.subtema');
 
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
-    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
+    /*Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
     Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
     //Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
@@ -41,7 +41,7 @@ Route::prefix('sigem')->group(function () {
     
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
     //Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
-    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos'); 
+    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos'); */
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
