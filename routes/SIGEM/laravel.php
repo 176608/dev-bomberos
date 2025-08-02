@@ -35,13 +35,13 @@ Route::prefix('sigem')->group(function () {
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
-    Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
+    //Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
     //Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
     //Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
     
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
     //Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
-    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos'); 
+    //Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos'); 
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
@@ -52,11 +52,11 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         ->middleware('role:Administrador,Desarrollador');
     
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
-        Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.laravel.admin.temas');
+        /*Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.laravel.admin.temas');
         Route::get('/admin/subtemas', [AdminController::class, 'subtemas'])->name('sigem.laravel.admin.subtemas');
         Route::get('/admin/contenidos', [AdminController::class, 'contenidos'])->name('sigem.laravel.admin.contenidos');
         Route::get('/admin/usuarios', [AdminController::class, 'usuarios'])->name('sigem.laravel.admin.usuarios');
-        
+        */
         // === RUTAS CRUD PARA ADMINISTRACIÓN ===
         
         // CRUD Mapas
