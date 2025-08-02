@@ -72,9 +72,14 @@
 
         saveCurrentSection: function (section) {
             localStorage.setItem(CONFIG.STORAGE_KEY, section);
+            
+            // MODIFICADO: Solo establecer section en URL, otros parámetros se manejan por cleanUrlParameters
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('section', section);
-            window.history.replaceState({}, '', newUrl);
+            // Solo actualizar si no se ha hecho ya
+            if (newUrl.searchParams.get('section') !== section) {
+                window.history.replaceState({}, '', newUrl);
+            }
         },
 
         updateActiveMenu: function (activeSection) {
@@ -97,12 +102,15 @@
 
         loadContent: function (section) {
             console.log(`Cargando sección: ${section}`);
+            
+            this.cleanUrlParameters(section);
+            // Funciones importantes para la navegación
             this.saveCurrentSection(section);
             this.updateActiveMenu(section);
             this.showLoading(section);
 
             const url = `${CONFIG.PARTIALS_URL}/${section}`;
-            console.log(`URL completa: ${url}`); // Log informativo
+            console.log(`URL completa: ${url}`);
 
             fetch(url)
                 .then(response => {
@@ -130,6 +138,39 @@
                         `;
                     }
                 });
+        },
+
+        // NUEVA FUNCIÓN: Limpiar parámetros de URL según la sección
+        cleanUrlParameters: function(section) {
+            const currentUrl = new URL(window.location);
+            let urlChanged = false;
+            
+            // Si NO es estadística, remover cuadro_id
+            if (section !== 'estadistica' && currentUrl.searchParams.has('cuadro_id')) {
+                currentUrl.searchParams.delete('cuadro_id');
+                urlChanged = true;
+                console.log(`Removiendo cuadro_id de URL - sección cambiada a: ${section}`);
+            }
+            
+            // Remover parámetros específicos que no corresponden a la sección actual
+            switch (section) {
+                case 'estadistica':
+                    // Mantener cuadro_id si existe, remover otros parámetros específicos si los hubiera
+                    // (Por ahora solo cuadro_id es relevante para estadística)
+                    break;
+                    
+                case 'catalogo':
+                case 'cartografia':
+                case 'inicio':
+                case 'productos':
+                    break;
+            }
+            
+            // Actualizar URL solo si hubo cambios
+            if (urlChanged) {
+                window.history.replaceState({}, '', currentUrl);
+                console.log(`URL limpiada para sección ${section}:`, currentUrl.toString());
+            }
         },
 
         executePostLoad: function (section) {
