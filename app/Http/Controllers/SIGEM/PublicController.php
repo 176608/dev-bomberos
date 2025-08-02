@@ -453,8 +453,13 @@ class PublicController extends Controller
     public function verEstadisticaTema($tema_id)
     {
         $tema = Tema::with('subtemas')->findOrFail($tema_id);
-        return view('partials.estadistica_tema', [
-            'tema' => $tema
+        
+        // En lugar de devolver una vista parcial, devolvemos la vista principal
+        // con información del modo_vista y datos necesarios
+        return view('roles.sigem', [
+            'section' => 'estadistica',
+            'tema_seleccionado' => $tema,
+            'modo_vista' => 'navegacion_tema'
         ]);
     }
     
@@ -476,10 +481,13 @@ class PublicController extends Controller
             ->orderBy('codigo_cuadro')
             ->get();
         
-        return view('partials.estadistica_subtema', [
-            'subtema' => $subtema,
+        // En lugar de devolver una vista parcial, devolvemos la vista principal
+        return view('roles.sigem', [
+            'section' => 'estadistica',
+            'subtema_seleccionado' => $subtema,
             'tema_subtemas' => $tema_subtemas,
-            'cuadros' => $cuadros
+            'cuadros' => $cuadros,
+            'modo_vista' => 'navegacion_subtema'
         ]);
     }
 }
