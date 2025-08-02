@@ -188,6 +188,31 @@ class PublicController extends Controller
         }
         
         try {
+            // NUEVO: Si es estadística, cargar datos adicionales
+            if ($section === 'estadistica') {
+                // Obtener todos los temas para el selector
+                $temas = Tema::orderBy('orden_indice')->get();
+                
+                // Detectar si viene con cuadro_id desde catálogo
+                $cuadroId = request()->get('cuadro_id');
+                $temaSeleccionado = null;
+                $cuadroData = null;
+                
+                if ($cuadroId) {
+                    $cuadroData = CuadroEstadistico::with(['subtema.tema'])->find($cuadroId);
+                    if ($cuadroData && $cuadroData->subtema && $cuadroData->subtema->tema) {
+                        $temaSeleccionado = $cuadroData->subtema->tema->tema_id;
+                    }
+                }
+                
+                return response()->view('partials.' . $section, [
+                    'temas' => $temas,
+                    'cuadro_id' => $cuadroId,
+                    'tema_seleccionado' => $temaSeleccionado,
+                    'cuadro_data' => $cuadroData
+                ]);
+            }
+            
             return response()->view('partials.' . $section);
         } catch (\Exception $e) {
             return response()->json([

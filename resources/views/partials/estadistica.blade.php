@@ -16,16 +16,6 @@
                         </div>
                     </div>
 
-                    <!-- Selector de Tema -->
-                    <div class="p-3 border-bottom">
-                        <label for="tema-selector" class="form-label fw-bold mb-2">
-                            <i class="bi bi-folder-fill me-1"></i>Tema:
-                        </label>
-                        <select id="tema-selector" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
-                            <option value="">-- Selecciona un tema --</option>
-                        </select>
-                    </div>
-
                     <!-- Navegación de Subtemas y Cuadros -->
                     <div class="flex-fill overflow-auto" id="subtemas-navegacion">
                         <div class="p-3 text-center text-muted">
@@ -64,10 +54,41 @@
                     <!-- Row 2: Selector Dinámico -->
                     <div class="row g-0 border-bottom" id="selector-dinamico">
                         <div class="col-12">
-                            <div class="p-3 bg-info text-white">
+                            <!-- Selector de Tema -->
+                            <div class="p-3 border-bottom">
+                                <label for="tema-selector" class="form-label fw-bold mb-2">
+                                    <i class="bi bi-folder-fill me-1"></i>Tema:
+                                </label>
+                                <select id="tema-selector" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
+                                    <option value="">-- Selecciona un tema --</option>
+                                    @if(isset($temas) && $temas->count() > 0)
+                                        @foreach($temas as $tema)
+                                            <option value="{{ $tema->tema_id }}" 
+                                                    @if(isset($tema_seleccionado) && $tema_seleccionado == $tema->tema_id) selected @endif>
+                                                {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            
+                            <!-- Breadcrumb dinámico -->
+                            <div class="p-3 bg-info text-white" id="breadcrumb-container" 
+                                 @if(!isset($cuadro_data)) style="display: none;" @endif>
                                 <div id="breadcrumb-info">
-                                    <span class="fw-bold">Navegación:</span>
-                                    <span id="current-path">Esperando selección...</span>
+                                    @if(isset($cuadro_data))
+                                        <span class="fw-bold">Navegación:</span>
+                                        <span id="current-path">
+                                            <i class="bi bi-folder me-1"></i>{{ $cuadro_data->subtema->tema->tema_titulo ?? 'Tema' }} 
+                                            <i class="bi bi-chevron-right mx-2"></i>
+                                            <i class="bi bi-collection me-1"></i>{{ $cuadro_data->subtema->subtema_titulo ?? 'Subtema' }}
+                                            <i class="bi bi-chevron-right mx-2"></i>
+                                            <i class="bi bi-file-earmark-excel me-1"></i>{{ $cuadro_data->codigo_cuadro ?? 'Cuadro' }}
+                                        </span>
+                                    @else
+                                        <span class="fw-bold">Navegación:</span>
+                                        <span id="current-path">Esperando selección...</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -190,6 +211,19 @@
 <script>
 // === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA (SIN AFECTAR SIGEM.JS) ===
 document.addEventListener('DOMContentLoaded', function() {
+    // Variables del blade disponibles en JavaScript
+    const cuadroId = @json($cuadro_id ?? null);
+    const temaSeleccionado = @json($tema_seleccionado ?? null);
+    const cuadroData = @json($cuadro_data ?? null);
+    const vieneDesdeCategolo = cuadroId !== null;
+    
+    console.log('Estadística cargada:', {
+        cuadroId,
+        temaSeleccionado,
+        vieneDesdeCategolo,
+        cuadroData
+    });
+    
     // Toggle sidebar
     const toggleBtn = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('estadistica-sidebar');
@@ -203,6 +237,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Si viene desde catálogo, cargar datos automáticamente
+    if (vieneDesdeCategolo && cuadroData) {
+        console.log('Detectado: viene desde catálogo');
+        
+        // Mostrar el breadcrumb
+        const breadcrumbContainer = document.getElementById('breadcrumb-container');
+        if (breadcrumbContainer) {
+            breadcrumbContainer.style.display = 'block';
+        }
+        
+        // Cargar la visualización del cuadro
+        setTimeout(() => {
+            actualizarVisualizacion({
+                cuadro: cuadroData,
+                tema_info: cuadroData.subtema?.tema || null,
+                subtema_info: cuadroData.subtema || null
+            });
+        }, 100);
+        
+        // Cargar subtemas del tema seleccionado
+        if (temaSeleccionado) {
+            cargarSubtemasPorTema(temaSeleccionado);
+        }
+    }
+/*
     // Escuchar datos de cuadros cargados desde sigem.js
     document.addEventListener('cuadroDataLoaded', function(event) {
         const data = event.detail;
@@ -216,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cuadroId) {
         // Mostrar datos del cuadro específico
         mostrarCuadroEspecifico(cuadroId);
-    }
+    }*/
 });
 
 function actualizarVisualizacion(data) {
@@ -332,6 +391,90 @@ function limpiarSeleccionEstadistica() {
     if (breadcrumb) breadcrumb.textContent = 'Esperando selección...';
 }
 
+// Función para cargar subtemas por tema
+function cargarSubtemasPorTema(temaId) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    if (!temaId) {
+        navegacionContainer.innerHTML = `
+            <div class="p-3 text-center text-muted">
+                <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0">Selecciona un tema para navegar</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Mostrar loading
+    navegacionContainer.innerHTML = `
+        <div class="p-3 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 mb-0">Cargando subtemas...</p>
+        </div>
+    `;
+    
+    // Obtener subtemas via AJAX
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    
+    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.subtemas.length > 0) {
+                generarNavegacionSubtemas(data.subtemas);
+            } else {
+                navegacionContainer.innerHTML = `
+                    <div class="p-3 text-center text-muted">
+                        <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando subtemas:', error);
+            navegacionContainer.innerHTML = `
+                <div class="p-3 text-center text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
+                </div>
+            `;
+        });
+}
+
+function generarNavegacionSubtemas(subtemas) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    let html = '<div class="list-group list-group-flush">';
+    
+    subtemas.forEach(subtema => {
+        html += `
+            <div class="list-group-item list-group-item-action subtema-nav-item" 
+                 data-subtema-id="${subtema.subtema_id}"
+                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">${subtema.subtema_titulo}</h6>
+                        <small class="text-muted">${subtema.cuadros_count} cuadros</small>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    navegacionContainer.innerHTML = html;
+}
+
+function cargarCuadrosSubtema(subtemaId) {
+    console.log('Cargando cuadros del subtema:', subtemaId);
+    // TODO: Implementar carga de cuadros del subtema
+}
+
 // Exponer funciones necesarias
+window.cargarSubtemasPorTema = cargarSubtemasPorTema;
 window.limpiarSeleccionEstadistica = limpiarSeleccionEstadistica;
 </script>

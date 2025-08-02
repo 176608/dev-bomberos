@@ -65,6 +65,9 @@ Route::prefix('sigem')->group(function () {
     Route::get('/redirect/catalogo', function() {
         return redirect('/public/vistas_SIGEM/catalogo.php');
     })->name('sigem.redirect.catalogo');
+    
+    // Ruta para obtener subtemas de un tema específico
+    Route::get('/subtemas-estadistica/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica']);
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
