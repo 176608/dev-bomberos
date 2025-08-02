@@ -1,0 +1,71 @@
+.subtema-nav-item {
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+}
+
+.subtema-nav-item:hover {
+    background-color: #f8f9fa;
+}
+
+.subtema-nav-item.active {
+    background-color: #e3f2fd;
+    border-left: 4px solid #0d6efd;
+}
+
+.subtema-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-right: 0.75rem;
+}
+
+.cuadros-lista {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.cuadro-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.cuadro-item:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.tema-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.tema-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: #0d6efd;
+}
+
+.tema-card:hover .card-footer .btn {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Estilos para la vista de tema */
+.tema-header {
+    background-color: rgba(240, 249, 235, 0.6);
+    border-bottom: 1px solid #e3e8e5;
+}
+
+/* Estilos para selectores */
+.theme-selector {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 1rem;
+}

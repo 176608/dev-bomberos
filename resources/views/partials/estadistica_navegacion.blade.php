@@ -11,7 +11,9 @@
                 </div>
             </div>
             <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-                <img src="imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;">
+                <!-- Corregir la ruta de la imagen -->
+                <img src="{{ asset('img/icons/estadistica.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
+                     onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
             </div>
         </div>
 

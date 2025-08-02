@@ -454,11 +454,14 @@ class PublicController extends Controller
     {
         $tema = Tema::with('subtemas')->findOrFail($tema_id);
         
+        // Obtener todos los temas para el selector
+        $temas = Tema::orderBy('orden_indice')->get();
+        
         // En lugar de devolver una vista parcial, devolvemos la vista principal
-        // con información del modo_vista y datos necesarios
         return view('roles.sigem', [
             'section' => 'estadistica',
             'tema_seleccionado' => $tema,
+            'temas' => $temas,
             'modo_vista' => 'navegacion_tema'
         ]);
     }
@@ -476,6 +479,9 @@ class PublicController extends Controller
             ->orderBy('orden_indice')
             ->get();
         
+        // Obtener todos los temas para el selector
+        $temas = Tema::orderBy('orden_indice')->get();
+        
         // Obtener cuadros del subtema
         $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
             ->orderBy('codigo_cuadro')
@@ -487,6 +493,7 @@ class PublicController extends Controller
             'subtema_seleccionado' => $subtema,
             'tema_subtemas' => $tema_subtemas,
             'cuadros' => $cuadros,
+            'temas' => $temas,
             'modo_vista' => 'navegacion_subtema'
         ]);
     }
