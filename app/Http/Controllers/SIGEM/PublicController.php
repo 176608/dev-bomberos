@@ -446,4 +446,40 @@ class PublicController extends Controller
             ]);
         }
     }
+
+    /**
+     * NUEVA FUNCIÓN: Vista estadística por tema
+     */
+    public function verEstadisticaTema($tema_id)
+    {
+        $tema = Tema::with('subtemas')->findOrFail($tema_id);
+        return view('partials.estadistica_tema', [
+            'tema' => $tema
+        ]);
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Vista estadística por subtema
+     */
+    public function verEstadisticaSubtema($subtema_id)
+    {
+        // Obtener el subtema con su tema
+        $subtema = Subtema::with(['tema'])->findOrFail($subtema_id);
+        
+        // Obtener todos los subtemas del mismo tema para la navegación lateral
+        $tema_subtemas = Subtema::where('tema_id', $subtema->tema_id)
+            ->orderBy('orden_indice')
+            ->get();
+        
+        // Obtener cuadros del subtema
+        $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
+            ->orderBy('codigo_cuadro')
+            ->get();
+        
+        return view('partials.estadistica_subtema', [
+            'subtema' => $subtema,
+            'tema_subtemas' => $tema_subtemas,
+            'cuadros' => $cuadros
+        ]);
+    }
 }

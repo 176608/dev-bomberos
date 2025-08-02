@@ -33,7 +33,7 @@ Route::prefix('sigem')->group(function () {
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
     Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
-    
+    /*
     // Vistas adicionales (mantener compatibilidad)
     Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
     
@@ -64,10 +64,13 @@ Route::prefix('sigem')->group(function () {
     
     Route::get('/redirect/catalogo', function() {
         return redirect('/public/vistas_SIGEM/catalogo.php');
-    })->name('sigem.redirect.catalogo');
+    })->name('sigem.redirect.catalogo');*/
     
     // Ruta para obtener subtemas de un tema específico
     Route::get('/subtemas-estadistica/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica']);
+    Route::get('/estadistica-tema/{tema_id}', [PublicController::class, 'verEstadisticaTema'])->name('sigem.laravel.estadistica.tema');
+    // Añadir esta ruta dentro del grupo de rutas de estadística
+    Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])->name('sigem.laravel.estadistica.subtema');
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
@@ -105,18 +108,4 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         Route::put('/admin/subtemas/{id}', [AdminController::class, 'actualizarSubtema'])->name('sigem.laravel.admin.subtemas.update');
         Route::delete('/admin/subtemas/{id}', [AdminController::class, 'eliminarSubtema'])->name('sigem.laravel.admin.subtemas.destroy');
     });
-});
-
-// === MANTENER RUTAS BRIDGE ===  Se va a borrar esta seccion
-Route::prefix('sigem-bridge')->middleware(['auth'])->group(function () {
-    Route::get('/to-original', function() {
-        return redirect('/geografico');
-    })->name('sigem.bridge.original');
-    
-    Route::get('/to-admin-original', function() {
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        return redirect()->route('subtema.index');
-    })->name('sigem.bridge.admin.original');
 });
