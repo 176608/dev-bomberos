@@ -252,7 +252,7 @@
 
         
         <!-- CONTENEDOR DINÁMICO -->
-        <div id="sigem-content" class="container my-4" {!! $isEstadisticaEspecial ? 'style="display:none;"' : '' !!}>
+        <div id="sigem-content" class="container my-4" {!! $isEstadisticaEspecial || $section === 'estadistica' ? 'style="display:none;"' : '' !!}>
             @yield('dynamic_content')
         </div>
 
