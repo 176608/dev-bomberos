@@ -42,6 +42,10 @@
 
             <!-- Aca se debe visualizar la informacion del cuadro SI viene via catalogo -->
             <div id="cuadro-info-container"></div>
+        @elseif(isset($modo_vista) && $modo_vista === 'navegacion_tema_con_subtemas')
+            <!-- NUEVA VISTA: Incluir el partial específico para tema con subtemas -->
+            @include('partials.estadistica_tema_con_subtemas')
+            
         @elseif(isset($modo_vista) && $modo_vista === 'navegacion_tema')
             <!-- VISTA DE TEMA SELECCIONADO -->
             <div class="row g-0 min-vh-75">
