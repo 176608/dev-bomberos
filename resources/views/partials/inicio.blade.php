@@ -53,7 +53,7 @@
             <!-- ESTADÍSTICA -->
             <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
-                    <div class="card-header bg-primary text-white text-center">
+                    <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
                             <i class="bi bi-bar-chart-fill me-2"></i>Estadística
                         </h5>
@@ -73,7 +73,7 @@
                             Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
                         </p>
                         <!-- Botón -->
-                        <button class="btn btn-primary btn-sm" onclick="SIGEMApp.loadContent('estadistica')">
+                        <button class="btn btn-success btn-sm" onclick="SIGEMApp.loadContent('estadistica')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
                         </button>
                     </div>
@@ -83,7 +83,7 @@
             <!-- CARTOGRAFÍA -->
             <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
-                    <div class="card-header bg-info text-white text-center">
+                    <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
                             <i class="bi bi-geo-alt-fill me-2"></i>Cartografía
                         </h5>
@@ -103,7 +103,7 @@
                             Accede a mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
                         </p>
                         <!-- Botón -->
-                        <button class="btn btn-info btn-sm" onclick="SIGEMApp.loadContent('cartografia')">
+                        <button class="btn btn-success btn-sm" onclick="SIGEMApp.loadContent('cartografia')">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
                         </button>
                     </div>

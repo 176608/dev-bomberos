@@ -1,7 +1,7 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="row g-0 min-vh-75">
-            <!-- SIDEBAR COLAPSABLE (4 columnas) - Solo visible en modo desde_catalogo -->
+            <!-- SIDEBAR COLAPSABLE (4 columnas) - Solo visible después de seleccionar tema -->
             <div class="col-md-4 bg-light border-end" id="estadistica-sidebar" 
                  @if(!isset($modo_vista) || $modo_vista === 'navegacion') style="display: none;" @endif>
                 <div class="d-flex flex-column h-100">
@@ -9,7 +9,7 @@
                     <div class="p-3 bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">
-                                <i class="bi bi-list-ul me-2"></i>Navegación
+                                <i class="bi bi-list-ul me-2"></i>Subtemas
                             </h6>
                             <button class="btn btn-sm btn-outline-light" id="toggle-sidebar" title="Colapsar/Expandir">
                                 <i class="bi bi-chevron-left"></i>
@@ -17,7 +17,7 @@
                         </div>
                     </div>
 
-                    <!-- Navegación de Subtemas y Cuadros -->
+                    <!-- Navegación de Subtemas -->
                     <div class="flex-fill overflow-auto" id="subtemas-navegacion">
                         <div class="p-3 text-center text-muted">
                             <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
@@ -27,93 +27,35 @@
 
                     <!-- Footer del Sidebar -->
                     <div class="p-2 border-top">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="limpiarSeleccionEstadistica()">
-                            <i class="bi bi-arrow-clockwise me-1"></i>Limpiar
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="volverATemasGrid()">
+                            <i class="bi bi-arrow-left me-1"></i>Volver a Temas
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- VISTA PRINCIPAL - Ancho dinámico según el modo -->
-            <div class="{{ isset($modo_vista) && $modo_vista === 'desde_catalogo' ? 'col-md-8' : 'col-12' }}" id="estadistica-main">
+            <!-- VISTA PRINCIPAL - Ancho dinámico según el estado -->
+            <div class="col-12" id="estadistica-main">
                 <div class="d-flex flex-column h-100">
-                    <!-- Row 1: Título y Imagen -->
-                    <div class="row g-0 border-bottom">
-                        <div class="col-8">
-                            <div class="p-4">
-                                <h2 class="text-success mb-2">
-                                    <i class="bi bi-bar-chart me-2"></i>Sección Estadística
-                                </h2>
-                                <p class="text-muted mb-0">Consultas de información estadística relevante y precisa</p>
+                    
+                    <!-- VISTA 1: Grid de Temas (inicial) -->
+                    <div id="vista-temas-grid">
+                        <!-- Row 1: Título y Imagen (solo en vista inicial) -->
+                        <div class="row g-0 border-bottom">
+                            <div class="col-8">
+                                <div class="p-4">
+                                    <h2 class="text-success mb-2">
+                                        <i class="bi bi-bar-chart me-2"></i>Sección Estadística
+                                    </h2>
+                                    <p class="text-muted mb-0">Consultas de información estadística relevante y precisa</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-                            <img src="imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;">
-                        </div>
-                    </div>
-
-                    @if(isset($modo_vista) && $modo_vista === 'desde_catalogo')
-                        <!-- MODO DESDE CATÁLOGO:  -->
-                        <!-- Row 2: Selector Dinámico -->
-                        <div class="row g-0 border-bottom" id="selector-dinamico">
-                            <div class="col-12">
-                                <!-- Selector de Tema -->
-                                <div class="p-3 border-bottom">
-                                    <label for="tema-selector" class="form-label fw-bold mb-2">
-                                        <i class="bi bi-folder-fill me-1"></i>Tema:
-                                    </label>
-                                    <select id="tema-selector" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
-                                        <option value="">-- Selecciona un tema --</option>
-                                        @if(isset($temas) && $temas->count() > 0)
-                                            @foreach($temas as $tema)
-                                                <option value="{{ $tema->tema_id }}" 
-                                                        @if(isset($tema_seleccionado) && $tema_seleccionado == $tema->tema_id) selected @endif>
-                                                    {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                
-                                <!-- Breadcrumb dinámico -->
-                                <div class="p-3 bg-info text-white" id="breadcrumb-container" 
-                                     @if(!isset($cuadro_data)) style="display: none;" @endif>
-                                    <div id="breadcrumb-info">
-                                        @if(isset($cuadro_data))
-                                            <span class="fw-bold">Navegación:</span>
-                                            <span id="current-path">
-                                                <i class="bi bi-folder me-1"></i>{{ $cuadro_data->subtema->tema->tema_titulo ?? 'Tema' }} 
-                                                <i class="bi bi-chevron-right mx-2"></i>
-                                                <i class="bi bi-collection me-1"></i>{{ $cuadro_data->subtema->subtema_titulo ?? 'Subtema' }}
-                                                <i class="bi bi-chevron-right mx-2"></i>
-                                                <i class="bi bi-file-earmark-excel me-1"></i>{{ $cuadro_data->codigo_cuadro ?? 'Cuadro' }}
-                                            </span>
-                                        @else
-                                            <span class="fw-bold">Navegación:</span>
-                                            <span id="current-path">Esperando selección...</span>
-                                        @endif
-                                    </div>
-                                </div>
+                            <div class="col-4 d-flex align-items-center justify-content-center bg-light">
+                                <img src="imagenes/iconoesta2.png" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;">
                             </div>
                         </div>
 
-                        <!-- Row 3: Área de Visualización (Placeholder amarillo) -->
-                        <div class="flex-fill">
-                            <div class="h-100 d-flex flex-column">
-                                <div class="p-3 bg-warning bg-opacity-25 border-bottom">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-table me-2"></i>Cuadro de Estadístico
-                                    </h5>
-                                </div>
-                                <!-- Aca si llegamos desde catalogo -->
-                                <div class="flex-fill p-4" id="cuadro-visualizacion">
-                                    
-
-                                </div>
-                            </div>
-                        </div>
-                    @else Comentario: [Este ELSE no debe entrar si el modo vista es 'desde_catalogo', solo si se usa la navegación (boton del menu o desde inicio)]
-                        <!-- MODO NAVEGACIÓN-->
+                        <!-- Grid de Temas -->
                         <div class="flex-fill p-4">
                             <div class="row">
                                 <div class="col-12">
@@ -147,7 +89,6 @@
                                                             <p class="mt-3 mb-0">
                                                                 <small class="text-muted">
                                                                     @php
-                                                                        // Contar subtemas del tema actual
                                                                         $subtemasCount = $tema->subtemas ? $tema->subtemas->count() : 0;
                                                                     @endphp
                                                                     {{ $subtemasCount }} subtemas disponibles
@@ -155,7 +96,7 @@
                                                             </p>
                                                         </div>
                                                         <div class="card-footer text-center">
-                                                <!--Dandole click a este boton, se va a cargar lista de subtemas en el sidebar,
+                                                        <!--Dandole click a este boton, se va a cargar lista de subtemas en el sidebar,
                                                             En el sidebar al momento de seleccionar un subtema: la lista de cuadros del subtema 
                                                             seleccionado se muestran en la seccion de visualizacion -->
                                                             <button class="btn btn-outline-primary btn-sm">
@@ -173,6 +114,117 @@
                                                 </div>
                                             </div>
                                         @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VISTA 2: Selector + Área de Visualización (después de seleccionar tema) -->
+                    <div id="vista-navegacion-tema" style="display: none;">
+                        <!-- Selector de Tema -->
+                        <div class="row g-0 border-bottom">
+                            <div class="col-12">
+                                <div class="p-3">
+                                    <label for="tema-selector" class="form-label fw-bold mb-2">
+                                        <i class="bi bi-folder-fill me-1"></i>Tema seleccionado:
+                                    </label>
+                                    <select id="tema-selector" class="form-select" onchange="cambiarTemaSelector(this.value)">
+                                        <option value="">-- Selecciona un tema --</option>
+                                        @if(isset($temas) && $temas->count() > 0)
+                                            @foreach($temas as $tema)
+                                                <option value="{{ $tema->tema_id }}">
+                                                    {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Área de Visualización de Cuadros -->
+                        <div class="flex-fill">
+                            <div class="h-100 d-flex flex-column">
+                                <div class="p-3 bg-warning bg-opacity-25 border-bottom">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-table me-2"></i>Cuadros Estadísticos
+                                    </h5>
+                                </div>
+                                <div class="flex-fill p-4" id="cuadros-visualizacion">
+                                    <!-- Placeholder inicial -->
+                                    <div class="h-100 d-flex align-items-center justify-content-center text-muted" id="placeholder-cuadros">
+                                        <div class="text-center">
+                                            <i class="bi bi-collection" style="font-size: 4rem;"></i>
+                                            <h4 class="mt-3">Selecciona un subtema</h4>
+                                            <p>Elige un subtema del menú lateral para ver sus cuadros estadísticos</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenedor para lista de cuadros -->
+                                    <div id="cuadros-lista-container" style="display: none;">
+                                        <!-- Aquí se cargarán los cuadros del subtema -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODO DESDE CATÁLOGO (conservar funcionalidad existente) -->
+                    @if(isset($modo_vista) && $modo_vista === 'desde_catalogo')
+                        <div id="vista-desde-catalogo">
+                            <!-- Selector Dinámico -->
+                            <div class="row g-0 border-bottom" id="selector-dinamico">
+                                <div class="col-12">
+                                    <div class="p-3 border-bottom">
+                                        <label for="tema-selector-catalogo" class="form-label fw-bold mb-2">
+                                            <i class="bi bi-folder-fill me-1"></i>Tema:
+                                        </label>
+                                        <select id="tema-selector-catalogo" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
+                                            <option value="">-- Selecciona un tema --</option>
+                                            @if(isset($temas) && $temas->count() > 0)
+                                                @foreach($temas as $tema)
+                                                    <option value="{{ $tema->tema_id }}" 
+                                                            @if(isset($tema_seleccionado) && $tema_seleccionado == $tema->tema_id) selected @endif>
+                                                        {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Breadcrumb dinámico -->
+                                    <div class="p-3 bg-info text-white" id="breadcrumb-container" 
+                                         @if(!isset($cuadro_data)) style="display: none;" @endif>
+                                        <div id="breadcrumb-info">
+                                            @if(isset($cuadro_data))
+                                                <span class="fw-bold">Navegación:</span>
+                                                <span id="current-path">
+                                                    <i class="bi bi-folder me-1"></i>{{ $cuadro_data->subtema->tema->tema_titulo ?? 'Tema' }} 
+                                                    <i class="bi bi-chevron-right mx-2"></i>
+                                                    <i class="bi bi-collection me-1"></i>{{ $cuadro_data->subtema->subtema_titulo ?? 'Subtema' }}
+                                                    <i class="bi bi-chevron-right mx-2"></i>
+                                                    <i class="bi bi-file-earmark-excel me-1"></i>{{ $cuadro_data->codigo_cuadro ?? 'Cuadro' }}
+                                                </span>
+                                            @else
+                                                <span class="fw-bold">Navegación:</span>
+                                                <span id="current-path">Esperando selección...</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Área de Visualización desde catálogo -->
+                            <div class="flex-fill">
+                                <div class="h-100 d-flex flex-column">
+                                    <div class="p-3 bg-warning bg-opacity-25 border-bottom">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-table me-2"></i>Visualización de Cuadro Estadístico
+                                        </h5>
+                                    </div>
+                                    <div class="flex-fill p-4" id="cuadro-visualizacion">
+                                        <!-- Contenido desde catálogo -->
                                     </div>
                                 </div>
                             </div>
@@ -213,20 +265,24 @@
 
 /* Sidebar */
 #estadistica-sidebar {
-    transition: margin-left 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 #estadistica-sidebar.collapsed {
-    margin-left: -75%;
-    min-width: 50px;
+    margin-left: -100%;
+    width: 0;
+    overflow: hidden;
 }
 
 #estadistica-main {
     transition: all 0.3s ease;
 }
 
+/* Cuando sidebar está colapsado, main area toma todo el espacio */
 #estadistica-sidebar.collapsed + #estadistica-main {
-    flex: 0 0 calc(100% + 25%);
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
 }
 
 /* Navegación de subtemas */
@@ -234,6 +290,9 @@
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
 }
 
 .subtema-nav-item:hover {
@@ -245,20 +304,16 @@
     border-left: 4px solid #0d6efd;
 }
 
-.cuadro-nav-item {
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
+.subtema-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-right: 0.75rem;
 }
 
-.cuadro-nav-item:hover {
-    background-color: #fff3cd;
-    padding-left: 1rem;
-}
-
-/* Lista de cuadros en área de visualización para modo navegación */
+/* Lista de cuadros en área de visualización */
 .cuadros-lista {
-    max-height: 500px;
+    max-height: 70vh;
     overflow-y: auto;
 }
 
@@ -275,11 +330,14 @@
 }
 
 /* Área de visualización */
-#cuadro-visualizacion {
+#cuadros-visualizacion {
     background: linear-gradient(135deg, #fff9c4 0%, #fff8dc 100%);
-    border: 2px dashed #ffc107;
     border-radius: 8px;
-    margin: 1rem;
+}
+
+/* Transiciones de vistas */
+.vista-transition {
+    transition: all 0.4s ease-in-out;
 }
 
 /* Responsive */
@@ -288,10 +346,7 @@
         position: absolute;
         z-index: 1000;
         height: 100%;
-    }
-    
-    #estadistica-sidebar.collapsed {
-        margin-left: -100%;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     }
     
     .tema-card {
@@ -301,7 +356,7 @@
 </style>
 
 <script>
-// === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA (SIN AFECTAR SIGEM.JS) ===
+// === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA ===
 document.addEventListener('DOMContentLoaded', function() {
     // Variables del blade disponibles en JavaScript
     const cuadroId = @json($cuadro_id ?? null);
@@ -317,12 +372,25 @@ document.addEventListener('DOMContentLoaded', function() {
         cuadroData,
         modoVista
     });
-    
-    // Toggle sidebar (solo en modo desde_catalogo)
+
+    // Configurar sidebar toggle
+    configurarToggleSidebar();
+
+    // Si viene desde catálogo, mostrar vista correspondiente
+    if (modoVista === 'desde_catalogo') {
+        mostrarVistaDesdeCatalogo();
+        if (vieneDesdeCategolo && cuadroData) {
+            cargarDatosDesdeCatalogo();
+        }
+    }
+});
+
+function configurarToggleSidebar() {
     const toggleBtn = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
     
-    if (toggleBtn && sidebar && modoVista === 'desde_catalogo') {
+    if (toggleBtn && sidebar) {
         toggleBtn.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
             const icon = this.querySelector('i');
@@ -330,77 +398,136 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.classList.toggle('bi-chevron-right');
         });
     }
+}
 
-    // Si viene desde catálogo, cargar datos automáticamente
-    if (vieneDesdeCategolo && cuadroData && modoVista === 'desde_catalogo') {
-        console.log('Detectado: viene desde catálogo');
-        
-        // Mostrar el breadcrumb
-        const breadcrumbContainer = document.getElementById('breadcrumb-container');
-        if (breadcrumbContainer) {
-            breadcrumbContainer.style.display = 'block';
-        }
-        
-        // Cargar la visualización del cuadro
-        setTimeout(() => {
-            actualizarVisualizacion({
-                cuadro: cuadroData,
-                tema_info: cuadroData.subtema?.tema || null,
-                subtema_info: cuadroData.subtema || null
-            });
-        }, 100);
-        
-        // Cargar subtemas del tema seleccionado
-        if (temaSeleccionado) {
-            cargarSubtemasPorTema(temaSeleccionado);
-        }
-    }
-});
-
-// FUNCIÓN: Seleccionar tema en modo navegación
-// Al hacer click en un tema, mostrar el sidebar y cargar subtemas
+// FUNCIÓN: Seleccionar tema en modo navegación (NUEVA IMPLEMENTACIÓN)
 function seleccionarTemaNavegacion(temaId) {
     console.log('Tema seleccionado en navegación:', temaId);
     
-    // Cambiar la vista para mostrar sidebar y selector
+    // Ocultar vista de grid de temas
+    const vistaGrid = document.getElementById('vista-temas-grid');
+    const vistaNavegacion = document.getElementById('vista-navegacion-tema');
     const sidebar = document.getElementById('estadistica-sidebar');
     const mainArea = document.getElementById('estadistica-main');
     
-    if (sidebar && mainArea) {
+    if (vistaGrid && vistaNavegacion && sidebar && mainArea) {
+        // Transición de vistas
+        vistaGrid.style.display = 'none';
+        vistaNavegacion.style.display = 'block';
+        
         // Mostrar sidebar
         sidebar.style.display = 'block';
         
         // Cambiar tamaño del área principal
         mainArea.className = 'col-md-8';
         
-        // Cargar subtemas en el sidebar
-        cargarSubtemasPorTema(temaId);
-        
-        // Limpiar área de visualización y preparar para mostrar cuadros
-        const placeholder = document.getElementById('placeholder-inicial');
-        const container = document.getElementById('cuadro-data-container');
-        
-        if (placeholder) {
-            placeholder.innerHTML = `
-                <div class="text-center">
-                    <i class="bi bi-collection" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">Selecciona un subtema</h4>
-                    <p>Elige un subtema del menú lateral para ver sus cuadros estadísticos</p>
-                </div>
-            `;
+        // Establecer el tema en el selector
+        const temaSelector = document.getElementById('tema-selector');
+        if (temaSelector) {
+            temaSelector.value = temaId;
         }
-        if (container) container.style.display = 'none';
+        
+        // Cargar subtemas en el sidebar
+        cargarSubtemasConIconos(temaId);
     }
 }
 
-// FUNCIÓN: Cargar cuadros del subtema seleccionado en el área de visualización
+// FUNCIÓN: Cargar subtemas con iconos personalizados
+function cargarSubtemasConIconos(temaId) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    if (!temaId) {
+        navegacionContainer.innerHTML = `
+            <div class="p-3 text-center text-muted">
+                <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0">Selecciona un tema para navegar</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Mostrar loading
+    navegacionContainer.innerHTML = `
+        <div class="p-3 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 mb-0">Cargando subtemas...</p>
+        </div>
+    `;
+    
+    // Obtener subtemas via AJAX
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    
+    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.subtemas.length > 0) {
+                generarNavegacionSubtemasConIconos(data.subtemas);
+                // Auto-cargar cuadros del primer subtema
+                const primerSubtema = data.subtemas.find(s => s.orden_indice === Math.min(...data.subtemas.map(st => st.orden_indice)));
+                if (primerSubtema) {
+                    setTimeout(() => {
+                        cargarCuadrosSubtema(primerSubtema.subtema_id);
+                    }, 300);
+                }
+            } else {
+                navegacionContainer.innerHTML = `
+                    <div class="p-3 text-center text-muted">
+                        <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando subtemas:', error);
+            navegacionContainer.innerHTML = `
+                <div class="p-3 text-center text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
+                </div>
+            `;
+        });
+}
+
+function generarNavegacionSubtemasConIconos(subtemas) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    let html = '';
+    
+    subtemas.forEach((subtema, index) => {
+        const isActive = index === 0 ? 'active' : ''; // Marcar el primero como activo
+        
+        html += `
+            <div class="subtema-nav-item ${isActive}" 
+                 data-subtema-id="${subtema.subtema_id}"
+                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
+                <img src="imagenes/${subtema.icono_subtema || 'default-icon.png'}" 
+                     alt="${subtema.subtema_titulo}" 
+                     class="subtema-icon"
+                     onerror="this.style.display='none';">
+                <div class="flex-fill">
+                    <h6 class="mb-1">${subtema.subtema_titulo}</h6>
+                    <small class="text-muted">${subtema.cuadros_count || 0} cuadros</small>
+                </div>
+                <i class="bi bi-chevron-right ms-2"></i>
+            </div>
+        `;
+    });
+    
+    navegacionContainer.innerHTML = html;
+}
+
+// FUNCIÓN: Cargar cuadros del subtema seleccionado
 function cargarCuadrosSubtema(subtemaId) {
     console.log('Cargando cuadros del subtema:', subtemaId);
     
-    const placeholder = document.getElementById('placeholder-inicial');
-    const container = document.getElementById('cuadro-data-container');
+    const placeholder = document.getElementById('placeholder-cuadros');
+    const container = document.getElementById('cuadros-lista-container');
     
-    // Mostrar loading en área de visualización
+    // Mostrar loading
     if (placeholder) {
         placeholder.innerHTML = `
             <div class="text-center">
@@ -456,10 +583,9 @@ function cargarCuadrosSubtema(subtemaId) {
         });
 }
 
-// FUNCIÓN: Mostrar lista de cuadros en el área de visualización
 function mostrarListaCuadros(cuadros, subtemaInfo) {
-    const placeholder = document.getElementById('placeholder-inicial');
-    const container = document.getElementById('cuadro-data-container');
+    const placeholder = document.getElementById('placeholder-cuadros');
+    const container = document.getElementById('cuadros-lista-container');
     
     if (placeholder) placeholder.style.display = 'none';
     if (container) {
@@ -507,6 +633,40 @@ function mostrarListaCuadros(cuadros, subtemaInfo) {
     }
 }
 
+// FUNCIÓN: Cambiar tema desde selector
+function cambiarTemaSelector(temaId) {
+    if (temaId) {
+        cargarSubtemasConIconos(temaId);
+    }
+}
+
+// FUNCIÓN: Volver al grid de temas
+function volverATemasGrid() {
+    const vistaGrid = document.getElementById('vista-temas-grid');
+    const vistaNavegacion = document.getElementById('vista-navegacion-tema');
+    const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
+    
+    if (vistaGrid && vistaNavegacion && sidebar && mainArea) {
+        // Transición de vistas
+        vistaNavegacion.style.display = 'none';
+        vistaGrid.style.display = 'block';
+        
+        // Ocultar sidebar
+        sidebar.style.display = 'none';
+        sidebar.classList.remove('collapsed');
+        
+        // Restaurar tamaño del área principal
+        mainArea.className = 'col-12';
+        
+        // Limpiar selector
+        const temaSelector = document.getElementById('tema-selector');
+        if (temaSelector) {
+            temaSelector.value = '';
+        }
+    }
+}
+
 // FUNCIÓN: Ver detalle completo de un cuadro
 function verCuadroDetalle(cuadroId) {
     console.log('Ver detalle del cuadro:', cuadroId);
@@ -522,168 +682,24 @@ function verCuadroDetalle(cuadroId) {
     }
 }
 
-// FUNCIÓN: Cargar subtemas por tema
-function cargarSubtemasPorTema(temaId) {
-    const navegacionContainer = document.getElementById('subtemas-navegacion');
+// FUNCIONES PARA MODO DESDE CATÁLOGO (conservar funcionalidad existente)
+function mostrarVistaDesdeCatalogo() {
+    const vistaGrid = document.getElementById('vista-temas-grid');
+    const vistaNavegacion = document.getElementById('vista-navegacion-tema');
+    const vistaCatalogo = document.getElementById('vista-desde-catalogo');
+    const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
     
-    if (!temaId) {
-        navegacionContainer.innerHTML = `
-            <div class="p-3 text-center text-muted">
-                <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
-                <p class="mt-2 mb-0">Selecciona un tema para navegar</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Mostrar loading
-    navegacionContainer.innerHTML = `
-        <div class="p-3 text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2 mb-0">Cargando subtemas...</p>
-        </div>
-    `;
-    
-    // Obtener subtemas via AJAX
-    const baseUrl = window.SIGEM_BASE_URL || 
-                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    
-    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.subtemas.length > 0) {
-                generarNavegacionSubtemas(data.subtemas);
-            } else {
-                navegacionContainer.innerHTML = `
-                    <div class="p-3 text-center text-muted">
-                        <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
-                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error cargando subtemas:', error);
-            navegacionContainer.innerHTML = `
-                <div class="p-3 text-center text-danger">
-                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
-                </div>
-            `;
-        });
+    if (vistaGrid) vistaGrid.style.display = 'none';
+    if (vistaNavegacion) vistaNavegacion.style.display = 'none';
+    if (vistaCatalogo) vistaCatalogo.style.display = 'block';
+    if (sidebar) sidebar.style.display = 'block';
+    if (mainArea) mainArea.className = 'col-md-8';
 }
 
-function generarNavegacionSubtemas(subtemas) {
-    const navegacionContainer = document.getElementById('subtemas-navegacion');
-    
-    let html = '<div class="list-group list-group-flush">';
-    
-    subtemas.forEach(subtema => {
-        html += `
-            <div class="list-group-item list-group-item-action subtema-nav-item" 
-                 data-subtema-id="${subtema.subtema_id}"
-                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">${subtema.subtema_titulo}</h6>
-                        <small class="text-muted">${subtema.cuadros_count || 0} cuadros</small>
-                    </div>
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    navegacionContainer.innerHTML = html;
-}
-
-function actualizarVisualizacion(data) {
-    const breadcrumb = document.getElementById('current-path');
-    const container = document.getElementById('cuadro-data-container');
-    const placeholder = document.getElementById('placeholder-inicial');
-    
-    if (data && data.cuadro) {
-        // Actualizar breadcrumb
-        if (breadcrumb) {
-            breadcrumb.innerHTML = `
-                <i class="bi bi-folder me-1"></i>${data.tema_info?.tema_titulo || 'Tema'} 
-                <i class="bi bi-chevron-right mx-2"></i>
-                <i class="bi bi-collection me-1"></i>${data.subtema_info?.subtema_titulo || 'Subtema'}
-                <i class="bi bi-chevron-right mx-2"></i>
-                <i class="bi bi-file-earmark-excel me-1"></i>${data.cuadro.codigo_cuadro || 'Cuadro'}
-            `;
-        }
-
-        // Mostrar datos del cuadro
-        if (container && placeholder) {
-            placeholder.style.display = 'none';
-            container.style.display = 'block';
-            container.innerHTML = generarHtmlCuadro(data);
-        }
-    }
-}
-
-function generarHtmlCuadro(data) {
-    const cuadro = data.cuadro;
-    
-    return `
-        <div class="card h-100">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-file-earmark-excel me-2"></i>
-                    ${cuadro.codigo_cuadro || 'N/A'}
-                </h5>
-            </div>
-            <div class="card-body">
-                <h6 class="card-title">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</h6>
-                ${cuadro.cuadro_estadistico_subtitulo ? `<p class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</p>` : ''}
-                
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <strong>Información del archivo:</strong>
-                        <ul class="list-unstyled mt-2">
-                            <li><i class="bi bi-file-earmark me-2"></i>Excel: ${cuadro.excel_file || 'No disponible'}</li>
-                            <li><i class="bi bi-image me-2"></i>Imagen: ${cuadro.img_name || 'No disponible'}</li>
-                            <li><i class="bi bi-filetype-pdf me-2"></i>PDF: ${cuadro.pdf_file || 'No disponible'}</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Detalles:</strong>
-                        <ul class="list-unstyled mt-2">
-                            <li><i class="bi bi-calendar me-2"></i>Actualizado: ${cuadro.timestamp || 'No especificado'}</li>
-                            <li><i class="bi bi-gear me-2"></i>Permitir gráfica: ${cuadro.permite_grafica ? 'Sí' : 'No'}</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button class="btn btn-success me-2" onclick="descargarExcel('${cuadro.excel_file}')">
-                        <i class="bi bi-download me-1"></i>Descargar Excel
-                    </button>
-                    ${cuadro.pdf_file ? `
-                        <button class="btn btn-danger me-2" onclick="verPDF('${cuadro.pdf_file}')">
-                            <i class="bi bi-file-pdf me-1"></i>Ver PDF
-                        </button>
-                    ` : ''}
-                    ${cuadro.permite_grafica ? `
-                        <button class="btn btn-info" onclick="verGrafico(${cuadro.cuadro_estadistico_id})">
-                            <i class="bi bi-bar-chart me-1"></i>Ver Gráfico
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function mostrarCuadroEspecifico(cuadroId) {
-    // Esta función la llamaría sigem.js al cargar los datos
-    console.log('Cargando cuadro específico:', cuadroId);
-    
-    // Aquí podrías hacer una llamada directa o esperar a que sigem.js dispare el evento
+function cargarDatosDesdeCatalogo() {
+    // Implementar lógica existente para modo catálogo
+    console.log('Cargando datos desde catálogo...');
 }
 
 // Funciones placeholder para botones
@@ -692,44 +708,10 @@ function descargarExcel(fileName) {
     // Implementar descarga
 }
 
-function verPDF(fileName) {
-    console.log('Ver PDF:', fileName);
-    // Implementar visualización PDF
-}
-
-function verGrafico(cuadroId) {
-    console.log('Ver gráfico:', cuadroId);
-    // Implementar visualización de gráfico
-}
-
-function limpiarSeleccionEstadistica() {
-    const placeholder = document.getElementById('placeholder-inicial');
-    const container = document.getElementById('cuadro-data-container');
-    const breadcrumb = document.getElementById('current-path');
-    
-    if (placeholder) {
-        placeholder.innerHTML = `
-            <div class="text-center">
-                <i class="bi bi-file-earmark-excel" style="font-size: 4rem;"></i>
-                <h4 class="mt-3">Área de Visualización</h4>
-                <p>Selecciona un cuadro estadístico para visualizar su contenido</p>
-            </div>
-        `;
-        placeholder.style.display = 'flex';
-    }
-    if (container) container.style.display = 'none';
-    if (breadcrumb) breadcrumb.textContent = 'Esperando selección...';
-    
-    // Limpiar selecciones activas
-    document.querySelectorAll('.subtema-nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-}
-
 // Exponer funciones necesarias
-window.cargarSubtemasPorTema = cargarSubtemasPorTema;
-window.limpiarSeleccionEstadistica = limpiarSeleccionEstadistica;
 window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
 window.cargarCuadrosSubtema = cargarCuadrosSubtema;
 window.verCuadroDetalle = verCuadroDetalle;
+window.cambiarTemaSelector = cambiarTemaSelector;
+window.volverATemasGrid = volverATemasGrid;
 </script>
