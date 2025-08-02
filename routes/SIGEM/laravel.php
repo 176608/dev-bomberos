@@ -12,9 +12,9 @@ Route::prefix('sigem')->group(function () {
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.partial');
     
     // === RUTA ÚNICA DE ESTADÍSTICA-SUBTEMA (ELIMINAMOS ESTADÍSTICA-TEMA) ===
-    Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])
-        //->name('sigem.laravel.estadistica.subtema');
-        ->name('sigem.estadistica.subtema');
+    Route::get('/estadistica-tema/{tema_id}', [PublicController::class, 'verEstadisticatema'])
+        //->name('sigem.laravel.estadistica.tema');
+        ->name('sigem.estadistica.tema');
     
     // === APIS PARA CONTENIDO DINÁMICO ===
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
