@@ -1,5 +1,4 @@
 
-<!-- Al inicio del archivo, después de <div class="card shadow-sm"> -->
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/estadistica.css') }}">
 @endpush
