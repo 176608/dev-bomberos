@@ -6,11 +6,8 @@ use App\Http\Controllers\SIGEM\AdminController;
 // Rutas públicas Laravel del módulo SIGEM
 Route::prefix('sigem')->group(function () {  
     // === RUTA PRINCIPAL (UNA SOLA) ===
-    //Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
     Route::get('/', [PublicController::class, 'index'])->name('sigem.index');
     
-    // === RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
-    //Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
     // === RUTAS PARA PARTIALS (CARGA AJAX) ===
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.partial');
     
@@ -20,20 +17,15 @@ Route::prefix('sigem')->group(function () {
         ->name('sigem.estadistica.subtema');
     
     // === APIS PARA CONTENIDO DINÁMICO ===
-    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.datos.inicio');
+    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
-
-   /* // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
-    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
-    Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
-    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');*/
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
 Route::prefix('sigem')->middleware(['auth'])->group(function () {  
     Route::get('/admin', [AdminController::class, 'index'])
-        ->name('sigem.laravel.admin')
+        ->name('sigem.admin.index')
         ->middleware('role:Administrador,Desarrollador');
     
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
