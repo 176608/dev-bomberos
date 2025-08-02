@@ -116,7 +116,7 @@
                                     <label for="tema-selector" class="text-muted mb-2">
                                         <i class="bi bi-bookmark me-1"></i>Tema seleccionado:
                                     </label>
-                                    <select id="tema-selector" class="form-select" onchange="window.location.href='{{ url('/sigem/estadistica-tema') }}/' + this.value">
+                                    <select id="tema-selector" class="form-select" onchange="window.location.href='{{ url('/sigem/estadistica-subtema') }}/' + this.value">
                                         @foreach($temas as $tema)
                                             <option value="{{ $tema->tema_id }}" {{ $tema_seleccionado->tema_id == $tema->tema_id ? 'selected' : '' }}>
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
