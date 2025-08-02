@@ -8,3 +8,8 @@
         <p>Cargando contenido...</p>
     </div>
 @endsection
+
+{{-- Asegúrate de que esta parte exista en la vista principal --}}
+@if(isset($section) && $section === 'estadistica')
+    @include('partials.estadistica')
+@endif

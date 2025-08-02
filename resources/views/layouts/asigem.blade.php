@@ -4,7 +4,6 @@
 
 @section('content')
     <style>
-        /* Estilos globales movidos aquí */
         .header-logos {
             display: flex;
             width: 100%;
@@ -202,7 +201,6 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <!-- INICIO como primera opción -->
                 <a href="#" data-section="inicio" class="sigem-nav-link active">
                     <i class="bi bi-house-fill"></i> INICIO
                 </a>

@@ -452,18 +452,31 @@ class PublicController extends Controller
      */
     public function verEstadisticaTema($tema_id)
     {
-        $tema = Tema::with('subtemas')->findOrFail($tema_id);
-        
-        // Obtener todos los temas para el selector
-        $temas = Tema::orderBy('orden_indice')->get();
-        
-        // En lugar de devolver una vista parcial, devolvemos la vista principal
-        return view('roles.sigem', [
-            'section' => 'estadistica',
-            'tema_seleccionado' => $tema,
-            'temas' => $temas,
-            'modo_vista' => 'navegacion_tema'
-        ]);
+        try {
+            // Obtener el tema con sus subtemas
+            $tema = Tema::with(['subtemas' => function($query) {
+                $query->orderBy('orden_indice', 'asc');
+            }])->findOrFail($tema_id);
+            
+            // Obtener todos los temas para el selector de temas
+            $temas = Tema::orderBy('orden_indice')->get();
+            
+            // Este es el punto clave: Configurar la sección correctamente
+            return view('roles.sigem', [
+                'section' => 'estadistica',
+                'tema_seleccionado' => $tema,
+                'temas' => $temas,
+                'modo_vista' => 'navegacion_tema'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar tema estadística:', [
+                'tema_id' => $tema_id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('sigem.laravel.partial', ['section' => 'estadistica'])
+                ->with('error', 'No se pudo cargar el tema seleccionado');
+        }
     }
     
     /**

@@ -5,17 +5,18 @@ use App\Http\Controllers\SIGEM\AdminController;
 
 // Rutas públicas Laravel del módulo SIGEM
 Route::prefix('sigem')->group(function () {  
-    
     // === RUTA PRINCIPAL (UNA SOLA) ===
     Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
     
     // === RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
     
+    // === RUTAS PARA NAVEGACIÓN DE ESTADÍSTICA ===
     Route::get('/estadistica-tema/{tema_id}', [PublicController::class, 'verEstadisticaTema'])
-        ->name('sigem.laravel.estadistica.tema');
+         ->name('sigem.laravel.estadistica.tema');
+    
     Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])
-    ->name('sigem.laravel.estadistica.subtema');
+         ->name('sigem.laravel.estadistica.subtema');
 
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
@@ -24,7 +25,6 @@ Route::prefix('sigem')->group(function () {
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
 Route::prefix('sigem')->middleware(['auth'])->group(function () {  
-    
     Route::get('/admin', [AdminController::class, 'index'])
         ->name('sigem.laravel.admin')
         ->middleware('role:Administrador,Desarrollador');
