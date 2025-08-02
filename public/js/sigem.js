@@ -865,23 +865,7 @@
     // === INICIALIZACIÓN ===
     document.addEventListener('DOMContentLoaded', function () {
         SIGEMApp.init();
-        const currentPath = window.location.pathname;
-        const isSpecialRoute = currentPath.includes('/sigem/estadistica-tema') || 
-                              currentPath.includes('/sigem/estadistica-subtema');
-
-        console.log('SIGEM JS inicializado en ruta:', currentPath);
-        console.log('Es ruta especial:', isSpecialRoute);
         
-        // Si estamos en una ruta especial, asegurarnos de que los menús estén activados correctamente
-        if (isSpecialRoute) {
-            // Marcar el menú de estadística como activo
-            document.querySelectorAll('.sigem-nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.textContent.trim().includes('ESTADÍSTICA')) {
-                    link.classList.add('active');
-                }
-            });
-        }
     });
 
 })(window, document);
