@@ -204,6 +204,14 @@
             $currentPath = request()->path();
             $isEstadisticaEspecial = Str::contains($currentPath, 'estadistica-tema') || 
                                     Str::contains($currentPath, 'estadistica-subtema');
+            
+            // Asegurar que $section siempre tenga un valor
+            $section = $section ?? request()->query('section', 'inicio');
+            
+            // Si estamos en una ruta especial de estadística, asegurar que section sea 'estadistica'
+            if ($isEstadisticaEspecial) {
+                $section = 'estadistica';
+            }
         @endphp
 
 
@@ -249,7 +257,7 @@
         </div>
 
         <!-- Para rutas normales de estadística o rutas especiales -->
-        @if(isset($section) && $section === 'estadistica' || $isEstadisticaEspecial)
+        @if(($section === 'estadistica') || $isEstadisticaEspecial)
             <div class="container my-4">
                 @include('partials.estadistica')
             </div>
