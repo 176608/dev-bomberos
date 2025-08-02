@@ -10,7 +10,7 @@
                             <h6 class="mb-0">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $subtema->tema->tema_titulo }}
                             </h6>
-                            <a href="{{ url('/sigem/estadistica-tema/'.$subtema->tema->tema_id) }}" class="btn btn-sm btn-outline-light" title="Volver a tema">
+                            <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadisticos">
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
