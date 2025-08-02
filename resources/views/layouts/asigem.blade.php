@@ -202,8 +202,7 @@
         @php
             // Detectar si estamos en una ruta especial de estadística tema o subtema
             $currentPath = request()->path();
-            $isEstadisticaEspecial = Str::contains($currentPath, 'estadistica-tema') || 
-                                    Str::contains($currentPath, 'estadistica-subtema');
+            $isEstadisticaEspecial = Str::contains($currentPath, 'estadistica-por-tema');
             
             // Asegurar que $section siempre tenga un valor
             $section = $section ?? request()->query('section', 'inicio');

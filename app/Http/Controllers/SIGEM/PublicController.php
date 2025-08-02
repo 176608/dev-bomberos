@@ -12,9 +12,8 @@ use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo CuadroEsta
 
 class PublicController extends Controller
 {
-    /**
-     * Página principal SIGEM
-     */
+    /*
+     
     public function index(Request $request)
     {
         // Obtener la sección solicitada o usar 'inicio' como predeterminada
@@ -46,7 +45,7 @@ class PublicController extends Controller
         
         // Devolver la vista con los datos
         return view('roles.sigem', $viewData);
-    }
+    }*/
     
     /**
      * Obtener mapas para AJAX - CON DEBUGGING
@@ -150,33 +149,29 @@ class PublicController extends Controller
         }
     }
 
-    /**
-     * Vista dashboard público
-     */
+    /*
+     
     public function dashboard()
     {
         return view('sigem.public.dashboard');
     }
     
-    /**
-     * Vista geográfica pública
-     */
+    
+    Vista geográfica pública
+     
     public function geografico()
     {
         return view('sigem.public.geografico');
     }
     
-    /**
-     * Vista estadísticas públicas
-     */
     public function estadisticas()
     {
         return view('sigem.public.estadisticas');
-    }
+    }*/
     
     /**
      * NUEVA FUNCIÓN: Vista de cuadro estadístico individual
-     */
+     *//*
     public function verCuadro(Request $request, $cuadro_id = null)
     {
         $cuadro = null;
@@ -189,18 +184,18 @@ class PublicController extends Controller
             'loadPartial' => 'sigem-csv-panel',
             'cuadro' => $cuadro
         ]);
-    }
+    }*/
     
     /**
      * NUEVA FUNCIÓN: Vista estadística sin parámetros
-     */
+     *//*
     public function estadisticaSinParametros()
     {
         return view('roles.sigem', [
             'loadPartial' => 'sigem-csv-panel',
             'cuadro' => null
         ]);
-    }
+    }*/
 
     /**
      * NUEVA FUNCIÓN: Cargar partial específico
@@ -286,17 +281,17 @@ class PublicController extends Controller
 
     /**
      * NUEVA FUNCIÓN: Vista estadística con cuadro opcional
-     */
+     *//*
     public function estadistica($cuadro_id = null)
     {
         return view('roles.sigem', [
             'loadSection' => 'estadistica',
             'cuadro_id' => $cuadro_id
         ]);
-    }
+    }*/
 
     /**
-     * FUNCIÓN AJAX: Obtener datos del cuadro (MEJORAR respuesta)
+     * FUNCIÓN AJAX: Obtener datos del cuadro
      */
     public function obtenerCuadroData($cuadro_id)
     {
@@ -477,7 +472,7 @@ class PublicController extends Controller
 
     /**
      * NUEVA FUNCIÓN: Vista estadística por tema
-     */
+     *//*
     public function verEstadisticaTema($tema_id)
     {
         try {
@@ -513,11 +508,12 @@ class PublicController extends Controller
             return redirect()->route('sigem.laravel.partial', ['section' => 'estadistica'])
                 ->with('error', 'No se pudo cargar el tema seleccionado');
         }
-    }
+    }*/
     
     /**
      * NUEVA FUNCIÓN: Vista estadística por subtema
-     */
+     */ 
+    /*
     public function verEstadisticaSubtema($subtema_id)
     {
         try {
@@ -554,6 +550,55 @@ class PublicController extends Controller
             
             return redirect()->route('sigem.laravel.partial', ['section' => 'estadistica'])
                 ->with('error', 'No se pudo cargar el subtema seleccionado');
+        }
+    } */
+
+    /**
+     * Vista estadística por tema con subtemas laterales
+     */
+    public function verEstadisticasPorTema($tema_id)
+    {
+        try {
+            // Obtener el tema con sus subtemas
+            $tema = Tema::with(['subtemas' => function($query) {
+                $query->orderBy('orden_indice', 'asc');
+            }])->findOrFail($tema_id);
+            
+            // Obtener todos los subtemas del tema para la navegación lateral
+            $tema_subtemas = $tema->subtemas;
+            
+            // Obtener todos los temas para el selector principal
+            $temas = Tema::orderBy('orden_indice')->get();
+            
+            // Si el tema tiene subtemas, obtener cuadros del primer subtema
+            $cuadros = collect([]);
+            $subtema_seleccionado = null;
+            
+            if ($tema_subtemas && $tema_subtemas->count() > 0) {
+                $subtema_seleccionado = $tema_subtemas->first();
+                $cuadros = CuadroEstadistico::where('subtema_id', $subtema_seleccionado->subtema_id)
+                    ->orderBy('codigo_cuadro')
+                    ->get();
+            }
+            
+            return view('layouts.asigem', [
+                'section' => 'estadistica',
+                'tema_seleccionado' => $tema,
+                'subtema_seleccionado' => $subtema_seleccionado,
+                'tema_subtemas' => $tema_subtemas,
+                'cuadros' => $cuadros,
+                'temas' => $temas,
+                'modo_vista' => 'navegacion_tema_con_subtemas',
+                'current_route' => 'estadistica-por-tema'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar tema estadística:', [
+                'tema_id' => $tema_id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('sigem.partial', ['section' => 'estadistica'])
+                ->with('error', 'No se pudo cargar el tema seleccionado');
         }
     }
 }

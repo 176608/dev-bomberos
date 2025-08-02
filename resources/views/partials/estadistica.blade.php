@@ -351,16 +351,127 @@ function cargarDatosDesdeCatalogo() {
     // Implementar lógica existente para modo catálogo
 }
 
-// Funciones placeholder para botones
-function descargarExcel(fileName) {
-    console.log('Descargar Excel:', fileName);
-    // Implementar descarga
+
+// Funciones JavaScript para navegación
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Estadística cargada:', {
+        modoVista: @json($modo_vista ?? 'navegacion')
+    });
+});
+
+// Función para cambiar de tema
+function cambiarTema(tema_id) {
+    window.location.href = @json(url('/sigem/estadistica-por-tema')) + '/' + tema_id;
 }
 
-// Añadir al script existente
-function cambiarTema(tema_id) {
-    // Al cambiar de tema, dirigimos directamente a estadistica-tema 
-    // que automáticamente redirigirá al subtema con mayor índice
-    window.location.href = '{{ url('/sigem/estadistica-tema') }}/' + tema_id;
+// Función para cargar un subtema específico
+function cargarSubtema(subtema_id) {
+    // Mostrar indicador de carga
+    document.getElementById('cuadros-container').innerHTML = `
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando cuadros estadísticos...</p>
+        </div>
+    `;
+    
+    // Actualizar clase activa en la navegación de subtemas
+    document.querySelectorAll('#subtemas-navegacion .subtema-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Cargar cuadros del subtema mediante AJAX
+    fetch(@json(url('/sigem/obtener-cuadros-estadistica')) + '/' + subtema_id)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar encabezado con información del subtema
+                actualizarEncabezadoSubtema(subtema_id);
+                
+                // Renderizar cuadros
+                renderizarCuadros(data.cuadros);
+            } else {
+                document.getElementById('cuadros-container').innerHTML = `
+                    <div class="alert alert-danger m-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        ${data.message || 'Error al cargar cuadros estadísticos'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar subtema:', error);
+            document.getElementById('cuadros-container').innerHTML = `
+                <div class="alert alert-danger m-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error de conexión al cargar cuadros estadísticos
+                </div>
+            `;
+        });
+}
+
+// Función para actualizar el encabezado del subtema
+function actualizarEncabezadoSubtema(subtema_id) {
+    // Obtener información del subtema seleccionado
+    fetch(@json(url('/sigem/obtener-info-subtema')) + '/' + subtema_id)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const headerContainer = document.querySelector('.col-md-8 .p-3.border-bottom');
+                headerContainer.innerHTML = `
+                    <h5 class="mb-0">${data.subtema.subtema_titulo}</h5>
+                    <p class="text-muted small mb-0">${data.subtema.tema ? data.subtema.tema.tema_titulo : ''}</p>
+                `;
+            }
+        })
+        .catch(error => console.error('Error al obtener info del subtema:', error));
+}
+
+// Función para renderizar cuadros
+function renderizarCuadros(cuadros) {
+    const container = document.getElementById('cuadros-container');
+    
+    if (!cuadros || cuadros.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-table" style="font-size: 3rem;"></i>
+                <p class="mt-3">No hay cuadros estadísticos disponibles para este subtema.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="cuadros-lista">';
+    
+    cuadros.forEach(cuadro => {
+        html += `
+            <div class="cuadro-item" data-cuadro-id="${cuadro.cuadro_estadistico_id}">
+                <div class="cuadro-codigo">${cuadro.codigo_cuadro}</div>
+                <div class="cuadro-info">
+                    <h6 class="mb-1">${cuadro.cuadro_estadistico_titulo}</h6>
+                    ${cuadro.cuadro_estadistico_subtitulo ? `<p class="text-muted mb-0">${cuadro.cuadro_estadistico_subtitulo}</p>` : ''}
+                </div>
+                <div class="cuadro-actions">
+                    <a href="#" class="btn btn-outline-primary btn-sm" 
+                       onclick="verCuadro(${cuadro.cuadro_estadistico_id}); return false;">
+                        <i class="bi bi-table"></i>
+                        Ver
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// Función para ver un cuadro específico
+function verCuadro(cuadroId) {
+    // Implementar visualización de cuadro
+    console.log('Ver cuadro:', cuadroId);
+    alert('Funcionalidad de visualización de cuadro en desarrollo');
 }
 </script>

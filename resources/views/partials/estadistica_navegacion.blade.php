@@ -71,7 +71,7 @@
                                             </p>
                                         </div>
                                         <div class="card-footer text-center">
-                                            <a href="{{ url('/sigem/estadistica-subtema/'.$tema->tema_id) }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" class="btn btn-outline-primary btn-sm">
                                                 <i class="bi bi-arrow-right me-1"></i>Explorar tema
                                             </a>
                                         </div>

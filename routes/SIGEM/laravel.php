@@ -11,11 +11,21 @@ Route::prefix('sigem')->group(function () {
     // === RUTAS PARA PARTIALS (CARGA AJAX) ===
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.partial');
     
-    // === RUTA ÚNICA DE ESTADÍSTICA-SUBTEMA (ELIMINAMOS ESTADÍSTICA-TEMA) ===
+    /*// === RUTA ÚNICA DE ESTADÍSTICA-SUBTEMA ===
     Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])
         //->name('sigem.laravel.estadistica.subtema');
-        ->name('sigem.estadistica.subtema');
-    
+        ->name('sigem.estadistica.subtema');*/
+
+    // === RUTA nueva de ESTADÍSTICA POR TEMA  ===
+    Route::get('/estadistica-por-tema/{tema_id}', [PublicController::class, 'verEstadisticasPorTema'])
+        ->name('sigem.estadistica.tema');
+
+    // Rutas AJAX para la vista de estadística por tema
+    Route::get('/obtener-cuadros-estadistica/{subtema_id}', [PublicController::class, 'obtenerCuadrosEstadistica'])
+        ->name('sigem.ajax.cuadros');
+    Route::get('/obtener-info-subtema/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])
+        ->name('sigem.ajax.subtema');
+
     // === APIS PARA CONTENIDO DINÁMICO ===
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
