@@ -191,8 +191,8 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('sigem.laravel.public') ? 'active' : '' }}" 
-                               href="{{ route('sigem.laravel.public') }}" title="Panel de consulta público de SIGEM">
+                            <a class="nav-link {{ request()->routeIs('sigem.index') ? 'active' : '' }}" 
+                               href="{{ route('sigem.index') }}" title="Panel de consulta público de SIGEM">
                                 <i class="bi bi-binoculars-fill"></i> SIGEM
                             </a>
                         </li>
