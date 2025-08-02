@@ -179,16 +179,13 @@ class PublicController extends Controller
      */
     public function loadPartial($section)
     {
-        // ACTUALIZAR: Incluir 'inicio'
         $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'];
         
         if (!in_array($section, $validSections)) {
-            // Por defecto cargar inicio
             return response()->view('partials.inicio');
         }
         
         try {
-            // NUEVO: Si es estadística, cargar datos adicionales
             if ($section === 'estadistica') {
                 // Obtener todos los temas para el selector
                 $temas = Tema::orderBy('orden_indice')->get();
@@ -197,11 +194,13 @@ class PublicController extends Controller
                 $cuadroId = request()->get('cuadro_id');
                 $temaSeleccionado = null;
                 $cuadroData = null;
+                $modoVista = 'navegacion'; // Por defecto
                 
                 if ($cuadroId) {
                     $cuadroData = CuadroEstadistico::with(['subtema.tema'])->find($cuadroId);
                     if ($cuadroData && $cuadroData->subtema && $cuadroData->subtema->tema) {
                         $temaSeleccionado = $cuadroData->subtema->tema->tema_id;
+                        $modoVista = 'desde_catalogo';
                     }
                 }
                 
@@ -209,7 +208,8 @@ class PublicController extends Controller
                     'temas' => $temas,
                     'cuadro_id' => $cuadroId,
                     'tema_seleccionado' => $temaSeleccionado,
-                    'cuadro_data' => $cuadroData
+                    'cuadro_data' => $cuadroData,
+                    'modo_vista' => $modoVista
                 ]);
             }
             

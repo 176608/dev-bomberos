@@ -97,14 +97,32 @@
 
         loadContent: function (section) {
             console.log(`Cargando sección: ${section}`);
-            this.saveCurrentSection(section);
-            this.updateActiveMenu(section);
-            this.showLoading(section);
-
-            const url = `${CONFIG.PARTIALS_URL}/${section}`;
-            console.log(`URL completa: ${url}`); // Log informativo
-
-            fetch(url)
+            
+            saveCurrentSection(section);
+            updateActiveMenu(section);
+            
+            // NUEVO: Limpiar parámetros de URL si se navega manualmente a estadística
+            if (section === 'estadistica') {
+                const currentUrl = new URL(window.location);
+                // Si había parámetros de cuadro_id, limpiarlos para modo navegación
+                if (currentUrl.searchParams.has('cuadro_id')) {
+                    currentUrl.searchParams.delete('cuadro_id');
+                    window.history.replaceState({}, '', currentUrl);
+                }
+            }
+            
+            contentContainer.innerHTML = `
+                <div class="Cargando">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p>Cargando ${section}...</p>
+                </div>
+            `;
+            
+            const baseUrl = window.SIGEM_BASE_URL || 
+                           (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+            const fullUrl = `${baseUrl}/partial/${section}`;
+            
+            fetch(fullUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -112,23 +130,31 @@
                     return response.text();
                 })
                 .then(html => {
-                    if (this.elements.contentContainer) {
-                        this.elements.contentContainer.innerHTML = html;
-                        this.executePostLoad(section);
+                    contentContainer.innerHTML = html;
+                    
+                    // Ejecutar funciones específicas por sección
+                    if (section === 'inicio') {
+                        if (typeof window.loadInicioData === 'function') {
+                            window.loadInicioData();
+                        }
+                    } else if (section === 'cartografia') {
+                        loadMapasData();
+                    } else if (section === 'catalogo') {
+                        loadCatalogoData();
+                    } else if (section === 'estadistica') {
+                        loadEstadisticaData();
                     }
                 })
                 .catch(error => {
                     console.error('Error al cargar contenido:', error);
-                    if (this.elements.contentContainer) {
-                        this.elements.contentContainer.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Error al cargar contenido de <strong>${section}</strong>
-                                <br><small>Error: ${error.message}</small>
-                                <br><small>URL intentada: ${url}</small>
-                            </div>
-                        `;
-                    }
+                    contentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Error al cargar contenido de <strong>${section}</strong>
+                            <br><small>Error: ${error.message}</small>
+                            <br><small>URL intentada: ${fullUrl}</small>
+                        </div>
+                    `;
                 });
         },
 

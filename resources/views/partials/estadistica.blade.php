@@ -1,8 +1,9 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="row g-0 min-vh-75">
-            <!-- SIDEBAR COLAPSABLE (4 columnas) -->
-            <div class="col-md-4 bg-light border-end" id="estadistica-sidebar">
+            <!-- SIDEBAR COLAPSABLE (4 columnas) - Solo visible en modo desde_catalogo -->
+            <div class="col-md-4 bg-light border-end" id="estadistica-sidebar" 
+                 @if(!isset($modo_vista) || $modo_vista === 'navegacion') style="display: none;" @endif>
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
                     <div class="p-3 bg-primary text-white">
@@ -33,8 +34,8 @@
                 </div>
             </div>
 
-            <!-- VISTA PRINCIPAL (8 columnas) -->
-            <div class="col-md-8" id="estadistica-main">
+            <!-- VISTA PRINCIPAL - Ancho dinámico según el modo -->
+            <div class="{{ isset($modo_vista) && $modo_vista === 'desde_catalogo' ? 'col-md-8' : 'col-12' }}" id="estadistica-main">
                 <div class="d-flex flex-column h-100">
                     <!-- Row 1: Título y Imagen -->
                     <div class="row g-0 border-bottom">
@@ -51,85 +52,142 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Selector Dinámico -->
-                    <div class="row g-0 border-bottom" id="selector-dinamico">
-                        <div class="col-12">
-                            <!-- Selector de Tema -->
-                            <div class="p-3 border-bottom">
-                                <label for="tema-selector" class="form-label fw-bold mb-2">
-                                    <i class="bi bi-folder-fill me-1"></i>Tema:
-                                </label>
-                                <select id="tema-selector" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
-                                    <option value="">-- Selecciona un tema --</option>
-                                    @if(isset($temas) && $temas->count() > 0)
-                                        @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}" 
-                                                    @if(isset($tema_seleccionado) && $tema_seleccionado == $tema->tema_id) selected @endif>
-                                                {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                            
-                            <!-- Breadcrumb dinámico -->
-                            <div class="p-3 bg-info text-white" id="breadcrumb-container" 
-                                 @if(!isset($cuadro_data)) style="display: none;" @endif>
-                                <div id="breadcrumb-info">
-                                    @if(isset($cuadro_data))
-                                        <span class="fw-bold">Navegación:</span>
-                                        <span id="current-path">
-                                            <i class="bi bi-folder me-1"></i>{{ $cuadro_data->subtema->tema->tema_titulo ?? 'Tema' }} 
-                                            <i class="bi bi-chevron-right mx-2"></i>
-                                            <i class="bi bi-collection me-1"></i>{{ $cuadro_data->subtema->subtema_titulo ?? 'Subtema' }}
-                                            <i class="bi bi-chevron-right mx-2"></i>
-                                            <i class="bi bi-file-earmark-excel me-1"></i>{{ $cuadro_data->codigo_cuadro ?? 'Cuadro' }}
-                                        </span>
-                                    @else
-                                        <span class="fw-bold">Navegación:</span>
-                                        <span id="current-path">Esperando selección...</span>
-                                    @endif
+                    @if(isset($modo_vista) && $modo_vista === 'desde_catalogo')
+                        <!-- MODO DESDE CATÁLOGO: Selector + Breadcrumb + Visualización -->
+                        <!-- Row 2: Selector Dinámico -->
+                        <div class="row g-0 border-bottom" id="selector-dinamico">
+                            <div class="col-12">
+                                <!-- Selector de Tema -->
+                                <div class="p-3 border-bottom">
+                                    <label for="tema-selector" class="form-label fw-bold mb-2">
+                                        <i class="bi bi-folder-fill me-1"></i>Tema:
+                                    </label>
+                                    <select id="tema-selector" class="form-select form-select-sm" onchange="cargarSubtemasPorTema(this.value)">
+                                        <option value="">-- Selecciona un tema --</option>
+                                        @if(isset($temas) && $temas->count() > 0)
+                                            @foreach($temas as $tema)
+                                                <option value="{{ $tema->tema_id }}" 
+                                                        @if(isset($tema_seleccionado) && $tema_seleccionado == $tema->tema_id) selected @endif>
+                                                    {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 3: Área de Visualización (Placeholder amarillo) -->
-                    <div class="flex-fill">
-                        <div class="h-100 d-flex flex-column">
-                            <div class="p-3 bg-warning bg-opacity-25 border-bottom">
-                                <h5 class="mb-0">
-                                    <i class="bi bi-table me-2"></i>Visualización de Cuadro Estadístico
-                                </h5>
-                            </div>
-                            <div class="flex-fill p-4" id="cuadro-visualizacion">
-                                <!-- Placeholder inicial -->
-                                <div class="h-100 d-flex align-items-center justify-content-center text-muted" id="placeholder-inicial">
-                                    <div class="text-center">
-                                        <i class="bi bi-file-earmark-excel" style="font-size: 4rem;"></i>
-                                        <h4 class="mt-3">Área de Visualización</h4>
-                                        <p>Selecciona un cuadro estadístico para visualizar su contenido</p>
+                                
+                                <!-- Breadcrumb dinámico -->
+                                <div class="p-3 bg-info text-white" id="breadcrumb-container" 
+                                     @if(!isset($cuadro_data)) style="display: none;" @endif>
+                                    <div id="breadcrumb-info">
+                                        @if(isset($cuadro_data))
+                                            <span class="fw-bold">Navegación:</span>
+                                            <span id="current-path">
+                                                <i class="bi bi-folder me-1"></i>{{ $cuadro_data->subtema->tema->tema_titulo ?? 'Tema' }} 
+                                                <i class="bi bi-chevron-right mx-2"></i>
+                                                <i class="bi bi-collection me-1"></i>{{ $cuadro_data->subtema->subtema_titulo ?? 'Subtema' }}
+                                                <i class="bi bi-chevron-right mx-2"></i>
+                                                <i class="bi bi-file-earmark-excel me-1"></i>{{ $cuadro_data->codigo_cuadro ?? 'Cuadro' }}
+                                            </span>
+                                        @else
+                                            <span class="fw-bold">Navegación:</span>
+                                            <span id="current-path">Esperando selección...</span>
+                                        @endif
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <!-- Contenedor para datos del cuadro -->
-                                <div id="cuadro-data-container" style="display: none;">
-                                    <!-- Aquí se cargarán los datos del cuadro -->
+                        <!-- Row 3: Área de Visualización (Placeholder amarillo) -->
+                        <div class="flex-fill">
+                            <div class="h-100 d-flex flex-column">
+                                <div class="p-3 bg-warning bg-opacity-25 border-bottom">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-table me-2"></i>Visualización de Cuadro Estadístico
+                                    </h5>
+                                </div>
+                                <div class="flex-fill p-4" id="cuadro-visualizacion">
+                                    <!-- Placeholder inicial -->
+                                    <div class="h-100 d-flex align-items-center justify-content-center text-muted" id="placeholder-inicial">
+                                        <div class="text-center">
+                                            <i class="bi bi-file-earmark-excel" style="font-size: 4rem;"></i>
+                                            <h4 class="mt-3">Área de Visualización</h4>
+                                            <p>Selecciona un cuadro estadístico para visualizar su contenido</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenedor para datos del cuadro -->
+                                    <div id="cuadro-data-container" style="display: none;">
+                                        <!-- Aquí se cargarán los datos del cuadro -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- MODO NAVEGACIÓN: Lista de temas -->
+                        <div class="flex-fill p-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4 class="mb-4">
+                                        <i class="bi bi-list-task me-2"></i>Selecciona un tema para explorar:
+                                    </h4>
+                                    
+                                    <div class="row" id="temas-grid">
+                                        @if(isset($temas) && $temas->count() > 0)
+                                            @foreach($temas as $index => $tema)
+                                                @php
+                                                    $colores = [
+                                                        'bg-success', 'bg-info', 'bg-warning', 
+                                                        'bg-danger', 'bg-primary', 'bg-secondary'
+                                                    ];
+                                                    $colorTema = $colores[$index % count($colores)];
+                                                @endphp
+                                                <div class="col-lg-4 col-md-6 mb-4">
+                                                    <div class="card h-100 tema-card" data-tema-id="{{ $tema->tema_id }}" onclick="seleccionarTemaNavegacion({{ $tema->tema_id }})">
+                                                        <div class="card-header {{ $colorTema }} text-white text-center">
+                                                            <h5 class="mb-0 fw-bold">
+                                                                {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                                            </h5>
+                                                        </div>
+                                                        <div class="card-body text-center p-4">
+                                                            <i class="bi bi-folder-fill text-muted" style="font-size: 3rem;"></i>
+                                                            <p class="mt-3 mb-0">
+                                                                <small class="text-muted">
+                                                                    {{ $tema->subtemas_count ?? 0 }} subtemas disponibles
+                                                                </small>
+                                                            </p>
+                                                        </div>
+                                                        <div class="card-footer text-center">
+                                                            <button class="btn btn-outline-primary btn-sm">
+                                                                <i class="bi bi-arrow-right me-1"></i>Explorar tema
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="col-12">
+                                                <div class="alert alert-warning text-center">
+                                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                                    No hay temas disponibles en este momento.
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
 
         <!-- VISTA DE CUADRO ESPECÍFICO -->
         <div id="cuadro-info-container">
-            <!-- Se carga cuando se selecciona un cuadro o viene desde catálogo -->
+            a
         </div>
 
         <!-- Contenedor para mensajes -->
-        <div id="info_cuadro_by_click" class="mt-4"></div>
+        <div id="info_cuadro_by_click" class="mt-4">b</div>
 
 
     </div>
@@ -139,6 +197,24 @@
 /* === ESTILOS PARA NUEVO LAYOUT === */
 .min-vh-75 {
     min-height: 75vh;
+}
+
+/* Cards de temas en modo navegación */
+.tema-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.tema-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: #0d6efd;
+}
+
+.tema-card:hover .card-footer .btn {
+    background-color: #0d6efd;
+    color: white;
 }
 
 /* Sidebar */
@@ -205,6 +281,10 @@
     #estadistica-sidebar.collapsed {
         margin-left: -100%;
     }
+    
+    .tema-card {
+        margin-bottom: 1rem;
+    }
 }
 </style>
 
@@ -215,20 +295,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const cuadroId = @json($cuadro_id ?? null);
     const temaSeleccionado = @json($tema_seleccionado ?? null);
     const cuadroData = @json($cuadro_data ?? null);
+    const modoVista = @json($modo_vista ?? 'navegacion');
     const vieneDesdeCategolo = cuadroId !== null;
     
     console.log('Estadística cargada:', {
         cuadroId,
         temaSeleccionado,
         vieneDesdeCategolo,
-        cuadroData
+        cuadroData,
+        modoVista
     });
     
-    // Toggle sidebar
+    // Toggle sidebar (solo en modo desde_catalogo)
     const toggleBtn = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('estadistica-sidebar');
     
-    if (toggleBtn && sidebar) {
+    if (toggleBtn && sidebar && modoVista === 'desde_catalogo') {
         toggleBtn.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
             const icon = this.querySelector('i');
@@ -238,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Si viene desde catálogo, cargar datos automáticamente
-    if (vieneDesdeCategolo && cuadroData) {
+    if (vieneDesdeCategolo && cuadroData && modoVista === 'desde_catalogo') {
         console.log('Detectado: viene desde catálogo');
         
         // Mostrar el breadcrumb
@@ -261,22 +343,19 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarSubtemasPorTema(temaSeleccionado);
         }
     }
-/*
-    // Escuchar datos de cuadros cargados desde sigem.js
-    document.addEventListener('cuadroDataLoaded', function(event) {
-        const data = event.detail;
-        actualizarVisualizacion(data);
-    });
-
-    // Si hay parámetros en URL (viene desde catálogo)
-    const urlParams = new URLSearchParams(window.location.search);
-    const cuadroId = urlParams.get('cuadro_id');
-    
-    if (cuadroId) {
-        // Mostrar datos del cuadro específico
-        mostrarCuadroEspecifico(cuadroId);
-    }*/
 });
+
+// NUEVA FUNCIÓN: Seleccionar tema en modo navegación
+function seleccionarTemaNavegacion(temaId) {
+    console.log('Tema seleccionado en navegación:', temaId);
+    
+    // Cambiar a modo desde_catalogo con el tema seleccionado
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    
+    // Recargar la vista con el tema seleccionado
+    window.location.href = `${baseUrl}?section=estadistica&tema_id=${temaId}&modo=exploracion`;
+}
 
 function actualizarVisualizacion(data) {
     const breadcrumb = document.getElementById('current-path');
@@ -477,4 +556,5 @@ function cargarCuadrosSubtema(subtemaId) {
 // Exponer funciones necesarias
 window.cargarSubtemasPorTema = cargarSubtemasPorTema;
 window.limpiarSeleccionEstadistica = limpiarSeleccionEstadistica;
+window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
 </script>
