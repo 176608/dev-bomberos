@@ -358,6 +358,15 @@
 <script>
 // === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA ===
 document.addEventListener('DOMContentLoaded', function() {
+    // Exponer funciones necesarias al ámbito global
+    window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
+    window.cargarCuadrosSubtema = cargarCuadrosSubtema;
+    window.verCuadroDetalle = verCuadroDetalle;
+    window.cambiarTemaSelector = cambiarTemaSelector;
+    window.volverATemasGrid = volverATemasGrid;
+    window.cargarSubtemasConIconos = cargarSubtemasConIconos;
+    window.descargarExcel = descargarExcel;
+    
     // Variables del blade disponibles en JavaScript
     const cuadroId = @json($cuadro_id ?? null);
     const temaSeleccionado = @json($tema_seleccionado ?? null);
@@ -411,30 +420,52 @@ function seleccionarTemaNavegacion(temaId) {
     const mainArea = document.getElementById('estadistica-main');
     
     if (vistaGrid && vistaNavegacion && sidebar && mainArea) {
-        // Transición de vistas
-        vistaGrid.style.display = 'none';
-        vistaNavegacion.style.display = 'block';
+        // Transición de vistas con animación suave
+        vistaGrid.classList.add('vista-transition');
+        vistaGrid.style.opacity = '0';
         
-        // Mostrar sidebar
-        sidebar.style.display = 'block';
-        
-        // Cambiar tamaño del área principal
-        mainArea.className = 'col-md-8';
-        
-        // Establecer el tema en el selector
-        const temaSelector = document.getElementById('tema-selector');
-        if (temaSelector) {
-            temaSelector.value = temaId;
-        }
-        
-        // Cargar subtemas en el sidebar
-        cargarSubtemasConIconos(temaId);
+        setTimeout(() => {
+            vistaGrid.style.display = 'none';
+            
+            // Mostrar sidebar primero
+            sidebar.style.display = 'block';
+            sidebar.classList.add('vista-transition');
+            sidebar.style.opacity = '0';
+            
+            // Luego mostrar vista de navegación
+            vistaNavegacion.style.display = 'block';
+            vistaNavegacion.classList.add('vista-transition');
+            vistaNavegacion.style.opacity = '0';
+            
+            // Cambiar tamaño del área principal
+            mainArea.className = 'col-md-8';
+            
+            // Establecer el tema en el selector
+            const temaSelector = document.getElementById('tema-selector');
+            if (temaSelector) {
+                temaSelector.value = temaId;
+            }
+            
+            // Permitir que el DOM se actualice antes de la animación
+            setTimeout(() => {
+                sidebar.style.opacity = '1';
+                vistaNavegacion.style.opacity = '1';
+                
+                // Cargar subtemas en el sidebar
+                cargarSubtemasConIconos(temaId);
+            }, 50);
+        }, 300);
     }
 }
 
-// FUNCIÓN: Cargar subtemas con iconos personalizados
+// FUNCIÓN: Cargar subtemas con iconos personalizados - Mejorada con manejo de errores
 function cargarSubtemasConIconos(temaId) {
     const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    if (!navegacionContainer) {
+        console.error('Error: No se encontró el contenedor de navegación de subtemas');
+        return;
+    }
     
     if (!temaId) {
         navegacionContainer.innerHTML = `
@@ -456,15 +487,25 @@ function cargarSubtemasConIconos(temaId) {
         </div>
     `;
     
-    // Obtener subtemas via AJAX
+    // Determinar la URL base de forma más robusta
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
+    // Usar la ruta correcta según las rutas definidas en laravel.php
+    console.log(`Obteniendo subtemas para el tema ${temaId} desde ${baseUrl}/subtemas-estadistica/${temaId}`);
+    
     fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success && data.subtemas.length > 0) {
+            console.log('Datos de subtemas recibidos:', data);
+            if (data.success && data.subtemas && data.subtemas.length > 0) {
                 generarNavegacionSubtemasConIconos(data.subtemas);
+                
                 // Auto-cargar cuadros del primer subtema
                 const primerSubtema = data.subtemas.find(s => s.orden_indice === Math.min(...data.subtemas.map(st => st.orden_indice)));
                 if (primerSubtema) {
@@ -476,7 +517,10 @@ function cargarSubtemasConIconos(temaId) {
                 navegacionContainer.innerHTML = `
                     <div class="p-3 text-center text-muted">
                         <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
-                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
+                        <p class="mt-2 mb-0">No hay subtemas disponibles para este tema</p>
+                        <button class="btn btn-outline-secondary btn-sm mt-3" onclick="volverATemasGrid()">
+                            <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                        </button>
                     </div>
                 `;
             }
@@ -486,7 +530,10 @@ function cargarSubtemasConIconos(temaId) {
             navegacionContainer.innerHTML = `
                 <div class="p-3 text-center text-danger">
                     <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
+                    <p class="mt-2 mb-0">Error al cargar subtemas: ${error.message}</p>
+                    <button class="btn btn-outline-secondary btn-sm mt-3" onclick="volverATemasGrid()">
+                        <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                    </button>
                 </div>
             `;
         });
@@ -709,9 +756,14 @@ function descargarExcel(fileName) {
 }
 
 // Exponer funciones necesarias
-window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
-window.cargarCuadrosSubtema = cargarCuadrosSubtema;
-window.verCuadroDetalle = verCuadroDetalle;
-window.cambiarTemaSelector = cambiarTemaSelector;
-window.volverATemasGrid = volverATemasGrid;
+document.addEventListener('DOMContentLoaded', function() {
+    // Asegurarnos de que las funciones estén disponibles globalmente
+    window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
+    window.cargarCuadrosSubtema = cargarCuadrosSubtema;
+    window.verCuadroDetalle = verCuadroDetalle;
+    window.cambiarTemaSelector = cambiarTemaSelector;
+    window.volverATemasGrid = volverATemasGrid;
+    window.cargarSubtemasConIconos = cargarSubtemasConIconos;
+    window.descargarExcel = descargarExcel;
+});
 </script>
