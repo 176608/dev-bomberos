@@ -357,50 +357,8 @@
 
 <script>
 // === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA ===
-document.addEventListener('DOMContentLoaded', function() {
-    // Variables del blade disponibles en JavaScript
-    const cuadroId = @json($cuadro_id ?? null);
-    const temaSeleccionado = @json($tema_seleccionado ?? null);
-    const cuadroData = @json($cuadro_data ?? null);
-    const modoVista = @json($modo_vista ?? 'navegacion');
-    const vieneDesdeCategolo = cuadroId !== null;
-    
-    console.log('Estadística cargada:', {
-        cuadroId,
-        temaSeleccionado,
-        vieneDesdeCategolo,
-        cuadroData,
-        modoVista
-    });
 
-    // Configurar sidebar toggle
-    configurarToggleSidebar();
-
-    // Si viene desde catálogo, mostrar vista correspondiente
-    if (modoVista === 'desde_catalogo') {
-        mostrarVistaDesdeCatalogo();
-        if (vieneDesdeCategolo && cuadroData) {
-            cargarDatosDesdeCatalogo();
-        }
-    }
-});
-
-function configurarToggleSidebar() {
-    const toggleBtn = document.getElementById('toggle-sidebar');
-    const sidebar = document.getElementById('estadistica-sidebar');
-    const mainArea = document.getElementById('estadistica-main');
-    
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('bi-chevron-left');
-            icon.classList.toggle('bi-chevron-right');
-        });
-    }
-}
-
-// FUNCIÓN: Seleccionar tema en modo navegación (NUEVA IMPLEMENTACIÓN)
+// DECLARAR FUNCIONES EN SCOPE GLOBAL PRIMERO
 function seleccionarTemaNavegacion(temaId) {
     console.log('Tema seleccionado en navegación:', temaId);
     
@@ -432,7 +390,6 @@ function seleccionarTemaNavegacion(temaId) {
     }
 }
 
-// FUNCIÓN: Cargar subtemas con iconos personalizados
 function cargarSubtemasConIconos(temaId) {
     const navegacionContainer = document.getElementById('subtemas-navegacion');
     
@@ -520,7 +477,6 @@ function generarNavegacionSubtemasConIconos(subtemas) {
     navegacionContainer.innerHTML = html;
 }
 
-// FUNCIÓN: Cargar cuadros del subtema seleccionado
 function cargarCuadrosSubtema(subtemaId) {
     console.log('Cargando cuadros del subtema:', subtemaId);
     
@@ -633,14 +589,12 @@ function mostrarListaCuadros(cuadros, subtemaInfo) {
     }
 }
 
-// FUNCIÓN: Cambiar tema desde selector
 function cambiarTemaSelector(temaId) {
     if (temaId) {
         cargarSubtemasConIconos(temaId);
     }
 }
 
-// FUNCIÓN: Volver al grid de temas
 function volverATemasGrid() {
     const vistaGrid = document.getElementById('vista-temas-grid');
     const vistaNavegacion = document.getElementById('vista-navegacion-tema');
@@ -667,7 +621,6 @@ function volverATemasGrid() {
     }
 }
 
-// FUNCIÓN: Ver detalle completo de un cuadro
 function verCuadroDetalle(cuadroId) {
     console.log('Ver detalle del cuadro:', cuadroId);
     
@@ -682,7 +635,6 @@ function verCuadroDetalle(cuadroId) {
     }
 }
 
-// FUNCIONES PARA MODO DESDE CATÁLOGO (conservar funcionalidad existente)
 function mostrarVistaDesdeCatalogo() {
     const vistaGrid = document.getElementById('vista-temas-grid');
     const vistaNavegacion = document.getElementById('vista-navegacion-tema');
@@ -698,20 +650,54 @@ function mostrarVistaDesdeCatalogo() {
 }
 
 function cargarDatosDesdeCatalogo() {
-    // Implementar lógica existente para modo catálogo
     console.log('Cargando datos desde catálogo...');
 }
 
-// Funciones placeholder para botones
 function descargarExcel(fileName) {
     console.log('Descargar Excel:', fileName);
-    // Implementar descarga
 }
 
-// Exponer funciones necesarias
-window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
-window.cargarCuadrosSubtema = cargarCuadrosSubtema;
-window.verCuadroDetalle = verCuadroDetalle;
-window.cambiarTemaSelector = cambiarTemaSelector;
-window.volverATemasGrid = volverATemasGrid;
+// EVENT LISTENERS - Ejecutar después de que las funciones estén definidas
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables del blade disponibles en JavaScript
+    const cuadroId = @json($cuadro_id ?? null);
+    const temaSeleccionado = @json($tema_seleccionado ?? null);
+    const cuadroData = @json($cuadro_data ?? null);
+    const modoVista = @json($modo_vista ?? 'navegacion');
+    const vieneDesdeCategolo = cuadroId !== null;
+    
+    console.log('Estadística cargada:', {
+        cuadroId,
+        temaSeleccionado,
+        vieneDesdeCategolo,
+        cuadroData,
+        modoVista
+    });
+
+    // Configurar sidebar toggle
+    configurarToggleSidebar();
+
+    // Si viene desde catálogo, mostrar vista correspondiente
+    if (modoVista === 'desde_catalogo') {
+        mostrarVistaDesdeCatalogo();
+        if (vieneDesdeCategolo && cuadroData) {
+            cargarDatosDesdeCatalogo();
+        }
+    }
+});
+
+function configurarToggleSidebar() {
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
+    
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-left');
+            icon.classList.toggle('bi-chevron-right');
+        });
+    }
+}
 </script>
