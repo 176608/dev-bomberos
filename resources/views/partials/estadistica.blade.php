@@ -357,80 +357,86 @@
 
 <script>
 // === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA ===
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables del blade disponibles en JavaScript
+    const cuadroId = @json($cuadro_id ?? null);
+    const temaSeleccionado = @json($tema_seleccionado ?? null);
+    const cuadroData = @json($cuadro_data ?? null);
+    const modoVista = @json($modo_vista ?? 'navegacion');
+    const vieneDesdeCategolo = cuadroId !== null;
+    
+    console.log('Estadística cargada:', {
+        cuadroId,
+        temaSeleccionado,
+        vieneDesdeCategolo,
+        cuadroData,
+        modoVista
+    });
 
-// DECLARAR FUNCIONES EN SCOPE GLOBAL PRIMERO
+    // Configurar sidebar toggle
+    configurarToggleSidebar();
+
+    // Si viene desde catálogo, mostrar vista correspondiente
+    if (modoVista === 'desde_catalogo') {
+        mostrarVistaDesdeCatalogo();
+        if (vieneDesdeCategolo && cuadroData) {
+            cargarDatosDesdeCatalogo();
+        }
+    }
+});
+
+function configurarToggleSidebar() {
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
+    
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-left');
+            icon.classList.toggle('bi-chevron-right');
+        });
+    }
+}
+
+// FUNCIÓN: Seleccionar tema en modo navegación (NUEVA IMPLEMENTACIÓN)
 function seleccionarTemaNavegacion(temaId) {
     console.log('Tema seleccionado en navegación:', temaId);
     
-    // Asegurar que los elementos existen antes de continuar
+    // Ocultar vista de grid de temas
     const vistaGrid = document.getElementById('vista-temas-grid');
     const vistaNavegacion = document.getElementById('vista-navegacion-tema');
     const sidebar = document.getElementById('estadistica-sidebar');
     const mainArea = document.getElementById('estadistica-main');
     
-    console.log('Elementos encontrados:', {
-        vistaGrid: !!vistaGrid,
-        vistaNavegacion: !!vistaNavegacion,
-        sidebar: !!sidebar,
-        mainArea: !!mainArea
-    });
-    
     if (vistaGrid && vistaNavegacion && sidebar && mainArea) {
-        // 1. Ocultar vista de grid de temas
+        // Transición de vistas
         vistaGrid.style.display = 'none';
-        console.log('Vista grid ocultada');
-        
-        // 2. Mostrar vista de navegación
         vistaNavegacion.style.display = 'block';
-        console.log('Vista navegación mostrada');
         
-        // 3. Mostrar sidebar
+        // Mostrar sidebar
         sidebar.style.display = 'block';
-        console.log('Sidebar mostrado');
         
-        // 4. Cambiar tamaño del área principal a 8 columnas (para hacer espacio al sidebar)
+        // Cambiar tamaño del área principal
         mainArea.className = 'col-md-8';
-        console.log('Main area redimensionada');
         
-        // 5. Establecer el tema seleccionado en el selector
+        // Establecer el tema en el selector
         const temaSelector = document.getElementById('tema-selector');
         if (temaSelector) {
             temaSelector.value = temaId;
-            console.log('Tema establecido en selector:', temaId);
-        } else {
-            console.error('Selector de tema no encontrado');
         }
         
-        // 6. Cargar subtemas en el sidebar
-        console.log('Iniciando carga de subtemas...');
+        // Cargar subtemas en el sidebar
         cargarSubtemasConIconos(temaId);
-        
-        // 7. Forzar un reflow para asegurar que los cambios se apliquen
-        setTimeout(() => {
-            console.log('Transición de vista completada');
-        }, 100);
-        
-    } else {
-        console.error('Error: No se encontraron todos los elementos necesarios:', {
-            vistaGrid: !!vistaGrid,
-            vistaNavegacion: !!vistaNavegacion,
-            sidebar: !!sidebar,
-            mainArea: !!mainArea
-        });
     }
 }
 
+// FUNCIÓN: Cargar subtemas con iconos personalizados
 function cargarSubtemasConIconos(temaId) {
-    console.log('Iniciando carga de subtemas para tema:', temaId);
     const navegacionContainer = document.getElementById('subtemas-navegacion');
     
-    if (!navegacionContainer) {
-        console.error('Container de navegación no encontrado');
-        return;
-    }
-    
     if (!temaId) {
-        console.log('No hay tema ID, mostrando placeholder');
         navegacionContainer.innerHTML = `
             <div class="p-3 text-center text-muted">
                 <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
@@ -449,41 +455,24 @@ function cargarSubtemasConIconos(temaId) {
             <p class="mt-2 mb-0">Cargando subtemas...</p>
         </div>
     `;
-    console.log('Loading mostrado, iniciando fetch...');
     
     // Obtener subtemas via AJAX
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
-    const fetchUrl = `${baseUrl}/subtemas-estadistica/${temaId}`;
-    console.log('Fetching desde URL:', fetchUrl);
-    
-    fetch(fetchUrl)
-        .then(response => {
-            console.log('Respuesta recibida:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
+        .then(response => response.json())
         .then(data => {
-            console.log('Datos recibidos:', data);
-            if (data.success && data.subtemas && data.subtemas.length > 0) {
-                console.log(`Generando navegación para ${data.subtemas.length} subtemas`);
+            if (data.success && data.subtemas.length > 0) {
                 generarNavegacionSubtemasConIconos(data.subtemas);
-                
-                // Auto-cargar cuadros del primer subtema (ordenado por orden_indice)
-                const subtemaOrdenados = data.subtemas.sort((a, b) => a.orden_indice - b.orden_indice);
-                const primerSubtema = subtemaOrdenados[0];
-                
+                // Auto-cargar cuadros del primer subtema
+                const primerSubtema = data.subtemas.find(s => s.orden_indice === Math.min(...data.subtemas.map(st => st.orden_indice)));
                 if (primerSubtema) {
-                    console.log('Auto-cargando primer subtema:', primerSubtema.subtema_id);
                     setTimeout(() => {
                         cargarCuadrosSubtema(primerSubtema.subtema_id);
-                    }, 500);
+                    }, 300);
                 }
             } else {
-                console.log('No hay subtemas disponibles');
                 navegacionContainer.innerHTML = `
                     <div class="p-3 text-center text-muted">
                         <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
@@ -498,41 +487,27 @@ function cargarSubtemasConIconos(temaId) {
                 <div class="p-3 text-center text-danger">
                     <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
                     <p class="mt-2 mb-0">Error al cargar subtemas</p>
-                    <small class="d-block mt-1">${error.message}</small>
                 </div>
             `;
         });
 }
 
 function generarNavegacionSubtemasConIconos(subtemas) {
-    console.log('Generando navegación para subtemas:', subtemas);
     const navegacionContainer = document.getElementById('subtemas-navegacion');
-    
-    if (!navegacionContainer) {
-        console.error('Container de navegación no encontrado para generar navegación');
-        return;
-    }
     
     let html = '';
     
-    // Ordenar subtemas por orden_indice
-    const subtemasOrdenados = subtemas.sort((a, b) => a.orden_indice - b.orden_indice);
-    
-    subtemasOrdenados.forEach((subtema, index) => {
+    subtemas.forEach((subtema, index) => {
         const isActive = index === 0 ? 'active' : ''; // Marcar el primero como activo
-        const iconoPath = subtema.icono_subtema ? `imagenes/${subtema.icono_subtema}` : 'imagenes/default-icon.png';
-        
-        console.log(`Generando item para subtema: ${subtema.subtema_titulo}, icono: ${iconoPath}`);
         
         html += `
             <div class="subtema-nav-item ${isActive}" 
                  data-subtema-id="${subtema.subtema_id}"
-                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})"
-                 style="cursor: pointer;">
-                <img src="${iconoPath}" 
+                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
+                <img src="imagenes/${subtema.icono_subtema || 'default-icon.png'}" 
                      alt="${subtema.subtema_titulo}" 
                      class="subtema-icon"
-                     onerror="this.style.display='none'; console.log('Error cargando icono: ${iconoPath}');">
+                     onerror="this.style.display='none';">
                 <div class="flex-fill">
                     <h6 class="mb-1">${subtema.subtema_titulo}</h6>
                     <small class="text-muted">${subtema.cuadros_count || 0} cuadros</small>
@@ -543,19 +518,14 @@ function generarNavegacionSubtemasConIconos(subtemas) {
     });
     
     navegacionContainer.innerHTML = html;
-    console.log('Navegación de subtemas generada exitosamente');
 }
 
+// FUNCIÓN: Cargar cuadros del subtema seleccionado
 function cargarCuadrosSubtema(subtemaId) {
     console.log('Cargando cuadros del subtema:', subtemaId);
     
     const placeholder = document.getElementById('placeholder-cuadros');
     const container = document.getElementById('cuadros-lista-container');
-    
-    console.log('Elementos para visualización:', {
-        placeholder: !!placeholder,
-        container: !!container
-    });
     
     // Mostrar loading
     if (placeholder) {
@@ -576,30 +546,16 @@ function cargarCuadrosSubtema(subtemaId) {
     document.querySelectorAll('.subtema-nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    const subtemaElement = document.querySelector(`[data-subtema-id="${subtemaId}"]`);
-    if (subtemaElement) {
-        subtemaElement.classList.add('active');
-        console.log('Subtema marcado como activo:', subtemaId);
-    }
+    document.querySelector(`[data-subtema-id="${subtemaId}"]`)?.classList.add('active');
     
     // Obtener cuadros via AJAX
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
-    const fetchUrl = `${baseUrl}/cuadros-estadistica/${subtemaId}`;
-    console.log('Fetching cuadros desde:', fetchUrl);
-    
-    fetch(fetchUrl)
-        .then(response => {
-            console.log('Respuesta cuadros:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+    fetch(`${baseUrl}/cuadros-estadistica/${subtemaId}`)
+        .then(response => response.json())
         .then(data => {
-            console.log('Datos de cuadros recibidos:', data);
-            if (data.success && data.cuadros && data.cuadros.length > 0) {
+            if (data.success && data.cuadros.length > 0) {
                 mostrarListaCuadros(data.cuadros, data.subtema_info);
             } else {
                 if (placeholder) {
@@ -621,7 +577,6 @@ function cargarCuadrosSubtema(subtemaId) {
                         <i class="bi bi-exclamation-triangle" style="font-size: 4rem;"></i>
                         <h4 class="mt-3">Error al cargar</h4>
                         <p>No se pudieron cargar los cuadros del subtema</p>
-                        <small class="d-block mt-1">${error.message}</small>
                     </div>
                 `;
             }
@@ -629,7 +584,6 @@ function cargarCuadrosSubtema(subtemaId) {
 }
 
 function mostrarListaCuadros(cuadros, subtemaInfo) {
-    console.log('Mostrando lista de cuadros:', cuadros.length);
     const placeholder = document.getElementById('placeholder-cuadros');
     const container = document.getElementById('cuadros-lista-container');
     
@@ -676,19 +630,18 @@ function mostrarListaCuadros(cuadros, subtemaInfo) {
         
         html += '</div>';
         container.innerHTML = html;
-        console.log('Lista de cuadros generada exitosamente');
     }
 }
 
+// FUNCIÓN: Cambiar tema desde selector
 function cambiarTemaSelector(temaId) {
-    console.log('Cambiando tema desde selector:', temaId);
     if (temaId) {
         cargarSubtemasConIconos(temaId);
     }
 }
 
+// FUNCIÓN: Volver al grid de temas
 function volverATemasGrid() {
-    console.log('Volviendo al grid de temas');
     const vistaGrid = document.getElementById('vista-temas-grid');
     const vistaNavegacion = document.getElementById('vista-navegacion-tema');
     const sidebar = document.getElementById('estadistica-sidebar');
@@ -711,21 +664,16 @@ function volverATemasGrid() {
         if (temaSelector) {
             temaSelector.value = '';
         }
-        
-        console.log('Regreso al grid completado');
-    } else {
-        console.error('Error al volver: elementos no encontrados');
     }
 }
 
+// FUNCIÓN: Ver detalle completo de un cuadro
 function verCuadroDetalle(cuadroId) {
     console.log('Ver detalle del cuadro:', cuadroId);
     
     // Llamar a sigem.js para cargar el cuadro completo
     if (typeof window.verCuadro === 'function') {
         window.verCuadro(cuadroId, '');
-    } else if (typeof window.SIGEMApp !== 'undefined' && typeof window.SIGEMApp.verCuadro === 'function') {
-        window.SIGEMApp.verCuadro(cuadroId, '');
     } else {
         // Fallback: recargar página con el cuadro
         const baseUrl = window.SIGEM_BASE_URL || 
@@ -734,8 +682,8 @@ function verCuadroDetalle(cuadroId) {
     }
 }
 
+// FUNCIONES PARA MODO DESDE CATÁLOGO (conservar funcionalidad existente)
 function mostrarVistaDesdeCatalogo() {
-    console.log('Mostrando vista desde catálogo');
     const vistaGrid = document.getElementById('vista-temas-grid');
     const vistaNavegacion = document.getElementById('vista-navegacion-tema');
     const vistaCatalogo = document.getElementById('vista-desde-catalogo');
@@ -750,72 +698,20 @@ function mostrarVistaDesdeCatalogo() {
 }
 
 function cargarDatosDesdeCatalogo() {
+    // Implementar lógica existente para modo catálogo
     console.log('Cargando datos desde catálogo...');
 }
 
+// Funciones placeholder para botones
 function descargarExcel(fileName) {
     console.log('Descargar Excel:', fileName);
+    // Implementar descarga
 }
 
-// EVENT LISTENERS - Ejecutar después de que las funciones estén definidas
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM completamente cargado, inicializando estadística...');
-    
-    // Variables del blade disponibles en JavaScript
-    const cuadroId = @json($cuadro_id ?? null);
-    const temaSeleccionado = @json($tema_seleccionado ?? null);
-    const cuadroData = @json($cuadro_data ?? null);
-    const modoVista = @json($modo_vista ?? 'navegacion');
-    const vieneDesdeCategolo = cuadroId !== null;
-    
-    console.log('Variables de inicialización:', {
-        cuadroId,
-        temaSeleccionado,
-        vieneDesdeCategolo,
-        cuadroData,
-        modoVista
-    });
-
-    // Configurar sidebar toggle
-    configurarToggleSidebar();
-
-    // Si viene desde catálogo, mostrar vista correspondiente
-    if (modoVista === 'desde_catalogo') {
-        mostrarVistaDesdeCatalogo();
-        if (vieneDesdeCategolo && cuadroData) {
-            cargarDatosDesdeCatalogo();
-        }
-    }
-    
-    console.log('Inicialización de estadística completada');
-});
-
-function configurarToggleSidebar() {
-    const toggleBtn = document.getElementById('toggle-sidebar');
-    const sidebar = document.getElementById('estadistica-sidebar');
-    const mainArea = document.getElementById('estadistica-main');
-    
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('bi-chevron-left');
-            icon.classList.toggle('bi-chevron-right');
-            console.log('Sidebar toggle activado');
-        });
-        console.log('Toggle sidebar configurado');
-    } else {
-        console.log('Toggle sidebar no configurado - elementos no encontrados');
-    }
-}
-
-// Exponer funciones globalmente para debugging
-window.estadisticaDebug = {
-    seleccionarTemaNavegacion,
-    cargarSubtemasConIconos,
-    cargarCuadrosSubtema,
-    volverATemasGrid
-};
-
-console.log('Funciones de estadística cargadas y disponibles globalmente');
+// Exponer funciones necesarias
+window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
+window.cargarCuadrosSubtema = cargarCuadrosSubtema;
+window.verCuadroDetalle = verCuadroDetalle;
+window.cambiarTemaSelector = cambiarTemaSelector;
+window.volverATemasGrid = volverATemasGrid;
 </script>
