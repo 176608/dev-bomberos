@@ -12,7 +12,7 @@ use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo CuadroEsta
 
 class PublicController extends Controller
 {
-    /*
+    
      
     public function index(Request $request)
     {
@@ -45,7 +45,7 @@ class PublicController extends Controller
         
         // Devolver la vista con los datos
         return view('roles.sigem', $viewData);
-    }*/
+    }
     
     /**
      * Obtener mapas para AJAX - CON DEBUGGING
