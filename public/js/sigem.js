@@ -73,13 +73,11 @@
         saveCurrentSection: function (section) {
             localStorage.setItem(CONFIG.STORAGE_KEY, section);
             
-            // MODIFICADO: Solo establecer section en URL, otros parámetros se manejan por cleanUrlParameters
+            // Siempre actualizar la sección en la URL
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('section', section);
-            // Solo actualizar si no se ha hecho ya
-            if (newUrl.searchParams.get('section') !== section) {
-                window.history.replaceState({}, '', newUrl);
-            }
+            window.history.replaceState({}, '', newUrl);
+            console.log(`Sección actualizada a: ${section}`);
         },
 
         updateActiveMenu: function (activeSection) {
@@ -103,9 +101,9 @@
         loadContent: function (section) {
             console.log(`Cargando sección: ${section}`);
             
-            this.cleanUrlParameters(section);
             // Funciones importantes para la navegación
-            this.saveCurrentSection(section);
+            this.saveCurrentSection(section); // PRIMERO actualizar la sección
+            this.cleanUrlParameters(section); // DESPUÉS limpiar parámetros extra
             this.updateActiveMenu(section);
             this.showLoading(section);
 
@@ -152,24 +150,40 @@
                 console.log(`Removiendo cuadro_id de URL - sección cambiada a: ${section}`);
             }
             
-            // Remover parámetros específicos que no corresponden a la sección actual
+            // Remover otros parámetros específicos que no corresponden a la sección actual
             switch (section) {
                 case 'estadistica':
                     // Mantener cuadro_id si existe, remover otros parámetros específicos si los hubiera
-                    // (Por ahora solo cuadro_id es relevante para estadística)
+                    if (currentUrl.searchParams.has('tema_id')) {
+                        currentUrl.searchParams.delete('tema_id');
+                        urlChanged = true;
+                    }
+                    if (currentUrl.searchParams.has('modo')) {
+                        currentUrl.searchParams.delete('modo');
+                        urlChanged = true;
+                    }
                     break;
                     
                 case 'catalogo':
                 case 'cartografia':
                 case 'inicio':
                 case 'productos':
+                    // Estas secciones no necesitan parámetros específicos
+                    if (currentUrl.searchParams.has('tema_id')) {
+                        currentUrl.searchParams.delete('tema_id');
+                        urlChanged = true;
+                    }
+                    if (currentUrl.searchParams.has('modo')) {
+                        currentUrl.searchParams.delete('modo');
+                        urlChanged = true;
+                    }
                     break;
             }
             
-            // Actualizar URL solo si hubo cambios
+            // Actualizar URL solo si hubo cambios en parámetros extra
             if (urlChanged) {
                 window.history.replaceState({}, '', currentUrl);
-                console.log(`URL limpiada para sección ${section}:`, currentUrl.toString());
+                console.log(`Parámetros limpiados para sección ${section}:`, currentUrl.toString());
             }
         },
 
