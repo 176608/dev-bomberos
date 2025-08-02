@@ -123,7 +123,7 @@
                             </div>
                         </div>
                     @else
-                        <!-- MODO NAVEGACIÓN: Lista de temas -->
+                        <!-- MODO NAVEGACIÓN: Solo se ve si llegamos a estadística manualmente -->
                         <div class="flex-fill p-4">
                             <div class="row">
                                 <div class="col-12">
@@ -134,16 +134,21 @@
                                     <div class="row" id="temas-grid">
                                         @if(isset($temas) && $temas->count() > 0)
                                             @foreach($temas as $index => $tema)
-                                                @php
-                                                    $colores = [
-                                                        'bg-success', 'bg-info', 'bg-warning', 
-                                                        'bg-danger', 'bg-primary', 'bg-secondary'
+                                                @php 
+                                                    // Usar colores consistentes con estilo definido
+                                                    $coloresEstilo = [
+                                                        'background-color: #8FBC8F; color: black;',  // Verde suave
+                                                        'background-color: #87CEEB; color: black;',  // Azul cielo
+                                                        'background-color: #DDA0DD; color: black;',  // Ciruela
+                                                        'background-color: #F0E68C; color: black;',  // Caqui
+                                                        'background-color: #FFA07A; color: black;',  // Salmón claro
+                                                        'background-color: #98FB98; color: black;'   // Verde pálido
                                                     ];
-                                                    $colorTema = $colores[$index % count($colores)];
+                                                    $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                                 @endphp
                                                 <div class="col-lg-4 col-md-6 mb-4">
                                                     <div class="card h-100 tema-card" data-tema-id="{{ $tema->tema_id }}" onclick="seleccionarTemaNavegacion({{ $tema->tema_id }})">
-                                                        <div class="card-header {{ $colorTema }} text-white text-center">
+                                                        <div class="card-header text-center" style="{{ $colorTema }}">
                                                             <h5 class="mb-0 fw-bold">
                                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
                                                             </h5>
@@ -152,11 +157,18 @@
                                                             <i class="bi bi-folder-fill text-muted" style="font-size: 3rem;"></i>
                                                             <p class="mt-3 mb-0">
                                                                 <small class="text-muted">
-                                                                    {{ $tema->subtemas_count ?? 0 }} subtemas disponibles
+                                                                    @php
+                                                                        // Contar subtemas del tema actual
+                                                                        $subtemasCount = $tema->subtemas ? $tema->subtemas->count() : 0;
+                                                                    @endphp
+                                                                    {{ $subtemasCount }} subtemas disponibles
                                                                 </small>
                                                             </p>
                                                         </div>
                                                         <div class="card-footer text-center">
+                                                <!--Dandole click a este boton, se va a cargar lista de subtemas en el sidebar,
+                                                            En el sidebar al momento de seleccionar un subtema: la lista de cuadros del subtema 
+                                                            seleccionado se muestran en la seccion de visualizacion -->
                                                             <button class="btn btn-outline-primary btn-sm">
                                                                 <i class="bi bi-arrow-right me-1"></i>Explorar tema
                                                             </button>
@@ -181,13 +193,10 @@
             </div>
         </div>
 
-        <!-- VISTA DE CUADRO ESPECÍFICO -->
+        <!-- Aca esta recibiendo la informacion del cuadro desde el catalogo -->
         <div id="cuadro-info-container">
-            a
+            
         </div>
-
-        <!-- Contenedor para mensajes -->
-        <div id="info_cuadro_by_click" class="mt-4">b</div>
 
 
     </div>
@@ -260,6 +269,24 @@
 .cuadro-nav-item:hover {
     background-color: #fff3cd;
     padding-left: 1rem;
+}
+
+/* Lista de cuadros en área de visualización para modo navegación */
+.cuadros-lista {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.cuadro-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.cuadro-item:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
 }
 
 /* Área de visualización */
@@ -345,16 +372,247 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// NUEVA FUNCIÓN: Seleccionar tema en modo navegación
+// FUNCIÓN: Seleccionar tema en modo navegación
+// Al hacer click en un tema, mostrar el sidebar y cargar subtemas
 function seleccionarTemaNavegacion(temaId) {
     console.log('Tema seleccionado en navegación:', temaId);
     
-    // Cambiar a modo desde_catalogo con el tema seleccionado
+    // Cambiar la vista para mostrar sidebar y selector
+    const sidebar = document.getElementById('estadistica-sidebar');
+    const mainArea = document.getElementById('estadistica-main');
+    
+    if (sidebar && mainArea) {
+        // Mostrar sidebar
+        sidebar.style.display = 'block';
+        
+        // Cambiar tamaño del área principal
+        mainArea.className = 'col-md-8';
+        
+        // Cargar subtemas en el sidebar
+        cargarSubtemasPorTema(temaId);
+        
+        // Limpiar área de visualización y preparar para mostrar cuadros
+        const placeholder = document.getElementById('placeholder-inicial');
+        const container = document.getElementById('cuadro-data-container');
+        
+        if (placeholder) {
+            placeholder.innerHTML = `
+                <div class="text-center">
+                    <i class="bi bi-collection" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Selecciona un subtema</h4>
+                    <p>Elige un subtema del menú lateral para ver sus cuadros estadísticos</p>
+                </div>
+            `;
+        }
+        if (container) container.style.display = 'none';
+    }
+}
+
+// FUNCIÓN: Cargar cuadros del subtema seleccionado en el área de visualización
+function cargarCuadrosSubtema(subtemaId) {
+    console.log('Cargando cuadros del subtema:', subtemaId);
+    
+    const placeholder = document.getElementById('placeholder-inicial');
+    const container = document.getElementById('cuadro-data-container');
+    
+    // Mostrar loading en área de visualización
+    if (placeholder) {
+        placeholder.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <h4 class="mt-3">Cargando cuadros...</h4>
+                <p>Obteniendo cuadros estadísticos del subtema</p>
+            </div>
+        `;
+        placeholder.style.display = 'flex';
+    }
+    if (container) container.style.display = 'none';
+    
+    // Marcar subtema como activo
+    document.querySelectorAll('.subtema-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`[data-subtema-id="${subtemaId}"]`)?.classList.add('active');
+    
+    // Obtener cuadros via AJAX
     const baseUrl = window.SIGEM_BASE_URL || 
                    (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
     
-    // Recargar la vista con el tema seleccionado
-    window.location.href = `${baseUrl}?section=estadistica&tema_id=${temaId}&modo=exploracion`;
+    fetch(`${baseUrl}/cuadros-estadistica/${subtemaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.cuadros.length > 0) {
+                mostrarListaCuadros(data.cuadros, data.subtema_info);
+            } else {
+                if (placeholder) {
+                    placeholder.innerHTML = `
+                        <div class="text-center">
+                            <i class="bi bi-file-earmark-x" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">Sin cuadros disponibles</h4>
+                            <p>Este subtema no tiene cuadros estadísticos disponibles</p>
+                        </div>
+                    `;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando cuadros:', error);
+            if (placeholder) {
+                placeholder.innerHTML = `
+                    <div class="text-center text-danger">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">Error al cargar</h4>
+                        <p>No se pudieron cargar los cuadros del subtema</p>
+                    </div>
+                `;
+            }
+        });
+}
+
+// FUNCIÓN: Mostrar lista de cuadros en el área de visualización
+function mostrarListaCuadros(cuadros, subtemaInfo) {
+    const placeholder = document.getElementById('placeholder-inicial');
+    const container = document.getElementById('cuadro-data-container');
+    
+    if (placeholder) placeholder.style.display = 'none';
+    if (container) {
+        container.style.display = 'block';
+        
+        let html = `
+            <div class="mb-4">
+                <h5 class="text-success">
+                    <i class="bi bi-collection me-2"></i>${subtemaInfo?.subtema_titulo || 'Subtema'}
+                </h5>
+                <p class="text-muted">${cuadros.length} cuadros estadísticos disponibles</p>
+            </div>
+            <div class="cuadros-lista">
+        `;
+        
+        cuadros.forEach(cuadro => {
+            html += `
+                <div class="cuadro-item p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="mb-1">
+                                <i class="bi bi-file-earmark-excel me-2 text-success"></i>
+                                ${cuadro.codigo_cuadro || 'N/A'}
+                            </h6>
+                            <p class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</p>
+                            <small class="text-muted">${cuadro.cuadro_estadistico_subtitulo || ''}</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-success btn-sm me-2" onclick="verCuadroDetalle(${cuadro.cuadro_estadistico_id})">
+                                <i class="bi bi-eye me-1"></i>Ver
+                            </button>
+                            ${cuadro.excel_file ? `
+                                <button class="btn btn-success btn-sm" onclick="descargarExcel('${cuadro.excel_file}')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+}
+
+// FUNCIÓN: Ver detalle completo de un cuadro
+function verCuadroDetalle(cuadroId) {
+    console.log('Ver detalle del cuadro:', cuadroId);
+    
+    // Llamar a sigem.js para cargar el cuadro completo
+    if (typeof window.verCuadro === 'function') {
+        window.verCuadro(cuadroId, '');
+    } else {
+        // Fallback: recargar página con el cuadro
+        const baseUrl = window.SIGEM_BASE_URL || 
+                       (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+        window.location.href = `${baseUrl}?section=estadistica&cuadro_id=${cuadroId}`;
+    }
+}
+
+// FUNCIÓN: Cargar subtemas por tema
+function cargarSubtemasPorTema(temaId) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    if (!temaId) {
+        navegacionContainer.innerHTML = `
+            <div class="p-3 text-center text-muted">
+                <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0">Selecciona un tema para navegar</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Mostrar loading
+    navegacionContainer.innerHTML = `
+        <div class="p-3 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 mb-0">Cargando subtemas...</p>
+        </div>
+    `;
+    
+    // Obtener subtemas via AJAX
+    const baseUrl = window.SIGEM_BASE_URL || 
+                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+    
+    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.subtemas.length > 0) {
+                generarNavegacionSubtemas(data.subtemas);
+            } else {
+                navegacionContainer.innerHTML = `
+                    <div class="p-3 text-center text-muted">
+                        <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando subtemas:', error);
+            navegacionContainer.innerHTML = `
+                <div class="p-3 text-center text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
+                </div>
+            `;
+        });
+}
+
+function generarNavegacionSubtemas(subtemas) {
+    const navegacionContainer = document.getElementById('subtemas-navegacion');
+    
+    let html = '<div class="list-group list-group-flush">';
+    
+    subtemas.forEach(subtema => {
+        html += `
+            <div class="list-group-item list-group-item-action subtema-nav-item" 
+                 data-subtema-id="${subtema.subtema_id}"
+                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">${subtema.subtema_titulo}</h6>
+                        <small class="text-muted">${subtema.cuadros_count || 0} cuadros</small>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    navegacionContainer.innerHTML = html;
 }
 
 function actualizarVisualizacion(data) {
@@ -384,7 +642,6 @@ function actualizarVisualizacion(data) {
 }
 
 function generarHtmlCuadro(data) {
-    console.log('Generando HTML en estadistica blade.php con datos...');
     const cuadro = data.cuadro;
     
     return `
@@ -465,96 +722,29 @@ function limpiarSeleccionEstadistica() {
     const container = document.getElementById('cuadro-data-container');
     const breadcrumb = document.getElementById('current-path');
     
-    if (placeholder) placeholder.style.display = 'flex';
+    if (placeholder) {
+        placeholder.innerHTML = `
+            <div class="text-center">
+                <i class="bi bi-file-earmark-excel" style="font-size: 4rem;"></i>
+                <h4 class="mt-3">Área de Visualización</h4>
+                <p>Selecciona un cuadro estadístico para visualizar su contenido</p>
+            </div>
+        `;
+        placeholder.style.display = 'flex';
+    }
     if (container) container.style.display = 'none';
     if (breadcrumb) breadcrumb.textContent = 'Esperando selección...';
-}
-
-// Función para cargar subtemas por tema
-function cargarSubtemasPorTema(temaId) {
-    const navegacionContainer = document.getElementById('subtemas-navegacion');
     
-    if (!temaId) {
-        navegacionContainer.innerHTML = `
-            <div class="p-3 text-center text-muted">
-                <i class="bi bi-arrow-up-circle" style="font-size: 2rem;"></i>
-                <p class="mt-2 mb-0">Selecciona un tema para navegar</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Mostrar loading
-    navegacionContainer.innerHTML = `
-        <div class="p-3 text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2 mb-0">Cargando subtemas...</p>
-        </div>
-    `;
-    
-    // Obtener subtemas via AJAX
-    const baseUrl = window.SIGEM_BASE_URL || 
-                   (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
-    
-    fetch(`${baseUrl}/subtemas-estadistica/${temaId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.subtemas.length > 0) {
-                generarNavegacionSubtemas(data.subtemas);
-            } else {
-                navegacionContainer.innerHTML = `
-                    <div class="p-3 text-center text-muted">
-                        <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
-                        <p class="mt-2 mb-0">No hay subtemas disponibles</p>
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error cargando subtemas:', error);
-            navegacionContainer.innerHTML = `
-                <div class="p-3 text-center text-danger">
-                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                    <p class="mt-2 mb-0">Error al cargar subtemas</p>
-                </div>
-            `;
-        });
-}
-
-function generarNavegacionSubtemas(subtemas) {
-    const navegacionContainer = document.getElementById('subtemas-navegacion');
-    
-    let html = '<div class="list-group list-group-flush">';
-    
-    subtemas.forEach(subtema => {
-        html += `
-            <div class="list-group-item list-group-item-action subtema-nav-item" 
-                 data-subtema-id="${subtema.subtema_id}"
-                 onclick="cargarCuadrosSubtema(${subtema.subtema_id})">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">${subtema.subtema_titulo}</h6>
-                        <small class="text-muted">${subtema.cuadros_count} cuadros</small>
-                    </div>
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-            </div>
-        `;
+    // Limpiar selecciones activas
+    document.querySelectorAll('.subtema-nav-item').forEach(item => {
+        item.classList.remove('active');
     });
-    
-    html += '</div>';
-    navegacionContainer.innerHTML = html;
-}
-
-function cargarCuadrosSubtema(subtemaId) {
-    console.log('Cargando cuadros del subtema:', subtemaId);
-    // TODO: Implementar carga de cuadros del subtema
 }
 
 // Exponer funciones necesarias
 window.cargarSubtemasPorTema = cargarSubtemasPorTema;
 window.limpiarSeleccionEstadistica = limpiarSeleccionEstadistica;
 window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
+window.cargarCuadrosSubtema = cargarCuadrosSubtema;
+window.verCuadroDetalle = verCuadroDetalle;
 </script>
