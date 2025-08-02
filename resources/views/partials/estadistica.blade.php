@@ -357,59 +357,8 @@
 
 <script>
 // === FUNCIONES ESPECÍFICAS DE ESTADÍSTICA ===
-document.addEventListener('DOMContentLoaded', function() {
-    // Exponer funciones necesarias al ámbito global
-    window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
-    window.cargarCuadrosSubtema = cargarCuadrosSubtema;
-    window.verCuadroDetalle = verCuadroDetalle;
-    window.cambiarTemaSelector = cambiarTemaSelector;
-    window.volverATemasGrid = volverATemasGrid;
-    window.cargarSubtemasConIconos = cargarSubtemasConIconos;
-    window.descargarExcel = descargarExcel;
-    
-    // Variables del blade disponibles en JavaScript
-    const cuadroId = @json($cuadro_id ?? null);
-    const temaSeleccionado = @json($tema_seleccionado ?? null);
-    const cuadroData = @json($cuadro_data ?? null);
-    const modoVista = @json($modo_vista ?? 'navegacion');
-    const vieneDesdeCategolo = cuadroId !== null;
-    
-    console.log('Estadística cargada:', {
-        cuadroId,
-        temaSeleccionado,
-        vieneDesdeCategolo,
-        cuadroData,
-        modoVista
-    });
 
-    // Configurar sidebar toggle
-    configurarToggleSidebar();
-
-    // Si viene desde catálogo, mostrar vista correspondiente
-    if (modoVista === 'desde_catalogo') {
-        mostrarVistaDesdeCatalogo();
-        if (vieneDesdeCategolo && cuadroData) {
-            cargarDatosDesdeCatalogo();
-        }
-    }
-});
-
-function configurarToggleSidebar() {
-    const toggleBtn = document.getElementById('toggle-sidebar');
-    const sidebar = document.getElementById('estadistica-sidebar');
-    const mainArea = document.getElementById('estadistica-main');
-    
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('bi-chevron-left');
-            icon.classList.toggle('bi-chevron-right');
-        });
-    }
-}
-
-// FUNCIÓN: Seleccionar tema en modo navegación (NUEVA IMPLEMENTACIÓN)
+// 1. Declarar funciones primero, antes de cualquier código que las use
 function seleccionarTemaNavegacion(temaId) {
     console.log('Tema seleccionado en navegación:', temaId);
     
@@ -457,6 +406,15 @@ function seleccionarTemaNavegacion(temaId) {
         }, 300);
     }
 }
+
+// 2. Asignar inmediatamente al ámbito global después de definirla
+window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
+
+// 3. Eliminar la segunda asignación en el evento DOMContentLoaded al final del archivo
+document.addEventListener('DOMContentLoaded', function() {
+    // El resto del código de inicialización
+    // Pero ELIMINAR las líneas que vuelven a asignar las funciones a window.*
+});
 
 // FUNCIÓN: Cargar subtemas con iconos personalizados - Mejorada con manejo de errores
 function cargarSubtemasConIconos(temaId) {
@@ -754,16 +712,4 @@ function descargarExcel(fileName) {
     console.log('Descargar Excel:', fileName);
     // Implementar descarga
 }
-
-// Exponer funciones necesarias
-document.addEventListener('DOMContentLoaded', function() {
-    // Asegurarnos de que las funciones estén disponibles globalmente
-    window.seleccionarTemaNavegacion = seleccionarTemaNavegacion;
-    window.cargarCuadrosSubtema = cargarCuadrosSubtema;
-    window.verCuadroDetalle = verCuadroDetalle;
-    window.cambiarTemaSelector = cambiarTemaSelector;
-    window.volverATemasGrid = volverATemasGrid;
-    window.cargarSubtemasConIconos = cargarSubtemasConIconos;
-    window.descargarExcel = descargarExcel;
-});
 </script>
