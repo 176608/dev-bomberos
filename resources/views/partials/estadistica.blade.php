@@ -56,7 +56,7 @@
                                 <h6 class="mb-0">
                                     <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                                 </h6>
-                                <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas">
+                                <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadistica 0">
                                     <i class="bi bi-arrow-left"></i>
                                 </a>
                             </div>
@@ -94,7 +94,7 @@
                                     <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
                                     <p class="mt-2 mb-0">No hay subtemas disponibles para este tema</p>
                                     <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-outline-secondary btn-sm mt-3">
-                                        <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                                        <i class="bi bi-arrow-left me-1"></i>Volver a temas estadistica 1
                                     </a>
                                 </div>
                             @endif
@@ -129,8 +129,6 @@
                         <!-- Área de Visualización de Contenido -->
                         <div class="flex-fill p-4 d-flex align-items-center justify-content-center">
                             <div class="text-center">
-                                <img src="{{ asset('img/icons/statistics-folder.png') }}" alt="Estadística" 
-                                     class="mb-3" style="max-width: 120px; opacity: 0.6;">
                                 <h4 class="text-muted">{{ $tema_seleccionado->tema_titulo }}</h4>
                                 <p class="text-muted">Seleccione un subtema del menú lateral para ver los cuadros estadísticos disponibles.</p>
                             </div>
@@ -189,7 +187,7 @@
                                     <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
                                     <p class="mt-2 mb-0">No hay subtemas disponibles</p>
                                     <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-outline-secondary btn-sm mt-3">
-                                        <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                                        <i class="bi bi-arrow-left me-1"></i>Volver a temas estadistica 2
                                     </a>
                                 </div>
                             @endif

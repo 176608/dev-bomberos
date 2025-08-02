@@ -10,7 +10,7 @@
                             <h6 class="mb-0">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema->tema_titulo }}
                             </h6>
-                            <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas">
+                            <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadistica tema 0">
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                         </div>
@@ -48,7 +48,7 @@
                                 <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
                                 <p class="mt-2 mb-0">No hay subtemas disponibles para este tema</p>
                                 <a href="{{ url('/sigem/partial/estadistica') }}" class="btn btn-outline-secondary btn-sm mt-3">
-                                    <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                                    <i class="bi bi-arrow-left me-1"></i>Volver a temas estadistica tema 1
                                 </a>
                             </div>
                         @endif
