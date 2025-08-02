@@ -3,7 +3,6 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/estadistica.css') }}">
 @endpush
-?>
 
 <div class="card shadow-sm">
     <div class="card-body p-0">
