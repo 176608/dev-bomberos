@@ -1,3 +1,5 @@
+/* Estilos necesarios para la navegación de estadística */
+
 .subtema-nav-item {
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
@@ -23,6 +25,7 @@
     margin-right: 0.75rem;
 }
 
+/* Estilos para la lista de cuadros */
 .cuadros-lista {
     max-height: 70vh;
     overflow-y: auto;

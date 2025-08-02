@@ -13,64 +13,35 @@ Route::prefix('sigem')->group(function () {
     Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
     
     // === RUTAS PARA ESTADÍSTICA CON CUADRO ===
-    Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
-    Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
-    Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
+    //Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
+    //Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
+    //Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
     
     // === NUEVAS RUTAS PARA ESTADÍSTICA ===
-    Route::get('/estadistica-temas', [PublicController::class, 'obtenerTemasEstadistica'])->name('sigem.estadistica.temas');
-    Route::get('/estadistica-subtemas/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica'])->name('sigem.estadistica.subtemas');
-    Route::get('/estadistica-cuadros/{subtema_id}', [PublicController::class, 'obtenerCuadrosEstadistica'])->name('sigem.estadistica.cuadros');
-    Route::get('/estadistica-subtema-info/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])->name('sigem.estadistica.subtema.info');
+        //envia info -->
+        //Route::get('/estadistica-temas', [PublicController::class, 'obtenerTemasEstadistica'])->name('sigem.estadistica.temas');
+    //Route::get('/estadistica-subtemas/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica'])->name('sigem.estadistica.subtemas');
+    //Route::get('/estadistica-cuadros/{subtema_id}', [PublicController::class, 'obtenerCuadrosEstadistica'])->name('sigem.estadistica.cuadros');
+    //Route::get('/estadistica-subtema-info/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])->name('sigem.estadistica.subtema.info');
     
+    // Ruta para obtener subtemas de un tema específico
+    //Route::get('/subtemas-estadistica/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica']);
+    Route::get('/estadistica-tema/{tema_id}', [PublicController::class, 'verEstadisticaTema'])
+        ->name('sigem.laravel.estadistica.tema');
+    // Añadir esta ruta dentro del grupo de rutas de estadística
+    Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])
+    ->name('sigem.laravel.estadistica.subtema');
+
     // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
     Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
-    Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
-    Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
+    //Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
+    //Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
     
     // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
-    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
-    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
-    /*
-    // Vistas adicionales (mantener compatibilidad)
-    Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
-    
-    // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===
-    Route::get('/redirect/geografico', function() {
-        return redirect('/public/vistas_SIGEM/geografico.php');
-    })->name('sigem.redirect.geografico');
-    
-    Route::get('/redirect/medioambiente', function() {
-        return redirect('/public/vistas_SIGEM/medioambiente.php');
-    })->name('sigem.redirect.medioambiente');
-    
-    Route::get('/redirect/sociodemografico', function() {
-        return redirect('/public/vistas_SIGEM/sociodemografico.php');
-    })->name('sigem.redirect.sociodemografico');
-    
-    Route::get('/redirect/inventariourbano', function() {
-        return redirect('/public/vistas_SIGEM/inventariourbano.php');
-    })->name('sigem.redirect.inventariourbano');
-    
-    Route::get('/redirect/economico', function() {
-        return redirect('/public/vistas_SIGEM/economico.php');
-    })->name('sigem.redirect.economico');
-    
-    Route::get('/redirect/sectorpublico', function() {
-        return redirect('/public/vistas_SIGEM/sectorpublico.php');
-    })->name('sigem.redirect.sectorpublico');
-    
-    Route::get('/redirect/catalogo', function() {
-        return redirect('/public/vistas_SIGEM/catalogo.php');
-    })->name('sigem.redirect.catalogo');*/
-    
-    // Ruta para obtener subtemas de un tema específico
-    Route::get('/subtemas-estadistica/{tema_id}', [PublicController::class, 'obtenerSubtemasEstadistica']);
-    Route::get('/estadistica-tema/{tema_id}', [PublicController::class, 'verEstadisticaTema'])->name('sigem.laravel.estadistica.tema');
-    // Añadir esta ruta dentro del grupo de rutas de estadística
-    Route::get('/estadistica-subtema/{subtema_id}', [PublicController::class, 'verEstadisticaSubtema'])->name('sigem.laravel.estadistica.subtema');
+    //Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
+    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos'); 
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
