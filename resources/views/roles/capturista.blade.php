@@ -626,6 +626,42 @@ function setupCrudHandlers() {
             });
         }
     });
+    
+    // Agregar en el archivo JavaScript correspondiente
+    $(document).on('click', '.historial-hidrante', function() {
+        const hidranteId = $(this).data('hidrante-id');
+        
+        // Mostrar indicador de carga
+        $('#modalGenerico .modal-content').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando historial...</p></div>');
+        
+        // Mostrar el modal
+        $('#modalGenerico').modal('show');
+        
+        // Cargar el contenido del historial
+        $.ajax({
+            url: `/hidrantes/${hidranteId}/historial`,
+            method: 'GET',
+            success: function(response) {
+                $('#modalGenerico .modal-content').html(response);
+            },
+            error: function(xhr) {
+                $('#modalGenerico .modal-content').html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger">
+                            No se pudo cargar el historial de cambios.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                `);
+            }
+        });
+    });
 }
 
 /**

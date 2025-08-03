@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/hidrantes/{hidrante}/desactivar', [CapturistaController::class, 'desactivar'])->name('hidrantes.desactivar');
         Route::post('/hidrantes/{hidrante}/activar', [CapturistaController::class, 'activar'])->name('hidrantes.activar');
         Route::get('/hidrantes/resumen', [CapturistaController::class, 'resumenHidrantes'])->name('hidrantes.resumen');
+        Route::get('/hidrantes/{hidrante}/historial', [CapturistaController::class, 'historialCambios'])->name('hidrantes.historial');
     });
 
     // Rutas de configuración - CORREGIR NOMBRES DE ROLES

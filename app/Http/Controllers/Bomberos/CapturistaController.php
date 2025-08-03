@@ -756,6 +756,17 @@ class CapturistaController extends Controller
                         </button>
                     ';
 
+                    // Verificar si el hidrante tiene registros en el historial de cambios
+                    $tieneHistorial = CambioEnHidrante::where('id_hidrante', $hidrante->id)->exists();
+                    
+                    if ($tieneHistorial) {
+                        $botones .= '
+                            <button class="btn btn-sm btn-info historial-hidrante" title="Revisar el historial de cambios del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                                <i class="bi bi-clock-history"></i>
+                            </button>
+                        ';
+                    }
+
                     if ($hidrante->stat === '000') {
                         $botones .= '
                             <button class="btn btn-sm btn-success activar-hidrante" title="Activar hidrante" data-hidrante-id="'.$hidrante->id.'">
@@ -1181,5 +1192,49 @@ class CapturistaController extends Controller
                 'key' => 'CUADRO_VOLANTE'
             ]
         ]);
+    }
+
+    /**
+     * Muestra el historial de cambios de un hidrante.
+     *
+     * @param Hidrante $hidrante
+     * @return \Illuminate\Http\Response
+     */
+    public function historialCambios(Hidrante $hidrante)
+    {
+        try {
+            $cambios = CambioEnHidrante::where('id_hidrante', $hidrante->id)
+                ->with('usuario')
+                ->orderBy('fecha_hora', 'desc')
+                ->get();
+                
+            // Mapear nombres de campos a nombres más amigables para el usuario
+            $nombresCampos = [
+                'fecha_inspeccion' => 'Fecha Inspección',
+                'numero_estacion' => 'N° Estación',
+                'calle' => 'Sobre Vía',
+                'y_calle' => 'Y Vía',
+                'colonia' => 'En Zona',
+                'llave_fosa' => 'Llave Fosa',
+                'llave_hidrante' => 'Llave Hidrante',
+                'presion_agua' => 'Presión Agua',
+                'estado_hidrante' => 'Estado',
+                'marca' => 'Marca',
+                'anio' => 'Año',
+                'oficial' => 'Oficial',
+                'observaciones' => 'Observaciones'
+            ];
+            
+            return view('partials.hidrante-cambios', compact('hidrante', 'cambios', 'nombresCampos'))->render();
+        } catch (\Exception $e) {
+            \Log::error('Error cargando historial de cambios:', [
+                'id_hidrante' => $hidrante->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al cargar el historial de cambios'
+            ], 500);
+        }
     }
 }
