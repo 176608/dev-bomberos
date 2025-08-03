@@ -77,7 +77,7 @@
                                     @endif
                                 @endauth
                                 
-                                <a href="{{ route('sigem.laravel.public') }}" class="btn btn-success">
+                                <a href="{{ route('consultor.dashboard') }}" class="btn btn-success">
                                     <i class="bi bi-map me-2"></i>
                                     Ver Sistema SIGEM
                                 </a>
