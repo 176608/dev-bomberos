@@ -4,7 +4,7 @@ namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use App\Models\User;
+use App\Models\Bomberos\User;
 
 class Hidrante extends Model
 {

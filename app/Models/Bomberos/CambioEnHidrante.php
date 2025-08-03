@@ -2,7 +2,7 @@
 namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
+use App\Models\Bomberos\User;
 use Carbon\Carbon;
 
 class CambioEnHidrante extends Model
