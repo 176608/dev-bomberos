@@ -11,7 +11,10 @@
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            
+                            <!-- Botón para colapsar en lugar de enlace de regreso -->
+                            <button class="btn btn-sm btn-outline-light" id="toggle-sidebar" title="Colapsar panel lateral">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
                         </div>
                     </div>
 
