@@ -2,8 +2,8 @@
     <div class="card-body p-0">
         <!-- VISTA DE TEMA SELECCIONADO CON SUBTEMAS LATERALES -->
         <div class="row g-0 min-vh-75">
-            <!-- SIDEBAR PARA SUBTEMAS (4 columnas) -->
-            <div class="col-md-4 bg-light border-end">
+            <!-- SIDEBAR PARA SUBTEMAS (4 columnas) - Con ID para manipularlo con JS -->
+            <div class="col-md-4 bg-light border-end" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
                     <div class="p-3 bg-primary text-white">
@@ -11,13 +11,14 @@
                             <h6 class="mb-0">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            <a href="{{ route('sigem.partial', ['section' => 'estadistica']) }}" class="btn btn-sm btn-outline-light" title="Volver a temas estadísticos">
-                                <i class="bi bi-arrow-left"></i>
-                            </a>
+                            <!-- Cambiado: Ahora es un botón para colapsar en lugar de enlace de regreso -->
+                            <button class="btn btn-sm btn-outline-light" id="toggle-sidebar" title="Colapsar panel lateral">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Selector de Temas (tema con subtemas) -->
+                    <!-- Selector de Temas (tema con subtemas) -- No Deberia Imprimirme --
                     <div class="p-3 border-bottom">
                         <select class="form-select form-select-sm" id="tema-selector" onchange="cambiarTema(this.value)">
                             @foreach($temas as $tema)
@@ -26,7 +27,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </div>-->
 
                     <!-- Navegación de Subtemas -->
                     <div class="flex-fill overflow-auto" id="subtemas-navegacion">
@@ -70,10 +71,32 @@
             </div>
 
             <!-- CONTENIDO DE CUADROS ESTADÍSTICOS (8 columnas) -->
-            <div class="col-md-8">
+            <div class="col-md-8" id="contenido-principal">
                 <div class="d-flex flex-column h-100">
-                    <!-- Encabezado de cuadros -->
-                    <div class="p-3 border-bottom">
+                    <!-- NUEVO: Encabezado con selector de temas y botón para mostrar sidebar -->
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
+                            <button class="btn btn-sm btn-outline-primary me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
+                                <i class="bi bi-list"></i>
+                            </button>
+                            
+                            <!-- Selector de Temas (movido aquí desde el sidebar) -->
+                            <div style="min-width: 250px;">
+                                <select class="form-select" id="tema-selector" onchange="cambiarTema(this.value)">
+                                    @foreach($temas as $tema)
+                                        <option value="{{ $tema->tema_id }}" {{ $tema_seleccionado->tema_id == $tema->tema_id ? 'selected' : '' }}>
+                                            {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Encabezado de subtema seleccionado -->
+                    <div class="p-3 border-bottom" id="subtema-header">
                         @if(isset($subtema_seleccionado))
                             <h5 class="mb-0">{{ $subtema_seleccionado->subtema_titulo }}</h5>
                             <p class="text-muted small mb-0">{{ $tema_seleccionado->tema_titulo }}</p>
@@ -166,6 +189,26 @@
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
+
+/* Estilos para el sidebar colapsable */
+.sidebar-collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.content-expanded {
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .content-expanded {
+        width: 100%;
+    }
+}
 </style>
 
 <script>
@@ -174,7 +217,58 @@ document.addEventListener('DOMContentLoaded', function() {
         tema: @json($tema_seleccionado->tema_id ?? null),
         subtema: @json($subtema_seleccionado->subtema_id ?? null)
     });
+    
+    // Inicializar manejo del sidebar
+    initSidebarToggle();
 });
+
+// Función para inicializar el toggle del sidebar
+function initSidebarToggle() {
+    const sidebar = document.getElementById('sidebar-subtemas');
+    const content = document.getElementById('contenido-principal');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const showBtn = document.getElementById('show-sidebar');
+    
+    // Verificar si hay preferencia guardada
+    const sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed') === 'true';
+    
+    // Aplicar estado inicial según preferencia
+    if (sidebarCollapsed) {
+        collapseSidebar();
+    }
+    
+    // Manejar clic en botón colapsar
+    toggleBtn.addEventListener('click', function() {
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+            expandSidebar();
+        } else {
+            collapseSidebar();
+        }
+    });
+    
+    // Manejar clic en botón mostrar
+    showBtn.addEventListener('click', function() {
+        expandSidebar();
+    });
+    
+    // Función para colapsar sidebar
+    function collapseSidebar() {
+        sidebar.classList.add('sidebar-collapsed');
+        content.classList.add('content-expanded');
+        toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+        showBtn.classList.remove('d-none');
+        localStorage.setItem('subtemas-sidebar-collapsed', 'true');
+    }
+    
+    // Función para expandir sidebar
+    function expandSidebar() {
+        sidebar.classList.remove('sidebar-collapsed');
+        content.classList.remove('content-expanded');
+        toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+        showBtn.classList.add('d-none');
+        localStorage.setItem('subtemas-sidebar-collapsed', 'false');
+    }
+}
 
 // Función para cambiar de tema
 function cambiarTema(tema_id) {
@@ -239,7 +333,7 @@ function actualizarEncabezadoSubtema(subtema_id) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const headerContainer = document.querySelector('.col-md-8 .p-3.border-bottom');
+                const headerContainer = document.getElementById('subtema-header');
                 headerContainer.innerHTML = `
                     <h5 class="mb-0">${data.subtema.subtema_titulo}</h5>
                     <p class="text-muted small mb-0">${data.subtema.tema ? data.subtema.tema.tema_titulo : ''}</p>
