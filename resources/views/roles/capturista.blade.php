@@ -568,6 +568,92 @@ function setupCrudHandlers() {
                 $btn.prop('disabled', false).html(originalHtml);
             });
     });
+
+    $(document).on('click', '.historial-hidrante', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const hidranteId = $btn.data('hidrante-id');
+        
+        if (!hidranteId) {
+            console.error('ID de hidrante no encontrado');
+            return;
+        }
+        
+        $btn.prop('disabled', true);
+        const originalHtml = $btn.html();
+        $btn.html('<span class="spinner-border spinner-border-sm"></span>');
+
+        $.get("{{ url('/hidrantes') }}/" + hidranteId + "/historial")
+            .done(function(modalHtml) {
+                try {
+                    // Limpiar cualquier modal anterior completamente
+                    $('.modal').each(function() {
+                        try {
+                            const instance = bootstrap.Modal.getInstance(this);
+                            if (instance) {
+                                instance.dispose();
+                            }
+                        } catch (e) {
+                            // Ignorar errores de instancias
+                        }
+                    });
+                    
+                    // Remover elementos del DOM
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
+                    
+                    // Verificar que recibimos HTML válido
+                    if (!modalHtml || modalHtml.trim().length === 0) {
+                        throw new Error('Modal HTML vacío');
+                    }
+                    
+                    // Crear un contenedor temporal para verificar el contenido
+                    const $temp = $('<div>').html(modalHtml);
+                    const $modalElement = $temp.find('.modal').first();
+                    
+                    if ($modalElement.length === 0) {
+                        throw new Error('No se encontró elemento .modal en el HTML recibido');
+                    }
+                    
+                    // Agregar el modal al DOM
+                    $('body').append($modalElement);
+                    
+                    // Crear la instancia del modal usando el elemento real
+                    const modalElement = $modalElement[0];
+                    const modalInstance = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: true
+                    });
+                    
+                    // Mostrar el modal
+                    modalInstance.show();
+                    
+                    // Limpiar cuando se cierre
+                    $modalElement.on('hidden.bs.modal', function() {
+                        modalInstance.dispose();
+                        $modalElement.remove();
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').removeAttr('style');
+                    });
+                    
+                } catch (error) {
+                    console.error('Error al mostrar modal:', error.message);
+                    
+                    // Limpiar en caso de error
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
+                    
+                    mostrarToast('Error al mostrar el historial del hidrante', 'error');
+                }
+            })
+            .fail(function(xhr) {
+                console.error('Error al cargar historial:', xhr.status, xhr.statusText);
+                mostrarToast('Error al cargar el historial del hidrante', 'error');
+            })
+            .always(function() {
+                $btn.prop('disabled', false).html(originalHtml);
+        });
+    });
     
     // Manejador para desactivar hidrante
     $(document).on('click', '.desactivar-hidrante', function(e) {
@@ -627,41 +713,6 @@ function setupCrudHandlers() {
         }
     });
     
-    // Agregar en el archivo JavaScript correspondiente
-    $(document).on('click', '.historial-hidrante', function() {
-        const hidranteId = $(this).data('hidrante-id');
-        
-        // Mostrar indicador de carga
-        $('#modalGenerico .modal-content').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando historial...</p></div>');
-        
-        // Mostrar el modal
-        $('#modalGenerico').modal('show');
-        
-        // Cargar el contenido del historial
-        $.ajax({
-            url: `/hidrantes/${hidranteId}/historial`,
-            method: 'GET',
-            success: function(response) {
-                $('#modalGenerico .modal-content').html(response);
-            },
-            error: function(xhr) {
-                $('#modalGenerico .modal-content').html(`
-                    <div class="modal-header">
-                        <h5 class="modal-title">Error</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-danger">
-                            No se pudo cargar el historial de cambios.
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                `);
-            }
-        });
-    });
 }
 
 /**
