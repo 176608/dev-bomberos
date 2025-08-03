@@ -24,6 +24,8 @@
                             'id_calle' => 'calle',
                             'id_y_calle' => 'y_calle',
                         ];
+                        
+                        $primerGrupoKey = $cambiosAgrupados->keys()->first();
                     @endphp
 
                     <div class="accordion" id="accordionCambios">
@@ -33,18 +35,22 @@
                                 $fechaHora = $primerItem->fecha_hora->format('d/m/Y H:i:s');
                                 $usuario = $primerItem->usuario ? $primerItem->usuario->name : 'Usuario desconocido';
                                 $grupoId = 'grupo_' . str_replace(['-', ':', ' ', '.'], '_', $grupo);
+                                
+                                $esUltimoGrupo = ($grupo === $primerGrupoKey);
                             @endphp
 
                             <div class="accordion-item mb-3 border">
                                 <h2 class="accordion-header" id="heading{{ $grupoId }}">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    <button class="accordion-button {{ $esUltimoGrupo ? '' : 'collapsed' }}" type="button" 
+                                            data-bs-toggle="collapse" 
                                             data-bs-target="#collapse{{ $grupoId }}" 
-                                            aria-expanded="false" 
+                                            aria-expanded="{{ $esUltimoGrupo ? 'true' : 'false' }}" 
                                             aria-controls="collapse{{ $grupoId }}">
                                         <strong>{{ $fechaHora }}</strong> - {{ $usuario }} ({{ $items->count() }} cambios)
                                     </button>
                                 </h2>
-                                <div id="collapse{{ $grupoId }}" class="accordion-collapse collapse" 
+                                <div id="collapse{{ $grupoId }}" 
+                                     class="accordion-collapse collapse {{ $esUltimoGrupo ? 'show' : '' }}" 
                                      aria-labelledby="heading{{ $grupoId }}" 
                                      data-bs-parent="#accordionCambios">
                                     <div class="accordion-body p-0">
