@@ -72,13 +72,13 @@ class LoginController extends Controller
         // OPCIONES DE REDIRECT:
         
         // Opción 1: Al consultor (recomendado)
-        return redirect()->route('consultor.dashboard')->with('success', 'Sesión cerrada exitosamente');
+        //return redirect()->route('consultor.dashboard')->with('success', 'Sesión cerrada exitosamente');
         
         // Opción 2: Al login
-        // return redirect()->route('login')->with('success', 'Sesión cerrada exitosamente');
+        return redirect()->route('login')->with('success', 'Sesión cerrada exitosamente');
         
-        // Opción 3: Al SIGEM público
-        // return redirect()->route('sigem.laravel.public')->with('success', 'Sesión cerrada exitosamente');
+        // Opción 3: Al SIGEM público 
+        // return redirect()->route('sigem.index')->with('success', 'Sesión cerrada exitosamente');
     }
 
     public function checkEmail(Request $request)
