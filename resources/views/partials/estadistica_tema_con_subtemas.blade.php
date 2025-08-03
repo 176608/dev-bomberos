@@ -12,7 +12,7 @@
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
                             <!-- Botón mejorado para colapsar -->
-                            <button class="btn btn-collapse sigem-collapse-btn" id="toggle-sidebar" title="Colapsar panel lateral">
+                            <button class="btn-toggle-sidebar" id="toggle-sidebar" title="Expandir/Colapsar panel">
                                 <i class="bi bi-chevron-left"></i>
                             </button>
                         </div>
@@ -282,7 +282,37 @@
     transform: rotate(180deg);
 }
 
-/* Estilos específicos para el botón de colapso */
+/* Estilos para el botón unificado de toggle del sidebar */
+.btn-toggle-sidebar {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    top: 15px;
+    right: -17px;
+}
+
+.btn-toggle-sidebar:hover {
+    transform: scale(1.1);
+}
+
+/* Cuando el sidebar está colapsado, el icono rota */
+.sidebar-mini .btn-toggle-sidebar i {
+    transform: rotate(180deg);
+}
+
+/* Estilo para el botón de colapso cuando está colapsado */
 .sigem-collapse-btn {
     /* Estilos específicos que sobrescribirán cualquier otro estilo */
     appearance: none !important;
@@ -310,7 +340,7 @@ function initSidebarToggle() {
     const sidebar = document.getElementById('sidebar-subtemas');
     const content = document.getElementById('contenido-principal');
     const toggleBtn = document.getElementById('toggle-sidebar');
-    const showBtn = document.getElementById('show-sidebar');
+    //const showBtn = document.getElementById('show-sidebar');
     
     // Verificar si hay preferencia guardada
     const sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed') === 'true';
@@ -320,7 +350,7 @@ function initSidebarToggle() {
         collapseSidebar();
     }
     
-    // Manejar clic en botón colapsar
+    // Manejar clic en botón toggle
     toggleBtn.addEventListener('click', function() {
         if (sidebar.classList.contains('sidebar-mini')) {
             expandSidebar();
@@ -329,22 +359,22 @@ function initSidebarToggle() {
         }
     });
     
-    // Manejar clic en botón mostrar
-    showBtn.addEventListener('click', function() {
+    // Manejar clic en botón mostrar 
+    /*showBtn.addEventListener('click', function() {
         expandSidebar();
-    });
+    });*/
     
     // Función para colapsar sidebar
     function collapseSidebar() {
         sidebar.classList.add('sidebar-mini');
         content.classList.add('content-expanded');
-        toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
-        showBtn.classList.remove('d-none');
+        // No cambiamos el HTML del botón, solo gira el icono via CSS
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
+        toggleBtn.setAttribute('title', 'Expandir panel');
         
         // Agregar tooltip a los iconos de subtemas cuando está colapsado
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
-            const subtemaTitle = item.querySelector('h6').innerText;
+            const subtemaTitle = item.querySelector('h6')?.innerText || 'Subtema';
             item.setAttribute('title', subtemaTitle);
         });
     }
@@ -353,9 +383,9 @@ function initSidebarToggle() {
     function expandSidebar() {
         sidebar.classList.remove('sidebar-mini');
         content.classList.remove('content-expanded');
-        toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
-        showBtn.classList.add('d-none');
+        // No cambiamos el HTML del botón, solo el título
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
+        toggleBtn.setAttribute('title', 'Colapsar panel');
     }
 }
 
