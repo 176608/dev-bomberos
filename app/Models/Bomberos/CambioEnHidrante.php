@@ -3,6 +3,7 @@ namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Carbon\Carbon;
 
 class CambioEnHidrante extends Model
 {
@@ -71,13 +72,16 @@ class CambioEnHidrante extends Model
             return null;
         }
 
+        // Ajustar la hora para compensar la diferencia de 6 horas
+        $fechaHoraAjustada = Carbon::now()->subHours(6);
+
         return self::create([
             'id_user' => $userId,
             'id_hidrante' => $hidranteId,
             'campo' => $campo,
             'old' => $oldValue,
             'new' => $newValue,
-            'fecha_hora' => now()
+            'fecha_hora' => $fechaHoraAjustada
         ]);
     }
 
