@@ -93,6 +93,10 @@
                             </div>
                         </div>
                         
+                        <!-- Enlace para volver a la vista de temas (ubicado a la derecha) -->
+                        <a href="{{ route('sigem.partial', ['section' => 'estadistica']) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Volver a temas
+                        </a>
                     </div>
 
                     <!-- Encabezado de subtema seleccionado -->
