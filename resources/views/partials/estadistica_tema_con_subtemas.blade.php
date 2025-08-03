@@ -2,35 +2,24 @@
     <div class="card-body p-0">
         <!-- VISTA DE TEMA SELECCIONADO CON SUBTEMAS LATERALES -->
         <div class="row g-0 min-vh-75">
-            <!-- SIDEBAR PARA SUBTEMAS (4 columnas) - Con ID para manipularlo con JS -->
-            <div class="col-md-4 bg-light border-end" id="sidebar-subtemas">
+            <!-- SIDEBAR PARA SUBTEMAS - Con ID para manipularlo con JS -->
+            <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
                     <div class="p-3 bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">
+                            <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            <!-- Cambiado: Ahora es un botón para colapsar en lugar de enlace de regreso -->
+                            <!-- Botón para colapsar en lugar de enlace de regreso -->
                             <button class="btn btn-sm btn-outline-light" id="toggle-sidebar" title="Colapsar panel lateral">
                                 <i class="bi bi-chevron-left"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Selector de Temas (tema con subtemas) -- No Deberia Imprimirme --
-                    <div class="p-3 border-bottom">
-                        <select class="form-select form-select-sm" id="tema-selector" onchange="cambiarTema(this.value)">
-                            @foreach($temas as $tema)
-                                <option value="{{ $tema->tema_id }}" {{ $tema_seleccionado->tema_id == $tema->tema_id ? 'selected' : '' }}>
-                                    {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>-->
-
                     <!-- Navegación de Subtemas -->
-                    <div class="flex-fill overflow-auto" id="subtemas-navegacion">
+                    <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
                         @if($tema_subtemas && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
@@ -44,7 +33,7 @@
                                     @else
                                         <i class="bi bi-collection text-primary fs-3 me-2"></i>
                                     @endif
-                                    <div class="flex-fill">
+                                    <div class="flex-fill subtema-texto">
                                         <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
                                         <small class="text-muted">
                                             @if(isset($tema_subtema->cuadrosEstadisticos))
@@ -70,10 +59,10 @@
                 </div>
             </div>
 
-            <!-- CONTENIDO DE CUADROS ESTADÍSTICOS (8 columnas) -->
-            <div class="col-md-8" id="contenido-principal">
+            <!-- CONTENIDO DE CUADROS ESTADÍSTICOS -->
+            <div class="col-md-8 transition-width" id="contenido-principal">
                 <div class="d-flex flex-column h-100">
-                    <!-- NUEVO: Encabezado con selector de temas y botón para mostrar sidebar -->
+                    <!-- Encabezado con selector de temas y botón para mostrar sidebar -->
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
@@ -81,7 +70,7 @@
                                 <i class="bi bi-list"></i>
                             </button>
                             
-                            <!-- Selector de Temas (movido aquí desde el sidebar) -->
+                            <!-- Selector de Temas -->
                             <div style="min-width: 250px;">
                                 <select class="form-select" id="tema-selector" onchange="cambiarTema(this.value)">
                                     @foreach($temas as $tema)
@@ -93,7 +82,7 @@
                             </div>
                         </div>
                         
-                        <!-- Enlace para volver a la vista de temas (ubicado a la derecha) -->
+                        <!-- Enlace para volver a la vista de temas -->
                         <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>Volver a temas
                         </a>
@@ -195,23 +184,66 @@
 }
 
 /* Estilos para el sidebar colapsable */
-.sidebar-collapsed {
-    width: 0;
-    padding: 0;
+.transition-width {
+    transition: all 0.3s ease;
+}
+
+/* Estado colapsado del sidebar */
+#sidebar-subtemas.sidebar-mini {
+    flex: 0 0 auto;
+    width: 60px;
     overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
 }
 
-.content-expanded {
-    transition: all 0.3s ease;
+#contenido-principal.content-expanded {
+    flex: 0 0 auto;
+    width: calc(100% - 60px);
 }
 
-@media (min-width: 768px) {
-    .content-expanded {
-        width: 100%;
-    }
+/* Ajustes para elementos del sidebar cuando está colapsado */
+.sidebar-mini .sidebar-title {
+    display: none;
+}
+
+.sidebar-mini .sidebar-content {
+    overflow: hidden;
+}
+
+.sidebar-mini .subtema-texto {
+    display: none;
+}
+
+.sidebar-mini .subtema-nav-item {
+    padding: 15px 0;
+    justify-content: center;
+}
+
+.sidebar-mini .subtema-icon {
+    margin: 0;
+    width: 30px;
+    height: 30px;
+}
+
+/* Estilo para el botón de toggle cuando está colapsado */
+.sidebar-mini #toggle-sidebar {
+    position: absolute;
+    right: -15px;
+    top: 10px;
+    z-index: 10;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.sidebar-mini #toggle-sidebar i {
+    transform: rotate(180deg);
 }
 </style>
 
@@ -243,7 +275,7 @@ function initSidebarToggle() {
     
     // Manejar clic en botón colapsar
     toggleBtn.addEventListener('click', function() {
-        if (sidebar.classList.contains('sidebar-collapsed')) {
+        if (sidebar.classList.contains('sidebar-mini')) {
             expandSidebar();
         } else {
             collapseSidebar();
@@ -257,16 +289,22 @@ function initSidebarToggle() {
     
     // Función para colapsar sidebar
     function collapseSidebar() {
-        sidebar.classList.add('sidebar-collapsed');
+        sidebar.classList.add('sidebar-mini');
         content.classList.add('content-expanded');
         toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
         showBtn.classList.remove('d-none');
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
+        
+        // Agregar tooltip a los iconos de subtemas cuando está colapsado
+        document.querySelectorAll('.subtema-nav-item').forEach(item => {
+            const subtemaTitle = item.querySelector('h6').innerText;
+            item.setAttribute('title', subtemaTitle);
+        });
     }
     
     // Función para expandir sidebar
     function expandSidebar() {
-        sidebar.classList.remove('sidebar-collapsed');
+        sidebar.classList.remove('sidebar-mini');
         content.classList.remove('content-expanded');
         toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
         showBtn.classList.add('d-none');
@@ -379,6 +417,11 @@ function renderizarCuadros(cuadros) {
                         <a href="/sigem?section=estadistica&cuadro_id=${cuadro.cuadro_estadistico_id}" class="btn btn-outline-success btn-sm me-2">
                             <i class="bi bi-eye me-1"></i>Ver
                         </a>
+                        ${cuadro.excel_file ? `
+                            <a href="/descargas/${cuadro.excel_file}" class="btn btn-success btn-sm" download>
+                                <i class="bi bi-download"></i>
+                            </a>
+                        ` : ''}
                     </div>
                 </div>
             </div>
