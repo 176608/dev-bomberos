@@ -61,7 +61,7 @@
                             <div class="p-3 text-center text-muted">
                                 <i class="bi bi-folder-x" style="font-size: 2rem;"></i>
                                 <p class="mt-2 mb-0">No hay subtemas disponibles</p>
-                                <a href="{{ route('sigem.partial', ['section' => 'estadistica']) }}" class="btn btn-outline-secondary btn-sm mt-3">
+                                <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-outline-secondary btn-sm mt-3">
                                     <i class="bi bi-arrow-left me-1"></i>Volver a temas estadísticos
                                 </a>
                             </div>
@@ -94,7 +94,7 @@
                         </div>
                         
                         <!-- Enlace para volver a la vista de temas (ubicado a la derecha) -->
-                        <a href="{{ route('sigem.partial', ['section' => 'estadistica']) }}" class="btn btn-sm btn-outline-secondary">
+                        <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>Volver a temas
                         </a>
                     </div>
