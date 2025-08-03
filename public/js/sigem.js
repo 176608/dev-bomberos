@@ -13,7 +13,6 @@
 
     // === OBJETO PRINCIPAL DE LA APLICACIÓN ===
     const SIGEMApp = {
-
         // Elementos del DOM cacheados
         elements: {
             navLinks: null,
@@ -23,14 +22,22 @@
         // Inicialización de la aplicación
         init: function () {
             console.log('Inicializando SIGEMApp ...');
-            this.determineUrls();
+            
+            // Configurar URLs
+            this.configureUrls();
+            
+            // Cachear elementos del DOM
             this.cacheElements();
-            this.bindEvents();
+            
+            // Si hay alguna otra inicialización, la mantenemos
+            this.setupOtherEvents();
+            
+            // Cargar contenido inicial
             this.loadInitialContent();
         },
 
-        // Determinar las URLs base dinámicamente
-        determineUrls: function () {
+        // Configurar URLs base dinámicamente
+        configureUrls: function () {
             CONFIG.BASE_URL = window.SIGEM_BASE_URL ||
                 (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
             CONFIG.PARTIALS_URL = `${CONFIG.BASE_URL}/partial`;
@@ -44,7 +51,7 @@
             this.elements.contentContainer = document.getElementById('sigem-content');
         },
 
-        // Enlazar eventos
+        /* Enlazar eventos
         bindEvents: function () {
             this.elements.navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -60,8 +67,12 @@
                     const section = link.getAttribute('data-section');
                     this.loadContent(section);
                 });
-            });
+            });*/
+
+            // Otros eventos que sean necesarios
+        setupOtherEvents: function () {
         },
+        
 
         // === GESTIÓN DE NAVEGACIÓN Y CONTENIDO ===
 

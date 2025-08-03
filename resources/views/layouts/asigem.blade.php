@@ -217,32 +217,27 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <a href="{{ $isEstadisticaEspecial ? url('/sigem?section=inicio') : '#' }}" 
-                   data-section="inicio" 
+                <a href="{{ url('/sigem?section=inicio') }}" 
                    class="sigem-nav-link {{ $section === 'inicio' ? 'active' : '' }}">
                     <i class="bi bi-house-fill"></i> INICIO
                 </a>
 
-                <a href="{{ $isEstadisticaEspecial ? url('/sigem?section=catalogo') : '#' }}" 
-                   data-section="catalogo" 
+                <a href="{{ url('/sigem?section=catalogo') }}" 
                    class="sigem-nav-link {{ $section === 'catalogo' ? 'active' : '' }}">
                     <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
 
-                <a href="{{ $isEstadisticaEspecial ? url('/sigem?section=estadistica') : '#' }}" 
-                   data-section="estadistica" 
+                <a href="{{ url('/sigem?section=estadistica') }}" 
                    class="sigem-nav-link {{ $section === 'estadistica' ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
 
-                <a href="{{ $isEstadisticaEspecial ? url('/sigem?section=cartografia') : '#' }}" 
-                   data-section="cartografia" 
+                <a href="{{ url('/sigem?section=cartografia') }}" 
                    class="sigem-nav-link {{ $section === 'cartografia' ? 'active' : '' }}">
                     <i class="bi bi-map-fill"></i> CARTOGRAFÍA
                 </a>
 
-                <a href="{{ $isEstadisticaEspecial ? url('/sigem?section=productos') : '#' }}" 
-                   data-section="productos" 
+                <a href="{{ url('/sigem?section=productos') }}" 
                    class="sigem-nav-link {{ $section === 'productos' ? 'active' : '' }}">
                     <i class="bi bi-box-seam"></i> PRODUCTOS
                 </a>
