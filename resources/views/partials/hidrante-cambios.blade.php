@@ -32,16 +32,21 @@
                                 $primerItem = $items->first();
                                 $fechaHora = $primerItem->fecha_hora->format('d/m/Y H:i:s');
                                 $usuario = $primerItem->usuario ? $primerItem->usuario->name : 'Usuario desconocido';
-                                $grupoId = 'grupo_' . str_replace(['-', ':', ' '], '_', $grupo);
+                                $grupoId = 'grupo_' . str_replace(['-', ':', ' ', '.'], '_', $grupo);
                             @endphp
 
                             <div class="accordion-item mb-3 border">
                                 <h2 class="accordion-header" id="heading{{ $grupoId }}">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $grupoId }}" aria-expanded="true" aria-controls="collapse{{ $grupoId }}">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse{{ $grupoId }}" 
+                                            aria-expanded="false" 
+                                            aria-controls="collapse{{ $grupoId }}">
                                         <strong>{{ $fechaHora }}</strong> - {{ $usuario }} ({{ $items->count() }} cambios)
                                     </button>
                                 </h2>
-                                <div id="collapse{{ $grupoId }}" class="accordion-collapse collapse show" aria-labelledby="heading{{ $grupoId }}">
+                                <div id="collapse{{ $grupoId }}" class="accordion-collapse collapse" 
+                                     aria-labelledby="heading{{ $grupoId }}" 
+                                     data-bs-parent="#accordionCambios">
                                     <div class="accordion-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped table-hover mb-0">
@@ -179,11 +184,35 @@
     </div>
 </div>
 
+<!-- Agregar este script al final -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Asegurarse de que el accordion funcione dentro del modal
+    var modalEl = document.getElementById('historialHidranteModal{{ $hidrante->id }}');
+    if (modalEl) {
+        modalEl.addEventListener('shown.bs.modal', function() {
+            var accordionButtons = this.querySelectorAll('.accordion-button');
+            accordionButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var target = document.querySelector(this.getAttribute('data-bs-target'));
+                    if (target) {
+                        var bsCollapse = new bootstrap.Collapse(target, {
+                            toggle: true
+                        });
+                    }
+                });
+            });
+        });
+    }
+});
+</script>
+
 <style>
 .accordion-item {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 8px;
     overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .accordion-button {
