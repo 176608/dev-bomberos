@@ -12,10 +12,13 @@
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
                         </div>
-                        <!-- Botón toggle con posición absoluta y alto z-index -->
-                        <button class="btn-toggle-sidebar" id="toggle-sidebar" title="Expandir/Colapsar panel">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
+                        
+                        <!-- Botón toggle con mejor posicionamiento -->
+                        <div class="toggle-button-container">
+                            <button class="btn-toggle-sidebar-fixed" id="toggle-sidebar" title="Expandir/Colapsar panel">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Navegación de Subtemas -->
@@ -303,37 +306,59 @@
     right: -18px; /* Un poco más hacia afuera */
 }
 
-/* Añadir un poco de margen derecho al contenedor del sidebar para dejar espacio al botón *//*
-#sidebar-subtemas {
-    position: relative;
-    margin-right: 5px;
-}*/
+/* Estilos mejorados para el botón toggle */
+.toggle-button-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    z-index: 2000; /* Valor muy alto para superar cualquier otro elemento */
+}
 
-/* Asegurar que el contenido principal respete el espacio del botón *//*
-#contenido-principal {
-    position: relative;
-    z-index: 1;
-}*/
+.btn-toggle-sidebar-fixed {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    right: -18px;
+    top: 15px;
+}
 
-.btn-toggle-sidebar:hover {
+.btn-toggle-sidebar-fixed:hover {
     transform: scale(1.15);
     box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
 }
 
-/* Cuando el sidebar está colapsado, mover el botón */
-.sidebar-mini .btn-toggle-sidebar {
-    right: -18px; /* Mantener consistente */
-}
-
 /* Cuando el sidebar está colapsado, el icono rota */
-.sidebar-mini .btn-toggle-sidebar i {
+.sidebar-mini .btn-toggle-sidebar-fixed i {
     transform: rotate(180deg);
 }
 
-/* Asegurar que el sidebar tenga position relative */
+/* Asegurarse que el sidebar no corta el botón */
 #sidebar-subtemas {
     position: relative;
-    overflow: visible; /* Importante para que el botón no se corte */
+    overflow: visible !important; /* Importante para que el botón no se corte */
+}
+
+/* Asegurarse que el botón no es afectado por cambios en el sidebar */
+.sidebar-mini .btn-toggle-sidebar-fixed {
+    right: -18px; /* Mantener misma posición cuando está colapsado */
+}
+
+/* Asegurar que el botón siempre esté visible y por encima de otros elementos */
+.btn-toggle-sidebar-fixed {
+    z-index: 9999;
 }
 </style>
 
@@ -353,7 +378,6 @@ function initSidebarToggle() {
     const sidebar = document.getElementById('sidebar-subtemas');
     const content = document.getElementById('contenido-principal');
     const toggleBtn = document.getElementById('toggle-sidebar');
-    //const showBtn = document.getElementById('show-sidebar');
     
     // Verificar si hay preferencia guardada
     const sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed') === 'true';
@@ -364,7 +388,10 @@ function initSidebarToggle() {
     }
     
     // Manejar clic en botón toggle
-    toggleBtn.addEventListener('click', function() {
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         if (sidebar.classList.contains('sidebar-mini')) {
             expandSidebar();
         } else {
@@ -372,16 +399,10 @@ function initSidebarToggle() {
         }
     });
     
-    // Manejar clic en botón mostrar 
-    /*showBtn.addEventListener('click', function() {
-        expandSidebar();
-    });*/
-    
     // Función para colapsar sidebar
     function collapseSidebar() {
         sidebar.classList.add('sidebar-mini');
         content.classList.add('content-expanded');
-        // No cambiamos el HTML del botón, solo gira el icono via CSS
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
         toggleBtn.setAttribute('title', 'Expandir panel');
         
@@ -396,7 +417,6 @@ function initSidebarToggle() {
     function expandSidebar() {
         sidebar.classList.remove('sidebar-mini');
         content.classList.remove('content-expanded');
-        // No cambiamos el HTML del botón, solo el título
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
         toggleBtn.setAttribute('title', 'Colapsar panel');
     }
