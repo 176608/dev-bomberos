@@ -220,17 +220,27 @@
                 @php
                     // Mejor detección de sección activa
                     $currentPath = request()->path();
+                    
+                    // Inicializar con el valor del parámetro 'section' o 'inicio' por defecto
                     $currentSection = request()->query('section', 'inicio');
                     
-                    // Detectar secciones especiales basadas en la URL
+                    // Detección robusta para rutas especiales
                     if (Str::contains($currentPath, 'estadistica-por-tema')) {
                         $currentSection = 'estadistica';
-                    } else if (Str::contains($currentPath, 'cartografia')) {
+                    } elseif (Str::contains($currentPath, '/cartografia')) {
                         $currentSection = 'cartografia';
-                    } else if (Str::contains($currentPath, 'productos')) {
+                    } elseif (Str::contains($currentPath, '/productos')) {
                         $currentSection = 'productos';
-                    } else if (Str::contains($currentPath, 'catalogo')) {
+                    } elseif (Str::contains($currentPath, '/catalogo')) {
                         $currentSection = 'catalogo';
+                    }
+                    
+                    // Si estamos en una URL que termina con alguna de estas secciones, también la marcamos como activa
+                    foreach (['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'] as $section) {
+                        if (Str::endsWith($currentPath, $section)) {
+                            $currentSection = $section;
+                            break;
+                        }
                     }
                 @endphp
 
