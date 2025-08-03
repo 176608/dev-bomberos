@@ -289,4 +289,43 @@
 
 @section('scripts')
     <script src="{{ asset('js/sigem.js') }}"></script>
+    <script>
+        // Asegurar que el menú SIGEM tenga la sección correcta activada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener la sección actual de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            let currentSection = urlParams.get('section') || 'inicio';
+            
+            // Detección especial para rutas como estadistica-por-tema
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('estadistica-por-tema')) {
+                currentSection = 'estadistica';
+            } else if (currentPath.includes('/cartografia')) {
+                currentSection = 'cartografia';
+            } else if (currentPath.includes('/productos')) {
+                currentSection = 'productos';
+            } else if (currentPath.includes('/catalogo')) {
+                currentSection = 'catalogo';
+            }
+            
+            // Aplicar clase active al elemento correcto
+            document.querySelectorAll('.sigem-nav-link').forEach(link => {
+                // Quitar todas las clases active
+                link.classList.remove('active');
+                
+                // Detectar qué sección corresponde a cada enlace
+                if (link.textContent.trim().includes('INICIO') && currentSection === 'inicio') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CATÁLOGO') && currentSection === 'catalogo') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('ESTADÍSTICA') && currentSection === 'estadistica') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CARTOGRAFÍA') && currentSection === 'cartografia') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('PRODUCTOS') && currentSection === 'productos') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 @endsection
