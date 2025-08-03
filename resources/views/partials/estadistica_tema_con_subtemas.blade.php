@@ -11,11 +11,11 @@
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            <!-- Botón mejorado para colapsar -->
-                            <button class="btn-toggle-sidebar" id="toggle-sidebar" title="Expandir/Colapsar panel">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
                         </div>
+                        <!-- Botón toggle con posición absoluta y alto z-index -->
+                        <button class="btn-toggle-sidebar" id="toggle-sidebar" title="Expandir/Colapsar panel">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
                     </div>
 
                     <!-- Navegación de Subtemas -->
@@ -285,26 +285,44 @@
 /* Estilos para el botón unificado de toggle del sidebar */
 .btn-toggle-sidebar {
     position: absolute;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background-color: #0d6efd;
     color: white;
     border: 2px solid white;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    z-index: 100;
+    z-index: 1050; /* Valor muy alto */
     transition: all 0.3s ease;
     cursor: pointer;
     top: 15px;
-    right: -17px;
+    right: -18px; /* Un poco más hacia afuera */
 }
 
+/* Añadir un poco de margen derecho al contenedor del sidebar para dejar espacio al botón *//*
+#sidebar-subtemas {
+    position: relative;
+    margin-right: 5px;
+}*/
+
+/* Asegurar que el contenido principal respete el espacio del botón *//*
+#contenido-principal {
+    position: relative;
+    z-index: 1;
+}*/
+
 .btn-toggle-sidebar:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+}
+
+/* Cuando el sidebar está colapsado, mover el botón */
+.sidebar-mini .btn-toggle-sidebar {
+    right: -18px; /* Mantener consistente */
 }
 
 /* Cuando el sidebar está colapsado, el icono rota */
@@ -312,15 +330,10 @@
     transform: rotate(180deg);
 }
 
-/* Estilo para el botón de colapso cuando está colapsado */
-.sigem-collapse-btn {
-    /* Estilos específicos que sobrescribirán cualquier otro estilo */
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    /* otros estilos necesarios */
+/* Asegurar que el sidebar tenga position relative */
+#sidebar-subtemas {
+    position: relative;
+    overflow: visible; /* Importante para que el botón no se corte */
 }
 </style>
 
@@ -508,4 +521,18 @@ function renderizarCuadros(cuadros) {
     html += '</div>';
     container.innerHTML = html;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Activar el menú de estadística
+    const menuItems = document.querySelectorAll('.sigem-nav-link');
+    menuItems.forEach(item => {
+        // Quitar todas las clases activas
+        item.classList.remove('active');
+        
+        // Activar el elemento de estadística
+        if (item.textContent.trim().includes('ESTADÍSTICA')) {
+            item.classList.add('active');
+        }
+    });
+});
 </script>

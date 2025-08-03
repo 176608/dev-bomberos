@@ -217,28 +217,45 @@
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
+                @php
+                    // Mejor detección de sección activa
+                    $currentPath = request()->path();
+                    $currentSection = request()->query('section', 'inicio');
+                    
+                    // Detectar secciones especiales basadas en la URL
+                    if (Str::contains($currentPath, 'estadistica-por-tema')) {
+                        $currentSection = 'estadistica';
+                    } else if (Str::contains($currentPath, 'cartografia')) {
+                        $currentSection = 'cartografia';
+                    } else if (Str::contains($currentPath, 'productos')) {
+                        $currentSection = 'productos';
+                    } else if (Str::contains($currentPath, 'catalogo')) {
+                        $currentSection = 'catalogo';
+                    }
+                @endphp
+
                 <a href="{{ url('/sigem?section=inicio') }}" 
-                   class="sigem-nav-link {{ $section === 'inicio' ? 'active' : '' }}">
+                   class="sigem-nav-link {{ $currentSection === 'inicio' ? 'active' : '' }}">
                     <i class="bi bi-house-fill"></i> INICIO
                 </a>
 
                 <a href="{{ url('/sigem?section=catalogo') }}" 
-                   class="sigem-nav-link {{ $section === 'catalogo' ? 'active' : '' }}">
+                   class="sigem-nav-link {{ $currentSection === 'catalogo' ? 'active' : '' }}">
                     <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
 
                 <a href="{{ url('/sigem?section=estadistica') }}" 
-                   class="sigem-nav-link {{ $section === 'estadistica' ? 'active' : '' }}">
+                   class="sigem-nav-link {{ $currentSection === 'estadistica' ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
 
                 <a href="{{ url('/sigem?section=cartografia') }}" 
-                   class="sigem-nav-link {{ $section === 'cartografia' ? 'active' : '' }}">
+                   class="sigem-nav-link {{ $currentSection === 'cartografia' ? 'active' : '' }}">
                     <i class="bi bi-map-fill"></i> CARTOGRAFÍA
                 </a>
 
                 <a href="{{ url('/sigem?section=productos') }}" 
-                   class="sigem-nav-link {{ $section === 'productos' ? 'active' : '' }}">
+                   class="sigem-nav-link {{ $currentSection === 'productos' ? 'active' : '' }}">
                     <i class="bi bi-box-seam"></i> PRODUCTOS
                 </a>
             </div>
