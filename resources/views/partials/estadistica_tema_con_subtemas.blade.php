@@ -6,13 +6,13 @@
             <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
-                    <div class="p-3 bg-primary text-white">
+                    <div class="p-3 bg-primary text-white position-relative">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
-                            <!-- Botón para colapsar en lugar de enlace de regreso -->
-                            <button class="btn btn-sm btn-outline-light" id="toggle-sidebar" title="Colapsar panel lateral">
+                            <!-- Botón mejorado para colapsar -->
+                            <button class="btn btn-collapse sigem-collapse-btn" id="toggle-sidebar" title="Colapsar panel lateral">
                                 <i class="bi bi-chevron-left"></i>
                             </button>
                         </div>
@@ -244,6 +244,53 @@
 
 .sidebar-mini #toggle-sidebar i {
     transform: rotate(180deg);
+}
+
+/* Estilos específicos para el botón de colapso */
+.btn-collapse {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.btn-collapse:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Estilo para el botón cuando el sidebar está colapsado */
+.sidebar-mini .btn-collapse {
+    position: absolute;
+    right: -16px;
+    top: 10px;
+    background-color: #0d6efd;
+    border: 2px solid white;
+    color: white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-mini .btn-collapse i {
+    transform: rotate(180deg);
+}
+
+/* Estilos específicos para el botón de colapso */
+.sigem-collapse-btn {
+    /* Estilos específicos que sobrescribirán cualquier otro estilo */
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    /* otros estilos necesarios */
 }
 </style>
 
