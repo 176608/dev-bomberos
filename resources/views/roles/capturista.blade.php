@@ -903,881 +903,369 @@ function inicializarDataTableServerSide() {
         }
     });
     
-        // Hacer disponible la tabla globalmente
-        window.hidrantesTable = table;
-        window.configTable = table; 
-    }
+    // Hacer disponible la tabla globalmente
+    window.hidrantesTable = table;
+    window.configTable = table; 
+}
 
-    /**
-     * Mueve los botones de exportación al área del título
-     */
-    function moverBotonesAlTitulo() {
-        // Buscar el contenedor de botones personalizado en el HTML
-        const contenedorBotones = document.getElementById('exportButtonsContainer');
+/**
+ * Mueve los botones de exportación al área del título
+ */
+function moverBotonesAlTitulo() {
+    // Buscar el contenedor de botones personalizado en el HTML
+    const contenedorBotones = document.getElementById('exportButtonsContainer');
+    
+    if (contenedorBotones && window.hidrantesTable) {
+        // Limpiar el contenedor si ya tiene botones
+        contenedorBotones.innerHTML = '';
         
-        if (contenedorBotones && window.hidrantesTable) {
-            // Limpiar el contenedor si ya tiene botones
-            contenedorBotones.innerHTML = '';
-            
-            // Crear los botones personalizados para exportación
-            const botonesConfig = [
-                {
-                    text: '<i class="bi bi-clipboard"></i> Copiar',
-                    className: 'btn btn-sm btn-outline-secondary',
-                    action: 'copy'
-                },
-                {
-                    text: '<i class="bi bi-file-earmark-excel"></i> Excel',
-                    className: 'btn btn-sm btn-outline-success',
-                    action: 'excel'
-                },
-                {
-                    text: '<i class="bi bi-printer"></i> Imprimir',
-                    className: 'btn btn-sm btn-outline-info',
-                    action: 'print'
-                }
-            ];
-            
-            botonesConfig.forEach(function(config) {
-                const btnElement = document.createElement('button');
-                btnElement.className = config.className;
-                btnElement.innerHTML = config.text;
-                btnElement.style.marginRight = '5px';
-                
-                // Agregar el evento click
-                btnElement.addEventListener('click', function() {
-                    // Mostrar modal para seleccionar los datos a exportar
-                    mostrarModalSeleccionExportacion(config);
-                });
-                
-                contenedorBotones.appendChild(btnElement);
-            });
-        }
-    }
-
-    /**
-     * Carga el panel auxiliar según el modo especificado
-     */
-    function cargarPanelAuxiliar(modo, callback) {
-        $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
-        
-        $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
-            $('#AuxContainer').html(response);
-            
-            // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
-            if (modo === 'tabla') {
-                setTimeout(function() {
-                    // Recargar el panel auxiliar con los filtros
-                    aplicarFiltrosGuardados();
-                    
-                    // Ejecutar el callback si existe
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
-                }, 200);
-            } else if (typeof callback === 'function') {
-                callback();
+        // Crear los botones manualmente basándose en la configuración
+        const botonesConfig = [
+            {
+                text: '<i class="bi bi-clipboard"></i> Copiar',
+                className: 'btn btn-sm btn-outline-secondary',
+                action: 'copy'
+            },
+            {
+                text: '<i class="bi bi-filetype-csv"></i> CSV',
+                className: 'btn btn-sm btn-outline-success',
+                action: 'csv'
+            },
+            {
+                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                className: 'btn btn-sm btn-outline-success',
+                action: 'excel'
+            },
+            {
+                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                className: 'btn btn-sm btn-outline-danger',
+                action: 'pdf'
+            },
+            {
+                text: '<i class="bi bi-printer"></i> Imprimir',
+                className: 'btn btn-sm btn-outline-info',
+                action: 'print'
             }
-        });
-    }
-
-    /**
-     * Carga la tabla de hidrantes
-     */
-    function cargarTablaHidrantes() {
-        $('#tablaHidrantesContainer').show().html('');
-        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-        $('#resumenHidrantesContainer').hide();
+        ];
         
-        // Primero cargamos el panel auxiliar
-        cargarPanelAuxiliar('tabla');
-        
-        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-            // Renderiza el partial de la tabla
-            $('#tablaHidrantesContainer').html(response);
-            inicializarDataTableServerSide();
-        });
-    }
-
-    /**
-     * Carga la tabla sin afectar el panel auxiliar
-     */
-    function cargarSoloTablaHidrantes() {
-        // Conservar el estado actual de visibilidad del panel auxiliar
-        const auxVisible = $('#AuxContainer').is(':visible');
-        
-        $('#tablaHidrantesContainer').show().html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-        $('#resumenHidrantesContainer').hide();
-        
-        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-            // Renderiza el partial de la tabla
-            $('#tablaHidrantesContainer').html(response);
-            inicializarDataTableServerSide();
+        botonesConfig.forEach(function(config, index) {
+            const btnElement = document.createElement('button');
+            btnElement.className = config.className;
+            btnElement.innerHTML = config.text;
+            btnElement.style.marginRight = '5px';
             
-            // Aplicar filtros guardados si existen
-            const filtros = recuperarEstadoFiltros();
-            if (Object.keys(filtros).length > 0) {
-                setTimeout(function() {
-                    aplicarFiltrosATabla(filtros);
-                }, 200);
-            }
-        });
-    }
-
-    /**
-     * Hace scroll a la tabla de hidrantes
-     */
-    function scrollToTablaHidrantes() {
-        const tabla = document.getElementById('tablaHidrantesContainer');
-        if (tabla) {
-            const navbar = document.querySelector('.navbar.fixed-top');
-            const navbarHeight = navbar ? navbar.offsetHeight : 0;
-            
-            const tablaTop = tabla.getBoundingClientRect().top;
-            const scrollY = window.scrollY || window.pageYOffset;
-            const destino = scrollY + tablaTop - navbarHeight;
-            
-            window.scrollTo({
-                top: destino,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-    /**
-     * Hace scroll al contenedor auxiliar
-     */
-    function scrollToAuxContainer() {
-        const auxContainer = document.getElementById('AuxContainer');
-        if (auxContainer) {
-            const navbar = document.querySelector('.navbar.fixed-top');
-            const navbarHeight = navbar ? navbar.offsetHeight : 0;
-            
-            const auxTop = auxContainer.getBoundingClientRect().top;
-            const scrollY = window.scrollY || window.pageYOffset;
-            const destino = scrollY + auxTop - navbarHeight - 20; // 20px de margen
-            
-            window.scrollTo({
-                top: destino,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-    /**
-     * Recarga solo la tabla sin recargar la página completa ni el panel auxiliar
-     * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
-     */
-    function recargarSoloTabla(callback) {
-        // Guardar los filtros actuales
-        const filtros = guardarEstadoFiltros();
-        
-        // Mostrar indicador de carga solo sobre la tabla
-        $('#tablaHidrantesContainer').css('position', 'relative').append(
-            '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
-            '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
-            '</div>'
-        );
-        
-        // Recargar SOLO la tabla, no el panel auxiliar
-        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-            // Actualizar solo el contenedor de la tabla
-            $('#tablaHidrantesContainer').html(response);
-            
-            // Inicializar la tabla con DataTables
-            inicializarDataTableServerSide();
-            
-            // Aplicar de nuevo los filtros guardados a la tabla recién cargada
-            if (Object.keys(filtros).length > 0) {
-                setTimeout(function() {
-                    aplicarFiltrosATabla(filtros, true); // true significa no hacer scroll
-                }, 200);
-            }
-            
-            // Normalizar estilos después de cargar la tabla
-            setTimeout(normalizarEstilosTabla, 100);
-            
-            // Ejecutar callback si existe (p.ej. mostrar toast)
-            if (typeof callback === 'function') {
-                setTimeout(callback, 500);
-            }
-        });
-    }
-
-    /**
-     * Función auxiliar para debugging de modales
-     */
-    function debugModal(modalHtml) {
-        console.log('=== DEBUG MODAL ===');
-        console.log('HTML length:', modalHtml.length);
-        console.log('Starts with:', modalHtml.substring(0, 100));
-        console.log('Contains modal class:', modalHtml.includes('class="modal"'));
-        console.log('Contains modal-dialog:', modalHtml.includes('modal-dialog'));
-        console.log('===================');
-    }
-
-    // ========================
-    // FUNCIONES DE PERSISTENCIA DE FILTROS
-    // ========================
-
-    /**
-     * Guarda el estado de los filtros aplicados
-     */
-    function guardarEstadoFiltros() {
-        const filtrosActivos = {};
-        
-        // Guardar los valores seleccionados de cada filtro
-        $('.filtro-valor').each(function() {
-            const campo = $(this).data('campo');
-            const valor = $(this).val();
-            if (valor) {
-                filtrosActivos[campo] = valor;
-            }
-        });
-        
-        // Guardar en localStorage para persistencia
-        localStorage.setItem('hidrantesFilterState', JSON.stringify(filtrosActivos));
-        return filtrosActivos;
-    }
-
-    /**
-     * Recupera el estado guardado de los filtros
-     */
-    function recuperarEstadoFiltros() {
-        const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
-        return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
-    }
-
-    /**
-     * Aplica los filtros guardados a la tabla actual
-     */
-    function aplicarFiltrosGuardados() {
-        const filtros = recuperarEstadoFiltros();
-        
-        // Solo aplicar filtros si hay alguno guardado
-        if (Object.keys(filtros).length > 0) {
-            // Esperar a que los elementos del filtro estén disponibles
-            const checkFilters = setInterval(function() {
-                if ($('.filtro-valor').length > 0) {
-                    clearInterval(checkFilters);
-                    
-                    // Establecer los valores en los selectores
-                    $('.filtro-valor').each(function() {
-                        const campo = $(this).data('campo');
-                        if (filtros[campo]) {
-                            $(this).val(filtros[campo]);
-                        }
-                    });
-                    
-                    // Aplicar los filtros a la tabla
-                    if (window.configTable) {
-                        aplicarFiltrosATabla(filtros);
-                    }
-                }
-            }, 100);
-        }
-    }
-
-    /**
-     * Aplica los filtros a la tabla
-     * Esta función debe definirse en configuracion-param-auxiliar.blade.php
-     * Agregada aquí como referencia
-     */
-    function aplicarFiltrosATabla(filtros, noScroll = false) {
-        // Guardar el estado de los filtros
-        localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
-        
-        // Actualizar visualmente los selectores de filtro para reflejar los filtros aplicados
-        $('.filtro-valor').each(function() {
-            const campo = $(this).data('campo');
-            if (filtros[campo] !== undefined) {
-                $(this).val(filtros[campo]);
-            } else {
-                $(this).val(''); // Si no hay filtro para este campo, seleccionar "Todos"
-            }
-        });
-    }
-
-    /**
-     * Muestra un mensaje toast
-     * @param {string} mensaje - El mensaje a mostrar
-     * @param {string} tipo - El tipo de mensaje (success, error, warning, info)
-     * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
-     */
-    function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
-        // Definir el icono según el tipo usando Bootstrap Icons
-        let icono = 'check-circle';
-        let colorClase = 'text-success';
-        let borderClass = 'toast-success';
-        
-        switch(tipo) {
-            case 'error':
-                icono = 'exclamation-circle';
-                colorClase = 'text-danger';
-                borderClass = 'toast-error';
-                break;
-            case 'warning':
-                icono = 'exclamation-triangle';
-                colorClase = 'text-warning';
-                borderClass = 'toast-warning';
-                break;
-            case 'info':
-                icono = 'info-circle';
-                colorClase = 'text-info';
-                borderClass = 'toast-info';
-                break;
-        }
-        
-        // Crear el HTML del toast con Bootstrap Icons
-        const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="bi bi-${icono} ${colorClase} me-2"></i> ${mensaje}
-                </div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>`;
-        
-        // Agregar el toast al DOM
-        $('#toastContainer').append(toast);
-        
-        // Obtener el último toast agregado
-        const toastEl = $('#toastContainer .toast').last()[0];
-        
-        // Inicializar y mostrar el toast
-        const bsToast = new bootstrap.Toast(toastEl, { delay: duracion });
-        bsToast.show();
-        
-        // Eliminar el toast del DOM después de ocultarse
-        $(toastEl).on('hidden.bs.toast', function() {
-            $(this).remove();
-        });
-    }
-
-
-    /**
-     * Muestra un modal para seleccionar qué datos exportar
-     * @param {Object} config - Configuración del botón de exportación
-     */
-    function mostrarModalSeleccionExportacion(config) {
-        // Eliminar cualquier modal anterior
-        $('#modalExportacion').remove();
-        
-        // Obtener información de la tabla
-        const info = window.hidrantesTable.page.info();
-        const paginaActual = info.page + 1; // DataTables usa índice base 0 para páginas
-        const registrosPorPagina = info.length;
-        const registrosVisibles = Math.min(registrosPorPagina, info.recordsDisplay - (info.page * registrosPorPagina));
-        const registrosFiltrados = info.recordsDisplay;
-        const totalRegistros = info.recordsTotal;
-        const hayFiltro = registrosFiltrados < totalRegistros;
-        
-        // Determinar título del modal
-        let tituloModal;
-        switch(config.action) {
-            case 'copy': tituloModal = 'Copiar datos'; break;
-            case 'excel': tituloModal = 'Exportar a Excel'; break;
-            case 'print': tituloModal = 'Imprimir datos'; break;
-            default: tituloModal = 'Exportar datos';
-        }
-        
-        // Construir opciones del modal
-        let opcionesHTML = `
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="radio" name="exportOption" id="exportVisible" value="visible" checked>
-                <label class="form-check-label" for="exportVisible">
-                    Solo registros visibles en la página actual (${registrosVisibles})
-                </label>
-            </div>`;
-        
-        // Si hay filtros, mostrar opción para exportar registros filtrados
-        if (hayFiltro) {
-            opcionesHTML += `
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="radio" name="exportOption" id="exportFiltered" value="filtered">
-                <label class="form-check-label" for="exportFiltered">
-                    Todos los registros filtrados (${registrosFiltrados})
-                </label>
-            </div>`;
-        }
-        
-        // Opción para exportar todos los registros
-        opcionesHTML += `
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="exportOption" id="exportAll" value="all">
-                <label class="form-check-label" for="exportAll">
-                    Todos los registros (${totalRegistros})
-                </label>
-            </div>`;
-        
-        // Crear modal con opciones
-        const modalHTML = `
-        <div class="modal fade" id="modalExportacion" tabindex="-1" aria-labelledby="modalExportacionLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalExportacionLabel">${tituloModal}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Seleccione qué registros desea ${getTextoAccion(config.action)}:</p>
-                        ${opcionesHTML}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" id="btnConfirmarExportacion">Confirmar</button>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        
-        // Agregar modal al DOM
-        $('body').append(modalHTML);
-        
-        // Mostrar modal
-        const modalElement = document.getElementById('modalExportacion');
-        const modalInstance = new bootstrap.Modal(modalElement);
-        modalInstance.show();
-        
-        // Manejar clic en botón confirmar
-        $('#btnConfirmarExportacion').on('click', function() {
-            const opcionSeleccionada = $('input[name="exportOption"]:checked').val();
-            
-            // Ejecutar la acción correspondiente según la selección
-            ejecutarAccionExportacion(config.action, opcionSeleccionada);
-            
-            // Cerrar el modal
-            modalInstance.hide();
-        });
-    }
-
-    /**
-     * Ejecuta la acción de exportación según el tipo y la selección
-     * @param {string} accion - Tipo de acción ('copy', 'excel', 'print')
-     * @param {string} seleccion - Tipo de selección ('visible', 'filtered', 'all')
-     */
-    function ejecutarAccionExportacion(accion, seleccion) {
-        // Mostrar indicador de procesamiento
-        mostrarToast(`Procesando ${getTextoAccion(accion)}...`, 'info');
-        
-        try {
-            // Verificar que existe XLSX si vamos a exportar a Excel
-            if (accion === 'excel' && typeof XLSX === 'undefined') {
-                throw new Error('La biblioteca SheetJS no está disponible');
-            }
-            
-            // Obtener datos según selección
-            obtenerDatosParaExportacion(seleccion).then(datos => {
-                console.log("Datos a exportar:", datos.length, "filas"); // Debug
-                
-                switch (accion) {
-                    case 'copy':
-                        copiarDatosAlPortapapeles(datos);
-                        break;
-                    case 'excel':
-                        exportarDatosExcel(datos);
-                        break;
-                    case 'print':
-                        imprimirDatos(datos);
-                        break;
-                }
-                
-                // Mostrar mensaje de éxito
-                let mensajeRegistros;
-                const info = window.hidrantesTable.page.info();
-                if (seleccion === 'visible') {
-                    const registrosVisibles = Math.min(info.length, info.recordsDisplay - (info.page * info.length));
-                    mensajeRegistros = `registros visibles (${registrosVisibles})`;
-                } else if (seleccion === 'filtered') {
-                    mensajeRegistros = `registros filtrados (${info.recordsDisplay})`;
-                } else {
-                    mensajeRegistros = `todos los registros (${info.recordsTotal})`;
-                }
-                
-                mostrarToast(`Se han ${getTextoExito(accion)} los ${mensajeRegistros}`, 'success');
-                
-            }).catch(error => {
-                console.error('Error al procesar datos:', error);
-                mostrarToast('Error al procesar los datos', 'error');
-            });
-            
-        } catch (error) {
-            console.error('Error al ejecutar la exportación:', error);
-            mostrarToast('Error al procesar la exportación: ' + error.message, 'error');
-        }
-    }
-
-    /**
-     * Obtiene los datos para exportación según el tipo de selección
-     * @param {string} seleccion - Tipo de selección ('visible', 'filtered', 'all')
-     * @returns {Promise<Array>} - Promesa que resuelve con los datos para exportar
-     */
-    function obtenerDatosParaExportacion(seleccion) {
-        return new Promise((resolve, reject) => {
-            try {
-                const datosExportar = [];
-                const table = window.hidrantesTable;
-                
-                // Obtener encabezados visibles (excepto acciones)
-                const encabezados = [];
-                table.columns().every(function() {
-                    const colIdx = this.index();
-                    const colHeader = $(table.column(colIdx).header()).text().trim();
-                    // No incluir columna de acciones ni columnas ocultas
-                    const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
-                                    colHeader === 'Acciones' || 
-                                    colIdx === 1 || // Columna de acciones
-                                    !table.column(colIdx).visible(); 
-                
-                if (!esAcciones) {
-                    encabezados.push(colHeader);
+            // Agregar el evento click
+            btnElement.addEventListener('click', function() {
+                // Obtener el botón correspondiente de DataTables y activarlo
+                try {
+                    window.hidrantesTable.button(index).trigger();
+                } catch (e) {
+                    console.error('Error al activar botón:', e);
                 }
             });
             
-            // Agregar encabezados
-            datosExportar.push(encabezados);
-            
-            // Preparar la función para procesar cada fila
-            const procesarFila = function(rowIdx) {
-                return new Promise((resolveRow) => {
-                    const row = table.row(rowIdx);
-                    const rowData = row.data();
-                    
-                    if (!rowData) {
-                        console.warn('Datos no disponibles para la fila:', rowIdx);
-                        resolveRow(null);
-                        return;
-                    }
-                    
-                    const valores = [];
-                    
-                    table.columns().every(function() {
-                        const colIdx = this.index();
-                        const colHeader = $(table.column(colIdx).header()).text().trim();
-                        // No incluir columna de acciones ni columnas ocultas
-                        const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
-                                        colHeader === 'Acciones' || 
-                                        colIdx === 1 || // Columna de acciones 
-                                        !table.column(colIdx).visible();
-                        
-                        if (!esAcciones) {
-                            // Para la columna stat (progreso), extraer solo el porcentaje
-                            if (colIdx === 2 || colHeader === 'Stat') {
-                                if (rowData.stat === '000') {
-                                    valores.push('Dado de Baja');
-                                } else {
-                                    valores.push(rowData.stat + '%');
-                                }
-                            } else {
-                                // Para otras columnas, acceder al valor usando el nombre de la columna
-                                const columnName = table.column(colIdx).dataSrc();
-                                if (rowData.hasOwnProperty(columnName)) {
-                                    valores.push(rowData[columnName]);
-                                } else {
-                                    // Intentar obtener por índice si no está por nombre
-                                    const keys = Object.keys(rowData);
-                                    if (keys[colIdx]) {
-                                        valores.push(rowData[keys[colIdx]]);
-                                    } else {
-                                        valores.push('');
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    
-                    resolveRow(valores);
-                });
-            };
-            
-            // Procesar las filas según la selección
-            let rowsPromises = [];
-            
-            if (seleccion === 'visible') {
-                // Solo registros de la página actual
-                table.rows({ page: 'current' }).every(function(rowIdx) {
-                    rowsPromises.push(procesarFila(rowIdx));
-                });
-            } 
-            else if (seleccion === 'filtered') {
-                // Todos los registros filtrados
-                // Si hay muchos registros, procesarlos en lotes
-                const totalFilas = table.rows({ search: 'applied' }).count();
-                console.log(`Procesando ${totalFilas} registros filtrados`);
+            contenedorBotones.appendChild(btnElement);
+        });
+    }
+}
+
+/**
+ * Carga el panel auxiliar según el modo especificado
+ */
+function cargarPanelAuxiliar(modo, callback) {
+    $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
+    
+    $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
+        $('#AuxContainer').html(response);
+        
+        // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
+        if (modo === 'tabla') {
+            setTimeout(function() {
+                // Recargar el panel auxiliar con los filtros
+                aplicarFiltrosGuardados();
                 
-                for (let i = 0; i < totalFilas; i++) {
-                    const rowIdx = table.rows({ search: 'applied' }).indexes()[i];
-                    if (rowIdx !== undefined) {
-                        rowsPromises.push(procesarFila(rowIdx));
-                    }
+                // Ejecutar el callback si existe
+                if (typeof callback === 'function') {
+                    callback();
                 }
-            }
-            else {
-                // Todos los registros
-                // Si hay muchos registros, procesarlos en lotes
-                const totalFilas = table.rows().count();
-                console.log(`Procesando ${totalFilas} registros totales`);
-                
-                for (let i = 0; i < totalFilas; i++) {
-                    const rowIdx = i;
-                    rowsPromises.push(procesarFila(rowIdx));
-                }
-            }
-            
-            // Procesar todas las filas y resolver
-            Promise.all(rowsPromises)
-                .then(resultados => {
-                    // Filtrar null results y agregarlos a datos
-                    resultados.forEach(valores => {
-                        if (valores) {
-                            datosExportar.push(valores);
-                        }
-                    });
-                    
-                    resolve(datosExportar);
-                })
-                .catch(error => {
-                    console.error('Error procesando filas:', error);
-                    reject(error);
-                });
-                
-        } catch (error) {
-            console.error('Error en obtenerDatosParaExportacion:', error);
-            reject(error);
+            }, 200);
+        } else if (typeof callback === 'function') {
+            callback();
         }
     });
 }
 
 /**
- * Copia datos al portapapeles
- * @param {Array} datos - Datos para copiar
+ * Carga la tabla de hidrantes
  */
-function copiarDatosAlPortapapeles(datos) {
-    try {
-        // Convertir datos a texto tabulado
-        const textoCopiar = datos.map(fila => fila.join('\t')).join('\n');
+function cargarTablaHidrantes() {
+    $('#tablaHidrantesContainer').show().html('');
+    $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+    $('#resumenHidrantesContainer').hide();
+    
+    // Primero cargamos el panel auxiliar
+    cargarPanelAuxiliar('tabla');
+    
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza el partial de la tabla
+        $('#tablaHidrantesContainer').html(response);
+        inicializarDataTableServerSide();
+    });
+}
+
+/**
+ * Carga la tabla sin afectar el panel auxiliar
+ */
+function cargarSoloTablaHidrantes() {
+    // Conservar el estado actual de visibilidad del panel auxiliar
+    const auxVisible = $('#AuxContainer').is(':visible');
+    
+    $('#tablaHidrantesContainer').show().html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+    $('#resumenHidrantesContainer').hide();
+    
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Renderiza el partial de la tabla
+        $('#tablaHidrantesContainer').html(response);
+        inicializarDataTableServerSide();
         
-        // Método moderno con Clipboard API
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(textoCopiar)
-                .then(() => {
-                    console.log('Texto copiado al portapapeles');
-                })
-                .catch(err => {
-                    console.error('Error al copiar usando Clipboard API:', err);
-                    // Fallback al método anterior
-                    copiarPorMetodoAnterior(textoCopiar);
-                });
-        } else {
-            // Método anterior para navegadores sin Clipboard API
-            copiarPorMetodoAnterior(textoCopiar);
+        // Aplicar filtros guardados si existen
+        const filtros = recuperarEstadoFiltros();
+        if (Object.keys(filtros).length > 0) {
+            setTimeout(function() {
+                aplicarFiltrosATabla(filtros);
+            }, 200);
         }
-    } catch (error) {
-        console.error('Error al copiar datos:', error);
-        mostrarToast('No se pudieron copiar los datos al portapapeles', 'error');
-    }
+    });
 }
 
 /**
- * Método alternativo para copiar texto al portapapeles
- * @param {string} texto - Texto para copiar
+ * Hace scroll a la tabla de hidrantes
  */
-function copiarPorMetodoAnterior(texto) {
-    // Crear elemento temporal
-    const elementoTemporal = document.createElement('textarea');
-    elementoTemporal.value = texto;
-    elementoTemporal.setAttribute('readonly', '');
-    elementoTemporal.style.position = 'absolute';
-    elementoTemporal.style.left = '-9999px';
-    document.body.appendChild(elementoTemporal);
-    
-    // Seleccionar y copiar
-    elementoTemporal.select();
-    const exito = document.execCommand('copy');
-    
-    // Eliminar elemento temporal
-    document.body.removeChild(elementoTemporal);
-    
-    if (!exito) {
-        throw new Error('No se pudo copiar al portapapeles');
-    }
-}
-
-/**
- * Exporta datos a Excel
- * @param {Array} datos - Datos para exportar
- */
-function exportarDatosExcel(datos) {
-    // Verificar que la biblioteca XLSX está disponible
-    if (typeof XLSX === 'undefined') {
-        mostrarToast('No se pudo cargar la biblioteca para exportar a Excel', 'error');
-        return;
-    }
-    
-    try {
-        // Crear libro de trabajo y hoja
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(datos);
+function scrollToTablaHidrantes() {
+    const tabla = document.getElementById('tablaHidrantesContainer');
+    if (tabla) {
+        const navbar = document.querySelector('.navbar.fixed-top');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
         
-        // Agregar hoja al libro
-        XLSX.utils.book_append_sheet(wb, ws, "Hidrantes");
+        const tablaTop = tabla.getBoundingClientRect().top;
+        const scrollY = window.scrollY || window.pageYOffset;
+        const destino = scrollY + tablaTop - navbarHeight;
         
-        // Generar nombre de archivo con fecha
-        const now = new Date();
-        const nombreArchivo = 'Hidrantes_' + 
-                            now.getFullYear() + 
-                            (now.getMonth() + 1).toString().padStart(2, '0') + 
-                            now.getDate().toString().padStart(2, '0');
-        
-        // Descargar archivo
-        XLSX.writeFile(wb, nombreArchivo + '.xlsx');
-    } catch (error) {
-        console.error('Error al exportar a Excel:', error);
-        mostrarToast('Error al exportar a Excel: ' + error.message, 'error');
-    }
-}
-
-/**
- * Imprime datos
- * @param {Array} datos - Datos para imprimir
- */
-function imprimirDatos(datos) {
-    try {
-        // Crear ventana de impresión
-        const ventanaImpresion = window.open('', '_blank');
-        
-        if (!ventanaImpresion) {
-            throw new Error('No se pudo abrir la ventana de impresión. Verifica que los popups estén permitidos.');
-        }
-        
-        // Construir HTML para impresión
-        let htmlImpresion = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Hidrantes</title>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-                th { background-color: #f2f2f2; }
-                h2 { text-align: center; }
-                .fecha { text-align: right; font-size: 12px; margin-bottom: 20px; }
-                @media print {
-                    button { display: none; }
-                    @page { size: landscape; }
-                }
-            </style>
-        </head>
-        <body>
-            <h2>Reporte de Hidrantes</h2>
-            <div class="fecha">Fecha: ${new Date().toLocaleDateString()}</div>
-            <button onclick="window.print();return false;" style="padding: 10px; background: #0275d8; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">Imprimir</button>
-            <table>
-                <thead>
-                    <tr>
-        `;
-        
-        // Agregar encabezados
-        datos[0].forEach(encabezado => {
-            htmlImpresion += `<th>${encabezado}</th>`;
+        window.scrollTo({
+            top: destino,
+            behavior: 'smooth'
         });
+    }
+}
+
+/**
+ * Hace scroll al contenedor auxiliar
+ */
+function scrollToAuxContainer() {
+    const auxContainer = document.getElementById('AuxContainer');
+    if (auxContainer) {
+        const navbar = document.querySelector('.navbar.fixed-top');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
         
-        htmlImpresion += `
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        const auxTop = auxContainer.getBoundingClientRect().top;
+        const scrollY = window.scrollY || window.pageYOffset;
+        const destino = scrollY + auxTop - navbarHeight - 20; // 20px de margen
         
-        // Agregar filas de datos
-        for (let i = 1; i < datos.length; i++) {
-            htmlImpresion += '<tr>';
-            datos[i].forEach(celda => {
-                // Si es la columna stat (porcentaje)
-                if (celda && celda.toString().includes('%') && !isNaN(parseInt(celda))) {
-                    const valor = parseInt(celda);
-                    let color = '';
-                    if (valor <= 40) {
-                        color = '#dc3545'; // rojo
-                    } else if (valor <= 70) {
-                        color = '#007bff'; // azul
-                    } else {
-                        color = '#28a745'; // verde
-                    }
-                    htmlImpresion += `<td><span style="color:${color}; font-weight:bold">${celda}</span></td>`;
-                } else if (celda === 'Dado de Baja') {
-                    htmlImpresion += `<td><span style="color:#dc3545; font-weight:bold">${celda}</span></td>`;
-                } else {
-                    htmlImpresion += `<td>${celda}</td>`;
-                }
-            });
-            htmlImpresion += '</tr>';
+        window.scrollTo({
+            top: destino,
+            behavior: 'smooth'
+        });
+    }
+}
+
+/**
+ * Recarga solo la tabla sin recargar la página completa ni el panel auxiliar
+ * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
+ */
+function recargarSoloTabla(callback) {
+    // Guardar los filtros actuales
+    const filtros = guardarEstadoFiltros();
+    
+    // Mostrar indicador de carga solo sobre la tabla
+    $('#tablaHidrantesContainer').css('position', 'relative').append(
+        '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
+        '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
+        '</div>'
+    );
+    
+    // Recargar SOLO la tabla, no el panel auxiliar
+    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+        // Actualizar solo el contenedor de la tabla
+        $('#tablaHidrantesContainer').html(response);
+        
+        // Inicializar la tabla con DataTables
+        inicializarDataTableServerSide();
+        
+        // Aplicar de nuevo los filtros guardados a la tabla recién cargada
+        if (Object.keys(filtros).length > 0) {
+            setTimeout(function() {
+                aplicarFiltrosATabla(filtros, true); // true significa no hacer scroll
+            }, 200);
         }
         
-        htmlImpresion += `
-                </tbody>
-            </table>
-            <script>
-                // Mensaje de ayuda para el usuario
-                console.log("Si la impresión automática no funciona, haga clic en el botón 'Imprimir'");
-                
-                // Intentar imprimir automáticamente después de un tiempo para permitir al usuario configurar la impresión
-                setTimeout(function() {
-                    try {
-                        window.print();
-                    } catch(e) {
-                        console.error('Error al imprimir:', e);
-                    }
-                }, 1000);
-            </script>
-        </body>
-        </html>
-        `;
+        // Normalizar estilos después de cargar la tabla
+        setTimeout(normalizarEstilosTabla, 100);
         
-        // Escribir en la ventana
-        ventanaImpresion.document.write(htmlImpresion);
-        ventanaImpresion.document.close();
-    } catch (error) {
-        console.error('Error al preparar impresión:', error);
-        mostrarToast('Error al preparar impresión: ' + error.message, 'error');
+        // Ejecutar callback si existe (p.ej. mostrar toast)
+        if (typeof callback === 'function') {
+            setTimeout(callback, 500);
+        }
+    });
+}
+
+/**
+ * Función auxiliar para debugging de modales
+ */
+function debugModal(modalHtml) {
+    console.log('=== DEBUG MODAL ===');
+    console.log('HTML length:', modalHtml.length);
+    console.log('Starts with:', modalHtml.substring(0, 100));
+    console.log('Contains modal class:', modalHtml.includes('class="modal"'));
+    console.log('Contains modal-dialog:', modalHtml.includes('modal-dialog'));
+    console.log('===================');
+}
+
+// ========================
+// FUNCIONES DE PERSISTENCIA DE FILTROS
+// ========================
+
+/**
+ * Guarda el estado de los filtros aplicados
+ */
+function guardarEstadoFiltros() {
+    const filtrosActivos = {};
+    
+    // Guardar los valores seleccionados de cada filtro
+    $('.filtro-valor').each(function() {
+        const campo = $(this).data('campo');
+        const valor = $(this).val();
+        if (valor) {
+            filtrosActivos[campo] = valor;
+        }
+    });
+    
+    // Guardar en localStorage para persistencia
+    localStorage.setItem('hidrantesFilterState', JSON.stringify(filtrosActivos));
+    return filtrosActivos;
+}
+
+/**
+ * Recupera el estado guardado de los filtros
+ */
+function recuperarEstadoFiltros() {
+    const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
+    return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
+}
+
+/**
+ * Aplica los filtros guardados a la tabla actual
+ */
+function aplicarFiltrosGuardados() {
+    const filtros = recuperarEstadoFiltros();
+    
+    // Solo aplicar filtros si hay alguno guardado
+    if (Object.keys(filtros).length > 0) {
+        // Esperar a que los elementos del filtro estén disponibles
+        const checkFilters = setInterval(function() {
+            if ($('.filtro-valor').length > 0) {
+                clearInterval(checkFilters);
+                
+                // Establecer los valores en los selectores
+                $('.filtro-valor').each(function() {
+                    const campo = $(this).data('campo');
+                    if (filtros[campo]) {
+                        $(this).val(filtros[campo]);
+                    }
+                });
+                
+                // Aplicar los filtros a la tabla
+                if (window.configTable) {
+                    aplicarFiltrosATabla(filtros);
+                }
+            }
+        }, 100);
     }
 }
 
 /**
- * Obtiene el texto para la acción de exportación
- * @param {string} action - Tipo de acción ('copy', 'excel', 'print')
- * @returns {string} Texto descriptivo
+ * Aplica los filtros a la tabla
+ * Esta función debe definirse en configuracion-param-auxiliar.blade.php
+ * Agregada aquí como referencia
  */
-function getTextoAccion(action) {
-    switch (action) {
-        case 'copy':
-            return 'copiar';
-        case 'excel':
-            return 'exportar a Excel';
-        case 'print':
-            return 'imprimir';
-        default:
-            return 'exportar';
-    }
+function aplicarFiltrosATabla(filtros, noScroll = false) {
+    // Guardar el estado de los filtros
+    localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
+    
+    // Actualizar visualmente los selectores de filtro para reflejar los filtros aplicados
+    $('.filtro-valor').each(function() {
+        const campo = $(this).data('campo');
+        if (filtros[campo] !== undefined) {
+            $(this).val(filtros[campo]);
+        } else {
+            $(this).val(''); // Si no hay filtro para este campo, seleccionar "Todos"
+        }
+    });
 }
 
 /**
- * Obtiene el texto de éxito para la acción
- * @param {string} action - Tipo de acción ('copy', 'excel', 'print')
- * @returns {string} Texto descriptivo
+ * Muestra un mensaje toast
+ * @param {string} mensaje - El mensaje a mostrar
+ * @param {string} tipo - El tipo de mensaje (success, error, warning, info)
+ * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
  */
-function getTextoExito(action) {
-    switch (action) {
-        case 'copy':
-            return 'copiado';
-        case 'excel':
-            return 'exportado a Excel';
-        case 'print':
-            return 'preparado para imprimir';
-        default:
-            return 'procesado';
+function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
+    // Definir el icono según el tipo usando Bootstrap Icons
+    let icono = 'check-circle';
+    let colorClase = 'text-success';
+    let borderClass = 'toast-success';
+    
+    switch(tipo) {
+        case 'error':
+            icono = 'exclamation-circle';
+            colorClase = 'text-danger';
+            borderClass = 'toast-error';
+            break;
+        case 'warning':
+            icono = 'exclamation-triangle';
+            colorClase = 'text-warning';
+            borderClass = 'toast-warning';
+            break;
+        case 'info':
+            icono = 'info-circle';
+            colorClase = 'text-info';
+            borderClass = 'toast-info';
+            break;
     }
+    
+    // Crear el HTML del toast con Bootstrap Icons
+    const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-${icono} ${colorClase} me-2"></i> ${mensaje}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>`;
+    
+    // Agregar el toast al DOM
+    $('#toastContainer').append(toast);
+    
+    // Obtener el último toast agregado
+    const toastEl = $('#toastContainer .toast').last()[0];
+    
+    // Inicializar y mostrar el toast
+    const bsToast = new bootstrap.Toast(toastEl, { delay: duracion });
+    bsToast.show();
+    
+    // Eliminar el toast del DOM después de ocultarse
+    $(toastEl).on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
 }
 </script>
 @endsection
