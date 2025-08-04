@@ -17,21 +17,17 @@
             @endif
             
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-success text-white">
                     <h3 class="mb-0">
                         <i class="bi bi-binoculars-fill me-2"></i>
                         Sistema Consultor de Hidrantes
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Panel de Consulta Público</strong> - Aquí podrás consultar información sobre hidrantes.
-                    </div>
                     
                     <div class="row mb-4">
                         <!-- Panel de búsqueda por ID -->
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0"><i class="bi bi-search me-2"></i>Consulta de Hidrantes</h5>
@@ -41,7 +37,7 @@
                                         <div class="input-group mb-3">
                                             <span class="input-group-text">Introduce el número del hidrante para ver su reporte:</span>
                                             <input type="number" class="form-control" id="hidrante_id" name="hidrante_id" min="1" required>
-                                            <button class="btn btn-primary" type="submit">
+                                            <button class="btn btn-success" type="submit">
                                                 <i class="bi bi-search me-1"></i>Buscar
                                             </button>
                                         </div>
@@ -51,15 +47,15 @@
                         </div>
                         
                         <!-- Panel AUX - Total de hidrantes -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header bg-light">
-                                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Panel AUX</h5>
+                                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Panel</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="text-center">
                                         <h4>Total de hidrantes:</h4>
-                                        <h2 class="display-4 text-primary">{{ $totalHidrantes }}</h2>
+                                        <h3 class="display-4 text-success">{{ $totalHidrantes }}</h3>
                                     </div>
                                 </div>
                             </div>
@@ -73,7 +69,7 @@
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Reporte de Hidrante</h5>
                                     @if(isset($hidrante))
-                                    <span class="badge bg-primary">ID: {{ $hidrante->id }}</span>
+                                    <span class="badge bg-success">ID: {{ $hidrante->id }}</span>
                                     @endif
                                 </div>
                                 <div class="card-body" id="resultadoConsulta">
