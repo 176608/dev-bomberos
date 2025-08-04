@@ -926,19 +926,9 @@ function moverBotonesAlTitulo() {
                 action: 'copy'
             },
             {
-                text: '<i class="bi bi-filetype-csv"></i> CSV',
-                className: 'btn btn-sm btn-outline-success',
-                action: 'csv'
-            },
-            {
                 text: '<i class="bi bi-file-earmark-excel"></i> Excel',
                 className: 'btn btn-sm btn-outline-success',
                 action: 'excel'
-            },
-            {
-                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
-                className: 'btn btn-sm btn-outline-danger',
-                action: 'pdf'
             },
             {
                 text: '<i class="bi bi-printer"></i> Imprimir',
