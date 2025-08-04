@@ -924,21 +924,24 @@ function inicializarDataTableServerSide() {
                 {
                     text: '<i class="bi bi-clipboard"></i> Copiar',
                     className: 'btn btn-sm btn-outline-secondary',
-                    action: 'copy'
+                    action: 'copy',
+                    index: 0 // Índice del botón en DataTables
                 },
                 {
                     text: '<i class="bi bi-file-earmark-excel"></i> Excel',
                     className: 'btn btn-sm btn-outline-success',
-                    action: 'excel'
+                    action: 'excel',
+                    index: 2 // Índice del botón en DataTables (0: copy, 1: csv, 2: excel)
                 },
                 {
                     text: '<i class="bi bi-printer"></i> Imprimir',
                     className: 'btn btn-sm btn-outline-info',
-                    action: 'print'
+                    action: 'print',
+                    index: 4 // Índice del botón en DataTables (0: copy, 1: csv, 2: excel, 3: pdf, 4: print)
                 }
             ];
             
-            botonesConfig.forEach(function(config, index) {
+            botonesConfig.forEach(function(config) {
                 const btnElement = document.createElement('button');
                 btnElement.className = config.className;
                 btnElement.innerHTML = config.text;
@@ -946,12 +949,8 @@ function inicializarDataTableServerSide() {
                 
                 // Agregar el evento click
                 btnElement.addEventListener('click', function() {
-                    // Obtener el botón correspondiente de DataTables y activarlo
-                    try {
-                        window.hidrantesTable.button(index).trigger();
-                    } catch (e) {
-                        console.error('Error al activar botón:', e);
-                    }
+                    // Mostrar modal para seleccionar los datos a exportar
+                    mostrarModalSeleccionExportacion(config);
                 });
                 
                 contenedorBotones.appendChild(btnElement);
@@ -1257,5 +1256,178 @@ function inicializarDataTableServerSide() {
             $(this).remove();
         });
     }
+
+
+/**
+ * Muestra un modal para seleccionar qué datos exportar
+ * @param {Object} config - Configuración del botón de exportación
+ */
+function mostrarModalSeleccionExportacion(config) {
+    // Eliminar cualquier modal anterior
+    $('#modalExportacion').remove();
+    
+    // Obtener información de la tabla
+    const info = window.hidrantesTable.page.info();
+    const paginaActual = info.page;
+    const registrosPorPagina = info.length;
+    const registrosVisibles = Math.min(registrosPorPagina, info.recordsDisplay - (paginaActual * registrosPorPagina));
+    const registrosFiltrados = info.recordsDisplay;
+    const totalRegistros = info.recordsTotal;
+    const hayFiltro = registrosFiltrados < totalRegistros;
+    
+    // Determinar título del modal
+    let tituloModal;
+    switch(config.action) {
+        case 'copy': tituloModal = 'Copiar datos'; break;
+        case 'excel': tituloModal = 'Exportar a Excel'; break;
+        case 'print': tituloModal = 'Imprimir datos'; break;
+        default: tituloModal = 'Exportar datos';
+    }
+    
+    // Construir opciones del modal
+    let opcionesHTML = `
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="exportOption" id="exportVisible" value="visible" checked>
+            <label class="form-check-label" for="exportVisible">
+                Solo registros visibles en la página actual (${registrosVisibles})
+            </label>
+        </div>`;
+    
+    // Si hay filtros, mostrar opción para exportar registros filtrados
+    if (hayFiltro) {
+        opcionesHTML += `
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="exportOption" id="exportFiltered" value="filtered">
+            <label class="form-check-label" for="exportFiltered">
+                Todos los registros filtrados (${registrosFiltrados})
+            </label>
+        </div>`;
+    }
+    
+    // Opción para exportar todos los registros
+    opcionesHTML += `
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exportOption" id="exportAll" value="all">
+            <label class="form-check-label" for="exportAll">
+                Todos los registros (${totalRegistros})
+            </label>
+        </div>`;
+    
+    // Crear modal con opciones
+    const modalHTML = `
+    <div class="modal fade" id="modalExportacion" tabindex="-1" aria-labelledby="modalExportacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalExportacionLabel">${tituloModal}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Seleccione qué registros desea ${getTextoAccion(config.action)}:</p>
+                    ${opcionesHTML}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarExportacion">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    // Agregar modal al DOM
+    $('body').append(modalHTML);
+    
+    // Mostrar modal
+    const modalElement = document.getElementById('modalExportacion');
+    const modalInstance = new bootstrap.Modal(modalElement);
+    modalInstance.show();
+    
+    // Manejar clic en botón confirmar
+    $('#btnConfirmarExportacion').on('click', function() {
+        const opcionSeleccionada = $('input[name="exportOption"]:checked').val();
+        
+        // Configurar opciones de exportación según selección
+        const exportOptions = {
+            columns: ':visible:not(.no-export)'
+        };
+        
+        // Configurar filas a exportar según la opción seleccionada
+        if (opcionSeleccionada === 'visible') {
+            // Solo filas visibles en la página actual
+            exportOptions.rows = function(idx, data, node) {
+                return window.hidrantesTable.rows({ page: 'current' }).indexes().indexOf(idx) !== -1;
+            };
+        } else if (opcionSeleccionada === 'filtered') {
+            // Todas las filas que cumplen con el filtro actual
+            exportOptions.rows = function(idx, data, node) {
+                return window.hidrantesTable.rows({ search: 'applied' }).indexes().indexOf(idx) !== -1;
+            };
+        }
+        // Para 'all' no se necesita configuración adicional, ya es el comportamiento predeterminado
+        
+        // Ejecutar acción de exportación
+        try {
+            // Obtenemos el botón original de DataTables
+            const dtButton = window.hidrantesTable.button(config.index);
+            
+            // Configuramos temporalmente las opciones de exportación
+            dtButton.action(function(e, dt, button, origConfig) {
+                // Clonar la configuración original y sobrescribir exportOptions
+                const newConfig = $.extend(true, {}, origConfig);
+                newConfig.exportOptions = exportOptions;
+                
+                // Llamar a la función original con la nueva configuración
+                if (config.action === 'copy') {
+                    $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, newConfig);
+                } else if (config.action === 'excel') {
+                    $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, newConfig);
+                } else if (config.action === 'print') {
+                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, newConfig);
+                }
+            });
+            
+            // Activar el botón
+            dtButton.trigger();
+            
+            // Mostrar mensaje de éxito
+            let mensajeRegistros;
+            if (opcionSeleccionada === 'visible') {
+                mensajeRegistros = `registros visibles de la página actual (${registrosVisibles})`;
+            } else if (opcionSeleccionada === 'filtered') {
+                mensajeRegistros = `registros filtrados (${registrosFiltrados})`;
+            } else {
+                mensajeRegistros = `todos los registros (${totalRegistros})`;
+            }
+            
+            mostrarToast(`Se han preparado los ${mensajeRegistros} para ${getTextoAccion(config.action, true)}`, 'success');
+            
+        } catch (error) {
+            console.error('Error al ejecutar la exportación:', error);
+            mostrarToast('Error al procesar la exportación', 'error');
+        }
+        
+        // Cerrar el modal
+        modalInstance.hide();
+    });
+}
+
+/**
+ * Obtiene el texto para la acción de exportación
+ * @param {string} action - Tipo de acción ('copy', 'excel', 'print')
+ * @param {boolean} completado - Si la acción ya se completó
+ * @returns {string} Texto descriptivo
+ */
+function getTextoAccion(action, completado = false) {
+    switch (action) {
+        case 'copy':
+            return completado ? 'la copia' : 'copiar';
+        case 'excel':
+            return completado ? 'la exportación a Excel' : 'exportar a Excel';
+        case 'print':
+            return completado ? 'la impresión' : 'imprimir';
+        default:
+            return completado ? 'la exportación' : 'exportar';
+    }
+}
 </script>
 @endsection
