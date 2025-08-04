@@ -27,7 +27,7 @@
                     
                     <div class="row mb-4">
                         <!-- Panel de búsqueda por ID -->
-                        <div class="col-md-6">
+                        <div class="col-md-8    ">
                             <div class="card">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0"><i class="bi bi-search me-2"></i>Consulta de Hidrantes</h5>
@@ -47,15 +47,15 @@
                         </div>
                         
                         <!-- Panel AUX - Total de hidrantes -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="card">
                                 <div class="card-header bg-light">
-                                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Panel</h5>
+                                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Panel Auxiliar</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="text-center">
-                                        <h4>Total de hidrantes:</h4>
-                                        <h3 class="display-4 text-success">{{ $totalHidrantes }}</h3>
+                                        <h2>Total de hidrantes:</h2>
+                                        <h4 class="text-success">{{ $totalHidrantes }}</h4>
                                     </div>
                                 </div>
                             </div>
