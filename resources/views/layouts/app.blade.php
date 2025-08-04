@@ -333,6 +333,28 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
+    // Función para verificar si la sesión está activa
+    function verificarSesion() {
+        $.ajax({
+            url: '{{ route("check.session") }}',
+            type: 'GET',
+            success: function(response) {
+                // Si la sesión no está activa, redirigir al login
+                if (!response.autenticado) {
+                    window.location.href = '{{ route("login") }}?expired=1';
+                }
+            },
+            error: function() {
+                console.log('Error al verificar la sesión');
+            }
+        });
+    }
+
+    @auth
+        // Verificar sesión cada 50 segundos
+        setInterval(verificarSesion, 50000);
+    @endauth
     </script>
 </body>
 </html>

@@ -18,7 +18,9 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Verificar email en el login
-Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
+Route::get('/check-session', function () {
+    return response()->json(['autenticado' => Auth::check()]);
+})->name('check.session');
 
 // Rutas de reseteo de contraseña
 Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
@@ -27,7 +29,7 @@ Route::post('/password/reset', [PasswordResetController::class, 'update'])
     ->name('password.reset.update');
 
 // Rutas protegidas por autenticación
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'preventBackHistory'])->group(function () {
     
     // Admin panel - CORREGIR NOMBRES DE ROLES
     Route::get('/admin', [AdminController::class, 'index'])

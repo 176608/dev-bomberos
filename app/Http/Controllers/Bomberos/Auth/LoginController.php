@@ -69,16 +69,14 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        // OPCIONES DE REDIRECT:
-        
-        // Opción 1: Al consultor (recomendado)
-        //return redirect()->route('consultor.dashboard')->with('success', 'Sesión cerrada exitosamente');
-        
-        // Opción 2: Al login
-        return redirect()->route('login')->with('success', 'Sesión cerrada exitosamente');
-        
-        // Opción 3: Al SIGEM público 
-        // return redirect()->route('sigem.index')->with('success', 'Sesión cerrada exitosamente');
+        // Redirigir al login con encabezados anti-caché
+        return redirect()->route('login')
+            ->with('success', 'Sesión cerrada exitosamente')
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     public function checkEmail(Request $request)
