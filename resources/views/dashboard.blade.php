@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="text-center">
-                                        <h2>Total de hidrantes:</h2>
+                                        <h5>Total de hidrantes:</h5>
                                         <h4 class="text-success">{{ $totalHidrantes }}</h4>
                                     </div>
                                 </div>
