@@ -16,6 +16,8 @@ Route::get('/consultor/buscar', [DashboardController::class, 'buscarHidrante'])-
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Rutas de registro
+Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
 
 // Verificar email en el login
 Route::get('/check-session', function () {
