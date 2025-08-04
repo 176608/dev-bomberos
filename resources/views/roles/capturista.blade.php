@@ -1361,122 +1361,191 @@ function inicializarDataTableServerSide() {
         mostrarToast(`Procesando ${getTextoAccion(accion)}...`, 'info');
         
         try {
+            // Verificar que existe XLSX si vamos a exportar a Excel
+            if (accion === 'excel' && typeof XLSX === 'undefined') {
+                throw new Error('La biblioteca SheetJS no está disponible');
+            }
+            
             // Obtener datos según selección
-            let datos = obtenerDatosParaExportacion(seleccion);
-            
-            switch (accion) {
-                case 'copy':
-                    copiarDatosAlPortapapeles(datos);
-                    break;
-                case 'excel':
-                    exportarDatosExcel(datos);
-                    break;
-                case 'print':
-                    imprimirDatos(datos);
-                    break;
-            }
-            
-            // Mostrar mensaje de éxito
-            let mensajeRegistros;
-            const info = window.hidrantesTable.page.info();
-            if (seleccion === 'visible') {
-                const registrosVisibles = Math.min(info.length, info.recordsDisplay - (info.page * info.length));
-                mensajeRegistros = `registros visibles (${registrosVisibles})`;
-            } else if (seleccion === 'filtered') {
-                mensajeRegistros = `registros filtrados (${info.recordsDisplay})`;
-            } else {
-                mensajeRegistros = `todos los registros (${info.recordsTotal})`;
-            }
-            
-            mostrarToast(`Se han ${getTextoExito(accion)} los ${mensajeRegistros}`, 'success');
+            obtenerDatosParaExportacion(seleccion).then(datos => {
+                console.log("Datos a exportar:", datos.length, "filas"); // Debug
+                
+                switch (accion) {
+                    case 'copy':
+                        copiarDatosAlPortapapeles(datos);
+                        break;
+                    case 'excel':
+                        exportarDatosExcel(datos);
+                        break;
+                    case 'print':
+                        imprimirDatos(datos);
+                        break;
+                }
+                
+                // Mostrar mensaje de éxito
+                let mensajeRegistros;
+                const info = window.hidrantesTable.page.info();
+                if (seleccion === 'visible') {
+                    const registrosVisibles = Math.min(info.length, info.recordsDisplay - (info.page * info.length));
+                    mensajeRegistros = `registros visibles (${registrosVisibles})`;
+                } else if (seleccion === 'filtered') {
+                    mensajeRegistros = `registros filtrados (${info.recordsDisplay})`;
+                } else {
+                    mensajeRegistros = `todos los registros (${info.recordsTotal})`;
+                }
+                
+                mostrarToast(`Se han ${getTextoExito(accion)} los ${mensajeRegistros}`, 'success');
+                
+            }).catch(error => {
+                console.error('Error al procesar datos:', error);
+                mostrarToast('Error al procesar los datos', 'error');
+            });
             
         } catch (error) {
             console.error('Error al ejecutar la exportación:', error);
-            mostrarToast('Error al procesar la exportación', 'error');
+            mostrarToast('Error al procesar la exportación: ' + error.message, 'error');
         }
     }
 
     /**
      * Obtiene los datos para exportación según el tipo de selección
      * @param {string} seleccion - Tipo de selección ('visible', 'filtered', 'all')
-     * @returns {Array} - Datos para exportar (array de objetos)
+     * @returns {Promise<Array>} - Promesa que resuelve con los datos para exportar
      */
     function obtenerDatosParaExportacion(seleccion) {
-        let datosExportar = [];
-        const table = window.hidrantesTable;
-        
-        // Obtener encabezados visibles (excepto acciones)
-        const encabezados = [];
-        table.columns().every(function() {
-            const colIdx = this.index();
-            const colHeader = $(table.column(colIdx).header()).text().trim();
-            const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
-                              colHeader === 'Acciones' || 
-                              colIdx === 1; // Columna de acciones
-        
-        if (!esAcciones) {
-            encabezados.push(colHeader);
-        }
-    });
-    
-    // Función auxiliar para obtener valores de fila
-    const obtenerValoresFila = function(rowIdx) {
-        const rowData = table.row(rowIdx).data();
-        const valores = [];
-        
-        table.columns().every(function() {
-            const colIdx = this.index();
-            const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
-                              colIdx === 1; // Columna de acciones
+        return new Promise((resolve, reject) => {
+            try {
+                const datosExportar = [];
+                const table = window.hidrantesTable;
+                
+                // Obtener encabezados visibles (excepto acciones)
+                const encabezados = [];
+                table.columns().every(function() {
+                    const colIdx = this.index();
+                    const colHeader = $(table.column(colIdx).header()).text().trim();
+                    // No incluir columna de acciones ni columnas ocultas
+                    const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
+                                    colHeader === 'Acciones' || 
+                                    colIdx === 1 || // Columna de acciones
+                                    !table.column(colIdx).visible(); 
+                
+                if (!esAcciones) {
+                    encabezados.push(colHeader);
+                }
+            });
             
-            if (!esAcciones) {
-                // Para la columna stat (progreso), extraer solo el porcentaje
-                if (table.column(colIdx).header().textContent.trim() === 'Stat' || colIdx === 2) {
-                    // Si es 000 o tiene formato de badge para dados de baja
-                    if (rowData.stat === '000') {
-                        valores.push('Dado de Baja');
-                    } else {
-                        // Extraer solo el porcentaje
-                        valores.push(rowData.stat + '%');
+            // Agregar encabezados
+            datosExportar.push(encabezados);
+            
+            // Preparar la función para procesar cada fila
+            const procesarFila = function(rowIdx) {
+                return new Promise((resolveRow) => {
+                    const row = table.row(rowIdx);
+                    const rowData = row.data();
+                    
+                    if (!rowData) {
+                        console.warn('Datos no disponibles para la fila:', rowIdx);
+                        resolveRow(null);
+                        return;
                     }
-                } else {
-                    // Para otras columnas, usar el valor directo
-                    const data = rowData[Object.keys(rowData)[colIdx]];
-                    valores.push(data);
+                    
+                    const valores = [];
+                    
+                    table.columns().every(function() {
+                        const colIdx = this.index();
+                        const colHeader = $(table.column(colIdx).header()).text().trim();
+                        // No incluir columna de acciones ni columnas ocultas
+                        const esAcciones = $(table.column(colIdx).header()).hasClass('no-export') || 
+                                        colHeader === 'Acciones' || 
+                                        colIdx === 1 || // Columna de acciones 
+                                        !table.column(colIdx).visible();
+                        
+                        if (!esAcciones) {
+                            // Para la columna stat (progreso), extraer solo el porcentaje
+                            if (colIdx === 2 || colHeader === 'Stat') {
+                                if (rowData.stat === '000') {
+                                    valores.push('Dado de Baja');
+                                } else {
+                                    valores.push(rowData.stat + '%');
+                                }
+                            } else {
+                                // Para otras columnas, acceder al valor usando el nombre de la columna
+                                const columnName = table.column(colIdx).dataSrc();
+                                if (rowData.hasOwnProperty(columnName)) {
+                                    valores.push(rowData[columnName]);
+                                } else {
+                                    // Intentar obtener por índice si no está por nombre
+                                    const keys = Object.keys(rowData);
+                                    if (keys[colIdx]) {
+                                        valores.push(rowData[keys[colIdx]]);
+                                    } else {
+                                        valores.push('');
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    resolveRow(valores);
+                });
+            };
+            
+            // Procesar las filas según la selección
+            let rowsPromises = [];
+            
+            if (seleccion === 'visible') {
+                // Solo registros de la página actual
+                table.rows({ page: 'current' }).every(function(rowIdx) {
+                    rowsPromises.push(procesarFila(rowIdx));
+                });
+            } 
+            else if (seleccion === 'filtered') {
+                // Todos los registros filtrados
+                // Si hay muchos registros, procesarlos en lotes
+                const totalFilas = table.rows({ search: 'applied' }).count();
+                console.log(`Procesando ${totalFilas} registros filtrados`);
+                
+                for (let i = 0; i < totalFilas; i++) {
+                    const rowIdx = table.rows({ search: 'applied' }).indexes()[i];
+                    if (rowIdx !== undefined) {
+                        rowsPromises.push(procesarFila(rowIdx));
+                    }
                 }
             }
-        });
-        
-        return valores;
-    };
-    
-    // Agregar encabezados
-    datosExportar.push(encabezados);
-    
-    // Obtener datos según tipo de selección
-    if (seleccion === 'visible') {
-        // Solo registros de la página actual
-        table.rows({ page: 'current' }).every(function() {
-            const rowIdx = this.index();
-            datosExportar.push(obtenerValoresFila(rowIdx));
-        });
-    } 
-    else if (seleccion === 'filtered') {
-        // Todos los registros filtrados
-        table.rows({ search: 'applied' }).every(function() {
-            const rowIdx = this.index();
-            datosExportar.push(obtenerValoresFila(rowIdx));
-        });
-    }
-    else {
-        // Todos los registros
-        table.rows().every(function() {
-            const rowIdx = this.index();
-            datosExportar.push(obtenerValoresFila(rowIdx));
-        });
-    }
-    
-    return datosExportar;
+            else {
+                // Todos los registros
+                // Si hay muchos registros, procesarlos en lotes
+                const totalFilas = table.rows().count();
+                console.log(`Procesando ${totalFilas} registros totales`);
+                
+                for (let i = 0; i < totalFilas; i++) {
+                    const rowIdx = i;
+                    rowsPromises.push(procesarFila(rowIdx));
+                }
+            }
+            
+            // Procesar todas las filas y resolver
+            Promise.all(rowsPromises)
+                .then(resultados => {
+                    // Filtrar null results y agregarlos a datos
+                    resultados.forEach(valores => {
+                        if (valores) {
+                            datosExportar.push(valores);
+                        }
+                    });
+                    
+                    resolve(datosExportar);
+                })
+                .catch(error => {
+                    console.error('Error procesando filas:', error);
+                    reject(error);
+                });
+                
+        } catch (error) {
+            console.error('Error en obtenerDatosParaExportacion:', error);
+            reject(error);
+        }
+    });
 }
 
 /**
@@ -1484,12 +1553,39 @@ function inicializarDataTableServerSide() {
  * @param {Array} datos - Datos para copiar
  */
 function copiarDatosAlPortapapeles(datos) {
-    // Convertir datos a texto tabulado
-    const textoCopiar = datos.map(fila => fila.join('\t')).join('\n');
-    
+    try {
+        // Convertir datos a texto tabulado
+        const textoCopiar = datos.map(fila => fila.join('\t')).join('\n');
+        
+        // Método moderno con Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textoCopiar)
+                .then(() => {
+                    console.log('Texto copiado al portapapeles');
+                })
+                .catch(err => {
+                    console.error('Error al copiar usando Clipboard API:', err);
+                    // Fallback al método anterior
+                    copiarPorMetodoAnterior(textoCopiar);
+                });
+        } else {
+            // Método anterior para navegadores sin Clipboard API
+            copiarPorMetodoAnterior(textoCopiar);
+        }
+    } catch (error) {
+        console.error('Error al copiar datos:', error);
+        mostrarToast('No se pudieron copiar los datos al portapapeles', 'error');
+    }
+}
+
+/**
+ * Método alternativo para copiar texto al portapapeles
+ * @param {string} texto - Texto para copiar
+ */
+function copiarPorMetodoAnterior(texto) {
     // Crear elemento temporal
     const elementoTemporal = document.createElement('textarea');
-    elementoTemporal.value = textoCopiar;
+    elementoTemporal.value = texto;
     elementoTemporal.setAttribute('readonly', '');
     elementoTemporal.style.position = 'absolute';
     elementoTemporal.style.left = '-9999px';
@@ -1497,10 +1593,14 @@ function copiarDatosAlPortapapeles(datos) {
     
     // Seleccionar y copiar
     elementoTemporal.select();
-    document.execCommand('copy');
+    const exito = document.execCommand('copy');
     
     // Eliminar elemento temporal
     document.body.removeChild(elementoTemporal);
+    
+    if (!exito) {
+        throw new Error('No se pudo copiar al portapapeles');
+    }
 }
 
 /**
@@ -1508,22 +1608,33 @@ function copiarDatosAlPortapapeles(datos) {
  * @param {Array} datos - Datos para exportar
  */
 function exportarDatosExcel(datos) {
-    // Crear libro de trabajo y hoja
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(datos);
+    // Verificar que la biblioteca XLSX está disponible
+    if (typeof XLSX === 'undefined') {
+        mostrarToast('No se pudo cargar la biblioteca para exportar a Excel', 'error');
+        return;
+    }
     
-    // Agregar hoja al libro
-    XLSX.utils.book_append_sheet(wb, ws, "Hidrantes");
-    
-    // Generar nombre de archivo con fecha
-    const now = new Date();
-    const nombreArchivo = 'Hidrantes_' + 
-                          now.getFullYear() + 
-                          (now.getMonth() + 1).toString().padStart(2, '0') + 
-                          now.getDate().toString().padStart(2, '0');
-    
-    // Descargar archivo
-    XLSX.writeFile(wb, nombreArchivo + '.xlsx');
+    try {
+        // Crear libro de trabajo y hoja
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(datos);
+        
+        // Agregar hoja al libro
+        XLSX.utils.book_append_sheet(wb, ws, "Hidrantes");
+        
+        // Generar nombre de archivo con fecha
+        const now = new Date();
+        const nombreArchivo = 'Hidrantes_' + 
+                            now.getFullYear() + 
+                            (now.getMonth() + 1).toString().padStart(2, '0') + 
+                            now.getDate().toString().padStart(2, '0');
+        
+        // Descargar archivo
+        XLSX.writeFile(wb, nombreArchivo + '.xlsx');
+    } catch (error) {
+        console.error('Error al exportar a Excel:', error);
+        mostrarToast('Error al exportar a Excel: ' + error.message, 'error');
+    }
 }
 
 /**
@@ -1531,94 +1642,111 @@ function exportarDatosExcel(datos) {
  * @param {Array} datos - Datos para imprimir
  */
 function imprimirDatos(datos) {
-    // Crear ventana de impresión
-    const ventanaImpresion = window.open('', '_blank');
-    
-    // Construir HTML para impresión
-    let htmlImpresion = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Hidrantes</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-            th { background-color: #f2f2f2; }
-            h2 { text-align: center; }
-            .fecha { text-align: right; font-size: 12px; margin-bottom: 20px; }
-            @media print {
-                button { display: none; }
-                @page { size: landscape; }
-            }
-        </style>
-    </head>
-    <body>
-        <h2>Reporte de Hidrantes</h2>
-        <div class="fecha">Fecha: ${new Date().toLocaleDateString()}</div>
-        <button onclick="window.print();return false;" style="padding: 10px; background: #0275d8; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">Imprimir</button>
-        <table>
-            <thead>
-                <tr>
-    `;
-    
-    // Agregar encabezados
-    datos[0].forEach(encabezado => {
-        htmlImpresion += `<th>${encabezado}</th>`;
-    });
-    
-    htmlImpresion += `
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    // Agregar filas de datos
-    for (let i = 1; i < datos.length; i++) {
-        htmlImpresion += '<tr>';
-        datos[i].forEach(celda => {
-            // Si es la columna stat (porcentaje)
-            if (celda && celda.toString().includes('%') && !isNaN(parseInt(celda))) {
-                const valor = parseInt(celda);
-                let color = '';
-                if (valor <= 40) {
-                    color = '#dc3545'; // rojo
-                } else if (valor <= 70) {
-                    color = '#007bff'; // azul
-                } else {
-                    color = '#28a745'; // verde
+    try {
+        // Crear ventana de impresión
+        const ventanaImpresion = window.open('', '_blank');
+        
+        if (!ventanaImpresion) {
+            throw new Error('No se pudo abrir la ventana de impresión. Verifica que los popups estén permitidos.');
+        }
+        
+        // Construir HTML para impresión
+        let htmlImpresion = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Hidrantes</title>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+                th { background-color: #f2f2f2; }
+                h2 { text-align: center; }
+                .fecha { text-align: right; font-size: 12px; margin-bottom: 20px; }
+                @media print {
+                    button { display: none; }
+                    @page { size: landscape; }
                 }
-                htmlImpresion += `<td><span style="color:${color}; font-weight:bold">${celda}</span></td>`;
-            } else if (celda === 'Dado de Baja') {
-                htmlImpresion += `<td><span style="color:#dc3545; font-weight:bold">${celda}</span></td>`;
-            } else {
-                htmlImpresion += `<td>${celda}</td>`;
-            }
+            </style>
+        </head>
+        <body>
+            <h2>Reporte de Hidrantes</h2>
+            <div class="fecha">Fecha: ${new Date().toLocaleDateString()}</div>
+            <button onclick="window.print();return false;" style="padding: 10px; background: #0275d8; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">Imprimir</button>
+            <table>
+                <thead>
+                    <tr>
+        `;
+        
+        // Agregar encabezados
+        datos[0].forEach(encabezado => {
+            htmlImpresion += `<th>${encabezado}</th>`;
         });
-        htmlImpresion += '</tr>';
+        
+        htmlImpresion += `
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Agregar filas de datos
+        for (let i = 1; i < datos.length; i++) {
+            htmlImpresion += '<tr>';
+            datos[i].forEach(celda => {
+                // Si es la columna stat (porcentaje)
+                if (celda && celda.toString().includes('%') && !isNaN(parseInt(celda))) {
+                    const valor = parseInt(celda);
+                    let color = '';
+                    if (valor <= 40) {
+                        color = '#dc3545'; // rojo
+                    } else if (valor <= 70) {
+                        color = '#007bff'; // azul
+                    } else {
+                        color = '#28a745'; // verde
+                    }
+                    htmlImpresion += `<td><span style="color:${color}; font-weight:bold">${celda}</span></td>`;
+                } else if (celda === 'Dado de Baja') {
+                    htmlImpresion += `<td><span style="color:#dc3545; font-weight:bold">${celda}</span></td>`;
+                } else {
+                    htmlImpresion += `<td>${celda}</td>`;
+                }
+            });
+            htmlImpresion += '</tr>';
+        }
+        
+        htmlImpresion += `
+                </tbody>
+            </table>
+            <script>
+                // Mensaje de ayuda para el usuario
+                console.log("Si la impresión automática no funciona, haga clic en el botón 'Imprimir'");
+                
+                // Intentar imprimir automáticamente después de un tiempo para permitir al usuario configurar la impresión
+                setTimeout(function() {
+                    try {
+                        window.print();
+                    } catch(e) {
+                        console.error('Error al imprimir:', e);
+                    }
+                }, 1000);
+            </script>
+        </body>
+        </html>
+        `;
+        
+        // Escribir en la ventana
+        ventanaImpresion.document.write(htmlImpresion);
+        ventanaImpresion.document.close();
+    } catch (error) {
+        console.error('Error al preparar impresión:', error);
+        mostrarToast('Error al preparar impresión: ' + error.message, 'error');
     }
-    
-    htmlImpresion += `
-            </tbody>
-        </table>
-    </body>
-    </html>
-    `;
-    
-    // Escribir en la ventana y abrir diálogo de impresión
-    ventanaImpresion.document.write(htmlImpresion);
-    ventanaImpresion.document.close();
-    
-    // Esperar a que cargue el contenido antes de imprimir
-    ventanaImpresion.onload = function() {
-        // No llamamos a print() automáticamente para permitir al usuario configurar la impresión
-    };
 }
 
 /**
  * Obtiene el texto para la acción de exportación
  * @param {string} action - Tipo de acción ('copy', 'excel', 'print')
- * @param {boolean} completado - Si la acción ya se completó
  * @returns {string} Texto descriptivo
  */
 function getTextoAccion(action) {
