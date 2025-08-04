@@ -840,8 +840,7 @@ function inicializarDataTableServerSide() {
         scrollX: true,
         responsive: false,
         pageLength: 25,
-        lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
-        
+        lengthMenu: [[25, 50, 100, 500, -1], [25, 50, 100, 500, 'Todas']],        
         // Incluir los botones en el DOM pero ocultarlos
         dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
              "<'row'<'col-sm-12'tr>>" +
