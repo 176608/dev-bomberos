@@ -31,7 +31,7 @@ Route::post('/password/reset', [PasswordResetController::class, 'update'])
     ->name('password.reset.update');
 
 // Rutas protegidas por autenticación
-Route::middleware(['auth', 'preventBackHistory'])->group(function () {
+Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->group(function () {
     
     // Admin panel - CORREGIR NOMBRES DE ROLES
     Route::get('/admin', [AdminController::class, 'index'])
