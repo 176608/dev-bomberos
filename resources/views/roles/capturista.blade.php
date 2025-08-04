@@ -919,6 +919,7 @@ function moverBotonesAlTitulo() {
         contenedorBotones.innerHTML = '';
         
         // Crear los botones manualmente basándose en la configuración
+        // Se eliminaron los botones CSV y PDF como solicitaste
         const botonesConfig = [
             {
                 text: '<i class="bi bi-clipboard"></i> Copiar',
@@ -947,7 +948,17 @@ function moverBotonesAlTitulo() {
             btnElement.addEventListener('click', function() {
                 // Obtener el botón correspondiente de DataTables y activarlo
                 try {
-                    window.hidrantesTable.button(index).trigger();
+                    // Ajuste importante: ahora que eliminamos botones,
+                    // los índices no coinciden con la configuración original de DataTables
+                    // Por lo tanto, mapeamos las acciones a los índices correctos
+                    let dtIndex;
+                    switch(config.action) {
+                        case 'copy': dtIndex = 0; break;
+                        case 'excel': dtIndex = 2; break; // Era índice 2 en la configuración original
+                        case 'print': dtIndex = 4; break; // Era índice 4 en la configuración original
+                        default: dtIndex = index;
+                    }
+                    window.hidrantesTable.button(dtIndex).trigger();
                 } catch (e) {
                     console.error('Error al activar botón:', e);
                 }
