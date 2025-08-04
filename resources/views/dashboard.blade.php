@@ -16,7 +16,7 @@
                 </div>
             @endif
             
-            <div class="card shadow-sm">
+            <div class="card shadow-sm" style="background-color: rgba(186, 216, 184, 0.8);">
                 <div class="card-header bg-success text-white">
                     <h3 class="mb-0">
                         <i class="bi bi-binoculars-fill me-2"></i>

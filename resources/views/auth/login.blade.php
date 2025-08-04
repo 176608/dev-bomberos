@@ -8,10 +8,10 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/consultor') }}">
                 <div class="card-body text-center">
-                    <i class="bi bi-binoculars-fill display-4 text-primary mb-3"></i>
+                    <i class="bi bi-binoculars-fill display-4 text-success mb-3"></i>
                     <h5 class="card-title">Acceso a Consultor</h5>
                     <p class="card-text">Visualiza la información de hidrantes sin necesidad de iniciar sesión.</p>
-                    <button class="btn btn-outline-primary mt-2">
+                    <button class="btn btn-outline-success mt-2">
                         <i class="bi bi-arrow-right-circle"></i> Ir a Consultor
                     </button>
                 </div>
