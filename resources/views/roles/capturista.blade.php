@@ -903,359 +903,359 @@ function inicializarDataTableServerSide() {
         }
     });
     
-    // Hacer disponible la tabla globalmente
-    window.hidrantesTable = table;
-    window.configTable = table; 
-}
+        // Hacer disponible la tabla globalmente
+        window.hidrantesTable = table;
+        window.configTable = table; 
+    }
 
-/**
- * Mueve los botones de exportación al área del título
- */
-function moverBotonesAlTitulo() {
-    // Buscar el contenedor de botones personalizado en el HTML
-    const contenedorBotones = document.getElementById('exportButtonsContainer');
-    
-    if (contenedorBotones && window.hidrantesTable) {
-        // Limpiar el contenedor si ya tiene botones
-        contenedorBotones.innerHTML = '';
+    /**
+     * Mueve los botones de exportación al área del título
+     */
+    function moverBotonesAlTitulo() {
+        // Buscar el contenedor de botones personalizado en el HTML
+        const contenedorBotones = document.getElementById('exportButtonsContainer');
         
-        // Crear los botones manualmente basándose en la configuración
-        const botonesConfig = [
-            {
-                text: '<i class="bi bi-clipboard"></i> Copiar',
-                className: 'btn btn-sm btn-outline-secondary',
-                action: 'copy'
-            },
-            {
-                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
-                className: 'btn btn-sm btn-outline-success',
-                action: 'excel'
-            },
-            {
-                text: '<i class="bi bi-printer"></i> Imprimir',
-                className: 'btn btn-sm btn-outline-info',
-                action: 'print'
-            }
-        ];
-        
-        botonesConfig.forEach(function(config, index) {
-            const btnElement = document.createElement('button');
-            btnElement.className = config.className;
-            btnElement.innerHTML = config.text;
-            btnElement.style.marginRight = '5px';
+        if (contenedorBotones && window.hidrantesTable) {
+            // Limpiar el contenedor si ya tiene botones
+            contenedorBotones.innerHTML = '';
             
-            // Agregar el evento click
-            btnElement.addEventListener('click', function() {
-                // Obtener el botón correspondiente de DataTables y activarlo
-                try {
-                    window.hidrantesTable.button(index).trigger();
-                } catch (e) {
-                    console.error('Error al activar botón:', e);
+            // Crear los botones manualmente basándose en la configuración
+            const botonesConfig = [
+                {
+                    text: '<i class="bi bi-clipboard"></i> Copiar',
+                    className: 'btn btn-sm btn-outline-secondary',
+                    action: 'copy'
+                },
+                {
+                    text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                    className: 'btn btn-sm btn-outline-success',
+                    action: 'excel'
+                },
+                {
+                    text: '<i class="bi bi-printer"></i> Imprimir',
+                    className: 'btn btn-sm btn-outline-info',
+                    action: 'print'
                 }
-            });
+            ];
             
-            contenedorBotones.appendChild(btnElement);
-        });
-    }
-}
-
-/**
- * Carga el panel auxiliar según el modo especificado
- */
-function cargarPanelAuxiliar(modo, callback) {
-    $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
-    
-    $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
-        $('#AuxContainer').html(response);
-        
-        // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
-        if (modo === 'tabla') {
-            setTimeout(function() {
-                // Recargar el panel auxiliar con los filtros
-                aplicarFiltrosGuardados();
+            botonesConfig.forEach(function(config, index) {
+                const btnElement = document.createElement('button');
+                btnElement.className = config.className;
+                btnElement.innerHTML = config.text;
+                btnElement.style.marginRight = '5px';
                 
-                // Ejecutar el callback si existe
-                if (typeof callback === 'function') {
-                    callback();
-                }
-            }, 200);
-        } else if (typeof callback === 'function') {
-            callback();
-        }
-    });
-}
-
-/**
- * Carga la tabla de hidrantes
- */
-function cargarTablaHidrantes() {
-    $('#tablaHidrantesContainer').show().html('');
-    $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-    $('#resumenHidrantesContainer').hide();
-    
-    // Primero cargamos el panel auxiliar
-    cargarPanelAuxiliar('tabla');
-    
-    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Renderiza el partial de la tabla
-        $('#tablaHidrantesContainer').html(response);
-        inicializarDataTableServerSide();
-    });
-}
-
-/**
- * Carga la tabla sin afectar el panel auxiliar
- */
-function cargarSoloTablaHidrantes() {
-    // Conservar el estado actual de visibilidad del panel auxiliar
-    const auxVisible = $('#AuxContainer').is(':visible');
-    
-    $('#tablaHidrantesContainer').show().html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
-    $('#resumenHidrantesContainer').hide();
-    
-    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Renderiza el partial de la tabla
-        $('#tablaHidrantesContainer').html(response);
-        inicializarDataTableServerSide();
-        
-        // Aplicar filtros guardados si existen
-        const filtros = recuperarEstadoFiltros();
-        if (Object.keys(filtros).length > 0) {
-            setTimeout(function() {
-                aplicarFiltrosATabla(filtros);
-            }, 200);
-        }
-    });
-}
-
-/**
- * Hace scroll a la tabla de hidrantes
- */
-function scrollToTablaHidrantes() {
-    const tabla = document.getElementById('tablaHidrantesContainer');
-    if (tabla) {
-        const navbar = document.querySelector('.navbar.fixed-top');
-        const navbarHeight = navbar ? navbar.offsetHeight : 0;
-        
-        const tablaTop = tabla.getBoundingClientRect().top;
-        const scrollY = window.scrollY || window.pageYOffset;
-        const destino = scrollY + tablaTop - navbarHeight;
-        
-        window.scrollTo({
-            top: destino,
-            behavior: 'smooth'
-        });
-    }
-}
-
-/**
- * Hace scroll al contenedor auxiliar
- */
-function scrollToAuxContainer() {
-    const auxContainer = document.getElementById('AuxContainer');
-    if (auxContainer) {
-        const navbar = document.querySelector('.navbar.fixed-top');
-        const navbarHeight = navbar ? navbar.offsetHeight : 0;
-        
-        const auxTop = auxContainer.getBoundingClientRect().top;
-        const scrollY = window.scrollY || window.pageYOffset;
-        const destino = scrollY + auxTop - navbarHeight - 20; // 20px de margen
-        
-        window.scrollTo({
-            top: destino,
-            behavior: 'smooth'
-        });
-    }
-}
-
-/**
- * Recarga solo la tabla sin recargar la página completa ni el panel auxiliar
- * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
- */
-function recargarSoloTabla(callback) {
-    // Guardar los filtros actuales
-    const filtros = guardarEstadoFiltros();
-    
-    // Mostrar indicador de carga solo sobre la tabla
-    $('#tablaHidrantesContainer').css('position', 'relative').append(
-        '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
-        '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
-        '</div>'
-    );
-    
-    // Recargar SOLO la tabla, no el panel auxiliar
-    $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
-        // Actualizar solo el contenedor de la tabla
-        $('#tablaHidrantesContainer').html(response);
-        
-        // Inicializar la tabla con DataTables
-        inicializarDataTableServerSide();
-        
-        // Aplicar de nuevo los filtros guardados a la tabla recién cargada
-        if (Object.keys(filtros).length > 0) {
-            setTimeout(function() {
-                aplicarFiltrosATabla(filtros, true); // true significa no hacer scroll
-            }, 200);
-        }
-        
-        // Normalizar estilos después de cargar la tabla
-        setTimeout(normalizarEstilosTabla, 100);
-        
-        // Ejecutar callback si existe (p.ej. mostrar toast)
-        if (typeof callback === 'function') {
-            setTimeout(callback, 500);
-        }
-    });
-}
-
-/**
- * Función auxiliar para debugging de modales
- */
-function debugModal(modalHtml) {
-    console.log('=== DEBUG MODAL ===');
-    console.log('HTML length:', modalHtml.length);
-    console.log('Starts with:', modalHtml.substring(0, 100));
-    console.log('Contains modal class:', modalHtml.includes('class="modal"'));
-    console.log('Contains modal-dialog:', modalHtml.includes('modal-dialog'));
-    console.log('===================');
-}
-
-// ========================
-// FUNCIONES DE PERSISTENCIA DE FILTROS
-// ========================
-
-/**
- * Guarda el estado de los filtros aplicados
- */
-function guardarEstadoFiltros() {
-    const filtrosActivos = {};
-    
-    // Guardar los valores seleccionados de cada filtro
-    $('.filtro-valor').each(function() {
-        const campo = $(this).data('campo');
-        const valor = $(this).val();
-        if (valor) {
-            filtrosActivos[campo] = valor;
-        }
-    });
-    
-    // Guardar en localStorage para persistencia
-    localStorage.setItem('hidrantesFilterState', JSON.stringify(filtrosActivos));
-    return filtrosActivos;
-}
-
-/**
- * Recupera el estado guardado de los filtros
- */
-function recuperarEstadoFiltros() {
-    const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
-    return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
-}
-
-/**
- * Aplica los filtros guardados a la tabla actual
- */
-function aplicarFiltrosGuardados() {
-    const filtros = recuperarEstadoFiltros();
-    
-    // Solo aplicar filtros si hay alguno guardado
-    if (Object.keys(filtros).length > 0) {
-        // Esperar a que los elementos del filtro estén disponibles
-        const checkFilters = setInterval(function() {
-            if ($('.filtro-valor').length > 0) {
-                clearInterval(checkFilters);
-                
-                // Establecer los valores en los selectores
-                $('.filtro-valor').each(function() {
-                    const campo = $(this).data('campo');
-                    if (filtros[campo]) {
-                        $(this).val(filtros[campo]);
+                // Agregar el evento click
+                btnElement.addEventListener('click', function() {
+                    // Obtener el botón correspondiente de DataTables y activarlo
+                    try {
+                        window.hidrantesTable.button(index).trigger();
+                    } catch (e) {
+                        console.error('Error al activar botón:', e);
                     }
                 });
                 
-                // Aplicar los filtros a la tabla
-                if (window.configTable) {
-                    aplicarFiltrosATabla(filtros);
-                }
-            }
-        }, 100);
-    }
-}
-
-/**
- * Aplica los filtros a la tabla
- * Esta función debe definirse en configuracion-param-auxiliar.blade.php
- * Agregada aquí como referencia
- */
-function aplicarFiltrosATabla(filtros, noScroll = false) {
-    // Guardar el estado de los filtros
-    localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
-    
-    // Actualizar visualmente los selectores de filtro para reflejar los filtros aplicados
-    $('.filtro-valor').each(function() {
-        const campo = $(this).data('campo');
-        if (filtros[campo] !== undefined) {
-            $(this).val(filtros[campo]);
-        } else {
-            $(this).val(''); // Si no hay filtro para este campo, seleccionar "Todos"
+                contenedorBotones.appendChild(btnElement);
+            });
         }
-    });
-}
-
-/**
- * Muestra un mensaje toast
- * @param {string} mensaje - El mensaje a mostrar
- * @param {string} tipo - El tipo de mensaje (success, error, warning, info)
- * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
- */
-function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
-    // Definir el icono según el tipo usando Bootstrap Icons
-    let icono = 'check-circle';
-    let colorClase = 'text-success';
-    let borderClass = 'toast-success';
-    
-    switch(tipo) {
-        case 'error':
-            icono = 'exclamation-circle';
-            colorClase = 'text-danger';
-            borderClass = 'toast-error';
-            break;
-        case 'warning':
-            icono = 'exclamation-triangle';
-            colorClase = 'text-warning';
-            borderClass = 'toast-warning';
-            break;
-        case 'info':
-            icono = 'info-circle';
-            colorClase = 'text-info';
-            borderClass = 'toast-info';
-            break;
     }
-    
-    // Crear el HTML del toast con Bootstrap Icons
-    const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-${icono} ${colorClase} me-2"></i> ${mensaje}
+
+    /**
+     * Carga el panel auxiliar según el modo especificado
+     */
+    function cargarPanelAuxiliar(modo, callback) {
+        $('#AuxContainer').show().html('<div class="text-center my-3"><div class="spinner-border text-primary" role="status"></div><div>Cargando panel...</div></div>');
+        
+        $.get("{{ route('capturista.panel-auxiliar') }}", { modo: modo }, function(response) {
+            $('#AuxContainer').html(response);
+            
+            // Si estamos en modo tabla, asignar la variable de tabla global para los filtros
+            if (modo === 'tabla') {
+                setTimeout(function() {
+                    // Recargar el panel auxiliar con los filtros
+                    aplicarFiltrosGuardados();
+                    
+                    // Ejecutar el callback si existe
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                }, 200);
+            } else if (typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+    /**
+     * Carga la tabla de hidrantes
+     */
+    function cargarTablaHidrantes() {
+        $('#tablaHidrantesContainer').show().html('');
+        $('#tablaHidrantesContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+        $('#resumenHidrantesContainer').hide();
+        
+        // Primero cargamos el panel auxiliar
+        cargarPanelAuxiliar('tabla');
+        
+        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+            // Renderiza el partial de la tabla
+            $('#tablaHidrantesContainer').html(response);
+            inicializarDataTableServerSide();
+        });
+    }
+
+    /**
+     * Carga la tabla sin afectar el panel auxiliar
+     */
+    function cargarSoloTablaHidrantes() {
+        // Conservar el estado actual de visibilidad del panel auxiliar
+        const auxVisible = $('#AuxContainer').is(':visible');
+        
+        $('#tablaHidrantesContainer').show().html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><div>Cargando tabla...</div></div>');
+        $('#resumenHidrantesContainer').hide();
+        
+        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+            // Renderiza el partial de la tabla
+            $('#tablaHidrantesContainer').html(response);
+            inicializarDataTableServerSide();
+            
+            // Aplicar filtros guardados si existen
+            const filtros = recuperarEstadoFiltros();
+            if (Object.keys(filtros).length > 0) {
+                setTimeout(function() {
+                    aplicarFiltrosATabla(filtros);
+                }, 200);
+            }
+        });
+    }
+
+    /**
+     * Hace scroll a la tabla de hidrantes
+     */
+    function scrollToTablaHidrantes() {
+        const tabla = document.getElementById('tablaHidrantesContainer');
+        if (tabla) {
+            const navbar = document.querySelector('.navbar.fixed-top');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            
+            const tablaTop = tabla.getBoundingClientRect().top;
+            const scrollY = window.scrollY || window.pageYOffset;
+            const destino = scrollY + tablaTop - navbarHeight;
+            
+            window.scrollTo({
+                top: destino,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    /**
+     * Hace scroll al contenedor auxiliar
+     */
+    function scrollToAuxContainer() {
+        const auxContainer = document.getElementById('AuxContainer');
+        if (auxContainer) {
+            const navbar = document.querySelector('.navbar.fixed-top');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            
+            const auxTop = auxContainer.getBoundingClientRect().top;
+            const scrollY = window.scrollY || window.pageYOffset;
+            const destino = scrollY + auxTop - navbarHeight - 20; // 20px de margen
+            
+            window.scrollTo({
+                top: destino,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    /**
+     * Recarga solo la tabla sin recargar la página completa ni el panel auxiliar
+     * @param {Function} callback - Función a ejecutar después de que la tabla se recargue
+     */
+    function recargarSoloTabla(callback) {
+        // Guardar los filtros actuales
+        const filtros = guardarEstadoFiltros();
+        
+        // Mostrar indicador de carga solo sobre la tabla
+        $('#tablaHidrantesContainer').css('position', 'relative').append(
+            '<div id="reloadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1000">' +
+            '<div class="text-center"><div class="spinner-border text-primary"></div><div class="mt-2">Actualizando tabla...</div></div>' +
+            '</div>'
+        );
+        
+        // Recargar SOLO la tabla, no el panel auxiliar
+        $.get("{{ route('capturista.panel') }}", { tabla: 1 }, function(response) {
+            // Actualizar solo el contenedor de la tabla
+            $('#tablaHidrantesContainer').html(response);
+            
+            // Inicializar la tabla con DataTables
+            inicializarDataTableServerSide();
+            
+            // Aplicar de nuevo los filtros guardados a la tabla recién cargada
+            if (Object.keys(filtros).length > 0) {
+                setTimeout(function() {
+                    aplicarFiltrosATabla(filtros, true); // true significa no hacer scroll
+                }, 200);
+            }
+            
+            // Normalizar estilos después de cargar la tabla
+            setTimeout(normalizarEstilosTabla, 100);
+            
+            // Ejecutar callback si existe (p.ej. mostrar toast)
+            if (typeof callback === 'function') {
+                setTimeout(callback, 500);
+            }
+        });
+    }
+
+    /**
+     * Función auxiliar para debugging de modales
+     */
+    function debugModal(modalHtml) {
+        console.log('=== DEBUG MODAL ===');
+        console.log('HTML length:', modalHtml.length);
+        console.log('Starts with:', modalHtml.substring(0, 100));
+        console.log('Contains modal class:', modalHtml.includes('class="modal"'));
+        console.log('Contains modal-dialog:', modalHtml.includes('modal-dialog'));
+        console.log('===================');
+    }
+
+    // ========================
+    // FUNCIONES DE PERSISTENCIA DE FILTROS
+    // ========================
+
+    /**
+     * Guarda el estado de los filtros aplicados
+     */
+    function guardarEstadoFiltros() {
+        const filtrosActivos = {};
+        
+        // Guardar los valores seleccionados de cada filtro
+        $('.filtro-valor').each(function() {
+            const campo = $(this).data('campo');
+            const valor = $(this).val();
+            if (valor) {
+                filtrosActivos[campo] = valor;
+            }
+        });
+        
+        // Guardar en localStorage para persistencia
+        localStorage.setItem('hidrantesFilterState', JSON.stringify(filtrosActivos));
+        return filtrosActivos;
+    }
+
+    /**
+     * Recupera el estado guardado de los filtros
+     */
+    function recuperarEstadoFiltros() {
+        const filtrosGuardados = localStorage.getItem('hidrantesFilterState');
+        return filtrosGuardados ? JSON.parse(filtrosGuardados) : {};
+    }
+
+    /**
+     * Aplica los filtros guardados a la tabla actual
+     */
+    function aplicarFiltrosGuardados() {
+        const filtros = recuperarEstadoFiltros();
+        
+        // Solo aplicar filtros si hay alguno guardado
+        if (Object.keys(filtros).length > 0) {
+            // Esperar a que los elementos del filtro estén disponibles
+            const checkFilters = setInterval(function() {
+                if ($('.filtro-valor').length > 0) {
+                    clearInterval(checkFilters);
+                    
+                    // Establecer los valores en los selectores
+                    $('.filtro-valor').each(function() {
+                        const campo = $(this).data('campo');
+                        if (filtros[campo]) {
+                            $(this).val(filtros[campo]);
+                        }
+                    });
+                    
+                    // Aplicar los filtros a la tabla
+                    if (window.configTable) {
+                        aplicarFiltrosATabla(filtros);
+                    }
+                }
+            }, 100);
+        }
+    }
+
+    /**
+     * Aplica los filtros a la tabla
+     * Esta función debe definirse en configuracion-param-auxiliar.blade.php
+     * Agregada aquí como referencia
+     */
+    function aplicarFiltrosATabla(filtros, noScroll = false) {
+        // Guardar el estado de los filtros
+        localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
+        
+        // Actualizar visualmente los selectores de filtro para reflejar los filtros aplicados
+        $('.filtro-valor').each(function() {
+            const campo = $(this).data('campo');
+            if (filtros[campo] !== undefined) {
+                $(this).val(filtros[campo]);
+            } else {
+                $(this).val(''); // Si no hay filtro para este campo, seleccionar "Todos"
+            }
+        });
+    }
+
+    /**
+     * Muestra un mensaje toast
+     * @param {string} mensaje - El mensaje a mostrar
+     * @param {string} tipo - El tipo de mensaje (success, error, warning, info)
+     * @param {number} duracion - Duración en milisegundos (por defecto 3000ms)
+     */
+    function mostrarToast(mensaje, tipo = 'success', duracion = 3000) {
+        // Definir el icono según el tipo usando Bootstrap Icons
+        let icono = 'check-circle';
+        let colorClase = 'text-success';
+        let borderClass = 'toast-success';
+        
+        switch(tipo) {
+            case 'error':
+                icono = 'exclamation-circle';
+                colorClase = 'text-danger';
+                borderClass = 'toast-error';
+                break;
+            case 'warning':
+                icono = 'exclamation-triangle';
+                colorClase = 'text-warning';
+                borderClass = 'toast-warning';
+                break;
+            case 'info':
+                icono = 'info-circle';
+                colorClase = 'text-info';
+                borderClass = 'toast-info';
+                break;
+        }
+        
+        // Crear el HTML del toast con Bootstrap Icons
+        const toast = `<div class="toast align-items-center text-bg-light border-0 ${borderClass}" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-${icono} ${colorClase} me-2"></i> ${mensaje}
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>`;
-    
-    // Agregar el toast al DOM
-    $('#toastContainer').append(toast);
-    
-    // Obtener el último toast agregado
-    const toastEl = $('#toastContainer .toast').last()[0];
-    
-    // Inicializar y mostrar el toast
-    const bsToast = new bootstrap.Toast(toastEl, { delay: duracion });
-    bsToast.show();
-    
-    // Eliminar el toast del DOM después de ocultarse
-    $(toastEl).on('hidden.bs.toast', function() {
-        $(this).remove();
-    });
-}
+        </div>`;
+        
+        // Agregar el toast al DOM
+        $('#toastContainer').append(toast);
+        
+        // Obtener el último toast agregado
+        const toastEl = $('#toastContainer .toast').last()[0];
+        
+        // Inicializar y mostrar el toast
+        const bsToast = new bootstrap.Toast(toastEl, { delay: duracion });
+        bsToast.show();
+        
+        // Eliminar el toast del DOM después de ocultarse
+        $(toastEl).on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
 </script>
 @endsection
