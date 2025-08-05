@@ -125,6 +125,30 @@
         animation: pulse 2s infinite;
     }
 
+    .bg-fonde {
+        background-image: url('{{ asset('imagenes/fonde.png') }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .bg-fonde::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay negro con 50% de opacidad */
+    z-index: 1;
+}
+
+    /* Asegura que el contenido esté por encima del overlay */
+    .bg-fonde * {
+        position: relative;
+        z-index: 2;
+    }
+
     @keyframes pulse {
         0% { opacity: 1; }
         50% { opacity: 0.7; }

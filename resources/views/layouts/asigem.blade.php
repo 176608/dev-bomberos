@@ -187,7 +187,7 @@
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
-    <div class="container-fluid pb-4" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
+    <div class="container-fluid pb-4 bg-fonde" >
         <!-- Sección de Logos -->
         <div class="header-logos container-fluid">
             <div class="logo-section">
