@@ -471,20 +471,31 @@ class PublicController extends Controller
     public function obtenerConsultaExpressTemas()
     {
         try {
-            $temas = \App\Models\SIGEM\ce_tema::with('subtemas')
+            // Consulta directa a la base de datos para simplificar y depurar
+            $temas = \DB::table('consulta_express_tema')
+                    ->select('ce_tema_id', 'tema')
                     ->orderBy('ce_tema_id')
                     ->get();
             
+            // Agregar subtemas manualmente para cada tema
+            foreach ($temas as $tema) {
+                $subtemas = \DB::table('consulta_express_subtema')
+                        ->select('ce_subtema_id', 'ce_subtema')
+                        ->where('ce_tema_id', $tema->ce_tema_id)
+                        ->orderBy('ce_subtema_id')
+                        ->get();
+                
+                $tema->subtemas = $subtemas;
+            }
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Temas de consulta express cargados exitosamente',
+                'message' => 'Temas cargados exitosamente',
                 'temas' => $temas
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error al cargar temas de consulta express:', [
-                'error' => $e->getMessage()
-            ]);
+            \Log::error('Error al cargar temas de consulta express: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -500,34 +511,35 @@ class PublicController extends Controller
     public function obtenerConsultaExpressContenido($subtema_id)
     {
         try {
-            $contenido = \App\Models\SIGEM\ce_contenido::where('ce_subtema_id', $subtema_id)
-                        ->orderBy('created_at', 'desc')
-                        ->first();
+            // Consulta directa para simplificar y depurar
+            $contenido = \DB::table('consulta_express_contenido')
+                    ->where('ce_subtema_id', $subtema_id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
             
             if (!$contenido) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Contenido no encontrado para este subtema',
+                    'message' => 'No se encontró contenido para este subtema',
                     'contenido' => null
                 ]);
             }
             
-            // Obtener información del subtema y tema para mostrar en la interfaz
-            $subtema = \App\Models\SIGEM\ce_subtema::with('tema')->find($subtema_id);
+            // Obtener información del subtema
+            $subtema = \DB::table('consulta_express_subtema')
+                    ->where('ce_subtema_id', $subtema_id)
+                    ->first();
             
             return response()->json([
                 'success' => true,
                 'message' => 'Contenido cargado exitosamente',
                 'contenido' => $contenido,
                 'subtema' => $subtema,
-                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+                'actualizado' => date('d/m/Y H:i:s', strtotime($contenido->updated_at))
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error al cargar contenido de consulta express:', [
-                'subtema_id' => $subtema_id,
-                'error' => $e->getMessage()
-            ]);
+            \Log::error('Error al cargar contenido: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
