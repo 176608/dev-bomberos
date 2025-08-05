@@ -286,7 +286,7 @@
                         // Importar modelos
                         use App\Models\SIGEM\ce_tema;
                         use App\Models\SIGEM\ce_subtema;
-                        use ce_contenido;
+                        use App\Models\SIGEM\ce_contenido;
                         
                         // Obtener datos iniciales
                         $temas = ce_tema::orderBy('ce_tema_id')->get();
