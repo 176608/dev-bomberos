@@ -511,12 +511,10 @@ class PublicController extends Controller
     public function obtenerConsultaExpressContenido($subtema_id)
     {
         try {
-            // Consulta directa para simplificar y depurar
-            $contenido = \DB::table('consulta_express_contenido')
-                    ->where('ce_subtema_id', $subtema_id)
+            $contenido = ce_contenido::where('ce_subtema_id', $subtema_id)
                     ->orderBy('created_at', 'desc')
                     ->first();
-            
+        
             if (!$contenido) {
                 return response()->json([
                     'success' => false,
@@ -525,22 +523,23 @@ class PublicController extends Controller
                 ]);
             }
             
-            // Obtener información del subtema
-            $subtema = \DB::table('consulta_express_subtema')
-                    ->where('ce_subtema_id', $subtema_id)
-                    ->first();
+            // Obtener información del subtema para mostrar en la interfaz
+            $subtema = ce_subtema::find($subtema_id);
             
             return response()->json([
                 'success' => true,
                 'message' => 'Contenido cargado exitosamente',
                 'contenido' => $contenido,
                 'subtema' => $subtema,
-                'actualizado' => date('d/m/Y H:i:s', strtotime($contenido->updated_at))
+                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error al cargar contenido: ' . $e->getMessage());
-            
+            \Log::error('Error al cargar contenido de consulta express:', [
+                'subtema_id' => $subtema_id,
+                'error' => $e->getMessage()
+            ]);
+        
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar contenido: ' . $e->getMessage(),

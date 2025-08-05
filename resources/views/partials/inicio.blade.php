@@ -286,14 +286,21 @@
                         <label for="ce_tema_select" class="form-label">Tema:</label>
                         <select id="ce_tema_select" class="form-select">
                             <option value="">Seleccione un tema...</option>
-                            <!-- Los temas se cargarán dinámicamente -->
+                            @php
+                                // Cargar los temas directamente desde el modelo
+                                use App\Models\SIGEM\ce_tema;
+                                $temas = ce_tema::orderBy('ce_tema_id')->get();
+                            @endphp
+                            
+                            @foreach($temas as $tema)
+                                <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="form-group mb-3">
                         <label for="ce_subtema_select" class="form-label">Subtema:</label>
                         <select id="ce_subtema_select" class="form-select" disabled>
                             <option value="">Primero seleccione un tema</option>
-                            <!-- Los subtemas se cargarán dinámicamente -->
                         </select>
                     </div>
                     <button id="ce_consultar_btn" class="btn btn-primary w-100" disabled>
@@ -320,12 +327,14 @@
 
 <script>
 $(document).ready(function() {
-    // Cargar temas al inicio
-    cargarTemasConsultaExpress();
+    console.log('Documento listo - Consulta Express iniciada');
+    
     
     // Evento de cambio en el selector de temas
     $('#ce_tema_select').on('change', function() {
         const temaId = $(this).val();
+        console.log('Tema seleccionado:', temaId);
+        
         if (temaId) {
             cargarSubtemasConsultaExpress(temaId);
             $('#ce_subtema_select').prop('disabled', false);
@@ -356,68 +365,46 @@ $(document).ready(function() {
         }
     });
     
-    // Función para cargar los temas
-    function cargarTemasConsultaExpress() {
-        $.ajax({
-            url: '{{ route("sigem.consulta-express.temas") }}',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success && response.temas.length > 0) {
-                    let options = '<option value="">Seleccione un tema...</option>';
-                    response.temas.forEach(function(tema) {
-                        options += `<option value="${tema.ce_tema_id}">${tema.tema}</option>`;
-                    });
-                    $('#ce_tema_select').html(options);
-                } else {
-                    console.error('No se encontraron temas:', response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error al cargar temas:', error);
-            }
-        });
-    }
-    
     // Función para cargar los subtemas de un tema
     function cargarSubtemasConsultaExpress(temaId) {
-        const url = '{{ route("sigem.consulta-express.temas") }}';
+        console.log('Cargando subtemas para tema ID:', temaId);
         
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    const tema = response.temas.find(t => t.ce_tema_id == temaId);
-                    if (tema && tema.subtemas.length > 0) {
-                        let options = '<option value="">Seleccione un subtema...</option>';
-                        tema.subtemas.forEach(function(subtema) {
-                            options += `<option value="${subtema.ce_subtema_id}">${subtema.ce_subtema}</option>`;
-                        });
-                        $('#ce_subtema_select').html(options);
-                    } else {
-                        $('#ce_subtema_select').html('<option value="">No hay subtemas disponibles</option>');
-                    }
-                } else {
-                    console.error('Error al cargar subtemas:', response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error al cargar subtemas:', error);
-            }
-        });
+        // Mostrar indicador de carga
+        $('#ce_subtema_select').html('<option>Cargando subtemas...</option>');
+        
+        @php
+        // Generar un objeto JavaScript con todos los subtemas agrupados por tema
+        use App\Models\SIGEM\ce_subtema;
+        $todosSubtemas = ce_subtema::all()->groupBy('ce_tema_id');
+        echo "const todosSubtemas = " . json_encode($todosSubtemas) . ";\n";
+        @endphp
+        
+        // Cargar subtemas desde el objeto JavaScript precargado
+        if (todosSubtemas[temaId] && todosSubtemas[temaId].length > 0) {
+            let options = '<option value="">Seleccione un subtema...</option>';
+            todosSubtemas[temaId].forEach(function(subtema) {
+                options += `<option value="${subtema.ce_subtema_id}">${subtema.ce_subtema}</option>`;
+            });
+            $('#ce_subtema_select').html(options);
+            console.log('Subtemas cargados:', todosSubtemas[temaId].length);
+        } else {
+            $('#ce_subtema_select').html('<option value="">No hay subtemas disponibles</option>');
+            console.log('No se encontraron subtemas para este tema');
+        }
     }
     
-    // Función para cargar el contenido de un subtema
+    // Función para cargar el contenido de un subtema (mantener el AJAX aquí)
     function cargarContenidoConsultaExpress(subtemaId) {
         $('#ce_contenido_container').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando contenido...</p></div>');
+        
+        console.log('Cargando contenido para subtema ID:', subtemaId);
         
         $.ajax({
             url: `{{ url('sigem/consulta-express/contenido') }}/${subtemaId}`,
             type: 'GET',
             dataType: 'json',
             success: function(response) {
+                console.log('Respuesta de contenido:', response);
                 if (response.success && response.contenido) {
                     $('#ce_contenido_container').html(response.contenido.ce_contenido);
                     $('#ce_fecha_actualizacion').text(response.actualizado);
@@ -434,25 +421,5 @@ $(document).ready(function() {
             }
         });
     }
-
-    // Agregar código de depuración
-    console.log('Rutas de consulta express:');
-    console.log('Ruta temas: {{ route("sigem.consulta-express.temas") }}');
-    console.log('Ruta contenido: {{ url("sigem/consulta-express/contenido") }}/ID');
-
-    // Probar manualmente la solicitud AJAX de temas
-    $.ajax({
-        url: '{{ route("sigem.consulta-express.temas") }}',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            console.log('Respuesta de temas (manual):', response);
-        },
-        error: function(xhr, status, error) {
-            console.error('Error en solicitud manual de temas:', error);
-            console.error('Estado:', status);
-            console.error('Respuesta:', xhr.responseText);
-        }
-    });
 });
 </script>
