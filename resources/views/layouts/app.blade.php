@@ -140,7 +140,7 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Overlay negro con 50% de opacidad */
-    z-index: 1;
+    z-index: -1;
 }
 
     @keyframes pulse {
