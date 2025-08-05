@@ -15,8 +15,6 @@ use App\Models\SIGEM\ce_contenido;
 
 class PublicController extends Controller
 {
-    
-     
     public function index(Request $request)
     {
         // Obtener la sección solicitada o usar 'inicio' como predeterminada

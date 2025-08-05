@@ -280,145 +280,113 @@
                     <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
                 </div>
                 
-                <!-- Columna de selectores -->
+                <!-- Columna de selectores - TODO EN PHP -->
                 <div class="col-md-3">
-                    <div class="form-group mb-3">
-                        <label for="ce_tema_select" class="form-label">Tema:</label>
-                        <select id="ce_tema_select" class="form-select">
-                            <option value="">Seleccione un tema...</option>
-                            @php
-                                // Cargar los temas directamente desde el modelo
-                                use App\Models\SIGEM\ce_tema;
-                                $temas = ce_tema::orderBy('ce_tema_id')->get();
-                            @endphp
+                    @php
+                        // Importar modelos
+                        use App\Models\SIGEM\ce_tema;
+                        use App\Models\SIGEM\ce_subtema;
+                        use ce_contenido;
+                        
+                        // Obtener datos iniciales
+                        $temas = ce_tema::orderBy('ce_tema_id')->get();
+                        
+                        // Manejo de selección
+                        $tema_id = request('ce_tema_id');
+                        $subtema_id = request('ce_subtema_id');
+                        
+                        // Si hay subtema_id, cargar contenido
+                        $contenido = null;
+                        $fecha_actualizacion = null;
+                        
+                        if ($subtema_id) {
+                            $contenido = ce_contenido::where('ce_subtema_id', $subtema_id)
+                                ->orderBy('created_at', 'desc')
+                                ->first();
                             
-                            @foreach($temas as $tema)
-                                <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="ce_subtema_select" class="form-label">Subtema:</label>
-                        <select id="ce_subtema_select" class="form-select" disabled>
-                            <option value="">Primero seleccione un tema</option>
-                        </select>
-                    </div>
-                    <button id="ce_consultar_btn" class="btn btn-primary w-100" disabled>
-                        Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
-                    </button>
+                            if ($contenido) {
+                                $fecha_actualizacion = $contenido->updated_at->format('d/m/Y H:i:s');
+                            }
+                        }
+                        
+                        // Cargar subtemas si hay tema seleccionado
+                        $subtemas = ($tema_id) 
+                            ? ce_subtema::where('ce_tema_id', $tema_id)->get() 
+                            : collect([]);
+                    @endphp
+                    
+                    <form method="GET" action="{{ url()->current() }}" id="ce_form">
+                        <div class="form-group mb-3">
+                            <label for="ce_tema_select" class="form-label">Tema:</label>
+                            <select id="ce_tema_select" name="ce_tema_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">Seleccione un tema...</option>
+                                @foreach($temas as $tema)
+                                    <option value="{{ $tema->ce_tema_id }}" {{ $tema_id == $tema->ce_tema_id ? 'selected' : '' }}>
+                                        {{ $tema->tema }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="ce_subtema_select" class="form-label">Subtema:</label>
+                            <select id="ce_subtema_select" name="ce_subtema_id" class="form-select" {{ count($subtemas) > 0 ? '' : 'disabled' }} onchange="this.form.submit()">
+                                <option value="">{{ count($subtemas) > 0 ? 'Seleccione un subtema...' : 'Primero seleccione un tema' }}</option>
+                                @foreach($subtemas as $subtema)
+                                    <option value="{{ $subtema->ce_subtema_id }}" {{ $subtema_id == $subtema->ce_subtema_id ? 'selected' : '' }}>
+                                        {{ $subtema->ce_subtema }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        @if($tema_id && count($subtemas) > 0 && !$subtema_id)
+                            <button type="submit" class="btn btn-primary w-100">
+                                Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
+                            </button>
+                        @endif
+                    </form>
                 </div>
                 
                 <!-- Columna de contenido -->
                 <div class="col-md-6">
                     <div id="ce_contenido_container" class="border rounded p-3" style="min-height: 250px; max-height: 500px; overflow-y: auto;">
-                        <div class="text-center text-muted py-5">
-                            <i class="bi bi-info-circle fs-2"></i>
-                            <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                        @if($contenido)
+                            {!! $contenido->ce_contenido !!}
+                        @else
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-info-circle fs-2"></i>
+                                <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @if($contenido && $fecha_actualizacion)
+                        <div id="ce_metadata" class="text-end text-muted small mt-2">
+                            Última actualización: <span id="ce_fecha_actualizacion">{{ $fecha_actualizacion }}</span>
                         </div>
-                    </div>
-                    <div id="ce_metadata" class="text-end text-muted small mt-2" style="display: none;">
-                        Última actualización: <span id="ce_fecha_actualizacion">-</span>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Mini-script para evitar problemas con sigem.js -->
 <script>
-$(document).ready(function() {
-    console.log('Documento listo - Consulta Express iniciada');
-    
-    
-    // Evento de cambio en el selector de temas
-    $('#ce_tema_select').on('change', function() {
-        const temaId = $(this).val();
-        console.log('Tema seleccionado:', temaId);
-        
-        if (temaId) {
-            cargarSubtemasConsultaExpress(temaId);
-            $('#ce_subtema_select').prop('disabled', false);
-        } else {
-            $('#ce_subtema_select').html('<option value="">Primero seleccione un tema</option>');
-            $('#ce_subtema_select').prop('disabled', true);
-            $('#ce_consultar_btn').prop('disabled', true);
-        }
-    });
-    
-    // Evento de cambio en el selector de subtemas
-    $('#ce_subtema_select').on('change', function() {
-        const subtemaId = $(this).val();
-        if (subtemaId) {
-            $('#ce_consultar_btn').prop('disabled', false);
-            // Carga automática de contenido al seleccionar subtema (opcional)
-            // cargarContenidoConsultaExpress(subtemaId);
-        } else {
-            $('#ce_consultar_btn').prop('disabled', true);
-        }
-    });
-    
-    // Evento clic en botón consultar
-    $('#ce_consultar_btn').on('click', function() {
-        const subtemaId = $('#ce_subtema_select').val();
-        if (subtemaId) {
-            cargarContenidoConsultaExpress(subtemaId);
-        }
-    });
-    
-    // Función para cargar los subtemas de un tema
-    function cargarSubtemasConsultaExpress(temaId) {
-        console.log('Cargando subtemas para tema ID:', temaId);
-        
-        // Mostrar indicador de carga
-        $('#ce_subtema_select').html('<option>Cargando subtemas...</option>');
-        
-        @php
-        // Generar un objeto JavaScript con todos los subtemas agrupados por tema
-        use App\Models\SIGEM\ce_subtema;
-        $todosSubtemas = ce_subtema::all()->groupBy('ce_tema_id');
-        echo "const todosSubtemas = " . json_encode($todosSubtemas) . ";\n";
-        @endphp
-        
-        // Cargar subtemas desde el objeto JavaScript precargado
-        if (todosSubtemas[temaId] && todosSubtemas[temaId].length > 0) {
-            let options = '<option value="">Seleccione un subtema...</option>';
-            todosSubtemas[temaId].forEach(function(subtema) {
-                options += `<option value="${subtema.ce_subtema_id}">${subtema.ce_subtema}</option>`;
+// Pequeño script para evitar interferencias con sigem.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Interceptamos el formulario para evitar comportamientos no deseados
+    var form = document.getElementById('ce_form');
+    if(form) {
+        var selects = form.querySelectorAll('select');
+        selects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                // Cuando cambia un selector, el formulario se envía automáticamente
+                setTimeout(function() {
+                    form.submit();
+                }, 10);
             });
-            $('#ce_subtema_select').html(options);
-            console.log('Subtemas cargados:', todosSubtemas[temaId].length);
-        } else {
-            $('#ce_subtema_select').html('<option value="">No hay subtemas disponibles</option>');
-            console.log('No se encontraron subtemas para este tema');
-        }
-    }
-    
-    // Función para cargar el contenido de un subtema (mantener el AJAX aquí)
-    function cargarContenidoConsultaExpress(subtemaId) {
-        $('#ce_contenido_container').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando contenido...</p></div>');
-        
-        console.log('Cargando contenido para subtema ID:', subtemaId);
-        
-        $.ajax({
-            url: `{{ url('sigem/consulta-express/contenido') }}/${subtemaId}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                console.log('Respuesta de contenido:', response);
-                if (response.success && response.contenido) {
-                    $('#ce_contenido_container').html(response.contenido.ce_contenido);
-                    $('#ce_fecha_actualizacion').text(response.actualizado);
-                    $('#ce_metadata').show();
-                } else {
-                    $('#ce_contenido_container').html('<div class="alert alert-warning">No se encontró contenido para el subtema seleccionado.</div>');
-                    $('#ce_metadata').hide();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error al cargar contenido:', error);
-                $('#ce_contenido_container').html('<div class="alert alert-danger">Error al cargar el contenido. Por favor intente nuevamente.</div>');
-                $('#ce_metadata').hide();
-            }
         });
     }
 });
