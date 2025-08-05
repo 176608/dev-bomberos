@@ -551,4 +551,58 @@ class PublicController extends Controller
             ]);
         }
     }
+
+    /**
+     * AJAX: Obtener subtemas por tema
+     */
+    public function ajaxObtenerSubtemas($tema_id)
+    {
+        try {
+            $subtemas = \App\Models\SIGEM\ce_subtema::where('ce_tema_id', $tema_id)
+                    ->orderBy('ce_subtema')
+                    ->get();
+        
+            return response()->json([
+                'success' => true,
+                'subtemas' => $subtemas
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar subtemas: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar subtemas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * AJAX: Obtener contenido por subtema
+     */
+    public function ajaxObtenerContenido($subtema_id)
+    {
+        try {
+            $contenido = \App\Models\SIGEM\ce_contenido::where('ce_subtema_id', $subtema_id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+        
+            if (!$contenido) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró contenido para este subtema'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'contenido' => $contenido,
+                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar contenido: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar contenido: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

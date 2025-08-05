@@ -27,6 +27,7 @@ Route::prefix('sigem')->group(function () {
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
 
     // Rutas para Consulta Express
+    /*
     Route::get('/consulta-express/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])
         ->name('sigem.consulta-express.temas');
     
@@ -37,7 +38,13 @@ Route::prefix('sigem')->group(function () {
     
     // Ruta para obtener contenido de un subtema específico
     Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'obtenerConsultaExpressContenido'])
-        ->name('sigem.consulta-express.contenido');
+        ->name('sigem.consulta-express.contenido');*/
+});
+
+// Rutas AJAX para Consulta Express
+Route::prefix('sigem/ajax')->group(function () {
+    Route::get('/consulta-express/subtemas/{tema_id}', [PublicController::class, 'ajaxObtenerSubtemas']);
+    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'ajaxObtenerContenido']);
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
