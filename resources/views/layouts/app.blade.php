@@ -32,6 +32,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 </head>
 
 <style>
@@ -191,8 +193,8 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('sigem.laravel.public') ? 'active' : '' }}" 
-                               href="{{ route('sigem.laravel.public') }}" title="Panel de consulta público de SIGEM">
+                            <a class="nav-link {{ request()->routeIs('sigem.index') ? 'active' : '' }}" 
+                               href="{{ route('sigem.index') }}" title="Panel de consulta público de SIGEM">
                                 <i class="bi bi-binoculars-fill"></i> SIGEM
                             </a>
                         </li>
@@ -216,8 +218,8 @@
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
+                                    <a class="nav-link {{ request()->routeIs('sigem.admin.index') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
                                 </li>
@@ -239,8 +241,8 @@
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sigem.laravel.admin') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.laravel.admin') }}" title="Panel de Administración de SIGEM">
+                                    <a class="nav-link {{ request()->routeIs('sigem.admin.index') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
                                 </li>
@@ -331,6 +333,28 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
+    // Función para verificar si la sesión está activa
+    function verificarSesion() {
+        $.ajax({
+            url: '{{ route("check.session") }}',
+            type: 'GET',
+            success: function(response) {
+                // Si la sesión no está activa, redirigir al login
+                if (!response.autenticado) {
+                    window.location.href = '{{ route("login") }}?expired=1';
+                }
+            },
+            error: function() {
+                console.log('Error al verificar la sesión');
+            }
+        });
+    }
+
+    @auth
+        // Verificar sesión cada 50 segundos
+        setInterval(verificarSesion, 50000);
+    @endauth
     </script>
 </body>
 </html>

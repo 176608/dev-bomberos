@@ -2,9 +2,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <div class="row p-3 justify-content-center align-items-center">
-        <div class="col-sm-6">
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Panel izquierdo: Acceso a Consultor -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/consultor') }}">
+                <div class="card-body text-center">
+                    <i class="bi bi-binoculars-fill display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Acceso a Consultor</h5>
+                    <p class="card-text">Visualiza la información de hidrantes sin necesidad de iniciar sesión.</p>
+                    <button class="btn btn-outline-success mt-2">
+                        <i class="bi bi-arrow-right-circle"></i> Ir a Consultor
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel central: Login -->
+        <div class="col-md-6">
             <div class="card shadow-lg border-0" style="background-color: rgba(161, 224, 152, 0.8);">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
@@ -41,12 +56,34 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Panel derecho: Acceso a SIGEM -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/sigem') }}">
+                <div class="card-body text-center">
+                    <i class="bi bi-map-fill display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Acceso a SIGEM</h5>
+                    <p class="card-text">Sistema de Información Geográfica y Estadística Municipal.</p>
+                    <button class="btn btn-outline-success mt-2">
+                        <i class="bi bi-arrow-right-circle"></i> Ir a SIGEM
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section('scripts')
 <script>
 $(function() {
+    // Funcionalidad de los paneles laterales
+    $('.panel-link').on('click', function() {
+        const href = $(this).data('href');
+        if (href) {
+            window.location.href = href;
+        }
+    });
+
     $('#login-step1').on('submit', function(e) {
         e.preventDefault();
         let email = $('#email').val();
@@ -117,6 +154,33 @@ $(function() {
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
+}
+
+.panel-link {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.panel-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.panel-link .btn {
+    transition: all 0.3s ease;
+}
+
+.panel-link:hover .btn {
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los íconos de los paneles */
+.panel-link i.display-4 {
+    transition: all 0.3s ease;
+}
+
+.panel-link:hover i.display-4 {
+    transform: scale(1.1);
 }
 </style>
 @endsection

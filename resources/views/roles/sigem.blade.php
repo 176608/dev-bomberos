@@ -8,3 +8,4 @@
         <p>Cargando contenido...</p>
     </div>
 @endsection
+

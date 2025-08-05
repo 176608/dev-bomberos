@@ -10,14 +10,19 @@ use Illuminate\Support\Facades\Route;
 
 // ALTERNATIVA: Si hay conflicto, usar ruta específica
 Route::get('/consultor', [DashboardController::class, 'index'])->name('consultor.dashboard');
+Route::get('/consultor/buscar', [DashboardController::class, 'buscarHidrante'])->name('consultor.buscar');
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Rutas de registro
+Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
 
 // Verificar email en el login
-Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
+Route::get('/check-session', function () {
+    return response()->json(['autenticado' => Auth::check()]);
+})->name('check.session');
 
 // Rutas de reseteo de contraseña
 Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
@@ -26,7 +31,7 @@ Route::post('/password/reset', [PasswordResetController::class, 'update'])
     ->name('password.reset.update');
 
 // Rutas protegidas por autenticación
-Route::middleware(['auth'])->group(function () {
+Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->group(function () {
     
     // Admin panel - CORREGIR NOMBRES DE ROLES
     Route::get('/admin', [AdminController::class, 'index'])
@@ -61,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/hidrantes/{hidrante}/desactivar', [CapturistaController::class, 'desactivar'])->name('hidrantes.desactivar');
         Route::post('/hidrantes/{hidrante}/activar', [CapturistaController::class, 'activar'])->name('hidrantes.activar');
         Route::get('/hidrantes/resumen', [CapturistaController::class, 'resumenHidrantes'])->name('hidrantes.resumen');
+        Route::get('/hidrantes/{hidrante}/historial', [CapturistaController::class, 'historialCambios'])->name('hidrantes.historial');
     });
 
     // Rutas de configuración - CORREGIR NOMBRES DE ROLES

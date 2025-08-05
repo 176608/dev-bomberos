@@ -49,7 +49,7 @@
                     <i class="bi bi-geo-alt display-4 text-success mb-3"></i>
                     <h5 class="card-title">SIGEM Público</h5>
                     <p class="card-text">Vista pública del Sistema de Información Geográfica Laravel</p>
-                    <a href="{{ route('sigem.laravel.public') }}" class="btn btn-success">
+                    <a href="{{ route('sigem.index') }}" class="btn btn-success">
                         <i class="bi bi-eye"></i> Abrir SIGEM Público
                     </a>
                 </div>
@@ -62,46 +62,13 @@
                     <i class="bi bi-shield-check display-4 text-success mb-3"></i>
                     <h5 class="card-title">SIGEM Admin</h5>
                     <p class="card-text">Panel administrativo del Sistema SIGEM Laravel</p>
-                    <a href="{{ route('sigem.laravel.admin') }}" class="btn btn-success">
+                    <a href="{{ route('sigem.admin.index') }}" class="btn btn-success">
                         <i class="bi bi-tools"></i> Abrir SIGEM Admin
                     </a>
                 </div>
             </div>
         </div>
         
-        {{-- SECCIÓN: SIGEM Original --}}
-        <div class="col-12">
-            <hr class="my-4">
-            <h3 class="h4 mb-3">
-                <i class="bi bi-geo text-primary"></i> SIGEM Original (Sistema PHP)
-            </h3>
-        </div>
-        
-        <div class="col-md-6 mb-3">
-            <div class="card h-100 border-primary">
-                <div class="card-body text-center">
-                    <i class="bi bi-geo display-4 text-primary mb-3"></i>
-                    <h5 class="card-title">SIGEM Original Público</h5>
-                    <p class="card-text">Sistema original PHP en funcionamiento</p>
-                    <a href="/m_aux/public/vistas_SIGEM/cartografia.php" class="btn btn-primary" target="_blank">
-                        <i class="bi bi-eye"></i> Abrir Original
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <div class="card h-100 border-primary">
-                <div class="card-body text-center">
-                    <i class="bi bi-tools display-4 text-primary mb-3"></i>
-                    <h5 class="card-title">SIGEM Admin Original</h5>
-                    <p class="card-text">Panel administrativo del sistema original</p>
-                    <a href="#" class="btn btn-primary" target="_blank">
-                        <i class="bi bi-tools"></i> Admin Original
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

@@ -5,75 +5,60 @@ use App\Http\Controllers\SIGEM\AdminController;
 
 // Rutas públicas Laravel del módulo SIGEM
 Route::prefix('sigem')->group(function () {  
-    
     // === RUTA PRINCIPAL (UNA SOLA) ===
-    Route::get('/', [PublicController::class, 'index'])->name('sigem.laravel.public');
+    Route::get('/', [PublicController::class, 'index'])->name('sigem.index');
     
-    // === RUTAS PARA PARTIALS (DENTRO DEL GRUPO) ===
-    Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.laravel.partial');
+    // === RUTAS PARA PARTIALS (CARGA AJAX) ===
+    Route::get('/partial/{section}', [PublicController::class, 'loadPartial'])->name('sigem.partial');
+
+    // === RUTA nueva de ESTADÍSTICA POR TEMA  ===
+    Route::get('/estadistica-por-tema/{tema_id}', [PublicController::class, 'verEstadisticasPorTema'])
+        ->name('sigem.estadistica.tema');
+
+    // Rutas AJAX para la vista de estadística por tema
+    Route::get('/obtener-cuadros-estadistica/{subtema_id}', [PublicController::class, 'obtenerCuadrosEstadistica'])
+        ->name('sigem.ajax.cuadros');
+    Route::get('/obtener-info-subtema/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])
+        ->name('sigem.ajax.subtema');
+
+    // === APIS PARA CONTENIDO DINÁMICO ===
+    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
+    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
+    Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
+
+    // Rutas para Consulta Express
+    /*
+    Route::get('/consulta-express/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])
+        ->name('sigem.consulta-express.temas');
     
-    // === RUTAS PARA ESTADÍSTICA CON CUADRO ===
-    Route::get('/estadistica/{cuadro_id?}', [PublicController::class, 'estadistica'])->name('sigem.laravel.estadistica');
-    Route::get('/cuadro/{cuadro_id}', [PublicController::class, 'verCuadro'])->name('sigem.laravel.cuadro');
-    Route::get('/cuadro-data/{cuadro_id}', [PublicController::class, 'obtenerCuadroData'])->name('sigem.laravel.cuadro.data');
+    // Nueva ruta directa al partial de Consulta Express
+    Route::get('/consulta-express', [PublicController::class, 'loadPartial'])
+        ->name('sigem.consulta-express')
+        ->defaults('section', 'consulta-express');
     
-    // === RUTAS AJAX PARA CONTENIDO DINÁMICO ===
-    Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.laravel.catalogo');
-    Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.laravel.mapas');
-    Route::get('/temas', [PublicController::class, 'obtenerTemas'])->name('sigem.laravel.temas');
-    Route::get('/subtemas/{tema}', [PublicController::class, 'obtenerSubtemas'])->name('sigem.laravel.subtemas');
-    Route::get('/indice-cuadros', [PublicController::class, 'generarIndiceCuadros'])->name('sigem.laravel.indice.cuadros');
-    
-    // === RUTAS ESPECÍFICAS PARA CADA SECCIÓN ===
-    Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.laravel.datos.inicio');
-    Route::get('/productos', [PublicController::class, 'obtenerProductos'])->name('sigem.laravel.productos');
-    
-    // Vistas adicionales (mantener compatibilidad)
-    Route::get('/geografico', [PublicController::class, 'geografico'])->name('sigem.laravel.geografico');
-    
-    // === RUTAS DE COMPATIBILIDAD CON ARCHIVOS PHP ORIGINALES ===
-    Route::get('/redirect/geografico', function() {
-        return redirect('/public/vistas_SIGEM/geografico.php');
-    })->name('sigem.redirect.geografico');
-    
-    Route::get('/redirect/medioambiente', function() {
-        return redirect('/public/vistas_SIGEM/medioambiente.php');
-    })->name('sigem.redirect.medioambiente');
-    
-    Route::get('/redirect/sociodemografico', function() {
-        return redirect('/public/vistas_SIGEM/sociodemografico.php');
-    })->name('sigem.redirect.sociodemografico');
-    
-    Route::get('/redirect/inventariourbano', function() {
-        return redirect('/public/vistas_SIGEM/inventariourbano.php');
-    })->name('sigem.redirect.inventariourbano');
-    
-    Route::get('/redirect/economico', function() {
-        return redirect('/public/vistas_SIGEM/economico.php');
-    })->name('sigem.redirect.economico');
-    
-    Route::get('/redirect/sectorpublico', function() {
-        return redirect('/public/vistas_SIGEM/sectorpublico.php');
-    })->name('sigem.redirect.sectorpublico');
-    
-    Route::get('/redirect/catalogo', function() {
-        return redirect('/public/vistas_SIGEM/catalogo.php');
-    })->name('sigem.redirect.catalogo');
+    // Ruta para obtener contenido de un subtema específico
+    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'obtenerConsultaExpressContenido'])
+        ->name('sigem.consulta-express.contenido');*/
+});
+
+// Rutas AJAX para Consulta Express
+Route::prefix('sigem/ajax')->group(function () {
+    Route::get('/consulta-express/subtemas/{tema_id}', [PublicController::class, 'ajaxObtenerSubtemas']);
+    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'ajaxObtenerContenido']);
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
 Route::prefix('sigem')->middleware(['auth'])->group(function () {  
-    
     Route::get('/admin', [AdminController::class, 'index'])
-        ->name('sigem.laravel.admin')
+        ->name('sigem.admin.index')
         ->middleware('role:Administrador,Desarrollador');
     
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
-        Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.laravel.admin.temas');
+        /*Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.laravel.admin.temas');
         Route::get('/admin/subtemas', [AdminController::class, 'subtemas'])->name('sigem.laravel.admin.subtemas');
         Route::get('/admin/contenidos', [AdminController::class, 'contenidos'])->name('sigem.laravel.admin.contenidos');
         Route::get('/admin/usuarios', [AdminController::class, 'usuarios'])->name('sigem.laravel.admin.usuarios');
-        
+        */
         // === RUTAS CRUD PARA ADMINISTRACIÓN ===
         
         // CRUD Mapas
@@ -96,18 +81,4 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         Route::put('/admin/subtemas/{id}', [AdminController::class, 'actualizarSubtema'])->name('sigem.laravel.admin.subtemas.update');
         Route::delete('/admin/subtemas/{id}', [AdminController::class, 'eliminarSubtema'])->name('sigem.laravel.admin.subtemas.destroy');
     });
-});
-
-// === MANTENER RUTAS BRIDGE ===  Se va a borrar esta seccion
-Route::prefix('sigem-bridge')->middleware(['auth'])->group(function () {
-    Route::get('/to-original', function() {
-        return redirect('/geografico');
-    })->name('sigem.bridge.original');
-    
-    Route::get('/to-admin-original', function() {
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        return redirect()->route('subtema.index');
-    })->name('sigem.bridge.admin.original');
 });

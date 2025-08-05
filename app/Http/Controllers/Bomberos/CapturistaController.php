@@ -7,6 +7,7 @@ use App\Models\Bomberos\Colonias;
 use App\Models\Bomberos\Calles;
 use App\Models\Bomberos\CatalogoCalle;
 use App\Models\Bomberos\ConfiguracionCapturista;
+use App\Models\Bomberos\CambioEnHidrante;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -155,6 +156,9 @@ class CapturistaController extends Controller
         try {
             \DB::beginTransaction();
 
+            // Guardar los valores originales antes de actualizar
+            $originalValues = $hidrante->getAttributes();
+
             $validated = $request->validate([
                 'fecha_inspeccion' => 'required|date',
                 'numero_estacion' => 'required|string',
@@ -225,7 +229,44 @@ class CapturistaController extends Controller
             }
 
             $validated['stat'] = Hidrante::calcularStat($validated);
+            
+            // Actualizar el hidrante
             $hidrante->update($validated);
+            
+            // Registrar cambios en cada campo modificado
+            foreach ($validated as $campo => $nuevoValor) {
+                // Ignorar algunos campos que no necesitamos registrar
+                if (in_array($campo, ['update_user_id', 'stat'])) {
+                    continue;
+                }
+                
+                // Obtener el valor original
+                $valorOriginal = $originalValues[$campo] ?? null;
+                
+                // Si el campo es una fecha, asegurar formato consistente
+                if ($campo === 'fecha_inspeccion') {
+                    if (is_string($nuevoValor)) {
+                        $nuevoValor = \Carbon\Carbon::parse($nuevoValor)->format('Y-m-d');
+                    } elseif ($nuevoValor instanceof \Carbon\Carbon) {
+                        $nuevoValor = $nuevoValor->format('Y-m-d');
+                    }
+                    
+                    if (isset($originalValues[$campo]) && $originalValues[$campo] instanceof \Carbon\Carbon) {
+                        $valorOriginal = $originalValues[$campo]->format('Y-m-d');
+                    }
+                }
+                
+                // Registrar el cambio si los valores son diferentes
+                if ((string)$valorOriginal !== (string)$nuevoValor) {
+                    CambioEnHidrante::registrarCambio(
+                        auth()->id(),
+                        $hidrante->id,
+                        $campo,
+                        $valorOriginal,
+                        $nuevoValor
+                    );
+                }
+            }
 
             \DB::commit();
 
@@ -715,6 +756,17 @@ class CapturistaController extends Controller
                         </button>
                     ';
 
+                    // Verificar si el hidrante tiene registros en el historial de cambios
+                    $tieneHistorial = CambioEnHidrante::where('id_hidrante', $hidrante->id)->exists();
+                    
+                    if ($tieneHistorial) {
+                        $botones .= '
+                            <button class="btn btn-sm btn-info historial-hidrante" title="Revisar el historial de cambios del hidrante" data-hidrante-id="'.$hidrante->id.'">
+                                <i class="bi bi-clock-history"></i>
+                            </button>
+                        ';
+                    }
+
                     if ($hidrante->stat === '000') {
                         $botones .= '
                             <button class="btn btn-sm btn-success activar-hidrante" title="Activar hidrante" data-hidrante-id="'.$hidrante->id.'">
@@ -1140,5 +1192,49 @@ class CapturistaController extends Controller
                 'key' => 'CUADRO_VOLANTE'
             ]
         ]);
+    }
+
+    /**
+     * Muestra el historial de cambios de un hidrante.
+     *
+     * @param Hidrante $hidrante
+     * @return \Illuminate\Http\Response
+     */
+    public function historialCambios(Hidrante $hidrante)
+    {
+        try {
+            $cambios = CambioEnHidrante::where('id_hidrante', $hidrante->id)
+                ->with('usuario')
+                ->orderBy('fecha_hora', 'desc')
+                ->get();
+                
+            // Mapear nombres de campos a nombres más amigables para el usuario
+            $nombresCampos = [
+                'fecha_inspeccion' => 'Fecha Inspección',
+                'numero_estacion' => 'N° Estación',
+                'calle' => 'Sobre Vía',
+                'y_calle' => 'Y Vía',
+                'colonia' => 'En Zona',
+                'llave_fosa' => 'Llave Fosa',
+                'llave_hidrante' => 'Llave Hidrante',
+                'presion_agua' => 'Presión Agua',
+                'estado_hidrante' => 'Estado',
+                'marca' => 'Marca',
+                'anio' => 'Año',
+                'oficial' => 'Oficial',
+                'observaciones' => 'Observaciones'
+            ];
+            
+            return view('partials.hidrante-cambios', compact('hidrante', 'cambios', 'nombresCampos'))->render();
+        } catch (\Exception $e) {
+            \Log::error('Error cargando historial de cambios:', [
+                'id_hidrante' => $hidrante->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al cargar el historial de cambios'
+            ], 500);
+        }
     }
 }

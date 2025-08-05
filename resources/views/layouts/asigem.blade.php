@@ -4,7 +4,6 @@
 
 @section('content')
     <style>
-        /* Estilos globales movidos aquí */
         .header-logos {
             display: flex;
             width: 100%;
@@ -188,7 +187,7 @@
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
-    <div class="container-fluid" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
+    <div class="container-fluid pb-4" style="background: linear-gradient(135deg, #2a6e48 0%, #66d193 50%, #2a6e48 100%);">
         <!-- Sección de Logos -->
         <div class="header-logos container-fluid">
             <div class="logo-section">
@@ -199,35 +198,136 @@
             </div>
         </div>
 
+        <!-- CONTENEDOR DINÁMICO -->
+        @php
+            // Detectar si estamos en una ruta especial de estadística tema o subtema
+            $currentPath = request()->path();
+            $isEstadisticaEspecial = Str::contains($currentPath, 'estadistica-por-tema');
+            
+            // Asegurar que $section siempre tenga un valor
+            $section = $section ?? request()->query('section', 'inicio');
+            
+            // Si estamos en una ruta especial de estadística, asegurar que section sea 'estadistica'
+            if ($isEstadisticaEspecial) {
+                $section = 'estadistica';
+            }
+        @endphp
+
+
         <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
-                <!-- INICIO como primera opción -->
-                <a href="#" data-section="inicio" class="sigem-nav-link active">
+                @php
+                    // Mejor detección de sección activa
+                    $currentPath = request()->path();
+                    
+                    // Inicializar con el valor del parámetro 'section' o 'inicio' por defecto
+                    $currentSection = request()->query('section', 'inicio');
+                    
+                    // Detección robusta para rutas especiales
+                    if (Str::contains($currentPath, 'estadistica-por-tema')) {
+                        $currentSection = 'estadistica';
+                    } elseif (Str::contains($currentPath, '/cartografia')) {
+                        $currentSection = 'cartografia';
+                    } elseif (Str::contains($currentPath, '/productos')) {
+                        $currentSection = 'productos';
+                    } elseif (Str::contains($currentPath, '/catalogo')) {
+                        $currentSection = 'catalogo';
+                    }
+                    
+                    // Si estamos en una URL que termina con alguna de estas secciones, también la marcamos como activa
+                    foreach (['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'] as $section) {
+                        if (Str::endsWith($currentPath, $section)) {
+                            $currentSection = $section;
+                            break;
+                        }
+                    }
+                @endphp
+
+                <a href="{{ url('/sigem?section=inicio') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'inicio' ? 'active' : '' }}">
                     <i class="bi bi-house-fill"></i> INICIO
                 </a>
-                <a href="#" data-section="catalogo" class="sigem-nav-link">
+
+                <a href="{{ url('/sigem?section=catalogo') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'catalogo' ? 'active' : '' }}">
                     <i class="bi bi-journal-text"></i> CATÁLOGO
                 </a>
-                <a href="#" data-section="estadistica" class="sigem-nav-link">
+
+                <a href="{{ url('/sigem?section=estadistica') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'estadistica' ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
-                <a href="#" data-section="cartografia" class="sigem-nav-link">
+
+                <a href="{{ url('/sigem?section=cartografia') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'cartografia' ? 'active' : '' }}">
                     <i class="bi bi-map-fill"></i> CARTOGRAFÍA
                 </a>
-                <a href="#" data-section="productos" class="sigem-nav-link">
+
+                <a href="{{ url('/sigem?section=productos') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'productos' ? 'active' : '' }}">
                     <i class="bi bi-box-seam"></i> PRODUCTOS
                 </a>
             </div>
         </div>
 
+        
         <!-- CONTENEDOR DINÁMICO -->
-        <div id="sigem-content" class="container my-4">
+        <div id="sigem-content" class="container my-4" {!! $isEstadisticaEspecial || $section === 'estadistica' ? 'style="display:none;"' : '' !!}>
             @yield('dynamic_content')
         </div>
+
+        <!-- Para rutas normales de estadística o rutas especiales -->
+        @if(($section === 'estadistica') || $isEstadisticaEspecial)
+            <div class="container my-4">
+                @include('partials.estadistica')
+            </div>
+        @endif
+
     </div>
 @endsection
 
 @section('scripts')
     <script src="{{ asset('js/sigem.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Asegurar que el menú SIGEM tenga la sección correcta activada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener la sección actual de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            let currentSection = urlParams.get('section') || 'inicio';
+            
+            // Detección especial para rutas como estadistica-por-tema
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('estadistica-por-tema')) {
+                currentSection = 'estadistica';
+            } else if (currentPath.includes('/cartografia')) {
+                currentSection = 'cartografia';
+            } else if (currentPath.includes('/productos')) {
+                currentSection = 'productos';
+            } else if (currentPath.includes('/catalogo')) {
+                currentSection = 'catalogo';
+            }
+            
+            // Aplicar clase active al elemento correcto
+            document.querySelectorAll('.sigem-nav-link').forEach(link => {
+                // Quitar todas las clases active
+                link.classList.remove('active');
+                
+                // Detectar qué sección corresponde a cada enlace
+                if (link.textContent.trim().includes('INICIO') && currentSection === 'inicio') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CATÁLOGO') && currentSection === 'catalogo') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('ESTADÍSTICA') && currentSection === 'estadistica') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CARTOGRAFÍA') && currentSection === 'cartografia') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('PRODUCTOS') && currentSection === 'productos') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 @endsection

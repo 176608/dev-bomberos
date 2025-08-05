@@ -8,16 +8,44 @@ use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
 use App\Models\SIGEM\Catalogo;
-use App\Models\SIGEM\CuadroEstadistico; // AGREGAR: Import del modelo CuadroEstadistico
+use App\Models\SIGEM\CuadroEstadistico;
+use App\Models\SIGEM\ce_tema;
+use App\Models\SIGEM\ce_subtema;
+use App\Models\SIGEM\ce_contenido;
 
 class PublicController extends Controller
 {
-    /**
-     * Vista principal SIGEM
-     */
-    public function index()
+    public function index(Request $request)
     {
-        return view('roles.sigem');
+        // Obtener la sección solicitada o usar 'inicio' como predeterminada
+        $section = $request->query('section', 'inicio');
+        
+        // Datos iniciales para todas las vistas
+        $viewData = [
+            'section' => $section,
+        ];
+        
+        // Si se solicita la sección de estadística, obtener los temas
+        if ($section === 'estadistica') {
+            $viewData['temas'] = Tema::orderBy('orden_indice')->get();
+        }
+
+        // Si se solicita un cuadro específico
+        if ($section === 'estadistica' && $request->has('cuadro_id')) {
+            $cuadro_id = $request->query('cuadro_id');
+            $viewData['cuadro_id'] = $cuadro_id;
+            $viewData['modo_vista'] = 'desde_catalogo';
+            
+            // Cargar los datos del cuadro
+            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
+            if ($cuadro) {
+                $viewData['cuadro_data'] = $cuadro;
+                $viewData['tema_seleccionado'] = $cuadro->subtema->tema;
+            }
+        }
+        
+        // Devolver la vista con los datos
+        return view('roles.sigem', $viewData);
     }
     
     /**
@@ -123,71 +151,50 @@ class PublicController extends Controller
     }
 
     /**
-     * Vista dashboard público
-     */
-    public function dashboard()
-    {
-        return view('sigem.public.dashboard');
-    }
-    
-    /**
-     * Vista geográfica pública
-     */
-    public function geografico()
-    {
-        return view('sigem.public.geografico');
-    }
-    
-    /**
-     * Vista estadísticas públicas
-     */
-    public function estadisticas()
-    {
-        return view('sigem.public.estadisticas');
-    }
-    
-    /**
-     * NUEVA FUNCIÓN: Vista de cuadro estadístico individual
-     */
-    public function verCuadro(Request $request, $cuadro_id = null)
-    {
-        $cuadro = null;
-        
-        if ($cuadro_id) {
-            $cuadro = CuadroEstadistico::obtenerPorId($cuadro_id);
-        }
-        
-        return view('roles.sigem', [
-            'loadPartial' => 'sigem-csv-panel',
-            'cuadro' => $cuadro
-        ]);
-    }
-    
-    /**
-     * NUEVA FUNCIÓN: Vista estadística sin parámetros
-     */
-    public function estadisticaSinParametros()
-    {
-        return view('roles.sigem', [
-            'loadPartial' => 'sigem-csv-panel',
-            'cuadro' => null
-        ]);
-    }
-
-    /**
      * NUEVA FUNCIÓN: Cargar partial específico
      */
     public function loadPartial($section)
     {
-        // ACTUALIZAR: Incluir 'inicio'
-        $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'];
+        // Añadir 'consulta-express' a las secciones válidas
+        $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos', 'consulta-express'];
         
         if (!in_array($section, $validSections)) {
-            // Por defecto cargar inicio
             return response()->view('partials.inicio');
         }
         
         try {
+            // Manejo especial para consulta-express
+            if ($section === 'consulta-express') {
+                return response()->view('partials.inicio_consulta_express');
+            }
+            
+            if ($section === 'estadistica') {
+                // Obtener todos los temas para el selector
+                $temas = Tema::orderBy('orden_indice')->get();
+                
+                // Detectar si viene con cuadro_id desde catálogo
+                $cuadroId = request()->get('cuadro_id');
+                $temaSeleccionado = null;
+                $cuadroData = null;
+                $modoVista = 'navegacion'; // Por defecto
+                
+                if ($cuadroId) {
+                    $cuadroData = CuadroEstadistico::with(['subtema.tema'])->find($cuadroId);
+                    if ($cuadroData && $cuadroData->subtema && $cuadroData->subtema->tema) {
+                        $temaSeleccionado = $cuadroData->subtema->tema->tema_id;
+                        $modoVista = 'desde_catalogo';
+                    }
+                }
+                
+                return response()->view('partials.' . $section, [
+                    'temas' => $temas,
+                    'cuadro_id' => $cuadroId,
+                    'tema_seleccionado' => $temaSeleccionado,
+                    'cuadro_data' => $cuadroData,
+                    'modo_vista' => $modoVista
+                ]);
+            }
+            
             return response()->view('partials.' . $section);
         } catch (\Exception $e) {
             return response()->json([
@@ -197,6 +204,7 @@ class PublicController extends Controller
             ], 404);
         }
     }
+
 
     /**
      * NUEVA FUNCIÓN: Obtener datos para la sección inicio
@@ -232,18 +240,7 @@ class PublicController extends Controller
     }
 
     /**
-     * NUEVA FUNCIÓN: Vista estadística con cuadro opcional
-     */
-    public function estadistica($cuadro_id = null)
-    {
-        return view('roles.sigem', [
-            'loadSection' => 'estadistica',
-            'cuadro_id' => $cuadro_id
-        ]);
-    }
-
-    /**
-     * FUNCIÓN AJAX: Obtener datos del cuadro (MEJORAR respuesta)
+     * FUNCIÓN AJAX: Obtener datos del cuadro
      */
     public function obtenerCuadroData($cuadro_id)
     {
@@ -280,6 +277,332 @@ class PublicController extends Controller
                     'line' => $e->getLine()
                 ]
             ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener temas para estadística
+     */
+    public function obtenerTemasEstadistica()
+    {
+        try {
+            $temas = Tema::with(['subtemas'])
+                ->orderBy('orden_indice')
+                ->get()
+                ->map(function($tema) {
+                    return [
+                        'tema_id' => $tema->tema_id,
+                        'tema_titulo' => $tema->tema_titulo,
+                        'orden_indice' => $tema->orden_indice,
+                        'subtemas_count' => $tema->subtemas->count()
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'temas' => $temas,
+                'total_temas' => $temas->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar temas: ' . $e->getMessage(),
+                'temas' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener subtemas por tema
+     */
+    public function obtenerSubtemasEstadistica($tema_id)
+    {
+        try {
+            $subtemas = Subtema::with(['cuadrosEstadisticos'])
+                ->where('tema_id', $tema_id)
+                ->orderBy('orden_indice')
+                ->get()
+                ->map(function($subtema) {
+                    return [
+                        'subtema_id' => $subtema->subtema_id,
+                        'subtema_titulo' => $subtema->subtema_titulo,
+                        'orden_indice' => $subtema->orden_indice,
+                        'cuadros_count' => $subtema->cuadrosEstadisticos->count()
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'subtemas' => $subtemas,
+                'total_subtemas' => $subtemas->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar subtemas: ' . $e->getMessage(),
+                'subtemas' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener cuadros por subtema
+     */
+    public function obtenerCuadrosEstadistica($subtema_id)
+    {
+        try {
+            $cuadros = CuadroEstadistico::where('subtema_id', $subtema_id)
+                ->orderBy('codigo_cuadro')
+                ->get()
+                ->map(function($cuadro) {
+                    return [
+                        'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                        'codigo_cuadro' => $cuadro->codigo_cuadro,
+                        'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                        'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'cuadros' => $cuadros,
+                'total_cuadros' => $cuadros->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar cuadros: ' . $e->getMessage(),
+                'cuadros' => []
+            ]);
+        }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Obtener información completa del subtema
+     */
+    public function obtenerInfoSubtema($subtema_id)
+    {
+        try {
+            $subtema = Subtema::with(['tema', 'cuadrosEstadisticos'])
+                ->find($subtema_id);
+            
+            if (!$subtema) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Subtema no encontrado'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'subtema' => [
+                    'subtema_id' => $subtema->subtema_id,
+                    'subtema_titulo' => $subtema->subtema_titulo,
+                    'descripcion' => $subtema->descripcion,
+                    'imagen' => $subtema->imagen,
+                    'cuadros_count' => $subtema->cuadrosEstadisticos->count(),
+                    'tema' => $subtema->tema ? [
+                        'tema_id' => $subtema->tema->tema_id,
+                        'tema_titulo' => $subtema->tema->tema_titulo
+                    ] : null
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar información: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    /**
+     * Vista estadística por tema con subtemas laterales
+     */
+    public function verEstadisticasPorTema($tema_id)
+    {
+        try {
+            // Obtener el tema con sus subtemas
+            $tema = Tema::with(['subtemas' => function($query) {
+                $query->orderBy('orden_indice', 'asc');
+            }])->findOrFail($tema_id);
+            
+            // Obtener todos los subtemas del tema para la navegación lateral
+            $tema_subtemas = $tema->subtemas;
+            
+            // Obtener todos los temas para el selector principal
+            $temas = Tema::orderBy('orden_indice')->get();
+            
+            // Si el tema tiene subtemas, obtener cuadros del primer subtema
+            $cuadros = collect([]);
+            $subtema_seleccionado = null;
+            
+            if ($tema_subtemas && $tema_subtemas->count() > 0) {
+                $subtema_seleccionado = $tema_subtemas->first();
+                $cuadros = CuadroEstadistico::where('subtema_id', $subtema_seleccionado->subtema_id)
+                    ->orderBy('codigo_cuadro')
+                    ->get();
+            }
+            
+            return view('layouts.asigem', [
+                'section' => 'estadistica',
+                'tema_seleccionado' => $tema,
+                'subtema_seleccionado' => $subtema_seleccionado,
+                'tema_subtemas' => $tema_subtemas,
+                'cuadros' => $cuadros,
+                'temas' => $temas,
+                'modo_vista' => 'navegacion_tema_con_subtemas',
+                'current_route' => 'estadistica-por-tema'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar tema estadística:', [
+                'tema_id' => $tema_id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('sigem.partial', ['section' => 'estadistica'])
+                ->with('error', 'No se pudo cargar el tema seleccionado');
+        }
+    }
+
+    /**
+     * Obtener temas y subtemas para consulta express
+     */
+    public function obtenerConsultaExpressTemas()
+    {
+        try {
+            // Consulta directa a la base de datos para simplificar y depurar
+            $temas = \DB::table('consulta_express_tema')
+                    ->select('ce_tema_id', 'tema')
+                    ->orderBy('ce_tema_id')
+                    ->get();
+            
+            // Agregar subtemas manualmente para cada tema
+            foreach ($temas as $tema) {
+                $subtemas = \DB::table('consulta_express_subtema')
+                        ->select('ce_subtema_id', 'ce_subtema')
+                        ->where('ce_tema_id', $tema->ce_tema_id)
+                        ->orderBy('ce_subtema_id')
+                        ->get();
+                
+                $tema->subtemas = $subtemas;
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Temas cargados exitosamente',
+                'temas' => $temas
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar temas de consulta express: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar temas: ' . $e->getMessage(),
+                'temas' => []
+            ]);
+        }
+    }
+
+    /**
+     * Obtener contenido de consulta express por subtema
+     */
+    public function obtenerConsultaExpressContenido($subtema_id)
+    {
+        try {
+            $contenido = ce_contenido::where('ce_subtema_id', $subtema_id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+        
+            if (!$contenido) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró contenido para este subtema',
+                    'contenido' => null
+                ]);
+            }
+            
+            // Obtener información del subtema para mostrar en la interfaz
+            $subtema = ce_subtema::find($subtema_id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Contenido cargado exitosamente',
+                'contenido' => $contenido,
+                'subtema' => $subtema,
+                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar contenido de consulta express:', [
+                'subtema_id' => $subtema_id,
+                'error' => $e->getMessage()
+            ]);
+        
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar contenido: ' . $e->getMessage(),
+                'contenido' => null
+            ]);
+        }
+    }
+
+    /**
+     * AJAX: Obtener subtemas por tema
+     */
+    public function ajaxObtenerSubtemas($tema_id)
+    {
+        try {
+            $subtemas = \App\Models\SIGEM\ce_subtema::where('ce_tema_id', $tema_id)
+                    ->orderBy('ce_subtema')
+                    ->get();
+        
+            return response()->json([
+                'success' => true,
+                'subtemas' => $subtemas
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar subtemas: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar subtemas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * AJAX: Obtener contenido por subtema
+     */
+    public function ajaxObtenerContenido($subtema_id)
+    {
+        try {
+            $contenido = \App\Models\SIGEM\ce_contenido::where('ce_subtema_id', $subtema_id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+        
+            if (!$contenido) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró contenido para este subtema'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'contenido' => $contenido,
+                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar contenido: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar contenido: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

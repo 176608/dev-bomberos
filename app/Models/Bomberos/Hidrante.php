@@ -3,6 +3,8 @@
 namespace App\Models\Bomberos;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use App\Models\Bomberos\User;
 
 class Hidrante extends Model
 {
@@ -39,14 +41,28 @@ class Hidrante extends Model
         'updated_at' => 'datetime:Y-m-d H:i:s',
         'anio' => 'string',
     ];
-//Solo la funcion getFechaTentativaAttribute se elimina, ya que no se usa en el modelo
-    /*protected function getFechaTentativaAttribute($value)
+
+    /**
+     * Obtiene el valor del atributo created_at ajustando la hora.
+     *
+     * @param  string  $value
+     * @return \Illuminate\Support\Carbon
+     */
+    public function getCreatedAtAttribute($value)
     {
-        if (!$value || $value === '0000-00-00') {
-            return null;
-        }
-        return \Carbon\Carbon::parse($value);
-    }*/
+        return $value ? Carbon::parse($value)->subHours(6) : null;
+    }
+
+    /**
+     * Obtiene el valor del atributo updated_at ajustando la hora.
+     *
+     * @param  string  $value
+     * @return \Illuminate\Support\Carbon
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->subHours(6) : null;
+    }
 
     public function coloniaLocacion()
     {

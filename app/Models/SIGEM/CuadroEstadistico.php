@@ -61,7 +61,7 @@ class CuadroEstadistico extends Model
     ];
     
     /**
-     * CORREGIR: Relación con Subtema
+     * Relación con Subtema
      */
     public function subtema()
     {

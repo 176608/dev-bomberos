@@ -568,6 +568,92 @@ function setupCrudHandlers() {
                 $btn.prop('disabled', false).html(originalHtml);
             });
     });
+
+    $(document).on('click', '.historial-hidrante', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const hidranteId = $btn.data('hidrante-id');
+        
+        if (!hidranteId) {
+            console.error('ID de hidrante no encontrado');
+            return;
+        }
+        
+        $btn.prop('disabled', true);
+        const originalHtml = $btn.html();
+        $btn.html('<span class="spinner-border spinner-border-sm"></span>');
+
+        $.get("{{ url('/hidrantes') }}/" + hidranteId + "/historial")
+            .done(function(modalHtml) {
+                try {
+                    // Limpiar cualquier modal anterior completamente
+                    $('.modal').each(function() {
+                        try {
+                            const instance = bootstrap.Modal.getInstance(this);
+                            if (instance) {
+                                instance.dispose();
+                            }
+                        } catch (e) {
+                            // Ignorar errores de instancias
+                        }
+                    });
+                    
+                    // Remover elementos del DOM
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
+                    
+                    // Verificar que recibimos HTML válido
+                    if (!modalHtml || modalHtml.trim().length === 0) {
+                        throw new Error('Modal HTML vacío');
+                    }
+                    
+                    // Crear un contenedor temporal para verificar el contenido
+                    const $temp = $('<div>').html(modalHtml);
+                    const $modalElement = $temp.find('.modal').first();
+                    
+                    if ($modalElement.length === 0) {
+                        throw new Error('No se encontró elemento .modal en el HTML recibido');
+                    }
+                    
+                    // Agregar el modal al DOM
+                    $('body').append($modalElement);
+                    
+                    // Crear la instancia del modal usando el elemento real
+                    const modalElement = $modalElement[0];
+                    const modalInstance = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: true
+                    });
+                    
+                    // Mostrar el modal
+                    modalInstance.show();
+                    
+                    // Limpiar cuando se cierre
+                    $modalElement.on('hidden.bs.modal', function() {
+                        modalInstance.dispose();
+                        $modalElement.remove();
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').removeAttr('style');
+                    });
+                    
+                } catch (error) {
+                    console.error('Error al mostrar modal:', error.message);
+                    
+                    // Limpiar en caso de error
+                    $('.modal, .modal-backdrop').remove();
+                    $('body').removeClass('modal-open').removeAttr('style');
+                    
+                    mostrarToast('Error al mostrar el historial del hidrante', 'error');
+                }
+            })
+            .fail(function(xhr) {
+                console.error('Error al cargar historial:', xhr.status, xhr.statusText);
+                mostrarToast('Error al cargar el historial del hidrante', 'error');
+            })
+            .always(function() {
+                $btn.prop('disabled', false).html(originalHtml);
+        });
+    });
     
     // Manejador para desactivar hidrante
     $(document).on('click', '.desactivar-hidrante', function(e) {
@@ -626,6 +712,7 @@ function setupCrudHandlers() {
             });
         }
     });
+    
 }
 
 /**
@@ -753,8 +840,7 @@ function inicializarDataTableServerSide() {
         scrollX: true,
         responsive: false,
         pageLength: 25,
-        lengthMenu: [[25, 50, 100, 500], [25, 50, 100, 500]],
-        
+        lengthMenu: [[25, 50, 100, 500, -1], [25, 50, 100, 500, 'Todas']],        
         // Incluir los botones en el DOM pero ocultarlos
         dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
              "<'row'<'col-sm-12'tr>>" +
@@ -833,6 +919,7 @@ function moverBotonesAlTitulo() {
         contenedorBotones.innerHTML = '';
         
         // Crear los botones manualmente basándose en la configuración
+        // Se eliminaron los botones CSV y PDF como solicitaste
         const botonesConfig = [
             {
                 text: '<i class="bi bi-clipboard"></i> Copiar',
@@ -840,19 +927,9 @@ function moverBotonesAlTitulo() {
                 action: 'copy'
             },
             {
-                text: '<i class="bi bi-filetype-csv"></i> CSV',
-                className: 'btn btn-sm btn-outline-success',
-                action: 'csv'
-            },
-            {
                 text: '<i class="bi bi-file-earmark-excel"></i> Excel',
                 className: 'btn btn-sm btn-outline-success',
                 action: 'excel'
-            },
-            {
-                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
-                className: 'btn btn-sm btn-outline-danger',
-                action: 'pdf'
             },
             {
                 text: '<i class="bi bi-printer"></i> Imprimir',
@@ -871,7 +948,17 @@ function moverBotonesAlTitulo() {
             btnElement.addEventListener('click', function() {
                 // Obtener el botón correspondiente de DataTables y activarlo
                 try {
-                    window.hidrantesTable.button(index).trigger();
+                    // Ajuste importante: ahora que eliminamos botones,
+                    // los índices no coinciden con la configuración original de DataTables
+                    // Por lo tanto, mapeamos las acciones a los índices correctos
+                    let dtIndex;
+                    switch(config.action) {
+                        case 'copy': dtIndex = 0; break;
+                        case 'excel': dtIndex = 2; break; // Era índice 2 en la configuración original
+                        case 'print': dtIndex = 4; break; // Era índice 4 en la configuración original
+                        default: dtIndex = index;
+                    }
+                    window.hidrantesTable.button(dtIndex).trigger();
                 } catch (e) {
                     console.error('Error al activar botón:', e);
                 }

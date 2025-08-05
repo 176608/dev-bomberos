@@ -4,7 +4,7 @@
 @section('title', 'Consultor de Hidrantes')
 
 @section('content')
-<div class="container-fluid">
+<div class="container py-4">
     <div class="row">
         <div class="col-12">
             <!-- Mostrar mensajes de éxito (logout, etc.) -->
@@ -16,71 +16,78 @@
                 </div>
             @endif
             
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+            <div class="card shadow-sm" style="background-color: rgba(186, 216, 184, 0.8);">
+                <div class="card-header bg-success text-white">
                     <h3 class="mb-0">
                         <i class="bi bi-binoculars-fill me-2"></i>
                         Sistema Consultor de Hidrantes
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Panel de Consulta Público</strong> - Aquí podrás consultar información sobre hidrantes.
-                    </div>
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>
-                                <i class="bi bi-droplet-fill text-primary me-2"></i>
-                                Funcionalidades Disponibles
-                            </h5>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    <i class="bi bi-search text-success me-2"></i>
-                                    Búsqueda de hidrantes por ubicación
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-map text-success me-2"></i>
-                                    Visualización en mapa interactivo
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-list-ul text-success me-2"></i>
-                                    Listado detallado de hidrantes
-                                </li>
-                                <li class="list-group-item">
-                                    <i class="bi bi-info-square text-success me-2"></i>
-                                    Información técnica detallada
-                                </li>
-                            </ul>
+                    <div class="row mb-4">
+                        <!-- Panel de búsqueda por ID -->
+                        <div class="col-md-8    ">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-search me-2"></i>Consulta de Hidrantes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="consultaHidranteForm" method="GET" action="{{ route('consultor.buscar') }}">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">Introduce el número del hidrante para ver su reporte:</span>
+                                            <input type="number" class="form-control" id="hidrante_id" name="hidrante_id" min="1" required>
+                                            <button class="btn btn-success" type="submit">
+                                                <i class="bi bi-search me-1"></i>Buscar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <h5>
-                                <i class="bi bi-gear-fill text-warning me-2"></i>
-                                Estado del Sistema
-                            </h5>
-                            <div class="alert alert-warning">
-                                <i class="bi bi-tools me-2"></i>
-                                <strong>En Desarrollo (WIP)</strong>
-                                <br>
-                                <small>Este módulo está siendo desarrollado. Próximamente estará disponible.</small>
+                        <!-- Panel AUX - Total de hidrantes -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Panel Auxiliar</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <h5>Total de hidrantes:</h5>
+                                        <h4 class="text-success">{{ $totalHidrantes }}</h4>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="d-grid gap-2">
-                                @auth
-                                    @if(in_array(auth()->user()->role, ['Capturista', 'Administrador', 'Desarrollador']))
-                                        <a href="{{ route('capturista.panel') }}" class="btn btn-primary">
-                                            <i class="bi bi-droplet-fill me-2"></i>
-                                            Ir al Panel de Hidrantes
-                                        </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Panel de resultados -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Reporte de Hidrante</h5>
+                                    @if(isset($hidrante))
+                                    <span class="badge bg-success">ID: {{ $hidrante->id }}</span>
                                     @endif
-                                @endauth
-                                
-                                <a href="{{ route('sigem.laravel.public') }}" class="btn btn-success">
-                                    <i class="bi bi-map me-2"></i>
-                                    Ver Sistema SIGEM
-                                </a>
+                                </div>
+                                <div class="card-body" id="resultadoConsulta">
+                                    @if(isset($hidrante))
+                                        <!-- Aquí se incluirá el partial de vista del hidrante -->
+                                        @include('partials.hidrante-consulta', ['hidrante' => $hidrante, 'readOnly' => true])
+                                    @elseif(isset($error))
+                                        <div class="alert alert-danger">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            {{ $error }}
+                                        </div>
+                                    @else
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            Ingresa un ID de hidrante para consultar su información.
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -93,11 +100,7 @@
 
 @section('scripts')
 <script>
-console.log('Dashboard de Consultor cargado correctamente');
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Sistema Consultor de Hidrantes - En desarrollo');
-    
     // Auto-ocultar alertas después de 5 segundos
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert-dismissible');
@@ -106,6 +109,18 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         });
     }, 5000);
+    
+    // Enfocar el campo de búsqueda
+    document.getElementById('hidrante_id').focus();
+    
+    // Validación del formulario
+    document.getElementById('consultaHidranteForm').addEventListener('submit', function(e) {
+        const hidranteId = document.getElementById('hidrante_id').value;
+        if (!hidranteId || isNaN(parseInt(hidranteId)) || parseInt(hidranteId) <= 0) {
+            e.preventDefault();
+            alert('Por favor, introduce un ID válido para el hidrante.');
+        }
+    });
 });
 </script>
 @endsection
