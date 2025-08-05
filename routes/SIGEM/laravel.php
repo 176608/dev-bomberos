@@ -22,9 +22,14 @@ Route::prefix('sigem')->group(function () {
         ->name('sigem.ajax.subtema');
 
     // === APIS PARA CONTENIDO DINÁMICO ===
-    //Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
+
+    // Rutas para Consulta Express
+    Route::get('/consulta-express/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])
+        ->name('sigem.consulta-express.temas');
+    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'obtenerConsultaExpressContenido'])
+        ->name('sigem.consulta-express.contenido');
 });
 
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
