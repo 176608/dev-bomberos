@@ -143,12 +143,6 @@
     z-index: 1;
 }
 
-    /* Asegura que el contenido esté por encima del overlay */
-    .bg-fonde * {
-        position: relative;
-        z-index: 2;
-    }
-
     @keyframes pulse {
         0% { opacity: 1; }
         50% { opacity: 0.7; }
