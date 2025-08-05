@@ -199,39 +199,6 @@ class PublicController extends Controller
     }
 
     /**
-     * NUEVA FUNCIÓN: Obtener datos para la sección inicio
-     */
-    public function obtenerDatosInicio()
-    {
-        try {
-            // Estadísticas básicas para la sección inicio
-            $totalTemas = Catalogo::count();
-            $totalSubtemas = Subtema::count();
-            $totalCuadros = CuadroEstadistico::count();
-            
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Datos de inicio cargados exitosamente',
-                'estadisticas' => [
-                    'total_temas' => $totalTemas,
-                    'total_subtemas' => $totalSubtemas,
-                    'total_cuadros' => $totalCuadros
-                ],
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar datos de inicio: ' . $e->getMessage(),
-                'estadisticas' => [],
-                'cuadros_recientes' => [],
-                'mapas_destacados' => []
-            ]);
-        }
-    }
-
-    /**
      * FUNCIÓN AJAX: Obtener datos del cuadro
      */
     public function obtenerCuadroData($cuadro_id)
