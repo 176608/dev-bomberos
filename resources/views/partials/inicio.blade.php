@@ -1,4 +1,3 @@
-
 <style>
 /* === ESTILOS PARA MÓDULOS CON EFECTO MIRROR === */
 .module-card {
@@ -274,35 +273,45 @@
         <h5 class="mb-0"><i class="bi bi-lightning-fill me-2"></i>Consulta Express</h5>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group mb-3">
-                    <label for="ce_tema_select" class="form-label">Tema:</label>
-                    <select id="ce_tema_select" class="form-select form-select-sm">
-                        <option value="">Seleccione un tema...</option>
-                        <!-- Los temas se cargarán dinámicamente -->
-                    </select>
+        <div class="container" id="consulta-express-container">
+            <div class="row">
+                <!-- Columna de imagen -->
+                <div class="col-md-3 text-center mb-3 mb-md-0">
+                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
                 </div>
-                <div class="form-group mb-3">
-                    <label for="ce_subtema_select" class="form-label">Subtema:</label>
-                    <select id="ce_subtema_select" class="form-select form-select-sm" disabled>
-                        <option value="">Primero seleccione un tema</option>
-                        <!-- Los subtemas se cargarán dinámicamente -->
-                    </select>
-                </div>
-                <button id="ce_consultar_btn" class="btn btn-primary btn-sm" disabled>
-                    Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
-                </button>
-            </div>
-            <div class="col-md-8">
-                <div id="ce_contenido_container" class="border p-3" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-info-circle fs-2"></i>
-                        <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                
+                <!-- Columna de selectores -->
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label for="ce_tema_select" class="form-label">Tema:</label>
+                        <select id="ce_tema_select" class="form-select">
+                            <option value="">Seleccione un tema...</option>
+                            <!-- Los temas se cargarán dinámicamente -->
+                        </select>
                     </div>
+                    <div class="form-group mb-3">
+                        <label for="ce_subtema_select" class="form-label">Subtema:</label>
+                        <select id="ce_subtema_select" class="form-select" disabled>
+                            <option value="">Primero seleccione un tema</option>
+                            <!-- Los subtemas se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <button id="ce_consultar_btn" class="btn btn-primary w-100" disabled>
+                        Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </button>
                 </div>
-                <div id="ce_metadata" class="text-end text-muted small mt-2" style="display: none;">
-                    Última actualización: <span id="ce_fecha_actualizacion">-</span>
+                
+                <!-- Columna de contenido -->
+                <div class="col-md-6">
+                    <div id="ce_contenido_container" class="border rounded p-3" style="min-height: 250px; max-height: 500px; overflow-y: auto;">
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-info-circle fs-2"></i>
+                            <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                        </div>
+                    </div>
+                    <div id="ce_metadata" class="text-end text-muted small mt-2" style="display: none;">
+                        Última actualización: <span id="ce_fecha_actualizacion">-</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -332,6 +341,8 @@ $(document).ready(function() {
         const subtemaId = $(this).val();
         if (subtemaId) {
             $('#ce_consultar_btn').prop('disabled', false);
+            // Carga automática de contenido al seleccionar subtema (opcional)
+            // cargarContenidoConsultaExpress(subtemaId);
         } else {
             $('#ce_consultar_btn').prop('disabled', true);
         }
