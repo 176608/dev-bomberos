@@ -113,6 +113,18 @@
     </div>
 </div>
 
+<div class="container" id="consulta-express-container">
+col-3 imagen:
+<img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express">
+
+div de col-3, que contiene los selectores de ce_temas y ce_subtemas:
+Selector de ce_temas: Genera listado de temas disponibles en bd 
+    El selector de ce_subtemas se genera dinámicamente al seleccionar un tema
+
+div de col-6, una vez seleccionado un tema y subtema imprime el 
+    consulta_express_contenido pues se ligan por el ce_subtema_id al contenido pertinente 
+</div>
+
 <style>
 /* === ESTILOS PARA MÓDULOS CON EFECTO MIRROR === */
 .module-card {
