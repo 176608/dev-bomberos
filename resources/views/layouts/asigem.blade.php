@@ -187,9 +187,8 @@
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
-    <div class="container-fluid pb-4" style="background-color: #2066acff;">
-        <div class="container-fluid bg-fonde">
-            <!-- Sección de Logos -->
+    <div class="container-fluid pb-4 bg-fonde" >
+        <!-- Sección de Logos -->
         <div class="header-logos container-fluid">
             <div class="logo-section">
                 <img src="{{ $img1 }}" alt="JRZ Logo">
@@ -285,7 +284,6 @@
             </div>
         @endif
 
-        </div>
     </div>
 @endsection
 
