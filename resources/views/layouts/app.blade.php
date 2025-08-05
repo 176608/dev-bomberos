@@ -126,7 +126,7 @@
     }
 
     .bg-fonde {
-        background-image: url('{{ asset('imagenes/fonde.png') }}');
+        background-image: url('{{ asset('imagenes/fondo.png') }}');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
