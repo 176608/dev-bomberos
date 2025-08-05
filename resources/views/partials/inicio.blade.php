@@ -156,7 +156,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-house-fill me-2"></i>Bienvenido al SIGEM
+            <i class="bi bi-house-fill me-2"></i>Bienvenido a SIGEM
         </h2>
         
         <div class="row mb-4">
