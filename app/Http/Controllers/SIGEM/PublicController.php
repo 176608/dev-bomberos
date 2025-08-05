@@ -9,6 +9,9 @@ use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
 use App\Models\SIGEM\Catalogo;
 use App\Models\SIGEM\CuadroEstadistico;
+use App\Models\SIGEM\ce_tema;
+use App\Models\SIGEM\ce_subtema;
+use App\Models\SIGEM\ce_contenido;
 
 class PublicController extends Controller
 {
@@ -459,6 +462,78 @@ class PublicController extends Controller
             
             return redirect()->route('sigem.partial', ['section' => 'estadistica'])
                 ->with('error', 'No se pudo cargar el tema seleccionado');
+        }
+    }
+
+    /**
+     * Obtener temas y subtemas para consulta express
+     */
+    public function obtenerConsultaExpressTemas()
+    {
+        try {
+            $temas = \App\Models\SIGEM\ce_tema::with('subtemas')
+                    ->orderBy('ce_tema_id')
+                    ->get();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Temas de consulta express cargados exitosamente',
+                'temas' => $temas
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar temas de consulta express:', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar temas: ' . $e->getMessage(),
+                'temas' => []
+            ]);
+        }
+    }
+
+    /**
+     * Obtener contenido de consulta express por subtema
+     */
+    public function obtenerConsultaExpressContenido($subtema_id)
+    {
+        try {
+            $contenido = \App\Models\SIGEM\ce_contenido::where('ce_subtema_id', $subtema_id)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+            
+            if (!$contenido) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Contenido no encontrado para este subtema',
+                    'contenido' => null
+                ]);
+            }
+            
+            // Obtener información del subtema y tema para mostrar en la interfaz
+            $subtema = \App\Models\SIGEM\ce_subtema::with('tema')->find($subtema_id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Contenido cargado exitosamente',
+                'contenido' => $contenido,
+                'subtema' => $subtema,
+                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar contenido de consulta express:', [
+                'subtema_id' => $subtema_id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar contenido: ' . $e->getMessage(),
+                'contenido' => null
+            ]);
         }
     }
 }

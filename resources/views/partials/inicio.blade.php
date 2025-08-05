@@ -434,5 +434,25 @@ $(document).ready(function() {
             }
         });
     }
+
+    // Agregar código de depuración
+    console.log('Rutas de consulta express:');
+    console.log('Ruta temas: {{ route("sigem.consulta-express.temas") }}');
+    console.log('Ruta contenido: {{ url("sigem/consulta-express/contenido") }}/ID');
+
+    // Probar manualmente la solicitud AJAX de temas
+    $.ajax({
+        url: '{{ route("sigem.consulta-express.temas") }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta de temas (manual):', response);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error en solicitud manual de temas:', error);
+            console.error('Estado:', status);
+            console.error('Respuesta:', xhr.responseText);
+        }
+    });
 });
 </script>
