@@ -14,7 +14,6 @@
                     <!-- Columna de selectores -->
                     <div class="col-md-3">
                         @php
-                            // Importar modelos
                             use App\Models\SIGEM\ce_tema;
                             use App\Models\SIGEM\ce_subtema;
                             use App\Models\SIGEM\ce_contenido;
@@ -37,7 +36,7 @@
                             @csrf
                             
                             <div class="form-group mb-3">
-                                <label for="ce_tema_select" class="form-label">Tema:</label>
+                                <label for="ce_tema_select" class="form-label">ceTema:</label>
                                 <select id="ce_tema_select" name="ce_tema_id" class="form-select">
                                     <option value="">Seleccione un tema...</option>
                                     @foreach($temas as $tema)
@@ -49,7 +48,7 @@
                             </div>
                             
                             <div class="form-group mb-3">
-                                <label for="ce_subtema_select" class="form-label">Subtema:</label>
+                                <label for="ce_subtema_select" class="form-label">ceSubtema:</label>
                                 <select id="ce_subtema_select" name="ce_subtema_id" class="form-select" {{ count($subtemas) > 0 ? '' : 'disabled' }}>
                                     <option value="">{{ count($subtemas) > 0 ? 'Seleccione un subtema...' : 'Primero seleccione un tema' }}</option>
                                     @foreach($subtemas as $subtema)
