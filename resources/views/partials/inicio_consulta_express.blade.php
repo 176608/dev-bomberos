@@ -48,7 +48,7 @@
                             </div>
                             
                             <div class="form-group mb-3">
-                                <label for="ce_subtema_select" class="form-label">ceSubtema:</label>
+                                <label for="ce_subtema_select" class="form-label">Subtema:</label>
                                 <select id="ce_subtema_select" name="ce_subtema_id" class="form-select" {{ count($subtemas) > 0 ? '' : 'disabled' }}>
                                     <option value="">{{ count($subtemas) > 0 ? 'Seleccione un subtema...' : 'Primero seleccione un tema' }}</option>
                                     @foreach($subtemas as $subtema)
@@ -85,9 +85,14 @@
 </div>
 
 <script>
+// Agregar un log al principio del script para verificar que se está ejecutando
+console.log('Express: Script de Consulta Express iniciado');
+
 // Esperamos a que el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos DOM
+    console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
+
+    // Verificar que los elementos existan
     const temaSelect = document.getElementById('ce_tema_select');
     const subtemaSelect = document.getElementById('ce_subtema_select');
     const consultarBtn = document.getElementById('ce_consultar_btn');
@@ -95,6 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const metadataDiv = document.getElementById('ce_metadata');
     const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
     
+    if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
+        console.error('Faltan elementos necesarios en el DOM:',
+            {temaSelect: !!temaSelect, subtemaSelect: !!subtemaSelect, 
+            consultarBtn: !!consultarBtn, contenidoContainer: !!contenidoContainer});
+        return;
+    }
+
+    console.log('Express: Elementos encontrados, configurando listeners...');
+
     // Verificar si jQuery está disponible
     const useJQuery = (typeof jQuery !== 'undefined');
     
@@ -123,18 +137,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar subtemas cuando se selecciona un tema
     function cargarSubtemas(temaId) {
+        console.log('Express:Intentando cargar subtemas para tema ID:', temaId);
+        
         // Deshabilitar el selector de subtemas mientras se cargan
         subtemaSelect.disabled = true;
         subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
         consultarBtn.disabled = true;
         
-        // Preparar datos para la petición
-        const data = new FormData();
-        data.append('tema_id', temaId);
-        data.append('_token', document.querySelector('input[name="_token"]').value);
+        // Depuración: Mostrar URL a la que se envía la petición
+        const url = '{{ url("sigem/ajax/consulta-express/subtemas") }}/' + temaId;
+        console.log('Express:Enviando petición a:', url);
         
         // Realizar petición fetch
-        fetch('{{ url("sigem/ajax/consulta-express/subtemas") }}/' + temaId, {
+        fetch(url, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -142,12 +157,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
+            console.log('Express:Respuesta recibida, status:', response.status);
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Express:Datos recibidos:', data);
+            
             // Limpiar selector de subtemas
             subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
             
@@ -163,9 +181,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Habilitar selector y botón
                 subtemaSelect.disabled = false;
                 consultarBtn.disabled = false;
+                console.log('Express:Subtemas cargados:', data.subtemas.length);
             } else {
                 subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
                 consultarBtn.disabled = true;
+                console.log('Express:No se encontraron subtemas');
             }
         })
         .catch(error => {
@@ -177,10 +197,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar contenido
     function cargarContenido(subtemaId) {
+        console.log('Express:Cargando contenido para subtema ID:', subtemaId);
         showLoader();
         
+        const url = '{{ url("sigem/ajax/consulta-express/contenido") }}/' + subtemaId;
+        console.log('Express:URL de contenido:', url);
+        
         // Realizar petición fetch
-        fetch('{{ url("sigem/ajax/consulta-express/contenido") }}/' + subtemaId, {
+        fetch(url, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -188,12 +212,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
+            console.log('Respuesta de contenido recibida:', response.status);
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Express: Datos de contenido:', data);
             if (data.success && data.contenido) {
                 // Mostrar contenido y metadata
                 contenidoContainer.innerHTML = data.contenido.ce_contenido;
@@ -209,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error al cargar contenido:', error);
-            showError('No se pudo cargar el contenido. Intente nuevamente.');
+            showError('No se pudo cargar el contenido. Intente nuevamente: ' + error.message);
         });
     }
     
@@ -249,9 +275,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // === EVENT LISTENERS ===
     
-    // Cuando cambia el tema
+    // Cuando cambia el tema - Asegurarse de que este evento se ejecute
     temaSelect.addEventListener('change', function() {
         const temaId = this.value;
+        console.log('Express:Tema seleccionado:', temaId); // Añadir log para depuración
         
         if (temaId) {
             cargarSubtemas(temaId);
@@ -278,9 +305,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             metadataDiv.style.display = 'none';
         }
-        
-        // Actualizar URL
-        updateUrlParams();
     });
     
     // Cuando cambia el subtema - Auto-cargar contenido

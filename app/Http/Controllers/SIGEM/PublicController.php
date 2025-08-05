@@ -565,7 +565,8 @@ class PublicController extends Controller
             return response()->json([
                 'success' => true,
                 'subtemas' => $subtemas
-            ]);
+            ])->header('Access-Control-Allow-Origin', '*')
+              ->header('Access-Control-Allow-Methods', 'GET');
         } catch (\Exception $e) {
             \Log::error('Error al cargar subtemas: ' . $e->getMessage());
             return response()->json([
