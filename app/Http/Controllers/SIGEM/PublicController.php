@@ -155,13 +155,19 @@ class PublicController extends Controller
      */
     public function loadPartial($section)
     {
-        $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'];
+        // Añadir 'consulta-express' a las secciones válidas
+        $validSections = ['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos', 'consulta-express'];
         
         if (!in_array($section, $validSections)) {
             return response()->view('partials.inicio');
         }
         
         try {
+            // Manejo especial para consulta-express
+            if ($section === 'consulta-express') {
+                return response()->view('partials.inicio_consulta_express');
+            }
+            
             if ($section === 'estadistica') {
                 // Obtener todos los temas para el selector
                 $temas = Tema::orderBy('orden_indice')->get();

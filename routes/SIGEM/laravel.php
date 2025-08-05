@@ -29,6 +29,13 @@ Route::prefix('sigem')->group(function () {
     // Rutas para Consulta Express
     Route::get('/consulta-express/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])
         ->name('sigem.consulta-express.temas');
+    
+    // Nueva ruta directa al partial de Consulta Express
+    Route::get('/consulta-express', [PublicController::class, 'loadPartial'])
+        ->name('sigem.consulta-express')
+        ->defaults('section', 'consulta-express');
+    
+    // Ruta para obtener contenido de un subtema específico
     Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'obtenerConsultaExpressContenido'])
         ->name('sigem.consulta-express.contenido');
 });
