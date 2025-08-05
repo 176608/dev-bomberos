@@ -1,4 +1,5 @@
-<div class="card mb-4">
+<div class="container py-4">
+    <div class="card mb-4">
     <div class="card-header bg-primary text-white">
         <h5 class="mb-0"><i class="bi bi-lightning-fill me-2"></i>Consulta Express</h5>
     </div>
@@ -113,4 +114,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>
