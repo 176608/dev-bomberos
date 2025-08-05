@@ -439,7 +439,7 @@
     };
 
     // === FUNCION usada en la vista de inicio.blade ===
-    SIGEMApp.loadInicioData = function () {
+    /*SIGEMApp.loadInicioData = function () {
         fetch(`${CONFIG.API_URL}/datos-inicio`)
             .then(response => response.json())
             .then(data => {
@@ -456,7 +456,7 @@
             .catch(error => {
                 console.error('Error cargando datos de inicio:', error);
             });
-    };
+    };*/
 
     // === FUNCION usada en la vista de estadística.blade ===
     SIGEMApp.loadEstadisticaData = function () {
