@@ -457,25 +457,56 @@ function cargarSubtema(subtema_id) {
                 actualizarEncabezadoSubtema(subtema_id);
                 
                 // Renderizar cuadros
-                renderizarCuadros(data.cuadros);
-            } else {
-                document.getElementById('cuadros-container').innerHTML = `
-                    <div class="alert alert-danger m-3">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        ${data.message || 'Error al cargar cuadros estadísticos'}
+                function renderizarCuadros(cuadros) {
+    const container = document.getElementById('cuadros-container');
+    
+    if (!cuadros || cuadros.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-table" style="font-size: 3rem;"></i>
+                <p class="mt-3">No hay cuadros estadísticos disponibles para este subtema.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Ordenar por número extraído de codigo_cuadro (ejemplo: MA.1, MA.10)
+    cuadros.sort((a, b) => {
+        const numA = parseInt((a.codigo_cuadro || '').split('.')[1]) || 0;
+        const numB = parseInt((b.codigo_cuadro || '').split('.')[1]) || 0;
+        return numA - numB;
+    });
+
+    let html = '<div class="cuadros-lista">';
+    cuadros.forEach(cuadro => {
+        html += `
+            <div class="cuadro-item p-3 mb-3 border rounded">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="mb-1">
+                            <i class="bi bi-file-earmark-excel me-2 text-success"></i>
+                            ${cuadro.codigo_cuadro || 'N/A'}
+                        </h6>
+                        <p class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</p>
+                        ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                     </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar subtema:', error);
-            document.getElementById('cuadros-container').innerHTML = `
-                <div class="alert alert-danger m-3">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Error de conexión al cargar cuadros estadísticos
+                    <div class="col-md-4 text-end">
+                        <a href="/sigem?section=estadistica&cuadro_id=${cuadro.cuadro_estadistico_id}" class="btn btn-outline-success btn-sm me-2">
+                            <i class="bi bi-eye me-1"></i>Ver
+                        </a>
+                        ${cuadro.excel_file ? `
+                            <a href="/descargas/${cuadro.excel_file}" class="btn btn-success btn-sm" download>
+                                <i class="bi bi-download"></i>
+                            </a>
+                        ` : ''}
+                    </div>
                 </div>
-            `;
-        });
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
 }
 
 // Función para actualizar el encabezado del subtema
