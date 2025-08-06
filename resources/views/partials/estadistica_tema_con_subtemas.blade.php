@@ -496,6 +496,7 @@ function actualizarEncabezadoSubtema(subtema_id) {
 }
 
 // Función para renderizar cuadros
+// Función para renderizar cuadros
 function renderizarCuadros(cuadros) {
     const container = document.getElementById('cuadros-container');
     
@@ -509,15 +510,14 @@ function renderizarCuadros(cuadros) {
         return;
     }
 
-    // Ordenar por número extraído de codigo_cuadro (ejemplo: MA.1, MA.10)
+    // ORDENAMIENTO numérico por código (ej. MA.1, MA.2... MA.10 correctamente)
     cuadros.sort((a, b) => {
-        // Extrae el número después del punto, por ejemplo: MA.10 => 10
-        const numA = parseInt((a.codigo_cuadro || '').split('.').pop()) || 0;
-        const numB = parseInt((b.codigo_cuadro || '').split('.').pop()) || 0;
-        return numA - numB;
+        const extraerNumero = codigo => parseInt((codigo || '').match(/\d+/)?.[0] || 0);
+        return extraerNumero(a.codigo_cuadro) - extraerNumero(b.codigo_cuadro);
     });
 
     let html = '<div class="cuadros-lista">';
+
     cuadros.forEach(cuadro => {
         html += `
             <div class="cuadro-item p-3 mb-3 border rounded">
@@ -544,6 +544,7 @@ function renderizarCuadros(cuadros) {
             </div>
         `;
     });
+
     html += '</div>';
     container.innerHTML = html;
 }
