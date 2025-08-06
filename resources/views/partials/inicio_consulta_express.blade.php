@@ -44,11 +44,12 @@ $temas = ce_tema::all()->sortBy(function ($tema) use ($ordenPersonalizado) {
                                     <label for="ce_tema_select_modal" class="form-label">Tema:</label>
                                     <select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
                                         <option value="">Seleccione un tema...</option>
-                                        @foreach($temas as $tema)
-                                            <option value="{{ $tema->ce_tema_id }}">
-                                                {{ $tema->tema }}
-                                            </option>
-                                        @endforeach
+                                       @foreach($temas as $tema)
+    <option value="{{ $tema->ce_tema_id }}">
+        {{ $ordenPersonalizado[$tema->tema] ?? '-' }}. {{ $tema->tema }}
+    </option>
+@endforeach
+
                                     </select>
                                 </div>
                                 
@@ -96,12 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
 
     // Verificar que los elementos existan
-    const temaSelect = document.getElementById('ce_tema_select');
-    const subtemaSelect = document.getElementById('ce_subtema_select');
-    const consultarBtn = document.getElementById('ce_consultar_btn');
-    const contenidoContainer = document.getElementById('ce_contenido_container');
-    const metadataDiv = document.getElementById('ce_metadata');
-    const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
+const temaSelect = document.getElementById('ce_tema_select_modal');
+const subtemaSelect = document.getElementById('ce_subtema_select_modal');
+const consultarBtn = document.getElementById('ce_consultar_btn_modal');
+const contenidoContainer = document.getElementById('ce_contenido_container_modal');
+const metadataDiv = document.getElemenzztById('ce_metadata_modal');
+const fechaActualizacion = document.getElementById('ce_fecha_actualizacion_modal');
+
     
     if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
         console.error('Faltan elementos necesarios en el DOM:',
