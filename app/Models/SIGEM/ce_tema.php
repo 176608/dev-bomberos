@@ -56,6 +56,6 @@ class ce_tema extends Model
      */
     public static function obtenerTodos()
     {
-       return self::orderBy('tema', 'asc')->get();
+       return self::orderBy('ce_tema_id', 'asc')->get();
     }
 }

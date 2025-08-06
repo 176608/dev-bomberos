@@ -23,7 +23,7 @@
                         <div class="col-md-3">
                             @php
                                 use App\Models\SIGEM\ce_tema;
-                                $temas = ce_tema::orderBy('ce_tema_id')->get();
+                                $temas = ce_tema::orderBy('tema', 'asc')->get();
                             @endphp
                             
                             <!-- Formulario para selección en modal -->
