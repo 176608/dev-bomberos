@@ -2,7 +2,7 @@
     <div class="card-body p-0">
         <!-- VISTA DE TEMA SELECCIONADO CON SUBTEMAS LATERALES -->
         <div class="row g-0 min-vh-75">
-            <!-- SIDEBAR PARA SUBTEMAS - Con ID para manipularlo con JS -->
+            <!-- SIDEBAR PARA SUBTEMAS -->
             <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
@@ -12,8 +12,6 @@
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
                             </h6>
                         </div>
-                        
-                        <!-- Botón toggle con mejor posicionamiento -->
                         <div class="toggle-button-container">
                             <button class="btn-toggle-sidebar-fixed" id="toggle-sidebar" title="Expandir/Colapsar panel">
                                 <i class="bi bi-chevron-left"></i>
@@ -21,16 +19,16 @@
                         </div>
                     </div>
 
-                    <!-- Navegación de Subtemas -->
+                    <!-- Lista de subtemas -->
                     <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
                         @if($tema_subtemas && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
-                                <a href="#" 
-                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
+                                <a href="#"
+                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;"
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
                                     @if($tema_subtema->icono_subtema)
-                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}" 
-                                             alt="{{ $tema_subtema->subtema_titulo }}" 
+                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}"
+                                             alt="{{ $tema_subtema->subtema_titulo }}"
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
                                     @else
@@ -62,18 +60,17 @@
                 </div>
             </div>
 
-            <!-- CONTENIDO DE CUADROS ESTADÍSTICOS -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div class="col-md-8 transition-width" id="contenido-principal">
                 <div class="d-flex flex-column h-100">
-                    <!-- Encabezado con selector de temas y botón para mostrar sidebar -->
+
+                    <!-- Barra superior -->
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
                             <button class="btn btn-sm btn-outline-primary me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
                                 <i class="bi bi-list"></i>
                             </button>
-                            
-                            <!-- Selector de Temas -->
+
                             <div style="min-width: 250px;">
                                 <select class="form-select" id="tema-selector" onchange="cambiarTema(this.value)">
                                     @foreach($temas as $tema)
@@ -84,14 +81,13 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        <!-- Enlace para volver a la vista de temas -->
+
                         <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>Volver a temas
                         </a>
                     </div>
 
-                    <!-- Encabezado de subtema seleccionado -->
+                    <!-- Encabezado del subtema -->
                     <div class="p-3 border-bottom" id="subtema-header">
                         @if(isset($subtema_seleccionado))
                             <h5 class="mb-0">{{ $subtema_seleccionado->subtema_titulo }}</h5>
@@ -102,42 +98,14 @@
                         @endif
                     </div>
 
-                    <!-- Lista de cuadros -->
+                    <!-- Contenedor de cuadros dinámicos -->
                     <div class="flex-fill overflow-auto p-3" id="cuadros-container">
-                        @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
-                            <div class="cuadros-lista">
-                                @foreach($cuadros as $cuadro)
-                                    <div class="cuadro-item p-3 mb-3 border rounded">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                <h6 class="mb-1">
-                                                    <i class="bi bi-file-earmark-excel me-2 text-success"></i>
-                                                    {{ $cuadro->codigo_cuadro ?? 'N/A' }}
-                                                </h6>
-                                                <p class="mb-1">{{ $cuadro->cuadro_estadistico_titulo ?? 'Sin título' }}</p>
-                                                <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo ?? '' }}</small>
-                                            </div>
-                                            <div class="col-md-4 text-end">
-                                                <a href="{{ url('/sigem?section=estadistica&cuadro_id='.$cuadro->cuadro_estadistico_id) }}" class="btn btn-outline-success btn-sm me-2">
-                                                    <i class="bi bi-eye me-1"></i>Ver
-                                                </a>
-                                                @if(isset($cuadro->excel_file) && !empty($cuadro->excel_file))
-                                                    <a href="{{ url('/descargas/'.$cuadro->excel_file) }}" class="btn btn-success btn-sm" download>
-                                                        <i class="bi bi-download"></i>
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-5">
-                                <i class="bi bi-table" style="font-size: 3rem;"></i>
-                                <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
-                            </div>
-                        @endif
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-table" style="font-size: 3rem;"></i>
+                            <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
