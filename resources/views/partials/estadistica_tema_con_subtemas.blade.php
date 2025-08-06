@@ -508,9 +508,16 @@ function renderizarCuadros(cuadros) {
         `;
         return;
     }
-    
+
+    // Ordenar por número extraído de codigo_cuadro (ejemplo: MA.1, MA.10)
+    cuadros.sort((a, b) => {
+        // Extrae el número después del punto, por ejemplo: MA.10 => 10
+        const numA = parseInt((a.codigo_cuadro || '').split('.').pop()) || 0;
+        const numB = parseInt((b.codigo_cuadro || '').split('.').pop()) || 0;
+        return numA - numB;
+    });
+
     let html = '<div class="cuadros-lista">';
-    
     cuadros.forEach(cuadro => {
         html += `
             <div class="cuadro-item p-3 mb-3 border rounded">
@@ -537,7 +544,6 @@ function renderizarCuadros(cuadros) {
             </div>
         `;
     });
-    
     html += '</div>';
     container.innerHTML = html;
 }
