@@ -21,30 +21,23 @@
                         
                         <!-- Columna de selectores -->
                         <div class="col-md-3">
-                           @php
-    use App\Models\SIGEM\ce_tema;
-
-    $temasOrdenados = [
-        1 => 'Población',
-        2 => 'Empleo',
-        3 => 'Industria Maquiladora',
-        4 => 'Vivienda',
-        5 => 'Educación',
-    ];
-
-    $temasBD = ce_tema::all()->keyBy('ce_tema_id');
-@endphp
-<p style="color: red; font-weight: bold;">DEBUG: ESTE SELECT VIENE DE inicio_consulta_express.blade.php</p>
-
-<select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
-    <option value="">Seleccione un tema...</option>
-    @foreach($temasOrdenados as $id => $nombreEsperado)
-        @if(isset($temasBD[$id]))
-            <option value="{{ $id }}">{{ $temasBD[$id]->tema }}</option>
-        @endif
-    @endforeach
-</select>
-
+                            @php
+                                use App\Models\SIGEM\ce_tema;
+                                $temas = ce_tema::orderBy('ce_tema_id')->get();
+                            @endphp
+                            
+                            <!-- Formulario para selección en modal -->
+                            <div id="ce_form_modal">
+                                <div class="form-group mb-3">
+                                    <label for="ce_tema_select_modal" class="form-label">Tema:</label>
+                                    <select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
+                                        <option value="">Seleccione un tema...</option>
+                                        @foreach($temas as $tema)
+                                            <option value="{{ $tema->ce_tema_id }}">
+                                                {{ $tema->tema }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 
                                 <div class="form-group mb-3">
