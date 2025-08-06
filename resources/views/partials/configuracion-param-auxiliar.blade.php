@@ -268,7 +268,7 @@ $(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                console.log('Filtro actualizado:', campo, valor);
+                //console.log('Filtro actualizado:', campo, valor);
             },
             error: function(xhr) {
                 console.error('Error al actualizar filtro:', xhr);
@@ -300,7 +300,7 @@ $(function() {
                     ajaxUrl.searchParams.delete('filtros_adicionales');
                     
                     // Recargar la tabla sin filtros
-                    console.log('Recargando tabla sin filtros');
+                    //console.log('Recargando tabla sin filtros');
                     table.ajax.url(ajaxUrl.toString()).load(function() {
                         if (noScroll) {
                             // Scroll hacia el panel auxiliar en lugar de la tabla
@@ -339,10 +339,10 @@ $(function() {
             });
             
             // Depurar los filtros
-            console.log('Filtros visibles:', filtrosVisibles);
-            console.log('Filtros no visibles:', filtrosNoVisibles);
-            console.log('Columnas configuradas:', columnas);
-            
+            //console.log('Filtros visibles:', filtrosVisibles);
+            //console.log('Filtros no visibles:', filtrosNoVisibles);
+            //console.log('Columnas configuradas:', columnas);
+
             // Primero limpiar todos los filtros anteriores
             table.columns().search('').draw();
             

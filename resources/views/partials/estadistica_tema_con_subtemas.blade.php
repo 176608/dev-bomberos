@@ -364,10 +364,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Estadística por tema cargada:', {
-        tema: @json($tema_seleccionado->tema_id ?? null),
-        subtema: @json($subtema_seleccionado->subtema_id ?? null)
-    });
+    //console.log('Estadística por tema cargada:', {
+    //    tema: @json($tema_seleccionado->tema_id ?? null),
+    //    subtema: @json($subtema_seleccionado->subtema_id ?? null)
+    //});
     
     // Inicializar manejo del sidebar
     initSidebarToggle();
@@ -424,7 +424,7 @@ function initSidebarToggle() {
 
 // Función para cambiar de tema
 function cambiarTema(tema_id) {
-    console.log('Cambiando a tema:', tema_id);
+    //console.log('Cambiando a tema:', tema_id);
     window.location.href = '{{ url("/sigem/estadistica-por-tema") }}/' + tema_id;
 }
 

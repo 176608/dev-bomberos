@@ -276,9 +276,7 @@
         },
 
         // Reemplazar el método openConsultaExpress con esta versión más simple
-        openConsultaExpress: function() {
-            console.log('Abriendo modal de Consulta Express');
-            
+        openConsultaExpress: function() {            
             // Verificar si ya existe una instancia del modal
             const consultaExpressModal = document.getElementById('consultaExpressModal');
             
@@ -318,9 +316,7 @@
         },
 
         // Función para inicializar los eventos del modal
-        initConsultaExpress: function() {
-            console.log('Inicializando eventos de Consulta Express');
-            
+        initConsultaExpress: function() {            
             // Marcar como inicializado para no repetir
             this.consultaExpressInitialized = true;
             
@@ -491,9 +487,7 @@
                     // Mover el modal al body
                     const modalElement = tempContainer.querySelector('#consultaExpressModal');
                     if (modalElement) {
-                        document.body.appendChild(modalElement);
-                        console.log('Modal agregado dinámicamente al DOM');
-                        
+                        document.body.appendChild(modalElement);                        
                         // Abrir el modal
                         this.openConsultaExpress();
                     } else {
@@ -1004,7 +998,6 @@
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onload="console.log('Imagen cargada: ${mapa.icono}')"
                                                   onerror="console.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
                                              >
                                              ${mapa.enlace ? 

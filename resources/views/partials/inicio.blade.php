@@ -339,17 +339,3 @@
 <div class="container">
     @include('partials.inicio_consulta_express')
 </div>
-
-<!-- Añadir esto temporalmente para probar -->
-<div class="mt-3 text-center">
-    <button class="btn btn-warning" onclick="console.log('SIGEMApp disponible:', typeof SIGEMApp !== 'undefined'); console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');">
-        Verificar JS
-    </button>
-    <button class="btn btn-danger" onclick="if(typeof SIGEMApp !== 'undefined') SIGEMApp.openConsultaExpress(); else alert('SIGEMApp no está disponible');">
-        Test Modal
-    </button>
-</div>
-
-<script>
-
-</script>

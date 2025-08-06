@@ -334,14 +334,12 @@
     <script>
     // Logout handler function
     function handleLogout(event) {
-        event.preventDefault();
-        console.log('Iniciando proceso de logout...');
-        
+        event.preventDefault();        
         const form = document.getElementById('logout-form');
         if (form) {
             form.submit();
         } else {
-            console.error('Error: Formulario de logout no encontrado');
+            console.error('Error: Formulario no encontrado');
         }
     }
 
@@ -364,7 +362,7 @@
                 }
             },
             error: function() {
-                console.log('Error al verificar la sesión');
+                //console.log('Error al verificar la sesión');
             }
         });
     }

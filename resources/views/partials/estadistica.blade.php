@@ -329,11 +329,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const cuadroData = @json($cuadro_data ?? null);
     const modoVista = @json($modo_vista ?? 'navegacion');
     
-    console.log('Estadística cargada:', {
+    /*console.log('Estadística cargada:', {
         cuadroId,
         temaSeleccionado,
         modoVista
-    });
+    });*/
 
     // Si viene desde catálogo, mostrar vista correspondiente
     if (modoVista === 'desde_catalogo') {
@@ -346,12 +346,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // FUNCIONES PARA MODO DESDE CATÁLOGO (conservar funcionalidad existente)
 function mostrarVistaDesdeCatalogo() {
-    console.log('Mostrando vista desde catálogo...');
+    //console.log('Mostrando vista desde catálogo...');
     // Implementación existente...
 }
 
 function cargarDatosDesdeCatalogo() {
-    console.log('Cargando datos desde catálogo...');
+    // console.log('Cargando datos desde catálogo...');
     // Implementar lógica existente para modo catálogo
 }
 
@@ -476,6 +476,6 @@ function renderizarCuadros(cuadros) {
 function verCuadro(cuadroId) {
     // Implementar visualización de cuadro
     console.log('Ver cuadro:', cuadroId);
-    alert('Funcionalidad de visualización de cuadro en desarrollo');
+    //alert('Funcionalidad de visualización de cuadro en desarrollo');
 }
 </script>

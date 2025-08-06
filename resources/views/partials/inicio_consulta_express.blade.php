@@ -78,12 +78,10 @@
 </div>
 
 <script>
-// Agregar un log al principio del script para verificar que se está ejecutando
-console.log('Express: Script de Consulta Express iniciado');
 
 // Esperamos a que el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
+    //console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
 
     // Verificar que los elementos existan
     const temaSelect = document.getElementById('ce_tema_select');
@@ -100,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    console.log('Express: Elementos encontrados, configurando listeners...');
+    //console.log('Express: Elementos encontrados, configurando listeners...');
 
     // Verificar si jQuery está disponible
     const useJQuery = (typeof jQuery !== 'undefined');
@@ -130,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar subtemas cuando se selecciona un tema
     function cargarSubtemas(temaId) {
-        console.log('Express:Intentando cargar subtemas para tema ID:', temaId);
+        //console.log('Express:Intentando cargar subtemas para tema ID:', temaId);
         
         // Deshabilitar el selector de subtemas mientras se cargan
         subtemaSelect.disabled = true;
@@ -139,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Depuración: Mostrar URL a la que se envía la petición
         const url = '{{ url("sigem/ajax/consulta-express/subtemas") }}/' + temaId;
-        console.log('Express:Enviando petición a:', url);
-        
+        //console.log('Express:Enviando petición a:', url);
+
         // Realizar petición fetch
         fetch(url, {
             method: 'GET',
@@ -150,15 +148,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            console.log('Express:Respuesta recibida, status:', response.status);
+            //console.log('Express:Respuesta recibida, status:', response.status);
             if (!response.ok) {
                 throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Express:Datos recibidos:', data);
-            
+            //console.log('Express:Datos recibidos:', data);
+
             // Limpiar selector de subtemas
             subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
             
@@ -174,11 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Habilitar selector y botón
                 subtemaSelect.disabled = false;
                 consultarBtn.disabled = false;
-                console.log('Express:Subtemas cargados:', data.subtemas.length);
+                //console.log('Express:Subtemas cargados:', data.subtemas.length);
             } else {
                 subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
                 consultarBtn.disabled = true;
-                console.log('Express:No se encontraron subtemas');
+                //console.log('Express:No se encontraron subtemas');
             }
         })
         .catch(error => {
@@ -190,12 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar contenido
     function cargarContenido(subtemaId) {
-        console.log('Express:Cargando contenido para subtema ID:', subtemaId);
+        //console.log('Express:Cargando contenido para subtema ID:', subtemaId);
         showLoader();
         
         const url = '{{ url("sigem/ajax/consulta-express/contenido") }}/' + subtemaId;
-        console.log('Express:URL de contenido:', url);
-        
+        //console.log('Express:URL de contenido:', url);
+
         // Realizar petición fetch
         fetch(url, {
             method: 'GET',
@@ -205,14 +203,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            console.log('Respuesta de contenido recibida:', response.status);
+            //console.log('Respuesta de contenido recibida:', response.status);
             if (!response.ok) {
                 throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Express: Datos de contenido:', data);
+            //console.log('Express: Datos de contenido:', data);
             if (data.success && data.contenido) {
                 // Mostrar contenido y metadata
                 contenidoContainer.innerHTML = data.contenido.ce_contenido;
@@ -271,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cuando cambia el tema - Asegurarse de que este evento se ejecute
     temaSelect.addEventListener('change', function() {
         const temaId = this.value;
-        console.log('Express:Tema seleccionado:', temaId); // Añadir log para depuración
-        
+        //console.log('Express:Tema seleccionado:', temaId); // Añadir log para depuración
+
         if (temaId) {
             cargarSubtemas(temaId);
             
