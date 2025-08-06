@@ -269,10 +269,18 @@
 
         // === FUNCION usada en la vista de catálogo.blade ===
         verCuadro: function (cuadroId, codigo) {
-            console.log(`Abriendo cuadro: ID=${cuadroId}, Código=${codigo}`);
-            const url = `${CONFIG.BASE_URL}?section=estadistica&cuadro_id=${cuadroId}`;
-            console.log(`Usando URL: ${url}`);
-            window.open(url, '_blank');
+            console.log(`Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+            
+            // Verificar si existe la función en el contexto del catálogo
+            if (typeof window.catalogoVerCuadro === 'function') {
+                // Llamar a la función definida en catalogo.blade.php
+                window.catalogoVerCuadro(cuadroId, codigo);
+            } else {
+                // Fallback si la función no existe (por ejemplo, si se llama desde otro contexto)
+                console.warn('La función catalogoVerCuadro no está disponible. Usando comportamiento predeterminado.');
+                const url = `${CONFIG.BASE_URL}?section=estadistica&cuadro_id=${cuadroId}`;
+                window.open(url, '_blank');
+            }
         },
 
         // Reemplazar el método openConsultaExpress con esta versión más simple
