@@ -21,28 +21,23 @@
                         
                         <!-- Columna de selectores -->
                         <div class="col-md-3">
-                           @php
-    use App\Models\SIGEM\ce_tema;
-    $temasOrdenados = [
-        1 => 'Población',
-        2 => 'Empleo',
-        3 => 'Industria Maquiladora',
-        4 => 'Vivienda',
-        5 => 'Educación',
-    ];
-
-    $temasBD = ce_tema::all()->keyBy('ce_tema_id');
-@endphp
-
-<select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
-    <option value="">Seleccione un tema...</option>
-    @foreach($temasOrdenados as $id => $nombreEsperado)
-        @if(isset($temasBD[$id]))
-            <option value="{{ $id }}">{{ $temasBD[$id]->tema }}</option>
-        @endif
-    @endforeach
-</select>
-
+                            @php
+                                use App\Models\SIGEM\ce_tema;
+                                $temas = ce_tema::orderBy('ce_tema_id')->get();
+                            @endphp
+                            
+                            <!-- Formulario para selección en modal -->
+                            <div id="ce_form_modal">
+                                <div class="form-group mb-3">
+                                    <label for="ce_tema_select_modal" class="form-label">Tema:</label>
+                                    <select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
+                                        <option value="">Seleccione un tema...</option>
+                                        @foreach($temas as $tema)
+                                            <option value="{{ $tema->ce_tema_id }}">
+                                                {{ $tema->tema }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -89,13 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
 
     // Verificar que los elementos existan
-    const temaSelect = document.getElementById('ce_tema_select_modal');
-const subtemaSelect = document.getElementById('ce_subtema_select_modal');
-const consultarBtn = document.getElementById('ce_consultar_btn_modal');
-const contenidoContainer = document.getElementById('ce_contenido_container_modal');
-const metadataDiv = document.getElementById('ce_metadata_modal');
-const fechaActualizacion = document.getElementById('ce_fecha_actualizacion_modal');
-
+    const temaSelect = document.getElementById('ce_tema_select');
+    const subtemaSelect = document.getElementById('ce_subtema_select');
+    const consultarBtn = document.getElementById('ce_consultar_btn');
+    const contenidoContainer = document.getElementById('ce_contenido_container');
+    const metadataDiv = document.getElementById('ce_metadata');
+    const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
     
     if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
         console.error('Faltan elementos necesarios en el DOM:',
