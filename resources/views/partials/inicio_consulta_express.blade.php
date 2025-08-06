@@ -21,10 +21,22 @@
                         
                         <!-- Columna de selectores -->
                         <div class="col-md-3">
-                            @php
-                                use App\Models\SIGEM\ce_tema;
-                                $temas = ce_tema::orderBy('ce_tema_id')->get();
-                            @endphp
+                           @php
+use App\Models\SIGEM\ce_tema;
+
+$ordenPersonalizado = [
+    'Población' => 1,
+    'Empleo' => 2,
+    'Industria Maquiladora' => 3,
+    'Vivienda' => 4,
+    'Educación' => 5,
+];
+
+$temas = ce_tema::all()->sortBy(function ($tema) use ($ordenPersonalizado) {
+    return $ordenPersonalizado[$tema->tema] ?? 999;
+});
+@endphp
+
                             
                             <!-- Formulario para selección en modal -->
                             <div id="ce_form_modal">
