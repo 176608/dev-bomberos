@@ -47,6 +47,10 @@ Route::prefix('sigem/ajax')->group(function () {
     Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'ajaxObtenerContenido']);
 });
 
+// Ruta para cargar el modal de Consulta Express directamente
+Route::get('/sigem/partial/consulta-express', [PublicController::class, 'partialConsultaExpress'])
+    ->name('sigem.partial.consulta-express');
+
 // === MANTENER TODAS LAS RUTAS ADMINISTRATIVAS ===
 Route::prefix('sigem')->middleware(['auth'])->group(function () {  
     Route::get('/admin', [AdminController::class, 'index'])

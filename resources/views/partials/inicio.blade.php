@@ -151,6 +151,65 @@
         max-height: 60px;
     }
 }
+
+/* === ESTILOS PARA CONSULTA EXPRESS === */
+.consulta-express-container {
+    position: relative;
+    max-width: 220px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.consulta-express-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.consulta-express-image {
+    transition: all 0.4s ease;
+    max-height: 220px;
+    display: block;
+    width: 100%;
+}
+
+.consulta-express-container:hover .consulta-express-image {
+    transform: scale(1.05);
+}
+
+.consulta-express-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 123, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.consulta-express-container:hover .consulta-express-overlay {
+    opacity: 1;
+}
+
+.consulta-express-text {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+}
+
+.consulta-express-container:hover .consulta-express-text {
+    transform: translateY(0);
+}
 </style>
 
 <div class="card shadow-sm">
@@ -160,7 +219,7 @@
         </h2>
         
         <div class="row mb-4">
-            <div class="col-md-12">
+            <div class="col-md-9">
                 <p class="lead">
                     Bienvenidos al portal del <strong>Sistema de Información Geográfica y Estadística Municipal, SIGEM</strong>, creado por el Instituto Municipal de Investigación y Planeación (<strong>IMIP</strong>) del Municipio de Juárez, el cual provee información estadística y cartográfica confiable, de calidad y alineada a estándares internacionales.
                 </p>
@@ -170,6 +229,16 @@
                 <p class="lead">
                     Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en tres módulos:
                 </p>
+            </div>
+            <div class="col-md-3 text-center mb-3 mb-md-0 consulta-express-trigger">
+                <div class="consulta-express-container">
+                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image" onclick="SIGEMApp.openConsultaExpress(); return false;">
+                    <div class="consulta-express-overlay">
+                        <span class="consulta-express-text">
+                            <i class="bi bi-lightning-fill me-2"></i>Consultar Información
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -270,3 +339,226 @@
 <div class="container">
     @include('partials.inicio_consulta_express')
 </div>
+
+<script>
+console.log('Cargando script de Consulta Express');
+
+// Agregar al objeto SIGEMApp, junto con las demás funciones
+SIGEMApp.openConsultaExpress = function() {
+    console.log('Abriendo modal de Consulta Express');
+    
+    // Verificar si ya existe una instancia del modal
+    let consultaExpressModal = document.getElementById('consultaExpressModal');
+    
+    if (!consultaExpressModal) {
+        console.log('Modal no encontrado en el DOM, intentando cargar de forma dinámica');
+        // Si el modal no existe, intentar agregarlo dinámicamente
+        this.loadModalConsultaExpress();
+        return;
+    }
+    
+    // Abrir modal usando Bootstrap
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var modal = new bootstrap.Modal(consultaExpressModal);
+        modal.show();
+        
+        // Solo inicializar eventos si no se ha hecho antes
+        if (!this.consultaExpressInitialized) {
+            this.initConsultaExpress();
+        }
+    } else {
+        console.error('Bootstrap no está disponible. Asegúrate de incluir la biblioteca Bootstrap.');
+    }
+};
+
+// Función para inicializar los eventos del modal
+SIGEMApp.initConsultaExpress = function() {
+    console.log('Inicializando eventos de Consulta Express');
+    
+    // Marcar como inicializado para no repetir
+    this.consultaExpressInitialized = true;
+    
+    // Elementos DOM
+    const temaSelect = document.getElementById('ce_tema_select_modal');
+    const subtemaSelect = document.getElementById('ce_subtema_select_modal');
+    const consultarBtn = document.getElementById('ce_consultar_btn_modal');
+    const contenidoContainer = document.getElementById('ce_contenido_container_modal');
+    
+    if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
+        console.error('Faltan elementos DOM necesarios para Consulta Express');
+        return;
+    }
+    
+    // Función para mostrar loader
+    function showLoader() {
+        contenidoContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando...</p>
+            </div>
+        `;
+    }
+    
+    // Cargar subtemas cuando cambia el tema
+    temaSelect.addEventListener('change', function() {
+        const temaId = this.value;
+        
+        if (temaId) {
+            // Deshabilitar el selector de subtemas mientras se cargan
+            subtemaSelect.disabled = true;
+            subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
+            consultarBtn.disabled = true;
+            
+            // Realizar petición fetch
+            fetch(`${CONFIG.BASE_URL}/ajax/consulta-express/subtemas/${temaId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Limpiar selector de subtemas
+                    subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
+                    
+                    if (data.success && data.subtemas && data.subtemas.length > 0) {
+                        // Añadir opciones de subtemas
+                        data.subtemas.forEach(function(subtema) {
+                            const option = document.createElement('option');
+                            option.value = subtema.ce_subtema_id;
+                            option.textContent = subtema.ce_subtema;
+                            subtemaSelect.appendChild(option);
+                        });
+                        
+                        // Habilitar selector y botón
+                        subtemaSelect.disabled = false;
+                        
+                        // Limpiar contenido si había algo mostrado
+                        contenidoContainer.innerHTML = `
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-info-circle fs-2"></i>
+                                <p class="mt-2">Seleccione un subtema para ver la información</p>
+                            </div>
+                        `;
+                    } else {
+                        subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
+                        consultarBtn.disabled = true;
+                        
+                        contenidoContainer.innerHTML = `
+                            <div class="alert alert-warning">No se encontraron subtemas para este tema.</div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar subtemas:', error);
+                    subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
+                    subtemaSelect.disabled = true;
+                    consultarBtn.disabled = true;
+                });
+        } else {
+            // Resetear subtemas y contenido
+            subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
+            subtemaSelect.disabled = true;
+            consultarBtn.disabled = true;
+            
+            contenidoContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                </div>
+            `;
+        }
+    });
+    
+    // Cuando cambia el subtema - habilitar botón
+    subtemaSelect.addEventListener('change', function() {
+        consultarBtn.disabled = !this.value;
+    });
+    
+    // Cargar contenido al hacer clic en el botón consultar
+    consultarBtn.addEventListener('click', function() {
+        const subtemaId = subtemaSelect.value;
+        
+        if (subtemaId) {
+            showLoader();
+            
+            fetch(`${CONFIG.BASE_URL}/ajax/consulta-express/contenido/${subtemaId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.contenido) {
+                        // Mostrar contenido
+                        contenidoContainer.innerHTML = data.contenido.ce_contenido;
+                        
+                        // Si hay un elemento de metadata
+                        const metadataDiv = document.getElementById('ce_metadata_modal');
+                        const fechaActualizacion = document.getElementById('ce_fecha_actualizacion_modal');
+                        
+                        if (metadataDiv && fechaActualizacion) {
+                            fechaActualizacion.textContent = data.actualizado;
+                            metadataDiv.style.display = 'block';
+                        }
+                    } else {
+                        contenidoContainer.innerHTML = '<div class="alert alert-warning">No se encontró contenido para el subtema seleccionado.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar contenido:', error);
+                    contenidoContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Error al cargar contenido: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+    });
+};
+
+// Función para cargar el modal dinámicamente si no está presente
+SIGEMApp.loadModalConsultaExpress = function() {
+    console.log('Intentando cargar modal de Consulta Express');
+    
+    // Crear un contenedor temporal donde cargar el partial
+    const tempContainer = document.createElement('div');
+    tempContainer.style.display = 'none';
+    document.body.appendChild(tempContainer);
+    
+    // Cargar el partial via fetch
+    fetch(`${CONFIG.BASE_URL}/partial/consulta-express`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            tempContainer.innerHTML = html;
+            
+            // Mover el modal al body
+            const modalElement = tempContainer.querySelector('#consultaExpressModal');
+            if (modalElement) {
+                document.body.appendChild(modalElement);
+                console.log('Modal agregado dinámicamente al DOM');
+                
+                // Abrir el modal
+                this.openConsultaExpress();
+            } else {
+                console.error('Modal no encontrado en el partial cargado');
+            }
+            
+            // Eliminar el contenedor temporal
+            document.body.removeChild(tempContainer);
+        })
+        .catch(error => {
+            console.error('Error al cargar el modal:', error);
+            alert('No se pudo cargar la consulta express. Por favor, intente nuevamente.');
+        });
+};
+</script>

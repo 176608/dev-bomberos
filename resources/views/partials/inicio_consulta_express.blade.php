@@ -1,84 +1,86 @@
-<div class="container py-4">
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-lightning-fill me-2"></i>Consulta Express</h5>
-        </div>
-        <div class="card-body">
-            <div class="container" id="consulta-express-container">
-                <div class="row">
-                    <!-- Columna de imagen -->
-                    <div class="col-md-3 text-center mb-3 mb-md-0">
-                        <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
-                    </div>
-                    
-                    <!-- Columna de selectores -->
-                    <div class="col-md-3">
-                        @php
-                            use App\Models\SIGEM\ce_tema;
-                            use App\Models\SIGEM\ce_subtema;
-                            use App\Models\SIGEM\ce_contenido;
-                            
-                            // Obtener datos iniciales
-                            $temas = ce_tema::orderBy('ce_tema_id')->get();
-                            
-                            // Manejo de selección
-                            $tema_id = request('ce_tema_id');
-                            $subtema_id = request('ce_subtema_id');
-                            
-                            // Cargar subtemas si hay tema seleccionado
-                            $subtemas = ($tema_id) 
-                                ? ce_subtema::where('ce_tema_id', $tema_id)->get() 
-                                : collect([]);
-                        @endphp
+<!-- Modal Consulta Express -->
+<div class="modal fade" id="consultaExpressModal" tabindex="-1" aria-labelledby="consultaExpressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <!-- Header del Modal -->
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="consultaExpressModalLabel">
+                    <i class="bi bi-lightning-fill me-2"></i>Consulta Express
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Columna de imagen -->
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
+                        </div>
                         
-                        <!-- Formulario sin action para manejar con AJAX -->
-                        <form id="ce_form">
-                            @csrf
+                        <!-- Columna de selectores -->
+                        <div class="col-md-3">
+                            @php
+                                use App\Models\SIGEM\ce_tema;
+                                use App\Models\SIGEM\ce_subtema;
+                                use App\Models\SIGEM\ce_contenido;
+                                
+                                // Obtener datos iniciales
+                                $temas = ce_tema::orderBy('ce_tema_id')->get();
+                                
+                                // Las variables de selección ahora son para estado inicial
+                                $tema_id = null;
+                                $subtema_id = null;
+                                $subtemas = collect([]);
+                            @endphp
                             
-                            <div class="form-group mb-3">
-                                <label for="ce_tema_select" class="form-label">ceTema:</label>
-                                <select id="ce_tema_select" name="ce_tema_id" class="form-select">
-                                    <option value="">Seleccione un tema...</option>
-                                    @foreach($temas as $tema)
-                                        <option value="{{ $tema->ce_tema_id }}" {{ $tema_id == $tema->ce_tema_id ? 'selected' : '' }}>
-                                            {{ $tema->tema }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label for="ce_subtema_select" class="form-label">Subtema:</label>
-                                <select id="ce_subtema_select" name="ce_subtema_id" class="form-select" {{ count($subtemas) > 0 ? '' : 'disabled' }}>
-                                    <option value="">{{ count($subtemas) > 0 ? 'Seleccione un subtema...' : 'Primero seleccione un tema' }}</option>
-                                    @foreach($subtemas as $subtema)
-                                        <option value="{{ $subtema->ce_subtema_id }}" {{ $subtema_id == $subtema->ce_subtema_id ? 'selected' : '' }}>
-                                            {{ $subtema->ce_subtema }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <button type="button" id="ce_consultar_btn" class="btn btn-primary w-100" {{ count($subtemas) > 0 ? '' : 'disabled' }}>
-                                Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <!-- Columna de contenido -->
-                    <div class="col-md-6">
-                        <div id="ce_contenido_container" class="border rounded p-3" style="min-height: 250px; max-height: 500px; overflow-y: auto;">
-                            <div class="text-center text-muted py-5">
-                                <i class="bi bi-info-circle fs-2"></i>
-                                <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                            <!-- Formulario para selección en modal -->
+                            <div id="ce_form_modal">
+                                <div class="form-group mb-3">
+                                    <label for="ce_tema_select_modal" class="form-label">Tema:</label>
+                                    <select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
+                                        <option value="">Seleccione un tema...</option>
+                                        @foreach($temas as $tema)
+                                            <option value="{{ $tema->ce_tema_id }}">
+                                                {{ $tema->tema }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="ce_subtema_select_modal" class="form-label">Subtema:</label>
+                                    <select id="ce_subtema_select_modal" name="ce_subtema_id" class="form-select" disabled>
+                                        <option value="">Primero seleccione un tema</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="button" id="ce_consultar_btn_modal" class="btn btn-primary w-100" disabled>
+                                    Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
+                                </button>
                             </div>
                         </div>
                         
-                        <div id="ce_metadata" class="text-end text-muted small mt-2" style="display: none;">
-                            Última actualización: <span id="ce_fecha_actualizacion">-</span>
+                        <!-- Columna de contenido -->
+                        <div class="col-md-6">
+                            <div id="ce_contenido_container_modal" class="border rounded p-3" style="min-height: 250px; max-height: 500px; overflow-y: auto;">
+                                <div class="text-center text-muted py-5">
+                                    <i class="bi bi-info-circle fs-2"></i>
+                                    <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
+                                </div>
+                            </div>
+                            
+                            <div id="ce_metadata_modal" class="text-end text-muted small mt-2" style="display: none;">
+                                Última actualización: <span id="ce_fecha_actualizacion_modal">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

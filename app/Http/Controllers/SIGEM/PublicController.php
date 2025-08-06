@@ -553,6 +553,14 @@ class PublicController extends Controller
     }
 
     /**
+     * Devuelve la vista parcial del modal de Consulta Express
+     */
+    public function partialConsultaExpress()
+    {
+        return view('partials.inicio_consulta_express');
+    }
+
+    /**
      * AJAX: Obtener subtemas por tema
      */
     public function ajaxObtenerSubtemas($tema_id)
@@ -565,8 +573,7 @@ class PublicController extends Controller
             return response()->json([
                 'success' => true,
                 'subtemas' => $subtemas
-            ])->header('Access-Control-Allow-Origin', '*')
-              ->header('Access-Control-Allow-Methods', 'GET');
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error al cargar subtemas: ' . $e->getMessage());
             return response()->json([
