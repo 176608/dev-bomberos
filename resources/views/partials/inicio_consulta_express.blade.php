@@ -34,6 +34,7 @@
 
     $temasBD = ce_tema::all()->keyBy('ce_tema_id');
 @endphp
+<p style="color: red; font-weight: bold;">DEBUG: ESTE SELECT VIENE DE inicio_consulta_express.blade.php</p>
 
 <select id="ce_tema_select_modal" name="ce_tema_id" class="form-select">
     <option value="">Seleccione un tema...</option>
