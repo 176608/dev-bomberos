@@ -23,16 +23,7 @@
                         <div class="col-md-3">
                             @php
                                 use App\Models\SIGEM\ce_tema;
-                                use App\Models\SIGEM\ce_subtema;
-                                use App\Models\SIGEM\ce_contenido;
-                                
-                                // Obtener datos iniciales
                                 $temas = ce_tema::orderBy('ce_tema_id')->get();
-                                
-                                // Las variables de selección ahora son para estado inicial
-                                $tema_id = null;
-                                $subtema_id = null;
-                                $subtemas = collect([]);
                             @endphp
                             
                             <!-- Formulario para selección en modal -->

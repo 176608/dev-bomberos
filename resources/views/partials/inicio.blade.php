@@ -230,9 +230,9 @@
                     Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en tres módulos:
                 </p>
             </div>
-            <div class="col-md-3 text-center mb-3 mb-md-0 consulta-express-trigger">
-                <div class="consulta-express-container">
-                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image" onclick="SIGEMApp.openConsultaExpress(); return false;">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                <div class="consulta-express-container" onclick="if(typeof SIGEMApp !== 'undefined') SIGEMApp.openConsultaExpress(); else alert('SIGEMApp no está disponible');">
+                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
                     <div class="consulta-express-overlay">
                         <span class="consulta-express-text">
                             <i class="bi bi-lightning-fill me-2"></i>Consultar Información
@@ -338,6 +338,16 @@
 </div>
 <div class="container">
     @include('partials.inicio_consulta_express')
+</div>
+
+<!-- Añadir esto temporalmente para probar -->
+<div class="mt-3 text-center">
+    <button class="btn btn-warning" onclick="console.log('SIGEMApp disponible:', typeof SIGEMApp !== 'undefined'); console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');">
+        Verificar JS
+    </button>
+    <button class="btn btn-danger" onclick="if(typeof SIGEMApp !== 'undefined') SIGEMApp.openConsultaExpress(); else alert('SIGEMApp no está disponible');">
+        Test Modal
+    </button>
 </div>
 
 <script>

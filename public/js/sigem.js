@@ -275,31 +275,45 @@
             window.open(url, '_blank');
         },
 
-        // Agregar al objeto SIGEMApp, junto con las demás funciones
+        // Reemplazar el método openConsultaExpress con esta versión más simple
         openConsultaExpress: function() {
             console.log('Abriendo modal de Consulta Express');
             
             // Verificar si ya existe una instancia del modal
-            let consultaExpressModal = document.getElementById('consultaExpressModal');
+            const consultaExpressModal = document.getElementById('consultaExpressModal');
             
             if (!consultaExpressModal) {
-                console.log('Modal no encontrado en el DOM, intentando cargar de forma dinámica');
-                // Si el modal no existe, intentar agregarlo dinámicamente
-                this.loadModalConsultaExpress();
+                console.error('Modal no encontrado en el DOM');
+                alert('No se pudo encontrar el modal de Consulta Express.');
                 return;
             }
             
             // Abrir modal usando Bootstrap
-            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                var modal = new bootstrap.Modal(consultaExpressModal);
-                modal.show();
-                
-                // Solo inicializar eventos si no se ha hecho antes
-                if (!this.consultaExpressInitialized) {
-                    this.initConsultaExpress();
+            try {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = new bootstrap.Modal(consultaExpressModal);
+                    modal.show();
+                    
+                    // Verificar si necesitamos inicializar los eventos
+                    if (!this.consultaExpressInitialized) {
+                        this.initConsultaExpress();
+                    }
+                } else {
+                    console.error('Bootstrap no está disponible');
+                    // Intentar con jQuery si está disponible
+                    if (typeof $ !== 'undefined' && $.fn.modal) {
+                        $(consultaExpressModal).modal('show');
+                        
+                        if (!this.consultaExpressInitialized) {
+                            this.initConsultaExpress();
+                        }
+                    } else {
+                        alert('No se pudo abrir el modal. Bootstrap no está disponible.');
+                    }
                 }
-            } else {
-                console.error('Bootstrap no está disponible. Asegúrate de incluir la biblioteca Bootstrap.');
+            } catch (error) {
+                console.error('Error al abrir el modal:', error);
+                alert('Error al abrir el modal: ' + error.message);
             }
         },
 
