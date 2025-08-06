@@ -499,7 +499,7 @@ function actualizarEncabezadoSubtema(subtema_id) {
 // Función para renderizar cuadros
 function renderizarCuadros(cuadros) {
     const container = document.getElementById('cuadros-container');
-    
+
     if (!cuadros || cuadros.length === 0) {
         container.innerHTML = `
             <div class="text-center text-muted py-5">
@@ -510,9 +510,12 @@ function renderizarCuadros(cuadros) {
         return;
     }
 
-    // ORDENAMIENTO numérico por código (ej. MA.1, MA.2... MA.10 correctamente)
+    // Ordenar los cuadros numéricamente por el número en el código (ej. MA.1, MA.2, ..., MA.10)
     cuadros.sort((a, b) => {
-        const extraerNumero = codigo => parseInt((codigo || '').match(/\d+/)?.[0] || 0);
+        const extraerNumero = codigo => {
+            const match = (codigo || '').match(/\d+/);
+            return match ? parseInt(match[0], 10) : 0;
+        };
         return extraerNumero(a.codigo_cuadro) - extraerNumero(b.codigo_cuadro);
     });
 
@@ -548,6 +551,7 @@ function renderizarCuadros(cuadros) {
     html += '</div>';
     container.innerHTML = html;
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Activar el menú de estadística
