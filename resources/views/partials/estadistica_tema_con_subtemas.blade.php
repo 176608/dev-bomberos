@@ -496,7 +496,6 @@ function actualizarEncabezadoSubtema(subtema_id) {
 }
 
 // Función para renderizar cuadros
-// Función para renderizar cuadros
 function renderizarCuadros(cuadros) {
     const container = document.getElementById('cuadros-container');
 
@@ -510,13 +509,15 @@ function renderizarCuadros(cuadros) {
         return;
     }
 
-    // Ordenar los cuadros numéricamente por el número en el código (ej. MA.1, MA.2, ..., MA.10)
+    // Ordenar por el último número del código (ej. 2.MA.10 → 10)
     cuadros.sort((a, b) => {
-        const extraerNumero = codigo => {
-            const match = (codigo || '').match(/\d+/);
-            return match ? parseInt(match[0], 10) : 0;
+        const extraerUltimoNumero = codigo => {
+            const matches = (codigo || '').match(/\d+/g); // encuentra todos los números
+            return matches && matches.length > 0
+                ? parseInt(matches[matches.length - 1]) // usa el último número
+                : 0;
         };
-        return extraerNumero(a.codigo_cuadro) - extraerNumero(b.codigo_cuadro);
+        return extraerUltimoNumero(a.codigo_cuadro) - extraerUltimoNumero(b.codigo_cuadro);
     });
 
     let html = '<div class="cuadros-lista">';
@@ -551,6 +552,7 @@ function renderizarCuadros(cuadros) {
     html += '</div>';
     container.innerHTML = html;
 }
+
 
 
 document.addEventListener('DOMContentLoaded', function() {
