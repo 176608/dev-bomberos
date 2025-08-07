@@ -272,8 +272,8 @@
     align-items: center;
     justify-content: center;
     background: white;
-    border-color: #0d6efd;
-    color: #0d6efd;
+    border-color: #0c7912ff;
+    color: #157415ff;
 }
 
 .sidebar-mini #toggle-sidebar i {
@@ -344,7 +344,7 @@
     top: 0;
     height: 100%;
     width: 0;
-    z-index: 2000; /* Valor muy alto para superar cualquier otro elemento */
+    z-index: 1000; /* Valor muy alto para superar cualquier otro elemento */
 }
 
 .btn-toggle-sidebar-fixed {
@@ -389,7 +389,27 @@
 
 /* Asegurar que el botón siempre esté visible y por encima de otros elementos */
 .btn-toggle-sidebar-fixed {
-    z-index: 9999;
+    z-index: 50;
+}
+
+/* Asegurar que los modales estén por encima de todo */
+.modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* Hacer que el fondo del modal sea más oscuro para destacarlo mejor */
+.modal-backdrop.show {
+    opacity: 0.7;
+}
+
+/* Asegurar que el contenido del modal no se desborde */
+.modal-content {
+    max-height: 95vh;
+    overflow-y: auto;
 }
 </style>
 
@@ -590,6 +610,10 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
     modalContainer.className = 'modal fade';
     modalContainer.id = modalId;
     modalContainer.setAttribute('tabindex', '-1');
+    modalContainer.setAttribute('data-bs-backdrop', 'static'); // Impedir cerrar al hacer clic fuera
+    
+    // Aplicar un z-index extremadamente alto para garantizar que esté por encima de todo
+    modalContainer.style.zIndex = '9999';
     
     // Agregar HTML con contenido mínimo
     modalContainer.innerHTML = `
@@ -624,7 +648,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
         </div>
     `;
     
-    // Agregar el modal al body
+    // Agregar el modal directamente al final del body para evitar conflictos de posicionamiento
     document.body.appendChild(modalContainer);
     
     // Configurar el evento para remover el modal del DOM cuando se cierre
@@ -633,9 +657,32 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
         console.log('Modal eliminado del DOM');
     });
     
-    // Mostrar el modal
-    const bootstrapModal = new bootstrap.Modal(modalContainer);
-    bootstrapModal.show();
+    // Mostrar el modal con opciones adicionales para asegurar visibilidad
+    const bootstrapModal = new bootstrap.Modal(modalContainer, {
+        backdrop: 'static',  // No cerrar al hacer clic fuera
+        keyboard: true,      // Permitir cerrar con ESC
+        focus: true          // Enfocar el modal automáticamente
+    });
+    
+    // También asegurarse que cualquier modal previo se cierre
+    document.querySelectorAll('.modal.show').forEach(modal => {
+        if (modal.id !== modalId) {
+            const oldModal = bootstrap.Modal.getInstance(modal);
+            if (oldModal) oldModal.hide();
+        }
+    });
+    
+    // Agregar un pequeño retraso antes de mostrar el nuevo modal
+    setTimeout(() => {
+        bootstrapModal.show();
+        
+        // Asegurarse que el backdrop tenga un z-index alto también
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        if (backdrops.length > 0) {
+            const lastBackdrop = backdrops[backdrops.length - 1];
+            lastBackdrop.style.zIndex = '9998'; // Justo debajo del modal
+        }
+    }, 50);
     
     // Agregar event listener al botón de prueba JS
     const testButton = document.getElementById(`testJsBtn_${modalId}`);
