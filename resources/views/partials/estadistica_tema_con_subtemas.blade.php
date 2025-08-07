@@ -179,6 +179,28 @@
 
 <style>
 /* Estilos necesarios */
+/* Estilos para la imagen de fondo del subtema - EXPANDIDO */
+.subtema-nav-item {
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.3s ease, background-position 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px;
+    background-size: 200% 100% !important; /* Aumentar ancho de imagen al 200% */
+    background-position: 0% center !important; /* Posicionar en el lado izquierdo */
+}
+
+/* Cuando el sidebar está colapsado, mostrar la mitad derecha de la imagen */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    padding: 0;
+    background-position: 100% center !important; /* Cambiar a la mitad derecha */
+}
+
 .subtema-nav-item {
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
@@ -217,8 +239,14 @@
 }
 
 .subtema-nav-item.active .subtema-content-overlay {
-    background-color: rgba(61, 133, 68, 0.9); /* Azul claro semi-transparente */
+    background-color: rgba(61, 133, 68, 0.9);
     box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
+}
+
+/* Subtema activo - cuando está colapsado */
+.sidebar-mini .subtema-nav-item.active {
+    border-left: 0;
+    border-right: 4px solid #034617ff;
 }
 
 /* Ajustes para cuando el sidebar está colapsado */
@@ -469,6 +497,15 @@
 .modal-content {
     max-height: 100vh;
     overflow-y: auto;
+}
+
+/* Estilos adicionales sugeridos */
+.subtema-nav-item:not([style*="background-image"]) {
+    background: linear-gradient(to right, #2a944aff, #6de777ff);
+}
+
+.sidebar-mini .subtema-nav-item:not([style*="background-image"]) {
+    background: linear-gradient(to right, #41ad65ff, #57ec77ff);
 }
 </style>
 
