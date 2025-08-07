@@ -25,26 +25,22 @@
                     <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
                         @if($tema_subtemas && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
-                                <a href="#"
-                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;"
-                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
-                                    @if($tema_subtema->icono_subtema)
-                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}"
-                                             alt="{{ $tema_subtema->subtema_titulo }}"
-                                             class="subtema-icon"
-                                             onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
-                                    @else
-                                        <i class="bi bi-collection text-success fs-3 me-2"></i>
-                                    @endif
-                                    <div class="flex-fill subtema-texto">
-                                        <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
-                                        <small class="text-muted">
-                                            @if(isset($tema_subtema->cuadrosEstadisticos))
-                                                {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
-                                            @else
-                                                Ver cuadros
-                                            @endif
-                                        </small>
+                                <a href="#" 
+                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
+                                   @if($tema_subtema->imagen)
+                                   style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
+                                   @endif
+                                >
+                                    <div class="subtema-content-overlay">
+                                        <!-- Ya no necesitamos la imagen aquí, es el fondo -->
+                                        @if(!$tema_subtema->imagen)
+                                           <i class="bi bi-collection text-success fs-3 me-2"></i>
+                                        @endif
+                                        <div class="flex-fill subtema-texto">
+                                            <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
+                                        </div>
+                                        <i class="bi bi-chevron-right ms-2"></i>
                                     </div>
                                 </a>
                             @endforeach
@@ -67,6 +63,7 @@
                     <!-- Encabezado con selector de temas y botón para mostrar sidebar -->
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
+                            <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
                             <button class="btn btn-sm btn-outline-success me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
                                 <i class="bi bi-list"></i>
                             </button>
@@ -102,10 +99,70 @@
 
                     <!-- Lista de cuadros -->
                     <div class="flex-fill overflow-auto p-3" id="cuadros-container">
-                        <div class="text-center text-muted py-5">
-                            <i class="bi bi-table" style="font-size: 3rem;"></i>
-                            <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
-                        </div>
+                        @php
+                            // Función para extraer el número del índice de un código de cuadro
+                            function extraerNumeroIndice($codigoCuadro) {
+                                // Verificar si el código está vacío
+                                if (empty($codigoCuadro)) {
+                                    return PHP_FLOAT_MAX; // Valor alto para que queden al final
+                                }
+                                
+                                // Patrón para extraer el número del índice (último componente después del punto)
+                                if (preg_match('/\.(\d+(?:\.\d+)*)$/', $codigoCuadro, $matches)) {
+                                    return floatval($matches[1]); // Convertir a número para ordenamiento correcto
+                                } else if (preg_match('/(\d+(?:\.\d+)*)$/', $codigoCuadro, $matches)) {
+                                    // Si no hay punto pero termina en número
+                                    return floatval($matches[1]);
+                                }
+                                
+                                return PHP_FLOAT_MAX; // Por defecto al final
+                            }
+                            
+                            // Ordenar cuadros por su número de índice
+                            if (isset($cuadros) && $cuadros->count() > 0) {
+                                $cuadrosArray = $cuadros->toArray();
+                                usort($cuadrosArray, function($a, $b) {
+                                    $numA = extraerNumeroIndice($a['codigo_cuadro'] ?? '');
+                                    $numB = extraerNumeroIndice($b['codigo_cuadro'] ?? '');
+                                    return $numA <=> $numB;
+                                });
+                                $cuadros = collect($cuadrosArray);
+                            }
+                        @endphp
+
+                        @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
+                            <div class="cuadros-lista">
+                                @foreach($cuadros as $cuadro)
+                                    <div class="cuadro-item p-3 mb-3 border rounded">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-1">
+                                                    <i class="bi bi-file-earmark-excel me-2 text-success"></i>
+                                                    {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
+                                                </h6>
+                                                <p class="mb-1">{{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}</p>
+                                                <small class="text-muted">{{ $cuadro['cuadro_estadistico_subtitulo'] ?? '' }}</small>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
+                                                    <i class="bi bi-eye me-1"></i>Ver
+                                                </a>
+                                                @if(isset($cuadro['excel_file']) && !empty($cuadro['excel_file']))
+                                                    <a href="{{ url('/descargas/'.$cuadro['excel_file']) }}" class="btn btn-success btn-sm" download>
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+                                <i class="bi bi-table" style="font-size: 3rem;"></i>
+                                <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -187,7 +244,7 @@
 
 .subtema-nav-item.active::before {
     opacity: 1;
-    background: linear-gradient(to right, rgba(57, 172, 92, 1), transparent);
+    background: linear-gradient(to right, rgba(0, 255, 55, 1), transparent);
 }
 
 /* Asegurar que texto sea legible */
@@ -345,7 +402,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #175c10ff;
+    background-color: #0c5716ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -580,19 +637,104 @@ function renderizarCuadros(cuadros) {
     container.innerHTML = html;
 }
 
+// Escuchar el evento personalizado desde sigem.js
+document.addEventListener('verCuadroEstadistico', function(event) {
+    const { cuadroId, codigo } = event.detail;
+    console.log(`Blade: Recibiendo evento para mostrar cuadro: ID=${cuadroId}, Código=${codigo}`);
+    mostrarModalCuadroSimple(cuadroId, codigo);
+});
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Activar el menú de estadística
-    const menuItems = document.querySelectorAll('.sigem-nav-link');
-    menuItems.forEach(item => {
-        // Quitar todas las clases activas
-        item.classList.remove('active');
-        
-        // Activar el elemento de estadística
-        if (item.textContent.trim().includes('ESTADÍSTICA')) {
-            item.classList.add('active');
+// Función simplificada para crear y mostrar el modal del cuadro
+function mostrarModalCuadroSimple(cuadroId, codigo) {
+    // Crear un ID único para el modal
+    const modalId = `modal_cuadro_${Date.now()}`;
+    
+    // Crear el elemento del modal
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal fade';
+    modalContainer.id = modalId;
+    modalContainer.setAttribute('tabindex', '-1');
+    modalContainer.setAttribute('data-bs-backdrop', 'static'); // Impedir cerrar al hacer clic fuera
+    
+    // Aplicar un z-index extremadamente alto para garantizar que esté por encima de todo
+    modalContainer.style.zIndex = '9999';
+    
+    // Agregar HTML con contenido mínimo
+    modalContainer.innerHTML = `
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-info-circle me-2"></i>Información del Cuadro
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="container py-5">
+                        <div class="card mx-auto" style="max-width: 500px;">
+                            <div class="card-body">
+                                <h4 class="card-title">Datos recibidos</h4>
+                                <div class="mb-3">
+                                    <p><strong>ID del cuadro:</strong> ${cuadroId}</p>
+                                    <p><strong>Código del cuadro:</strong> ${codigo}</p>
+                                </div>
+                                <button id="testJsBtn_${modalId}" class="btn btn-primary">
+                                    <i class="bi bi-code-slash me-1"></i>Comprobar JavaScript
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Agregar el modal directamente al final del body para evitar conflictos de posicionamiento
+    document.body.appendChild(modalContainer);
+    
+    // Configurar el evento para remover el modal del DOM cuando se cierre
+    modalContainer.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modalContainer);
+        console.log('Modal eliminado del DOM');
+    });
+    
+    // Mostrar el modal con opciones adicionales para asegurar visibilidad
+    const bootstrapModal = new bootstrap.Modal(modalContainer, {
+        backdrop: 'static',  // No cerrar al hacer clic fuera
+        keyboard: true,      // Permitir cerrar con ESC
+        focus: true          // Enfocar el modal automáticamente
+    });
+    
+    // También asegurarse que cualquier modal previo se cierre
+    document.querySelectorAll('.modal.show').forEach(modal => {
+        if (modal.id !== modalId) {
+            const oldModal = bootstrap.Modal.getInstance(modal);
+            if (oldModal) oldModal.hide();
         }
     });
-});
+    
+    // Agregar un pequeño retraso antes de mostrar el nuevo modal
+    setTimeout(() => {
+        bootstrapModal.show();
+        
+        // Asegurarse que el backdrop tenga un z-index alto también
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        if (backdrops.length > 0) {
+            const lastBackdrop = backdrops[backdrops.length - 1];
+            lastBackdrop.style.zIndex = '9998'; // Justo debajo del modal
+        }
+    }, 50);
+    
+    // Agregar event listener al botón de prueba JS
+    const testButton = document.getElementById(`testJsBtn_${modalId}`);
+    if (testButton) {
+        testButton.addEventListener('click', function() {
+            console.log('JavaScript ejecutado en el modal para el cuadro:', codigo);
+            alert(`JavaScript funciona correctamente.\nCuadro ID: ${cuadroId}\nCódigo: ${codigo}`);
+        });
+    }
+}
 </script>
