@@ -31,10 +31,9 @@
                                     @if($tema_subtema->imagen)
                                         <img src="{{ asset('imagenes/'.$tema_subtema->imagen) }}" 
                                              alt="{{ $tema_subtema->subtema_titulo }}" 
-                                             class="subtema-icon"
-                                             onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
+                                             class="subtema-icon">
                                     @else
-                                       ##else
+                                       <i class="bi bi-collection text-success fs-3 me-2"></i>
                                     @endif
                                     <div class="flex-fill subtema-texto">
                                         <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
