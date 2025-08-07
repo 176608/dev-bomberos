@@ -6,7 +6,7 @@
             <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
-                    <div class="p-3 bg-primary text-white position-relative">
+                    <div class="p-3 bg-success text-white position-relative">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
@@ -25,12 +25,12 @@
                     <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
                         @if($tema_subtemas && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
-                                <a href="#" 
-                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
+                                <a href="#"
+                                   onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;"
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
                                     @if($tema_subtema->icono_subtema)
-                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}" 
-                                             alt="{{ $tema_subtema->subtema_titulo }}" 
+                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}"
+                                             alt="{{ $tema_subtema->subtema_titulo }}"
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
                                     @else
@@ -46,7 +46,6 @@
                                             @endif
                                         </small>
                                     </div>
-                                    <i class="bi bi-chevron-right ms-2"></i>
                                 </a>
                             @endforeach
                         @else
@@ -68,7 +67,6 @@
                     <!-- Encabezado con selector de temas y botón para mostrar sidebar -->
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
                             <button class="btn btn-sm btn-outline-primary me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
                                 <i class="bi bi-list"></i>
                             </button>
@@ -104,39 +102,10 @@
 
                     <!-- Lista de cuadros -->
                     <div class="flex-fill overflow-auto p-3" id="cuadros-container">
-                        @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
-                            <div class="cuadros-lista">
-                                @foreach($cuadros as $cuadro)
-                                    <div class="cuadro-item p-3 mb-3 border rounded">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                <h6 class="mb-1">
-                                                    <i class="bi bi-file-earmark-excel me-2 text-success"></i>
-                                                    {{ $cuadro->codigo_cuadro ?? 'N/A' }}
-                                                </h6>
-                                                <p class="mb-1">{{ $cuadro->cuadro_estadistico_titulo ?? 'Sin título' }}</p>
-                                                <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo ?? '' }}</small>
-                                            </div>
-                                            <div class="col-md-4 text-end">
-                                                <a href="{{ url('/sigem?section=estadistica&cuadro_id='.$cuadro->cuadro_estadistico_id) }}" class="btn btn-outline-success btn-sm me-2">
-                                                    <i class="bi bi-eye me-1"></i>Ver
-                                                </a>
-                                                @if(isset($cuadro->excel_file) && !empty($cuadro->excel_file))
-                                                    <a href="{{ url('/descargas/'.$cuadro->excel_file) }}" class="btn btn-success btn-sm" download>
-                                                        <i class="bi bi-download"></i>
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-5">
-                                <i class="bi bi-table" style="font-size: 3rem;"></i>
-                                <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
-                            </div>
-                        @endif
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-table" style="font-size: 3rem;"></i>
+                            <p class="mt-3">Seleccione un subtema para ver los cuadros estadísticos disponibles.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -153,22 +122,78 @@
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px; /* Altura mínima para mostrar bien la imagen */
 }
 
-.subtema-nav-item:hover {
-    background-color: #f8f9fa;
+/* Overlay para el contenido del subtema */
+.subtema-content-overlay {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+    padding: 0.5rem;
+    background-color: rgba(127, 167, 123, 0.25);
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
+/* Subtema al pasar el mouse */
+.subtema-nav-item:hover .subtema-content-overlay {
+    background-color: rgba(103, 185, 107, 0.18);
+}
+
+/* Subtema activo */
 .subtema-nav-item.active {
-    background-color: #e3f2fd;
-    border-left: 4px solid #0d6efd;
+    background-color: transparent;
+    border-left: 4px solid #0346174d;
 }
 
-.subtema-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    margin-right: 0.75rem;
+.subtema-nav-item.active .subtema-content-overlay {
+    box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
+}
+
+/* Ajustes para cuando el sidebar está colapsado */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    padding: 0;
+}
+
+.sidebar-mini .subtema-content-overlay {
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Efecto visual mejorado */
+.subtema-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.subtema-nav-item:hover::before {
+    opacity: 1;
+}
+
+.subtema-nav-item.active::before {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(0, 255, 55, 1), transparent);
+}
+
+/* Asegurar que texto sea legible */
+.subtema-texto h6 {
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 .cuadros-lista {
@@ -177,7 +202,6 @@
 }
 
 .cuadro-item {
-    background-color: #fff;
     transition: all 0.3s ease;
 }
 
@@ -241,8 +265,8 @@
     align-items: center;
     justify-content: center;
     background: white;
-    border-color: #0d6efd;
-    color: #0d6efd;
+    border-color: #0c7912ff;
+    color: #157415ff;
 }
 
 .sidebar-mini #toggle-sidebar i {
@@ -258,7 +282,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0);
     border: 1px solid rgba(255, 255, 255, 0.5);
     color: white;
     transition: all 0.3s ease;
@@ -266,7 +290,7 @@
 }
 
 .btn-collapse:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(25, 138, 76, 0.44);
     transform: scale(1.1);
 }
 
@@ -275,7 +299,7 @@
     position: absolute;
     right: -16px;
     top: 10px;
-    background-color: #0d6efd;
+    background-color: #168036ff;
     border: 2px solid white;
     color: white;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
@@ -291,7 +315,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #0d6efd;
+    background-color: #0b9936ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -313,7 +337,7 @@
     top: 0;
     height: 100%;
     width: 0;
-    z-index: 2000; /* Valor muy alto para superar cualquier otro elemento */
+    z-index: 1000; /* Valor muy alto para superar cualquier otro elemento */
 }
 
 .btn-toggle-sidebar-fixed {
@@ -321,7 +345,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #0d6efd;
+    background-color: #573fc4ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -337,7 +361,7 @@
 
 .btn-toggle-sidebar-fixed:hover {
     transform: scale(1.15);
-    box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+    box-shadow: 0 0 15px rgba(40, 182, 123, 0.5);
 }
 
 /* Cuando el sidebar está colapsado, el icono rota */
@@ -358,7 +382,27 @@
 
 /* Asegurar que el botón siempre esté visible y por encima de otros elementos */
 .btn-toggle-sidebar-fixed {
-    z-index: 9999;
+    z-index: 50;
+}
+
+/* Asegurar que los modales estén por encima de todo */
+.modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* Hacer que el fondo del modal sea más oscuro para destacarlo mejor */
+.modal-backdrop.show {
+    opacity: 0.7;
+}
+
+/* Asegurar que el contenido del modal no se desborde */
+.modal-content {
+    max-height: 100vh;
+    overflow-y: auto;
 }
 </style>
 
@@ -430,12 +474,11 @@ function cambiarTema(tema_id) {
 
 // Función para cargar un subtema específico
 function cargarSubtema(subtema_id) {
-    console.log('Cargando subtema:', subtema_id);
     
     // Mostrar indicador de carga
     document.getElementById('cuadros-container').innerHTML = `
         <div class="text-center p-5">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
             <p class="mt-3">Cargando cuadros estadísticos...</p>
@@ -524,11 +567,11 @@ function renderizarCuadros(cuadros) {
                         ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                     </div>
                     <div class="col-md-4 text-end">
-                        <a href="/sigem?section=estadistica&cuadro_id=${cuadro.cuadro_estadistico_id}" class="btn btn-outline-success btn-sm me-2">
+                        <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
                             <i class="bi bi-eye me-1"></i>Ver
                         </a>
                         ${cuadro.excel_file ? `
-                            <a href="/descargas/${cuadro.excel_file}" class="btn btn-success btn-sm" download>
+                            <a href="javascript:void(0)" class="btn btn-success btn-sm" download>
                                 <i class="bi bi-download"></i>
                             </a>
                         ` : ''}
@@ -541,6 +584,8 @@ function renderizarCuadros(cuadros) {
     html += '</div>';
     container.innerHTML = html;
 }
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Activar el menú de estadística
