@@ -16,10 +16,6 @@
                     <p class="lead">
                         En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
                     </p>
-                    <!-- <p>
-                        Nuestra cartografía digital proporciona información geográfica actualizada y herramientas de visualización 
-                        que permiten el análisis territorial y la toma de decisiones informadas para el desarrollo municipal.
-                    </p>-->
                 </div>
             </div>
         </div>
