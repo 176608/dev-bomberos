@@ -27,30 +27,27 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="subtema-nav-item text-decoration-none {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
-
-                                    <div class="subtema-row">
-                                        <!-- Columna izquierda - Imagen o placeholder -->
-                                        <div class="subtema-imagen" 
-                                            @if($tema_subtema->imagen)
-                                            style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}');"
-                                            @endif>
-                                            @if(!$tema_subtema->imagen)
-                                            <div class="subtema-imagen-placeholder">
-                                                <i class="bi bi-collection text-success fs-3"></i>
-                                            </div>
-                                            @endif
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
+                                   @if($tema_subtema->imagen)
+                                   style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
+                                   @endif
+                                >
+                                    <div class="subtema-content-overlay">
+                                        <!-- Ya no necesitamos la imagen aquí, es el fondo -->
+                                        @if(!$tema_subtema->imagen)
+                                           <i class="bi bi-collection text-success fs-3 me-2"></i>
+                                        @endif
+                                        <div class="flex-fill subtema-texto">
+                                            <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
+                                            <small class="text-muted">
+                                                @if(isset($tema_subtema->cuadrosEstadisticos))
+                                                    {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
+                                                @else
+                                                    Ver cuadros
+                                                @endif
+                                            </small>
                                         </div>
-                                        
-                                        <!-- Columna derecha - Contenido -->
-                                        <div class="subtema-contenido">
-                                            <div class="subtema-texto">
-                                                <h6>{{ $tema_subtema->subtema_titulo }}</h6>
-                                            </div>
-                                            <div class="subtema-icon">
-                                                <i class="bi bi-chevron-right"></i>
-                                            </div>
-                                        </div>
+                                        <i class="bi bi-chevron-right ms-2"></i>
                                     </div>
                                 </a>
                             @endforeach
@@ -181,229 +178,199 @@
 </div>
 
 <style>
-/* Estilos necesarios */
+/* === VARIABLES CSS === */
+:root {
+    --border-color: #e9ecef;
+    --active-border-color: #034617;
+    --hover-overlay-color: rgba(47, 165, 110, 0.56);
+    --active-overlay-color: rgba(61, 133, 68, 0);
+    --text-color: #212529;
+    --toggle-btn-bg: #0b9936ff;
+    --toggle-btn-hover-bg: #147521ff;
+    --toggle-btn-border: 2px solid white;
+}
+
+/* === ESTILOS BASE === */
 .subtema-nav-item {
-    display: block;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.3s ease;
-    text-decoration: none;
-    color: #333;
-    padding: 0;
-    overflow: hidden;
-}
-
-/* Layout de fila para el subtema */
-.subtema-row {
     display: flex;
-    flex-wrap: nowrap;
-    min-height: 80px;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    position: relative;
+    overflow: hidden;
+    min-height: var(--subtema-height-expanded);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-/* Columna para la imagen - exactamente 6 columnas (lado izquierdo) cuando expandido */
-.subtema-imagen {
-    flex: 0 0 50%;
-    background-size: cover;
-    background-position: left center; /* Asegurar que muestra el lado izquierdo */
+/* Overlay para el contenido del subtema */
+.subtema-content-overlay {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     position: relative;
+    z-index: 2;
+    padding: 0.5rem;
+    background-color: rgba(127, 167, 123, 0);
+    border-radius: 4px;
     transition: all 0.3s ease;
 }
 
-/* Cuando el sidebar está colapsado, ajustar la posición para mostrar mitad derecha */
-.sidebar-mini .subtema-imagen {
-    flex: 0 0 100%; /* Ocupar todo el ancho disponible */
-    width: 100%;
-    background-position: right center !important; /* Mostrar solo lado derecho */
+/* === ESTADOS === */
+/* Hover */
+.subtema-nav-item:hover .subtema-content-overlay {
+    background-color: var(--hover-overlay-color);
 }
 
-/* Mantener la imagen visible cuando está colapsado (no ocultar) */
-.sidebar-mini .subtema-row {
-    min-height: 60px;
+/* Activo */
+.subtema-nav-item.active {
+    background-color: transparent;
+    border-left: 4px solid var(--active-border-color);
 }
 
-/* Ocultar texto pero mantener el ícono cuando está colapsado */
-.sidebar-mini .subtema-contenido {
+.subtema-nav-item.active .subtema-content-overlay {
+    background-color: var(--active-overlay-color);
+    box-shadow: 0 0 15px rgba(49, 168, 103, 1);
+}
+
+/* Sin imagen de fondo */
+.subtema-nav-item:not([style*="background-image"]) {
+    background: linear-gradient(to right, #2a944aff, #6de777ff);
+}
+
+/* === EFECTOS VISUALES === */
+.subtema-nav-item::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 255, 255, 0.4); /* Semitransparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
 }
 
-/* Asegurarse que el ícono esté centrado */
-.sidebar-mini .subtema-icon {
-    margin: 0;
-    width: auto;
-    height: auto;
-    font-size: 1.5rem;
-    color: #198754; /* Verde de Bootstrap */
+.subtema-nav-item:hover::before {
+    opacity: 1;
 }
 
-/* Ocultar el texto pero mantener el espacio para el ícono */
-.sidebar-mini .subtema-texto {
-    display: none;
+.subtema-nav-item.active::before {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(13, 110, 253, 0.2), transparent);
 }
 
-/* Eliminar animación que podría interferir */
-.subtema-nav-item.active .subtema-contenido {
-    animation: none;
-}
-
-/* Subtema activo 
-.subtema-nav-item.active .subtema-contenido {
-    background-color: rgba(61, 110, 150, 0.85);
-    color: white;
-}
-
-.subtema-nav-item.active .subtema-contenido small {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* Adaptaciones para sidebar colapsado 
-.sidebar-mini .subtema-row {
-    min-height: 60px;
-}
-
-.sidebar-mini .subtema-imagen {
-    flex: 0 0 0%; /* Ocultar la columna de imagen
-    width: 0;
-}
-
-.sidebar-mini .subtema-contenido {
-    flex: 0 0 100%; /* El contenido ocupa todo el ancho
-    padding: 0.5rem;
-    justify-content: center;
-}
-
-.sidebar-mini .subtema-texto {
-    display: none;
-}
-
-/* Mostrar solo ícono cuando está colapsado 
-.sidebar-mini .subtema-icon {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-/* Resto de estilos útiles 
-.subtema-texto {
-    flex: 1;
-}
-
+/* === TEXTO === */
 .subtema-texto h6 {
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
+    color: var(--text-color);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
-.subtema-texto small {
-    font-size: 0.75rem;
-    color: #6c757d;
+/* === SIDEBAR COLAPSADO === */
+.sidebar-mini {
+    /* Estados colapsados */
+    #sidebar-subtemas {
+        flex: 0 0 auto;
+        width: var(--sidebar-collapsed-width);
+        overflow: hidden;
+    }
+    
+    #contenido-principal.content-expanded {
+        flex: 0 0 auto;
+        width: calc(100% - var(--sidebar-collapsed-width));
+    }
+    
+    /* Elementos del sidebar */
+    .sidebar-title,
+    .subtema-texto {
+        display: none;
+    }
+    
+    .sidebar-content {
+        overflow: hidden;
+    }
+    
+    /* Items de subtema */
+    .subtema-nav-item {
+        min-height: var(--subtema-height-collapsed);
+        padding: 0;
+        background-position: 100% center !important;
+        justify-content: center;
+        
+        &:not([style*="background-image"]) {
+            background: linear-gradient(to right, #41ad65ff, #57ec77ff);
+        }
+    }
+    
+    .subtema-content-overlay {
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0);
+    }
+    
+    /* Items activos */
+    .subtema-nav-item.active {
+        border-left: 0;
+        border-right: 4px solid var(--active-border-color);
+    }
+    
+    /* Iconos */
+    .subtema-icon {
+        margin: 0;
+        width: 30px;
+        height: 30px;
+    }
+    
+    /* Botones de toggle */
+    #toggle-sidebar,
+    .btn-collapse,
+    .btn-toggle-sidebar-fixed {
+        position: absolute;
+        right: -16px;
+        top: 10px;
+        z-index: 1000;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        i {
+            transform: rotate(180deg);
+        }
+    }
+    
+    #toggle-sidebar {
+        background: white;
+        border-color: #0c7912ff;
+        color: #157415ff;
+    }
+    
+    .btn-collapse {
+        background-color: #0d8330ff;
+        border: 2px solid white;
+        color: white;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+    
+    .btn-toggle-sidebar-fixed {
+        background-color: var(--toggle-btn-hover-bg);
+        border: var(--toggle-btn-border);
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        right: -18px;
+        top: 15px;
+        width: 36px;
+        height: 36px;
+    }
 }
 
-.subtema-icon {
-    margin-left: 0.5rem;
-    font-size: 1rem;
-}
-
-/* Animación para el elemento activo */
-.subtema-nav-item.active {
-    border-left: 3px solid #0d47a1;
-}
-
-@keyframes pulseActive {
-    0% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(13, 71, 161, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0); }
-}
-
-.subtema-nav-item.active .subtema-contenido {
-    animation: pulseActive 2s infinite;
-}
-
-.cuadros-lista {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.cuadro-item {
-    background-color: #fff;
-    transition: all 0.3s ease;
-}
-
-.cuadro-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* Estilos para el sidebar colapsable */
-.transition-width {
-    transition: all 0.3s ease;
-}
-
-/* Estado colapsado del sidebar */
-#sidebar-subtemas.sidebar-mini {
-    flex: 0 0 auto;
-    width: 60px;
-    overflow: hidden;
-}
-
-#contenido-principal.content-expanded {
-    flex: 0 0 auto;
-    width: calc(100% - 60px);
-}
-
-/* Ajustes para elementos del sidebar cuando está colapsado */
-.sidebar-mini .sidebar-title {
-    display: none;
-}
-
-.sidebar-mini .sidebar-content {
-    overflow: hidden;
-}
-
-.sidebar-mini .subtema-texto {
-    display: none;
-}
-
-.sidebar-mini .subtema-nav-item {
-    padding: 15px 0;
-    justify-content: center;
-}
-
-.sidebar-mini .subtema-icon {
-    margin: 0;
-    width: 30px;
-    height: 30px;
-}
-
-/* Estilo para el botón de toggle cuando está colapsado */
-.sidebar-mini #toggle-sidebar {
-    position: absolute;
-    right: -15px;
-    top: 10px;
-    z-index: 10;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-color: #0c7912ff;
-    color: #157415ff;
-}
-
-.sidebar-mini #toggle-sidebar i {
-    transform: rotate(180deg);
-}
-
-/* Estilos específicos para el botón de colapso */
+/* === BOTONES DE TOGGLE === */
 .btn-collapse {
     width: 32px;
     height: 32px;
@@ -424,98 +391,59 @@
     transform: scale(1.1);
 }
 
-/* Estilo para el botón cuando el sidebar está colapsado */
-.sidebar-mini .btn-collapse {
-    position: absolute;
-    right: -16px;
-    top: 10px;
-    background-color: #0d8330ff;
-    border: 2px solid white;
-    color: white;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-
-.sidebar-mini .btn-collapse i {
-    transform: rotate(180deg);
-}
-
-/* Estilos para el botón unificado de toggle del sidebar */
-.btn-toggle-sidebar {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #0b9936ff;
-    color: white;
-    border: 2px solid white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    z-index: 1050; /* Valor muy alto */
-    transition: all 0.3s ease;
-    cursor: pointer;
-    top: 15px;
-    right: -18px; /* Un poco más hacia afuera */
-}
-
-/* Estilos mejorados para el botón toggle */
-.toggle-button-container {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 0;
-    z-index: 1000; /* Valor muy alto para superar cualquier otro elemento */
-}
-
 .btn-toggle-sidebar-fixed {
     position: absolute;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #147521ff;
+    background-color: var(--toggle-btn-bg);
     color: white;
-    border: 2px solid white;
+    border: var(--toggle-btn-border);
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    cursor: pointer;
+    z-index: 50;
     transition: all 0.3s ease;
-    right: -18px;
+    cursor: pointer;
     top: 15px;
+    right: -18px;
 }
 
 .btn-toggle-sidebar-fixed:hover {
     transform: scale(1.15);
     box-shadow: 0 0 15px rgba(40, 182, 123, 0.5);
+    background-color: var(--toggle-btn-hover-bg);
 }
 
-/* Cuando el sidebar está colapsado, el icono rota */
-.sidebar-mini .btn-toggle-sidebar-fixed i {
-    transform: rotate(180deg);
+/* === TRANSICIONES === */
+.transition-width {
+    transition: all 0.3s ease;
 }
 
-/* Asegurarse que el sidebar no corta el botón */
 #sidebar-subtemas {
     position: relative;
-    overflow: visible !important; /* Importante para que el botón no se corte */
+    overflow: visible !important;
 }
 
-/* Asegurarse que el botón no es afectado por cambios en el sidebar */
-.sidebar-mini .btn-toggle-sidebar-fixed {
-    right: -18px; /* Mantener misma posición cuando está colapsado */
+/* === LISTAS Y ITEMS === */
+.cuadros-lista {
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
-/* Asegurar que el botón siempre esté visible y por encima de otros elementos */
-.btn-toggle-sidebar-fixed {
-    z-index: 50;
+.cuadro-item {
+    background-color: #fff;
+    transition: all 0.3s ease;
 }
 
-/* Asegurar que los modales estén por encima de todo */
+.cuadro-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* === MODALES === */
 .modal {
     z-index: 9999 !important;
 }
@@ -524,12 +452,10 @@
     z-index: 9998 !important;
 }
 
-/* Hacer que el fondo del modal sea más oscuro para destacarlo mejor */
 .modal-backdrop.show {
     opacity: 0.7;
 }
 
-/* Asegurar que el contenido del modal no se desborde */
 .modal-content {
     max-height: 100vh;
     overflow-y: auto;
@@ -538,12 +464,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    //console.log('Estadística por tema cargada:', {
-    //    tema: @json($tema_seleccionado->tema_id ?? null),
-    //    subtema: @json($subtema_seleccionado->subtema_id ?? null)
-    //});
-    
-    // Inicializar manejo del sidebar
     initSidebarToggle();
 });
 
@@ -573,35 +493,26 @@ function initSidebarToggle() {
         }
     });
     
-    // Función para colapsar sidebar (corregida)
+    // Función para colapsar sidebar
     function collapseSidebar() {
         sidebar.classList.add('sidebar-mini');
         content.classList.add('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
         toggleBtn.setAttribute('title', 'Expandir panel');
         
-        // Agregar tooltips a los subtemas
+        // Agregar tooltip a los iconos de subtemas cuando está colapsado
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
             const subtemaTitle = item.querySelector('h6')?.innerText || 'Subtema';
             item.setAttribute('title', subtemaTitle);
         });
-        
-        // No necesitas manipular más la imagen, el CSS se encarga de mostrar la mitad derecha
     }
     
-    // Función para expandir sidebar (corregida)
+    // Función para expandir sidebar
     function expandSidebar() {
         sidebar.classList.remove('sidebar-mini');
         content.classList.remove('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
         toggleBtn.setAttribute('title', 'Colapsar panel');
-        
-        // Eliminar tooltips
-        document.querySelectorAll('.subtema-nav-item').forEach(item => {
-            item.removeAttribute('title');
-        });
-        
-        // No necesitas manipular más la imagen, el CSS se encarga de restaurar la posición
     }
 }
 
