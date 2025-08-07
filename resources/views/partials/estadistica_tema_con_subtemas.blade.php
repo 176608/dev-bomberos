@@ -104,6 +104,37 @@
 
                     <!-- Lista de cuadros -->
                     <div class="flex-fill overflow-auto p-3" id="cuadros-container">
+                        @php
+                            // Función para extraer el número del índice de un código de cuadro
+                            function extraerNumeroIndice($codigoCuadro) {
+                                // Verificar si el código está vacío
+                                if (empty($codigoCuadro)) {
+                                    return PHP_FLOAT_MAX; // Valor alto para que queden al final
+                                }
+                                
+                                // Patrón para extraer el número del índice (último componente después del punto)
+                                if (preg_match('/\.(\d+(?:\.\d+)*)$/', $codigoCuadro, $matches)) {
+                                    return floatval($matches[1]); // Convertir a número para ordenamiento correcto
+                                } else if (preg_match('/(\d+(?:\.\d+)*)$/', $codigoCuadro, $matches)) {
+                                    // Si no hay punto pero termina en número
+                                    return floatval($matches[1]);
+                                }
+                                
+                                return PHP_FLOAT_MAX; // Por defecto al final
+                            }
+                            
+                            // Ordenar cuadros por su número de índice
+                            if (isset($cuadros) && $cuadros->count() > 0) {
+                                $cuadrosArray = $cuadros->toArray();
+                                usort($cuadrosArray, function($a, $b) {
+                                    $numA = extraerNumeroIndice($a['codigo_cuadro'] ?? '');
+                                    $numB = extraerNumeroIndice($b['codigo_cuadro'] ?? '');
+                                    return $numA <=> $numB;
+                                });
+                                $cuadros = collect($cuadrosArray);
+                            }
+                        @endphp
+
                         @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
                             <div class="cuadros-lista">
                                 @foreach($cuadros as $cuadro)
@@ -118,7 +149,7 @@
                                                 <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo ?? '' }}</small>
                                             </div>
                                             <div class="col-md-4 text-end">
-                                                <a href="{{ url('/sigem?section=estadistica&cuadro_id='.$cuadro->cuadro_estadistico_id) }}" class="btn btn-outline-success btn-sm me-2">
+                                                <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro->cuadro_estadistico_id }}', '{{ $cuadro->codigo_cuadro }}')" class="btn btn-outline-success btn-sm me-2">
                                                     <i class="bi bi-eye me-1"></i>Ver
                                                 </a>
                                                 @if(isset($cuadro->excel_file) && !empty($cuadro->excel_file))
