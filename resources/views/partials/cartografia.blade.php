@@ -4,21 +4,17 @@
             <i class="bi bi-map me-2"></i>Cartografía
         </h2>
 
-        <!-- NUEVA SECCIÓN: Imagen + Texto descriptivo -->
-        <div class="row mb-4 align-items-center">
-            <div class="col-lg-4 col-md-5 mb-3 mb-md-0">
-                <div class="cartografia-intro-image">
-                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="img-fluid rounded shadow-sm">
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-7">
-                <div class="cartografia-intro-text">
-                    <p class="lead">
-                        En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
-                    </p>
-                </div>
-            </div>
+       <!-- NUEVA SECCIÓN: Solo texto descriptivo, sin título ni ícono -->
+<div class="row mb-4 align-items-center">
+    <div class="col-12">
+        <div class="cartografia-intro-text">
+            <p class="lead">
+                En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
+            </p>
         </div>
+    </div>
+</div>
+
 
         
         <div id="mapas-container">
