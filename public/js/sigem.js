@@ -269,7 +269,7 @@
 
         // === FUNCION usada en la vista de catálogo.blade ===
         verCuadro: function (cuadroId, codigo) {
-            console.log(`Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+            console.log(`sigem: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
         },
 
         // Reemplazar el método openConsultaExpress con esta versión más simple
@@ -913,11 +913,9 @@
                                     ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                                 </div>
                                 <div>
-                                    <button class="btn btn-sm btn-outline-success" 
-                                       onclick="SIGEMApp.verCuadro(${cuadro.cuadro_estadistico_id}, '${cuadro.codigo_cuadro}')"
-                                       title="Ver cuadro ${cuadro.codigo_cuadro}">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                    <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
                                 </div>
                             </div>
                         `;
