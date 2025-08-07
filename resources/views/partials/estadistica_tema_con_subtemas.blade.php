@@ -6,7 +6,7 @@
             <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
-                    <div class="p-3 bg-primary text-white position-relative">
+                    <div class="p-3 bg-success text-white position-relative">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
@@ -34,7 +34,7 @@
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
                                     @else
-                                        <i class="bi bi-collection text-primary fs-3 me-2"></i>
+                                        <i class="bi bi-collection text-success fs-3 me-2"></i>
                                     @endif
                                     <div class="flex-fill subtema-texto">
                                         <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
@@ -69,7 +69,7 @@
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <!-- Botón para mostrar sidebar (visible solo cuando está colapsado) -->
-                            <button class="btn btn-sm btn-outline-primary me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
+                            <button class="btn btn-sm btn-outline-success me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
                                 <i class="bi bi-list"></i>
                             </button>
                             
@@ -466,7 +466,7 @@ function cargarSubtema(subtema_id) {
     // Mostrar indicador de carga
     document.getElementById('cuadros-container').innerHTML = `
         <div class="text-center p-5">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
             <p class="mt-3">Cargando cuadros estadísticos...</p>
@@ -573,17 +573,77 @@ function renderizarCuadros(cuadros) {
     container.innerHTML = html;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Activar el menú de estadística
-    const menuItems = document.querySelectorAll('.sigem-nav-link');
-    menuItems.forEach(item => {
-        // Quitar todas las clases activas
-        item.classList.remove('active');
-        
-        // Activar el elemento de estadística
-        if (item.textContent.trim().includes('ESTADÍSTICA')) {
-            item.classList.add('active');
-        }
-    });
+// Escuchar el evento personalizado desde sigem.js
+document.addEventListener('verCuadroEstadistico', function(event) {
+    const { cuadroId, codigo } = event.detail;
+    console.log(`Blade: Recibiendo evento para mostrar cuadro: ID=${cuadroId}, Código=${codigo}`);
+    mostrarModalCuadroSimple(cuadroId, codigo);
 });
+
+// Función simplificada para crear y mostrar el modal del cuadro
+function mostrarModalCuadroSimple(cuadroId, codigo) {
+    // Crear un ID único para el modal
+    const modalId = `modal_cuadro_${Date.now()}`;
+    
+    // Crear el elemento del modal
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal fade';
+    modalContainer.id = modalId;
+    modalContainer.setAttribute('tabindex', '-1');
+    
+    // Agregar HTML con contenido mínimo
+    modalContainer.innerHTML = `
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-info-circle me-2"></i>Información del Cuadro
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="container py-5">
+                        <div class="card mx-auto" style="max-width: 500px;">
+                            <div class="card-body">
+                                <h4 class="card-title">Datos recibidos</h4>
+                                <div class="mb-3">
+                                    <p><strong>ID del cuadro:</strong> ${cuadroId}</p>
+                                    <p><strong>Código del cuadro:</strong> ${codigo}</p>
+                                </div>
+                                <button id="testJsBtn_${modalId}" class="btn btn-primary">
+                                    <i class="bi bi-code-slash me-1"></i>Comprobar JavaScript
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Agregar el modal al body
+    document.body.appendChild(modalContainer);
+    
+    // Configurar el evento para remover el modal del DOM cuando se cierre
+    modalContainer.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modalContainer);
+        console.log('Modal eliminado del DOM');
+    });
+    
+    // Mostrar el modal
+    const bootstrapModal = new bootstrap.Modal(modalContainer);
+    bootstrapModal.show();
+    
+    // Agregar event listener al botón de prueba JS
+    const testButton = document.getElementById(`testJsBtn_${modalId}`);
+    if (testButton) {
+        testButton.addEventListener('click', function() {
+            console.log('JavaScript ejecutado en el modal para el cuadro:', codigo);
+            alert(`JavaScript funciona correctamente.\nCuadro ID: ${cuadroId}\nCódigo: ${codigo}`);
+        });
+    }
+}
 </script>

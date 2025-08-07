@@ -217,7 +217,7 @@
                 case 'catalogo': // Carga datos para catalogo.blade
                     this.loadCatalogoData();
                     break;
-                case 'estadistica': // Carga datos para estadistica.blade (puede incluir un cuadro específico)
+                case 'estadistica': // Carga datos para estadistica.blade
                     this.loadEstadisticaData();
                     break;
             }
@@ -270,6 +270,15 @@
         // === FUNCION usada en la vista de estadistica_temas_con_subtemas.blade ===
         verCuadro: function (cuadroId, codigo) {
             console.log(`sigem: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+            
+            // Disparar un evento personalizado que será capturado en el blade
+            const evento = new CustomEvent('verCuadroEstadistico', {
+                detail: {
+                    cuadroId: cuadroId,
+                    codigo: codigo
+                }
+            });
+            document.dispatchEvent(evento);
         },
 
         // Reemplazar el método openConsultaExpress con esta versión más simple
@@ -1050,9 +1059,9 @@
         return `<div class="mapa-image-placeholder"><i class="bi bi-image"></i><h5>${mapa.nombre_mapa || 'Mapa'}</h5><p>${mapa.icono ? 'Imagen no disponible' : 'Sin imagen configurada'}</p>${mapa.enlace ? `<small class="text-primary"><i class="bi bi-cursor-fill"></i>Haz clic para ver mapa</small>` : `<small class="text-muted">Mapa no disponible</small>`}</div>`;
     }
 
-    // === FUNCION usada en la vista de estadística.blade ===
+    // === FUNCION a borrar ===
     // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro, es usada en loadCuadroEspecifico
-    function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
+    /*function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
         return `
             <div class="card border-success">
                 <div class="card-header bg-success text-white">
@@ -1090,7 +1099,7 @@
                 </div>
             </div>
         `;
-    }
+    }*/
 
     // === EXPOSICIÓN GLOBAL DE FUNCIONES NECESARIAS ===
     window.SIGEMApp = SIGEMApp;
