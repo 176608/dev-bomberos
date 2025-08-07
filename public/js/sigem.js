@@ -267,7 +267,7 @@
             }
         },
 
-        // === FUNCION usada en la vista de catálogo.blade ===
+        // === FUNCION usada en la vista de estadistica_temas_con_subtemas.blade ===
         verCuadro: function (cuadroId, codigo) {
             console.log(`sigem: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
         },

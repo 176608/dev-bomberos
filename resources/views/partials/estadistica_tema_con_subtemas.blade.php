@@ -555,11 +555,11 @@ function renderizarCuadros(cuadros) {
                         ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                     </div>
                     <div class="col-md-4 text-end">
-                        <a href="#" class="btn btn-outline-success btn-sm me-2">
+                        <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
                             <i class="bi bi-eye me-1"></i>Ver
                         </a>
                         ${cuadro.excel_file ? `
-                            <a href="#" class="btn btn-success btn-sm" download>
+                            <a href="javascript:void(0)" class="btn btn-success btn-sm" download>
                                 <i class="bi bi-download"></i>
                             </a>
                         ` : ''}
