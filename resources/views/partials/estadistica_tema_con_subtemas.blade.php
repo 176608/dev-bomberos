@@ -39,13 +39,6 @@
                                         @endif
                                         <div class="flex-fill subtema-texto">
                                             <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
-                                            <small class="text-muted">
-                                                @if(isset($tema_subtema->cuadrosEstadisticos))
-                                                    {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
-                                                @else
-                                                    Ver cuadros
-                                                @endif
-                                            </small>
                                         </div>
                                         <i class="bi bi-chevron-right ms-2"></i>
                                     </div>
@@ -213,11 +206,10 @@
 /* Subtema activo */
 .subtema-nav-item.active {
     background-color: transparent;
-    border-left: 4px solid #034617ff;
+    border-left: 4px solid #0346174d;
 }
 
 .subtema-nav-item.active .subtema-content-overlay {
-    background-color: rgba(61, 133, 68, 0.9); /* Azul claro semi-transparente */
     box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
 }
 
@@ -252,7 +244,7 @@
 
 .subtema-nav-item.active::before {
     opacity: 1;
-    background: linear-gradient(to right, rgba(13, 110, 253, 0.2), transparent);
+    background: linear-gradient(to right, rgba(0, 255, 55, 1), transparent);
 }
 
 /* Asegurar que texto sea legible */
@@ -267,7 +259,6 @@
 }
 
 .cuadro-item {
-    background-color: #fff;
     transition: all 0.3s ease;
 }
 
@@ -356,7 +347,7 @@
 }
 
 .btn-collapse:hover {
-    background-color: rgba(51, 51, 51, 0.05);
+    background-color: rgba(25, 138, 76, 0.44);
     transform: scale(1.1);
 }
 
@@ -365,7 +356,7 @@
     position: absolute;
     right: -16px;
     top: 10px;
-    background-color: #0d8330ff;
+    background-color: #168036ff;
     border: 2px solid white;
     color: white;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
@@ -411,7 +402,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #147521ff;
+    background-color: #573fc4ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
