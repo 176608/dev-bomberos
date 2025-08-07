@@ -37,7 +37,7 @@
 
         /* Menú SIGEM */
         .main-menu {
-            background-color: #0d665c !important;
+            background-color: #1ca595ff !important;
             border-bottom: 3px solid #ffd700;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             width: 100%;
