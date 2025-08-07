@@ -8,6 +8,7 @@
 
         @elseif(isset($modo_vista) && $modo_vista === 'navegacion_tema_con_subtemas')
             <!-- NUEVA VISTA: Incluir el partial específico para tema con subtemas -->
+             Entre en el if y cargo tema con subtemas
             @include('partials.estadistica_tema_con_subtemas')
             
             
@@ -15,7 +16,7 @@
             <!-- NUEVO ENFOQUE: Incluir la vista de navegación de temas -->
              Entro aca?
             @include('partials.estadistica_navegacion')
-        @endif
+        @endif  
     </div>
 </div>
 
