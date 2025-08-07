@@ -27,27 +27,30 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
-                                   @if($tema_subtema->imagen)
-                                   style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
-                                   @endif
-                                >
-                                    <div class="subtema-content-overlay">
-                                        <!-- Ya no necesitamos la imagen aquí, es el fondo -->
-                                        @if(!$tema_subtema->imagen)
-                                           <i class="bi bi-collection text-success fs-3 me-2"></i>
-                                        @endif
-                                        <div class="flex-fill subtema-texto">
-                                            <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
-                                            <small class="text-muted">
-                                                @if(isset($tema_subtema->cuadrosEstadisticos))
-                                                    {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
-                                                @else
-                                                    Ver cuadros
-                                                @endif
-                                            </small>
+                                   class="subtema-nav-item text-decoration-none {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
+
+                                    <div class="subtema-row">
+                                        <!-- Columna izquierda - Imagen o placeholder -->
+                                        <div class="subtema-imagen" 
+                                            @if($tema_subtema->imagen)
+                                            style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}');"
+                                            @endif>
+                                            @if(!$tema_subtema->imagen)
+                                            <div class="subtema-imagen-placeholder">
+                                                <i class="bi bi-collection text-success fs-3"></i>
+                                            </div>
+                                            @endif
                                         </div>
-                                        <i class="bi bi-chevron-right ms-2"></i>
+                                        
+                                        <!-- Columna derecha - Contenido -->
+                                        <div class="subtema-contenido">
+                                            <div class="subtema-texto">
+                                                <h6>{{ $tema_subtema->subtema_titulo }}</h6>
+                                            </div>
+                                            <div class="subtema-icon">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
                             @endforeach
@@ -180,85 +183,125 @@
 <style>
 /* Estilos necesarios */
 .subtema-nav-item {
-    border-bottom: 1px solid #e9ecef;
+    display: block;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    position: relative;
+    text-decoration: none;
+    color: #333;
+    padding: 0;
     overflow: hidden;
-    min-height: 80px; /* Altura mínima para mostrar bien la imagen */
+    background-color: #eef7f0;
 }
 
-/* Overlay para el contenido del subtema */
-.subtema-content-overlay {
+/* Layout de fila para el subtema */
+.subtema-row {
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: 80px;
+}
+
+/* Columna para la imagen - 6 columnas (lado izquierdo) */
+.subtema-imagen {
+    flex: 0 0 50%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Cuando no hay imagen, mostrar color de fondo */
+.subtema-imagen-placeholder {
     display: flex;
     align-items: center;
-    width: 100%;
+    justify-content: center;
     height: 100%;
-    position: relative;
-    z-index: 2;
-    padding: 0.5rem;
-    background-color: rgba(127, 167, 123, 0.25);
-    border-radius: 4px;
+    background: linear-gradient(135deg, #c3e6cb 0%, #a4d4ae 100%);
+}
+
+/* Columna para el contenido - 6 columnas (lado derecho) */
+.subtema-contenido {
+    flex: 0 0 50%;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
     transition: all 0.3s ease;
 }
 
-/* Subtema al pasar el mouse */
-.subtema-nav-item:hover .subtema-content-overlay {
-    background-color: rgba(103, 185, 107, 0.18);
+/* Estilo al pasar el mouse */
+.subtema-nav-item:hover .subtema-contenido {
+    background-color: rgba(240, 249, 235, 0.95);
 }
 
 /* Subtema activo */
-.subtema-nav-item.active {
-    background-color: transparent;
-    border-left: 4px solid #034617ff;
+.subtema-nav-item.active .subtema-contenido {
+    background-color: rgba(61, 110, 150, 0.85);
+    color: white;
 }
 
-.subtema-nav-item.active .subtema-content-overlay {
-    background-color: rgba(61, 133, 68, 0.9); /* Azul claro semi-transparente */
-    box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
+.subtema-nav-item.active .subtema-contenido small {
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* Ajustes para cuando el sidebar está colapsado */
-.sidebar-mini .subtema-nav-item {
+/* Adaptaciones para sidebar colapsado */
+.sidebar-mini .subtema-row {
     min-height: 60px;
-    padding: 0;
 }
 
-.sidebar-mini .subtema-content-overlay {
+.sidebar-mini .subtema-imagen {
+    flex: 0 0 0%; /* Ocultar la columna de imagen */
+    width: 0;
+}
+
+.sidebar-mini .subtema-contenido {
+    flex: 0 0 100%; /* El contenido ocupa todo el ancho */
+    padding: 0.5rem;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.9);
 }
 
-/* Efecto visual mejorado */
-.subtema-nav-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
+.sidebar-mini .subtema-texto {
+    display: none;
 }
 
-.subtema-nav-item:hover::before {
-    opacity: 1;
+/* Mostrar solo ícono cuando está colapsado */
+.sidebar-mini .subtema-icon {
+    margin: 0;
+    font-size: 1.5rem;
 }
 
-.subtema-nav-item.active::before {
-    opacity: 1;
-    background: linear-gradient(to right, rgba(13, 110, 253, 0.2), transparent);
+/* Resto de estilos útiles */
+.subtema-texto {
+    flex: 1;
 }
 
-/* Asegurar que texto sea legible */
 .subtema-texto h6 {
-    color: #212529;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.subtema-texto small {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.subtema-icon {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Animación para el elemento activo */
+.subtema-nav-item.active {
+    border-left: 3px solid #0d47a1;
+}
+
+@keyframes pulseActive {
+    0% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(13, 71, 161, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0); }
+}
+
+.subtema-nav-item.active .subtema-contenido {
+    animation: pulseActive 2s infinite;
 }
 
 .cuadros-lista {
@@ -516,10 +559,20 @@ function initSidebarToggle() {
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
         toggleBtn.setAttribute('title', 'Expandir panel');
         
-        // Agregar tooltip a los iconos de subtemas cuando está colapsado
+        // Agregar tooltips y preparar subtemas para modo colapsado
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
             const subtemaTitle = item.querySelector('h6')?.innerText || 'Subtema';
             item.setAttribute('title', subtemaTitle);
+            
+            // Si hay imagen, configurar para mostrar la mitad derecha
+            const imagenDiv = item.querySelector('.subtema-imagen');
+            if (imagenDiv && imagenDiv.style.backgroundImage) {
+                // Guardar la posición original para restaurarla después
+                imagenDiv.setAttribute('data-original-bg', imagenDiv.style.backgroundImage);
+                
+                // Configurar para mostrar solo la mitad derecha
+                imagenDiv.style.backgroundPosition = 'right center';
+            }
         });
     }
     
@@ -529,6 +582,14 @@ function initSidebarToggle() {
         content.classList.remove('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
         toggleBtn.setAttribute('title', 'Colapsar panel');
+        
+        // Restaurar configuración original de imágenes
+        document.querySelectorAll('.subtema-nav-item').forEach(item => {
+            const imagenDiv = item.querySelector('.subtema-imagen');
+            if (imagenDiv && imagenDiv.getAttribute('data-original-bg')) {
+                imagenDiv.style.backgroundPosition = 'center';
+            }
+        });
     }
 }
 
