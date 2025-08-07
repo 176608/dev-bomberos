@@ -25,20 +25,6 @@ Route::prefix('sigem')->group(function () {
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
-
-    // Rutas para Consulta Express
-    /*
-    Route::get('/consulta-express/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])
-        ->name('sigem.consulta-express.temas');
-    
-    // Nueva ruta directa al partial de Consulta Express
-    Route::get('/consulta-express', [PublicController::class, 'loadPartial'])
-        ->name('sigem.consulta-express')
-        ->defaults('section', 'consulta-express');
-    
-    // Ruta para obtener contenido de un subtema específico
-    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'obtenerConsultaExpressContenido'])
-        ->name('sigem.consulta-express.contenido');*/
 });
 
 // Rutas AJAX para Consulta Express
@@ -62,7 +48,7 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         Route::get('/admin/subtemas', [AdminController::class, 'subtemas'])->name('sigem.laravel.admin.subtemas');
         Route::get('/admin/contenidos', [AdminController::class, 'contenidos'])->name('sigem.laravel.admin.contenidos');
         Route::get('/admin/usuarios', [AdminController::class, 'usuarios'])->name('sigem.laravel.admin.usuarios');
-        */
+        
         // === RUTAS CRUD PARA ADMINISTRACIÓN ===
         
         // CRUD Mapas
@@ -83,6 +69,6 @@ Route::prefix('sigem')->middleware(['auth'])->group(function () {
         Route::post('/admin/subtemas', [AdminController::class, 'guardarSubtema'])->name('sigem.laravel.admin.subtemas.store');
         Route::get('/admin/subtemas/{id}/editar', [AdminController::class, 'editarSubtema'])->name('sigem.laravel.admin.subtemas.edit');
         Route::put('/admin/subtemas/{id}', [AdminController::class, 'actualizarSubtema'])->name('sigem.laravel.admin.subtemas.update');
-        Route::delete('/admin/subtemas/{id}', [AdminController::class, 'eliminarSubtema'])->name('sigem.laravel.admin.subtemas.destroy');
+        Route::delete('/admin/subtemas/{id}', [AdminController::class, 'eliminarSubtema'])->name('sigem.laravel.admin.subtemas.destroy');*/
     });
 });
