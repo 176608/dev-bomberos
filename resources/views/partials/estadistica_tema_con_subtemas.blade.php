@@ -27,9 +27,9 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
+                                   class="subtema-nav-item text-decoration-none img-fluid text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
                                    @if($tema_subtema->imagen)
-                                   style="background-image: url('{{ asset('imagenes/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
+                                   style="background-image: url('{{ asset('imagenes/'.$tema_subtema->imagen) }}'); background-size: contain; background-position: center;"
                                    @endif
                                 >
                                     <div class="subtema-content-overlay">
@@ -213,12 +213,12 @@
 /* Subtema activo */
 .subtema-nav-item.active {
     background-color: transparent;
-    border-left: 4px solid #0ea73cff;
+    border-left: 4px solid #034617ff;
 }
 
 .subtema-nav-item.active .subtema-content-overlay {
-    background-color: rgba(103, 156, 108, 0.9); /* Azul claro semi-transparente */
-    box-shadow: 0 0 15px rgba(13, 253, 121, 0.3);
+    background-color: rgba(61, 133, 68, 0.9); /* Azul claro semi-transparente */
+    box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
 }
 
 /* Ajustes para cuando el sidebar está colapsado */
@@ -259,10 +259,6 @@
 .subtema-texto h6 {
     color: #212529;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-}
-
-.subtema-nav-item.active .subtema-texto h6 {
-    color: #0d6efd;
 }
 
 .cuadros-lista {
@@ -473,13 +469,6 @@
 .modal-content {
     max-height: 100vh;
     overflow-y: auto;
-}
-
-/* Optimización para móviles */
-@media (max-width: 768px) {
-    .subtema-nav-item {
-        background-size: contain !important; /* Imágenes más pequeñas en móvil */
-    }
 }
 </style>
 
