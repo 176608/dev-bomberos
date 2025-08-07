@@ -38,7 +38,7 @@
 
 <style>
     .top-bar {
-        background-color: #2a6e48;
+        background-color: #32966fff;
         color: white;
         padding: 8px 0;
         font-size: 14px;
@@ -64,7 +64,7 @@
         width: 28px;
         height: 28px;
         background-color: white;
-        color: #2a6e48;
+        color: #1d5535ff;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -91,14 +91,14 @@
 
     /* Estado ACTIVE */
     .navbar .nav-link.active {
-        background-color: #2a6e48;
+        background-color: #174d2eff;
         color: white !important;
         font-weight: bold;
         box-shadow: 0 2px 6px rgba(42, 110, 72, 0.3);
     }
 
     .navbar .nav-link.active:hover {
-        background-color: #1e4d35;
+        background-color: #195e3aff;
         color: white !important;
         transform: none;
     }
@@ -121,7 +121,7 @@
         background-color: rgba(220, 53, 69, 0.1);
         padding: 4px 8px;
         border-radius: 4px;
-        border: 1px solid #dc3545;
+        border: 1px solid #681919ff;
         animation: pulse 2s infinite;
     }
 
