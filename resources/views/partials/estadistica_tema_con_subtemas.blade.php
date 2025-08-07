@@ -559,7 +559,7 @@ function renderizarCuadros(cuadros) {
                             <i class="bi bi-eye me-1"></i>Ver
                         </a>
                         ${cuadro.excel_file ? `
-                            <a href="/descargas/${cuadro.excel_file}" class="btn btn-success btn-sm" download>
+                            <a href="#" class="btn btn-success btn-sm" download>
                                 <i class="bi bi-download"></i>
                             </a>
                         ` : ''}
