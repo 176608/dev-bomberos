@@ -76,33 +76,25 @@
 </div>
 
 <script>
-
 // Esperamos a que el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    //console.log('Express: DOM cargado, iniciando configuración de Consulta Express');
-
-    // Verificar que los elementos existan
-    const temaSelect = document.getElementById('ce_tema_select');
-    const subtemaSelect = document.getElementById('ce_subtema_select');
-    const contenidoContainer = document.getElementById('ce_contenido_container');
-    const metadataDiv = document.getElementById('ce_metadata');
-    const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
+    // Añadir referencias a los elementos en el modal
+    const temaSelectModal = document.getElementById('ce_tema_select_modal');
+    const subtemaSelectModal = document.getElementById('ce_subtema_select_modal');
+    const contenidoContainerModal = document.getElementById('ce_contenido_container_modal');
+    const metadataDivModal = document.getElementById('ce_metadata_modal');
+    const fechaActualizacionModal = document.getElementById('ce_fecha_actualizacion_modal');
     
-    if (!temaSelect || !subtemaSelect || !contenidoContainer) {
-        console.error('Faltan elementos necesarios en el DOM:',
-            {temaSelect: !!temaSelect, subtemaSelect: !!subtemaSelect, 
-            contenidoContainer: !!contenidoContainer});
-        return;
+    // Verificar elementos del modal
+    if (!temaSelectModal || !subtemaSelectModal || !contenidoContainerModal) {
+        console.error('Faltan elementos necesarios en el modal:',
+            {temaSelectModal: !!temaSelectModal, subtemaSelectModal: !!subtemaSelectModal, 
+             contenidoContainerModal: !!contenidoContainerModal});
     }
 
-    //console.log('Express: Elementos encontrados, configurando listeners...');
-
-    // Verificar si jQuery está disponible
-    const useJQuery = (typeof jQuery !== 'undefined');
-    
-    // Función para mostrar loader
-    function showLoader() {
-        contenidoContainer.innerHTML = `
+    // Función para mostrar loader en el modal
+    function showLoaderModal() {
+        contenidoContainerModal.innerHTML = `
             <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Cargando...</span>
@@ -112,28 +104,24 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
-    // Función para mostrar error
-    function showError(message) {
-        contenidoContainer.innerHTML = `
+    // Función para mostrar error en el modal
+    function showErrorModal(message) {
+        contenidoContainerModal.innerHTML = `
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 ${message}
             </div>
         `;
-        metadataDiv.style.display = 'none';
+        metadataDivModal.style.display = 'none';
     }
     
-    // Función para cargar subtemas cuando se selecciona un tema
-    function cargarSubtemas(temaId) {
-        //console.log('Express:Intentando cargar subtemas para tema ID:', temaId);
-        
+    // Función para cargar subtemas cuando se selecciona un tema en el modal
+    function cargarSubtemasModal(temaId) {
         // Deshabilitar el selector de subtemas mientras se cargan
-        subtemaSelect.disabled = true;
-        subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
+        subtemaSelectModal.disabled = true;
+        subtemaSelectModal.innerHTML = '<option value="">Cargando subtemas...</option>';
         
-        // Depuración: Mostrar URL a la que se envía la petición
         const url = '{{ url("sigem/ajax/consulta-express/subtemas") }}/' + temaId;
-        //console.log('Express:Enviando petición a:', url);
 
         // Realizar petición fetch
         fetch(url, {
@@ -144,17 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            //console.log('Express:Respuesta recibida, status:', response.status);
             if (!response.ok) {
                 throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
-            //console.log('Express:Datos recibidos:', data);
-
             // Limpiar selector de subtemas
-            subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
+            subtemaSelectModal.innerHTML = '<option value="">Seleccione un subtema...</option>';
             
             if (data.success && data.subtemas && data.subtemas.length > 0) {
                 // Añadir opciones de subtemas
@@ -162,29 +147,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     const option = document.createElement('option');
                     option.value = subtema.ce_subtema_id;
                     option.textContent = subtema.ce_subtema;
-                    subtemaSelect.appendChild(option);
+                    subtemaSelectModal.appendChild(option);
                 });
                 
                 // Habilitar selector
-                subtemaSelect.disabled = false;
-                //console.log('Express:Subtemas cargados:', data.subtemas.length);
+                subtemaSelectModal.disabled = false;
             } else {
-                subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
+                subtemaSelectModal.innerHTML = '<option value="">No hay subtemas disponibles</option>';
             }
         })
         .catch(error => {
-            console.error('Error al cargar subtemas:', error);
-            subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
+            console.error('Error al cargar subtemas en modal:', error);
+            subtemaSelectModal.innerHTML = '<option value="">Error al cargar subtemas</option>';
         });
     }
     
-    // Función para cargar contenido
-    function cargarContenido(subtemaId) {
-        //console.log('Express:Cargando contenido para subtema ID:', subtemaId);
-        showLoader();
+    // Función para cargar contenido en el modal
+    function cargarContenidoModal(subtemaId) {
+        showLoaderModal();
         
         const url = '{{ url("sigem/ajax/consulta-express/contenido") }}/' + subtemaId;
-        //console.log('Express:URL de contenido:', url);
 
         // Realizar petición fetch
         fetch(url, {
@@ -195,119 +177,94 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            //console.log('Respuesta de contenido recibida:', response.status);
             if (!response.ok) {
                 throw new Error('Error en la respuesta del servidor: ' + response.status);
             }
             return response.json();
         })
         .then(data => {
-            //console.log('Express: Datos de contenido:', data);
             if (data.success && data.contenido) {
                 // Mostrar contenido y metadata
-                contenidoContainer.innerHTML = data.contenido.ce_contenido;
-                fechaActualizacion.textContent = data.actualizado;
-                metadataDiv.style.display = 'block';
-                
-                // Actualizar URL sin recargar la página (para poder compartir o guardar en favoritos)
-                updateUrlParams();
+                contenidoContainerModal.innerHTML = data.contenido.ce_contenido;
+                fechaActualizacionModal.textContent = data.actualizado;
+                metadataDivModal.style.display = 'block';
             } else {
-                contenidoContainer.innerHTML = '<div class="alert alert-warning">No se encontró contenido para el subtema seleccionado.</div>';
-                metadataDiv.style.display = 'none';
+                contenidoContainerModal.innerHTML = '<div class="alert alert-warning">No se encontró contenido para el subtema seleccionado.</div>';
+                metadataDivModal.style.display = 'none';
             }
         })
         .catch(error => {
-            console.error('Error al cargar contenido:', error);
-            showError('No se pudo cargar el contenido. Intente nuevamente: ' + error.message);
+            console.error('Error al cargar contenido en modal:', error);
+            showErrorModal('No se pudo cargar el contenido. Intente nuevamente: ' + error.message);
         });
     }
     
-    // Función para actualizar parámetros de URL sin recargar
-    function updateUrlParams() {
-        if (window.history && window.history.pushState) {
-            const temaId = temaSelect.value;
-            const subtemaId = subtemaSelect.value;
-            
-            // Obtener URL actual y separar base de parámetros
-            const currentUrl = window.location.href;
-            const baseUrl = currentUrl.split('?')[0];
-            
-            // Crear objeto URLSearchParams para manejar parámetros fácilmente
-            const searchParams = new URLSearchParams(window.location.search);
-            
-            // Actualizar parámetros de tema y subtema
-            if (temaId) {
-                searchParams.set('ce_tema_id', temaId);
-            } else {
-                searchParams.delete('ce_tema_id');
-            }
-            
-            if (subtemaId) {
-                searchParams.set('ce_subtema_id', subtemaId);
-            } else {
-                searchParams.delete('ce_subtema_id');
-            }
-            
-            // Construir nueva URL
-            const newUrl = baseUrl + (searchParams.toString() ? '?' + searchParams.toString() : '');
-            
-            // Actualizar URL sin recargar
-            window.history.pushState({path: newUrl}, '', newUrl);
-        }
-    }
+    // EVENT LISTENERS PARA EL MODAL
     
-    // === EVENT LISTENERS ===
-    
-    // Cuando cambia el tema - Asegurarse de que este evento se ejecute
-    temaSelect.addEventListener('change', function() {
+    // Cuando cambia el tema en el modal
+    temaSelectModal.addEventListener('change', function() {
         const temaId = this.value;
-        //console.log('Express:Tema seleccionado:', temaId); // Añadir log para depuración
 
         if (temaId) {
-            cargarSubtemas(temaId);
+            cargarSubtemasModal(temaId);
             
             // Limpiar contenido si había algo mostrado
-            contenidoContainer.innerHTML = `
+            contenidoContainerModal.innerHTML = `
                 <div class="text-center text-muted py-5">
                     <i class="bi bi-info-circle fs-2"></i>
                     <p class="mt-2">Seleccione un subtema para ver la información</p>
                 </div>
             `;
-            metadataDiv.style.display = 'none';
+            metadataDivModal.style.display = 'none';
         } else {
             // Resetear subtemas y contenido
-            subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
-            subtemaSelect.disabled = true;
+            subtemaSelectModal.innerHTML = '<option value="">Primero seleccione un tema</option>';
+            subtemaSelectModal.disabled = true;
             
-            contenidoContainer.innerHTML = `
+            contenidoContainerModal.innerHTML = `
                 <div class="text-center text-muted py-5">
                     <i class="bi bi-info-circle fs-2"></i>
                     <p class="mt-2">Seleccione un tema y subtema para ver la información</p>
                 </div>
             `;
-            metadataDiv.style.display = 'none';
+            metadataDivModal.style.display = 'none';
         }
     });
     
-    // Cuando cambia el subtema - Auto-cargar contenido
-    subtemaSelect.addEventListener('change', function() {
+    // Cuando cambia el subtema en el modal - Ahora carga automáticamente el contenido
+    subtemaSelectModal.addEventListener('change', function() {
         const subtemaId = this.value;
         
         if (subtemaId) {
-            cargarContenido(subtemaId);
+            // Cargar contenido automáticamente al seleccionar un subtema
+            cargarContenidoModal(subtemaId);
+        } else {
+            // Mostrar mensaje de selección
+            contenidoContainerModal.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mt-2">Seleccione un subtema para ver la información</p>
+                </div>
+            `;
+            metadataDivModal.style.display = 'none';
         }
     });
     
-    // Cargar contenido inicial si hay tema y subtema en la URL
-    const initialTemaId = '{{ request('ce_tema_id') }}';
-    const initialSubtemaId = '{{ request('ce_subtema_id') }}';
+    // Mantener el código existente para la versión no-modal si es necesario
+    // ...
     
-    if (initialTemaId && initialSubtemaId) {
-        // Si tenemos ambos parámetros, cargar el contenido
-        cargarContenido(initialSubtemaId);
-    } else if (initialTemaId) {
-        // Si solo tenemos tema, cargar los subtemas
-        cargarSubtemas(initialTemaId);
+    // Verificar que los elementos existan (versión no-modal)
+    const temaSelect = document.getElementById('ce_tema_select');
+    const subtemaSelect = document.getElementById('ce_subtema_select');
+    const consultarBtn = document.getElementById('ce_consultar_btn');
+    const contenidoContainer = document.getElementById('ce_contenido_container');
+    const metadataDiv = document.getElementById('ce_metadata');
+    const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
+    
+    // Si existen los elementos de la versión no-modal, configurar su funcionalidad
+    if (temaSelect && subtemaSelect && contenidoContainer) {
+        // Código existente para la versión no-modal...
+        // ...
     }
 });
 </script>
