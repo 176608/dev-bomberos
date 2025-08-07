@@ -1,12 +1,21 @@
 <div class="card shadow-sm">
     <div class="card-body">
-        <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-journal-text"></i> Catálogo de Cuadros Estadísticos
-        </h2>
 
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
+        <div class="alert-success mb-4">
+            <i class="bi bi-check-circle me-2"></i>
             <strong>Sistema de clasificación:</strong> Para su fácil localización, los diferentes cuadros que conforman el módulo estadístico del SIGEM se identifican mediante una clave conformada por el número de tema, identificador del subtema y el número de cuadro estadístico.
+        </div>
+
+        <div class="row">
+            <div class="text-center mb-4">
+                <img src="{{ asset('imagenes/ejem.png') }}" alt="Catalogo Ejemplo" class="img-fluid rounded shadow-sm">
+            </div>
+        </div>
+        <div class="row">
+            <div class="text-center mb-4">
+                <p>El cuadro de “Población por Municipio” se encuentra dentro del Tema 3. Sociodemográfico en el subtema de Población
+                </p>
+            </div>
         </div>
 
         <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
@@ -54,10 +63,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="modal_cuadro_catalogo" tabindex="-1" aria-labelledby="modalCuadroLabel" aria-hidden="true">
-    <!-- El contenido del modal se generará dinámicamente -->
 </div>
 
 <style>

@@ -64,7 +64,6 @@
                                             </h5>
                                         </div>
                                         <div class="card-body text-center p-4">
-                                            <i class="bi bi-folder-fill text-muted" style="font-size: 3rem;"></i>
                                             <p class="mt-3 mb-0">
                                                 <small class="text-muted">
                                                     {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
