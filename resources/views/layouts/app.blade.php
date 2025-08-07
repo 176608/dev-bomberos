@@ -38,7 +38,7 @@
 
 <style>
     .top-bar {
-        background-color: #32966fff;
+        background-color: #357254ff;
         color: white;
         padding: 8px 0;
         font-size: 14px;
@@ -64,7 +64,7 @@
         width: 28px;
         height: 28px;
         background-color: white;
-        color: #1d5535ff;
+        color: #6bffe1ff;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -82,9 +82,8 @@
 
     /* Efecto HOVER */
     .navbar .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #2a6e48 !important;
-        background-color: rgba(255, 255, 255, 0.9);
+        color: #000000ff !important;
+        background-color: #7dd1a1ff;
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
