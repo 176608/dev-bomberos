@@ -75,7 +75,7 @@
                             @if($tema_seleccionado->subtemas && $tema_seleccionado->subtemas->count() > 0)
                                 @foreach($tema_seleccionado->subtemas as $subtema)
                                     <a href="{{ url('/sigem/estadistica-subtema/'.$subtema->subtema_id) }}" 
-                                       class="subtema-nav-item text-decoration-none text-dark">
+                                       class="class1 subtema-nav-item text-decoration-none text-dark">
                                         @if($subtema->icono_subtema)
                                             <img src="{{ asset('img/subtemas/'.$subtema->icono_subtema) }}" 
                                                  alt="{{ $subtema->subtema_titulo }}" 
@@ -168,7 +168,7 @@
                             @if($tema_subtemas && $tema_subtemas->count() > 0)
                                 @foreach($tema_subtemas as $tema_subtema)
                                     <a href="{{ url('/sigem/estadistica-subtema/'.$tema_subtema->subtema_id) }}" 
-                                       class="subtema-nav-item text-decoration-none text-dark {{ $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
+                                       class="class2 subtema-nav-item text-decoration-none text-dark {{ $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
                                         @if($tema_subtema->icono_subtema)
                                             <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}" 
                                                  alt="{{ $tema_subtema->subtema_titulo }}" 
