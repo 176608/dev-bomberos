@@ -180,10 +180,6 @@
 <style>
 /* === VARIABLES CSS === */
 :root {
-    --sidebar-collapsed-width: 60px;
-    --sidebar-expanded-width: 250px; /* Ajusta según tu diseño */
-    --subtema-height-expanded: 80px;
-    --subtema-height-collapsed: 60px;
     --border-color: #e9ecef;
     --active-border-color: #034617;
     --hover-overlay-color: rgba(47, 165, 110, 0.56);
