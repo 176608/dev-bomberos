@@ -13,8 +13,7 @@
         </div>
         <div class="row">
             <div class="text-center mb-4">
-                <p>El cuadro de “Población por Municipio” se encuentra dentro del Tema 3. Sociodemográfico en el subtema de Población
-                </p>
+                <p>El cuadro de “Población por Municipio” se encuentra dentro del Tema 3. Sociodemográfico en el subtema de Población</p>
             </div>
         </div>
 
