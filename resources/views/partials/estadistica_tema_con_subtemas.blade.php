@@ -352,7 +352,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #0d6efd;
+    background-color: #147521ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -368,7 +368,7 @@
 
 .btn-toggle-sidebar-fixed:hover {
     transform: scale(1.15);
-    box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+    box-shadow: 0 0 15px rgba(40, 182, 123, 0.5);
 }
 
 /* Cuando el sidebar está colapsado, el icono rota */
@@ -408,7 +408,7 @@
 
 /* Asegurar que el contenido del modal no se desborde */
 .modal-content {
-    max-height: 95vh;
+    max-height: 100vh;
     overflow-y: auto;
 }
 </style>
