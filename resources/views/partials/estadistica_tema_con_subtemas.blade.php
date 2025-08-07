@@ -27,25 +27,28 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
-                                    @if($tema_subtema->imagen)
-                                        <img src="{{ asset('imagenes/'.$tema_subtema->imagen) }}" 
-                                             alt="{{ $tema_subtema->subtema_titulo }}" 
-                                             class="subtema-icon">
-                                    @else
-                                       <i class="bi bi-collection text-success fs-3 me-2"></i>
-                                    @endif
-                                    <div class="flex-fill subtema-texto">
-                                        <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
-                                        <small class="text-muted">
-                                            @if(isset($tema_subtema->cuadrosEstadisticos))
-                                                {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
-                                            @else
-                                                Ver cuadros
-                                            @endif
-                                        </small>
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
+                                   @if($tema_subtema->imagen)
+                                   style="background-image: url('{{ asset('imagenes/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
+                                   @endif
+                                >
+                                    <div class="subtema-content-overlay">
+                                        <!-- Ya no necesitamos la imagen aquí, es el fondo -->
+                                        @if(!$tema_subtema->imagen)
+                                           <i class="bi bi-collection text-success fs-3 me-2"></i>
+                                        @endif
+                                        <div class="flex-fill subtema-texto">
+                                            <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
+                                            <small class="text-muted">
+                                                @if(isset($tema_subtema->cuadrosEstadisticos))
+                                                    {{ $tema_subtema->cuadrosEstadisticos->count() }} cuadros
+                                                @else
+                                                    Ver cuadros
+                                                @endif
+                                            </small>
+                                        </div>
+                                        <i class="bi bi-chevron-right ms-2"></i>
                                     </div>
-                                    <i class="bi bi-chevron-right ms-2"></i>
                                 </a>
                             @endforeach
                         @else
@@ -183,22 +186,83 @@
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px; /* Altura mínima para mostrar bien la imagen */
 }
 
-.subtema-nav-item:hover {
-    background-color: #f8f9fa;
+/* Overlay para el contenido del subtema */
+.subtema-content-overlay {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
+/* Subtema al pasar el mouse */
+.subtema-nav-item:hover .subtema-content-overlay {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Subtema activo */
 .subtema-nav-item.active {
-    background-color: #e3f2fd;
-    border-left: 4px solid #0d6efd;
+    background-color: transparent;
+    border-left: 4px solid #0ea73cff;
 }
 
-.subtema-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    margin-right: 0.75rem;
+.subtema-nav-item.active .subtema-content-overlay {
+    background-color: rgba(227, 242, 253, 0.9); /* Azul claro semi-transparente */
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.3);
+}
+
+/* Ajustes para cuando el sidebar está colapsado */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    padding: 0;
+}
+
+.sidebar-mini .subtema-content-overlay {
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Efecto visual mejorado */
+.subtema-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.subtema-nav-item:hover::before {
+    opacity: 1;
+}
+
+.subtema-nav-item.active::before {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(13, 110, 253, 0.2), transparent);
+}
+
+/* Asegurar que texto sea legible */
+.subtema-texto h6 {
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.subtema-nav-item.active .subtema-texto h6 {
+    color: #0d6efd;
 }
 
 .cuadros-lista {
@@ -409,6 +473,17 @@
 .modal-content {
     max-height: 100vh;
     overflow-y: auto;
+}
+
+/* Optimización para móviles */
+@media (max-width: 768px) {
+    .subtema-nav-item {
+        background-size: contain !important; /* Imágenes más pequeñas en móvil */
+    }
+    
+    .subtema-content-overlay {
+        background-color: rgba(255, 255, 255, 0.92); /* Más opaco para mejor legibilidad */
+    }
 }
 </style>
 
