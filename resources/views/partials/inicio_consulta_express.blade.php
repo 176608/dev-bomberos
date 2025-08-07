@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <!-- Header del Modal -->
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="consultaExpressModalLabel">
                     <i class="bi bi-lightning-fill me-2"></i>Consulta Express
                 </h5>
