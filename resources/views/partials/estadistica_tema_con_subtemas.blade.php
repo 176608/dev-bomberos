@@ -143,17 +143,17 @@
                                             <div class="col-md-8">
                                                 <h6 class="mb-1">
                                                     <i class="bi bi-file-earmark-excel me-2 text-success"></i>
-                                                    {{ $cuadro->codigo_cuadro ?? 'N/A' }}
+                                                    {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                 </h6>
-                                                <p class="mb-1">{{ $cuadro->cuadro_estadistico_titulo ?? 'Sin título' }}</p>
-                                                <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo ?? '' }}</small>
+                                                <p class="mb-1">{{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}</p>
+                                                <small class="text-muted">{{ $cuadro['cuadro_estadistico_subtitulo'] ?? '' }}</small>
                                             </div>
                                             <div class="col-md-4 text-end">
-                                                <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro->cuadro_estadistico_id }}', '{{ $cuadro->codigo_cuadro }}')" class="btn btn-outline-success btn-sm me-2">
+                                                <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
                                                     <i class="bi bi-eye me-1"></i>Ver
                                                 </a>
-                                                @if(isset($cuadro->excel_file) && !empty($cuadro->excel_file))
-                                                    <a href="#" class="btn btn-success btn-sm" download>
+                                                @if(isset($cuadro['excel_file']) && !empty($cuadro['excel_file']))
+                                                    <a href="{{ url('/descargas/'.$cuadro['excel_file']) }}" class="btn btn-success btn-sm" download>
                                                         <i class="bi bi-download"></i>
                                                     </a>
                                                 @endif
