@@ -34,7 +34,7 @@
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
                                     @else
-                                        <i class="bi bi-collection text-primary fs-3 me-2"></i>
+                                        <i class="bi bi-collection text-success fs-3 me-2"></i>
                                     @endif
                                     <div class="flex-fill subtema-texto">
                                         <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
@@ -67,7 +67,7 @@
                     <!-- Encabezado con selector de temas y botón para mostrar sidebar -->
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <button class="btn btn-sm btn-outline-primary me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
+                            <button class="btn btn-sm btn-outline-success me-3 d-none" id="show-sidebar" title="Mostrar panel de subtemas">
                                 <i class="bi bi-list"></i>
                             </button>
                             
@@ -187,7 +187,7 @@
 
 .subtema-nav-item.active::before {
     opacity: 1;
-    background: linear-gradient(to right, rgba(0, 255, 55, 1), transparent);
+    background: linear-gradient(to right, rgba(57, 172, 92, 1), transparent);
 }
 
 /* Asegurar que texto sea legible */
@@ -345,7 +345,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #573fc4ff;
+    background-color: #175c10ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -408,11 +408,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    //console.log('Estadística por tema cargada:', {
-    //    tema: @json($tema_seleccionado->tema_id ?? null),
-    //    subtema: @json($subtema_seleccionado->subtema_id ?? null)
-    //});
-    
     // Inicializar manejo del sidebar
     initSidebarToggle();
 });
