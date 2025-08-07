@@ -1,21 +1,22 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <!-- Cabecera -->
-        <div class="row g-0 border-bottom">
-            <div class="col-8">
-                <div class="p-4">
-                    <h2 class="text-success mb-2">
-                        <i class="bi bi-bar-chart me-2"></i>Sección Estadística
-                    </h2>
-                    <p class="text-muted mb-0">Consultas de información estadística relevante y precisa</p>
-                </div>
-            </div>
-            <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-                <!-- Corregir la ruta de la imagen -->
-                <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
-                     onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
-            </div>
+        <!-- Cabecera --> 
+<div class="row g-0 border-bottom">
+    <div class="col-8">
+        <div class="p-4">
+            <h2 class="text-success mb-2">
+                Sección Estadística
+            </h2>
+            <p class="text-muted mb-0">Consultas de información estadística relevante y precisa</p>
         </div>
+    </div>
+    <div class="col-4 d-flex align-items-center justify-content-center bg-light">
+        <!-- Corregir la ruta de la imagen -->
+        <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
+             onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
+    </div>
+</div>
+
 
         <!-- Contenido principal -->
         <div class="row g-0 min-vh-75">
