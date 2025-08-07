@@ -27,9 +27,9 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="subtema-nav-item text-decoration-none img-fluid text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
                                    @if($tema_subtema->imagen)
-                                   style="background-image: url('{{ asset('imagenes/'.$tema_subtema->imagen) }}'); background-size: contain; background-position: center;"
+                                   style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
                                    @endif
                                 >
                                     <div class="subtema-content-overlay">
