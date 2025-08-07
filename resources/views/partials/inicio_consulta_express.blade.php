@@ -5,7 +5,7 @@
             <!-- Header del Modal -->
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="consultaExpressModalLabel">
-                    <i class="bi bi-lightning-fill me-2"></i>Consulta Express
+                    Consulta Express
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -14,13 +14,13 @@
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <!-- Columna de imagen -->
-                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <!-- Columna de imagen - Ahora 2 columnas -->
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
                             <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
                         </div>
                         
-                        <!-- Columna de selectores -->
-                        <div class="col-md-3">
+                        <!-- Columna de selectores - Ahora 4 columnas -->
+                        <div class="col-md-4">
                             @php
                                 use App\Models\SIGEM\ce_tema;
                                 $temas = ce_tema::orderBy('tema', 'asc')->get();
@@ -47,13 +47,11 @@
                                     </select>
                                 </div>
                                 
-                                <button type="button" id="ce_consultar_btn_modal" class="btn btn-primary w-100" disabled>
-                                    Consultar <i class="bi bi-arrow-right-circle ms-1"></i>
-                                </button>
+                                <!-- Eliminamos el botón de consultar ya que ahora cargará automáticamente -->
                             </div>
                         </div>
                         
-                        <!-- Columna de contenido -->
+                        <!-- Columna de contenido - Se mantiene en 6 columnas -->
                         <div class="col-md-6">
                             <div id="ce_contenido_container_modal" class="border rounded p-3" style="min-height: 250px; max-height: 500px; overflow-y: auto;">
                                 <div class="text-center text-muted py-5">
@@ -86,15 +84,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verificar que los elementos existan
     const temaSelect = document.getElementById('ce_tema_select');
     const subtemaSelect = document.getElementById('ce_subtema_select');
-    const consultarBtn = document.getElementById('ce_consultar_btn');
     const contenidoContainer = document.getElementById('ce_contenido_container');
     const metadataDiv = document.getElementById('ce_metadata');
     const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
     
-    if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
+    if (!temaSelect || !subtemaSelect || !contenidoContainer) {
         console.error('Faltan elementos necesarios en el DOM:',
             {temaSelect: !!temaSelect, subtemaSelect: !!subtemaSelect, 
-            consultarBtn: !!consultarBtn, contenidoContainer: !!contenidoContainer});
+            contenidoContainer: !!contenidoContainer});
         return;
     }
 
@@ -133,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Deshabilitar el selector de subtemas mientras se cargan
         subtemaSelect.disabled = true;
         subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
-        consultarBtn.disabled = true;
         
         // Depuración: Mostrar URL a la que se envía la petición
         const url = '{{ url("sigem/ajax/consulta-express/subtemas") }}/' + temaId;
@@ -169,20 +165,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     subtemaSelect.appendChild(option);
                 });
                 
-                // Habilitar selector y botón
+                // Habilitar selector
                 subtemaSelect.disabled = false;
-                consultarBtn.disabled = false;
                 //console.log('Express:Subtemas cargados:', data.subtemas.length);
             } else {
                 subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
-                consultarBtn.disabled = true;
-                //console.log('Express:No se encontraron subtemas');
             }
         })
         .catch(error => {
             console.error('Error al cargar subtemas:', error);
             subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
-            consultarBtn.disabled = true;
         });
     }
     
@@ -286,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Resetear subtemas y contenido
             subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
             subtemaSelect.disabled = true;
-            consultarBtn.disabled = true;
             
             contenidoContainer.innerHTML = `
                 <div class="text-center text-muted py-5">
@@ -301,18 +292,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cuando cambia el subtema - Auto-cargar contenido
     subtemaSelect.addEventListener('change', function() {
         const subtemaId = this.value;
-        
-        if (subtemaId) {
-            cargarContenido(subtemaId);
-            consultarBtn.disabled = false;
-        } else {
-            consultarBtn.disabled = true;
-        }
-    });
-    
-    // Cuando se hace clic en el botón consultar
-    consultarBtn.addEventListener('click', function() {
-        const subtemaId = subtemaSelect.value;
         
         if (subtemaId) {
             cargarContenido(subtemaId);
