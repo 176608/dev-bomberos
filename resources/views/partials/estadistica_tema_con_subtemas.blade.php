@@ -34,7 +34,7 @@
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
                                     @else
-                                        <i class="bi bi-collection text-success fs-3 me-2"></i>
+                                       ##else
                                     @endif
                                     <div class="flex-fill subtema-texto">
                                         <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
