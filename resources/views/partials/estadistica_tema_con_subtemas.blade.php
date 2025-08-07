@@ -28,8 +28,8 @@
                                 <a href="#" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
-                                    @if($tema_subtema->icono_subtema)
-                                        <img src="{{ asset('img/subtemas/'.$tema_subtema->icono_subtema) }}" 
+                                    @if($tema_subtema->imagen)
+                                        <img src="{{ asset('imagenes/'.$tema_subtema->imagen) }}" 
                                              alt="{{ $tema_subtema->subtema_titulo }}" 
                                              class="subtema-icon"
                                              onerror="this.src='{{ asset('img/icons/folder-data.png') }}'">
@@ -481,7 +481,6 @@ function cambiarTema(tema_id) {
 
 // Función para cargar un subtema específico
 function cargarSubtema(subtema_id) {
-    console.log('Cargando subtema:', subtema_id);
     
     // Mostrar indicador de carga
     document.getElementById('cuadros-container').innerHTML = `
