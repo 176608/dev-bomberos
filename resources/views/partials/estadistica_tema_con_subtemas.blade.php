@@ -200,14 +200,14 @@
     position: relative;
     z-index: 2;
     padding: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(127, 167, 123, 0.25);
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 /* Subtema al pasar el mouse */
 .subtema-nav-item:hover .subtema-content-overlay {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(103, 185, 107, 0.18);
 }
 
 /* Subtema activo */
@@ -217,8 +217,8 @@
 }
 
 .subtema-nav-item.active .subtema-content-overlay {
-    background-color: rgba(227, 242, 253, 0.9); /* Azul claro semi-transparente */
-    box-shadow: 0 0 15px rgba(13, 110, 253, 0.3);
+    background-color: rgba(103, 156, 108, 0.9); /* Azul claro semi-transparente */
+    box-shadow: 0 0 15px rgba(13, 253, 121, 0.3);
 }
 
 /* Ajustes para cuando el sidebar está colapsado */
@@ -352,7 +352,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0);
     border: 1px solid rgba(255, 255, 255, 0.5);
     color: white;
     transition: all 0.3s ease;
@@ -360,7 +360,7 @@
 }
 
 .btn-collapse:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(51, 51, 51, 0.05);
     transform: scale(1.1);
 }
 
@@ -369,7 +369,7 @@
     position: absolute;
     right: -16px;
     top: 10px;
-    background-color: #0d6efd;
+    background-color: #0d8330ff;
     border: 2px solid white;
     color: white;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
@@ -385,7 +385,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #0d6efd;
+    background-color: #0b9936ff;
     color: white;
     border: 2px solid white;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -479,10 +479,6 @@
 @media (max-width: 768px) {
     .subtema-nav-item {
         background-size: contain !important; /* Imágenes más pequeñas en móvil */
-    }
-    
-    .subtema-content-overlay {
-        background-color: rgba(255, 255, 255, 0.92); /* Más opaco para mejor legibilidad */
     }
 }
 </style>
