@@ -191,7 +191,6 @@
     color: #333;
     padding: 0;
     overflow: hidden;
-    background-color: #eef7f0;
 }
 
 /* Layout de fila para el subtema */
@@ -201,39 +200,61 @@
     min-height: 80px;
 }
 
-/* Columna para la imagen - 6 columnas (lado izquierdo) */
+/* Columna para la imagen - exactamente 6 columnas (lado izquierdo) cuando expandido */
 .subtema-imagen {
     flex: 0 0 50%;
     background-size: cover;
-    background-position: center;
+    background-position: left center; /* Asegurar que muestra el lado izquierdo */
     position: relative;
-}
-
-/* Cuando no hay imagen, mostrar color de fondo */
-.subtema-imagen-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    background: linear-gradient(135deg, #c3e6cb 0%, #a4d4ae 100%);
-}
-
-/* Columna para el contenido - 6 columnas (lado derecho) */
-.subtema-contenido {
-    flex: 0 0 50%;
-    padding: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
     transition: all 0.3s ease;
 }
 
-/* Estilo al pasar el mouse */
-.subtema-nav-item:hover .subtema-contenido {
-    background-color: rgba(240, 249, 235, 0.95);
+/* Cuando el sidebar está colapsado, ajustar la posición para mostrar mitad derecha */
+.sidebar-mini .subtema-imagen {
+    flex: 0 0 100%; /* Ocupar todo el ancho disponible */
+    width: 100%;
+    background-position: right center !important; /* Mostrar solo lado derecho */
 }
 
-/* Subtema activo */
+/* Mantener la imagen visible cuando está colapsado (no ocultar) */
+.sidebar-mini .subtema-row {
+    min-height: 60px;
+}
+
+/* Ocultar texto pero mantener el ícono cuando está colapsado */
+.sidebar-mini .subtema-contenido {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.4); /* Semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* Asegurarse que el ícono esté centrado */
+.sidebar-mini .subtema-icon {
+    margin: 0;
+    width: auto;
+    height: auto;
+    font-size: 1.5rem;
+    color: #198754; /* Verde de Bootstrap */
+}
+
+/* Ocultar el texto pero mantener el espacio para el ícono */
+.sidebar-mini .subtema-texto {
+    display: none;
+}
+
+/* Eliminar animación que podría interferir */
+.subtema-nav-item.active .subtema-contenido {
+    animation: none;
+}
+
+/* Subtema activo 
 .subtema-nav-item.active .subtema-contenido {
     background-color: rgba(61, 110, 150, 0.85);
     color: white;
@@ -243,18 +264,18 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Adaptaciones para sidebar colapsado */
+/* Adaptaciones para sidebar colapsado 
 .sidebar-mini .subtema-row {
     min-height: 60px;
 }
 
 .sidebar-mini .subtema-imagen {
-    flex: 0 0 0%; /* Ocultar la columna de imagen */
+    flex: 0 0 0%; /* Ocultar la columna de imagen
     width: 0;
 }
 
 .sidebar-mini .subtema-contenido {
-    flex: 0 0 100%; /* El contenido ocupa todo el ancho */
+    flex: 0 0 100%; /* El contenido ocupa todo el ancho
     padding: 0.5rem;
     justify-content: center;
 }
@@ -263,13 +284,13 @@
     display: none;
 }
 
-/* Mostrar solo ícono cuando está colapsado */
+/* Mostrar solo ícono cuando está colapsado 
 .sidebar-mini .subtema-icon {
     margin: 0;
     font-size: 1.5rem;
 }
 
-/* Resto de estilos útiles */
+/* Resto de estilos útiles 
 .subtema-texto {
     flex: 1;
 }
@@ -552,44 +573,35 @@ function initSidebarToggle() {
         }
     });
     
-    // Función para colapsar sidebar
+    // Función para colapsar sidebar (corregida)
     function collapseSidebar() {
         sidebar.classList.add('sidebar-mini');
         content.classList.add('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
         toggleBtn.setAttribute('title', 'Expandir panel');
         
-        // Agregar tooltips y preparar subtemas para modo colapsado
+        // Agregar tooltips a los subtemas
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
             const subtemaTitle = item.querySelector('h6')?.innerText || 'Subtema';
             item.setAttribute('title', subtemaTitle);
-            
-            // Si hay imagen, configurar para mostrar la mitad derecha
-            const imagenDiv = item.querySelector('.subtema-imagen');
-            if (imagenDiv && imagenDiv.style.backgroundImage) {
-                // Guardar la posición original para restaurarla después
-                imagenDiv.setAttribute('data-original-bg', imagenDiv.style.backgroundImage);
-                
-                // Configurar para mostrar solo la mitad derecha
-                imagenDiv.style.backgroundPosition = 'right center';
-            }
         });
+        
+        // No necesitas manipular más la imagen, el CSS se encarga de mostrar la mitad derecha
     }
     
-    // Función para expandir sidebar
+    // Función para expandir sidebar (corregida)
     function expandSidebar() {
         sidebar.classList.remove('sidebar-mini');
         content.classList.remove('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
         toggleBtn.setAttribute('title', 'Colapsar panel');
         
-        // Restaurar configuración original de imágenes
+        // Eliminar tooltips
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
-            const imagenDiv = item.querySelector('.subtema-imagen');
-            if (imagenDiv && imagenDiv.getAttribute('data-original-bg')) {
-                imagenDiv.style.backgroundPosition = 'center';
-            }
+            item.removeAttribute('title');
         });
+        
+        // No necesitas manipular más la imagen, el CSS se encarga de restaurar la posición
     }
 }
 
