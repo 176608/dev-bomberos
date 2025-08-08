@@ -269,7 +269,7 @@
 
         // === FUNCION usada en la vista de estadistica_temas_con_subtemas.blade ===
         verCuadro: function (cuadroId, codigo) {
-            console.log(`sigem: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+            console.log(`sigemjs: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
             
             // Disparar un evento personalizado que será capturado en el blade
             const evento = new CustomEvent('verCuadroEstadistico', {
@@ -1051,48 +1051,6 @@
     function getImagePlaceholder(mapa) {
         return `<div class="mapa-image-placeholder"><i class="bi bi-image"></i><h5>${mapa.nombre_mapa || 'Mapa'}</h5><p>${mapa.icono ? 'Imagen no disponible' : 'Sin imagen configurada'}</p>${mapa.enlace ? `<small class="text-primary"><i class="bi bi-cursor-fill"></i>Haz clic para ver mapa</small>` : `<small class="text-muted">Mapa no disponible</small>`}</div>`;
     }
-
-    // === FUNCION a borrar ===
-    // NUEVA FUNCIÓN: Generar HTML para mostrar información del cuadro, es usada en loadCuadroEspecifico
-    /*function generateCuadroInfoHtml(cuadro, temaInfo, subtemaInfo) {
-        return `
-            <div class="card border-success">
-                <div class="card-header bg-success text-white">
-                    <div class="row align-items-center">
-                        <div class="col-10">
-                            <h4 class="mb-0">${cuadro.cuadro_estadistico_titulo}</h4>
-                            <small>${cuadro.codigo_cuadro} | ${temaInfo?.tema_titulo || 'Tema no disponible'} / ${subtemaInfo?.subtema_titulo || 'Subtema no disponible'}</small>
-                        </div>
-                        <div class="col-2 text-end">
-                            <button class="btn btn-light btn-sm" onclick="SIGEMApp.loadContent('catalogo')">
-                                <i class="bi bi-arrow-left-circle"></i> Volver
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-
-                    <div class="text-center my-4">
-                        Gráfico del cuadro ${cuadro.codigo_cuadro}"
-                    </div>
-
-                    <div class="mb-3">${cuadro.pie_pagina}</div>
-
-                    <div class="text-center mt-4">
-                        <a href="${CONFIG.BASE_URL}/descargar-cuadro/${cuadro.cuadro_estadistico_id}" class="btn btn-success">
-                            <i class="bi bi-download me-1"></i>Descargar Datos (CSV)
-                        </a>
-                        <button class="btn btn-outline-secondary ms-2" onclick="alert('Funcionalidad de compartir no implementada aún')">
-                            <i class="bi bi-share me-1"></i>Compartir
-                        </button>
-                        <button type="button" class="btn btn-outline-primary ms-2" onclick="window.print()">
-                            <i class="bi bi-printer me-1"></i>Imprimir Información
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }*/
 
     // === EXPOSICIÓN GLOBAL DE FUNCIONES NECESARIAS ===
     window.SIGEMApp = SIGEMApp;
