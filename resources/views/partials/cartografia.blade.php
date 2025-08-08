@@ -4,8 +4,8 @@
 
         <!-- NUEVA SECCIÓN: Imagen + Texto descriptivo -->
         <div class="row mb-4 align-items-center">
-            <div class="col-lg-4 col-md-5 mb-3 mb-md-0">
-                <div class="cartografia-intro-image">
+            <div class="col-lg-4 col-md-5 mb-3 mb-md-0 text-center">
+                <div class="cartografia-intro-image mx-auto" style="max-width: 80%;">
                     <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="img-fluid rounded shadow-sm">
                 </div>
             </div>
@@ -273,10 +273,13 @@
     position: relative;
     overflow: hidden;
     border-radius: 10px;
+    margin: 0 auto; /* Centra el contenedor */
 }
 
 .cartografia-intro-image img {
     transition: all 0.3s ease;
+    margin: 0 auto; /* Centra la imagen */
+    display: block; /* Necesario para que el margen automático funcione */
 }
 
 .cartografia-intro-image:hover img {
