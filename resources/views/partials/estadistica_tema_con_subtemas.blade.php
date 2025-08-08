@@ -255,6 +255,8 @@
     align-items: center;
     justify-content: center;
     padding: 5px 0;
+    position: relative;
+    left: 1px; /* Pequeño ajuste para centrar en el sidebar colapsado */
 }
 
 /* Ocultar la estructura de columnas cuando está colapsado */
@@ -262,24 +264,30 @@
     flex-direction: column;
 }
 
-/* Ajustar el contenedor de imagen */
+/* Ajuste mejorado para el contenedor de imagen cuando el sidebar está colapsado */
 .sidebar-mini .subtema-image-container {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    left: -1px; /* Pequeño ajuste para alinear con el diseño */
 }
 
+/* Ajuste para la imagen cuando el sidebar está colapsado */
 .sidebar-mini .subtema-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
     border-radius: 50%;
+    position: relative;
+    left: 0;
+    top: 0;
+    object-position: center; /* Asegura que la imagen se centre correctamente */
 }
 
-/* Ocultar textos */
-.sidebar-mini .subtema-texto {
-    display: none;
-}
-
-/* Iconos en modo mini */
+/* Ajuste para el placeholder cuando no hay imagen */
 .sidebar-mini .no-image-placeholder {
     display: flex;
     align-items: center;
@@ -287,10 +295,8 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-}
-
-.sidebar-mini .no-image-placeholder i {
-    font-size: 1.25rem;
+    position: relative;
+    left: -1px; /* Pequeño ajuste para alinear con el diseño */
 }
 
 /* Tooltip para modo colapsado */
