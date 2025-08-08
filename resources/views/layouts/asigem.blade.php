@@ -279,66 +279,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Función para actualizar la navegación según la sección activa
-            function updateActiveNavigation() {
-                // Obtener la sección de la URL
-                const urlParams = new URLSearchParams(window.location.search);
-                let currentSection = urlParams.get('section') || 'inicio';
-                
-                // Comprobar si estamos en una ruta especial
-                const currentPath = window.location.pathname;
-                if (currentPath.includes('estadistica-por-tema')) {
-                    currentSection = 'estadistica';
-                } else if (currentPath.includes('/cartografia')) {
-                    currentSection = 'cartografia';
-                } else if (currentPath.includes('/productos')) {
-                    currentSection = 'productos';
-                } else if (currentPath.includes('/catalogo')) {
-                    currentSection = 'catalogo';
-                }
-                
-                // Quitar la clase active de todos los enlaces
-                document.querySelectorAll('.sigem-nav-link').forEach(link => {
-                    link.classList.remove('active');
-                });
-                
-                // Agregar clase active al enlace correspondiente
-                document.querySelectorAll('.sigem-nav-link').forEach(link => {
-                    const linkText = link.textContent.trim();
-                    if ((linkText.includes('INICIO') && currentSection === 'inicio') ||
-                        (linkText.includes('CATÁLOGO') && currentSection === 'catalogo') ||
-                        (linkText.includes('ESTADÍSTICA') && currentSection === 'estadistica') ||
-                        (linkText.includes('CARTOGRAFÍA') && currentSection === 'cartografia') ||
-                        (linkText.includes('PRODUCTOS') && currentSection === 'productos')) {
-                        link.classList.add('active');
-                    }
-                });
+            const urlParams = new URLSearchParams(window.location.search);
+            let currentSection = urlParams.get('section') || 'inicio';
+            
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('estadistica-por-tema')) {
+                currentSection = 'estadistica';
+            } else if (currentPath.includes('/cartografia')) {
+                currentSection = 'cartografia';
+            } else if (currentPath.includes('/productos')) {
+                currentSection = 'productos';
+            } else if (currentPath.includes('/catalogo')) {
+                currentSection = 'catalogo';
             }
             
-            // Ejecutar al cargar la página
-            updateActiveNavigation();
-            
-            // Añadir esta función al objeto global SIGEMApp
-            if (typeof SIGEMApp !== 'undefined') {
-                // Guardar la función original loadContent
-                const originalLoadContent = SIGEMApp.loadContent;
-                
-                // Sobrescribir con nuestra función mejorada
-                SIGEMApp.loadContent = function(section) {
-                    // Llamar a la función original
-                    originalLoadContent(section);
-                    
-                    // Actualizar la navegación después de un breve retraso
-                    setTimeout(updateActiveNavigation, 100);
-                };
-            }
-            
-            // Interceptar clics en los enlaces de navegación
+            // Aplicar clase active al elemento correcto
             document.querySelectorAll('.sigem-nav-link').forEach(link => {
-                link.addEventListener('click', function() {
-                    // Esperar a que se actualice la URL
-                    setTimeout(updateActiveNavigation, 100);
-                });
+                // Quitar todas las clases active
+                link.classList.remove('active');
+                
+                // Detectar qué sección corresponde a cada enlace
+                if (link.textContent.trim().includes('INICIO') && currentSection === 'inicio') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CATÁLOGO') && currentSection === 'catalogo') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('ESTADÍSTICA') && currentSection === 'estadistica') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('CARTOGRAFÍA') && currentSection === 'cartografia') {
+                    link.classList.add('active');
+                } else if (link.textContent.trim().includes('PRODUCTOS') && currentSection === 'productos') {
+                    link.classList.add('active');
+                }
             });
         });
     </script>
