@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Bomberos;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
 use App\Models\Bomberos\Hidrante;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf; // Corregir este import
 
 class DashboardController extends Controller
 {
@@ -57,13 +57,24 @@ class DashboardController extends Controller
     {
         $hidrante = Hidrante::findOrFail($id);
         
+        // Validar si el hidrante está desactivado
+        if ($hidrante->stat === '000' && (!auth()->check() || !in_array(auth()->user()->role, ['Administrador', 'Desarrollador']))) {
+            return redirect()->route('dashboard')->with('error', 'El hidrante solicitado está desactivado.');
+        }
+        
         // Cargar la vista del partial con los datos del hidrante
         $pdf = PDF::loadView('partials.hidrante-consulta-pdf', [
             'hidrante' => $hidrante,
             'readOnly' => true
         ]);
         
-        // Puedes personalizar el nombre del archivo
-        return $pdf->download('hidrante-'.$id.'-'.date('Y-m-d').'.pdf');
+        // Configurar el PDF (opcional)
+        $pdf->setPaper('a4', 'portrait');
+        
+        // Nombre descriptivo para el archivo
+        $fileName = 'hidrante-'.$id.'-'.date('Y-m-d').'.pdf';
+        
+        // Descargar el PDF
+        return $pdf->download($fileName);
     }
 }
