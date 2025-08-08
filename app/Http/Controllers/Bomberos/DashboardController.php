@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bomberos;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
 use App\Models\Bomberos\Hidrante;
+use PDF;
 
 class DashboardController extends Controller
 {
@@ -49,5 +50,20 @@ class DashboardController extends Controller
         }
         
         return view('dashboard', compact('hidrante', 'totalHidrantes'));
+    }
+    
+    // En el controlador HidranteController
+    public function generarPDF($id)
+    {
+        $hidrante = Hidrante::findOrFail($id);
+        
+        // Cargar la vista del partial con los datos del hidrante
+        $pdf = PDF::loadView('partials.hidrante-consulta-pdf', [
+            'hidrante' => $hidrante,
+            'readOnly' => true
+        ]);
+        
+        // Puedes personalizar el nombre del archivo
+        return $pdf->download('hidrante-'.$id.'-'.date('Y-m-d').'.pdf');
     }
 }

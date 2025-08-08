@@ -65,7 +65,12 @@
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Reporte de Hidrante</h5>
                                     @if(isset($hidrante))
-                                    <span class="badge bg-success">ID: {{ $hidrante->id }}</span>
+                                        <div>
+                                            <span class="badge bg-success me-2">ID: {{ $hidrante->id }}</span>
+                                            <button id="generarPdfBtn" class="btn btn-sm btn-danger" type="button">
+                                                <i class="bi bi-file-pdf me-1"></i>Generar PDF
+                                            </button>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="card-body" id="resultadoConsulta">
@@ -113,6 +118,18 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Por favor, introduce un ID válido para el hidrante.');
         }
     });
+    
+    const generarPdfBtn = document.getElementById('generarPdfBtn');
+    if (generarPdfBtn) {
+        generarPdfBtn.addEventListener('click', function() {
+            if (confirm('¿Desea generar y descargar el PDF del hidrante?')) {
+                const hidranteId = @json($hidrante->id ?? null);
+                if (hidranteId) {
+                    window.location.href = `{{ url('/hidrante-pdf') }}/${hidranteId}`;
+                }
+            }
+        });
+    }
 });
 </script>
 @endsection
