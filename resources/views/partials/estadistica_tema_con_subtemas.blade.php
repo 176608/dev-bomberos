@@ -604,9 +604,38 @@ function renderizarCuadros(cuadros) {
         return;
     }
     
+    // Función para extraer el número del índice después del último punto
+    function extraerNumeroIndice(codigoCuadro) {
+        // Verificar si el código está vacío
+        if (!codigoCuadro) {
+            return Number.MAX_VALUE; // Valor alto para que queden al final
+        }
+        
+        // Patrón para extraer el número del índice (último componente después del punto)
+        const match = codigoCuadro.match(/\.(\d+(?:\.\d+)*)$/);
+        if (match) {
+            return parseFloat(match[1]); // Convertir a número para ordenamiento correcto
+        } else {
+            const matchEnd = codigoCuadro.match(/(\d+(?:\.\d+)*)$/);
+            if (matchEnd) {
+                // Si no hay punto pero termina en número
+                return parseFloat(matchEnd[1]);
+            }
+        }
+        
+        return Number.MAX_VALUE; // Por defecto al final
+    }
+    
+    // Ordenar los cuadros por el número de índice
+    const cuadrosOrdenados = [...cuadros].sort((a, b) => {
+        const numA = extraerNumeroIndice(a.codigo_cuadro || '');
+        const numB = extraerNumeroIndice(b.codigo_cuadro || '');
+        return numA - numB;
+    });
+    
     let html = '<div class="cuadros-lista">';
     
-    cuadros.forEach(cuadro => {
+    cuadrosOrdenados.forEach(cuadro => {
         html += `
             <div class="cuadro-item p-3 mb-3 border rounded">
                 <div class="row align-items-center">
@@ -619,11 +648,11 @@ function renderizarCuadros(cuadros) {
                         ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                     </div>
                     <div class="col-md-4 text-end">
-                        <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
+                        <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" class="btn btn-outline-success btn-sm me-2">
                             <i class="bi bi-eye me-1"></i>Ver
                         </a>
                         ${cuadro.excel_file ? `
-                            <a href="javascript:void(0)" class="btn btn-success btn-sm" download>
+                            <a href="${cuadro.excel_file ? '/descargas/'+cuadro.excel_file : 'javascript:void(0)'}" class="btn btn-success btn-sm" ${cuadro.excel_file ? 'download' : 'disabled'}>
                                 <i class="bi bi-download"></i>
                             </a>
                         ` : ''}

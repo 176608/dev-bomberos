@@ -329,7 +329,6 @@
             // Elementos DOM
             const temaSelect = document.getElementById('ce_tema_select_modal');
             const subtemaSelect = document.getElementById('ce_subtema_select_modal');
-            //const consultarBtn = document.getElementById('ce_consultar_btn_modal');
             const contenidoContainer = document.getElementById('ce_contenido_container_modal');
             
             if (!temaSelect || !subtemaSelect || !contenidoContainer) {
@@ -409,7 +408,6 @@
                     // Resetear subtemas y contenido
                     subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
                     subtemaSelect.disabled = true;
-                    //consultarBtn.disabled = true;
                     
                     contenidoContainer.innerHTML = `
                         <div class="text-center text-muted py-5">
