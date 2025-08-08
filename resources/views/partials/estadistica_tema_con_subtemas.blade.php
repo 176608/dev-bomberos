@@ -25,7 +25,7 @@
                     <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
                         @if($tema_subtemas && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
-                                <a href="#" 
+                                <a href="javascript:void(0)" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
                                    class="class0 subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
                                    @if($tema_subtema->imagen)
@@ -193,14 +193,14 @@
     position: relative;
     z-index: 2;
     padding: 0.5rem;
-    background-color: rgba(127, 167, 123, 0.25);
+    background-color: rgba(127, 167, 123, 0);
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 /* Subtema al pasar el mouse */
 .subtema-nav-item:hover .subtema-content-overlay {
-    background-color: rgba(103, 185, 107, 0.18);
+    background-color: rgba(77, 150, 80, 0.45);
 }
 
 /* Subtema activo */
@@ -210,7 +210,7 @@
 }
 
 .subtema-nav-item.active .subtema-content-overlay {
-    box-shadow: 0 0 15px rgba(27, 109, 64, 0.3);
+    box-shadow: 0 0 15px rgba(46, 141, 89, 0);
 }
 
 /* Ajustes para cuando el sidebar está colapsado */
@@ -221,7 +221,7 @@
 
 .sidebar-mini .subtema-content-overlay {
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(41, 35, 35, 0.09);
 }
 
 /* Efecto visual mejorado */
@@ -244,7 +244,7 @@
 
 .subtema-nav-item.active::before {
     opacity: 1;
-    background: linear-gradient(to right, rgba(0, 255, 55, 1), transparent);
+    background: linear-gradient(to right, rgba(84, 151, 99, 0.72), transparent);
 }
 
 /* Asegurar que texto sea legible */
