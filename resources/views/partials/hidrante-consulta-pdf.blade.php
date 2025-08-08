@@ -94,14 +94,15 @@
         .col-md-6, .col-md-12 {
             float: left;
             padding: 0 15px;
+            box-sizing: border-box;
         }
         
         .col-md-6 {
-            width: 50%;
+            width: 45%;
         }
         
         .col-md-12 {
-            width: 100%;
+            width: 95%;
         }
         
         /* Alineación y texto */
@@ -173,10 +174,19 @@
             margin-bottom: 10px;
         }
         
+        /* Estilo para etiquetas de campos (en negrita) */
         .info-label {
             font-weight: bold;
             display: inline-block;
-            margin-right: 5px;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+        
+        /* Estilo para valores de campos (sin negrita) */
+        .info-value {
+            font-weight: normal;
+            display: block;
+            padding-left: 10px;
         }
         
         img.escudo {
@@ -193,6 +203,26 @@
             padding-top: 5px;
             margin-top: 10px;
         }
+        
+        /* Estilo para tabla de datos */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table td {
+            padding: 8px 5px;
+            vertical-align: top;
+        }
+        
+        .data-table .label-cell {
+            font-weight: bold;
+            width: 40%;
+        }
+        
+        .data-table .value-cell {
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -205,22 +235,24 @@
         
         <!-- Información principal -->
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" style="text-align: center;">
                 <img src="{{ public_path('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" class="escudo">
             </div>
             <div class="col-md-6">
-                <div class="info-row">
-                    <span class="info-label">Fecha de Inspección:</span>
-                    {{ $hidrante->fecha_inspeccion ? \Carbon\Carbon::parse($hidrante->fecha_inspeccion)->format('d/m/Y') : 'No registrada' }}
-                </div>
-                <div class="info-row">
-                    <span class="info-label">N° Estación:</span>
-                    {{ $hidrante->numero_estacion ?: 'No registrada' }}
-                </div>
-                <div class="info-row">
-                    <span class="info-label">N° Hidrante:</span>
-                    {{ $hidrante->id }}
-                </div>
+                <table class="data-table">
+                    <tr>
+                        <td class="label-cell">Fecha de Inspección:</td>
+                        <td class="value-cell">{{ $hidrante->fecha_inspeccion ? \Carbon\Carbon::parse($hidrante->fecha_inspeccion)->format('d/m/Y') : 'No registrada' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">N° Estación:</td>
+                        <td class="value-cell">{{ $hidrante->numero_estacion ?: 'No registrada' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">N° Hidrante:</td>
+                        <td class="value-cell">{{ $hidrante->id }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
         
@@ -269,120 +301,103 @@
         
         <hr>
         
-        <!-- Estado y presión -->
-        <div class="row">
-            <div class="col-md-6">
-                <span class="info-label">Estado de Hidrante:</span>
-                @if($hidrante->estado_hidrante === 'S/I')
-                    S/I
-                @elseif($hidrante->estado_hidrante == 'BUENO')
-                    <span class="badge bg-success">BUENO</span>
-                @elseif($hidrante->estado_hidrante == 'REGULAR')
-                    <span class="badge bg-warning">REGULAR</span>
-                @elseif($hidrante->estado_hidrante == 'MALO')
-                    <span class="badge bg-danger">MALO</span>
-                @elseif($hidrante->estado_hidrante == 'NO FUNCIONA')
-                    <span class="badge bg-secondary">NO FUNCIONA</span>
-                @else
-                    {{ ucfirst(strtolower($hidrante->estado_hidrante)) ?: 'No registrado' }}
-                @endif
-            </div>
-            <div class="col-md-6">
-                <span class="info-label">Presión del Agua:</span>
-                @if($hidrante->presion_agua === 'S/I')
-                    S/I
-                @else
-                    {{ ucfirst(strtolower($hidrante->presion_agua)) ?: 'No registrada' }}
-                @endif
-            </div>
-        </div>
-        
-        <hr>
-        
-        <!-- Marca y año -->
-        <div class="row">
-            <div class="col-md-6">
-                <span class="info-label">Marca:</span>
-                {{ $hidrante->marca ?: 'No registrada' }}
-            </div>
-            <div class="col-md-6">
-                <span class="info-label">Año:</span>
-                {{ $hidrante->anio ?: 'No registrado' }}
-            </div>
-        </div>
-        
-        <hr>
-        
-        <!-- Llaves -->
-        <div class="row">
-            <div class="col-md-6">
-                <span class="info-label">Llave de Hidrante:</span>
-                @if($hidrante->llave_hidrante === 'S/I')
-                    S/I
-                @else
-                    {{ ucfirst(strtolower($hidrante->llave_hidrante)) ?: 'No registrada' }}
-                @endif
-            </div>
-            <div class="col-md-6">
-                <span class="info-label">Llave de Fosa:</span>
-                @if($hidrante->llave_fosa === 'S/I')
-                    S/I
-                @else
-                    {{ ucfirst(strtolower($hidrante->llave_fosa)) ?: 'No registrada' }}
-                @endif
-            </div>
-        </div>
-        
-        <hr>
-        
-        <!-- Ubicación de fosa y tubo -->
-        <div class="row">
-            <div class="col-md-6">
-                <span class="info-label">Ubicación de Fosa:</span>
-                @if($hidrante->ubicacion_fosa === 'S/I')
-                    S/I
-                @elseif(is_numeric($hidrante->ubicacion_fosa) && $hidrante->ubicacion_fosa >= 1 && $hidrante->ubicacion_fosa <= 100)
-                    A {{ $hidrante->ubicacion_fosa }} Metros
-                @else
-                    {{ ucfirst(strtolower($hidrante->ubicacion_fosa)) ?: 'No registrada' }}
-                @endif
-            </div>
-            <div class="col-md-6">
-                <span class="info-label">Hidrante Conectado a Tubo de:</span>
-                @switch($hidrante->hidrante_conectado_tubo)
-                    @case("S/I")
+        <!-- Datos principales en formato tabla -->
+        <table class="data-table">
+            <tr>
+                <td class="label-cell">Estado de Hidrante:</td>
+                <td class="value-cell">
+                    @if($hidrante->estado_hidrante === 'S/I')
                         S/I
-                        @break
-                    @case("4'")
-                        4 Pulgadas
-                        @break
-                    @case("6'")
-                        6 Pulgadas
-                        @break
-                    @case("8'")
-                        8 Pulgadas
-                        @break
-                    @default
-                        {{ ucfirst(strtolower($hidrante->hidrante_conectado_tubo)) ?: 'No registrado' }}
-                @endswitch
-            </div>
-        </div>
-        
-        <hr>
-        
-        <!-- Observaciones y oficial -->
-        <div class="row">
-            <div class="col-md-12">
-                <span class="info-label">Observaciones:</span>
-                {{ $hidrante->observaciones ?: 'No hay observaciones registradas' }}
-            </div> 
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <span class="info-label">Oficial:</span>
-                {{ $hidrante->oficial ?: 'No registrado' }}
-            </div>
-        </div>
+                    @elseif($hidrante->estado_hidrante == 'BUENO')
+                        <span class="badge bg-success">BUENO</span>
+                    @elseif($hidrante->estado_hidrante == 'REGULAR')
+                        <span class="badge bg-warning">REGULAR</span>
+                    @elseif($hidrante->estado_hidrante == 'MALO')
+                        <span class="badge bg-danger">MALO</span>
+                    @elseif($hidrante->estado_hidrante == 'NO FUNCIONA')
+                        <span class="badge bg-secondary">NO FUNCIONA</span>
+                    @else
+                        {{ ucfirst(strtolower($hidrante->estado_hidrante)) ?: 'No registrado' }}
+                    @endif
+                </td>
+                <td class="label-cell">Presión del Agua:</td>
+                <td class="value-cell">
+                    @if($hidrante->presion_agua === 'S/I')
+                        S/I
+                    @else
+                        {{ ucfirst(strtolower($hidrante->presion_agua)) ?: 'No registrada' }}
+                    @endif
+                </td>
+            </tr>
+            
+            <tr>
+                <td class="label-cell">Marca:</td>
+                <td class="value-cell">{{ $hidrante->marca ?: 'No registrada' }}</td>
+                <td class="label-cell">Año:</td>
+                <td class="value-cell">{{ $hidrante->anio ?: 'No registrado' }}</td>
+            </tr>
+            
+            <tr>
+                <td class="label-cell">Llave de Hidrante:</td>
+                <td class="value-cell">
+                    @if($hidrante->llave_hidrante === 'S/I')
+                        S/I
+                    @else
+                        {{ ucfirst(strtolower($hidrante->llave_hidrante)) ?: 'No registrada' }}
+                    @endif
+                </td>
+                <td class="label-cell">Llave de Fosa:</td>
+                <td class="value-cell">
+                    @if($hidrante->llave_fosa === 'S/I')
+                        S/I
+                    @else
+                        {{ ucfirst(strtolower($hidrante->llave_fosa)) ?: 'No registrada' }}
+                    @endif
+                </td>
+            </tr>
+            
+            <tr>
+                <td class="label-cell">Ubicación de Fosa:</td>
+                <td class="value-cell">
+                    @if($hidrante->ubicacion_fosa === 'S/I')
+                        S/I
+                    @elseif(is_numeric($hidrante->ubicacion_fosa) && $hidrante->ubicacion_fosa >= 1 && $hidrante->ubicacion_fosa <= 100)
+                        A {{ $hidrante->ubicacion_fosa }} Metros
+                    @else
+                        {{ ucfirst(strtolower($hidrante->ubicacion_fosa)) ?: 'No registrada' }}
+                    @endif
+                </td>
+                <td class="label-cell">Hidrante Conectado a Tubo de:</td>
+                <td class="value-cell">
+                    @switch($hidrante->hidrante_conectado_tubo)
+                        @case("S/I")
+                            S/I
+                            @break
+                        @case("4'")
+                            4 Pulgadas
+                            @break
+                        @case("6'")
+                            6 Pulgadas
+                            @break
+                        @case("8'")
+                            8 Pulgadas
+                            @break
+                        @default
+                            {{ ucfirst(strtolower($hidrante->hidrante_conectado_tubo)) ?: 'No registrado' }}
+                    @endswitch
+                </td>
+            </tr>
+            
+            <tr>
+                <td class="label-cell">Observaciones:</td>
+                <td class="value-cell" colspan="3">{{ $hidrante->observaciones ?: 'No hay observaciones registradas' }}</td>
+            </tr>
+            
+            <tr>
+                <td class="label-cell">Oficial:</td>
+                <td class="value-cell" colspan="3">{{ $hidrante->oficial ?: 'No registrado' }}</td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>
