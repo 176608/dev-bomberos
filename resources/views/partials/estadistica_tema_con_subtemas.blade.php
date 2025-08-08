@@ -256,7 +256,7 @@
     justify-content: center;
     padding: 5px 0;
     position: relative;
-    left: 1px; /* Pequeño ajuste para centrar en el sidebar colapsado */
+    left: 5px; /* Pequeño ajuste para centrar en el sidebar colapsado */
 }
 
 /* Ocultar la estructura de columnas cuando está colapsado */
@@ -272,7 +272,7 @@
     margin: 0 auto;
     overflow: hidden;
     position: relative;
-    left: -1px; /* Pequeño ajuste para alinear con el diseño */
+    left: -5px; /* Pequeño ajuste para alinear con el diseño */
 }
 
 /* Ajuste para la imagen cuando el sidebar está colapsado */
