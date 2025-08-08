@@ -237,7 +237,7 @@
 }
 
 .subtema-nav-item:hover .subtema-image {
-    transform: scale(0.90);
+    transform: scale(0.80);
 }
 
 /* Estado activo */
