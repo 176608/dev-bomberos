@@ -284,7 +284,7 @@
     position: relative;
     left: 0;
     top: 0;
-    object-position: center; /* Asegura que la imagen se centre correctamente */
+    object-position: right center;
 }
 
 /* Ajuste para el placeholder cuando no hay imagen */
