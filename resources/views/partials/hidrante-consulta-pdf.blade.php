@@ -1,4 +1,60 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
+<style>
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.4em;
+        font-size: 75%;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white;
+    }
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529;
+    }
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white;
+    }
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: white;
+    }
+    .card {
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: 0.25rem;
+    }
+    .card-header {
+        padding: 0.75rem 1.25rem;
+        background-color: rgba(0,0,0,.03);
+        border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    .card-body {
+        padding: 1.25rem;
+    }
+    .card-footer {
+        padding: 0.75rem 1.25rem;
+        background-color: rgba(0,0,0,.03);
+        border-top: 1px solid rgba(0,0,0,.125);
+    }
+    .bg-primary {
+        background-color: #007bff !important;
+        color: white;
+    }
+    hr {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border: 0;
+        border-top: 1px solid rgba(0,0,0,.1);
+    }
+</style>
 
 <div class="container-fluid p-0">
     <div class="card">
