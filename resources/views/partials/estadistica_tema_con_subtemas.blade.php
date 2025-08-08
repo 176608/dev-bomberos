@@ -27,20 +27,29 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="javascript:void(0)" 
                                    onclick="cargarSubtema({{ $tema_subtema->subtema_id }}); return false;" 
-                                   class="class0 subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
-                                   @if($tema_subtema->imagen)
-                                   style="background-image: url('{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}'); background-size: cover; background-position: center;"
-                                   @endif
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
                                 >
-                                    <div class="subtema-content-overlay">
-                                        <!-- Ya no necesitamos la imagen aquí, es el fondo -->
-                                        @if(!$tema_subtema->imagen)
-                                           <i class="bi bi-collection text-success fs-3 me-2"></i>
-                                        @endif
-                                        <div class="flex-fill subtema-texto">
-                                            <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
+                                    <div class="row g-0 w-100 align-items-center">
+                                        <!-- Columna de la imagen (6 columnas) -->
+                                        <div class="col-6 subtema-image-container">
+                                            @if($tema_subtema->imagen)
+                                                <img src="{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}" 
+                                                     alt="{{ $tema_subtema->subtema_titulo }}" 
+                                                     class="subtema-image img-fluid">
+                                            @else
+                                                <div class="no-image-placeholder d-flex align-items-center justify-content-center">
+                                                    <i class="bi bi-collection text-success fs-3"></i>
+                                                </div>
+                                            @endif
                                         </div>
-                                        <i class="bi bi-chevron-right ms-2"></i>
+                                        
+                                        <!-- Columna del texto (6 columnas) -->
+                                        <div class="col-6 subtema-texto">
+                                            <div class="d-flex align-items-center justify-content-between w-100">
+                                                <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
+                                                <i class="bi bi-chevron-right ms-2"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
                             @endforeach
@@ -176,41 +185,139 @@
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
+    display: block;
+    padding: 0;
     position: relative;
     overflow: hidden;
-    min-height: 80px; /* Altura mínima para mostrar bien la imagen */
+    min-height: 80px;
 }
 
-/* Overlay para el contenido del subtema */
-.subtema-content-overlay {
-    display: flex;
-    align-items: center;
+/* Estilos para la imagen del subtema */
+.subtema-image-container {
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+.subtema-image {
     width: 100%;
     height: 100%;
-    position: relative;
-    z-index: 2;
-    padding: 0.5rem;
-    background-color: rgba(127, 167, 123, 0);
-    border-radius: 4px;
+    object-fit: cover;
     transition: all 0.3s ease;
 }
 
-/* Subtema al pasar el mouse */
-.subtema-nav-item:hover .subtema-content-overlay {
-    background-color: rgba(77, 150, 80, 0.45);
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
 }
 
-/* Subtema activo */
+/* Estilos para el texto del subtema */
+.subtema-texto {
+    padding: 0.75rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.subtema-texto h6 {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 0;
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Efecto hover */
+.subtema-nav-item:hover {
+    background-color: rgba(77, 150, 80, 0.1);
+}
+
+.subtema-nav-item:hover .subtema-image {
+    transform: scale(1.05);
+}
+
+/* Estado activo */
 .subtema-nav-item.active {
-    background-color: transparent;
-    border-left: 4px solid #0346174d;
+    background-color: rgba(77, 150, 80, 0.1);
+    border-left: 4px solid #0c7912;
 }
 
-.subtema-nav-item.active .subtema-content-overlay {
-    box-shadow: 0 0 15px rgba(46, 141, 89, 0);
+/* ======== ESTILOS PARA SIDEBAR COLAPSADO ======== */
+/* Cambios para cuando el sidebar está colapsado */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+}
+
+/* Ocultar la estructura de columnas cuando está colapsado */
+.sidebar-mini .subtema-nav-item .row {
+    flex-direction: column;
+}
+
+/* Ajustar el contenedor de imagen */
+.sidebar-mini .subtema-image-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.sidebar-mini .subtema-image {
+    border-radius: 50%;
+}
+
+/* Ocultar textos */
+.sidebar-mini .subtema-texto {
+    display: none;
+}
+
+/* Iconos en modo mini */
+.sidebar-mini .no-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.sidebar-mini .no-image-placeholder i {
+    font-size: 1.25rem;
+}
+
+/* Tooltip para modo colapsado */
+.sidebar-mini .subtema-nav-item {
+    position: relative;
+}
+
+/* Efecto visual para item activo */
+.subtema-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #0c7912;
+    opacity: 1;
+    z-index: 3;
+}
+
+.sidebar-mini .subtema-nav-item.active::before {
+    width: 100%;
+    height: 4px;
+    top: 0;
+    left: 0;
+    background-color: #0c7912;
+    opacity: 0.4;
 }
 
 /* Ajustes para cuando el sidebar está colapsado */
@@ -502,10 +609,19 @@ function initSidebarToggle() {
         localStorage.setItem('subtemas-sidebar-collapsed', 'true');
         toggleBtn.setAttribute('title', 'Expandir panel');
         
-        // Agregar tooltip a los iconos de subtemas cuando está colapsado
+        // Agregar tooltip a los elementos cuando está colapsado
         document.querySelectorAll('.subtema-nav-item').forEach(item => {
-            const subtemaTitle = item.querySelector('h6')?.innerText || 'Subtema';
+            const subtemaTitle = item.querySelector('.subtema-texto h6')?.innerText || 'Subtema';
             item.setAttribute('title', subtemaTitle);
+            
+            // Bootstrap tooltip si está disponible
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                new bootstrap.Tooltip(item, {
+                    placement: 'right',
+                    trigger: 'hover',
+                    container: 'body'
+                });
+            }
         });
     }
     
@@ -515,6 +631,19 @@ function initSidebarToggle() {
         content.classList.remove('content-expanded');
         localStorage.setItem('subtemas-sidebar-collapsed', 'false');
         toggleBtn.setAttribute('title', 'Colapsar panel');
+        
+        // Eliminar tooltips
+        document.querySelectorAll('.subtema-nav-item').forEach(item => {
+            item.removeAttribute('title');
+            
+            // Destruir tooltip de Bootstrap si existe
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                const tooltip = bootstrap.Tooltip.getInstance(item);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            }
+        });
     }
 }
 
