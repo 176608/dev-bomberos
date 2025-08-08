@@ -1,4 +1,4 @@
-<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
+<!-- Archivo Bomberos -index- NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
 @section('title', 'Consultor de Hidrantes')
@@ -7,7 +7,6 @@
 <div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <!-- Mostrar mensajes de éxito (logout, etc.) -->
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i>
@@ -26,7 +25,6 @@
                 <div class="card-body">
                     
                     <div class="row mb-4">
-                        <!-- Panel de búsqueda por ID -->
                         <div class="col-md-8    ">
                             <div class="card">
                                 <div class="card-header bg-light">
@@ -46,7 +44,6 @@
                             </div>
                         </div>
                         
-                        <!-- Panel AUX - Total de hidrantes -->
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-header bg-light">
@@ -62,7 +59,6 @@
                         </div>
                     </div>
                     
-                    <!-- Panel de resultados -->
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -74,7 +70,6 @@
                                 </div>
                                 <div class="card-body" id="resultadoConsulta">
                                     @if(isset($hidrante))
-                                        <!-- Aquí se incluirá el partial de vista del hidrante -->
                                         @include('partials.hidrante-consulta', ['hidrante' => $hidrante, 'readOnly' => true])
                                     @elseif(isset($error))
                                         <div class="alert alert-danger">
@@ -101,7 +96,6 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-ocultar alertas después de 5 segundos
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert-dismissible');
         alerts.forEach(function(alert) {
@@ -110,10 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 5000);
     
-    // Enfocar el campo de búsqueda
     document.getElementById('hidrante_id').focus();
     
-    // Validación del formulario
     document.getElementById('consultaHidranteForm').addEventListener('submit', function(e) {
         const hidranteId = document.getElementById('hidrante_id').value;
         if (!hidranteId || isNaN(parseInt(hidranteId)) || parseInt(hidranteId) <= 0) {

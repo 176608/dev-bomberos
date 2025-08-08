@@ -1,4 +1,4 @@
-<!-- Archivo SIGEM - Base de vista sigem publica - NO ELIMINAR COMENTARIO -->
+<!-- Archivo SIGEM P-->
 @extends('layouts.app')
 @section('title', 'SIGEM - Sistema de Información Geográfica')
 
@@ -35,7 +35,6 @@
             object-fit: contain;
         }
 
-        /* Menú SIGEM */
         .main-menu {
             background-color: #48887B !important;
             border-bottom: 3px solid #ffd700;
@@ -90,7 +89,6 @@
             background-color: #ffd700;
         }
 
-        /* Cargando indicator */
         .Cargando {
             text-align: center;
             padding: 40px;
@@ -107,7 +105,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Efectos para focus */
         .highlight-focus {
             background-color: #fff3cd !important;
             border: 2px solid #ffc107 !important;
@@ -121,7 +118,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Estilos para productos */
         .product-section {
             display: flex;
             align-items: flex-start;
@@ -140,7 +136,6 @@
             flex: 1;
         }
 
-        /* Estilos para catálogo */
         .catalogo-row {
             min-height: 600px;
         }
@@ -154,7 +149,6 @@
             overflow-y: auto;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .header-logos {
                 flex-direction: column;
@@ -188,7 +182,6 @@
     @endphp
 
     <div class="container-fluid pb-4 bg-fonde" >
-        <!-- Sección de Logos -->
         <div class="header-logos container-fluid">
             <div class="logo-section">
                 <img src="{{ $img1 }}" alt="JRZ Logo">
@@ -197,8 +190,6 @@
                 <img src="{{ $img2 }}" alt="SIGEM Logo">
             </div>
         </div>
-
-        <!-- CONTENEDOR DINÁMICO -->
         @php
             // Detectar si estamos en una ruta especial de estadística tema o subtema
             $currentPath = request()->path();
@@ -212,9 +203,6 @@
                 $section = 'estadistica';
             }
         @endphp
-
-
-        <!-- MENÚ SIGEM -->
         <div class="main-menu container-fluid p-0">
             <div class="nav-container">
                 @php
@@ -272,12 +260,10 @@
         </div>
 
         
-        <!-- CONTENEDOR DINÁMICO -->
         <div id="sigem-content" class="container my-4" {!! $isEstadisticaEspecial || $section === 'estadistica' ? 'style="display:none;"' : '' !!}>
             @yield('dynamic_content')
         </div>
 
-        <!-- Para rutas normales de estadística o rutas especiales -->
         @if(($section === 'estadistica') || $isEstadisticaEspecial)
             <div class="container my-4">
                 @include('partials.estadistica')
@@ -292,13 +278,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Asegurar que el menú SIGEM tenga la sección correcta activada
         document.addEventListener('DOMContentLoaded', function() {
-            // Obtener la sección actual de la URL
             const urlParams = new URLSearchParams(window.location.search);
             let currentSection = urlParams.get('section') || 'inicio';
             
-            // Detección especial para rutas como estadistica-por-tema
             const currentPath = window.location.pathname;
             if (currentPath.includes('estadistica-por-tema')) {
                 currentSection = 'estadistica';

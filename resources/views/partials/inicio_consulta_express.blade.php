@@ -47,7 +47,6 @@
                                     </select>
                                 </div>
                                 
-                                <!-- Eliminamos el botón de consultar ya que ahora cargará automáticamente -->
                             </div>
                         </div>
                         
@@ -77,6 +76,7 @@
 
 <script>
 // Esperamos a que el documento esté listo
+/*
 document.addEventListener('DOMContentLoaded', function() {
     // Añadir referencias a los elementos en el modal
     const temaSelectModal = document.getElementById('ce_tema_select_modal');
@@ -250,21 +250,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Mantener el código existente para la versión no-modal si es necesario
-    // ...
-    
-    // Verificar que los elementos existan (versión no-modal)
-    const temaSelect = document.getElementById('ce_tema_select');
-    const subtemaSelect = document.getElementById('ce_subtema_select');
-    const consultarBtn = document.getElementById('ce_consultar_btn');
-    const contenidoContainer = document.getElementById('ce_contenido_container');
-    const metadataDiv = document.getElementById('ce_metadata');
-    const fechaActualizacion = document.getElementById('ce_fecha_actualizacion');
-    
-    // Si existen los elementos de la versión no-modal, configurar su funcionalidad
-    if (temaSelect && subtemaSelect && contenidoContainer) {
-        // Código existente para la versión no-modal...
-        // ...
-    }
-});
+});*/
 </script>

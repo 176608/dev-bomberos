@@ -329,10 +329,10 @@
             // Elementos DOM
             const temaSelect = document.getElementById('ce_tema_select_modal');
             const subtemaSelect = document.getElementById('ce_subtema_select_modal');
-            const consultarBtn = document.getElementById('ce_consultar_btn_modal');
+            //const consultarBtn = document.getElementById('ce_consultar_btn_modal');
             const contenidoContainer = document.getElementById('ce_contenido_container_modal');
             
-            if (!temaSelect || !subtemaSelect || !consultarBtn || !contenidoContainer) {
+            if (!temaSelect || !subtemaSelect || !contenidoContainer) {
                 console.error('Faltan elementos DOM necesarios para Consulta Express');
                 return;
             }
@@ -357,7 +357,7 @@
                     // Deshabilitar el selector de subtemas mientras se cargan
                     subtemaSelect.disabled = true;
                     subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
-                    consultarBtn.disabled = true;
+                    //consultarBtn.disabled = true;
                     
                     // Realizar petición fetch
                     fetch(`${CONFIG.BASE_URL}/ajax/consulta-express/subtemas/${temaId}`)
@@ -392,7 +392,7 @@
                                 `;
                             } else {
                                 subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
-                                consultarBtn.disabled = true;
+                                //consultarBtn.disabled = true;
                                 
                                 contenidoContainer.innerHTML = `
                                     <div class="alert alert-warning">No se encontraron subtemas para este tema.</div>
@@ -403,13 +403,13 @@
                             console.error('Error al cargar subtemas:', error);
                             subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
                             subtemaSelect.disabled = true;
-                            consultarBtn.disabled = true;
+                            //consultarBtn.disabled = true;
                         });
                 } else {
                     // Resetear subtemas y contenido
                     subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
                     subtemaSelect.disabled = true;
-                    consultarBtn.disabled = true;
+                    //consultarBtn.disabled = true;
                     
                     contenidoContainer.innerHTML = `
                         <div class="text-center text-muted py-5">
@@ -422,11 +422,6 @@
             
             // Cuando cambia el subtema - habilitar botón
             subtemaSelect.addEventListener('change', function() {
-                consultarBtn.disabled = !this.value;
-            });
-            
-            // Cargar contenido al hacer clic en el botón consultar
-            consultarBtn.addEventListener('click', function() {
                 const subtemaId = subtemaSelect.value;
                 
                 if (subtemaId) {
