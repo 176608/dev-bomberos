@@ -1,7 +1,7 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 <div class="container-fluid p-0">
     <div class="card">
-        <div class="card-header bg-primary text-white text-center">
+        <div class="card-header bg-danger text-white text-center">
             <h5 class="modal-title mb-0">Departamento de Bomberos</h5>
             <div class="small">Registro de Hidrantes</div>
         </div>
