@@ -773,28 +773,21 @@ function renderizarCuadros(cuadros) {
     
     cuadrosOrdenados.forEach(cuadro => {
         html += `
-            <div class="cuadro-item p-3 mb-3 border rounded">
+            <a href="javascript:void(0)" 
+               onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" 
+               class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h6 class="mb-1">
-                            <i class="bi bi-file-earmark-excel me-2 text-success"></i>
+                    <div class="col-12">
+                        <span class="fw-bold d-block text-success">
+                            <i class="bi bi-file-earmark-excel me-2"></i>
                             ${cuadro.codigo_cuadro || 'N/A'}
-                        </h6>
-                        <p class="mb-1">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</p>
-                        ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" class="btn btn-outline-success btn-sm me-2">
-                            <i class="bi bi-eye me-1"></i>Ver
-                        </a>
-                        ${cuadro.excel_file ? `
-                            <a href="${cuadro.excel_file ? '/descargas/'+cuadro.excel_file : 'javascript:void(0)'}" class="btn btn-success btn-sm" ${cuadro.excel_file ? 'download' : 'disabled'}>
-                                <i class="bi bi-download"></i>
-                            </a>
-                        ` : ''}
+                        </span>
+                        <span class="mb-1 d-block text-dark">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</span>
+                        ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted d-block">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+
                     </div>
                 </div>
-            </div>
+            </a>
         `;
     });
     
