@@ -787,11 +787,11 @@
     `;
     
     const colores = [
-        'background-color: #8FBC8F; color: white;',
-        'background-color: #87CEEB; color: white;',
-        'background-color: #DDA0DD; color: white;',
+        'background-color: #8FBC8F; color: black;',
+        'background-color: #87CEEB; color: black;',
+        'background-color: #DDA0DD; color: black;',
         'background-color: #F0E68C; color: black;',
-        'background-color: #FFA07A; color: white;',
+        'background-color: #FFA07A; color: black;',
         'background-color: #98FB98; color: black;'
     ];
 
@@ -802,7 +802,7 @@
         estructura += `
             <div class="mb-3 indice-tema-container">
                 
-                <div class="text-center text-white fw-bold py-2 indice-tema-header" 
+                <div class="text-center fw-bold py-2 indice-tema-header" 
                      style="${colorStyle} cursor: pointer; transition: all 0.3s ease;" 
                      data-tema="${numeroTema}"
                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';"
@@ -866,11 +866,11 @@
         
         // Colores para los headers de temas (igual que la estructura de índice)
         const colores = [
-            'background-color: #8FBC8F; color: white;',
-            'background-color: #87CEEB; color: white;',
-            'background-color: #DDA0DD; color: white;',
+            'background-color: #8FBC8F; color: black;',
+            'background-color: #87CEEB; color: black;',
+            'background-color: #DDA0DD; color: black;',
             'background-color: #F0E68C; color: black;',
-            'background-color: #FFA07A; color: white;',
+            'background-color: #FFA07A; color: black;',
             'background-color: #98FB98; color: black;'
         ];
 
