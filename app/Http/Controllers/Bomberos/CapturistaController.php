@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
 class CapturistaController extends Controller
 {
