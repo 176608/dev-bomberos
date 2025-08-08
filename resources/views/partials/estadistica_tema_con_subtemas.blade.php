@@ -427,7 +427,6 @@
     right: -15px;
     top: 10px;
     z-index: 10;
-    border-radius: 50%;
     width: 30px;
     height: 30px;
     padding: 0;
