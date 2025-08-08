@@ -98,7 +98,7 @@
                     </div>
 
                     <!-- Lista de cuadros -->
-                    <div class="flex-fill overflow-auto p-3" id="cuadros-container">
+                    <div class="flex-fill overflow-auto p-3" id="cuadros-container-estadistica">
                         @php
                             // Función para extraer el número del índice de un código de cuadro
                             function extraerNumeroIndice($codigoCuadro) {
@@ -528,7 +528,7 @@ function cambiarTema(tema_id) {
 function cargarSubtema(subtema_id) {
     
     // Mostrar indicador de carga
-    document.getElementById('cuadros-container').innerHTML = `
+    document.getElementById('cuadros-container-estadistica').innerHTML = `
         <div class="text-center p-5">
             <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Cargando...</span>
@@ -554,7 +554,7 @@ function cargarSubtema(subtema_id) {
                 // Renderizar cuadros
                 renderizarCuadros(data.cuadros);
             } else {
-                document.getElementById('cuadros-container').innerHTML = `
+                document.getElementById('cuadros-container-estadistica').innerHTML = `
                     <div class="alert alert-danger m-3">
                         <i class="bi bi-exclamation-triangle me-2"></i>
                         ${data.message || 'Error al cargar cuadros estadísticos'}
@@ -564,7 +564,7 @@ function cargarSubtema(subtema_id) {
         })
         .catch(error => {
             console.error('Error al cargar subtema:', error);
-            document.getElementById('cuadros-container').innerHTML = `
+            document.getElementById('cuadros-container-estadistica').innerHTML = `
                 <div class="alert alert-danger m-3">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     Error de conexión al cargar cuadros estadísticos
@@ -592,7 +592,7 @@ function actualizarEncabezadoSubtema(subtema_id) {
 
 // Función para renderizar cuadros
 function renderizarCuadros(cuadros) {
-    const container = document.getElementById('cuadros-container');
+    const container = document.getElementById('cuadros-container-estadistica');
     
     if (!cuadros || cuadros.length === 0) {
         container.innerHTML = `
