@@ -142,28 +142,22 @@
                         @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
                             <div class="cuadros-lista">
                                 @foreach($cuadros as $cuadro)
-                                    <div class="cuadro-item p-3 mb-3 border rounded">
+                                    <a href="javascript:void(0)" 
+                                       onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" 
+                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                                         <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                <h6 class="mb-1">
-                                                    <i class="bi bi-file-earmark-excel me-2 text-success"></i>
+                                            <div class="col-12">
+                                                <span class="fw-bold d-block text-success">
+                                                    <i class="bi bi-file-earmark-excel me-2"></i>
                                                     {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
-                                                </h6>
-                                                <p class="mb-1">{{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}</p>
-                                                <small class="text-muted">{{ $cuadro['cuadro_estadistico_subtitulo'] ?? '' }}</small>
-                                            </div>
-                                            <div class="col-md-4 text-end">
-                                                <a href="javascript:void(0)" onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" class="btn btn-outline-success btn-sm me-2">
-                                                    <i class="bi bi-eye me-1"></i>Ver
-                                                </a>
-                                                @if(isset($cuadro['excel_file']) && !empty($cuadro['excel_file']))
-                                                    <a href="{{ url('/descargas/'.$cuadro['excel_file']) }}" class="btn btn-success btn-sm" download>
-                                                        <i class="bi bi-download"></i>
-                                                    </a>
+                                                </span>
+                                                <span class="mb-1 d-block text-dark">{{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}</span>
+                                                @if(isset($cuadro['cuadro_estadistico_subtitulo']) && !empty($cuadro['cuadro_estadistico_subtitulo']))
+                                                    <small class="text-muted d-block">{{ $cuadro['cuadro_estadistico_subtitulo'] }}</small>
                                                 @endif
                                             </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 @endforeach
                             </div>
                         @else
@@ -373,6 +367,13 @@
 
 .cuadro-item {
     transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .cuadro-item:hover {
@@ -831,22 +832,17 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title">
-                        <i class="bi bi-info-circle me-2"></i>Información del Cuadro
+                        <i class="bi bi-info-circle me-2"></i>Información del Cuadro #${cuadroId} - boton de ver pdf, y boton de ver grafica (pero este es condicional no todos los cuadros pueden generar graficas legibles)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <div class="container py-5">
+                    <div class="container">
                         <div class="card mx-auto" style="max-width: 500px;">
                             <div class="card-body">
-                                <h4 class="card-title">Datos recibidos</h4>
-                                <div class="mb-3">
-                                    <p><strong>ID del cuadro:</strong> ${cuadroId}</p>
-                                    <p><strong>Código del cuadro:</strong> ${codigo}</p>
-                                </div>
-                                <button id="testJsBtn_${modalId}" class="btn btn-primary">
-                                    <i class="bi bi-code-slash me-1"></i>Comprobar JavaScript
-                                </button>
+                                
+                            Aca se debe cargar el archivo EXCEL del id cuadro que recibimos
+
                             </div>
                         </div>
                     </div>
