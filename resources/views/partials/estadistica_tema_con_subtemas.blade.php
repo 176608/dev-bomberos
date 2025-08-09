@@ -467,7 +467,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
                                     <i class="bi bi-file-earmark-excel me-2"></i>
-                                    ${cuadro.codigo_cuadro || 'N/A'} - ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
+                                    ${cuadro.codigo || 'N/A'} - ${cuadro.titulo || 'Sin título'}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
