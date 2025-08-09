@@ -22,7 +22,8 @@ Route::prefix('sigem')->group(function () {
         ->name('sigem.ajax.subtema');
 
     // Ruta para obtener información del cuadro y su archivo Excel
-    Route::get('/obtener-excel-cuadro/{cuadro_id}', [PublicController::class, 'obtenerExcelCuadro']);
+    Route::get('/obtener-excel-cuadro/{cuadro_id}', [PublicController::class, 'obtenerExcelCuadro'])
+        ->name('sigem.obtener.excel.cuadro');
     
     // === APIS PARA CONTENIDO DINÁMICO ===
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');

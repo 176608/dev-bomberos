@@ -636,28 +636,14 @@ class PublicController extends Controller
             $nombreArchivo = $cuadro->excel_file;
             $tieneExcel = !empty($nombreArchivo);
             
-            // Construir diferentes versiones de la URL para depuración
-            $urlBase = url('/');
-            $urlBasePublic = url('/public');
-            $urlUExcel = url('/u_excel');
-            $urlPublicUExcel = url('/public/u_excel');
+            // URL basada en asset() - usando la ruta correcta
+            $urlAsset = $tieneExcel ? asset('u_excel/' . $nombreArchivo) : null;
             
-            // URL basada en asset()
-            $urlAsset = asset('u_excel/' . $nombreArchivo);
-            
-            // Verificar si el archivo existe físicamente en diferentes ubicaciones
+            // Verificar si el archivo existe físicamente
             $rutaPublic = public_path('u_excel/' . $nombreArchivo);
-            $existeEnPublic = file_exists($rutaPublic);
+            $existeEnPublic = $tieneExcel ? file_exists($rutaPublic) : false;
             
-            // Probar una ruta alternativa relativa al documento raíz del servidor
-            $rutaDocumentRoot = $_SERVER['DOCUMENT_ROOT'] . '/u_excel/' . $nombreArchivo;
-            $existeEnDocRoot = file_exists($rutaDocumentRoot);
-            
-            // Probar otra ubicación común
-            $rutaAlt = base_path('../public/u_excel/' . $nombreArchivo);
-            $existeEnAlt = file_exists($rutaAlt);
-            
-            // Devolver todas las posibles rutas para depuración
+            // Devolver información del cuadro y archivo
             return response()->json([
                 'success' => true,
                 'cuadro' => [
@@ -668,13 +654,13 @@ class PublicController extends Controller
                 'nombre_archivo' => $nombreArchivo,
                 'tiene_excel' => $tieneExcel,
                 'excel_url' => $urlAsset,
-                'archivo_existe' => $existeEnPublic
+                'archivo_existe' => $existeEnPublic,
+                'ruta_fisica' => $rutaPublic
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }

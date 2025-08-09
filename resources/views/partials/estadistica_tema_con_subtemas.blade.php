@@ -434,7 +434,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
     console.log(`Debug: Mostrando información para cuadro ID=${cuadroId}, Código=${codigo}`);
     
     // Obtener el objeto del cuadro directamente de la base de datos
-    fetch(`/sigem/obtener-excel-cuadro/${cuadroId}`)
+    fetch(`{{ url('/sigem/obtener-excel-cuadro') }}/${cuadroId}`)
         .then(response => {
             console.log('Status de respuesta:', response.status);
             return response.json();
