@@ -2,7 +2,7 @@
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\SIGEM\Controller; // NOTA: Controller siempre debe ser esta dirección
 use Illuminate\Http\Request;
 use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
