@@ -174,6 +174,8 @@
 </div>
 
 <link rel="stylesheet" href="{{ asset('css/temas_subtemas.css') }}">
+<!-- Cargar el motor de Excel -->
+<script src="{{ asset('js/excel_in_modal_eng.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -525,229 +527,15 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
         });
 }
 
-// Función para cargar y mostrar Excel
+// Función SIMPLIFICADA para cargar y mostrar Excel usando el motor
 function cargarExcelEnModal(modalId, excelUrl, fileName) {
     console.log(`Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
-    // Cargar SheetJS si no está disponible
-    if (typeof XLSX === 'undefined') {
-        excelContainer.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-success" role="status"></div>
-                <p class="mt-3">Cargando biblioteca para visualizar Excel...</p>
-            </div>
-        `;
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-        script.onload = () => {
-            console.log('SheetJS cargado correctamente');
-            cargarArchivo();
-        };
-        script.onerror = () => {
-            console.error('Error al cargar SheetJS');
-            mostrarError('No se pudo cargar la biblioteca para visualizar Excel');
-        };
-        document.head.appendChild(script);
-    } else {
-        cargarArchivo();
-    }
-    
-    function cargarArchivo() {
-        excelContainer.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-success" role="status"></div>
-                <p class="mt-3">Procesando archivo Excel...</p>
-            </div>
-        `;
-        
-        // Obtener el archivo Excel mediante fetch
-        fetch(excelUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error al cargar el archivo Excel (${response.status})`);
-                }
-                return response.arrayBuffer();
-            })
-            .then(arrayBuffer => {
-                try {
-                    // Procesar el archivo Excel con SheetJS
-                    const data = new Uint8Array(arrayBuffer);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    // Obtener la primera hoja
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // Crear tabla HTML personalizada que respete el formato
-                    const tablaHTML = crearTablaPersonalizada(worksheet);
-                    
-                    // Mostrar en el contenedor
-                    excelContainer.innerHTML = `
-                        <div class="excel-viewer-container">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="bi bi-file-earmark-excel me-2"></i>
-                                    ${fileName || 'Archivo Excel'}
-                                </h5>
-                                <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
-                                    <i class="bi bi-download me-1"></i>Descargar
-                                </a>
-                            </div>
-                            <div class="table-responsive excel-table-wrapper">
-                                <style>
-                                    .excel-table {
-                                        font-size: 12px;
-                                        border-collapse: collapse;
-                                        width: 100%;
-                                    }
-                                    .excel-table th, .excel-table td {
-                                        border: 1px solid #ddd;
-                                        padding: 4px 8px;
-                                        text-align: center;
-                                        vertical-align: middle;
-                                        white-space: nowrap;
-                                    }
-                                    .excel-table .header-row {
-                                        background-color: #f8f9fa;
-                                        font-weight: bold;
-                                    }
-                                    .excel-table .merged-cell {
-                                        background-color: #e9ecef;
-                                    }
-                                    .excel-table .number-cell {
-                                        text-align: right;
-                                    }
-                                    .excel-table .center-cell {
-                                        text-align: center;
-                                    }
-                                    .excel-table .footer-row {
-                                        background-color: #f1f3f4;
-                                        font-weight: bold;
-                                        border-top: 2px solid #495057;
-                                    }
-                                </style>
-                                ${tablaHTML}
-                            </div>
-                        </div>
-                    `;
-                    
-                } catch (error) {
-                    console.error('Error al procesar Excel:', error);
-                    mostrarError(`Error al procesar el Excel: ${error.message}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error en fetch:', error);
-                mostrarError(`Error al cargar el archivo: ${error.message}`);
-            });
-    }
-    
-    function mostrarError(mensaje) {
-        console.error(mensaje);
-        excelContainer.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                ${mensaje}
-            </div>
-            <div class="text-center mt-3">
-                <a href="${excelUrl}" class="btn btn-primary" download>
-                    <i class="bi bi-download me-2"></i>Intentar descargar directamente
-                </a>
-            </div>
-        `;
-    }
-}
-
-// Función mejorada para crear tabla personalizada que respeta formato Excel
-function crearTablaPersonalizada(worksheet) {
-    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-    const mergedCells = worksheet['!merges'] || [];
-    
-    // Crear array para marcar celdas que están combinadas
-    const celdasCombinadas = {};
-    mergedCells.forEach(merge => {
-        for (let r = merge.s.r; r <= merge.e.r; r++) {
-            for (let c = merge.s.c; c <= merge.e.c; c++) {
-                celdasCombinadas[`${r}_${c}`] = {
-                    esMaster: r === merge.s.r && c === merge.s.c,
-                    rowspan: merge.e.r - merge.s.r + 1,
-                    colspan: merge.e.c - merge.s.c + 1,
-                    merge: merge
-                };
-            }
-        }
-    });
-    
-    let html = '<table class="table excel-table table-bordered">';
-    
-    for (let r = range.s.r; r <= range.e.r; r++) {
-        // Determinar si es fila de encabezado o pie
-        const esEncabezado = r <= 1;
-        const esPie = r === range.e.r;
-        const clasesFila = esEncabezado ? 'header-row' : (esPie ? 'footer-row' : '');
-        
-        html += `<tr class="${clasesFila}">`;
-        
-        for (let c = range.s.c; c <= range.e.c; c++) {
-            const celdaKey = `${r}_${c}`;
-            const combInfo = celdasCombinadas[celdaKey];
-            
-            // Si la celda está combinada pero no es la master, saltar
-            if (combInfo && !combInfo.esMaster) {
-                continue;
-            }
-            
-            const cellRef = XLSX.utils.encode_cell({ r, c });
-            const cell = worksheet[cellRef];
-            let valor = '';
-            
-            if (cell) {
-                if (cell.t === 'n' && cell.v !== undefined) {
-                    // Número - formatear según el tipo
-                    if (cell.z && cell.z.includes('%')) {
-                        valor = (cell.v * 100).toFixed(2) + '%';
-                    } else if (cell.z && cell.z.includes(',')) {
-                        valor = cell.v.toLocaleString();
-                    } else {
-                        valor = cell.v.toString();
-                    }
-                } else if (cell.v !== undefined) {
-                    valor = cell.v.toString();
-                }
-            }
-            
-            // Determinar clases CSS para la celda
-            let clasesCelda = [];
-            if (combInfo) {
-                clasesCelda.push('merged-cell');
-            }
-            if (cell && cell.t === 'n') {
-                clasesCelda.push('number-cell');
-            } else {
-                clasesCelda.push('center-cell');
-            }
-            
-            // Crear atributos de combinación
-            let atributosCombinacion = '';
-            if (combInfo && combInfo.esMaster) {
-                if (combInfo.rowspan > 1) {
-                    atributosCombinacion += ` rowspan="${combInfo.rowspan}"`;
-                }
-                if (combInfo.colspan > 1) {
-                    atributosCombinacion += ` colspan="${combInfo.colspan}"`;
-                }
-            }
-            
-            const tag = esEncabezado ? 'th' : 'td';
-            html += `<${tag} class="${clasesCelda.join(' ')}"${atributosCombinacion}>${valor}</${tag}>`;
-        }
-        
-        html += '</tr>';
-    }
-    
-    html += '</table>';
-    return html;
+    // Usar el motor de Excel para renderizar
+    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName)
+        .catch(error => {
+            console.error('Error al cargar Excel con el motor:', error);
+        });
 }
 </script>
