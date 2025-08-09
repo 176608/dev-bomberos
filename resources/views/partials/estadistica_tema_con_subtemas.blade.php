@@ -662,6 +662,7 @@ function cambiarTema(tema_id) {
 
 // Función para cargar un subtema específico
 function cargarSubtema(subtema_id) {
+    console.log('Cargando subtema ID:', subtema_id);
     
     // Mostrar indicador de carga
     document.getElementById('cuadros-container-estadistica').innerHTML = `
@@ -679,12 +680,25 @@ function cargarSubtema(subtema_id) {
     });
     event.currentTarget.classList.add('active');
     
-    // Cargar cuadros del subtema mediante AJAX
+    // 1. PRIMERO actualizar el encabezado (para respuesta inmediata)
+    const subtemaSeleccionado = event.currentTarget.querySelector('.subtema-texto h6')?.innerText || 'Subtema';
+    const temaSeleccionado = document.querySelector('#tema-selector option:checked')?.text || 'Tema';
+    
+    // Actualizar de forma preliminar mientras se carga la información completa
+    const headerContainer = document.getElementById('subtema-header');
+    if (headerContainer) {
+        headerContainer.innerHTML = `
+            <h5 class="mb-0">${subtemaSeleccionado}</h5>
+            <p class="text-muted small mb-0">${temaSeleccionado}</p>
+        `;
+    }
+    
+    // 2. LUEGO cargar los cuadros del subtema mediante AJAX
     fetch('{{ url("/sigem/obtener-cuadros-estadistica") }}/' + subtema_id)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Actualizar encabezado con información del subtema
+                // Actualizar encabezado con información completa del subtema
                 actualizarEncabezadoSubtema(subtema_id);
                 
                 // Renderizar cuadros
