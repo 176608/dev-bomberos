@@ -236,16 +236,19 @@ class ExcelModalEngine {
     }
 
     /**
-     * Calcular anchos de columnas basado en el contenido
+     * Calcular anchos de columnas basado en el contenido - MEJORADO
      */
     calculateColumnWidths(worksheet, range, workbook) {
         const columnWidths = {};
-        const minWidth = 50;  // Ancho mínimo
-        const maxWidth = 300; // Ancho máximo
-        const paddingFactor = 8; // Factor para calcular pixels por caracter
+        const minWidth = 80;   // Ancho mínimo aumentado
+        const maxWidth = 400;  // Ancho máximo aumentado
+        const charWidth = 7;   // Píxeles por carácter (más preciso)
+        const padding = 16;    // Padding interno
         
         for (let c = range.s.c; c <= range.e.c; c++) {
             let maxContentLength = 0;
+            let hasLongText = false;
+            let maxWords = 0;
             
             // Revisar todas las celdas de esta columna
             for (let r = range.s.r; r <= range.e.r; r++) {
@@ -253,27 +256,58 @@ class ExcelModalEngine {
                 const cell = worksheet[cellRef];
                 
                 if (cell && cell.v !== undefined && cell.v !== null) {
-                    // Obtener el valor formateado para medir su longitud
                     const displayValue = this.formatCellValue(cell);
-                    const contentLength = displayValue.toString().length;
-                    maxContentLength = Math.max(maxContentLength, contentLength);
+                    const contentStr = displayValue.toString();
+                    const contentLength = contentStr.length;
+                    
+                    // Detectar si hay texto largo o saltos de línea
+                    if (contentStr.includes('\n') || contentLength > 30) {
+                        hasLongText = true;
+                    }
+                    
+                    // Contar palabras para determinar si necesita wrap
+                    const words = contentStr.split(/\s+/).filter(word => word.length > 0);
+                    maxWords = Math.max(maxWords, words.length);
+                    
+                    // Para texto con saltos de línea, usar la línea más larga
+                    if (contentStr.includes('\n')) {
+                        const lines = contentStr.split('\n');
+                        const longestLine = Math.max(...lines.map(line => line.length));
+                        maxContentLength = Math.max(maxContentLength, longestLine);
+                    } else {
+                        maxContentLength = Math.max(maxContentLength, contentLength);
+                    }
                 }
             }
             
-            // Calcular ancho en pixels
-            let calculatedWidth = maxContentLength * paddingFactor + 20; // +20 para padding
+            // Calcular ancho basado en contenido
+            let calculatedWidth;
             
-            // Aplicar límites mínimo y máximo
+            if (hasLongText && maxWords > 3) {
+                // Para texto largo, usar un ancho más conservador que permita wrap
+                calculatedWidth = Math.min(maxContentLength * charWidth, 250);
+            } else if (maxContentLength > 20) {
+                // Para texto mediano, dar un poco más de espacio
+                calculatedWidth = maxContentLength * charWidth * 0.9;
+            } else {
+                // Para texto corto, usar el cálculo normal
+                calculatedWidth = maxContentLength * charWidth;
+            }
+            
+            // Agregar padding
+            calculatedWidth += padding;
+            
+            // Aplicar límites
             calculatedWidth = Math.max(minWidth, Math.min(maxWidth, calculatedWidth));
             
-            columnWidths[c] = calculatedWidth;
+            columnWidths[c] = Math.round(calculatedWidth);
         }
         
         return columnWidths;
     }
 
     /**
-     * Procesar datos y formato de una celda individual (MEJORADO)
+     * Procesar datos y formato de una celda individual - MEJORADO PARA TEXTO LARGO
      */
     processCellData(cell, cellRef, workbook) {
         let displayValue = '';
@@ -288,6 +322,18 @@ class ExcelModalEngine {
         
         // Procesar valor de la celda
         displayValue = this.formatCellValue(cell);
+        
+        // Detectar tipo de contenido para aplicar clases apropiadas
+        const contentStr = displayValue.toString();
+        
+        // Detectar texto largo y aplicar clase correspondiente
+        if (contentStr.length > 30 || contentStr.includes('\n')) {
+            classes.push('long-text-cell');
+        } else if (contentStr.length > 15) {
+            classes.push('medium-text-cell');
+        } else {
+            classes.push('short-text-cell');
+        }
         
         // Procesar estilos si están disponibles
         if (cell.s) {
@@ -603,7 +649,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener estilos CSS para las tablas - ACTUALIZADO CON SOPORTE COMPLETO DE BORDES
+     * Obtener estilos CSS para las tablas - ACTUALIZADO PARA MANEJO DINÁMICO
      */
     getTableStyles() {
         return `
@@ -614,6 +660,7 @@ class ExcelModalEngine {
                     border-collapse: separate;
                     border-spacing: 0;
                     width: auto !important;
+                    table-layout: auto !important;
                     background-color: #ffffff;
                     border: 1px solid #d0d0d0;
                 }
@@ -622,17 +669,156 @@ class ExcelModalEngine {
                     padding: 4px 8px;
                     text-align: center;
                     vertical-align: middle;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
                     border: 1px solid #d0d0d0;
-                    line-height: 1.2;
+                    line-height: 1.3;
                     position: relative;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
                 }
                 
-                /* Estilos para celdas con bordes personalizados */
+                /* Manejo específico para texto largo */
+                .excel-table .long-text-cell {
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    max-width: none;
+                    min-width: 120px;
+                    text-align: left;
+                    padding: 6px 10px;
+                    line-height: 1.4;
+                }
+                
+                /* Manejo para texto mediano */
+                .excel-table .medium-text-cell {
+                    white-space: normal;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    text-align: left;
+                    padding: 4px 8px;
+                }
+                
+                /* Manejo para texto corto */
+                .excel-table .short-text-cell {
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+                
+                /* Sobrescribir para merged cells */
+                .excel-table .merged-cell {
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    text-align: center !important;
+                    vertical-align: middle;
+                    font-weight: bold;
+                    padding: 6px 10px;
+                }
+                
+                /* Estilos para headers principales */
+                .excel-table .header-row th {
+                    background-color: #70ad47;
+                    color: #ffffff;
+                    font-weight: bold;
+                    text-align: center;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    padding: 6px 8px;
+                    line-height: 1.2;
+                }
+                
+                /* Sub-headers */
+                .excel-table .header-row:nth-child(2) th,
+                .excel-table tr:nth-child(2) th {
+                    background-color: #92c5f7;
+                    color: #000000;
+                    font-weight: bold;
+                    text-align: center;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                }
+                
+                /* Celdas de datos regulares */
+                .excel-table td {
+                    background-color: #e2efda;
+                    color: #000000;
+                }
+                
+                /* Primera columna (categorías/conceptos) */
+                .excel-table td:first-child:not(.merged-cell) {
+                    background-color: #c6e0b4;
+                    font-weight: bold;
+                    text-align: left;
+                    padding-left: 12px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                }
+                
+                /* Números */
+                .excel-table .number-cell:not(.merged-cell) {
+                    text-align: right;
+                    background-color: #e2efda;
+                    white-space: nowrap;
+                }
+                
+                .excel-table .number-cell.merged-cell {
+                    text-align: center !important;
+                }
+                
+                /* Filas completas combinadas */
+                .excel-table .full-row-merged {
+                    background-color: #70ad47 !important;
+                    color: #ffffff !important;
+                    font-weight: bold;
+                    text-align: center !important;
+                    font-size: 12px;
+                    padding: 8px !important;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                }
+                
+                /* Ajustes para colgroup dinámico */
+                .excel-table colgroup col {
+                    width: auto !important;
+                    min-width: 80px;
+                }
+                
+                /* Filas alternas */
+                .excel-table tbody tr:nth-child(even) td:not(.merged-cell):not(.full-row-merged) {
+                    background-color: #f2f8ec;
+                }
+                
+                .excel-table tbody tr:nth-child(even) td:first-child:not(.merged-cell) {
+                    background-color: #d4e6c7;
+                }
+                
+                /* Hover effect */
+                .excel-table tbody tr:hover td:not(.merged-cell):not(.full-row-merged) {
+                    background-color: #d5e8d4 !important;
+                    transition: background-color 0.2s ease;
+                }
+                
+                /* Contenedor responsive */
+                .excel-viewer-container {
+                    max-height: 85vh;
+                    overflow: auto;
+                    padding: 15px;
+                    background-color: #ffffff;
+                    border: 1px solid #d4d4d4;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                
+                .excel-table-wrapper {
+                    width: auto;
+                    max-width: 100%;
+                    overflow-x: auto;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                }
+                
+                /* Estilos para bordes personalizados */
                 .excel-table .custom-borders {
-                    /* Los estilos de borde se aplicarán inline desde extractCellStyles */
+                    /* Los estilos de borde se aplicarán inline */
                 }
                 
                 /* Soporte para bordes diagonales */
@@ -645,11 +831,12 @@ class ExcelModalEngine {
                     height: 100%;
                     border-top: 1px solid #000;
                     transform-origin: top left;
-                    transform: skewY(45deg);
+                    transform: rotate(45deg);
                     pointer-events: none;
+                    z-index: 1;
                 }
                 
-                /* Estilos para diferentes tipos de formato */
+                /* Formatos especiales */
                 .excel-table .percentage-format {
                     text-align: right;
                     color: #0066cc;
@@ -663,291 +850,30 @@ class ExcelModalEngine {
                 .excel-table .date-format {
                     text-align: center;
                     color: #333;
-                }
-                
-                /* Estilos para headers principales (títulos) - Verde más oscuro */
-                .excel-table .header-row th {
-                    background-color: #70ad47;
-                    color: #ffffff;
-                    font-weight: bold;
-                    text-align: center;
-                }
-                
-                /* Estilos para sub-headers - Verde medio */
-                .excel-table .header-row:nth-child(2) th,
-                .excel-table tr:nth-child(2) th {
-                    background-color: #92c5f7;
-                    color: #000000;
-                    font-weight: bold;
-                    text-align: center;
-                }
-                
-                /* Celdas de datos regulares - Verde muy claro */
-                .excel-table td {
-                    background-color: #e2efda;
-                    color: #000000;
-                }
-                
-                /* Celdas de categorías/conceptos (primera columna) */
-                .excel-table td:first-child:not(.merged-cell) {
-                    background-color: #c6e0b4;
-                    font-weight: bold;
-                    text-align: left;
-                    padding-left: 12px;
-                }
-                
-                /* IMPORTANTE: Sobrescribir primera columna si es merged cell */
-                .excel-table td:first-child.merged-cell {
-                    text-align: center !important;
-                    padding-left: 8px;
-                }
-                
-                /* Números - alineación a la derecha */
-                .excel-table .number-cell:not(.merged-cell) {
-                    text-align: right;
-                    background-color: #e2efda;
-                }
-                
-                /* IMPORTANTE: Sobrescribir números si es merged cell */
-                .excel-table .number-cell.merged-cell {
-                    text-align: center !important;
-                }
-                
-                /* Celdas de texto - alineación centrada */
-                .excel-table .text-cell {
-                    text-align: center;
-                    background-color: #e2efda;
-                }
-                
-                /* ESTILOS ESPECÍFICOS PARA CELDAS COMBINADAS */
-                .excel-table .merged-cell {
-                    background-color: inherit;
-                    font-weight: bold;
-                    text-align: center !important;
-                    vertical-align: middle;
-                }
-                
-                /* Estilos para filas completas combinadas (títulos principales) */
-                .excel-table .full-row-merged {
-                    background-color: #70ad47 !important;
-                    color: #ffffff !important;
-                    font-weight: bold;
-                    text-align: center !important;
-                    font-size: 12px;
-                    padding: 8px !important;
-                }
-                
-                /* Filas alternas para mejor legibilidad */
-                .excel-table tbody tr:nth-child(even) td:not(.merged-cell):not(.full-row-merged) {
-                    background-color: #f2f8ec;
-                }
-                
-                .excel-table tbody tr:nth-child(even) td:first-child:not(.merged-cell) {
-                    background-color: #d4e6c7;
-                }
-                
-                /* Hover effect sutil */
-                .excel-table tbody tr:hover td:not(.merged-cell):not(.full-row-merged) {
-                    background-color: #d5e8d4 !important;
-                    transition: background-color 0.2s ease;
-                }
-                
-                /* Contenedor */
-                .excel-viewer-container {
-                    max-height: 80vh;
-                    overflow-y: auto;
-                    padding: 15px;
-                    background-color: #ffffff;
-                    border: 1px solid #d4d4d4;
-                    border-radius: 4px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                }
-                
-                .excel-table-wrapper {
-                    width: fit-content;
-                    max-width: 100%;
-                    overflow-x: auto;
-                    margin: 0 auto;
-                    background-color: #ffffff;
-                }
-                
-                /* Ajustes para celdas vacías */
-                .excel-table .empty-cell {
-                    background-color: #f8f9fa;
-                }
-                
-                /* Título principal de la tabla si existe */
-                .excel-table .main-title {
-                    background-color: #70ad47;
-                    color: #ffffff;
-                    font-weight: bold;
-                    font-size: 12px;
-                    text-align: center;
-                    padding: 8px;
-                }
-                
-                /* Paleta de colores extendida para diferentes tipos de datos */
-                .excel-table .positive-number {
-                    color: #006600;
-                    background-color: #e6f7e6;
-                }
-                
-                .excel-table .negative-number {
-                    color: #cc0000;
-                    background-color: #ffe6e6;
-                }
-                
-                .excel-table .zero-value {
-                    color: #666666;
-                    background-color: #f0f0f0;
-                }
-                
-                .excel-table .percentage-high {
-                    background-color: #e6f3ff;
-                }
-                
-                .excel-table .percentage-medium {
-                    background-color: #fff2e6;
-                }
-                
-                .excel-table .percentage-low {
-                    background-color: #f2f2f2;
-                }
-                
-                /* Estilos para celdas de totales */
-                .excel-table .total-cell {
-                    background-color: #4472c4 !important;
-                    color: #ffffff !important;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de subtotales */
-                .excel-table .subtotal-cell {
-                    background-color: #70ad47 !important;
-                    color: #ffffff !important;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de notas o comentarios */
-                .excel-table .note-cell {
-                    background-color: #ffffcc;
-                    font-style: italic;
-                    color: #666600;
-                }
-                
-                /* Estilos para celdas de advertencia */
-                .excel-table .warning-cell {
-                    background-color: #fff2cc;
-                    color: #b35c00;
-                }
-                
-                /* Estilos para celdas de error */
-                .excel-table .error-cell {
-                    background-color: #f8cbad;
-                    color: #cc0000;
-                }
-                
-                /* Estilos para celdas de éxito */
-                .excel-table .success-cell {
-                    background-color: #c6e0b4;
-                    color: #006600;
-                }
-                
-                /* Estilos para celdas de información */
-                .excel-table .info-cell {
-                    background-color: #bdd7ee;
-                    color: #003366;
-                }
-                
-                /* Estilos para celdas de fechas */
-                .excel-table .date-cell {
-                    background-color: #e2efd9;
-                    color: #333333;
-                }
-                
-                /* Estilos para celdas de tiempo */
-                .excel-table .time-cell {
-                    background-color: #dbe5f1;
-                    color: #333333;
-                }
-                
-                /* Estilos para celdas de moneda */
-                .excel-table .currency-cell {
-                    background-color: #e2efda;
-                    color: #006600;
-                }
-                
-                /* Estilos para celdas de porcentaje */
-                .excel-table .percentage-cell {
-                    background-color: #fff2cc;
-                    color: #b35c00;
-                }
-                
-                /* Estilos para celdas de texto largo */
-                .excel-table .long-text-cell {
-                    white-space: normal;
-                    word-wrap: break-word;
-                    max-width: 200px;
-                }
-                
-                /* Estilos para celdas de texto corto */
-                .excel-table .short-text-cell {
                     white-space: nowrap;
                 }
                 
-                /* Estilos para celdas de encabezado secundario */
-                .excel-table .sub-header-cell {
-                    background-color: #a9d18e;
-                    color: #000000;
-                    font-weight: bold;
+                /* Celdas vacías */
+                .excel-table .empty-cell {
+                    background-color: #f8f9fa;
+                    min-width: 30px;
+                    height: 20px;
                 }
                 
-                /* Estilos para celdas de pie de tabla */
-                .excel-table .footer-cell {
-                    background-color: #4472c4;
-                    color: #ffffff;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de resumen */
-                .excel-table .summary-cell {
-                    background-color: #d0cece;
-                    color: #000000;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de detalle */
-                .excel-table .detail-cell {
-                    background-color: #ffffff;
-                    color: #000000;
-                }
-                
-                /* Estilos para celdas de categoría */
-                .excel-table .category-cell {
-                    background-color: #c6e0b4;
-                    color: #000000;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de subcategoría */
-                .excel-table .subcategory-cell {
-                    background-color: #e2efda;
-                    color: #000000;
-                    font-weight: normal;
-                }
-                
-                /* Estilos para celdas de grupo */
-                .excel-table .group-cell {
-                    background-color: #a9d18e;
-                    color: #000000;
-                    font-weight: bold;
-                }
-                
-                /* Estilos para celdas de subgrupo */
-                .excel-table .subgroup-cell {
-                    background-color: #c6e0b4;
-                    color: #000000;
-                    font-weight: normal;
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .excel-table {
+                        font-size: 10px;
+                    }
+                    
+                    .excel-table th, .excel-table td {
+                        padding: 3px 6px;
+                    }
+                    
+                    .excel-table .long-text-cell {
+                        min-width: 100px;
+                        padding: 4px 6px;
+                    }
                 }
             </style>
         `;
