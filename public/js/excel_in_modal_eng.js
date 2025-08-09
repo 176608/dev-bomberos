@@ -467,71 +467,70 @@ class ExcelModalEngine {
         return `
             <style>
                 .excel-table {
-                    font-size: 11px;
+                    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+                    font-size: 12px;
                     border-collapse: collapse;
                     width: auto !important;
-                    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-                    table-layout: fixed;
-                    margin: 0 auto;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    border-radius: 8px;
+                    overflow: hidden;
                 }
                 .excel-table th, .excel-table td {
-                    border: 1px solid #000000;
-                    padding: 2px 4px;
+                    padding: 8px 12px;
                     text-align: center;
                     vertical-align: middle;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    line-height: 1.2;
-                    position: relative;
+                    border: 1px solid #e0e0e0;
+                    transition: background-color 0.3s ease, border-color 0.3s ease;
                 }
-                .excel-table .header-row {
-                    background-color: #d9d9d9;
+                .excel-table th {
+                    background-color: #f5f5f5;
                     font-weight: bold;
-                    color: #000000;
+                    color: #333;
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
                 }
-                .excel-table .footer-row {
-                    background-color: #f2f2f2;
-                    font-weight: bold;
-                    border-top: 2px solid #000000;
-                }
-                .excel-table .data-row {
+                .excel-table td {
                     background-color: #ffffff;
                 }
+                /* Efecto hover */
+                .excel-table tbody tr:hover {
+                    background-color: #f8f9fa;
+                    border-color: #c0c0c0;
+                }
+                .excel-table tbody tr:hover td {
+                    background-color: #f2f2f2;
+                }
+                /* Diferenciar tipos de datos */
+                .excel-table .text-cell {
+                    background-color: #f9f9f9;
+                }
                 .excel-table .number-cell {
+                    background-color: #f2fafd;
                     text-align: right;
                 }
-                .excel-table .text-cell {
-                    text-align: left;
+                .excel-table .percentage-cell {
+                    background-color: #e6f7ff;
+                    text-align: right;
                 }
-                .excel-table .empty-cell {
-                    background-color: #fafafa;
+                .excel-table .header-row {
+                    background-color: #e9ecef;
+                }
+                .excel-table .footer-row {
+                    background-color: #e9ecef;
+                }
+                .excel-table .merged-cell {
+                    background-color: #e0e0e0;
                 }
                 .excel-viewer-container {
                     max-height: 75vh;
                     overflow-y: auto;
                     padding: 10px;
-                }
-                .excel-table-wrapper {
-                    width: fit-content;
-                    max-width: 100%;
-                    overflow-x: auto;
-                    margin: 0 auto;
-                    background-color: white;
-                    padding: 10px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    border-radius: 4px;
-                }
-                /* Hover effect para mejor UX */
-                .excel-table tbody tr:hover {
-                    background-color: #f8f9fa;
-                }
-                /* Asegurar que las celdas combinadas se muestren correctamente */
-                .excel-table th[rowspan], .excel-table td[rowspan] {
-                    vertical-align: middle;
-                }
-                .excel-table th[colspan], .excel-table td[colspan] {
-                    text-align: center;
+                    border: 1px solid #ccc;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
             </style>
         `;
@@ -566,6 +565,8 @@ class ExcelModalEngine {
         `;
     }
 }
+
+
 
 // Instancia global
 window.ExcelModalEngine = new ExcelModalEngine();
