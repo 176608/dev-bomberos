@@ -154,6 +154,23 @@ class ExcelModalEngine {
                 // Generar atributos de combinación
                 const mergeAttrs = this.getMergeAttributes(mergeInfo);
                 
+                // NUEVA LÓGICA: Si es una celda combinada, agregar clase especial y centrado
+                if (mergeInfo && mergeInfo.isMaster) {
+                    cellData.classes.push('merged-cell');
+                    
+                    // Verificar si es un row completo combinado
+                    const totalColumns = usefulRange.e.c - usefulRange.s.c + 1;
+                    if (mergeInfo.colspan === totalColumns) {
+                        cellData.classes.push('full-row-merged');
+                    }
+                    
+                    // Forzar centrado para todas las celdas combinadas
+                    if (!cellData.customStyle.includes('text-align')) {
+                        cellData.customStyle += cellData.customStyle ? '; text-align: center' : 'text-align: center';
+                        cellData.hasCustomStyle = true;
+                    }
+                }
+                
                 // Generar estilos dinámicos si hay formato específico
                 const styleId = `cell-${r}-${c}`;
                 if (cellData.hasCustomStyle) {
@@ -461,7 +478,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener estilos CSS para las tablas - ACTUALIZADO CON ESTÉTICA EXCEL ORIGINAL
+     * Obtener estilos CSS para las tablas - ACTUALIZADO CON CENTRADO DE MERGED CELLS
      */
     getTableStyles() {
         return `
@@ -517,10 +534,21 @@ class ExcelModalEngine {
                     padding-left: 12px;
                 }
                 
+                /* IMPORTANTE: Sobrescribir primera columna si es merged cell */
+                .excel-table td:first-child.merged-cell {
+                    text-align: center !important;
+                    padding-left: 8px;
+                }
+                
                 /* Números - alineación a la derecha */
                 .excel-table .number-cell {
                     text-align: right;
                     background-color: #e2efda;
+                }
+                
+                /* IMPORTANTE: Sobrescribir números si es merged cell */
+                .excel-table .number-cell.merged-cell {
+                    text-align: center !important;
                 }
                 
                 /* Celdas de texto - alineación centrada */
@@ -537,11 +565,22 @@ class ExcelModalEngine {
                     border-top: 2px solid #70ad47;
                 }
                 
-                /* Celdas combinadas - mismo color que el contexto */
+                /* ESTILOS ESPECÍFICOS PARA CELDAS COMBINADAS */
                 .excel-table .merged-cell {
                     background-color: inherit;
                     font-weight: bold;
-                    text-align: center;
+                    text-align: center !important;
+                    vertical-align: middle;
+                }
+                
+                /* Estilos para filas completas combinadas (títulos principales) */
+                .excel-table .full-row-merged {
+                    background-color: #70ad47 !important;
+                    color: #ffffff !important;
+                    font-weight: bold;
+                    text-align: center !important;
+                    font-size: 12px;
+                    padding: 8px !important;
                 }
                 
                 /* Filas alternas para mejor legibilidad */
@@ -553,10 +592,28 @@ class ExcelModalEngine {
                     background-color: #d4e6c7;
                 }
                 
+                /* IMPORTANTE: Mantener colores de merged cells en filas alternas */
+                .excel-table tbody tr:nth-child(even) td.merged-cell {
+                    background-color: inherit !important;
+                }
+                
+                .excel-table tbody tr:nth-child(even) td.full-row-merged {
+                    background-color: #70ad47 !important;
+                }
+                
                 /* Hover effect sutil */
                 .excel-table tbody tr:hover td {
                     background-color: #d5e8d4 !important;
                     transition: background-color 0.2s ease;
+                }
+                
+                /* IMPORTANTE: Mantener colores de merged cells en hover */
+                .excel-table tbody tr:hover td.merged-cell {
+                    background-color: inherit !important;
+                }
+                
+                .excel-table tbody tr:hover td.full-row-merged {
+                    background-color: #70ad47 !important;
                 }
                 
                 /* Estilos específicos para fuente y notas */
@@ -574,6 +631,12 @@ class ExcelModalEngine {
                     padding: 6px 8px;
                     background-color: transparent;
                     font-weight: normal;
+                }
+                
+                /* IMPORTANTE: Notas combinadas siguen centradas */
+                .excel-table .source-row td.merged-cell,
+                .excel-table .note-row td.merged-cell {
+                    text-align: center !important;
                 }
                 
                 /* Contenedor */
