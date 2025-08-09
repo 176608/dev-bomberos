@@ -151,9 +151,6 @@ class ExcelModalEngine {
                 // Procesar contenido y formato de la celda
                 const cellData = this.processCellData(cell, cellRef, workbook);
                 
-                // Generar atributos de combinación
-                const mergeAttrs = this.getMergeAttributes(mergeInfo);
-                
                 // NUEVA LÓGICA: Si es una celda combinada, agregar clase especial y centrado
                 if (mergeInfo && mergeInfo.isMaster) {
                     cellData.classes.push('merged-cell');
@@ -170,6 +167,9 @@ class ExcelModalEngine {
                         cellData.hasCustomStyle = true;
                     }
                 }
+                
+                // Generar atributos de combinación
+                const mergeAttrs = this.getMergeAttributes(mergeInfo);
                 
                 // Generar estilos dinámicos si hay formato específico
                 const styleId = `cell-${r}-${c}`;
@@ -336,7 +336,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Extraer estilos CSS de una celda Excel
+     * Extraer estilos CSS de una celda Excel con soporte completo de bordes
      */
     extractCellStyles(cellStyle) {
         let cssArray = [];
@@ -359,15 +359,39 @@ class ExcelModalEngine {
             if (cellStyle.font.color && cellStyle.font.color.rgb) {
                 cssArray.push(`color: #${cellStyle.font.color.rgb}`);
             }
+            if (cellStyle.font.name) {
+                cssArray.push(`font-family: '${cellStyle.font.name}', 'Calibri', sans-serif`);
+            }
         }
         
         // Alineación
         if (cellStyle.alignment) {
             if (cellStyle.alignment.horizontal) {
-                cssArray.push(`text-align: ${cellStyle.alignment.horizontal}`);
+                const alignmentMap = {
+                    'left': 'left',
+                    'center': 'center', 
+                    'right': 'right',
+                    'justify': 'justify',
+                    'centerContinuous': 'center',
+                    'distributed': 'justify'
+                };
+                const align = alignmentMap[cellStyle.alignment.horizontal] || cellStyle.alignment.horizontal;
+                cssArray.push(`text-align: ${align}`);
             }
             if (cellStyle.alignment.vertical) {
-                cssArray.push(`vertical-align: ${cellStyle.alignment.vertical}`);
+                const verticalMap = {
+                    'top': 'top',
+                    'middle': 'middle',
+                    'bottom': 'bottom',
+                    'justify': 'baseline',
+                    'distributed': 'middle'
+                };
+                const vAlign = verticalMap[cellStyle.alignment.vertical] || cellStyle.alignment.vertical;
+                cssArray.push(`vertical-align: ${vAlign}`);
+            }
+            if (cellStyle.alignment.wrapText) {
+                cssArray.push('white-space: pre-wrap');
+                cssArray.push('word-wrap: break-word');
             }
         }
         
@@ -376,27 +400,128 @@ class ExcelModalEngine {
             cssArray.push(`background-color: #${cellStyle.fill.fgColor.rgb}`);
         }
         
-        // Bordes
+        // BORDES COMPLETOS Y MEJORADOS - Esta es la parte clave
         if (cellStyle.border) {
-            if (cellStyle.border.top && cellStyle.border.top.style) {
-                const borderColor = cellStyle.border.top.color && cellStyle.border.top.color.rgb ? 
-                    `#${cellStyle.border.top.color.rgb}` : '#000000';
-                cssArray.push(`border-top: 1px solid ${borderColor}`);
+            // Mapeo completo de estilos de borde de Excel a CSS
+            const borderStyleMap = {
+                // Estilos básicos
+                'thin': '1px solid',
+                'medium': '2px solid', 
+                'thick': '3px solid',
+                
+                // Estilos punteados y discontinuos
+                'dotted': '1px dotted',
+                'dashed': '2px dashed',
+                'hair': '0.5px solid', // Muy fino
+                
+                // Estilos combinados con grosor
+                'mediumDashed': '2px dashed',
+                'thickDashed': '3px dashed',
+                'mediumDotted': '2px dotted',
+                
+                // Estilos de puntos y rayas
+                'dashDot': '1px dashed', 
+                'mediumDashDot': '2px dashed',
+                'dashDotDot': '1px dotted',
+                'mediumDashDotDot': '2px dotted',
+                'slantDashDot': '2px dashed',
+                
+                // Estilos especiales
+                'double': '3px double',
+                'none': 'none',
+                
+                // Fallback para estilos no reconocidos
+                'default': '1px solid'
+            };
+            
+            // Función auxiliar para obtener el estilo completo del borde
+            const getBorderStyle = (border) => {
+                if (!border || !border.style) return null;
+                
+                const style = borderStyleMap[border.style] || borderStyleMap['default'];
+                let color = '#000000'; // Color por defecto
+                
+                // Obtener color del borde
+                if (border.color) {
+                    if (border.color.rgb) {
+                        color = `#${border.color.rgb}`;
+                    } else if (border.color.indexed !== undefined) {
+                        // Mapear colores indexados comunes de Excel
+                        const indexedColors = {
+                            0: '#000000', // Negro
+                            1: '#FFFFFF', // Blanco
+                            2: '#FF0000', // Rojo
+                            3: '#00FF00', // Verde
+                            4: '#0000FF', // Azul
+                            5: '#FFFF00', // Amarillo
+                            6: '#FF00FF', // Magenta
+                            7: '#00FFFF', // Cian
+                            8: '#800000', // Marrón
+                            9: '#008000', // Verde oscuro
+                            10: '#000080', // Azul marino
+                            // Agregar más según sea necesario
+                        };
+                        color = indexedColors[border.color.indexed] || '#000000';
+                    } else if (border.color.theme !== undefined) {
+                        // Colores de tema de Excel (simplificado)
+                        const themeColors = {
+                            0: '#FFFFFF', // Fondo 1
+                            1: '#000000', // Texto 1
+                            2: '#E7E6E6', // Fondo 2
+                            3: '#44546A', // Texto 2
+                            4: '#5B9BD5', // Acento 1
+                            5: '#70AD47', // Acento 2
+                            6: '#FFC000', // Acento 3
+                            7: '#F79646', // Acento 4
+                            8: '#9F4F96', // Acento 5
+                            9: '#4BACC6', // Acento 6
+                        };
+                        color = themeColors[border.color.theme] || '#000000';
+                    }
+                }
+                
+                return `${style} ${color}`;
+            };
+            
+            // Aplicar bordes individuales con detección completa
+            const borderSides = ['top', 'right', 'bottom', 'left'];
+            let hasBorders = false;
+            
+            borderSides.forEach(side => {
+                if (cellStyle.border[side]) {
+                    const borderStyle = getBorderStyle(cellStyle.border[side]);
+                    if (borderStyle && borderStyle !== 'none') {
+                        cssArray.push(`border-${side}: ${borderStyle}`);
+                        hasBorders = true;
+                    }
+                }
+            });
+            
+            // Bordes diagonales (crear clases especiales para estos)
+            if (cellStyle.border.diagonal) {
+                const diagonalStyle = getBorderStyle(cellStyle.border.diagonal);
+                if (diagonalStyle && diagonalStyle !== 'none') {
+                    classes.push('diagonal-border');
+                    // Crear estilo dinámico para diagonal
+                    cssArray.push(`position: relative`);
+                }
             }
-            if (cellStyle.border.right && cellStyle.border.right.style) {
-                const borderColor = cellStyle.border.right.color && cellStyle.border.right.color.rgb ? 
-                    `#${cellStyle.border.right.color.rgb}` : '#000000';
-                cssArray.push(`border-right: 1px solid ${borderColor}`);
+            
+            // Si tiene bordes, agregar clase para mejor control
+            if (hasBorders) {
+                classes.push('custom-borders');
             }
-            if (cellStyle.border.bottom && cellStyle.border.bottom.style) {
-                const borderColor = cellStyle.border.bottom.color && cellStyle.border.bottom.color.rgb ? 
-                    `#${cellStyle.border.bottom.color.rgb}` : '#000000';
-                cssArray.push(`border-bottom: 1px solid ${borderColor}`);
-            }
-            if (cellStyle.border.left && cellStyle.border.left.style) {
-                const borderColor = cellStyle.border.left.color && cellStyle.border.left.color.rgb ? 
-                    `#${cellStyle.border.left.color.rgb}` : '#000000';
-                cssArray.push(`border-left: 1px solid ${borderColor}`);
+        }
+        
+        // Número de formato personalizado (para detectar formatos especiales)
+        if (cellStyle.numFmt) {
+            // Si es un formato de número personalizado, podríamos agregar clases específicas
+            if (cellStyle.numFmt.includes('%')) {
+                classes.push('percentage-format');
+            } else if (cellStyle.numFmt.includes('$') || cellStyle.numFmt.includes('€')) {
+                classes.push('currency-format');
+            } else if (cellStyle.numFmt.includes('date') || cellStyle.numFmt.includes('yyyy')) {
+                classes.push('date-format');
             }
         }
         
@@ -478,7 +603,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener estilos CSS para las tablas - ACTUALIZADO CON CENTRADO DE MERGED CELLS
+     * Obtener estilos CSS para las tablas - ACTUALIZADO CON SOPORTE COMPLETO DE BORDES
      */
     getTableStyles() {
         return `
@@ -486,10 +611,11 @@ class ExcelModalEngine {
                 .excel-table {
                     font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
                     font-size: 11px;
-                    border-collapse: collapse;
+                    border-collapse: separate;
+                    border-spacing: 0;
                     width: auto !important;
                     background-color: #ffffff;
-                    border: 1px solid #70ad47;
+                    border: 1px solid #d0d0d0;
                 }
                 
                 .excel-table th, .excel-table td {
@@ -499,8 +625,44 @@ class ExcelModalEngine {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    border: 1px solid #70ad47;
+                    border: 1px solid #d0d0d0;
                     line-height: 1.2;
+                    position: relative;
+                }
+                
+                /* Estilos para celdas con bordes personalizados */
+                .excel-table .custom-borders {
+                    /* Los estilos de borde se aplicarán inline desde extractCellStyles */
+                }
+                
+                /* Soporte para bordes diagonales */
+                .excel-table .diagonal-border::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border-top: 1px solid #000;
+                    transform-origin: top left;
+                    transform: skewY(45deg);
+                    pointer-events: none;
+                }
+                
+                /* Estilos para diferentes tipos de formato */
+                .excel-table .percentage-format {
+                    text-align: right;
+                    color: #0066cc;
+                }
+                
+                .excel-table .currency-format {
+                    text-align: right;
+                    color: #006600;
+                }
+                
+                .excel-table .date-format {
+                    text-align: center;
+                    color: #333;
                 }
                 
                 /* Estilos para headers principales (títulos) - Verde más oscuro */
@@ -527,7 +689,7 @@ class ExcelModalEngine {
                 }
                 
                 /* Celdas de categorías/conceptos (primera columna) */
-                .excel-table td:first-child {
+                .excel-table td:first-child:not(.merged-cell) {
                     background-color: #c6e0b4;
                     font-weight: bold;
                     text-align: left;
@@ -541,7 +703,7 @@ class ExcelModalEngine {
                 }
                 
                 /* Números - alineación a la derecha */
-                .excel-table .number-cell {
+                .excel-table .number-cell:not(.merged-cell) {
                     text-align: right;
                     background-color: #e2efda;
                 }
@@ -555,14 +717,6 @@ class ExcelModalEngine {
                 .excel-table .text-cell {
                     text-align: center;
                     background-color: #e2efda;
-                }
-                
-                /* Filas de totales/subtotales */
-                .excel-table .footer-row td,
-                .excel-table .total-row td {
-                    background-color: #c6e0b4;
-                    font-weight: bold;
-                    border-top: 2px solid #70ad47;
                 }
                 
                 /* ESTILOS ESPECÍFICOS PARA CELDAS COMBINADAS */
@@ -584,59 +738,18 @@ class ExcelModalEngine {
                 }
                 
                 /* Filas alternas para mejor legibilidad */
-                .excel-table tbody tr:nth-child(even) td {
+                .excel-table tbody tr:nth-child(even) td:not(.merged-cell):not(.full-row-merged) {
                     background-color: #f2f8ec;
                 }
                 
-                .excel-table tbody tr:nth-child(even) td:first-child {
+                .excel-table tbody tr:nth-child(even) td:first-child:not(.merged-cell) {
                     background-color: #d4e6c7;
                 }
                 
-                /* IMPORTANTE: Mantener colores de merged cells en filas alternas */
-                .excel-table tbody tr:nth-child(even) td.merged-cell {
-                    background-color: inherit !important;
-                }
-                
-                .excel-table tbody tr:nth-child(even) td.full-row-merged {
-                    background-color: #70ad47 !important;
-                }
-                
                 /* Hover effect sutil */
-                .excel-table tbody tr:hover td {
+                .excel-table tbody tr:hover td:not(.merged-cell):not(.full-row-merged) {
                     background-color: #d5e8d4 !important;
                     transition: background-color 0.2s ease;
-                }
-                
-                /* IMPORTANTE: Mantener colores de merged cells en hover */
-                .excel-table tbody tr:hover td.merged-cell {
-                    background-color: inherit !important;
-                }
-                
-                .excel-table tbody tr:hover td.full-row-merged {
-                    background-color: #70ad47 !important;
-                }
-                
-                /* Estilos específicos para fuente y notas */
-                .excel-table .source-row,
-                .excel-table .note-row {
-                    font-size: 9px;
-                    font-style: italic;
-                    background-color: #f8f9fa !important;
-                    border-top: 1px solid #70ad47;
-                }
-                
-                .excel-table .source-row td,
-                .excel-table .note-row td {
-                    text-align: left;
-                    padding: 6px 8px;
-                    background-color: transparent;
-                    font-weight: normal;
-                }
-                
-                /* IMPORTANTE: Notas combinadas siguen centradas */
-                .excel-table .source-row td.merged-cell,
-                .excel-table .note-row td.merged-cell {
-                    text-align: center !important;
                 }
                 
                 /* Contenedor */
@@ -663,12 +776,6 @@ class ExcelModalEngine {
                     background-color: #f8f9fa;
                 }
                 
-                /* Estilos para bordes más definidos en tablas complejas */
-                .excel-table.complex-table th,
-                .excel-table.complex-table td {
-                    border: 1px solid #70ad47;
-                }
-                
                 /* Título principal de la tabla si existe */
                 .excel-table .main-title {
                     background-color: #70ad47;
@@ -677,6 +784,170 @@ class ExcelModalEngine {
                     font-size: 12px;
                     text-align: center;
                     padding: 8px;
+                }
+                
+                /* Paleta de colores extendida para diferentes tipos de datos */
+                .excel-table .positive-number {
+                    color: #006600;
+                    background-color: #e6f7e6;
+                }
+                
+                .excel-table .negative-number {
+                    color: #cc0000;
+                    background-color: #ffe6e6;
+                }
+                
+                .excel-table .zero-value {
+                    color: #666666;
+                    background-color: #f0f0f0;
+                }
+                
+                .excel-table .percentage-high {
+                    background-color: #e6f3ff;
+                }
+                
+                .excel-table .percentage-medium {
+                    background-color: #fff2e6;
+                }
+                
+                .excel-table .percentage-low {
+                    background-color: #f2f2f2;
+                }
+                
+                /* Estilos para celdas de totales */
+                .excel-table .total-cell {
+                    background-color: #4472c4 !important;
+                    color: #ffffff !important;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de subtotales */
+                .excel-table .subtotal-cell {
+                    background-color: #70ad47 !important;
+                    color: #ffffff !important;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de notas o comentarios */
+                .excel-table .note-cell {
+                    background-color: #ffffcc;
+                    font-style: italic;
+                    color: #666600;
+                }
+                
+                /* Estilos para celdas de advertencia */
+                .excel-table .warning-cell {
+                    background-color: #fff2cc;
+                    color: #b35c00;
+                }
+                
+                /* Estilos para celdas de error */
+                .excel-table .error-cell {
+                    background-color: #f8cbad;
+                    color: #cc0000;
+                }
+                
+                /* Estilos para celdas de éxito */
+                .excel-table .success-cell {
+                    background-color: #c6e0b4;
+                    color: #006600;
+                }
+                
+                /* Estilos para celdas de información */
+                .excel-table .info-cell {
+                    background-color: #bdd7ee;
+                    color: #003366;
+                }
+                
+                /* Estilos para celdas de fechas */
+                .excel-table .date-cell {
+                    background-color: #e2efd9;
+                    color: #333333;
+                }
+                
+                /* Estilos para celdas de tiempo */
+                .excel-table .time-cell {
+                    background-color: #dbe5f1;
+                    color: #333333;
+                }
+                
+                /* Estilos para celdas de moneda */
+                .excel-table .currency-cell {
+                    background-color: #e2efda;
+                    color: #006600;
+                }
+                
+                /* Estilos para celdas de porcentaje */
+                .excel-table .percentage-cell {
+                    background-color: #fff2cc;
+                    color: #b35c00;
+                }
+                
+                /* Estilos para celdas de texto largo */
+                .excel-table .long-text-cell {
+                    white-space: normal;
+                    word-wrap: break-word;
+                    max-width: 200px;
+                }
+                
+                /* Estilos para celdas de texto corto */
+                .excel-table .short-text-cell {
+                    white-space: nowrap;
+                }
+                
+                /* Estilos para celdas de encabezado secundario */
+                .excel-table .sub-header-cell {
+                    background-color: #a9d18e;
+                    color: #000000;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de pie de tabla */
+                .excel-table .footer-cell {
+                    background-color: #4472c4;
+                    color: #ffffff;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de resumen */
+                .excel-table .summary-cell {
+                    background-color: #d0cece;
+                    color: #000000;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de detalle */
+                .excel-table .detail-cell {
+                    background-color: #ffffff;
+                    color: #000000;
+                }
+                
+                /* Estilos para celdas de categoría */
+                .excel-table .category-cell {
+                    background-color: #c6e0b4;
+                    color: #000000;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de subcategoría */
+                .excel-table .subcategory-cell {
+                    background-color: #e2efda;
+                    color: #000000;
+                    font-weight: normal;
+                }
+                
+                /* Estilos para celdas de grupo */
+                .excel-table .group-cell {
+                    background-color: #a9d18e;
+                    color: #000000;
+                    font-weight: bold;
+                }
+                
+                /* Estilos para celdas de subgrupo */
+                .excel-table .subgroup-cell {
+                    background-color: #c6e0b4;
+                    color: #000000;
+                    font-weight: normal;
                 }
             </style>
         `;
@@ -711,8 +982,6 @@ class ExcelModalEngine {
         `;
     }
 }
-
-
 
 // Instancia global
 window.ExcelModalEngine = new ExcelModalEngine();
