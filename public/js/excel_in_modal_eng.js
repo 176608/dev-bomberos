@@ -461,76 +461,159 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener estilos CSS para las tablas (MEJORADO Y COMPACTO)
+     * Obtener estilos CSS para las tablas - ACTUALIZADO CON ESTÉTICA EXCEL ORIGINAL
      */
     getTableStyles() {
         return `
             <style>
                 .excel-table {
                     font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-                    font-size: 12px;
+                    font-size: 11px;
                     border-collapse: collapse;
                     width: auto !important;
-                    box-shadow: 0 2px 4px rgba(20, 19, 19, 0.2);
-                    border-radius: 8px;
-                    overflow: hidden;
+                    background-color: #ffffff;
+                    border: 1px solid #70ad47;
                 }
+                
                 .excel-table th, .excel-table td {
-                    padding: 8px 12px;
+                    padding: 4px 8px;
                     text-align: center;
                     vertical-align: middle;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    border: 1px solid #ac9d9dff;
-                    transition: background-color 0.3s ease, border-color 0.3s ease;
+                    border: 1px solid #70ad47;
+                    line-height: 1.2;
                 }
-                .excel-table th {
-                    background-color: #eeb2b2ff;
+                
+                /* Estilos para headers principales (títulos) - Verde más oscuro */
+                .excel-table .header-row th {
+                    background-color: #70ad47;
+                    color: #ffffff;
                     font-weight: bold;
-                    color: #333;
-                    border-top-left-radius: 8px;
-                    border-top-right-radius: 8px;
+                    text-align: center;
                 }
+                
+                /* Estilos para sub-headers - Verde medio */
+                .excel-table .header-row:nth-child(2) th,
+                .excel-table tr:nth-child(2) th {
+                    background-color: #92c5f7;
+                    color: #000000;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                
+                /* Celdas de datos regulares - Verde muy claro */
                 .excel-table td {
-                    background-color: #e7a0a0ff;
+                    background-color: #e2efda;
+                    color: #000000;
                 }
-                /* Efecto hover */
-                .excel-table tbody tr:hover {
-                    background-color: #83b0ddff;
-                    border-color: #464040ff;
+                
+                /* Celdas de categorías/conceptos (primera columna) */
+                .excel-table td:first-child {
+                    background-color: #c6e0b4;
+                    font-weight: bold;
+                    text-align: left;
+                    padding-left: 12px;
                 }
-                .excel-table tbody tr:hover td {
-                    background-color: #a85c5cff;
-                }
-                /* Diferenciar tipos de datos */
-                .excel-table .text-cell {
-                    background-color: #7cd4b3ff;
-                }
+                
+                /* Números - alineación a la derecha */
                 .excel-table .number-cell {
-                    background-color: #74bb86ff;
                     text-align: right;
+                    background-color: #e2efda;
                 }
-                .excel-table .percentage-cell {
-                    background-color: #be8686ff;
-                    text-align: right;
+                
+                /* Celdas de texto - alineación centrada */
+                .excel-table .text-cell {
+                    text-align: center;
+                    background-color: #e2efda;
                 }
-                .excel-table .header-row {
-                    background-color: #5a8f9cff;
+                
+                /* Filas de totales/subtotales */
+                .excel-table .footer-row td,
+                .excel-table .total-row td {
+                    background-color: #c6e0b4;
+                    font-weight: bold;
+                    border-top: 2px solid #70ad47;
                 }
-                .excel-table .footer-row {
-                    background-color: #456e97ff;
-                }
+                
+                /* Celdas combinadas - mismo color que el contexto */
                 .excel-table .merged-cell {
-                    background-color: #846688ff;
+                    background-color: inherit;
+                    font-weight: bold;
+                    text-align: center;
                 }
+                
+                /* Filas alternas para mejor legibilidad */
+                .excel-table tbody tr:nth-child(even) td {
+                    background-color: #f2f8ec;
+                }
+                
+                .excel-table tbody tr:nth-child(even) td:first-child {
+                    background-color: #d4e6c7;
+                }
+                
+                /* Hover effect sutil */
+                .excel-table tbody tr:hover td {
+                    background-color: #d5e8d4 !important;
+                    transition: background-color 0.2s ease;
+                }
+                
+                /* Estilos específicos para fuente y notas */
+                .excel-table .source-row,
+                .excel-table .note-row {
+                    font-size: 9px;
+                    font-style: italic;
+                    background-color: #f8f9fa !important;
+                    border-top: 1px solid #70ad47;
+                }
+                
+                .excel-table .source-row td,
+                .excel-table .note-row td {
+                    text-align: left;
+                    padding: 6px 8px;
+                    background-color: transparent;
+                    font-weight: normal;
+                }
+                
+                /* Contenedor */
                 .excel-viewer-container {
-                    max-height: 75vh;
+                    max-height: 80vh;
                     overflow-y: auto;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(20, 19, 19, 0.16);
+                    padding: 15px;
+                    background-color: #ffffff;
+                    border: 1px solid #d4d4d4;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                
+                .excel-table-wrapper {
+                    width: fit-content;
+                    max-width: 100%;
+                    overflow-x: auto;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                }
+                
+                /* Ajustes para celdas vacías */
+                .excel-table .empty-cell {
+                    background-color: #f8f9fa;
+                }
+                
+                /* Estilos para bordes más definidos en tablas complejas */
+                .excel-table.complex-table th,
+                .excel-table.complex-table td {
+                    border: 1px solid #70ad47;
+                }
+                
+                /* Título principal de la tabla si existe */
+                .excel-table .main-title {
+                    background-color: #70ad47;
+                    color: #ffffff;
+                    font-weight: bold;
+                    font-size: 12px;
+                    text-align: center;
+                    padding: 8px;
                 }
             </style>
         `;
