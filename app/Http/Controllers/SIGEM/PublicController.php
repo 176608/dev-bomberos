@@ -615,7 +615,9 @@ class PublicController extends Controller
     }
 
     /**
-     * Obtener información de un cuadro estadístico y su archivo Excel
+     * Obtener información básica de un cuadro estadístico y su archivo Excel
+     * @param int $cuadro_id ID del cuadro estadístico
+     * @return \Illuminate\Http\JsonResponse
      */
     public function obtenerExcelCuadro($cuadro_id)
     {
@@ -630,32 +632,49 @@ class PublicController extends Controller
                 ], 404);
             }
             
-            // Verificar si tiene archivo Excel asociado
-            $tieneExcel = !empty($cuadro->excel_file);
+            // Información básica sobre la ruta del archivo
+            $nombreArchivo = $cuadro->excel_file;
+            $tieneExcel = !empty($nombreArchivo);
             
-            // Verificar si el archivo existe físicamente
-            $archivoExiste = false;
-            $excelUrl = "";
+            // Construir diferentes versiones de la URL para depuración
+            $urlBase = url('/');
+            $urlBasePublic = url('/public');
+            $urlUExcel = url('/u_excel');
+            $urlPublicUExcel = url('/public/u_excel');
             
-            if ($tieneExcel) {
-                $rutaArchivo = public_path('u_excel/' . $cuadro->excel_file);
-                $archivoExiste = file_exists($rutaArchivo);
-                $excelUrl = asset('u_excel/' . $cuadro->excel_file);
-            }
+            // URL basada en asset()
+            $urlAsset = asset('u_excel/' . $nombreArchivo);
             
-            // Devolver la información del cuadro
+            // Verificar si el archivo existe físicamente en diferentes ubicaciones
+            $rutaPublic = public_path('u_excel/' . $nombreArchivo);
+            $existeEnPublic = file_exists($rutaPublic);
+            
+            // Probar una ruta alternativa relativa al documento raíz del servidor
+            $rutaDocumentRoot = $_SERVER['DOCUMENT_ROOT'] . '/u_excel/' . $nombreArchivo;
+            $existeEnDocRoot = file_exists($rutaDocumentRoot);
+            
+            // Probar otra ubicación común
+            $rutaAlt = base_path('../public/u_excel/' . $nombreArchivo);
+            $existeEnAlt = file_exists($rutaAlt);
+            
+            // Devolver todas las posibles rutas para depuración
             return response()->json([
                 'success' => true,
-                'cuadro' => $cuadro,
+                'cuadro' => [
+                    'id' => $cuadro->cuadro_estadistico_id,
+                    'codigo' => $cuadro->codigo_cuadro,
+                    'titulo' => $cuadro->cuadro_estadistico_titulo
+                ],
+                'nombre_archivo' => $nombreArchivo,
                 'tiene_excel' => $tieneExcel,
-                'archivo_existe' => $archivoExiste,
-                'excel_url' => $excelUrl,
-                'nombre_archivo' => $cuadro->excel_file
+                'excel_url' => $urlAsset,
+                'archivo_existe' => $existeEnPublic
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener información del cuadro: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ], 500);
         }
     }
