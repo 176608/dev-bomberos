@@ -103,11 +103,19 @@ class ExcelModalEngine {
     }
 
     /**
-     * Crear tabla HTML con formato preservado
+     * Crear tabla HTML con formato preservado y optimizada
      */
     createFormattedTable(worksheet, workbook) {
         const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
         const mergedCells = worksheet['!merges'] || [];
+        
+        // 1. PRIMERO: Determinar el rango útil (eliminar filas/columnas completamente vacías)
+        const usefulRange = this.calculateUsefulRange(worksheet, range);
+        console.log('Rango útil calculado:', usefulRange);
+        
+        // 2. SEGUNDO: Calcular anchos de columnas basado en contenido
+        const columnWidths = this.calculateColumnWidths(worksheet, usefulRange, workbook);
+        console.log('Anchos de columnas calculados:', columnWidths);
         
         // Mapear celdas combinadas
         const mergedCellsMap = this.createMergedCellsMap(mergedCells);
@@ -115,11 +123,20 @@ class ExcelModalEngine {
         let html = '<table class="table excel-table table-bordered">';
         let dynamicStyles = [];
         
-        for (let r = range.s.r; r <= range.e.r; r++) {
-            const rowClasses = this.getRowClasses(r, range.e.r);
+        // Agregar estilos de ancho de columnas
+        html += '<colgroup>';
+        for (let c = usefulRange.s.c; c <= usefulRange.e.c; c++) {
+            const width = columnWidths[c] || 100;
+            html += `<col style="width: ${width}px; min-width: ${width}px;">`;
+        }
+        html += '</colgroup>';
+        
+        // Generar filas usando el rango útil
+        for (let r = usefulRange.s.r; r <= usefulRange.e.r; r++) {
+            const rowClasses = this.getRowClasses(r, usefulRange.e.r);
             html += `<tr class="${rowClasses}">`;
             
-            for (let c = range.s.c; c <= range.e.c; c++) {
+            for (let c = usefulRange.s.c; c <= usefulRange.e.c; c++) {
                 const cellKey = `${r}_${c}`;
                 const mergeInfo = mergedCellsMap[cellKey];
                 
@@ -166,7 +183,80 @@ class ExcelModalEngine {
     }
 
     /**
-     * Procesar datos y formato de una celda individual
+     * Calcular el rango útil eliminando filas y columnas completamente vacías
+     */
+    calculateUsefulRange(worksheet, originalRange) {
+        let minRow = originalRange.e.r;
+        let maxRow = originalRange.s.r;
+        let minCol = originalRange.e.c;
+        let maxCol = originalRange.s.c;
+        
+        // Recorrer todas las celdas para encontrar las que tienen contenido
+        for (let r = originalRange.s.r; r <= originalRange.e.r; r++) {
+            for (let c = originalRange.s.c; c <= originalRange.e.c; c++) {
+                const cellRef = XLSX.utils.encode_cell({ r, c });
+                const cell = worksheet[cellRef];
+                
+                // Si la celda tiene contenido (no está vacía)
+                if (cell && cell.v !== undefined && cell.v !== null && cell.v !== '') {
+                    minRow = Math.min(minRow, r);
+                    maxRow = Math.max(maxRow, r);
+                    minCol = Math.min(minCol, c);
+                    maxCol = Math.max(maxCol, c);
+                }
+            }
+        }
+        
+        // Si no se encontró contenido, usar el rango original
+        if (minRow > maxRow || minCol > maxCol) {
+            return originalRange;
+        }
+        
+        return {
+            s: { r: minRow, c: minCol },
+            e: { r: maxRow, c: maxCol }
+        };
+    }
+
+    /**
+     * Calcular anchos de columnas basado en el contenido
+     */
+    calculateColumnWidths(worksheet, range, workbook) {
+        const columnWidths = {};
+        const minWidth = 50;  // Ancho mínimo
+        const maxWidth = 300; // Ancho máximo
+        const paddingFactor = 8; // Factor para calcular pixels por caracter
+        
+        for (let c = range.s.c; c <= range.e.c; c++) {
+            let maxContentLength = 0;
+            
+            // Revisar todas las celdas de esta columna
+            for (let r = range.s.r; r <= range.e.r; r++) {
+                const cellRef = XLSX.utils.encode_cell({ r, c });
+                const cell = worksheet[cellRef];
+                
+                if (cell && cell.v !== undefined && cell.v !== null) {
+                    // Obtener el valor formateado para medir su longitud
+                    const displayValue = this.formatCellValue(cell);
+                    const contentLength = displayValue.toString().length;
+                    maxContentLength = Math.max(maxContentLength, contentLength);
+                }
+            }
+            
+            // Calcular ancho en pixels
+            let calculatedWidth = maxContentLength * paddingFactor + 20; // +20 para padding
+            
+            // Aplicar límites mínimo y máximo
+            calculatedWidth = Math.max(minWidth, Math.min(maxWidth, calculatedWidth));
+            
+            columnWidths[c] = calculatedWidth;
+        }
+        
+        return columnWidths;
+    }
+
+    /**
+     * Procesar datos y formato de una celda individual (MEJORADO)
      */
     processCellData(cell, cellRef, workbook) {
         let displayValue = '';
@@ -174,8 +264,9 @@ class ExcelModalEngine {
         let customStyle = '';
         let hasCustomStyle = false;
         
-        if (!cell) {
-            return { displayValue, classes, customStyle, hasCustomStyle };
+        // Si no hay celda o está vacía, retornar celda vacía
+        if (!cell || cell.v === undefined || cell.v === null || cell.v === '') {
+            return { displayValue: '&nbsp;', classes: ['empty-cell'], customStyle, hasCustomStyle };
         }
         
         // Procesar valor de la celda
@@ -193,120 +284,21 @@ class ExcelModalEngine {
         if (cell.t === 'n') {
             classes.push('number-cell');
         } else {
-            classes.push('center-cell');
+            classes.push('text-cell');
         }
         
         return { displayValue, classes, customStyle, hasCustomStyle };
     }
 
     /**
-     * Formatear valor de celda según su tipo y formato
-     */
-    formatCellValue(cell) {
-        if (cell.v === undefined || cell.v === null) {
-            return '';
-        }
-        
-        if (cell.t === 'n' && cell.v !== undefined) {
-            // Número - formatear según el formato definido
-            if (cell.z) {
-                if (cell.z.includes('%')) {
-                    return (cell.v * 100).toFixed(2) + '%';
-                } else if (cell.z.includes('$')) {
-                    return '$' + cell.v.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                } else if (cell.z.includes(',')) {
-                    return cell.v.toLocaleString();
-                }
-            }
-            return cell.v.toString();
-        }
-        
-        return cell.v.toString();
-    }
-
-    /**
-     * Extraer estilos CSS de una celda Excel
-     */
-    extractCellStyles(cellStyle) {
-        let cssArray = [];
-        let classes = [];
-        
-        // Fuente
-        if (cellStyle.font) {
-            if (cellStyle.font.bold) {
-                cssArray.push('font-weight: bold');
-            }
-            if (cellStyle.font.italic) {
-                cssArray.push('font-style: italic');
-            }
-            if (cellStyle.font.underline) {
-                cssArray.push('text-decoration: underline');
-            }
-            if (cellStyle.font.sz) {
-                cssArray.push(`font-size: ${cellStyle.font.sz}px`);
-            }
-            if (cellStyle.font.color && cellStyle.font.color.rgb) {
-                cssArray.push(`color: #${cellStyle.font.color.rgb}`);
-            }
-        }
-        
-        // Alineación
-        if (cellStyle.alignment) {
-            if (cellStyle.alignment.horizontal) {
-                cssArray.push(`text-align: ${cellStyle.alignment.horizontal}`);
-            }
-            if (cellStyle.alignment.vertical) {
-                cssArray.push(`vertical-align: ${cellStyle.alignment.vertical}`);
-            }
-        }
-        
-        // Fondo
-        if (cellStyle.fill && cellStyle.fill.fgColor && cellStyle.fill.fgColor.rgb) {
-            cssArray.push(`background-color: #${cellStyle.fill.fgColor.rgb}`);
-        }
-        
-        // Bordes (simplificado)
-        if (cellStyle.border) {
-            classes.push('custom-border');
-        }
-        
-        return {
-            cssString: cssArray.join('; '),
-            classes: classes,
-            hasStyles: cssArray.length > 0
-        };
-    }
-
-    /**
-     * Crear mapa de celdas combinadas
-     */
-    createMergedCellsMap(mergedCells) {
-        const map = {};
-        mergedCells.forEach(merge => {
-            for (let r = merge.s.r; r <= merge.e.r; r++) {
-                for (let c = merge.s.c; c <= merge.e.c; c++) {
-                    map[`${r}_${c}`] = {
-                        isMaster: r === merge.s.r && c === merge.s.c,
-                        rowspan: merge.e.r - merge.s.r + 1,
-                        colspan: merge.e.c - merge.s.c + 1,
-                        merge: merge
-                    };
-                }
-            }
-        });
-        return map;
-    }
-
-    /**
-     * Obtener clases CSS para una fila
+     * Obtener clases CSS para una fila (MEJORADO)
      */
     getRowClasses(rowIndex, lastRowIndex) {
-        if (rowIndex <= 1) return 'header-row';
+        // Solo la primera fila es header
+        if (rowIndex === 0) return 'header-row';
+        // Solo la última fila es footer si tiene datos especiales
         if (rowIndex === lastRowIndex) return 'footer-row';
-        return '';
+        return 'data-row';
     }
 
     /**
@@ -349,49 +341,66 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener estilos CSS para las tablas
+     * Obtener estilos CSS para las tablas (MEJORADO Y COMPACTO)
      */
     getTableStyles() {
         return `
             <style>
                 .excel-table {
-                    font-size: 12px;
+                    font-size: 11px;
                     border-collapse: collapse;
-                    width: 100%;
-                    font-family: Arial, sans-serif;
+                    width: auto !important;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    table-layout: fixed;
                 }
                 .excel-table th, .excel-table td {
-                    border: 1px solid #ddd;
-                    padding: 4px 8px;
+                    border: 1px solid #c0c0c0;
+                    padding: 2px 4px;
                     text-align: center;
                     vertical-align: middle;
                     white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    line-height: 1.2;
                 }
                 .excel-table .header-row {
-                    background-color: #f8f9fa;
+                    background-color: #e7e6e6;
                     font-weight: bold;
+                    color: #000;
                 }
                 .excel-table .footer-row {
-                    background-color: #f1f3f4;
+                    background-color: #f5f5f5;
                     font-weight: bold;
-                    border-top: 2px solid #495057;
+                    border-top: 2px solid #333;
+                }
+                .excel-table .data-row {
+                    background-color: #fff;
                 }
                 .excel-table .number-cell {
                     text-align: right;
                 }
-                .excel-table .center-cell {
-                    text-align: center;
+                .excel-table .text-cell {
+                    text-align: left;
+                }
+                .excel-table .empty-cell {
+                    background-color: #fafafa;
                 }
                 .excel-table .custom-border {
                     border: 2px solid #000;
                 }
                 .excel-viewer-container {
-                    max-height: 70vh;
+                    max-height: 75vh;
                     overflow-y: auto;
                 }
                 .excel-table-wrapper {
+                    width: fit-content;
                     max-width: 100%;
                     overflow-x: auto;
+                    margin: 0 auto;
+                }
+                /* Hover effect para mejor UX */
+                .excel-table tbody tr:hover {
+                    background-color: #f8f9fa;
                 }
             </style>
         `;
