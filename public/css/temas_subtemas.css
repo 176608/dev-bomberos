@@ -1,0 +1,472 @@
+/* Estilos necesarios */
+.subtema-nav-item {
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px;
+}
+
+/* Estilos para la imagen del subtema */
+.subtema-image-container {
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+.subtema-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
+}
+
+/* Estilos para el texto del subtema */
+.subtema-texto {
+    padding: 0.75rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.subtema-texto h6 {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 0;
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+/* Efecto hover */
+.subtema-nav-item:hover {
+    background-color: rgba(77, 150, 80, 0.1);
+}
+
+.subtema-nav-item:hover .subtema-image {
+    transform: scale(0.80);
+}
+
+/* Estado activo */
+.subtema-nav-item.active {
+    background-color: rgba(77, 150, 80, 0.1);
+    border-left: 4px solid #0b584fff;
+}
+
+/* ======== ESTILOS PARA SIDEBAR COLAPSADO ======== */
+/* Cambios para cuando el sidebar está colapsado */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+    position: relative;
+    /*left: 1px;  Pequeño ajuste para centrar en el sidebar colapsado */
+}
+
+/* Ocultar la estructura de columnas cuando está colapsado */
+.sidebar-mini .subtema-nav-item .row {
+    flex-direction: column;
+}
+
+/* Ajuste mejorado para el contenedor de imagen cuando el sidebar está colapsado */
+.sidebar-mini .subtema-image-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    /*left: -1px; Pequeño ajuste para alinear con el diseño */
+}
+
+/* Ajuste para la imagen cuando el sidebar está colapsado */
+.sidebar-mini .subtema-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    position: relative;
+    left: 0;
+    top: 0;
+    object-position: right center;
+}
+
+/* Ajuste para el placeholder cuando no hay imagen */
+.sidebar-mini .no-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: relative;
+    /*left: -1px;  Pequeño ajuste para alinear con el diseño */
+}
+
+/* Tooltip para modo colapsado */
+.sidebar-mini .subtema-nav-item {
+    position: relative;
+}
+
+/* Efecto visual para item activo */
+.subtema-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #0c7912;
+    opacity: 1;
+    z-index: 3;
+}
+
+.sidebar-mini .subtema-nav-item.active::before {
+    width: 100%;
+    height: 4px;
+    top: 0;
+    left: 0;
+    background-color: #0c7912;
+    opacity: 0.4;
+}
+
+/* Ajustes para cuando el sidebar está colapsado */
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    padding: 0;
+}
+
+.sidebar-mini .subtema-content-overlay {
+    justify-content: center;
+    background-color: rgba(41, 35, 35, 0.09);
+}
+
+/* Efecto visual mejorado */
+.subtema-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.subtema-nav-item:hover::before {
+    opacity: 1;
+}
+
+.subtema-nav-item.active::before {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(84, 151, 99, 0.72), transparent);
+}
+
+/* Asegurar que texto sea legible */
+.subtema-texto h6 {
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.cuadros-lista {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.cuadro-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cuadro-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Estilos para el sidebar colapsable */
+.transition-width {
+    transition: all 0.3s ease;
+}
+
+/* Estado colapsado del sidebar */
+#sidebar-subtemas.sidebar-mini {
+    flex: 0 0 auto;
+    width: 60px;
+    overflow: hidden;
+}
+
+#contenido-principal.content-expanded {
+    flex: 0 0 auto;
+    width: calc(100% - 60px);
+}
+
+/* Ajustes para elementos del sidebar cuando está colapsado */
+.sidebar-mini .sidebar-title {
+    display: none;
+}
+
+.sidebar-mini .sidebar-content {
+    overflow: hidden;
+}
+
+.sidebar-mini .subtema-texto {
+    display: none;
+}
+
+.sidebar-mini .subtema-nav-item {
+    padding: 15px 0;
+    justify-content: center;
+}
+
+.sidebar-mini .subtema-icon {
+    margin: 0;
+    width: 30px;
+    height: 30px;
+}
+
+/* Estilo para el botón de toggle cuando está colapsado */
+.sidebar-mini #toggle-sidebar {
+    position: absolute;
+    right: -15px;
+    top: 10px;
+    z-index: 10;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-color: #0c7912ff;
+    color: #157415ff;
+}
+
+.sidebar-mini #toggle-sidebar i {
+    transform: rotate(180deg);
+}
+
+/* Estilos específicos para el botón de colapso */
+.btn-collapse {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.btn-collapse:hover {
+    background-color: rgba(25, 138, 76, 0.44);
+    transform: scale(1.1);
+}
+
+/* Estilo para el botón cuando el sidebar está colapsado */
+.sidebar-mini .btn-collapse {
+    position: absolute;
+    right: -16px;
+    top: 10px;
+    background-color: #168036ff;
+    border: 2px solid white;
+    color: white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-mini .btn-collapse i {
+    transform: rotate(180deg);
+}
+
+/* Estilos para el botón unificado de toggle del sidebar */
+.btn-toggle-sidebar {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #0b9936ff;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 1050; /* Valor muy alto */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    top: 15px;
+    right: -18px; /* Un poco más hacia afuera */
+}
+
+/* Estilos mejorados para el botón toggle */
+.toggle-button-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    z-index: 1000; /* Valor muy alto para superar cualquier otro elemento */
+}
+
+.btn-toggle-sidebar-fixed {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #0c5716ff;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    right: -18px;
+    top: 15px;
+}
+
+.btn-toggle-sidebar-fixed:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(40, 182, 123, 0.5);
+}
+
+/* Cuando el sidebar está colapsado, el icono rota */
+.sidebar-mini .btn-toggle-sidebar-fixed i {
+    transform: rotate(180deg);
+}
+
+/* Asegurarse que el sidebar no corta el botón */
+#sidebar-subtemas {
+    position: relative;
+    overflow: visible !important; /* Importante para que el botón no se corte */
+}
+
+/* Asegurarse que el botón no es afectado por cambios en el sidebar */
+.sidebar-mini .btn-toggle-sidebar-fixed {
+    right: -18px; /* Mantener misma posición cuando está colapsado */
+}
+
+/* Asegurar que el botón siempre esté visible y por encima de otros elementos */
+.btn-toggle-sidebar-fixed {
+    z-index: 50;
+}
+
+/* Asegurar que los modales estén por encima de todo */
+.modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* Hacer que el fondo del modal sea más oscuro para destacarlo mejor */
+.modal-backdrop.show {
+    opacity: 0.7;
+}
+
+/* Asegurar que el contenido del modal no se desborde */
+.modal-content {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+/* Estilos para la tabla Excel */
+.excel-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.excel-table td {
+    padding: 6px 8px;
+    border: 1px solid #dee2e6;
+    min-width: 50px;
+}
+
+.excel-table .empty-cell {
+    background-color: #f9f9f9;
+}
+
+.excel-viewer-container {
+    overflow-x: auto;
+    max-height: 70vh;
+}
+
+/* Estilos para la visualización de Excel */
+.excel-viewer-container {
+    background-color: #fff;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.excel-table-wrapper {
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.excel-table {
+    margin-bottom: 0;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.excel-table td, .excel-table th {
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    font-size: 0.9rem;
+}
+
+/* Mejorar visualización de celdas */
+.excel-table td:empty {
+    height: 22px;
+    min-width: 40px;
+    background-color: #f9f9f9;
+}
+
+/* Estilos adicionales para el modal */
+.modal-xl {
+    max-width: 90%;
+}
+
+/* Media query para pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .excel-table td, .excel-table th {
+        padding: 4px;
+        font-size: 0.8rem;
+    }
+}

@@ -615,12 +615,12 @@ class PublicController extends Controller
     }
 
     /**
-     * Obtener información del cuadro estadístico y su archivo Excel
+     * Obtener información de un cuadro estadístico y su archivo Excel
      */
     public function obtenerExcelCuadro($cuadro_id)
     {
         try {
-            // Obtener el cuadro estadístico por su ID
+            // Obtener el cuadro estadístico
             $cuadro = CuadroEstadistico::find($cuadro_id);
             
             if (!$cuadro) {
@@ -630,28 +630,26 @@ class PublicController extends Controller
                 ], 404);
             }
             
-            // Verificar si tiene un archivo Excel asociado
-            if (empty($cuadro->excel_file)) {
-                return response()->json([
-                    'success' => true,
-                    'cuadro' => $cuadro,
-                    'tiene_excel' => false,
-                    'message' => 'Este cuadro no tiene un archivo Excel asociado'
-                ]);
-            }
+            // Verificar si tiene archivo Excel asociado
+            $tieneExcel = !empty($cuadro->excel_file);
             
-            // Construir ruta al archivo Excel - Siempre en la carpeta u_excel
-            $excelFilePath = 'u_excel/' . $cuadro->excel_file;
-            $fullPath = public_path($excelFilePath);
-            $archivoExiste = file_exists($fullPath);
+            // Verificar si el archivo existe físicamente
+            $archivoExiste = false;
+            $excelUrl = "";
+            
+            if ($tieneExcel) {
+                $rutaArchivo = public_path('u_excel/' . $cuadro->excel_file);
+                $archivoExiste = file_exists($rutaArchivo);
+                $excelUrl = asset('u_excel/' . $cuadro->excel_file);
+            }
             
             // Devolver la información del cuadro
             return response()->json([
                 'success' => true,
                 'cuadro' => $cuadro,
-                'tiene_excel' => true,
+                'tiene_excel' => $tieneExcel,
                 'archivo_existe' => $archivoExiste,
-                'excel_url' => asset($excelFilePath),
+                'excel_url' => $excelUrl,
                 'nombre_archivo' => $cuadro->excel_file
             ]);
         } catch (\Exception $e) {
