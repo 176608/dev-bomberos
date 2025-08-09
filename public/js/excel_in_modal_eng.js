@@ -166,7 +166,7 @@ class ExcelModalEngine {
                     cellData.hasCustomStyle ? styleId : ''
                 ].filter(Boolean).join(' ');
                 
-                html += `<${tag} class="${classes}"${mergeAttrs}>${cellData.displayValue}</${tag}>`;
+                html += `<${tag} class="${classes}" style="${cellData.customStyle}"${mergeAttrs}>${cellData.displayValue}</${tag}>`;
             }
             
             html += '</tr>';
@@ -359,9 +359,28 @@ class ExcelModalEngine {
             cssArray.push(`background-color: #${cellStyle.fill.fgColor.rgb}`);
         }
         
-        // Bordes (simplificado)
+        // Bordes
         if (cellStyle.border) {
-            classes.push('custom-border');
+            if (cellStyle.border.top && cellStyle.border.top.style) {
+                const borderColor = cellStyle.border.top.color && cellStyle.border.top.color.rgb ? 
+                    `#${cellStyle.border.top.color.rgb}` : '#000000';
+                cssArray.push(`border-top: 1px solid ${borderColor}`);
+            }
+            if (cellStyle.border.right && cellStyle.border.right.style) {
+                const borderColor = cellStyle.border.right.color && cellStyle.border.right.color.rgb ? 
+                    `#${cellStyle.border.right.color.rgb}` : '#000000';
+                cssArray.push(`border-right: 1px solid ${borderColor}`);
+            }
+            if (cellStyle.border.bottom && cellStyle.border.bottom.style) {
+                const borderColor = cellStyle.border.bottom.color && cellStyle.border.bottom.color.rgb ? 
+                    `#${cellStyle.border.bottom.color.rgb}` : '#000000';
+                cssArray.push(`border-bottom: 1px solid ${borderColor}`);
+            }
+            if (cellStyle.border.left && cellStyle.border.left.style) {
+                const borderColor = cellStyle.border.left.color && cellStyle.border.left.color.rgb ? 
+                    `#${cellStyle.border.left.color.rgb}` : '#000000';
+                cssArray.push(`border-left: 1px solid ${borderColor}`);
+            }
         }
         
         return {
@@ -451,11 +470,12 @@ class ExcelModalEngine {
                     font-size: 11px;
                     border-collapse: collapse;
                     width: auto !important;
-                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
                     table-layout: fixed;
+                    margin: 0 auto;
                 }
                 .excel-table th, .excel-table td {
-                    border: 1px solid #c0c0c0;
+                    border: 1px solid #000000;
                     padding: 2px 4px;
                     text-align: center;
                     vertical-align: middle;
@@ -463,19 +483,20 @@ class ExcelModalEngine {
                     overflow: hidden;
                     text-overflow: ellipsis;
                     line-height: 1.2;
+                    position: relative;
                 }
                 .excel-table .header-row {
-                    background-color: #e7e6e6;
+                    background-color: #d9d9d9;
                     font-weight: bold;
-                    color: #000;
+                    color: #000000;
                 }
                 .excel-table .footer-row {
-                    background-color: #f5f5f5;
+                    background-color: #f2f2f2;
                     font-weight: bold;
-                    border-top: 2px solid #333;
+                    border-top: 2px solid #000000;
                 }
                 .excel-table .data-row {
-                    background-color: #fff;
+                    background-color: #ffffff;
                 }
                 .excel-table .number-cell {
                     text-align: right;
@@ -486,22 +507,31 @@ class ExcelModalEngine {
                 .excel-table .empty-cell {
                     background-color: #fafafa;
                 }
-                .excel-table .custom-border {
-                    border: 2px solid #000;
-                }
                 .excel-viewer-container {
                     max-height: 75vh;
                     overflow-y: auto;
+                    padding: 10px;
                 }
                 .excel-table-wrapper {
                     width: fit-content;
                     max-width: 100%;
                     overflow-x: auto;
                     margin: 0 auto;
+                    background-color: white;
+                    padding: 10px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    border-radius: 4px;
                 }
                 /* Hover effect para mejor UX */
                 .excel-table tbody tr:hover {
                     background-color: #f8f9fa;
+                }
+                /* Asegurar que las celdas combinadas se muestren correctamente */
+                .excel-table th[rowspan], .excel-table td[rowspan] {
+                    vertical-align: middle;
+                }
+                .excel-table th[colspan], .excel-table td[colspan] {
+                    text-align: center;
                 }
             </style>
         `;
@@ -539,3 +569,94 @@ class ExcelModalEngine {
 
 // Instancia global
 window.ExcelModalEngine = new ExcelModalEngine();
+
+// Función para mostrar modal con Excel (compatibilidad con código existente)
+function mostrarModalCuadroSimple(cuadroId, codigo) {
+    console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
+    
+    // Obtener información del cuadro
+    fetch(`/sigem/obtener-excel-cuadro/${cuadroId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'Error al obtener información del cuadro');
+            }
+            
+            const cuadro = data.cuadro;
+            console.log('Información del cuadro:', cuadro);
+            
+            // Verificar si tiene archivo Excel y si existe físicamente
+            const tieneExcel = data.tiene_excel && data.archivo_existe;
+            const excelUrl = data.excel_url;
+            
+            // Crear modal básico
+            const modalId = `modal_excel_${Date.now()}`;
+            const modalHTML = `
+                <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>
+                                    ${cuadro.codigo_cuadro} - ${cuadro.cuadro_estadistico_titulo}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div id="excel-container-${modalId}" class="p-3">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-success" role="status"></div>
+                                        <p class="mt-3">Cargando archivo Excel...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                ${tieneExcel ? `
+                                    <a href="${excelUrl}" class="btn btn-success" download>
+                                        <i class="bi bi-download me-1"></i>Descargar Excel
+                                    </a>
+                                ` : ''}
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Remover del DOM al cerrar
+            document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
+                document.getElementById(modalId).remove();
+            });
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+            
+            // Cargar Excel en el modal si existe
+            if (tieneExcel) {
+                ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, data.nombre_archivo);
+            } else {
+                // Mostrar mensaje si no hay Excel
+                document.getElementById(`excel-container-${modalId}`).innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        ${data.tiene_excel && !data.archivo_existe ? 
+                          'El archivo Excel asociado no se encuentra en el servidor.' : 
+                          'Este cuadro no tiene un archivo Excel asociado.'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+}
