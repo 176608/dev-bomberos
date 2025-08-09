@@ -291,6 +291,107 @@ class ExcelModalEngine {
     }
 
     /**
+     * Formatear valor de celda según su tipo y formato
+     */
+    formatCellValue(cell) {
+        if (cell.v === undefined || cell.v === null) {
+            return '';
+        }
+        
+        if (cell.t === 'n' && cell.v !== undefined) {
+            // Número - formatear según el formato definido
+            if (cell.z) {
+                if (cell.z.includes('%')) {
+                    return (cell.v * 100).toFixed(2) + '%';
+                } else if (cell.z.includes('$')) {
+                    return '$' + cell.v.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                } else if (cell.z.includes(',')) {
+                    return cell.v.toLocaleString();
+                }
+            }
+            return cell.v.toString();
+        }
+        
+        return cell.v.toString();
+    }
+
+    /**
+     * Extraer estilos CSS de una celda Excel
+     */
+    extractCellStyles(cellStyle) {
+        let cssArray = [];
+        let classes = [];
+        
+        // Fuente
+        if (cellStyle.font) {
+            if (cellStyle.font.bold) {
+                cssArray.push('font-weight: bold');
+            }
+            if (cellStyle.font.italic) {
+                cssArray.push('font-style: italic');
+            }
+            if (cellStyle.font.underline) {
+                cssArray.push('text-decoration: underline');
+            }
+            if (cellStyle.font.sz) {
+                cssArray.push(`font-size: ${cellStyle.font.sz}px`);
+            }
+            if (cellStyle.font.color && cellStyle.font.color.rgb) {
+                cssArray.push(`color: #${cellStyle.font.color.rgb}`);
+            }
+        }
+        
+        // Alineación
+        if (cellStyle.alignment) {
+            if (cellStyle.alignment.horizontal) {
+                cssArray.push(`text-align: ${cellStyle.alignment.horizontal}`);
+            }
+            if (cellStyle.alignment.vertical) {
+                cssArray.push(`vertical-align: ${cellStyle.alignment.vertical}`);
+            }
+        }
+        
+        // Fondo
+        if (cellStyle.fill && cellStyle.fill.fgColor && cellStyle.fill.fgColor.rgb) {
+            cssArray.push(`background-color: #${cellStyle.fill.fgColor.rgb}`);
+        }
+        
+        // Bordes (simplificado)
+        if (cellStyle.border) {
+            classes.push('custom-border');
+        }
+        
+        return {
+            cssString: cssArray.join('; '),
+            classes: classes,
+            hasStyles: cssArray.length > 0
+        };
+    }
+
+    /**
+     * Crear mapa de celdas combinadas
+     */
+    createMergedCellsMap(mergedCells) {
+        const map = {};
+        mergedCells.forEach(merge => {
+            for (let r = merge.s.r; r <= merge.e.r; r++) {
+                for (let c = merge.s.c; c <= merge.e.c; c++) {
+                    map[`${r}_${c}`] = {
+                        isMaster: r === merge.s.r && c === merge.s.c,
+                        rowspan: merge.e.r - merge.s.r + 1,
+                        colspan: merge.e.c - merge.s.c + 1,
+                        merge: merge
+                    };
+                }
+            }
+        });
+        return map;
+    }
+
+    /**
      * Obtener clases CSS para una fila (MEJORADO)
      */
     getRowClasses(rowIndex, lastRowIndex) {
