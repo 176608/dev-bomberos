@@ -423,44 +423,257 @@ document.addEventListener('verCuadroEstadistico', function(event) {
     mostrarModalCuadroSimple(cuadroId, codigo);
 });
 
-
-/*
-Imprime el MODAL
-*/
-
-
-// Función simplificada para mostrar en consola la URL del archivo
+// FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
 function mostrarModalCuadroSimple(cuadroId, codigo) {
-    console.log(`Debug: Mostrando información para cuadro ID=${cuadroId}, Código=${codigo}`);
+    console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
     
-    // Obtener el objeto del cuadro directamente de la base de datos
+    // Obtener información del cuadro
     fetch(`{{ url('/sigem/obtener-excel-cuadro') }}/${cuadroId}`)
         .then(response => {
             console.log('Status de respuesta:', response.status);
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            }
             return response.json();
         })
         .then(data => {
             console.log('Datos recibidos del servidor:', data);
             
-            if (data.success) {
-                // Mostrar detalles del archivo en la consola
-                console.log('URL base del sitio:', window.location.origin);
-                console.log('URL base para archivos estáticos:', '{{ asset("") }}');
-                console.log('URL completa del Excel:', data.excel_url);
-                
-                // Mostrar mensaje emergente con la ruta
-                alert(`Información del archivo Excel:
-                - Nombre: ${data.nombre_archivo || 'No disponible'}
-                - URL: ${data.excel_url || 'No disponible'}
-                - Existe físicamente: ${data.archivo_existe ? 'Sí' : 'No'}`);
+            if (!data.success) {
+                throw new Error(data.message || 'Error al obtener información del cuadro');
+            }
+            
+            const cuadro = data.cuadro;
+            console.log('Información del cuadro:', cuadro);
+            
+            // Verificar si tiene archivo Excel y si existe físicamente
+            const tieneExcel = data.tiene_excel && data.archivo_existe;
+            const excelUrl = data.excel_url;
+            
+            // Log de depuración
+            console.log('URL base del sitio:', window.location.origin);
+            console.log('URL base para archivos estáticos:', '{{ asset("") }}');
+            console.log('URL completa del Excel:', data.excel_url);
+            console.log('Archivo existe físicamente:', data.archivo_existe);
+            
+            // Crear modal básico
+            const modalId = `modal_excel_${Date.now()}`;
+            const modalHTML = `
+                <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>
+                                    ${cuadro.codigo_cuadro || 'N/A'} - ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div id="excel-container-${modalId}" class="p-3">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-success" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                        <p class="mt-3">Cargando archivo Excel...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                ${tieneExcel ? `
+                                    <a href="${excelUrl}" class="btn btn-success" download>
+                                        <i class="bi bi-download me-1"></i>Descargar Excel
+                                    </a>
+                                ` : ''}
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Remover del DOM al cerrar
+            document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
+                document.getElementById(modalId).remove();
+            });
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+            
+            // Cargar Excel en el modal si existe
+            if (tieneExcel) {
+                cargarExcelEnModal(modalId, excelUrl, data.nombre_archivo);
             } else {
-                console.error('Error en la respuesta:', data.message);
-                alert('Error: ' + data.message);
+                // Mostrar mensaje si no hay Excel
+                document.getElementById(`excel-container-${modalId}`).innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        ${data.tiene_excel && !data.archivo_existe ? 
+                          'El archivo Excel asociado no se encuentra en el servidor.' : 
+                          'Este cuadro no tiene un archivo Excel asociado.'}
+                    </div>
+                `;
             }
         })
         .catch(error => {
-            console.error('Error en la petición:', error);
-            alert('Error en la petición: ' + error);
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
         });
+}
+
+// Función para cargar y mostrar Excel
+function cargarExcelEnModal(modalId, excelUrl, fileName) {
+    console.log(`Cargando Excel desde: ${excelUrl}`);
+    const excelContainer = document.getElementById(`excel-container-${modalId}`);
+    
+    // Cargar SheetJS si no está disponible
+    if (typeof XLSX === 'undefined') {
+        excelContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-success" role="status"></div>
+                <p class="mt-3">Cargando biblioteca para visualizar Excel...</p>
+            </div>
+        `;
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        script.onload = () => {
+            console.log('SheetJS cargado correctamente');
+            cargarArchivo();
+        };
+        script.onerror = () => {
+            console.error('Error al cargar SheetJS');
+            mostrarError('No se pudo cargar la biblioteca para visualizar Excel');
+        };
+        document.head.appendChild(script);
+    } else {
+        cargarArchivo();
+    }
+    
+    function cargarArchivo() {
+        excelContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-success" role="status"></div>
+                <p class="mt-3">Procesando archivo Excel...</p>
+            </div>
+        `;
+        
+        // Obtener el archivo Excel mediante fetch
+        fetch(excelUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error al cargar el archivo Excel (${response.status})`);
+                }
+                return response.arrayBuffer();
+            })
+            .then(arrayBuffer => {
+                try {
+                    // Procesar el archivo Excel con SheetJS
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Obtener la primera hoja
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Obtener celdas combinadas
+                    const mergedCells = worksheet['!merges'] || [];
+                    
+                    // Crear tabla HTML usando la utilidad de SheetJS
+                    const htmlOptions = { 
+                        sheet: firstSheetName,
+                        header: true
+                    };
+                    
+                    // Obtener el HTML y envolver en contenedor
+                    const htmlString = XLSX.utils.sheet_to_html(worksheet, htmlOptions);
+                    
+                    // Mostrar en el contenedor
+                    excelContainer.innerHTML = `
+                        <div class="excel-viewer-container">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>
+                                    ${fileName || 'Archivo Excel'}
+                                </h5>
+                                <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
+                                    <i class="bi bi-download me-1"></i>Descargar
+                                </a>
+                            </div>
+                            <div class="table-responsive excel-table-wrapper">
+                                ${htmlString}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Aplicar estilos a la tabla generada
+                    const tablaExcel = excelContainer.querySelector('table');
+                    if (tablaExcel) {
+                        // Aplicar clases de Bootstrap
+                        tablaExcel.className = 'table table-bordered excel-table';
+                        
+                        // Procesar las celdas combinadas
+                        aplicarCeldasCombinadas(tablaExcel, mergedCells, worksheet);
+                    }
+                } catch (error) {
+                    console.error('Error al procesar Excel:', error);
+                    mostrarError(`Error al procesar el Excel: ${error.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error en fetch:', error);
+                mostrarError(`Error al cargar el archivo: ${error.message}`);
+            });
+    }
+    
+    function mostrarError(mensaje) {
+        console.error(mensaje);
+        excelContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                ${mensaje}
+            </div>
+            <div class="text-center mt-3">
+                <a href="${excelUrl}" class="btn btn-primary" download>
+                    <i class="bi bi-download me-2"></i>Intentar descargar directamente
+                </a>
+            </div>
+        `;
+    }
+}
+
+// Función auxiliar para aplicar celdas combinadas
+function aplicarCeldasCombinadas(tabla, mergedCells, worksheet) {
+    // Aplicar rowspan y colspan para celdas combinadas
+    mergedCells.forEach(range => {
+        try {
+            const { s: start, e: end } = range;
+            const rowspan = end.r - start.r + 1;
+            const colspan = end.c - start.c + 1;
+            
+            // Si hay más de una fila o columna combinada
+            if (rowspan > 1 || colspan > 1) {
+                // La tabla de SheetJS tiene una fila de encabezado
+                const fila = start.r + 1;
+                const columna = start.c;
+                
+                // Verificar si existe la fila
+                if (tabla.rows[fila]) {
+                    const celda = tabla.rows[fila].cells[columna];
+                    if (celda) {
+                        // Aplicar atributos de combinación
+                        if (rowspan > 1) celda.rowSpan = rowspan;
+                        if (colspan > 1) celda.colSpan = colspan;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Error al aplicar celda combinada:', e);
+        }
+    });
 }
 </script>
