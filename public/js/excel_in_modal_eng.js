@@ -471,7 +471,7 @@ class ExcelModalEngine {
                     font-size: 12px;
                     border-collapse: collapse;
                     width: auto !important;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 2px 4px rgba(20, 19, 19, 0.2);
                     border-radius: 8px;
                     overflow: hidden;
                 }
@@ -482,47 +482,47 @@ class ExcelModalEngine {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    border: 1px solid #e0e0e0;
+                    border: 1px solid #ac9d9dff;
                     transition: background-color 0.3s ease, border-color 0.3s ease;
                 }
                 .excel-table th {
-                    background-color: #f5f5f5;
+                    background-color: #eeb2b2ff;
                     font-weight: bold;
                     color: #333;
                     border-top-left-radius: 8px;
                     border-top-right-radius: 8px;
                 }
                 .excel-table td {
-                    background-color: #ffffff;
+                    background-color: #e7a0a0ff;
                 }
                 /* Efecto hover */
                 .excel-table tbody tr:hover {
-                    background-color: #f8f9fa;
-                    border-color: #c0c0c0;
+                    background-color: #83b0ddff;
+                    border-color: #464040ff;
                 }
                 .excel-table tbody tr:hover td {
-                    background-color: #f2f2f2;
+                    background-color: #a85c5cff;
                 }
                 /* Diferenciar tipos de datos */
                 .excel-table .text-cell {
-                    background-color: #f9f9f9;
+                    background-color: #7cd4b3ff;
                 }
                 .excel-table .number-cell {
-                    background-color: #f2fafd;
+                    background-color: #74bb86ff;
                     text-align: right;
                 }
                 .excel-table .percentage-cell {
-                    background-color: #e6f7ff;
+                    background-color: #be8686ff;
                     text-align: right;
                 }
                 .excel-table .header-row {
-                    background-color: #e9ecef;
+                    background-color: #5a8f9cff;
                 }
                 .excel-table .footer-row {
-                    background-color: #e9ecef;
+                    background-color: #456e97ff;
                 }
                 .excel-table .merged-cell {
-                    background-color: #e0e0e0;
+                    background-color: #846688ff;
                 }
                 .excel-viewer-container {
                     max-height: 75vh;
@@ -530,7 +530,7 @@ class ExcelModalEngine {
                     padding: 10px;
                     border: 1px solid #ccc;
                     border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 2px 4px rgba(20, 19, 19, 0.16);
                 }
             </style>
         `;
