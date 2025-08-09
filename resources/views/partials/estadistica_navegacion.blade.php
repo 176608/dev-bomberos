@@ -57,7 +57,9 @@
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
                                 <div class="col-lg-4 col-md-6 mb-4">
-                                    <div class="card h-100 tema-card" data-tema-id="{{ $tema->tema_id }}">
+                                    <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
+                                       class="card h-100 tema-card text-decoration-none" 
+                                       data-tema-id="{{ $tema->tema_id }}">
                                         <div class="card-header text-center" style="{{ $colorTema }}">
                                             <h5 class="mb-0 fw-bold">
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
@@ -71,11 +73,11 @@
                                             </p>
                                         </div>
                                         <div class="card-footer text-center">
-                                            <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-arrow-right me-1"></i>Explorar tema
-                                            </a>
+                                            <span class="text-success">
+                                                <i class="bi bi-hand-index-thumb me-1"></i>Da click para explorar
+                                            </span>
                                         </div>
-                                    </div>
+                                    </a>
                                 </div>
                             @endforeach
                         </div>
@@ -92,16 +94,43 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
+    display: block; /* Asegura que el enlace ocupe toda la tarjeta */
+    color: inherit; /* Mantiene colores de texto originales */
 }
 
 .tema-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #0d6efd;
+    border-color: #8d247fff;
+    text-decoration: none !important;
 }
 
-.tema-card:hover .card-footer .btn {
-    background-color: #0d6efd;
-    color: white;
+.tema-card .card-footer {
+    transition: background-color 0.3s ease;
+}
+
+.tema-card:hover .card-footer {
+    background-color: #2f5e8dff;
+}
+
+.tema-card .card-footer span {
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.tema-card:hover .card-footer span {
+    color: #1d8d13ff !important;
+    font-weight: bold;
+}
+
+/* Efecto de pulsación al hacer clic */
+.tema-card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Asegura que no se vea como un enlace tradicional */
+.tema-card.text-decoration-none:hover {
+    text-decoration: none !important;
 }
 </style>
