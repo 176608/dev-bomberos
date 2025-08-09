@@ -1,0 +1,1 @@
+Visor crud de la tabla "cuadro_estadistico", que deriva del modelo de "CuadroEstadistico.php"

@@ -2,8 +2,15 @@
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
-use App\Http\Controllers\SIGEM\Controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\SIGEM\Mapa;
+use App\Models\SIGEM\Tema;
+use App\Models\SIGEM\Subtema;
+use App\Models\SIGEM\CuadroEstadistico;
+use App\Models\SIGEM\ce_tema;
+use App\Models\SIGEM\ce_subtema;
+use App\Models\SIGEM\ce_contenido;
 
 class AdminController extends Controller
 {
@@ -21,44 +28,29 @@ class AdminController extends Controller
 
         return view('roles.sigem_admin');
     }
-    
+
+    public function mapas()
+    {
+        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_mapa');
+    }
+
     public function temas()
     {
-        // Gestión de temas (solo admin)
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        
-        return view('sigem.admin.temas');
+        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_tema');
     }
-    
+
     public function subtemas()
     {
-        // Gestión de subtemas (solo admin)
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        
-        return view('sigem.admin.subtemas');
+        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_subtema');
     }
-    
-    public function contenidos()
+
+    public function cuadros()
     {
-        // Gestión de contenidos (solo admin)
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        
-        return view('sigem.admin.contenidos');
+        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_cuadro');
     }
-    
-    public function usuarios()
+
+    public function consultas()
     {
-        // Gestión de usuarios SIGEM (solo admin)
-        if (!auth()->check() || (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador'))) {
-            return redirect()->route('login');
-        }
-        
-        return view('sigem.admin.usuarios');
+        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_consultas');
     }
 }

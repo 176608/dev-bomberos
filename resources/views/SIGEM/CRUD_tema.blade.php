@@ -1,0 +1,1 @@
+Visor crud de la tabla "tema", deriva del modelo de "Tema.php"
