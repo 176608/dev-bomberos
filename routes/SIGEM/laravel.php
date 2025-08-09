@@ -21,7 +21,8 @@ Route::prefix('sigem')->group(function () {
     Route::get('/obtener-info-subtema/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])
         ->name('sigem.ajax.subtema');
 
-    Route::get('/sigem/obtener-excel-cuadro/{cuadro_id}', [PublicController::class, 'obtenerExcelCuadro']);
+    Route::get('/obtener-excel-cuadro/{cuadro_id}', [PublicController::class, 'obtenerExcelCuadro'])
+        ->name('sigem.obtener.excel.cuadro');
 
     // === APIS PARA CONTENIDO DINÁMICO ===
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
