@@ -6,7 +6,7 @@
             <div class="col-md-4 bg-light border-end transition-width" id="sidebar-subtemas">
                 <div class="d-flex flex-column h-100">
                     <!-- Header del Sidebar -->
-                    <div class="p-3 bg-success text-white position-relative">
+                    <div class="p-3 text-white position-relative" style="background-color: #0b584fff;">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 sidebar-title">
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema_seleccionado->tema_titulo }}
@@ -237,7 +237,7 @@
 /* Estado activo */
 .subtema-nav-item.active {
     background-color: rgba(77, 150, 80, 0.1);
-    border-left: 4px solid #0c7912;
+    border-left: 4px solid #0b584fff;
 }
 
 /* ======== ESTILOS PARA SIDEBAR COLAPSADO ======== */
