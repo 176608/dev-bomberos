@@ -452,11 +452,6 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             const tieneExcel = data.tiene_excel && data.archivo_existe;
             const excelUrl = data.excel_url;
             
-            // Log de depuración
-            console.log('URL base del sitio:', window.location.origin);
-            console.log('URL base para archivos estáticos:', '{{ asset("") }}');
-            console.log('URL completa del Excel:', data.excel_url);
-            console.log('Archivo existe físicamente:', data.archivo_existe);
             
             // Crear modal básico
             const modalId = `modal_excel_${Date.now()}`;
@@ -467,7 +462,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
                                     <i class="bi bi-file-earmark-excel me-2"></i>
-                                    ${cuadro.codigo || 'N/A'} - ${cuadro.titulo || 'Sin título'}
+                                    ${cuadro.titulo || 'Sin título'}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
