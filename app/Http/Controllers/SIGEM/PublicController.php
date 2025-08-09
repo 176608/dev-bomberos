@@ -240,47 +240,6 @@ class PublicController extends Controller
     }
 
     /**
-     * FUNCIÓN AJAX: Obtener datos del cuadro
-     */
-    public function obtenerCuadroData($cuadro_id)
-    {
-        try {
-            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
-            
-            if (!$cuadro) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cuadro estadístico no encontrado',
-                    'cuadro' => null
-                ]);
-            }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Cuadro cargado exitosamente',
-                'cuadro' => $cuadro->toArray(),
-                'tema_info' => $cuadro->subtema->tema ?? null,
-                'subtema_info' => $cuadro->subtema ?? null,
-                'debug_info' => [
-                    'cuadro_id' => $cuadro_id,
-                    'timestamp' => now()
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar cuadro: ' . $e->getMessage(),
-                'cuadro' => null,
-                'error_details' => [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ]
-            ]);
-        }
-    }
-
-    /**
      * NUEVA FUNCIÓN: Obtener temas para estadística
      */
     public function obtenerTemasEstadistica()
@@ -611,6 +570,47 @@ class PublicController extends Controller
                 'success' => false,
                 'message' => 'Error al cargar contenido: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * FUNCIÓN AJAX: Obtener datos del cuadro
+     */
+    public function obtenerCuadroData($cuadro_id)
+    {
+        try {
+            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
+            
+            if (!$cuadro) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cuadro estadístico no encontrado',
+                    'cuadro' => null
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Cuadro cargado exitosamente',
+                'cuadro' => $cuadro->toArray(),
+                'tema_info' => $cuadro->subtema->tema ?? null,
+                'subtema_info' => $cuadro->subtema ?? null,
+                'debug_info' => [
+                    'cuadro_id' => $cuadro_id,
+                    'timestamp' => now()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar cuadro: ' . $e->getMessage(),
+                'cuadro' => null,
+                'error_details' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
+            ]);
         }
     }
 

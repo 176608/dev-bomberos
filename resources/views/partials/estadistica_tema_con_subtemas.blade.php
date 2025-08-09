@@ -836,6 +836,8 @@ document.addEventListener('verCuadroEstadistico', function(event) {
     console.log(`Blade: Recibiendo evento para mostrar cuadro: ID=${cuadroId}, Código=${codigo}`);
     mostrarModalCuadroSimple(cuadroId, codigo);
 });
+
+
 /*
 Imprime el MODAL
 */
