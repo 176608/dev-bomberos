@@ -613,4 +613,30 @@ class PublicController extends Controller
             ], 500);
         }
     }
+
+    public function obtenerExcelCuadro($cuadro_id)
+{
+    try {
+        // Obtener el cuadro estadístico por su ID
+        $cuadro = CuadroEstadistico::obtenerPorId($cuadro_id);
+        
+        if (!$cuadro) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cuadro estadístico no encontrado'
+            ], 404);
+        }
+        
+        // Devolver la información del cuadro
+        return response()->json([
+            'success' => true,
+            'cuadro' => $cuadro
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener información del cuadro: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

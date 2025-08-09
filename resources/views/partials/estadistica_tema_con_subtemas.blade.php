@@ -575,6 +575,27 @@
     max-height: 100vh;
     overflow-y: auto;
 }
+
+/* Estilos para la tabla Excel */
+.excel-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.excel-table td {
+    padding: 6px 8px;
+    border: 1px solid #dee2e6;
+    min-width: 50px;
+}
+
+.excel-table .empty-cell {
+    background-color: #f9f9f9;
+}
+
+.excel-viewer-container {
+    overflow-x: auto;
+    max-height: 70vh;
+}
 </style>
 
 <script>
@@ -820,90 +841,130 @@ Imprime el MODAL
 */
 // Función simplificada para crear y mostrar el modal del cuadro
 function mostrarModalCuadroSimple(cuadroId, codigo) {
-    // Crear un ID único para el modal
-    const modalId = `modal_cuadro_${Date.now()}`;
-    
-    // Crear el elemento del modal
-    const modalContainer = document.createElement('div');
-    modalContainer.className = 'modal fade';
-    modalContainer.id = modalId;
-    modalContainer.setAttribute('tabindex', '-1');
-    modalContainer.setAttribute('data-bs-backdrop', 'static'); // Impedir cerrar al hacer clic fuera
-    
-    // Aplicar un z-index extremadamente alto para garantizar que esté por encima de todo
-    modalContainer.style.zIndex = '9999';
-    
-    // Agregar HTML con contenido mínimo
-    modalContainer.innerHTML = `
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-info-circle me-2"></i>Información del Cuadro #${cuadroId} - boton de ver pdf, y boton de ver grafica (pero este es condicional no todos los cuadros pueden generar graficas legibles)
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="container">
-                        <div class="card mx-auto" style="max-width: 500px;">
-                            <div class="card-body">
-                                
-                            Aca se debe cargar el archivo EXCEL del id cuadro que recibimos
-
+    // Primero, obtén la información del cuadro mediante una petición AJAX
+    fetch(`/sigem/obtener-excel-cuadro/${cuadroId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'No se pudo obtener información del cuadro');
+            }
+            
+            // Extraer la información del cuadro
+            const cuadro = data.cuadro;
+            
+            // Crear un ID único para el modal
+            const modalId = `modal_cuadro_${Date.now()}`;
+            
+            // Crear el elemento del modal
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal fade';
+            modalContainer.id = modalId;
+            modalContainer.setAttribute('tabindex', '-1');
+            modalContainer.setAttribute('data-bs-backdrop', 'static');
+            modalContainer.style.zIndex = '9999';
+            
+            // Determinar qué opciones mostrar según los archivos disponibles
+            const tieneExcel = cuadro.excel_file && cuadro.excel_file.length > 0;
+            const tienePdf = cuadro.pdf_file && cuadro.pdf_file.length > 0;
+            const permiteGrafica = cuadro.permite_grafica;
+            
+            // Construir los botones para las diferentes opciones
+            let botonesOpciones = '';
+            
+            if (tieneExcel) {
+                botonesOpciones += `
+                    <a href="/archivos/excel/${cuadro.excel_file}" class="btn btn-success me-2" download>
+                        <i class="bi bi-file-earmark-excel me-1"></i>Descargar Excel
+                    </a>
+                `;
+            }
+            
+            if (tienePdf) {
+                botonesOpciones += `
+                    <a href="/archivos/pdf/${cuadro.pdf_file}" class="btn btn-danger me-2" target="_blank">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Ver PDF
+                    </a>
+                `;
+            }
+            
+            if (permiteGrafica) {
+                botonesOpciones += `
+                    <button class="btn btn-primary" onclick="mostrarGraficaCuadro(${cuadroId})">
+                        <i class="bi bi-bar-chart me-1"></i>Ver Gráfica
+                    </button>
+                `;
+            }
+            
+            // Agregar HTML con contenido estructurado
+            modalContainer.innerHTML = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">
+                                <i class="bi bi-table me-2"></i>${cuadro.codigo_cuadro} - ${cuadro.cuadro_estadistico_titulo}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body" id="excel-container-${modalId}">
+                            <!-- El contenido del Excel se cargará aquí -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-3">Cargando contenido del cuadro estadístico...</p>
                             </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <div>
+                                ${botonesOpciones}
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Agregar el modal directamente al final del body para evitar conflictos de posicionamiento
-    document.body.appendChild(modalContainer);
-    
-    // Configurar el evento para remover el modal del DOM cuando se cierre
-    modalContainer.addEventListener('hidden.bs.modal', function() {
-        document.body.removeChild(modalContainer);
-        console.log('Modal eliminado del DOM');
-    });
-    
-    // Mostrar el modal con opciones adicionales para asegurar visibilidad
-    const bootstrapModal = new bootstrap.Modal(modalContainer, {
-        backdrop: 'static',  // No cerrar al hacer clic fuera
-        keyboard: true,      // Permitir cerrar con ESC
-        focus: true          // Enfocar el modal automáticamente
-    });
-    
-    // También asegurarse que cualquier modal previo se cierre
-    document.querySelectorAll('.modal.show').forEach(modal => {
-        if (modal.id !== modalId) {
-            const oldModal = bootstrap.Modal.getInstance(modal);
-            if (oldModal) oldModal.hide();
-        }
-    });
-    
-    // Agregar un pequeño retraso antes de mostrar el nuevo modal
-    setTimeout(() => {
-        bootstrapModal.show();
-        
-        // Asegurarse que el backdrop tenga un z-index alto también
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        if (backdrops.length > 0) {
-            const lastBackdrop = backdrops[backdrops.length - 1];
-            lastBackdrop.style.zIndex = '9998'; // Justo debajo del modal
-        }
-    }, 50);
-    
-    // Agregar event listener al botón de prueba JS
-    const testButton = document.getElementById(`testJsBtn_${modalId}`);
-    if (testButton) {
-        testButton.addEventListener('click', function() {
-            console.log('JavaScript ejecutado en el modal para el cuadro:', codigo);
-            alert(`JavaScript funciona correctamente.\nCuadro ID: ${cuadroId}\nCódigo: ${codigo}`);
+            `;
+            
+            // Agregar el modal al body
+            document.body.appendChild(modalContainer);
+            
+            // Configurar el evento para remover el modal del DOM cuando se cierre
+            modalContainer.addEventListener('hidden.bs.modal', function() {
+                document.body.removeChild(modalContainer);
+            });
+            
+            // Mostrar el modal
+            const bootstrapModal = new bootstrap.Modal(modalContainer);
+            bootstrapModal.show();
+            
+            // Si tiene archivo Excel, cargarlo en el modal
+            if (tieneExcel) {
+                // Primero asegúrate de que la biblioteca SheetJS esté cargada
+                if (typeof XLSX === 'undefined') {
+                    // Cargar dinamicamente SheetJS si no está disponible
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+                    script.onload = () => {
+                        // Una vez cargada la librería, cargar el Excel
+                        cargarExcelEnModal(modalId, cuadro.excel_file);
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    // Si ya está cargada, usar directamente
+                    cargarExcelEnModal(modalId, cuadro.excel_file);
+                }
+            } else {
+                // Si no tiene Excel, mostrar un mensaje
+                document.getElementById(`excel-container-${modalId}`).innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Este cuadro no tiene un archivo Excel asociado.
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar el cuadro:', error);
+            alert(`Error: ${error.message}`);
         });
-    }
 }
 </script>
