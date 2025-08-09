@@ -580,17 +580,8 @@ function cargarExcelEnModal(modalId, excelUrl, fileName) {
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // Obtener celdas combinadas
-                    const mergedCells = worksheet['!merges'] || [];
-                    
-                    // Crear tabla HTML usando la utilidad de SheetJS
-                    const htmlOptions = { 
-                        sheet: firstSheetName,
-                        header: true
-                    };
-                    
-                    // Obtener el HTML y envolver en contenedor
-                    const htmlString = XLSX.utils.sheet_to_html(worksheet, htmlOptions);
+                    // Crear tabla HTML personalizada que respete el formato
+                    const tablaHTML = crearTablaPersonalizada(worksheet);
                     
                     // Mostrar en el contenedor
                     excelContainer.innerHTML = `
@@ -605,20 +596,43 @@ function cargarExcelEnModal(modalId, excelUrl, fileName) {
                                 </a>
                             </div>
                             <div class="table-responsive excel-table-wrapper">
-                                ${htmlString}
+                                <style>
+                                    .excel-table {
+                                        font-size: 12px;
+                                        border-collapse: collapse;
+                                        width: 100%;
+                                    }
+                                    .excel-table th, .excel-table td {
+                                        border: 1px solid #ddd;
+                                        padding: 4px 8px;
+                                        text-align: center;
+                                        vertical-align: middle;
+                                        white-space: nowrap;
+                                    }
+                                    .excel-table .header-row {
+                                        background-color: #f8f9fa;
+                                        font-weight: bold;
+                                    }
+                                    .excel-table .merged-cell {
+                                        background-color: #e9ecef;
+                                    }
+                                    .excel-table .number-cell {
+                                        text-align: right;
+                                    }
+                                    .excel-table .center-cell {
+                                        text-align: center;
+                                    }
+                                    .excel-table .footer-row {
+                                        background-color: #f1f3f4;
+                                        font-weight: bold;
+                                        border-top: 2px solid #495057;
+                                    }
+                                </style>
+                                ${tablaHTML}
                             </div>
                         </div>
                     `;
                     
-                    // Aplicar estilos a la tabla generada
-                    const tablaExcel = excelContainer.querySelector('table');
-                    if (tablaExcel) {
-                        // Aplicar clases de Bootstrap
-                        tablaExcel.className = 'table table-bordered excel-table';
-                        
-                        // Procesar las celdas combinadas
-                        aplicarCeldasCombinadas(tablaExcel, mergedCells, worksheet);
-                    }
                 } catch (error) {
                     console.error('Error al procesar Excel:', error);
                     mostrarError(`Error al procesar el Excel: ${error.message}`);
@@ -646,34 +660,94 @@ function cargarExcelEnModal(modalId, excelUrl, fileName) {
     }
 }
 
-// Función auxiliar para aplicar celdas combinadas
-function aplicarCeldasCombinadas(tabla, mergedCells, worksheet) {
-    // Aplicar rowspan y colspan para celdas combinadas
-    mergedCells.forEach(range => {
-        try {
-            const { s: start, e: end } = range;
-            const rowspan = end.r - start.r + 1;
-            const colspan = end.c - start.c + 1;
-            
-            // Si hay más de una fila o columna combinada
-            if (rowspan > 1 || colspan > 1) {
-                // La tabla de SheetJS tiene una fila de encabezado
-                const fila = start.r + 1;
-                const columna = start.c;
-                
-                // Verificar si existe la fila
-                if (tabla.rows[fila]) {
-                    const celda = tabla.rows[fila].cells[columna];
-                    if (celda) {
-                        // Aplicar atributos de combinación
-                        if (rowspan > 1) celda.rowSpan = rowspan;
-                        if (colspan > 1) celda.colSpan = colspan;
-                    }
-                }
+// Función mejorada para crear tabla personalizada que respeta formato Excel
+function crearTablaPersonalizada(worksheet) {
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+    const mergedCells = worksheet['!merges'] || [];
+    
+    // Crear array para marcar celdas que están combinadas
+    const celdasCombinadas = {};
+    mergedCells.forEach(merge => {
+        for (let r = merge.s.r; r <= merge.e.r; r++) {
+            for (let c = merge.s.c; c <= merge.e.c; c++) {
+                celdasCombinadas[`${r}_${c}`] = {
+                    esMaster: r === merge.s.r && c === merge.s.c,
+                    rowspan: merge.e.r - merge.s.r + 1,
+                    colspan: merge.e.c - merge.s.c + 1,
+                    merge: merge
+                };
             }
-        } catch (e) {
-            console.warn('Error al aplicar celda combinada:', e);
         }
     });
+    
+    let html = '<table class="table excel-table table-bordered">';
+    
+    for (let r = range.s.r; r <= range.e.r; r++) {
+        // Determinar si es fila de encabezado o pie
+        const esEncabezado = r <= 1;
+        const esPie = r === range.e.r;
+        const clasesFila = esEncabezado ? 'header-row' : (esPie ? 'footer-row' : '');
+        
+        html += `<tr class="${clasesFila}">`;
+        
+        for (let c = range.s.c; c <= range.e.c; c++) {
+            const celdaKey = `${r}_${c}`;
+            const combInfo = celdasCombinadas[celdaKey];
+            
+            // Si la celda está combinada pero no es la master, saltar
+            if (combInfo && !combInfo.esMaster) {
+                continue;
+            }
+            
+            const cellRef = XLSX.utils.encode_cell({ r, c });
+            const cell = worksheet[cellRef];
+            let valor = '';
+            
+            if (cell) {
+                if (cell.t === 'n' && cell.v !== undefined) {
+                    // Número - formatear según el tipo
+                    if (cell.z && cell.z.includes('%')) {
+                        valor = (cell.v * 100).toFixed(2) + '%';
+                    } else if (cell.z && cell.z.includes(',')) {
+                        valor = cell.v.toLocaleString();
+                    } else {
+                        valor = cell.v.toString();
+                    }
+                } else if (cell.v !== undefined) {
+                    valor = cell.v.toString();
+                }
+            }
+            
+            // Determinar clases CSS para la celda
+            let clasesCelda = [];
+            if (combInfo) {
+                clasesCelda.push('merged-cell');
+            }
+            if (cell && cell.t === 'n') {
+                clasesCelda.push('number-cell');
+            } else {
+                clasesCelda.push('center-cell');
+            }
+            
+            // Crear atributos de combinación
+            let atributosCombinacion = '';
+            if (combInfo && combInfo.esMaster) {
+                if (combInfo.rowspan > 1) {
+                    atributosCombinacion += ` rowspan="${combInfo.rowspan}"`;
+                }
+                if (combInfo.colspan > 1) {
+                    atributosCombinacion += ` colspan="${combInfo.colspan}"`;
+                }
+            }
+            
+            const tag = esEncabezado ? 'th' : 'td';
+            html += `<${tag} class="${clasesCelda.join(' ')}"${atributosCombinacion}>${valor}</${tag}>`;
+        }
+        
+        html += '</tr>';
+    }
+    
+    html += '</table>';
+    return html;
 }
 </script>
