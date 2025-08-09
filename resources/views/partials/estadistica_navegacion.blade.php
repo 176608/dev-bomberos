@@ -101,7 +101,7 @@
 .tema-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #8d247fff;
+    border-color: #91a00eff;
     text-decoration: none !important;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .tema-card:hover .card-footer {
-    background-color: #2f5e8dff;
+    background-color: #28aa6dff;
 }
 
 .tema-card .card-footer span {
@@ -119,7 +119,7 @@
 }
 
 .tema-card:hover .card-footer span {
-    color: #1d8d13ff !important;
+    color: #000000ff !important;
     font-weight: bold;
 }
 
