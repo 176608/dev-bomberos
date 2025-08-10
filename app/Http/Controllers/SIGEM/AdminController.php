@@ -559,7 +559,7 @@ class AdminController extends Controller
                 'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
                 'eje_vertical_mchart' => 'nullable|string|max:100',
                 'pie_pagina' => 'nullable|string|max:500',
-                'inventir_eje_vertical_horizontal' => 'nullable|boolean'
+                'invertir_eje_vertical_horizontal' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
@@ -573,7 +573,7 @@ class AdminController extends Controller
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['inventir_eje_vertical_horizontal'] = $request->has('inventir_eje_vertical_horizontal');
+            $datos['invertir_eje_vertical_horizontal'] = $request->has('invertir_eje_vertical_horizontal');
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Crear directorios si no existen
@@ -645,7 +645,7 @@ class AdminController extends Controller
                 'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
                 'eje_vertical_mchart' => 'nullable|string|max:100',
                 'pie_pagina' => 'nullable|string|max:500',
-                'inventir_eje_vertical_horizontal' => 'nullable|boolean'
+                'invertir_eje_vertical_horizontal' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
@@ -659,7 +659,7 @@ class AdminController extends Controller
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['inventir_eje_vertical_horizontal'] = $request->has('inventir_eje_vertical_horizontal');
+            $datos['invertir_eje_vertical_horizontal'] = $request->has('invertir_eje_vertical_horizontal');
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Directorios para archivos

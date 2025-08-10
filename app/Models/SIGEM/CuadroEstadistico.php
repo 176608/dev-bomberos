@@ -36,7 +36,7 @@ class CuadroEstadistico extends Model
         'eje_vertical_mchart',
         'pie_pagina',
         'mapa_id',
-        'inventir_eje_vertical_horizontal'
+        'invertir_eje_vertical_horizontal'
     ];
     
     /**
@@ -55,7 +55,7 @@ class CuadroEstadistico extends Model
         'eje_vertical_mchart' => 'string',
         'pie_pagina' => 'string',
         'mapa_id' => 'integer',
-        'inventir_eje_vertical_horizontal' => 'boolean'
+        'invertir_eje_vertical_horizontal' => 'boolean'
     ];
     
     /**

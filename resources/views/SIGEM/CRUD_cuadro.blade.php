@@ -317,10 +317,10 @@
                                 <div class="col-md-4">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" 
-                                               id="inventir_eje_vertical_horizontal" 
-                                               name="inventir_eje_vertical_horizontal" value="1"
-                                               {{ old('inventir_eje_vertical_horizontal') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="inventir_eje_vertical_horizontal">
+                                               id="invertir_eje_vertical_horizontal" 
+                                               name="invertir_eje_vertical_horizontal" value="1"
+                                               {{ old('invertir_eje_vertical_horizontal') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="invertir_eje_vertical_horizontal">
                                             Invertir ejes
                                         </label>
                                     </div>
