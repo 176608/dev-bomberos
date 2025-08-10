@@ -59,7 +59,7 @@ Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])
     Route::delete('/admin/mapas/{id}/eliminar', [AdminController::class, 'eliminarMapa'])->name('sigem.admin.mapas.eliminar');
     
     // Temas
-    /*Route::post('/admin/temas/crear', [AdminController::class, 'crearTema'])->name('sigem.admin.temas.crear');
+    Route::post('/admin/temas/crear', [AdminController::class, 'crearTema'])->name('sigem.admin.temas.crear');
     Route::put('/admin/temas/{id}/actualizar', [AdminController::class, 'actualizarTema'])->name('sigem.admin.temas.actualizar');
     Route::delete('/admin/temas/{id}/eliminar', [AdminController::class, 'eliminarTema'])->name('sigem.admin.temas.eliminar');
     
@@ -76,5 +76,5 @@ Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])
     // Consultas Express
     Route::post('/admin/consultas/tema/crear', [AdminController::class, 'crearTemaCE'])->name('sigem.admin.consultas.tema.crear');
     Route::post('/admin/consultas/subtema/crear', [AdminController::class, 'crearSubtemaCE'])->name('sigem.admin.consultas.subtema.crear');
-    Route::post('/admin/consultas/contenido/crear', [AdminController::class, 'crearContenidoCE'])->name('sigem.admin.consultas.contenido.crear');*/
+    Route::post('/admin/consultas/contenido/crear', [AdminController::class, 'crearContenidoCE'])->name('sigem.admin.consultas.contenido.crear');
 });

@@ -229,4 +229,80 @@ class AdminController extends Controller
                 ->with('error', 'Error al eliminar el mapa: ' . $e->getMessage());
         }
     }
+
+    // ============ MÉTODOS CRUD PARA TEMAS ============
+    public function crearTema(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+    }
+
+    public function actualizarTema(Request $request, $id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+    }
+
+    public function eliminarTema($id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+    }
+
+    // ============ MÉTODOS CRUD PARA SUBTEMAS ============
+    public function crearSubtema(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+    }
+
+    public function actualizarSubtema(Request $request, $id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+    }
+
+    public function eliminarSubtema($id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+    }
+
+    // ============ MÉTODOS CRUD PARA CUADROS ============
+    public function crearCuadro(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+    }
+
+    public function actualizarCuadro(Request $request, $id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+    }
+
+    public function eliminarCuadro($id)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+    }
+
+    // ============ MÉTODOS CRUD PARA CONSULTAS EXPRESS ============
+    public function crearTemaCE(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+    }
+
+    public function crearSubtemaCE(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+    }
+
+    public function crearContenidoCE(Request $request)
+    {
+        // TODO: Implementar método
+        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+    }
 }
