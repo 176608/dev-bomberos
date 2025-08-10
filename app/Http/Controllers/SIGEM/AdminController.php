@@ -61,10 +61,15 @@ class AdminController extends Controller
 
     public function cuadros()
     {
-        $cuadros = CuadroEstadistico::with(['tema', 'subtema'])->orderBy('nombre_cuadro', 'asc')->get();
+        $cuadros = CuadroEstadistico::with(['subtema.tema'])->orderBy('cuadro_estadistico_titulo', 'asc')->get();
+        $temas = Tema::orderBy('tema_titulo', 'asc')->get(); // Para el select de agregar/editar
+        $subtemas = Subtema::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Para el select de agregar/editar
+        
         return view('roles.sigem_admin')->with([
             'crud_view' => 'SIGEM.CRUD_cuadro',
-            'cuadros' => $cuadros
+            'cuadros' => $cuadros,
+            'temas' => $temas,
+            'subtemas' => $subtemas
         ]);
     }
 
