@@ -1,3 +1,30 @@
+<!-- Mensajes de éxito, error y validación -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> 
+        <strong>Errores de validación:</strong>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
 <!-- Header del CRUD -->
 <div class="row mb-4">
@@ -85,11 +112,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-info" 
-                                                    title="Ver detalles" 
-                                                    onclick="verTema({{ $tema->tema_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" 
                                                     title="Editar" 
                                                     onclick="editarTema({{ $tema->tema_id }})">
@@ -130,22 +152,32 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Tema</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarTema" method="POST" action="#" enctype="multipart/form-data">
+            <form id="formAgregarTema" method="POST" action="{{ route('sigem.admin.temas.crear') }}">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tema_titulo" name="tema_titulo" 
-                                       placeholder="Ej: Demografía y Población" required>
+                                <input type="text" class="form-control @error('tema_titulo') is-invalid @enderror" 
+                                       id="tema_titulo" name="tema_titulo" 
+                                       placeholder="Ej: Demografía y Población" 
+                                       value="{{ old('tema_titulo') }}" required>
+                                @error('tema_titulo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="clave_tema" class="form-label">Clave del Tema</label>
-                                <input type="text" class="form-control" id="clave_tema" name="clave_tema" 
-                                       placeholder="Ej: DEM001" maxlength="10">
+                                <input type="text" class="form-control @error('clave_tema') is-invalid @enderror" 
+                                       id="clave_tema" name="clave_tema" 
+                                       placeholder="Ej: DEM001" maxlength="10"
+                                       value="{{ old('clave_tema') }}">
+                                @error('clave_tema')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -154,17 +186,27 @@
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="nombre_archivo" class="form-label">Nombre del Archivo</label>
-                                <input type="text" class="form-control" id="nombre_archivo" name="nombre_archivo" 
-                                       placeholder="Ej: demografia_poblacion.pdf">
+                                <input type="text" class="form-control @error('nombre_archivo') is-invalid @enderror" 
+                                       id="nombre_archivo" name="nombre_archivo" 
+                                       placeholder="Ej: demografia_poblacion.pdf"
+                                       value="{{ old('nombre_archivo') }}">
                                 <small class="form-text text-muted">Solo el nombre del archivo, sin la ruta completa</small>
+                                @error('nombre_archivo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="orden_indice" class="form-label">Orden en Índice</label>
-                                <input type="number" class="form-control" id="orden_indice" name="orden_indice" 
-                                       placeholder="1" min="0" max="999" value="1">
+                                <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
+                                       id="orden_indice" name="orden_indice" 
+                                       placeholder="1" min="0" max="999" 
+                                       value="{{ old('orden_indice', 1) }}">
                                 <small class="form-text text-muted">Orden de aparición en listados</small>
+                                @error('orden_indice')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -193,12 +235,11 @@
                 <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tema</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formEditarTema" method="POST" action="#">
+            <form id="formEditarTema" method="POST" action="">
                 @csrf
                 @method('PUT')
+                <input type="hidden" id="edit_tema_id" name="tema_id">
                 <div class="modal-body">
-                    <input type="hidden" id="edit_tema_id" name="tema_id">
-                    
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
@@ -241,19 +282,23 @@
     </div>
 </div>
 
-<!-- JavaScript mínimo para acciones -->
+<!-- JavaScript funcional para acciones -->
 <script>
-function verTema(id) {
-    alert('Ver detalles del tema ID: ' + id + '\n(Funcionalidad pendiente)');
-}
+// Definir rutas para usar en JavaScript
+const routesTemas = {
+    update: '{{ route("sigem.admin.temas.actualizar", ":id") }}',
+    delete: '{{ route("sigem.admin.temas.eliminar", ":id") }}'
+};
 
 function editarTema(id) {
     // Buscar los datos del tema en la tabla
     const fila = event.target.closest('tr');
     const tema_titulo = fila.cells[1].querySelector('strong').textContent;
-    const nombre_archivo = fila.cells[2].querySelector('code')?.textContent || '';
+    const nombre_archivo_cell = fila.cells[2];
+    const nombre_archivo = nombre_archivo_cell.querySelector('code')?.textContent || '';
     const orden_indice = fila.cells[3].querySelector('.badge').textContent;
-    const clave_tema = fila.cells[4].querySelector('.badge')?.textContent || '';
+    const clave_tema_cell = fila.cells[4];
+    const clave_tema = clave_tema_cell.querySelector('.badge')?.textContent || '';
     
     // Llenar el modal de edición
     document.getElementById('edit_tema_id').value = id;
@@ -262,27 +307,81 @@ function editarTema(id) {
     document.getElementById('edit_orden_indice').value = orden_indice;
     document.getElementById('edit_clave_tema').value = clave_tema;
     
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarTema');
+    form.action = routesTemas.update.replace(':id', id);
+    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarTema')).show();
 }
 
 function eliminarTema(id, titulo) {
-    if (confirm('¿Estás seguro de eliminar el tema "' + titulo + '"?\n\nEsta acción también eliminará todos los subtemas asociados.')) {
-        alert('Eliminar tema ID: ' + id + '\n(Funcionalidad pendiente)');
+    // Obtener información de subtemas asociados
+    const fila = event.target.closest('tr');
+    const subtemasCell = fila.cells[5];
+    const subtemaBadge = subtemasCell.querySelector('.badge');
+    const tieneSubtemas = subtemaBadge && !subtemaBadge.classList.contains('text-muted');
+    
+    let mensaje = `¿Estás seguro de eliminar el tema "${titulo}"?`;
+    
+    if (tieneSubtemas) {
+        const numSubtemas = subtemaBadge.textContent.split(' ')[0];
+        mensaje += `\n\n⚠️ ADVERTENCIA: Este tema tiene ${numSubtemas} subtema(s) asociado(s).`;
+        mensaje += `\nPara eliminarlo, primero debes eliminar o reasignar todos los subtemas.`;
+        mensaje += `\n\n¿Deseas continuar de todas formas?`;
+    } else {
+        mensaje += `\n\nEsta acción no se puede deshacer.`;
+    }
+    
+    if (confirm(mensaje)) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesTemas.delete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
 // Auto-generar clave basada en el título
 document.getElementById('tema_titulo')?.addEventListener('input', function() {
     const titulo = this.value;
-    const clave = titulo.toUpperCase()
-                      .replace(/[ÁÉÍÓÚÑÜ]/g, function(match) {
-                          const replacements = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
-                          return replacements[match];
-                      })
-                      .replace(/[^A-Z0-9]/g, '')
-                      .substring(0, 6) + '01';
-    
-    document.getElementById('clave_tema').value = clave;
+    if (titulo.length > 2) {
+        const clave = titulo.toUpperCase()
+                          .replace(/[ÁÉÍÓÚÑÜ]/g, function(match) {
+                              const replacements = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+                              return replacements[match];
+                          })
+                          .replace(/[^A-Z0-9]/g, '')
+                          .substring(0, 6) + '01';
+        
+        document.getElementById('clave_tema').value = clave;
+    }
+});
+
+// Limpiar modales al cerrar
+document.getElementById('modalAgregarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
 });
 </script>

@@ -233,20 +233,127 @@ class AdminController extends Controller
     // ============ MÉTODOS CRUD PARA TEMAS ============
     public function crearTema(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'tema_titulo' => 'required|string|max:255',
+                'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema',
+                'nombre_archivo' => 'nullable|string|max:255',
+                'orden_indice' => 'nullable|integer|min:0|max:999'
+            ]);
+
+            $datos = $request->only([
+                'tema_titulo',
+                'clave_tema', 
+                'nombre_archivo',
+                'orden_indice'
+            ]);
+
+            // Si no se proporciona orden, usar el siguiente disponible
+            if (!$datos['orden_indice']) {
+                $maxOrden = Tema::max('orden_indice') ?? 0;
+                $datos['orden_indice'] = $maxOrden + 1;
+            }
+
+            // Crear tema
+            $tema = Tema::crear($datos);
+
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('success', "Tema '{$tema->tema_titulo}' creado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('error', 'Error al crear el tema: ' . $e->getMessage());
+        }
     }
 
     public function actualizarTema(Request $request, $id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+        try {
+            $tema = Tema::obtenerPorId($id);
+            
+            if (!$tema) {
+                return redirect()
+                    ->route('sigem.admin.temas')
+                    ->with('error', 'Tema no encontrado');
+            }
+
+            // Validar datos (excluir el ID actual de la validación de clave única)
+            $request->validate([
+                'tema_titulo' => 'required|string|max:255',
+                'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema,' . $id . ',tema_id',
+                'nombre_archivo' => 'nullable|string|max:255',
+                'orden_indice' => 'nullable|integer|min:0|max:999'
+            ]);
+
+            $datos = $request->only([
+                'tema_titulo',
+                'clave_tema',
+                'nombre_archivo', 
+                'orden_indice'
+            ]);
+
+            // Actualizar tema
+            $tema->actualizar($datos);
+
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('success', "Tema '{$tema->tema_titulo}' actualizado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('error', 'Error al actualizar el tema: ' . $e->getMessage());
+        }
     }
 
     public function eliminarTema($id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.temas')->with('error', 'Método no implementado aún');
+        try {
+            $tema = Tema::obtenerPorId($id);
+            
+            if (!$tema) {
+                return redirect()
+                    ->route('sigem.admin.temas')
+                    ->with('error', 'Tema no encontrado');
+            }
+
+            // Verificar si tiene subtemas asociados
+            $subtemasCount = $tema->subtemas()->count();
+            
+            if ($subtemasCount > 0) {
+                return redirect()
+                    ->route('sigem.admin.temas')
+                    ->with('error', "No se puede eliminar el tema '{$tema->tema_titulo}' porque tiene {$subtemasCount} subtema(s) asociado(s). Elimine o reasigne los subtemas primero.");
+            }
+
+            // Guardar nombre para el mensaje
+            $nombreTema = $tema->tema_titulo;
+
+            // Eliminar tema
+            $tema->eliminar();
+
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('success', "Tema '{$nombreTema}' eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.temas')
+                ->with('error', 'Error al eliminar el tema: ' . $e->getMessage());
+        }
     }
 
     // ============ MÉTODOS CRUD PARA SUBTEMAS ============
