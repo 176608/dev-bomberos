@@ -1,1 +1,288 @@
-Visor crud de la tabla "tema", deriva del modelo de "Tema.php"
+
+<!-- Header del CRUD -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-bookmark"></i> Panel CRUD de Temas</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">Administra los temas del sistema SIGEM. Aquí puedes crear, editar y eliminar registros de la tabla <strong>"tema"</strong>.</p>
+                <small class="text-muted">Modelo: <code>Tema.php</code></small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                    <i class="bi bi-plus-circle"></i> Nuevo Tema
+                </button>
+                <small class="text-muted d-block mt-2">Total de registros: <strong>{{ count($temas ?? []) }}</strong></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de datos -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-table"></i> Listado de Temas</h6>
+            </div>
+            <div class="card-body">
+                @if(isset($temas) && count($temas) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título del Tema</th>
+                                    <th>Nombre Archivo</th>
+                                    <th>Orden Índice</th>
+                                    <th>Clave Tema</th>
+                                    <th>Subtemas</th>
+                                    <th width="120">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($temas as $tema)
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ $tema->tema_id }}</span></td>
+                                    <td>
+                                        <strong>{{ $tema->tema_titulo }}</strong>
+                                        @if($tema->clave_tema)
+                                            <br><small class="text-muted">Clave: {{ $tema->clave_tema }}</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($tema->nombre_archivo)
+                                            <code>{{ $tema->nombre_archivo }}</code>
+                                        @else
+                                            <span class="text-muted">Sin archivo</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ $tema->orden_indice ?? 0 }}</span>
+                                    </td>
+                                    <td>
+                                        @if($tema->clave_tema)
+                                            <span class="badge bg-primary">{{ $tema->clave_tema }}</span>
+                                        @else
+                                            <span class="text-muted">Sin clave</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            $subtemas_count = $tema->subtemas()->count() ?? 0;
+                                        @endphp
+                                        @if($subtemas_count > 0)
+                                            <span class="badge bg-warning">{{ $subtemas_count }} subtemas</span>
+                                        @else
+                                            <span class="text-muted">Sin subtemas</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-info" 
+                                                    title="Ver detalles" 
+                                                    onclick="verTema({{ $tema->tema_id }})">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning" 
+                                                    title="Editar" 
+                                                    onclick="editarTema({{ $tema->tema_id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" 
+                                                    title="Eliminar" 
+                                                    onclick="eliminarTema({{ $tema->tema_id }}, '{{ addslashes($tema->tema_titulo) }}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No hay temas registrados</h5>
+                        <p class="text-muted">Comienza agregando tu primer tema haciendo clic en el botón "Nuevo Tema".</p>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                            <i class="bi bi-plus-circle"></i> Agregar Primer Tema
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar nuevo tema -->
+<div class="modal fade" id="modalAgregarTema" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Tema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formAgregarTema" method="POST" action="#" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tema_titulo" name="tema_titulo" 
+                                       placeholder="Ej: Demografía y Población" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="clave_tema" class="form-label">Clave del Tema</label>
+                                <input type="text" class="form-control" id="clave_tema" name="clave_tema" 
+                                       placeholder="Ej: DEM001" maxlength="10">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="nombre_archivo" class="form-label">Nombre del Archivo</label>
+                                <input type="text" class="form-control" id="nombre_archivo" name="nombre_archivo" 
+                                       placeholder="Ej: demografia_poblacion.pdf">
+                                <small class="form-text text-muted">Solo el nombre del archivo, sin la ruta completa</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="orden_indice" class="form-label">Orden en Índice</label>
+                                <input type="number" class="form-control" id="orden_indice" name="orden_indice" 
+                                       placeholder="1" min="0" max="999" value="1">
+                                <small class="form-text text-muted">Orden de aparición en listados</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Información:</strong> Una vez creado el tema, podrás agregar subtemas asociados desde el panel de Subtemas.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Guardar Tema
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar tema -->
+<div class="modal fade" id="modalEditarTema" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarTema" method="POST" action="#">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <input type="hidden" id="edit_tema_id" name="tema_id">
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="edit_tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_tema_titulo" name="tema_titulo" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_clave_tema" class="form-label">Clave del Tema</label>
+                                <input type="text" class="form-control" id="edit_clave_tema" name="clave_tema" maxlength="10">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="edit_nombre_archivo" class="form-label">Nombre del Archivo</label>
+                                <input type="text" class="form-control" id="edit_nombre_archivo" name="nombre_archivo">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
+                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
+                                       min="0" max="999">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar Tema
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript mínimo para acciones -->
+<script>
+function verTema(id) {
+    alert('Ver detalles del tema ID: ' + id + '\n(Funcionalidad pendiente)');
+}
+
+function editarTema(id) {
+    // Buscar los datos del tema en la tabla
+    const fila = event.target.closest('tr');
+    const tema_titulo = fila.cells[1].querySelector('strong').textContent;
+    const nombre_archivo = fila.cells[2].querySelector('code')?.textContent || '';
+    const orden_indice = fila.cells[3].querySelector('.badge').textContent;
+    const clave_tema = fila.cells[4].querySelector('.badge')?.textContent || '';
+    
+    // Llenar el modal de edición
+    document.getElementById('edit_tema_id').value = id;
+    document.getElementById('edit_tema_titulo').value = tema_titulo;
+    document.getElementById('edit_nombre_archivo').value = nombre_archivo;
+    document.getElementById('edit_orden_indice').value = orden_indice;
+    document.getElementById('edit_clave_tema').value = clave_tema;
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarTema')).show();
+}
+
+function eliminarTema(id, titulo) {
+    if (confirm('¿Estás seguro de eliminar el tema "' + titulo + '"?\n\nEsta acción también eliminará todos los subtemas asociados.')) {
+        alert('Eliminar tema ID: ' + id + '\n(Funcionalidad pendiente)');
+    }
+}
+
+// Auto-generar clave basada en el título
+document.getElementById('tema_titulo')?.addEventListener('input', function() {
+    const titulo = this.value;
+    const clave = titulo.toUpperCase()
+                      .replace(/[ÁÉÍÓÚÑÜ]/g, function(match) {
+                          const replacements = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+                          return replacements[match];
+                      })
+                      .replace(/[^A-Z0-9]/g, '')
+                      .substring(0, 6) + '01';
+    
+    document.getElementById('clave_tema').value = clave;
+});
+</script>

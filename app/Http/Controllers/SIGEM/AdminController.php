@@ -40,7 +40,7 @@ class AdminController extends Controller
 
     public function temas()
     {
-        $temas = Tema::orderBy('nombre_tema', 'asc')->get();
+        $temas = Tema::orderBy('tema_titulo', 'asc')->get(); // Corregido: tema_titulo en lugar de nombre_tema
         return view('roles.sigem_admin')->with([
             'crud_view' => 'SIGEM.CRUD_tema',
             'temas' => $temas
