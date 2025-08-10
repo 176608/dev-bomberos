@@ -23,6 +23,34 @@
     </div>
 </div>
 
+<!-- Mensajes de éxito, error y validación -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> 
+        <strong>Errores de validación:</strong>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <!-- Tabla de datos -->
 <div class="row">
     <div class="col-12">
@@ -128,7 +156,7 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Mapa</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarMapa" method="POST" action="#" enctype="multipart/form-data">
+            <form id="formAgregarMapa" method="POST" action="{{ route('sigem.admin.mapas.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -136,14 +164,19 @@
                             <div class="mb-3">
                                 <label for="nombre_seccion" class="form-label">Nombre de Sección</label>
                                 <input type="text" class="form-control" id="nombre_seccion" name="nombre_seccion" 
-                                       placeholder="Ej: Cartografía Básica">
+                                       placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="nombre_mapa" class="form-label">Nombre del Mapa <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="nombre_mapa" name="nombre_mapa" 
-                                       placeholder="Ej: Mapa de División Política" required>
+                                <input type="text" class="form-control @error('nombre_mapa') is-invalid @enderror" 
+                                       id="nombre_mapa" name="nombre_mapa" 
+                                       placeholder="Ej: Mapa de División Política" 
+                                       value="{{ old('nombre_mapa') }}" required>
+                                @error('nombre_mapa')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -151,30 +184,39 @@
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
-                                  placeholder="Describe brevemente el contenido del mapa..."></textarea>
+                                  placeholder="Describe brevemente el contenido del mapa...">{{ old('descripcion') }}</textarea>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="enlace" class="form-label">Enlace</label>
-                                <input type="url" class="form-control" id="enlace" name="enlace" 
-                                       placeholder="https://ejemplo.com/mapa.html">
+                                <input type="url" class="form-control @error('enlace') is-invalid @enderror" 
+                                       id="enlace" name="enlace" 
+                                       placeholder="https://ejemplo.com/mapa.html"
+                                       value="{{ old('enlace') }}">
+                                @error('enlace')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="codigo_mapa" class="form-label">Código del Mapa</label>
                                 <input type="text" class="form-control" id="codigo_mapa" name="codigo_mapa" 
-                                       placeholder="MP001">
+                                       placeholder="MP001" value="{{ old('codigo_mapa') }}">
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="icono" class="form-label">Icono (PNG)</label>
-                        <input type="file" class="form-control" id="icono" name="icono" accept=".png">
-                        <small class="form-text text-muted">Solo archivos PNG. Tamaño recomendado: 64x64px</small>
+                        <input type="file" class="form-control @error('icono') is-invalid @enderror" 
+                               id="icono" name="icono" accept=".png">
+                        <small class="form-text text-muted">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
+                        @error('icono')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">

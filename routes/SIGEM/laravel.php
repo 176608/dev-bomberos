@@ -44,9 +44,37 @@ Route::get('/sigem/partial/consulta-express', [PublicController::class, 'partial
 // === RUTAS ADMINISTRATIVAS COMPLETAS ===
 Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])->group(function () {  
     Route::get('/admin', [AdminController::class, 'index'])->name('sigem.admin.index');
+    
+    // Rutas GET para mostrar vistas
     Route::get('/admin/mapas', [AdminController::class, 'mapas'])->name('sigem.admin.mapas');
     Route::get('/admin/temas', [AdminController::class, 'temas'])->name('sigem.admin.temas');
     Route::get('/admin/subtemas', [AdminController::class, 'subtemas'])->name('sigem.admin.subtemas');
     Route::get('/admin/cuadros', [AdminController::class, 'cuadros'])->name('sigem.admin.cuadros');
     Route::get('/admin/consultas', [AdminController::class, 'consultas'])->name('sigem.admin.consultas');
+    
+    // === RUTAS POST PARA OPERACIONES CRUD ===
+    // Mapas
+    Route::post('/admin/mapas/crear', [AdminController::class, 'crearMapa'])->name('sigem.admin.mapas.crear');
+    Route::put('/admin/mapas/{id}/actualizar', [AdminController::class, 'actualizarMapa'])->name('sigem.admin.mapas.actualizar');
+    Route::delete('/admin/mapas/{id}/eliminar', [AdminController::class, 'eliminarMapa'])->name('sigem.admin.mapas.eliminar');
+    
+    // Temas
+    /*Route::post('/admin/temas/crear', [AdminController::class, 'crearTema'])->name('sigem.admin.temas.crear');
+    Route::put('/admin/temas/{id}/actualizar', [AdminController::class, 'actualizarTema'])->name('sigem.admin.temas.actualizar');
+    Route::delete('/admin/temas/{id}/eliminar', [AdminController::class, 'eliminarTema'])->name('sigem.admin.temas.eliminar');
+    
+    // Subtemas
+    Route::post('/admin/subtemas/crear', [AdminController::class, 'crearSubtema'])->name('sigem.admin.subtemas.crear');
+    Route::put('/admin/subtemas/{id}/actualizar', [AdminController::class, 'actualizarSubtema'])->name('sigem.admin.subtemas.actualizar');
+    Route::delete('/admin/subtemas/{id}/eliminar', [AdminController::class, 'eliminarSubtema'])->name('sigem.admin.subtemas.eliminar');
+    
+    // Cuadros
+    Route::post('/admin/cuadros/crear', [AdminController::class, 'crearCuadro'])->name('sigem.admin.cuadros.crear');
+    Route::put('/admin/cuadros/{id}/actualizar', [AdminController::class, 'actualizarCuadro'])->name('sigem.admin.cuadros.actualizar');
+    Route::delete('/admin/cuadros/{id}/eliminar', [AdminController::class, 'eliminarCuadro'])->name('sigem.admin.cuadros.eliminar');
+    
+    // Consultas Express
+    Route::post('/admin/consultas/tema/crear', [AdminController::class, 'crearTemaCE'])->name('sigem.admin.consultas.tema.crear');
+    Route::post('/admin/consultas/subtema/crear', [AdminController::class, 'crearSubtemaCE'])->name('sigem.admin.consultas.subtema.crear');
+    Route::post('/admin/consultas/contenido/crear', [AdminController::class, 'crearContenidoCE'])->name('sigem.admin.consultas.contenido.crear');*/
 });

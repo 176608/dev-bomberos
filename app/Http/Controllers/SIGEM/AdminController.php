@@ -86,4 +86,138 @@ class AdminController extends Controller
             'ce_contenidos' => $ce_contenidos
         ]);
     }
+
+    /**
+     * Crear nuevo mapa
+     */
+    public function crearMapa(Request $request)
+    {
+        try {
+            // Validar datos
+            $request->validate([
+                'nombre_mapa' => 'required|string|max:255',
+                'nombre_seccion' => 'nullable|string|max:255',
+                'descripcion' => 'nullable|string',
+                'enlace' => 'nullable|url',
+                'codigo_mapa' => 'nullable|string|max:50',
+                'icono' => 'nullable|file|mimes:png|max:2048' // 2MB max
+            ]);
+
+            $datos = $request->only([
+                'nombre_mapa', 
+                'nombre_seccion', 
+                'descripcion', 
+                'enlace', 
+                'codigo_mapa'
+            ]);
+
+            // Manejar upload de icono
+            if ($request->hasFile('icono')) {
+                $archivo = $request->file('icono');
+                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+                
+                // Mover archivo a la carpeta img/SIGEM_mapas/
+                $archivo->move(public_path('img/SIGEM_mapas'), $nombreArchivo);
+                $datos['icono'] = $nombreArchivo;
+            }
+
+            // Crear mapa usando el método del modelo
+            $mapa = Mapa::crear($datos);
+
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('success', 'Mapa creado exitosamente');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('error', 'Error al crear el mapa: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Actualizar mapa existente
+     */
+    public function actualizarMapa(Request $request, $id)
+    {
+        try {
+            $mapa = Mapa::obtenerPorId($id);
+            
+            if (!$mapa) {
+                return redirect()
+                    ->route('sigem.admin.mapas')
+                    ->with('error', 'Mapa no encontrado');
+            }
+
+            // Validar datos
+            $request->validate([
+                'nombre_mapa' => 'required|string|max:255',
+                'nombre_seccion' => 'nullable|string|max:255',
+                'descripcion' => 'nullable|string',
+                'enlace' => 'nullable|url',
+                'codigo_mapa' => 'nullable|string|max:50',
+                'icono' => 'nullable|file|mimes:png|max:2048'
+            ]);
+
+            $datos = $request->only([
+                'nombre_mapa', 
+                'nombre_seccion', 
+                'descripcion', 
+                'enlace', 
+                'codigo_mapa'
+            ]);
+
+            // Manejar upload de nuevo icono
+            if ($request->hasFile('icono')) {
+                // Eliminar icono anterior si existe
+                if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
+                    unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+                }
+
+                $archivo = $request->file('icono');
+                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+                $archivo->move(public_path('img/SIGEM_mapas'), $nombreArchivo);
+                $datos['icono'] = $nombreArchivo;
+            }
+
+            // Actualizar mapa
+            $mapa->actualizar($datos);
+
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('success', 'Mapa actualizado exitosamente');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('error', 'Error al actualizar el mapa: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar mapa
+     */
+    public function eliminarMapa($id)
+    {
+        try {
+            $mapa = Mapa::obtenerPorId($id);
+            
+            if (!$mapa) {
+                return response()->json(['error' => 'Mapa no encontrado'], 404);
+            }
+
+            // Eliminar archivo de icono si existe
+            if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
+                unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+            }
+
+            // Eliminar mapa
+            $mapa->eliminar();
+
+            return response()->json(['success' => 'Mapa eliminado exitosamente']);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al eliminar el mapa: ' . $e->getMessage()], 500);
+        }
+    }
 }
