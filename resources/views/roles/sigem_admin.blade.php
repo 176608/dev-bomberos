@@ -11,27 +11,27 @@
             </a>
             
             <div class="navbar-nav">
-                <a class="nav-link {{ request()->routeIs('sigem.admin.index') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.index') }}">
                     <i class="bi bi-house"></i> Inicio
                 </a>
-                <a class="nav-link {{ request()->routeIs('sigem.admin.mapas') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin/mapas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.mapas') }}">
                     <i class="bi bi-map"></i> Mapas
                 </a>
-                <a class="nav-link {{ request()->routeIs('sigem.admin.temas') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin/temas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.temas') }}">
                     <i class="bi bi-bookmark"></i> Temas
                 </a>
-                <a class="nav-link {{ request()->routeIs('sigem.admin.subtemas') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin/subtemas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.subtemas') }}">
                     <i class="bi bi-bookmarks"></i> Subtemas
                 </a>
-                <a class="nav-link {{ request()->routeIs('sigem.admin.cuadros') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin/cuadros') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.cuadros') }}">
                     <i class="bi bi-table"></i> Cuadros
                 </a>
-                <a class="nav-link {{ request()->routeIs('sigem.admin.consultas') ? 'active' : '' }}" 
+                <a class="nav-link {{ request()->is('sigem/admin/consultas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.consultas') }}">
                     <i class="bi bi-search"></i> Consultas Express
                 </a>
