@@ -31,26 +31,51 @@ class AdminController extends Controller
 
     public function mapas()
     {
-        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_mapa');
+        $mapas = Mapa::obtenerTodos();
+        return view('roles.sigem_admin')->with([
+            'crud_view' => 'SIGEM.CRUD_mapa',
+            'mapas' => $mapas
+        ]);
     }
 
     public function temas()
     {
-        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_tema');
+        $temas = Tema::orderBy('nombre_tema', 'asc')->get();
+        return view('roles.sigem_admin')->with([
+            'crud_view' => 'SIGEM.CRUD_tema',
+            'temas' => $temas
+        ]);
     }
 
     public function subtemas()
     {
-        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_subtema');
+        $subtemas = Subtema::with('tema')->orderBy('nombre_subtema', 'asc')->get();
+        return view('roles.sigem_admin')->with([
+            'crud_view' => 'SIGEM.CRUD_subtema',
+            'subtemas' => $subtemas
+        ]);
     }
 
     public function cuadros()
     {
-        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_cuadro');
+        $cuadros = CuadroEstadistico::with(['tema', 'subtema'])->orderBy('nombre_cuadro', 'asc')->get();
+        return view('roles.sigem_admin')->with([
+            'crud_view' => 'SIGEM.CRUD_cuadro',
+            'cuadros' => $cuadros
+        ]);
     }
 
     public function consultas()
     {
-        return view('roles.sigem_admin')->with('crud_view', 'SIGEM.CRUD_consultas');
+        $temas = ce_tema::orderBy('nombre', 'asc')->get();
+        $subtemas = ce_subtema::with('tema')->orderBy('nombre', 'asc')->get();
+        $contenidos = ce_contenido::with(['tema', 'subtema'])->orderBy('nombre', 'asc')->get();
+        
+        return view('roles.sigem_admin')->with([
+            'crud_view' => 'SIGEM.CRUD_consultas',
+            'ce_temas' => $temas,
+            'ce_subtemas' => $subtemas,
+            'ce_contenidos' => $contenidos
+        ]);
     }
 }
