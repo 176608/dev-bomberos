@@ -203,7 +203,9 @@ class AdminController extends Controller
             $mapa = Mapa::obtenerPorId($id);
             
             if (!$mapa) {
-                return response()->json(['error' => 'Mapa no encontrado'], 404);
+                return redirect()
+                    ->route('sigem.admin.mapas')
+                    ->with('error', 'Mapa no encontrado');
             }
 
             // Eliminar archivo de icono si existe
@@ -211,13 +213,20 @@ class AdminController extends Controller
                 unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
             }
 
+            // Guardar nombre para el mensaje
+            $nombreMapa = $mapa->nombre_mapa;
+
             // Eliminar mapa
             $mapa->eliminar();
 
-            return response()->json(['success' => 'Mapa eliminado exitosamente']);
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('success', "Mapa '{$nombreMapa}' eliminado exitosamente");
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al eliminar el mapa: ' . $e->getMessage()], 500);
+            return redirect()
+                ->route('sigem.admin.mapas')
+                ->with('error', 'Error al eliminar el mapa: ' . $e->getMessage());
         }
     }
 }

@@ -111,11 +111,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-info" 
-                                                    title="Ver detalles" 
-                                                    onclick="verMapa({{ $mapa->mapa_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" 
                                                     title="Editar" 
                                                     onclick="editarMapa({{ $mapa->mapa_id }})">
@@ -230,19 +225,157 @@
     </div>
 </div>
 
-<!-- JavaScript mínimo para acciones -->
-<script>
-function verMapa(id) {
-    alert('Ver detalles del mapa ID: ' + id + '\n(Funcionalidad pendiente)');
-}
+<!-- Modal para editar mapa -->
+<div class="modal fade" id="modalEditarMapa" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Mapa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarMapa" method="POST" action="" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_mapa_id" name="mapa_id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_nombre_seccion" class="form-label">Nombre de Sección</label>
+                                <input type="text" class="form-control" id="edit_nombre_seccion" name="nombre_seccion" 
+                                       placeholder="Ej: Cartografía Básica">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_nombre_mapa" class="form-label">Nombre del Mapa <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_nombre_mapa" name="nombre_mapa" 
+                                       placeholder="Ej: Mapa de División Política" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_descripcion" name="descripcion" rows="3" 
+                                  placeholder="Describe brevemente el contenido del mapa..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="edit_enlace" class="form-label">Enlace</label>
+                                <input type="url" class="form-control" id="edit_enlace" name="enlace" 
+                                       placeholder="https://ejemplo.com/mapa.html">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_codigo_mapa" class="form-label">Código del Mapa</label>
+                                <input type="text" class="form-control" id="edit_codigo_mapa" name="codigo_mapa" 
+                                       placeholder="MP001">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_icono" class="form-label">Cambiar Icono (PNG)</label>
+                        <input type="file" class="form-control" id="edit_icono" name="icono" accept=".png">
+                        <small class="form-text text-muted">Solo archivos PNG. Dejar vacío para mantener el icono actual.</small>
+                        <div id="icono_actual" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar Mapa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
+<!-- JavaScript para acciones CRUD -->
+<script>
 function editarMapa(id) {
-    alert('Editar mapa ID: ' + id + '\n(Funcionalidad pendiente)');
+    // Buscar los datos del mapa en la tabla
+    const fila = event.target.closest('tr');
+    const celdas = fila.cells;
+    
+    // Extraer datos de las celdas
+    const nombre_seccion = celdas[1].textContent.trim();
+    const nombre_mapa = celdas[2].querySelector('strong').textContent.trim();
+    const descripcion_completa = celdas[3].querySelector('span') ? 
+        celdas[3].querySelector('span').getAttribute('title') || celdas[3].textContent.trim() : 
+        celdas[3].textContent.trim();
+    const enlace_btn = celdas[4].querySelector('a');
+    const enlace = enlace_btn ? enlace_btn.getAttribute('href') : '';
+    const codigo = celdas[6].querySelector('code').textContent.trim();
+    const icono_img = celdas[5].querySelector('img');
+    
+    // Llenar el modal de edición
+    document.getElementById('edit_mapa_id').value = id;
+    document.getElementById('edit_nombre_seccion').value = nombre_seccion === 'Sin sección' ? '' : nombre_seccion;
+    document.getElementById('edit_nombre_mapa').value = nombre_mapa;
+    document.getElementById('edit_descripcion').value = descripcion_completa === 'Sin descripción' ? '' : descripcion_completa;
+    document.getElementById('edit_enlace').value = enlace;
+    document.getElementById('edit_codigo_mapa').value = codigo === 'Sin código' ? '' : codigo;
+    
+    // Mostrar icono actual
+    const iconoActualDiv = document.getElementById('icono_actual');
+    if (icono_img) {
+        iconoActualDiv.innerHTML = `
+            <small class="text-muted">Icono actual:</small><br>
+            <img src="${icono_img.src}" alt="Icono actual" class="img-thumbnail" style="max-width: 60px;">
+        `;
+    } else {
+        iconoActualDiv.innerHTML = '<small class="text-muted">Sin icono actual</small>';
+    }
+    
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarMapa');
+    form.action = `/sigem/admin/mapas/${id}/actualizar`;
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarMapa')).show();
 }
 
 function eliminarMapa(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el mapa "' + nombre + '"?')) {
-        alert('Eliminar mapa ID: ' + id + '\n(Funcionalidad pendiente)');
+    if (confirm('¿Estás seguro de eliminar el registro del mapa "' + nombre + '"?\n\nEsta acción no se puede deshacer y eliminará también el archivo de icono asociado.')) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/sigem/admin/mapas/${id}/eliminar`;
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
+
+// Limpiar modal al cerrarlo
+document.getElementById('modalAgregarMapa')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarMapa')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('icono_actual').innerHTML = '';
+});
 </script>
