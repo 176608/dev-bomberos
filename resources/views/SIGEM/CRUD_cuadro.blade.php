@@ -1,3 +1,31 @@
+<!-- Mensajes de éxito, error y validación -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> 
+        <strong>Errores de validación:</strong>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <!-- Header del CRUD -->
 <div class="row mb-4">
     <div class="col-md-8">
@@ -108,11 +136,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-info" 
-                                                    title="Ver detalles" 
-                                                    onclick="verCuadro({{ $cuadro->cuadro_estadistico_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" 
                                                     title="Editar" 
                                                     onclick="editarCuadro({{ $cuadro->cuadro_estadistico_id }})">
@@ -153,52 +176,77 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Cuadro Estadístico</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarCuadro" method="POST" action="#" enctype="multipart/form-data">
+            <form id="formAgregarCuadro" method="POST" action="{{ route('sigem.admin.cuadros.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="codigo_cuadro" class="form-label">Código del Cuadro <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="codigo_cuadro" name="codigo_cuadro" 
-                                       placeholder="Ej: CUA001" required>
+                                <input type="text" class="form-control @error('codigo_cuadro') is-invalid @enderror" 
+                                       id="codigo_cuadro" name="codigo_cuadro" 
+                                       placeholder="Ej: CUA001" value="{{ old('codigo_cuadro') }}" required>
+                                @error('codigo_cuadro')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="cuadro_estadistico_titulo" class="form-label">Título del Cuadro <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="cuadro_estadistico_titulo" name="cuadro_estadistico_titulo" 
-                                       placeholder="Ej: Población por Edad y Sexo 2024" required>
+                                <input type="text" class="form-control @error('cuadro_estadistico_titulo') is-invalid @enderror" 
+                                       id="cuadro_estadistico_titulo" name="cuadro_estadistico_titulo" 
+                                       placeholder="Ej: Población por Edad y Sexo 2024" 
+                                       value="{{ old('cuadro_estadistico_titulo') }}" required>
+                                @error('cuadro_estadistico_titulo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
-                        <input type="text" class="form-control" id="cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo" 
-                               placeholder="Descripción adicional del cuadro (opcional)">
+                        <input type="text" class="form-control @error('cuadro_estadistico_subtitulo') is-invalid @enderror" 
+                               id="cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo" 
+                               placeholder="Descripción adicional del cuadro (opcional)"
+                               value="{{ old('cuadro_estadistico_subtitulo') }}">
+                        @error('cuadro_estadistico_subtitulo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="tema_id_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="tema_id_select" name="tema_id" required>
+                                <select class="form-select @error('tema_id') is-invalid @enderror" 
+                                        id="tema_id_select" name="tema_id" required>
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($temas))
                                         @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
+                                            <option value="{{ $tema->tema_id }}" 
+                                                    {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
+                                                {{ $tema->tema_titulo }}
+                                            </option>
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('tema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="subtema_id" name="subtema_id" required>
+                                <select class="form-select @error('subtema_id') is-invalid @enderror" 
+                                        id="subtema_id" name="subtema_id" required>
                                     <option value="">Seleccionar subtema...</option>
                                 </select>
+                                @error('subtema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -210,25 +258,26 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="excel_file" class="form-label">Archivo Excel</label>
-                                        <input type="file" class="form-control" id="excel_file" name="excel_file" accept=".xlsx,.xls">
-                                        <small class="form-text text-muted">Formato: .xlsx o .xls</small>
+                                        <input type="file" class="form-control @error('excel_file') is-invalid @enderror" 
+                                               id="excel_file" name="excel_file" accept=".xlsx,.xls">
+                                        <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
+                                        @error('excel_file')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="pdf_file" class="form-label">Archivo PDF</label>
-                                        <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept=".pdf">
-                                        <small class="form-text text-muted">Formato: .pdf</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="img_name" class="form-label">Imagen</label>
-                                        <input type="file" class="form-control" id="img_name" name="img_name" accept="image/*">
-                                        <small class="form-text text-muted">Imagen del cuadro</small>
+                                        <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" 
+                                               id="pdf_file" name="pdf_file" accept=".pdf">
+                                        <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
+                                        @error('pdf_file')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +293,9 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="permite_grafica" name="permite_grafica" value="1">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="permite_grafica" name="permite_grafica" value="1"
+                                               {{ old('permite_grafica') ? 'checked' : '' }}>
                                         <label class="form-check-label" for="permite_grafica">
                                             Permite gráficas
                                         </label>
@@ -253,18 +304,22 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="tipo_grafica_permitida" class="form-label">Tipo de Gráfica</label>
-                                        <select class="form-select" id="tipo_grafica_permitida" name="tipo_grafica_permitida" disabled>
+                                        <select class="form-select" id="tipo_grafica_permitida" 
+                                                name="tipo_grafica_permitida" disabled>
                                             <option value="">Seleccionar...</option>
-                                            <option value="bar">Barras</option>
-                                            <option value="line">Líneas</option>
-                                            <option value="pie">Pastel</option>
-                                            <option value="doughnut">Dona</option>
+                                            <option value="bar" {{ old('tipo_grafica_permitida') == 'bar' ? 'selected' : '' }}>Barras</option>
+                                            <option value="line" {{ old('tipo_grafica_permitida') == 'line' ? 'selected' : '' }}>Líneas</option>
+                                            <option value="pie" {{ old('tipo_grafica_permitida') == 'pie' ? 'selected' : '' }}>Pastel</option>
+                                            <option value="doughnut" {{ old('tipo_grafica_permitida') == 'doughnut' ? 'selected' : '' }}>Dona</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="inventir_eje_vertical_horizontal" name="inventir_eje_vertical_horizontal" value="1">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="inventir_eje_vertical_horizontal" 
+                                               name="inventir_eje_vertical_horizontal" value="1"
+                                               {{ old('inventir_eje_vertical_horizontal') ? 'checked' : '' }}>
                                         <label class="form-check-label" for="inventir_eje_vertical_horizontal">
                                             Invertir ejes
                                         </label>
@@ -276,15 +331,17 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="eje_vertical_mchart" class="form-label">Etiqueta Eje Vertical</label>
-                                        <input type="text" class="form-control" id="eje_vertical_mchart" name="eje_vertical_mchart" 
-                                               placeholder="Ej: Población" disabled>
+                                        <input type="text" class="form-control" id="eje_vertical_mchart" 
+                                               name="eje_vertical_mchart" placeholder="Ej: Población" 
+                                               value="{{ old('eje_vertical_mchart') }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="pie_pagina" class="form-label">Pie de Página</label>
-                                        <input type="text" class="form-control" id="pie_pagina" name="pie_pagina" 
-                                               placeholder="Nota o fuente del cuadro">
+                                        <input type="text" class="form-control" id="pie_pagina" 
+                                               name="pie_pagina" placeholder="Nota o fuente del cuadro"
+                                               value="{{ old('pie_pagina') }}">
                                     </div>
                                 </div>
                             </div>
@@ -310,12 +367,11 @@
                 <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cuadro Estadístico</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formEditarCuadro" method="POST" action="#" enctype="multipart/form-data">
+            <form id="formEditarCuadro" method="POST" action="" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
                 <div class="modal-body">
-                    <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
-                    
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -376,21 +432,65 @@
 
 <!-- JavaScript para funcionalidades -->
 <script>
+// Rutas para JavaScript
+const routesCuadros = {
+    update: '{{ route("sigem.admin.cuadros.actualizar", ":id") }}',
+    delete: '{{ route("sigem.admin.cuadros.eliminar", ":id") }}',
+    subtemasPorTema: '{{ url("/sigem/admin/cuadros/subtemas") }}'
+};
+
 // Datos de subtemas para filtrado
 const subtemasData = @json($subtemas ?? []);
 
-function verCuadro(id) {
-    alert('Ver detalles del cuadro ID: ' + id + '\n(Funcionalidad pendiente)');
-}
-
 function editarCuadro(id) {
-    // Aquí iría la lógica para cargar los datos del cuadro en el modal de edición
-    alert('Editar cuadro ID: ' + id + '\n(Funcionalidad pendiente)');
+    // Buscar los datos del cuadro en la tabla
+    const fila = event.target.closest('tr');
+    const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
+    const titulo = fila.cells[2].querySelector('strong').textContent;
+    const subtitulo_cell = fila.cells[3];
+    const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
+    
+    // Llenar el modal de edición
+    document.getElementById('edit_cuadro_estadistico_id').value = id;
+    document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
+    document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
+    document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
+    
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarCuadro');
+    form.action = routesCuadros.update.replace(':id', id);
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
 }
 
 function eliminarCuadro(id, titulo) {
-    if (confirm('¿Estás seguro de eliminar el cuadro "' + titulo + '"?\n\nEsta acción eliminará también todos los archivos asociados.')) {
-        alert('Eliminar cuadro ID: ' + id + '\n(Funcionalidad pendiente)');
+    const mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}"?\n\n⚠️ Esta acción eliminará:\n- El registro del cuadro\n- Archivos Excel y PDF asociados\n- NO se puede deshacer`;
+    
+    if (confirm(mensaje)) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesCuadros.delete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
@@ -400,7 +500,9 @@ function filtrarSubtemas(temaSelect, subtemaSelect) {
     subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
     
     if (temaId) {
-        const subtemasDelTema = subtemasData.filter(subtema => subtema.tema && subtema.tema.tema_id == temaId);
+        const subtemasDelTema = subtemasData.filter(subtema => 
+            subtema.tema && subtema.tema.tema_id == temaId
+        );
         
         subtemasDelTema.forEach(subtema => {
             const option = document.createElement('option');
@@ -441,9 +543,22 @@ document.getElementById('subtema_id')?.addEventListener('change', function() {
     if (this.value) {
         const subtemaSeleccionado = subtemasData.find(subtema => subtema.subtema_id == this.value);
         if (subtemaSeleccionado && subtemaSeleccionado.tema) {
-            const codigoSugerido = subtemaSeleccionado.tema.clave_tema || 'CUA' + String(subtemaSeleccionado.tema.tema_id).padStart(3, '0');
-            document.getElementById('codigo_cuadro').placeholder = `Sugerido: ${codigoSugerido}_001`;
+            const codigoBase = subtemaSeleccionado.tema.clave_tema || 'CUA';
+            const sugerido = codigoBase + '_' + String(subtemaSeleccionado.subtema_id).padStart(3, '0');
+            document.getElementById('codigo_cuadro').placeholder = `Sugerido: ${sugerido}`;
         }
     }
+});
+
+// Limpiar modales al cerrar
+document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('tipo_grafica_permitida').disabled = true;
+    document.getElementById('eje_vertical_mchart').disabled = true;
+});
+
+document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('archivos_actuales').innerHTML = '';
 });
 </script>

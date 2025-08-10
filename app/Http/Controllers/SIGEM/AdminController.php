@@ -546,20 +546,224 @@ class AdminController extends Controller
     // ============ MÉTODOS CRUD PARA CUADROS ============
     public function crearCuadro(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'codigo_cuadro' => 'required|string|max:50|unique:cuadro_estadistico,codigo_cuadro',
+                'cuadro_estadistico_titulo' => 'required|string|max:255',
+                'cuadro_estadistico_subtitulo' => 'nullable|string|max:500',
+                'subtema_id' => 'required|integer|exists:subtema,subtema_id',
+                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
+                'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
+                'permite_grafica' => 'nullable|boolean',
+                'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
+                'eje_vertical_mchart' => 'nullable|string|max:100',
+                'pie_pagina' => 'nullable|string|max:500',
+                'inventir_eje_vertical_horizontal' => 'nullable|boolean'
+            ]);
+
+            $datos = $request->only([
+                'codigo_cuadro',
+                'cuadro_estadistico_titulo',
+                'cuadro_estadistico_subtitulo',
+                'subtema_id',
+                'eje_vertical_mchart',
+                'pie_pagina'
+            ]);
+
+            // Manejar checkboxes
+            $datos['permite_grafica'] = $request->has('permite_grafica');
+            $datos['inventir_eje_vertical_horizontal'] = $request->has('inventir_eje_vertical_horizontal');
+            $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
+
+            // Crear directorios si no existen
+            $directorioExcel = public_path('archivos/cuadros_estadisticos/excel');
+            $directorioPdf = public_path('archivos/cuadros_estadisticos/pdf');
+            
+            if (!file_exists($directorioExcel)) {
+                mkdir($directorioExcel, 0755, true);
+            }
+            if (!file_exists($directorioPdf)) {
+                mkdir($directorioPdf, 0755, true);
+            }
+
+            // Manejar upload de archivo Excel
+            if ($request->hasFile('excel_file')) {
+                $archivo = $request->file('excel_file');
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $archivo->move($directorioExcel, $nombreArchivo);
+                $datos['excel_file'] = $nombreArchivo;
+            }
+
+            // Manejar upload de archivo PDF
+            if ($request->hasFile('pdf_file')) {
+                $archivo = $request->file('pdf_file');
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $archivo->move($directorioPdf, $nombreArchivo);
+                $datos['pdf_file'] = $nombreArchivo;
+            }
+
+            // Crear cuadro
+            $cuadro = CuadroEstadistico::crear($datos);
+
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' creado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('error', 'Error al crear el cuadro estadístico: ' . $e->getMessage());
+        }
     }
 
     public function actualizarCuadro(Request $request, $id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+        try {
+            $cuadro = CuadroEstadistico::obtenerPorId($id);
+            
+            if (!$cuadro) {
+                return redirect()
+                    ->route('sigem.admin.cuadros')
+                    ->with('error', 'Cuadro estadístico no encontrado');
+            }
+
+            // Validar datos (excluir el ID actual de la validación de código único)
+            $request->validate([
+                'codigo_cuadro' => 'required|string|max:50|unique:cuadro_estadistico,codigo_cuadro,' . $id . ',cuadro_estadistico_id',
+                'cuadro_estadistico_titulo' => 'required|string|max:255',
+                'cuadro_estadistico_subtitulo' => 'nullable|string|max:500',
+                'subtema_id' => 'required|integer|exists:subtema,subtema_id',
+                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
+                'permite_grafica' => 'nullable|boolean',
+                'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
+                'eje_vertical_mchart' => 'nullable|string|max:100',
+                'pie_pagina' => 'nullable|string|max:500',
+                'inventir_eje_vertical_horizontal' => 'nullable|boolean'
+            ]);
+
+            $datos = $request->only([
+                'codigo_cuadro',
+                'cuadro_estadistico_titulo',
+                'cuadro_estadistico_subtitulo',
+                'subtema_id',
+                'eje_vertical_mchart',
+                'pie_pagina'
+            ]);
+
+            // Manejar checkboxes
+            $datos['permite_grafica'] = $request->has('permite_grafica');
+            $datos['inventir_eje_vertical_horizontal'] = $request->has('inventir_eje_vertical_horizontal');
+            $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
+
+            // Directorios para archivos
+            $directorioExcel = public_path('archivos/cuadros_estadisticos/excel');
+            $directorioPdf = public_path('archivos/cuadros_estadisticos/pdf');
+
+            // Manejar upload de nuevo archivo Excel
+            if ($request->hasFile('excel_file')) {
+                // Eliminar archivo anterior si existe
+                if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
+                    unlink($directorioExcel . '/' . $cuadro->excel_file);
+                }
+
+                $archivo = $request->file('excel_file');
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $archivo->move($directorioExcel, $nombreArchivo);
+                $datos['excel_file'] = $nombreArchivo;
+            }
+
+            // Manejar upload de nuevo archivo PDF
+            if ($request->hasFile('pdf_file')) {
+                // Eliminar archivo anterior si existe
+                if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
+                    unlink($directorioPdf . '/' . $cuadro->pdf_file);
+                }
+
+                $archivo = $request->file('pdf_file');
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $archivo->move($directorioPdf, $nombreArchivo);
+                $datos['pdf_file'] = $nombreArchivo;
+            }
+
+            // Actualizar cuadro
+            $cuadro->actualizar($datos);
+
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' actualizado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('error', 'Error al actualizar el cuadro estadístico: ' . $e->getMessage());
+        }
     }
 
     public function eliminarCuadro($id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.cuadros')->with('error', 'Método no implementado aún');
+        try {
+            $cuadro = CuadroEstadistico::obtenerPorId($id);
+            
+            if (!$cuadro) {
+                return redirect()
+                    ->route('sigem.admin.cuadros')
+                    ->with('error', 'Cuadro estadístico no encontrado');
+            }
+
+            // Eliminar archivos físicos si existen
+            if ($cuadro->excel_file && file_exists(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file))) {
+                unlink(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file));
+            }
+
+            if ($cuadro->pdf_file && file_exists(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file))) {
+                unlink(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file));
+            }
+
+            // Guardar datos para el mensaje
+            $nombreCuadro = $cuadro->cuadro_estadistico_titulo;
+            $codigoCuadro = $cuadro->codigo_cuadro;
+
+            // Eliminar cuadro
+            $cuadro->eliminar();
+
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('success', "Cuadro estadístico '{$nombreCuadro}' (código: {$codigoCuadro}) eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('error', 'Error al eliminar el cuadro estadístico: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AJAX: Obtener subtemas por tema
+     */
+    public function obtenerSubtemasPorTema($tema_id)
+    {
+        try {
+            $subtemas = Subtema::where('tema_id', $tema_id)
+                              ->orderBy('orden_indice', 'asc')
+                              ->orderBy('subtema_titulo', 'asc')
+                              ->get(['subtema_id', 'subtema_titulo']);
+            
+            return response()->json(['subtemas' => $subtemas]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener subtemas'], 500);
+        }
     }
 
     // ============ MÉTODOS CRUD PARA CONSULTAS EXPRESS ============
