@@ -98,11 +98,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-info" 
-                                                    title="Ver detalles" 
-                                                    onclick="verSubtema({{ $subtema->subtema_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" 
                                                     title="Editar" 
                                                     onclick="editarSubtema({{ $subtema->subtema_id }})">
@@ -317,10 +312,6 @@ const routesSubtemas = {
     delete: '{{ route("sigem.admin.subtemas.eliminar", ":id") }}',
     siguienteOrden: '{{ url("/sigem/admin/subtemas/siguiente-orden") }}'
 };
-
-function verSubtema(id) {
-    alert('Ver detalles del subtema ID: ' + id + '\n(Funcionalidad pendiente)');
-}
 
 function editarSubtema(id) {
     // Buscar los datos del subtema en la tabla

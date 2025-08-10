@@ -29,7 +29,6 @@ class CuadroEstadistico extends Model
         'codigo_cuadro',
         'cuadro_estadistico_titulo',
         'cuadro_estadistico_subtitulo',
-        'img_name',
         'excel_file',
         'pdf_file',
         'permite_grafica',
@@ -49,7 +48,6 @@ class CuadroEstadistico extends Model
         'codigo_cuadro' => 'string',
         'cuadro_estadistico_titulo' => 'string',
         'cuadro_estadistico_subtitulo' => 'string',
-        'img_name' => 'string',
         'excel_file' => 'string',
         'pdf_file' => 'string',
         'permite_grafica' => 'boolean',
@@ -118,7 +116,6 @@ class CuadroEstadistico extends Model
             'tema_id' => $datos['tema_id'],
             'subtema_id' => $datos['subtema_id'],
             'cuadro_estadistico_subtitulo' => $datos['subtitulo'] ?? null,
-            'img_name' => $datos['img_name'] ?? null,
             'excel_file' => $datos['excel_file'] ?? null,
             'pdf_file' => $datos['pdf_file'] ?? null,
             'permite_grafica' => $datos['permite_grafica'] ?? false,
@@ -209,102 +206,7 @@ class CuadroEstadistico extends Model
                   ->get();
     }
     
-    /**
-     * Obtener cuadros que permiten gráficas
-     */
-    public static function obtenerConGraficas()
-    {
-        return self::with(['tema', 'subtema'])
-                  ->where('permite_grafica', true)
-                  ->orderBy('codigo_cuadro', 'asc')
-                  ->get();
-    }
     
-    /**
-     * Obtener cuadros con archivos Excel
-     */
-    public static function obtenerConExcel()
-    {
-        return self::with(['tema', 'subtema'])
-                  ->whereNotNull('excel_file')
-                  ->where('excel_file', '!=', '')
-                  ->orderBy('codigo_cuadro', 'asc')
-                  ->get();
-    }
-    
-    /**
-     * Obtener cuadros con archivos PDF
-     */
-    public static function obtenerConPdf()
-    {
-        return self::with(['tema', 'subtema'])
-                  ->whereNotNull('pdf_file')
-                  ->where('pdf_file', '!=', '')
-                  ->orderBy('codigo_cuadro', 'asc')
-                  ->get();
-    }
-    
-    /**
-     * Validar si el cuadro existe
-     */
-    public static function existe($cuadro_estadistico_id)
-    {
-        return self::where('cuadro_estadistico_id', $cuadro_estadistico_id)->exists();
-    }
-    
-    /**
-     * Validar si el código de cuadro ya existe
-     */
-    public static function codigoExiste($codigo_cuadro, $excluir_id = null)
-    {
-        $query = self::where('codigo_cuadro', $codigo_cuadro);
-        
-        if ($excluir_id) {
-            $query->where('cuadro_estadistico_id', '!=', $excluir_id);
-        }
-        
-        return $query->exists();
-    }
-    
-    /**
-     * Scope para ordenar por código
-     */
-    public function scopeOrdenadoPorCodigo($query)
-    {
-        return $query->orderBy('codigo_cuadro', 'asc');
-    }
-    
-    /**
-     * Scope para ordenar por título
-     */
-    public function scopeOrdenadoPorTitulo($query)
-    {
-        return $query->orderBy('cuadro_estadistico_titulo', 'asc');
-    }
-    
-    /**
-     * Accessor para obtener la ruta completa de la imagen
-     */
-    public function getRutaImagenAttribute()
-    {
-        return $this->img_name ? asset('imagenes/cuadros/' . $this->img_name) : null;
-    }
-    
-    /**
-     * Accessor para obtener la ruta completa del archivo Excel
-     */
-    public function getRutaExcelAttribute()
-    {
-        return $this->excel_file ? asset('archivos/excel/' . $this->excel_file) : null;
-    }
-    
-    /**
-     * Accessor para obtener la ruta completa del archivo PDF
-     */
-    public function getRutaPdfAttribute()
-    {
-        return $this->pdf_file ? asset('archivos/pdf/' . $this->pdf_file) : null;
-    }
     
     /**
      * Accessor para obtener el código formateado
@@ -312,25 +214,6 @@ class CuadroEstadistico extends Model
     public function getCodigoFormateadoAttribute()
     {
         return strtoupper($this->codigo_cuadro);
-    }
-    
-    /**
-     * Accessor para obtener información completa (para compatibilidad)
-     */
-    public function getInfoCompletaAttribute()
-    {
-        return [
-            'cuadro_estadistico_id' => $this->cuadro_estadistico_id,
-            'codigo_cuadro' => $this->codigo_cuadro,
-            'titulo' => $this->cuadro_estadistico_titulo,
-            'subtitulo' => $this->cuadro_estadistico_subtitulo,
-            'tema' => $this->tema ? $this->tema->nombre : null,
-            'subtema' => $this->subtema ? $this->subtema->nombre_subtema : null,
-            'tiene_excel' => !empty($this->excel_file),
-            'tiene_pdf' => !empty($this->pdf_file),
-            'tiene_imagen' => !empty($this->img_name),
-            'permite_grafica' => $this->permite_grafica
-        ];
     }
     
     /**
