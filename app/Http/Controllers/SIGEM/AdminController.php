@@ -75,15 +75,15 @@ class AdminController extends Controller
 
     public function consultas()
     {
-        $temas = ce_tema::orderBy('nombre', 'asc')->get();
-        $subtemas = ce_subtema::with('tema')->orderBy('nombre', 'asc')->get();
-        $contenidos = ce_contenido::with(['tema', 'subtema'])->orderBy('nombre', 'asc')->get();
+        $ce_temas = ce_tema::obtenerTodos(); // Usar el método del modelo
+        $ce_subtemas = ce_subtema::with('tema')->orderBy('ce_subtema_id', 'asc')->get(); // Corregir nombre de campo
+        $ce_contenidos = ce_contenido::with(['subtema.tema'])->orderBy('created_at', 'desc')->get(); // Con relaciones
         
         return view('roles.sigem_admin')->with([
             'crud_view' => 'SIGEM.CRUD_consultas',
-            'ce_temas' => $temas,
-            'ce_subtemas' => $subtemas,
-            'ce_contenidos' => $contenidos
+            'ce_temas' => $ce_temas,
+            'ce_subtemas' => $ce_subtemas,
+            'ce_contenidos' => $ce_contenidos
         ]);
     }
 }
