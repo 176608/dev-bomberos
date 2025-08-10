@@ -235,7 +235,7 @@
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sigem.admin.index') ? 'active' : '' }}" 
+                                    <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
                                        href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
@@ -258,8 +258,8 @@
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sigem.admin') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin') }}" title="Panel de Administración de SIGEM">
+                                    <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
                                         <i class="bi bi-gear"></i> SIGEM ADMIN
                                     </a>
                                 </li>
