@@ -49,10 +49,13 @@ class AdminController extends Controller
 
     public function subtemas()
     {
-        $subtemas = Subtema::with('tema')->orderBy('nombre_subtema', 'asc')->get();
+        $subtemas = Subtema::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Corregido: subtema_titulo
+        $temas = Tema::orderBy('tema_titulo', 'asc')->get(); // Para el select de agregar/editar
+        
         return view('roles.sigem_admin')->with([
             'crud_view' => 'SIGEM.CRUD_subtema',
-            'subtemas' => $subtemas
+            'subtemas' => $subtemas,
+            'temas' => $temas
         ]);
     }
 
