@@ -298,6 +298,12 @@
 
 <!-- JavaScript para acciones CRUD -->
 <script>
+// Definir rutas para usar en JavaScript
+const routes = {
+    update: '{{ route("sigem.admin.mapas.actualizar", ":id") }}',
+    delete: '{{ route("sigem.admin.mapas.eliminar", ":id") }}'
+};
+
 function editarMapa(id) {
     // Buscar los datos del mapa en la tabla
     const fila = event.target.closest('tr');
@@ -333,9 +339,9 @@ function editarMapa(id) {
         iconoActualDiv.innerHTML = '<small class="text-muted">Sin icono actual</small>';
     }
     
-    // Actualizar la acción del formulario
+    // Actualizar la acción del formulario usando las rutas named
     const form = document.getElementById('formEditarMapa');
-    form.action = `/sigem/admin/mapas/${id}/actualizar`;
+    form.action = routes.update.replace(':id', id);
     
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarMapa')).show();
@@ -346,7 +352,7 @@ function eliminarMapa(id, nombre) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/sigem/admin/mapas/${id}/eliminar`;
+        form.action = routes.delete.replace(':id', id);
         form.style.display = 'none';
         
         // Token CSRF
