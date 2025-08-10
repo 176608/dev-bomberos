@@ -72,9 +72,8 @@
                                     </td>
                                     <td>
                                         @if($mapa->icono)
-                                            <img src="{{ asset('storage/iconos/' . $mapa->icono) }}" alt="Icono" 
-                                                 class="img-thumbnail" style="max-width: 30px; max-height: 30px;" 
-                                                 onerror="this.src='{{ asset('images/no-icon.png') }}'">
+                                            <img src="{{ asset('img/SIGEM_mapas/' . $mapa->icono) }}" alt="Icono" 
+                                                 class="img-thumbnail" style="max-width: 30px; max-height: 30px;">
                                         @else
                                             <i class="bi bi-image text-muted"></i>
                                         @endif
