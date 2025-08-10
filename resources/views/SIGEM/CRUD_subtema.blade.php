@@ -65,9 +65,8 @@
                                     </td>
                                     <td>
                                         @if($subtema->imagen)
-                                            <img src="{{ asset('storage/subtemas/' . $subtema->imagen) }}" alt="Imagen" 
-                                                 class="img-thumbnail" style="max-width: 40px; max-height: 40px;" 
-                                                 onerror="this.src='{{ asset('images/no-image.png') }}'">
+                                            <img src="{{ asset('imagenes/subtemas_u/' . $subtema->imagen) }}" alt="Imagen" 
+                                                 class="img-thumbnail" style="max-width: 40px; max-height: 40px;">
                                         @else
                                             <i class="bi bi-image text-muted"></i>
                                         @endif
