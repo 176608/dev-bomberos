@@ -143,22 +143,33 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Subtema</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarSubtema" method="POST" action="#" enctype="multipart/form-data">
+            <form id="formAgregarSubtema" method="POST" action="{{ route('sigem.admin.subtemas.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="subtema_titulo" class="form-label">Título del Subtema <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="subtema_titulo" name="subtema_titulo" 
-                                       placeholder="Ej: Población por Edad y Sexo" required>
+                                <input type="text" class="form-control @error('subtema_titulo') is-invalid @enderror" 
+                                       id="subtema_titulo" name="subtema_titulo" 
+                                       placeholder="Ej: Población por Edad y Sexo" 
+                                       value="{{ old('subtema_titulo') }}" required>
+                                @error('subtema_titulo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="orden_indice" class="form-label">Orden</label>
-                                <input type="number" class="form-control" id="orden_indice" name="orden_indice" 
-                                       placeholder="1" min="0" max="999" value="1">
+                                <label for="orden_indice" class="form-label">Orden <small class="text-muted">(en el tema)</small></label>
+                                <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
+                                       id="orden_indice" name="orden_indice" 
+                                       placeholder="Auto" min="1" max="999" 
+                                       value="{{ old('orden_indice') }}">
+                                <small class="form-text text-muted">Dejar vacío para usar el siguiente disponible</small>
+                                @error('orden_indice')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -167,38 +178,54 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                                <select class="form-select" id="tema_id" name="tema_id" required>
+                                <select class="form-select @error('tema_id') is-invalid @enderror" 
+                                        id="tema_id" name="tema_id" required>
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($temas))
                                         @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
+                                            <option value="{{ $tema->tema_id }}" 
+                                                    {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
+                                                {{ $tema->tema_titulo }}
+                                            </option>
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('tema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="clave_subtema" class="form-label">Clave del Subtema</label>
-                                <input type="text" class="form-control" id="clave_subtema" name="clave_subtema" 
-                                       placeholder="Ej: DEM001A" maxlength="15">
+                                <input type="text" class="form-control @error('clave_subtema') is-invalid @enderror" 
+                                       id="clave_subtema" name="clave_subtema" 
+                                       placeholder="Ej: DEM001A" maxlength="15"
+                                       value="{{ old('clave_subtema') }}">
                                 <small class="form-text text-muted">Opcional. Si no se especifica, heredará la clave del tema.</small>
+                                @error('clave_subtema')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="imagen" class="form-label">Imagen del Subtema</label>
-                        <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+                        <input type="file" class="form-control @error('imagen') is-invalid @enderror" 
+                               id="imagen" name="imagen" accept="image/*">
                         <small class="form-text text-muted">Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
+                        @error('imagen')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     
                     <div class="alert alert-info">
-                        <h6><i class="bi bi-info-circle"></i> Información sobre Claves:</h6>
+                        <h6><i class="bi bi-info-circle"></i> Información sobre Orden:</h6>
                         <ul class="mb-0 small">
-                            <li><strong>Clave propia:</strong> Si especificas una clave, se usará esa.</li>
-                            <li><strong>Clave heredada:</strong> Si no especificas clave, se heredará la del tema padre.</li>
-                            <li><strong>Claves duplicadas:</strong> Si hay duplicados, solo el subtema con menor orden conservará la clave original.</li>
+                            <li><strong>Orden automático:</strong> Si dejas el campo vacío, se asignará automáticamente el siguiente número disponible dentro del tema seleccionado.</li>
+                            <li><strong>Orden manual:</strong> Puedes especificar un número específico, pero debe ser único dentro del tema.</li>
+                            <li><strong>Rango:</strong> El orden debe estar entre 1 y 999.</li>
                         </ul>
                     </div>
                 </div>
@@ -282,8 +309,15 @@
     </div>
 </div>
 
-<!-- JavaScript mínimo para acciones -->
+<!-- JavaScript actualizado -->
 <script>
+// Definir rutas para usar en JavaScript
+const routesSubtemas = {
+    update: '{{ route("sigem.admin.subtemas.actualizar", ":id") }}',
+    delete: '{{ route("sigem.admin.subtemas.eliminar", ":id") }}',
+    siguienteOrden: '{{ url("/sigem/admin/subtemas/siguiente-orden") }}'
+};
+
 function verSubtema(id) {
     alert('Ver detalles del subtema ID: ' + id + '\n(Funcionalidad pendiente)');
 }
@@ -328,22 +362,75 @@ function editarSubtema(id) {
         imagenActualDiv.innerHTML = '<small class="text-muted">Sin imagen actual</small>';
     }
     
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarSubtema');
+    form.action = routesSubtemas.update.replace(':id', id);
+    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarSubtema')).show();
 }
 
 function eliminarSubtema(id, titulo) {
-    if (confirm('¿Estás seguro de eliminar el subtema "' + titulo + '"?\n\nEsta acción no se puede deshacer.')) {
-        alert('Eliminar subtema ID: ' + id + '\n(Funcionalidad pendiente)');
+    // Obtener información del tema
+    const fila = event.target.closest('tr');
+    const temaBadge = fila.cells[2].querySelector('.badge');
+    const temaNombre = temaBadge ? temaBadge.textContent : 'tema desconocido';
+    
+    const mensaje = `¿Estás seguro de eliminar el subtema "${titulo}" del tema "${temaNombre}"?\n\n⚠️ Esta acción también eliminará:\n- La imagen asociada (si existe)\n- NO se puede deshacer\n\nNOTA: Si tiene cuadros estadísticos asociados, no se podrá eliminar.`;
+    
+    if (confirm(mensaje)) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesSubtemas.delete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
-// Auto-completar orden basado en el tema seleccionado
+// FUNCIONALIDAD CLAVE: Auto-completar orden basado en el tema seleccionado
 document.getElementById('tema_id')?.addEventListener('change', function() {
-    if (this.value) {
-        // Simular obtener el siguiente orden para el tema seleccionado
-        // En una implementación real, esto sería una llamada AJAX
-        document.getElementById('orden_indice').value = '1';
+    const temaId = this.value;
+    const ordenInput = document.getElementById('orden_indice');
+    
+    if (temaId) {
+        // Obtener siguiente orden para el tema seleccionado mediante AJAX
+        fetch(`/sigem/admin/subtemas/siguiente-orden/${temaId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.siguiente_orden) {
+                    ordenInput.placeholder = `Siguiente: ${data.siguiente_orden}`;
+                    
+                    // Si el campo está vacío, sugerir el siguiente orden
+                    if (!ordenInput.value) {
+                        ordenInput.value = data.siguiente_orden;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener siguiente orden:', error);
+                ordenInput.placeholder = 'Auto';
+            });
+    } else {
+        ordenInput.placeholder = 'Auto';
+        ordenInput.value = '';
     }
 });
 
@@ -353,16 +440,28 @@ document.getElementById('subtema_titulo')?.addEventListener('input', function() 
     const temaSelect = document.getElementById('tema_id');
     
     if (titulo && temaSelect.value) {
-        // Generar clave sugerida basada en título
+        // Generar clave sugerida basada en título (primeras letras)
         const clave = titulo.toUpperCase()
                           .replace(/[ÁÉÍÓÚÑÜ]/g, function(match) {
                               const replacements = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
                               return replacements[match];
                           })
                           .replace(/[^A-Z0-9]/g, '')
-                          .substring(0, 8) + 'A';
+                          .substring(0, 6) + 'A';
         
         document.getElementById('clave_subtema').placeholder = `Sugerido: ${clave}`;
     }
+});
+
+// Limpiar modales al cerrar
+document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('orden_indice').placeholder = 'Auto';
+    document.getElementById('clave_subtema').placeholder = 'Ej: DEM001A';
+});
+
+document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('imagen_actual').innerHTML = '';
 });
 </script>

@@ -29,7 +29,7 @@ class Subtema extends Model
         'imagen',
         'orden_indice',
         'tema_id',
-        'clave_subtema' // AGREGAR: nuevo campo
+        'clave_subtema'
     ];
     
     /**
@@ -41,7 +41,7 @@ class Subtema extends Model
         'subtema_titulo' => 'string',
         'imagen' => 'string',
         'orden_indice' => 'integer',
-        'clave_subtema' => 'string' // AGREGAR: nuevo campo
+        'clave_subtema' => 'string'
     ];
     
     /**

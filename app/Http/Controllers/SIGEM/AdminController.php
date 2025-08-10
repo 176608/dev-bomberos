@@ -355,20 +355,192 @@ class AdminController extends Controller
     // ============ MÉTODOS CRUD PARA SUBTEMAS ============
     public function crearSubtema(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'subtema_titulo' => 'required|string|max:255',
+                'tema_id' => 'required|integer|exists:tema,tema_id',
+                'clave_subtema' => 'nullable|string|max:15',
+                'orden_indice' => 'nullable|integer|min:0|max:999',
+                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048'
+            ]);
+
+            $datos = $request->only([
+                'subtema_titulo',
+                'tema_id',
+                'clave_subtema'
+            ]);
+
+            // Si no se proporciona orden, obtener el siguiente disponible para el tema específico
+            if ($request->filled('orden_indice')) {
+                $datos['orden_indice'] = $request->orden_indice;
+            } else {
+                $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
+            }
+
+            // Manejar upload de imagen
+            if ($request->hasFile('imagen')) {
+                $archivo = $request->file('imagen');
+                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+                
+                // Crear directorio si no existe
+                $directorioImagenes = public_path('imagenes/subtemas_u');
+                if (!file_exists($directorioImagenes)) {
+                    mkdir($directorioImagenes, 0755, true);
+                }
+                
+                $archivo->move($directorioImagenes, $nombreArchivo);
+                $datos['imagen'] = $nombreArchivo;
+            }
+
+            // Crear subtema
+            $subtema = Subtema::crear($datos);
+
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('success', "Subtema '{$subtema->subtema_titulo}' creado exitosamente en orden {$subtema->orden_indice}");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('error', 'Error al crear el subtema: ' . $e->getMessage());
+        }
     }
 
     public function actualizarSubtema(Request $request, $id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+        try {
+            $subtema = Subtema::obtenerPorId($id);
+            
+            if (!$subtema) {
+                return redirect()
+                    ->route('sigem.admin.subtemas')
+                    ->with('error', 'Subtema no encontrado');
+            }
+
+            // Validar datos
+            $request->validate([
+                'subtema_titulo' => 'required|string|max:255',
+                'tema_id' => 'required|integer|exists:tema,tema_id',
+                'clave_subtema' => 'nullable|string|max:15',
+                'orden_indice' => 'nullable|integer|min:0|max:999',
+                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048'
+            ]);
+
+            $datos = $request->only([
+                'subtema_titulo',
+                'tema_id',
+                'clave_subtema'
+            ]);
+
+            // Si cambió el tema, recalcular el orden
+            if ($request->tema_id != $subtema->tema_id) {
+                // Cambió de tema, asignar siguiente orden del nuevo tema
+                $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
+            } else {
+                // Mismo tema, conservar orden o usar el proporcionado
+                $datos['orden_indice'] = $request->filled('orden_indice') 
+                    ? $request->orden_indice 
+                    : $subtema->orden_indice;
+            }
+
+            // Manejar upload de nueva imagen
+            if ($request->hasFile('imagen')) {
+                // Eliminar imagen anterior si existe
+                if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
+                    unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+                }
+
+                $archivo = $request->file('imagen');
+                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+                
+                $directorioImagenes = public_path('imagenes/subtemas_u');
+                if (!file_exists($directorioImagenes)) {
+                    mkdir($directorioImagenes, 0755, true);
+                }
+                
+                $archivo->move($directorioImagenes, $nombreArchivo);
+                $datos['imagen'] = $nombreArchivo;
+            }
+
+            // Actualizar subtema
+            $subtema->actualizar($datos);
+
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('success', "Subtema '{$subtema->subtema_titulo}' actualizado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('error', 'Error al actualizar el subtema: ' . $e->getMessage());
+        }
     }
 
     public function eliminarSubtema($id)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.subtemas')->with('error', 'Método no implementado aún');
+        try {
+            $subtema = Subtema::obtenerPorId($id);
+            
+            if (!$subtema) {
+                return redirect()
+                    ->route('sigem.admin.subtemas')
+                    ->with('error', 'Subtema no encontrado');
+            }
+
+            // Verificar si hay cuadros estadísticos asociados
+            $cuadrosCount = CuadroEstadistico::where('subtema_id', $id)->count();
+            
+            if ($cuadrosCount > 0) {
+                return redirect()
+                    ->route('sigem.admin.subtemas')
+                    ->with('error', "No se puede eliminar el subtema '{$subtema->subtema_titulo}' porque tiene {$cuadrosCount} cuadro(s) estadístico(s) asociado(s). Elimine o reasigne los cuadros primero.");
+            }
+
+            // Eliminar archivo de imagen si existe
+            if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
+                unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+            }
+
+            // Guardar datos para el mensaje
+            $nombreSubtema = $subtema->subtema_titulo;
+            $nombreTema = $subtema->tema ? $subtema->tema->tema_titulo : 'Sin tema';
+
+            // Eliminar subtema
+            $subtema->eliminar();
+
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('success', "Subtema '{$nombreSubtema}' del tema '{$nombreTema}' eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.subtemas')
+                ->with('error', 'Error al eliminar el subtema: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AJAX: Obtener siguiente orden para un tema específico
+     */
+    public function obtenerSiguienteOrdenTema($tema_id)
+    {
+        try {
+            $siguienteOrden = Subtema::siguienteOrden($tema_id);
+            return response()->json(['siguiente_orden' => $siguienteOrden]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener el orden'], 500);
+        }
     }
 
     // ============ MÉTODOS CRUD PARA CUADROS ============
