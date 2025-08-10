@@ -27,7 +27,7 @@ class Tema extends Model
      */
     protected $fillable = [
         'tema_titulo',
-        'nombre_archivo',
+//'nombre_archivo',
         'orden_indice',
         'clave_tema' // AGREGAR: nuevo campo
     ];
@@ -43,7 +43,7 @@ class Tema extends Model
     protected $casts = [
         'tema_id' => 'integer',
         'tema_titulo' => 'string',
-        'nombre_archivo' => 'string',
+        //'nombre_archivo' => 'string',
         'orden_indice' => 'integer',
         'clave_tema' => 'string' // AGREGAR: nuevo campo
     ];

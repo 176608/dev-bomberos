@@ -238,14 +238,12 @@ class AdminController extends Controller
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema',
-                'nombre_archivo' => 'nullable|string|max:255',
                 'orden_indice' => 'nullable|integer|min:0|max:999'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema', 
-                'nombre_archivo',
                 'orden_indice'
             ]);
 
@@ -289,14 +287,12 @@ class AdminController extends Controller
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema,' . $id . ',tema_id',
-                'nombre_archivo' => 'nullable|string|max:255',
                 'orden_indice' => 'nullable|integer|min:0|max:999'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema',
-                'nombre_archivo', 
                 'orden_indice'
             ]);
 

@@ -84,13 +84,6 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($tema->nombre_archivo)
-                                            <code>{{ $tema->nombre_archivo }}</code>
-                                        @else
-                                            <span class="text-muted">Sin archivo</span>
-                                        @endif
-                                    </td>
-                                    <td>
                                         <span class="badge bg-info">{{ $tema->orden_indice ?? 0 }}</span>
                                     </td>
                                     <td>
@@ -185,15 +178,7 @@
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label for="nombre_archivo" class="form-label">Nombre del Archivo</label>
-                                <input type="text" class="form-control @error('nombre_archivo') is-invalid @enderror" 
-                                       id="nombre_archivo" name="nombre_archivo" 
-                                       placeholder="Ej: demografia_poblacion.pdf"
-                                       value="{{ old('nombre_archivo') }}">
-                                <small class="form-text text-muted">Solo el nombre del archivo, sin la ruta completa</small>
-                                @error('nombre_archivo')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                na
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -257,10 +242,7 @@
                     
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="edit_nombre_archivo" class="form-label">Nombre del Archivo</label>
-                                <input type="text" class="form-control" id="edit_nombre_archivo" name="nombre_archivo">
-                            </div>
+                            na
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -294,16 +276,13 @@ function editarTema(id) {
     // Buscar los datos del tema en la tabla
     const fila = event.target.closest('tr');
     const tema_titulo = fila.cells[1].querySelector('strong').textContent;
-    const nombre_archivo_cell = fila.cells[2];
-    const nombre_archivo = nombre_archivo_cell.querySelector('code')?.textContent || '';
-    const orden_indice = fila.cells[3].querySelector('.badge').textContent;
-    const clave_tema_cell = fila.cells[4];
+    const orden_indice = fila.cells[2].querySelector('.badge').textContent;
+    const clave_tema_cell = fila.cells[3];
     const clave_tema = clave_tema_cell.querySelector('.badge')?.textContent || '';
     
     // Llenar el modal de edición
     document.getElementById('edit_tema_id').value = id;
     document.getElementById('edit_tema_titulo').value = tema_titulo;
-    document.getElementById('edit_nombre_archivo').value = nombre_archivo;
     document.getElementById('edit_orden_indice').value = orden_indice;
     document.getElementById('edit_clave_tema').value = clave_tema;
     
