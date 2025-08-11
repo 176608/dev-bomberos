@@ -203,8 +203,10 @@ function cargarContenidoConsultaExpress(subtemaId) {
 
 // Función para mostrar contenido CE con renderizado de tabla
 function mostrarContenidoCE(contenido, actualizado) {
-    // Renderizar tabla HTML usando la misma lógica que el backend
-    const tablaHtml = renderizarTablaCE(contenido);
+    console.log('Datos recibidos:', contenido); // Debug
+    
+    // Usar la misma lógica del CRUD - renderizar HTML directamente
+    const tablaHtml = renderizarTablaCESimple(contenido);
     
     const contenidoHtml = `
         <div class="consulta-express-modal-content">
@@ -216,7 +218,7 @@ function mostrarContenidoCE(contenido, actualizado) {
                 <div class="d-flex justify-content-center gap-2 mb-2">
                     <span class="badge bg-success fs-7">
                         <i class="bi bi-grid-3x3 me-1"></i>
-                        ${contenido.tabla_filas}×${contenido.tabla_columnas}
+                        ${contenido.tabla_filas || 0}×${contenido.tabla_columnas || 0}
                     </span>
                 </div>
             </div>
@@ -246,49 +248,42 @@ function mostrarContenidoCE(contenido, actualizado) {
     metadataDiv.style.display = 'block';
 }
 
-// Función para renderizar tabla CE (JavaScript - similar al backend)
-function renderizarTablaCE(contenido) {
-    if (!contenido.tabla_datos || contenido.tabla_datos.length === 0) {
-        return `
-            <div class="alert alert-warning text-center">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Sin datos de tabla disponibles
-            </div>
-        `;
+// NUEVA función simple que copia exactamente la lógica del CRUD
+function renderizarTablaCESimple(contenido) {
+    
+    if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos) || contenido.tabla_datos.length === 0) {
+        return `<div class="alert alert-warning text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Sin datos de tabla disponibles
+                </div>`;
     }
     
     let html = '<div class="consulta-express-tabla-modal">';
     html += '<div class="table-responsive">';
-    html += '<table class="table table-striped table-bordered table-hover table-sm">';
+    html += '<table class="table table-striped table-bordered table-hover">';
     
+    // Procesar cada fila exactamente como el CRUD
     contenido.tabla_datos.forEach((fila, filaIndex) => {
         html += '<tr>';
         
-        fila.forEach((celda, colIndex) => {
-            // Determinar si es encabezado (primera fila con principalmente texto)
-            const esEncabezado = (filaIndex === 0 && esFilaEncabezadoCE(contenido.tabla_datos[0]));
-            const tag = esEncabezado ? 'th' : 'td';
-            
-            // Clases CSS según el tipo de celda
-            let clases = '';
-            if (esEncabezado) {
-                clases = 'table-success text-center fw-bold';
-            } else if (colIndex === 0 && !esNumericoPuro(celda)) {
-                // Primera columna con texto (categorías)
-                clases = 'fw-semibold';
-            } else if (esNumericoPuro(celda)) {
-                // Números alineados a la derecha
-                clases = 'text-end';
-            }
-            
-            // Contenido de la celda
-            const contenidoCelda = celda?.toString().trim() || '-';
-            const contenidoFinal = contenidoCelda === '' || contenidoCelda === '-' ? 
-                '<span class="text-muted">-</span>' : 
-                escapeHtmlCE(contenidoCelda);
-            
-            html += `<${tag}${clases ? ` class="${clases}"` : ''}>${contenidoFinal}</${tag}>`;
-        });
+        if (Array.isArray(fila)) {
+            fila.forEach((celda, colIndex) => {
+                // Primera fila = encabezados
+                if (filaIndex === 0) {
+                    html += `<th class="table-success text-center fw-bold">${celda || '-'}</th>`;
+                } else {
+                    // Primera columna = categorías (texto en negrita)
+                    if (colIndex === 0) {
+                        html += `<td class="fw-semibold">${celda || '-'}</td>`;
+                    } else {
+                        // Otras columnas = números (alineados a la derecha)
+                        const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
+                        const clase = esNumero ? 'text-end' : '';
+                        html += `<td class="${clase}">${celda || '-'}</td>`;
+                    }
+                }
+            });
+        }
         
         html += '</tr>';
     });
@@ -300,44 +295,11 @@ function renderizarTablaCE(contenido) {
     return html;
 }
 
-// Función auxiliar: determinar si una fila es encabezado
-function esFilaEncabezadoCE(fila) {
-    if (!fila || fila.length === 0) return false;
-    
-    let celdasConTexto = 0;
-    let celdasNumericas = 0;
-    let celdasVacias = 0;
-    
-    fila.forEach(celda => {
-        const celdaLimpia = (celda?.toString() || '').trim();
-        
-        if (!celdaLimpia) {
-            celdasVacias++;
-        } else if (esNumericoPuro(celdaLimpia)) {
-            celdasNumericas++;
-        } else {
-            celdasConTexto++;
-        }
-    });
-    
-    const totalCeldas = fila.length;
-    
-    // Es encabezado si tiene más texto que números y no está mayormente vacía
-    return (celdasConTexto > celdasNumericas) && 
-           (celdasVacias < totalCeldas * 0.5) &&
-           (celdasConTexto + celdasNumericas > 0);
-}
-
-// Función auxiliar: determinar si un valor es numérico puro
-function esNumericoPuro(valor) {
-    const valorLimpio = (valor?.toString() || '').trim().replace(/,/g, '');
-    return !isNaN(valorLimpio) && !isNaN(parseFloat(valorLimpio)) && valorLimpio !== '';
-}
-
-// Función auxiliar: escapar HTML
+// Función auxiliar simple: escapar HTML
 function escapeHtmlCE(text) {
+    if (!text) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text.toString();
     return div.innerHTML;
 }
 
