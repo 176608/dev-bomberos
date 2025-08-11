@@ -625,6 +625,122 @@
     </div>
 </div>
 
+<!-- Modal Editar Contenido CE -->
+<div class="modal fade" id="modalEditarContenido" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tabla de Consulta Express</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarContenido" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_contenido_id" name="ce_contenido_id">
+                <div class="modal-body">
+                    <!-- Información básica -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_ce_tema_select" name="ce_tema_select" required>
+                                    <option value="">Seleccionar tema...</option>
+                                    @if(isset($ce_temas))
+                                        @foreach($ce_temas as $tema)
+                                            <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_ce_subtema_id" name="ce_subtema_id" required>
+                                    <option value="">Seleccionar subtema...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="edit_titulo_tabla" class="form-label">Título de la Tabla <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_titulo_tabla" name="titulo_tabla" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_pie_tabla" class="form-label">Pie de Tabla</label>
+                                <input type="text" class="form-control" id="edit_pie_tabla" name="pie_tabla">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dimensiones de la tabla -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-grid-3x3"></i> Dimensiones de la Tabla</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="edit_tabla_filas" class="form-label">Filas <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_tabla_filas" name="tabla_filas" 
+                                               min="1" max="50" required>
+                                        <small class="text-muted">Máximo 50 filas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="edit_tabla_columnas" class="form-label">Columnas <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_tabla_columnas" name="tabla_columnas" 
+                                               min="1" max="20" required>
+                                        <small class="text-muted">Máximo 20 columnas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Vista Previa</label>
+                                        <div class="alert alert-info">
+                                            <span id="edit_preview-dimensiones">Tabla cargada</span>
+                                            <br><small>Modifica las dimensiones y presiona "Regenerar Tabla" si necesitas cambiar el tamaño.</small>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="regenerarTablaEdicion()">
+                                            <i class="bi bi-arrow-clockwise"></i> Regenerar Tabla
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenedor para la tabla editable -->
+                    <div id="edit_tabla-editor" class="card" style="display: none;">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-pencil-square"></i> Editor de Tabla</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="edit_tabla-inputs"></div>
+                            <small class="text-muted">
+                                <strong>Tip:</strong> La primera fila se detectará automáticamente como encabezados si contiene principalmente texto.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning" id="edit_btn-guardar-tabla" disabled>
+                        <i class="bi bi-save"></i> Actualizar Tabla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript actualizado -->
 <script>
 // Datos para filtrado
@@ -761,7 +877,12 @@ function editarContenidoCE(id) {
 }
 
 function eliminarContenidoCE(id) {
-    if (confirm('¿Estás seguro de eliminar este contenido CE?\n\nEsta acción no se puede deshacer.')) {
+    // Obtener información de la fila para confirmación más específica
+    const fila = event.target.closest('tr');
+    const titulo = fila.cells[1].querySelector('strong').textContent;
+    const dimensiones = fila.cells[2].querySelector('.badge').textContent;
+    
+    if (confirm(`¿Estás seguro de eliminar la tabla "${titulo}" (${dimensiones})?\n\n Esta acción no se puede deshacer.`)) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -853,37 +974,186 @@ function validarTabla() {
 }
 
 function verTablaContenidoCE(id) {
-    // Por ahora, mostrar placeholder - necesitamos endpoint AJAX
+    // Mostrar loading
     document.getElementById('tabla-vista-completa').innerHTML = `
         <div class="text-center py-4">
-            <i class="bi bi-table" style="font-size: 3rem;"></i>
-            <h5>Cargando tabla ID: ${id}</h5>
-            <p class="text-muted">Implementar endpoint AJAX para cargar tabla completa</p>
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando tabla...</p>
         </div>
     `;
     
+    // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalVerTabla')).show();
+    
+    // Cargar datos via AJAX
+    fetch(`{{ url('/sigem/admin/consultas/contenido') }}/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('tabla-vista-completa').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+            
+            const contenido = data.contenido;
+            const tablaHtml = data.tabla_html;
+            
+            document.getElementById('tabla-vista-completa').innerHTML = `
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>${contenido.titulo_tabla}</h5>
+                            <p class="text-muted mb-2">
+                                <strong>Tema:</strong> ${contenido.subtema.tema.tema} | 
+                                <strong>Subtema:</strong> ${contenido.subtema.ce_subtema}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-info fs-6">${contenido.tabla_filas}×${contenido.tabla_columnas}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    ${tablaHtml}
+                </div>
+                
+                ${contenido.created_at ? `<small class="text-muted">Creado: ${new Date(contenido.created_at).toLocaleString()}</small>` : ''}
+            `;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('tabla-vista-completa').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Error al cargar la tabla. Intente nuevamente.
+                </div>
+            `;
+        });
 }
 
 function editarContenidoCE(id) {
-    alert(`Editar contenido CE ID: ${id}\n\nPendiente: Cargar datos existentes en el formulario de tabla.`);
+    // Mostrar loading en el modal de edición
+    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarContenido'));
+    modalEditar.show();
+    
+    // Cargar datos existentes
+    fetch(`{{ url('/sigem/admin/consultas/contenido') }}/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+                modalEditar.hide();
+                return;
+            }
+            
+            const contenido = data.contenido;
+            
+            // Llenar formulario de edición
+            document.getElementById('edit_contenido_id').value = contenido.ce_contenido_id;
+            document.getElementById('edit_titulo_tabla').value = contenido.titulo_tabla || '';
+            document.getElementById('edit_pie_tabla').value = contenido.pie_tabla || '';
+            document.getElementById('edit_tabla_filas').value = contenido.tabla_filas;
+            document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
+            
+            // Seleccionar tema
+            const temaSelect = document.getElementById('edit_ce_tema_select');
+            if (contenido.subtema && contenido.subtema.tema) {
+                temaSelect.value = contenido.subtema.tema.ce_tema_id;
+                
+                // Cargar subtemas del tema seleccionado
+                filtrarSubtemasCE(temaSelect, document.getElementById('edit_ce_subtema_id'));
+                
+                // Dar tiempo para que se carguen los subtemas y luego seleccionar
+                setTimeout(() => {
+                    document.getElementById('edit_ce_subtema_id').value = contenido.ce_subtema_id;
+                }, 100);
+            }
+            
+            // Generar tabla con datos existentes
+            generarTablaEdicion(contenido.tabla_filas, contenido.tabla_columnas, contenido.tabla_datos);
+            
+            // Actualizar la acción del formulario
+            const form = document.getElementById('formEditarContenido');
+            form.action = routesConsultas.contenidoUpdate.replace(':id', id);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos del contenido');
+            modalEditar.hide();
+        });
 }
 
-// Event listeners para dimensiones
-document.getElementById('tabla_filas')?.addEventListener('input', function() {
-    actualizarPreviewDimensiones();
-});
-
-document.getElementById('tabla_columnas')?.addEventListener('input', function() {
-    actualizarPreviewDimensiones();
-});
-
-function actualizarPreviewDimensiones() {
-    const filas = parseInt(document.getElementById('tabla_filas').value) || 0;
-    const columnas = parseInt(document.getElementById('tabla_columnas').value) || 0;
-    const total = filas * columnas;
+function generarTablaEdicion(filas, columnas, datosExistentes = null) {
+    // Actualizar preview
+    const totalCeldas = filas * columnas;
+    document.getElementById('edit_preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${totalCeldas} celdas total)`;
     
-    document.getElementById('preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${total} celdas total)`;
+    // Generar campos de entrada con datos existentes
+    let html = '<div class="table-responsive"><table class="table table-bordered table-sm">';
+    
+    for (let fila = 0; fila < filas; fila++) {
+        html += '<tr>';
+        for (let col = 0; col < columnas; col++) {
+            const nombre = `celda_${fila}_${col}`;
+            const placeholder = fila === 0 ? `Encabezado ${col + 1}` : `Fila ${fila + 1}, Col ${col + 1}`;
+            
+            // Obtener valor existente si hay datos
+            let valor = '';
+            if (datosExistentes && datosExistentes[fila] && datosExistentes[fila][col] !== undefined) {
+                valor = datosExistentes[fila][col];
+            }
+            
+            html += `<td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="${nombre}" placeholder="${placeholder}"
+                       value="${escapeHtml(valor)}"
+                       onchange="validarTablaEdicion()">
+            </td>`;
+        }
+        html += '</tr>';
+    }
+    
+    html += '</table></div>';
+    
+    document.getElementById('edit_tabla-inputs').innerHTML = html;
+    document.getElementById('edit_tabla-editor').style.display = 'block';
+    document.getElementById('edit_btn-guardar-tabla').disabled = false;
+}
+
+function validarTablaEdicion() {
+    // Contar celdas llenas en edición
+    const inputs = document.querySelectorAll('#edit_tabla-inputs input[type="text"]');
+    let celdas_llenas = 0;
+    
+    inputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            celdas_llenas++;
+        }
+    });
+    
+    const total_celdas = inputs.length;
+    const porcentaje_lleno = (celdas_llenas / total_celdas) * 100;
+    
+    // Cambiar color del botón según el completado
+    const btnGuardar = document.getElementById('edit_btn-guardar-tabla');
+    if (porcentaje_lleno < 20) {
+        btnGuardar.className = 'btn btn-outline-warning';
+        btnGuardar.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Actualizar Tabla (Incompleta)';
+    } else {
+        btnGuardar.className = 'btn btn-warning';
+        btnGuardar.innerHTML = '<i class="bi bi-save"></i> Actualizar Tabla';
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // ============ FILTRADO DE SUBTEMAS CE ============
@@ -951,5 +1221,50 @@ document.getElementById('modalAgregarContenido')?.addEventListener('hidden.bs.mo
     document.getElementById('tabla-editor').style.display = 'none';
     document.getElementById('btn-guardar-tabla').disabled = true;
     document.getElementById('preview-dimensiones').textContent = 'Tabla de 3x3 (9 celdas total)';
+});
+
+// Event listeners para dimensiones de edición
+document.getElementById('edit_tabla_filas')?.addEventListener('input', function() {
+    actualizarPreviewDimensionesEdicion();
+});
+
+document.getElementById('edit_tabla_columnas')?.addEventListener('input', function() {
+    actualizarPreviewDimensionesEdicion();
+});
+
+function actualizarPreviewDimensionesEdicion() {
+    const filas = parseInt(document.getElementById('edit_tabla_filas').value) || 0;
+    const columnas = parseInt(document.getElementById('edit_tabla_columnas').value) || 0;
+    const total = filas * columnas;
+    
+    document.getElementById('edit_preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${total} celdas total)`;
+}
+
+function regenerarTablaEdicion() {
+    const filas = parseInt(document.getElementById('edit_tabla_filas').value);
+    const columnas = parseInt(document.getElementById('edit_tabla_columnas').value);
+    
+    if (filas < 1 || filas > 50 || columnas < 1 || columnas > 20) {
+        alert('Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
+        return;
+    }
+    
+    if (confirm('¿Estás seguro? Esto borrará el contenido actual de la tabla.')) {
+        generarTablaEdicion(filas, columnas);
+    }
+}
+
+// Event listener para filtrado de subtemas en edición
+document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
+    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
+});
+
+// Limpiar modal de edición al cerrar
+document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('edit_ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
+    document.getElementById('edit_tabla-editor').style.display = 'none';
+    document.getElementById('edit_btn-guardar-tabla').disabled = true;
+    document.getElementById('edit_preview-dimensiones').textContent = 'Tabla cargada';
 });
 </script>

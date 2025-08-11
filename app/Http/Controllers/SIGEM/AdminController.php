@@ -1158,9 +1158,9 @@ class AdminController extends Controller
     }
 
     /**
-     * AJAX: Obtener contenido CE completo para vista
+     * AJAX: Obtener contenido CE para edición
      */
-    public function obtenerContenidoCE($id)
+    public function obtenerContenidoCEParaEdicion($id)
     {
         try {
             $contenido = ce_contenido::with(['subtema.tema'])->find($id);
@@ -1170,9 +1170,8 @@ class AdminController extends Controller
             }
             
             return response()->json([
-                'contenido' => $contenido,
-                'tabla_html' => $contenido->renderizarTabla(),
-                'resumen' => $contenido->resumen_tabla
+                'success' => true,
+                'contenido' => $contenido
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener contenido CE'], 500);
