@@ -1158,7 +1158,7 @@ class AdminController extends Controller
     }
 
     /**
-     * AJAX: Obtener contenido CE para edición
+     * AJAX: Obtener contenido CE completo para vista
      */
     public function obtenerContenidoCE($id)
     {
@@ -1169,12 +1169,49 @@ class AdminController extends Controller
                 return response()->json(['error' => 'Contenido no encontrado'], 404);
             }
             
+            // Debug: Log para verificar datos
+            \Log::info('Contenido CE cargado:', [
+                'id' => $contenido->ce_contenido_id,
+                'titulo' => $contenido->titulo_tabla,
+                'datos' => $contenido->tabla_datos,
+                'filas' => $contenido->tabla_filas,
+                'columnas' => $contenido->tabla_columnas
+            ]);
+            
+            $tablaHtml = $contenido->renderizarTabla();
+            
             return response()->json([
                 'success' => true,
-                'contenido' => $contenido
+                'contenido' => [
+                    'ce_contenido_id' => $contenido->ce_contenido_id,
+                    'titulo_tabla' => $contenido->titulo_tabla,
+                    'pie_tabla' => $contenido->pie_tabla,
+                    'tabla_filas' => $contenido->tabla_filas,
+                    'tabla_columnas' => $contenido->tabla_columnas,
+                    'tabla_datos' => $contenido->tabla_datos,
+                    'created_at' => $contenido->created_at,
+                    'subtema' => $contenido->subtema ? [
+                        'ce_subtema_id' => $contenido->subtema->ce_subtema_id,
+                        'ce_subtema' => $contenido->subtema->ce_subtema,
+                        'tema' => $contenido->subtema->tema ? [
+                            'ce_tema_id' => $contenido->subtema->tema->ce_tema_id,
+                            'tema' => $contenido->subtema->tema->tema
+                        ] : null
+                    ] : null
+                ],
+                'tabla_html' => $tablaHtml,
+                'resumen' => $contenido->resumen_tabla
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener contenido CE'], 500);
+            \Log::error('Error al obtener contenido CE:', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al obtener contenido CE: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

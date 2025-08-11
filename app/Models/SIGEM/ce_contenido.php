@@ -56,24 +56,115 @@ class ce_contenido extends Model
     }
     
     /**
-     * Obtener contenido por subtema
+     * Renderizar tabla como HTML para vista
      */
-    public static function obtenerPorSubtema($subtemaId)
+    public function renderizarTabla($clase_css = 'table table-striped table-bordered table-hover')
     {
-        return self::where('ce_subtema_id', $subtemaId)
-                 ->orderBy('created_at', 'desc')
-                 ->get();
+        if (!$this->tabla_datos || empty($this->tabla_datos)) {
+            return '<div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Sin datos de tabla disponibles
+                    </div>';
+        }
+        
+        $html = '<div class="consulta-express-tabla">';
+        
+        // Título si existe
+        if ($this->titulo_tabla) {
+            $html .= '<div class="mb-3">
+                        <h6 class="tabla-titulo text-primary mb-1">' . htmlspecialchars($this->titulo_tabla) . '</h6>';
+            
+            if ($this->pie_tabla) {
+                $html .= '<small class="text-muted tabla-pie"><em>' . htmlspecialchars($this->pie_tabla) . '</em></small>';
+            }
+            
+            $html .= '</div>';
+        }
+        
+        // Tabla con estilo Bootstrap mejorado
+        $html .= '<div class="table-responsive">
+                    <table class="' . $clase_css . '">';
+        
+        foreach ($this->tabla_datos as $fila_index => $fila) {
+            $html .= '<tr>';
+            foreach ($fila as $col_index => $celda) {
+                // Primera fila como encabezados si parece ser encabezados
+                $es_encabezado = ($fila_index === 0 && $this->esFilaEncabezado($fila));
+                $tag = $es_encabezado ? 'th' : 'td';
+                
+                // Agregar clases especiales
+                $clases = '';
+                if ($es_encabezado) {
+                    $clases = ' class="table-primary text-center fw-bold"';
+                } elseif ($col_index === 0 && !empty(trim($celda)) && !is_numeric(trim($celda))) {
+                    // Primera columna con texto (categorías)
+                    $clases = ' class="fw-semibold"';
+                } elseif (is_numeric(trim($celda))) {
+                    // Números alineados a la derecha
+                    $clases = ' class="text-end"';
+                }
+                
+                $contenido_celda = empty($celda) ? '<span class="text-muted">-</span>' : htmlspecialchars($celda);
+                
+                $html .= '<' . $tag . $clases . '>' . $contenido_celda . '</' . $tag . '>';
+            }
+            $html .= '</tr>';
+        }
+        
+        $html .= '</table></div>';
+        $html .= '</div>';
+        
+        return $html;
     }
     
     /**
-     * Obtener contenidos más recientes
+     * Determinar si una fila parece ser encabezado
      */
-    public static function obtenerRecientes($limit = 5)
+    private function esFilaEncabezado($fila)
     {
-        return self::with(['subtema', 'subtema.tema'])
-                 ->orderBy('created_at', 'desc')
-                 ->limit($limit)
-                 ->get();
+        if (empty($fila)) return false;
+        
+        $celdas_con_texto = 0;
+        $celdas_numericas = 0;
+        $celdas_vacias = 0;
+        
+        foreach ($fila as $celda) {
+            $celda_limpia = trim($celda);
+            
+            if (empty($celda_limpia)) {
+                $celdas_vacias++;
+            } elseif (is_numeric($celda_limpia)) {
+                $celdas_numericas++;
+            } else {
+                $celdas_con_texto++;
+            }
+        }
+        
+        $total_celdas = count($fila);
+        
+        // Es encabezado si:
+        // 1. Tiene más texto que números
+        // 2. No tiene demasiadas celdas vacías
+        // 3. Tiene al menos algo de contenido
+        return ($celdas_con_texto > $celdas_numericas) && 
+               ($celdas_vacias < $total_celdas * 0.5) &&
+               ($celdas_con_texto + $celdas_numericas > 0);
+    }
+    
+    /**
+     * Obtener resumen de la tabla para listados
+     */
+    public function getResumenTablaAttribute()
+    {
+        if (!$this->tabla_datos) {
+            return 'Tabla vacía';
+        }
+        
+        $filas = count($this->tabla_datos);
+        $cols = $filas > 0 ? count($this->tabla_datos[0]) : 0;
+        
+        $titulo = $this->titulo_tabla ? $this->titulo_tabla : 'Tabla sin título';
+        
+        return "{$titulo} ({$filas}x{$cols})";
     }
     
     /**
@@ -130,83 +221,13 @@ class ce_contenido extends Model
     }
     
     /**
-     * Renderizar tabla como HTML para vista
+     * Obtener contenidos más recientes
      */
-    public function renderizarTabla($clase_css = 'table table-striped table-bordered table-sm')
+    public static function obtenerRecientes($limit = 5)
     {
-        if (!$this->tabla_datos || empty($this->tabla_datos)) {
-            return '<p class="text-muted">Sin datos de tabla disponibles</p>';
-        }
-        
-        $html = '<div class="consulta-express-tabla">';
-        
-        // Título si existe
-        if ($this->titulo_tabla) {
-            $html .= '<h6 class="tabla-titulo mb-2">' . htmlspecialchars($this->titulo_tabla) . '</h6>';
-        }
-        
-        // Tabla
-        $html .= '<table class="' . $clase_css . '">';
-        
-        foreach ($this->tabla_datos as $fila_index => $fila) {
-            $html .= '<tr>';
-            foreach ($fila as $celda) {
-                // Primera fila como encabezados si parece ser encabezados
-                $tag = ($fila_index === 0 && $this->esFilaEncabezado($fila)) ? 'th' : 'td';
-                $html .= '<' . $tag . '>' . htmlspecialchars($celda) . '</' . $tag . '>';
-            }
-            $html .= '</tr>';
-        }
-        
-        $html .= '</table>';
-        
-        // Pie de tabla si existe
-        if ($this->pie_tabla) {
-            $html .= '<small class="text-muted tabla-pie">' . htmlspecialchars($this->pie_tabla) . '</small>';
-        }
-        
-        $html .= '</div>';
-        
-        return $html;
-    }
-    
-    /**
-     * Determinar si una fila parece ser encabezado
-     */
-    private function esFilaEncabezado($fila)
-    {
-        // Si todas las celdas tienen texto y no hay números puros, probablemente es encabezado
-        $tieneTexto = true;
-        $soloNumeros = 0;
-        
-        foreach ($fila as $celda) {
-            if (empty(trim($celda))) {
-                return false; // Encabezados no deberían estar vacíos
-            }
-            
-            if (is_numeric(trim($celda))) {
-                $soloNumeros++;
-            }
-        }
-        
-        // Si más del 70% son números puros, probablemente no es encabezado
-        return ($soloNumeros / count($fila)) < 0.7;
-    }
-    
-    /**
-     * Obtener resumen de la tabla para listados
-     */
-    public function getResumenTablaAttribute()
-    {
-        if (!$this->tabla_datos) {
-            return 'Tabla vacía';
-        }
-        
-        $filas = count($this->tabla_datos);
-        $cols = $filas > 0 ? count($this->tabla_datos[0]) : 0;
-        
-        $titulo = $this->titulo_tabla ? $this->titulo_tabla : 'Tabla sin título';
-        
-        return "{$titulo} ({$filas}x{$cols})";
+        return self::with(['subtema.tema'])
+                 ->orderBy('created_at', 'desc')
+                 ->limit($limit)
+                 ->get();
     }
 }

@@ -974,27 +974,45 @@ function validarTabla() {
 }
 
 function verTablaContenidoCE(id) {
-    // Mostrar loading
+    // Mostrar loading con mejor diseño
     document.getElementById('tabla-vista-completa').innerHTML = `
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
+        <div class="text-center py-5 tabla-loading">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Cargando...</span>
             </div>
-            <p class="mt-2">Cargando tabla...</p>
+            <h5 class="text-primary">Cargando tabla...</h5>
+            <p class="text-muted">Obteniendo contenido de Consulta Express</p>
         </div>
     `;
     
     // Mostrar modal
-    new bootstrap.Modal(document.getElementById('modalVerTabla')).show();
+    const modal = new bootstrap.Modal(document.getElementById('modalVerTabla'));
+    modal.show();
     
     // Cargar datos via AJAX
     fetch(`{{ url('/sigem/admin/consultas/contenido') }}/${id}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Datos recibidos:', data); // Debug
+            
             if (data.error) {
                 document.getElementById('tabla-vista-completa').innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle"></i> ${data.error}
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Error:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!data.success || !data.contenido) {
+                document.getElementById('tabla-vista-completa').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Advertencia:</strong> No se encontraron datos válidos.
                     </div>
                 `;
                 return;
@@ -1003,34 +1021,82 @@ function verTablaContenidoCE(id) {
             const contenido = data.contenido;
             const tablaHtml = data.tabla_html;
             
-            document.getElementById('tabla-vista-completa').innerHTML = `
-                <div class="mb-3">
-                    <div class="row">
+            // Verificar que tenemos los datos necesarios
+            if (!contenido.subtema || !contenido.subtema.tema) {
+                console.warn('Datos incompletos de relaciones:', contenido);
+            }
+            
+            // Construir HTML de respuesta
+            let htmlRespuesta = `
+                <div class="mb-4">
+                    <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h5>${contenido.titulo_tabla}</h5>
-                            <p class="text-muted mb-2">
-                                <strong>Tema:</strong> ${contenido.subtema.tema.tema} | 
-                                <strong>Subtema:</strong> ${contenido.subtema.ce_subtema}
-                            </p>
+                            <h4 class="text-primary mb-2">
+                                <i class="bi bi-table me-2"></i>${contenido.titulo_tabla || 'Tabla sin título'}
+                            </h4>
+                            <div class="d-flex flex-wrap gap-3">
+                                <span class="badge bg-primary fs-6">
+                                    <i class="bi bi-bookmark-fill me-1"></i>
+                                    ${contenido.subtema?.tema?.tema || 'Sin tema'}
+                                </span>
+                                <span class="badge bg-success fs-6">
+                                    <i class="bi bi-bookmarks-fill me-1"></i>
+                                    ${contenido.subtema?.ce_subtema || 'Sin subtema'}
+                                </span>
+                                <span class="badge bg-info fs-6">
+                                    <i class="bi bi-grid-3x3 me-1"></i>
+                                    ${contenido.tabla_filas}×${contenido.tabla_columnas}
+                                </span>
+                            </div>
                         </div>
                         <div class="col-md-4 text-end">
-                            <span class="badge bg-info fs-6">${contenido.tabla_filas}×${contenido.tabla_columnas}</span>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                ${contenido.created_at ? new Date(contenido.created_at).toLocaleDateString('es-MX', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) : 'Fecha no disponible'}
+                            </small>
                         </div>
                     </div>
                 </div>
                 
-                <div class="table-container">
-                    ${tablaHtml}
+                <div class="table-container mb-3">
+                    ${tablaHtml || '<div class="alert alert-warning">No se pudo renderizar la tabla</div>'}
                 </div>
-                
-                ${contenido.created_at ? `<small class="text-muted">Creado: ${new Date(contenido.created_at).toLocaleString()}</small>` : ''}
             `;
+            
+            // Agregar pie de tabla si existe
+            if (contenido.pie_tabla) {
+                htmlRespuesta += `
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <em>${contenido.pie_tabla}</em>
+                        </small>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('tabla-vista-completa').innerHTML = htmlRespuesta;
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error detallado:', error);
             document.getElementById('tabla-vista-completa').innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle"></i> Error al cargar la tabla. Intente nuevamente.
+                    <h5><i class="bi bi-exclamation-triangle"></i> Error al cargar la tabla</h5>
+                    <p class="mb-2"><strong>Detalles:</strong> ${error.message}</p>
+                    <small class="text-muted">
+                        Verifica la consola del navegador para más información o contacta al administrador del sistema.
+                    </small>
+                    <hr>
+                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                            onclick="verTablaContenidoCE(${id})">
+                        <i class="bi bi-arrow-clockwise"></i> Reintentar
+                    </button>
                 </div>
             `;
         });
@@ -1268,3 +1334,68 @@ document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.mod
     document.getElementById('edit_preview-dimensiones').textContent = 'Tabla cargada';
 });
 </script>
+
+<style>
+/* Estilos específicos para las tablas de Consulta Express */
+.consulta-express-tabla {
+    margin: 0;
+}
+
+.consulta-express-tabla .table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.consulta-express-tabla .table th {
+    background-color: var(--bs-primary) !important;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.consulta-express-tabla .table td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.consulta-express-tabla .table-responsive {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Animación suave para el loading */
+.tabla-loading {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mejorar el spacing del modal */
+#modalVerTabla .modal-body {
+    padding: 1.5rem;
+}
+
+#modalVerTabla .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Responsive para tablas en modales */
+@media (max-width: 768px) {
+    .consulta-express-tabla .table {
+        font-size: 0.8rem;
+    }
+    
+    .consulta-express-tabla .table th,
+    .consulta-express-tabla .table td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+</style>
+
+</body>
+</html>
