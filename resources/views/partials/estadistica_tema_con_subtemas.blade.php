@@ -196,12 +196,16 @@ function initSidebarToggle() {
     const content = document.getElementById('contenido-principal');
     const toggleBtn = document.getElementById('toggle-sidebar');
     
-    // Verificar si hay preferencia guardada
-    const sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed') === 'true';
+    // CAMBIO PRINCIPAL: Verificar si hay preferencia guardada, pero por defecto colapsada
+    const sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed');
     
-    // Aplicar estado inicial según preferencia
-    if (sidebarCollapsed) {
+    // Aplicar estado inicial - COLAPSADA POR DEFECTO
+    if (sidebarCollapsed === null || sidebarCollapsed === 'true') {
+        // Primera visita o preferencia colapsada
         collapseSidebar();
+    } else if (sidebarCollapsed === 'false') {
+        // Solo expandir si explícitamente el usuario lo prefiere expandida
+        expandSidebar();
     }
     
     // Manejar clic en botón toggle
