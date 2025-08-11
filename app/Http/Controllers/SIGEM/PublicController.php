@@ -562,16 +562,6 @@ class PublicController extends Controller
             // Obtener información del subtema para contexto
             $subtema = ce_subtema::with('tema')->find($subtema_id);
             
-            // Debug: Log para verificar estructura de datos
-            \Log::info('Contenido CE público cargado:', [
-                'id' => $contenido->ce_contenido_id,
-                'titulo' => $contenido->titulo_tabla,
-                'datos_estructura' => gettype($contenido->tabla_datos),
-                'datos_muestra' => $contenido->tabla_datos ? array_slice($contenido->tabla_datos, 0, 2) : null,
-                'filas' => $contenido->tabla_filas,
-                'columnas' => $contenido->tabla_columnas
-            ]);
-            
             return response()->json([
                 'success' => true,
                 'message' => 'Contenido cargado exitosamente',
@@ -579,11 +569,11 @@ class PublicController extends Controller
                     'ce_contenido_id' => $contenido->ce_contenido_id,
                     'titulo_tabla' => $contenido->titulo_tabla,
                     'pie_tabla' => $contenido->pie_tabla,
-                    'tabla_filas' => (int) $contenido->tabla_filas,
-                    'tabla_columnas' => (int) $contenido->tabla_columnas,
-                    'tabla_datos' => $contenido->tabla_datos, // Esto debería ser un array
-                    'created_at' => $contenido->created_at ? $contenido->created_at->toISOString() : null,
-                    'updated_at' => $contenido->updated_at ? $contenido->updated_at->toISOString() : null
+                    'tabla_filas' => $contenido->tabla_filas,
+                    'tabla_columnas' => $contenido->tabla_columnas,
+                    'tabla_datos' => $contenido->tabla_datos, // Datos JSON para renderizar
+                    'created_at' => $contenido->created_at,
+                    'updated_at' => $contenido->updated_at
                 ],
                 'subtema' => $subtema ? [
                     'ce_subtema_id' => $subtema->ce_subtema_id,
@@ -599,8 +589,7 @@ class PublicController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error al cargar contenido de consulta express:', [
                 'subtema_id' => $subtema_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
         
             return response()->json([
