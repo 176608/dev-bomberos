@@ -221,7 +221,8 @@
                             <thead class="table-warning">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Contenido (Preview)</th>
+                                    <th>Tabla</th>
+                                    <th>Dimensiones</th>
                                     <th>Tema</th>
                                     <th>Subtema</th>
                                     <th>Fecha</th>
@@ -233,13 +234,18 @@
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $contenido->ce_contenido_id }}</span></td>
                                     <td>
-                                        <div style="max-width: 300px;">
-                                            @if($contenido->ce_contenido)
-                                                <small>{!! Str::limit(strip_tags($contenido->ce_contenido), 80) !!}</small>
-                                            @else
-                                                <span class="text-muted">Sin contenido</span>
+                                        <div style="max-width: 200px;">
+                                            <strong>{{ $contenido->titulo_tabla ?: 'Sin título' }}</strong>
+                                            @if($contenido->pie_tabla)
+                                                <br><small class="text-muted">{{ Str::limit($contenido->pie_tabla, 60) }}</small>
                                             @endif
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ $contenido->tabla_filas }}x{{ $contenido->tabla_columnas }}
+                                        </span>
+                                        <br><small class="text-muted">{{ $contenido->tabla_filas * $contenido->tabla_columnas }} celdas</small>
                                     </td>
                                     <td>
                                         @if($contenido->subtema && $contenido->subtema->tema)
@@ -264,9 +270,9 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-info" title="Ver" 
-                                                    onclick="verContenidoCE({{ $contenido->ce_contenido_id }})">
-                                                <i class="bi bi-eye"></i>
+                                            <button type="button" class="btn btn-outline-info" title="Ver Tabla" 
+                                                    onclick="verTablaContenidoCE({{ $contenido->ce_contenido_id }})">
+                                                <i class="bi bi-table"></i>
                                             </button>
                                             <button type="button" class="btn btn-outline-warning" title="Editar" 
                                                     onclick="editarContenidoCE({{ $contenido->ce_contenido_id }})">
@@ -485,17 +491,18 @@
     </div>
 </div>
 
-<!-- Modal Agregar Contenido CE -->
+<!-- Modal Agregar Contenido CE - ACTUALIZADO -->
 <div class="modal fade" id="modalAgregarContenido" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Contenido CE</h5>
+                <h5 class="modal-title"><i class="bi bi-table"></i> Nueva Tabla de Consulta Express</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formAgregarContenido" method="POST" action="{{ route('sigem.admin.consultas.contenido.crear') }}">
                 @csrf
                 <div class="modal-body">
+                    <!-- Información básica -->
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -505,16 +512,10 @@
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($ce_temas))
                                         @foreach($ce_temas as $tema)
-                                            <option value="{{ $tema->ce_tema_id }}" 
-                                                    {{ old('ce_tema_select') == $tema->ce_tema_id ? 'selected' : '' }}>
-                                                {{ $tema->tema }}
-                                            </option>
+                                            <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
                                         @endforeach
                                     @endif
                                 </select>
-                                @error('ce_tema_select')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -531,76 +532,80 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="ce_contenido" class="form-label">Contenido HTML <span class="text-danger">*</span></label>
-                        <textarea class="form-control @error('ce_contenido') is-invalid @enderror" 
-                                  id="ce_contenido" name="ce_contenido" rows="15" required 
-                                  placeholder="Ingrese el contenido HTML aquí...">{{ old('ce_contenido') }}</textarea>
-                        <small class="form-text text-muted">
-                            El contenido se sanitizará automáticamente para prevenir XSS. Tablas HTML están permitidas.
-                        </small>
-                        @error('ce_contenido')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="bi bi-save"></i> Guardar Contenido
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Editar Contenido CE -->
-<div class="modal fade" id="modalEditarContenido" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Contenido CE</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formEditarContenido" method="POST" action="">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="edit_contenido_id" name="ce_contenido_id">
-                <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="mb-3">
-                                <label for="edit_ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_ce_tema_select" name="ce_tema_select" required>
-                                    <option value="">Seleccionar tema...</option>
-                                    @if(isset($ce_temas))
-                                        @foreach($ce_temas as $tema)
-                                            <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <label for="titulo_tabla" class="form-label">Título de la Tabla <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('titulo_tabla') is-invalid @enderror" 
+                                       id="titulo_tabla" name="titulo_tabla" 
+                                       placeholder="Ej: Población por Edad y Sexo 2024" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="edit_ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_ce_subtema_id" name="ce_subtema_id" required>
-                                    <option value="">Seleccionar subtema...</option>
-                                </select>
+                                <label for="pie_tabla" class="form-label">Pie de Tabla</label>
+                                <input type="text" class="form-control" id="pie_tabla" name="pie_tabla" 
+                                       placeholder="Fuente: INEGI 2024">
                             </div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="edit_ce_contenido" class="form-label">Contenido HTML <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="edit_ce_contenido" name="ce_contenido" rows="15" required></textarea>
+                    <!-- Dimensiones de la tabla -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-grid-3x3"></i> Dimensiones de la Tabla</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="tabla_filas" class="form-label">Filas <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="tabla_filas" name="tabla_filas" 
+                                               min="1" max="50" value="3" required>
+                                        <small class="text-muted">Máximo 50 filas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="tabla_columnas" class="form-label">Columnas <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="tabla_columnas" name="tabla_columnas" 
+                                               min="1" max="20" value="3" required>
+                                        <small class="text-muted">Máximo 20 columnas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Vista Previa</label>
+                                        <div class="alert alert-info">
+                                            <span id="preview-dimensiones">Tabla de 3x3 (9 celdas total)</span>
+                                            <br><small>Ajusta las dimensiones y presiona "Generar Tabla" para crear los campos de entrada.</small>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="generarTabla()">
+                                            <i class="bi bi-arrow-clockwise"></i> Generar Tabla
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenedor para la tabla editable -->
+                    <div id="tabla-editor" class="card" style="display: none;">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-pencil-square"></i> Editor de Tabla</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="tabla-inputs"></div>
+                            <small class="text-muted">
+                                <strong>Tip:</strong> La primera fila se detectará automáticamente como encabezados si contiene principalmente texto.
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="bi bi-save"></i> Actualizar Contenido
+                    <button type="submit" class="btn btn-warning" id="btn-guardar-tabla" disabled>
+                        <i class="bi bi-save"></i> Guardar Tabla
                     </button>
                 </div>
             </form>
@@ -608,7 +613,27 @@
     </div>
 </div>
 
-<!-- JavaScript para funcionalidades -->
+<!-- Modal Ver Tabla Completa -->
+<div class="modal fade" id="modalVerTabla" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-table"></i> Vista de Tabla CE</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="tabla-vista-completa">
+                    <!-- Aquí se cargará la tabla completa -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript actualizado -->
 <script>
 // Datos para filtrado
 const ceSubtemasData = @json($ce_subtemas ?? []);
@@ -643,7 +668,7 @@ function editarTemaCE(id, nombre) {
 }
 
 function eliminarTemaCE(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el tema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los subtemas y contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+    if (confirm('¿Estás seguro de eliminar el tema CE "' + nombre + '"?\n\n ADVERTENCIA: Esto también eliminará todos los subtemas y contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -706,7 +731,7 @@ function editarSubtemaCE(id) {
 }
 
 function eliminarSubtemaCE(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -777,72 +802,110 @@ function eliminarContenidoCE(id) {
     }
 }
 
-// ============ FILTRADO DE SUBTEMAS CE ============
-function filtrarSubtemasCE(temaSelect, subtemaSelect) {
-    const temaId = temaSelect.value;
-    subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
+// ============ NUEVAS FUNCIONES PARA TABLAS ============
+
+function generarTabla() {
+    const filas = parseInt(document.getElementById('tabla_filas').value);
+    const columnas = parseInt(document.getElementById('tabla_columnas').value);
     
-    if (temaId) {
-        // Usar datos locales si están disponibles
-        const subtemasDelTema = ceSubtemasData.filter(subtema => subtema.ce_tema_id == temaId);
-        
-        subtemasDelTema.forEach(subtema => {
-            const option = document.createElement('option');
-            option.value = subtema.ce_subtema_id;
-            option.textContent = subtema.ce_subtema;
-            subtemaSelect.appendChild(option);
-        });
-        
-        // Alternativamente, usar AJAX si se necesita datos frescos
-        /*
-        fetch(`${routesConsultas.subtemasAjax}/${temaId}`)
-            .then(response => response.json())
-            .then(data => {
-                data.subtemas.forEach(subtema => {
-                    const option = document.createElement('option');
-                    option.value = subtema.ce_subtema_id;
-                    option.textContent = subtema.ce_subtema;
-                    subtemaSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-        */
+    if (filas < 1 || filas > 50 || columnas < 1 || columnas > 20) {
+        alert('Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
+        return;
+    }
+    
+    // Actualizar preview
+    const totalCeldas = filas * columnas;
+    document.getElementById('preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${totalCeldas} celdas total)`;
+    
+    // Generar campos de entrada
+    let html = '<div class="table-responsive"><table class="table table-bordered table-sm>';
+    
+    for (let fila = 0; fila < filas; fila++) {
+        html += '<tr>';
+        for (let col = 0; col < columnas; col++) {
+            const nombre = `celda_${fila}_${col}`;
+            const placeholder = fila === 0 ? `Encabezado ${col + 1}` : `Fila ${fila + 1}, Col ${col + 1}`;
+            html += `<td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="${nombre}" placeholder="${placeholder}"
+                       onchange="validarTabla()">
+            </td>`;
+        }
+        html += '</tr>';
+    }
+    
+    html += '</table></div>';
+    
+    document.getElementById('tabla-inputs').innerHTML = html;
+    document.getElementById('tabla-editor').style.display = 'block';
+    document.getElementById('btn-guardar-tabla').disabled = false;
+}
+
+function validarTabla() {
+    // Contar celdas llenas
+    const inputs = document.querySelectorAll('#tabla-inputs input[type="text"]');
+    let celdas_llenas = 0;
+    
+    inputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            celdas_llenas++;
+        }
+    });
+    
+    const total_celdas = inputs.length;
+    const porcentaje_lleno = (celdas_llenas / total_celdas) * 100;
+    
+    // Cambiar color del botón según el completado
+    const btnGuardar = document.getElementById('btn-guardar-tabla');
+    if (porcentaje_lleno < 20) {
+        btnGuardar.className = 'btn btn-outline-warning';
+        btnGuardar.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Guardar Tabla (Incompleta)';
+    } else {
+        btnGuardar.className = 'btn btn-warning';
+        btnGuardar.innerHTML = '<i class="bi bi-save"></i> Guardar Tabla';
     }
 }
 
-// Event listeners para filtrado de subtemas
-document.getElementById('ce_tema_select')?.addEventListener('change', function() {
-    filtrarSubtemasCE(this, document.getElementById('ce_subtema_id'));
+function verTablaContenidoCE(id) {
+    // Por ahora, mostrar placeholder - necesitamos endpoint AJAX
+    document.getElementById('tabla-vista-completa').innerHTML = `
+        <div class="text-center py-4">
+            <i class="bi bi-table" style="font-size: 3rem;"></i>
+            <h5>Cargando tabla ID: ${id}</h5>
+            <p class="text-muted">Implementar endpoint AJAX para cargar tabla completa</p>
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('modalVerTabla')).show();
+}
+
+function editarContenidoCE(id) {
+    alert(`Editar contenido CE ID: ${id}\n\nPendiente: Cargar datos existentes en el formulario de tabla.`);
+}
+
+// Event listeners para dimensiones
+document.getElementById('tabla_filas')?.addEventListener('input', function() {
+    actualizarPreviewDimensiones();
 });
 
-document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
-    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
+document.getElementById('tabla_columnas')?.addEventListener('input', function() {
+    actualizarPreviewDimensiones();
 });
 
-// Limpiar modales al cerrar
-document.getElementById('modalAgregarTema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
+function actualizarPreviewDimensiones() {
+    const filas = parseInt(document.getElementById('tabla_filas').value) || 0;
+    const columnas = parseInt(document.getElementById('tabla_columnas').value) || 0;
+    const total = filas * columnas;
+    
+    document.getElementById('preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${total} celdas total)`;
+}
 
-document.getElementById('modalEditarTema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
-
-document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
-
-document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
-
+// Limpiar modal de contenido
 document.getElementById('modalAgregarContenido')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
-});
-
-document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-    document.getElementById('edit_ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
+    document.getElementById('tabla-editor').style.display = 'none';
+    document.getElementById('btn-guardar-tabla').disabled = true;
+    document.getElementById('preview-dimensiones').textContent = 'Tabla de 3x3 (9 celdas total)';
 });
 </script>

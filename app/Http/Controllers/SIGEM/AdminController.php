@@ -1004,24 +1004,37 @@ class AdminController extends Controller
     public function crearContenidoCE(Request $request)
     {
         try {
-            // Validar datos
+            // Validar datos básicos
             $request->validate([
                 'ce_subtema_id' => 'required|integer|exists:consulta_express_subtema,ce_subtema_id',
-                'ce_contenido' => 'required|string'
+                'titulo_tabla' => 'required|string|max:255',
+                'pie_tabla' => 'nullable|string|max:500',
+                'tabla_filas' => 'required|integer|min:1|max:50',
+                'tabla_columnas' => 'required|integer|min:1|max:20'
             ]);
 
-            // Sanitizar contenido HTML
-            $contenidoSanitizado = ce_contenido::prepararContenidoHTML($request->ce_contenido);
+            $filas = (int) $request->tabla_filas;
+            $columnas = (int) $request->tabla_columnas;
+            
+            // Validar estructura de tabla
+            ce_contenido::validarTabla($filas, $columnas, $request->all());
+            
+            // Crear estructura de datos de tabla
+            $estructura_tabla = ce_contenido::crearEstructuraTabla($filas, $columnas, $request->all());
 
             // Crear contenido CE
             $contenidoCE = ce_contenido::create([
                 'ce_subtema_id' => $request->ce_subtema_id,
-                'ce_contenido' => $contenidoSanitizado
+                'titulo_tabla' => $request->titulo_tabla,
+                'pie_tabla' => $request->pie_tabla,
+                'tabla_filas' => $filas,
+                'tabla_columnas' => $columnas,
+                'tabla_datos' => $estructura_tabla
             ]);
 
             return redirect()
                 ->route('sigem.admin.consultas')
-                ->with('success', 'Contenido CE creado exitosamente');
+                ->with('success', "Contenido CE '{$contenidoCE->titulo_tabla}' creado exitosamente con tabla de {$filas}x{$columnas}");
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()
@@ -1031,7 +1044,8 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('sigem.admin.consultas')
-                ->with('error', 'Error al crear el contenido CE: ' . $e->getMessage());
+                ->with('error', 'Error al crear el contenido CE: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -1049,24 +1063,37 @@ class AdminController extends Controller
                     ->with('error', 'Contenido CE no encontrado');
             }
 
-            // Validar datos
+            // Validar datos básicos
             $request->validate([
                 'ce_subtema_id' => 'required|integer|exists:consulta_express_subtema,ce_subtema_id',
-                'ce_contenido' => 'required|string'
+                'titulo_tabla' => 'required|string|max:255',
+                'pie_tabla' => 'nullable|string|max:500',
+                'tabla_filas' => 'required|integer|min:1|max:50',
+                'tabla_columnas' => 'required|integer|min:1|max:20'
             ]);
 
-            // Sanitizar contenido HTML
-            $contenidoSanitizado = ce_contenido::prepararContenidoHTML($request->ce_contenido);
+            $filas = (int) $request->tabla_filas;
+            $columnas = (int) $request->tabla_columnas;
+            
+            // Validar estructura de tabla
+            ce_contenido::validarTabla($filas, $columnas, $request->all());
+            
+            // Crear estructura de datos de tabla
+            $estructura_tabla = ce_contenido::crearEstructuraTabla($filas, $columnas, $request->all());
 
             // Actualizar contenido CE
             $contenidoCE->update([
                 'ce_subtema_id' => $request->ce_subtema_id,
-                'ce_contenido' => $contenidoSanitizado
+                'titulo_tabla' => $request->titulo_tabla,
+                'pie_tabla' => $request->pie_tabla,
+                'tabla_filas' => $filas,
+                'tabla_columnas' => $columnas,
+                'tabla_datos' => $estructura_tabla
             ]);
 
             return redirect()
                 ->route('sigem.admin.consultas')
-                ->with('success', 'Contenido CE actualizado exitosamente');
+                ->with('success', "Contenido CE '{$contenidoCE->titulo_tabla}' actualizado exitosamente");
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()
@@ -1076,7 +1103,8 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('sigem.admin.consultas')
-                ->with('error', 'Error al actualizar el contenido CE: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el contenido CE: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -1095,15 +1123,16 @@ class AdminController extends Controller
             }
 
             // Guardar datos para el mensaje
-            $tituloContenido = Str::limit(strip_tags($contenidoCE->ce_contenido), 50);
+            $tituloTabla = $contenidoCE->titulo_tabla ?: 'Tabla sin título';
             $nombreSubtema = $contenidoCE->subtema ? $contenidoCE->subtema->ce_subtema : 'Sin subtema';
+            $dimensiones = "{$contenidoCE->tabla_filas}x{$contenidoCE->tabla_columnas}";
 
             // Eliminar contenido CE
             $contenidoCE->delete();
 
             return redirect()
                 ->route('sigem.admin.consultas')
-                ->with('success', "Contenido CE del subtema '{$nombreSubtema}' eliminado exitosamente");
+                ->with('success', "Contenido CE '{$tituloTabla}' ({$dimensiones}) del subtema '{$nombreSubtema}' eliminado exitosamente");
 
         } catch (\Exception $e) {
             return redirect()
