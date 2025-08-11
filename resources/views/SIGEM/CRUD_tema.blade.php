@@ -65,8 +65,7 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Título del Tema</th>
-                                    <th>Nombre Archivo</th>
+                                    <th>Título del Tema</th>    
                                     <th>Orden Índice</th>
                                     <th>Clave Tema</th>
                                     <th>Subtemas</th>

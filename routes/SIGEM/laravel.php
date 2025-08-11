@@ -73,8 +73,22 @@ Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])
     Route::put('/admin/cuadros/{id}/actualizar', [AdminController::class, 'actualizarCuadro'])->name('sigem.admin.cuadros.actualizar');
     Route::delete('/admin/cuadros/{id}/eliminar', [AdminController::class, 'eliminarCuadro'])->name('sigem.admin.cuadros.eliminar');
     
-    // Consultas Express
+    // AJAX para obtener subtemas por tema
+    Route::get('/admin/cuadros/subtemas/{tema_id}', [AdminController::class, 'obtenerSubtemasPorTema']);
+    
+    // AJAX para obtener subtemas CE por tema
+    Route::get('/admin/consultas/subtemas-ce/{tema_id}', [AdminController::class, 'obtenerSubtemasCEPorTema']);
+    
+    // Consultas Express - CRUD completo
     Route::post('/admin/consultas/tema/crear', [AdminController::class, 'crearTemaCE'])->name('sigem.admin.consultas.tema.crear');
+    Route::put('/admin/consultas/tema/{id}/actualizar', [AdminController::class, 'actualizarTemaCE'])->name('sigem.admin.consultas.tema.actualizar');
+    Route::delete('/admin/consultas/tema/{id}/eliminar', [AdminController::class, 'eliminarTemaCE'])->name('sigem.admin.consultas.tema.eliminar');
+    
     Route::post('/admin/consultas/subtema/crear', [AdminController::class, 'crearSubtemaCE'])->name('sigem.admin.consultas.subtema.crear');
+    Route::put('/admin/consultas/subtema/{id}/actualizar', [AdminController::class, 'actualizarSubtemaCE'])->name('sigem.admin.consultas.subtema.actualizar');
+    Route::delete('/admin/consultas/subtema/{id}/eliminar', [AdminController::class, 'eliminarSubtemaCE'])->name('sigem.admin.consultas.subtema.eliminar');
+    
     Route::post('/admin/consultas/contenido/crear', [AdminController::class, 'crearContenidoCE'])->name('sigem.admin.consultas.contenido.crear');
+    Route::put('/admin/consultas/contenido/{id}/actualizar', [AdminController::class, 'actualizarContenidoCE'])->name('sigem.admin.consultas.contenido.actualizar');
+    Route::delete('/admin/consultas/contenido/{id}/eliminar', [AdminController::class, 'eliminarContenidoCE'])->name('sigem.admin.consultas.contenido.eliminar');
 });

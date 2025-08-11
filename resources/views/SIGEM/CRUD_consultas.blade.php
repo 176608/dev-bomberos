@@ -299,6 +299,34 @@
 
 <!-- ========================================== MODALES ========================================== -->
 
+<!-- Mensajes de éxito, error y validación -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> 
+        <strong>Errores de validación:</strong>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <!-- Modal Agregar Tema CE -->
 <div class="modal fade" id="modalAgregarTema" tabindex="-1">
     <div class="modal-dialog">
@@ -307,19 +335,58 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Tema CE</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarTema" method="POST" action="#">
+            <form id="formAgregarTema" method="POST" action="{{ route('sigem.admin.consultas.tema.crear') }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="tema" class="form-label">Nombre del Tema <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="tema" name="tema" 
-                               placeholder="Ej: Demografía" required>
+                        <input type="text" class="form-control @error('tema') is-invalid @enderror" 
+                               id="tema" name="tema" 
+                               placeholder="Ej: Demografía" 
+                               value="{{ old('tema') }}" required>
+                        @error('tema')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Información:</strong> El nombre del tema debe ser único en el sistema.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Guardar Tema
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Tema CE -->
+<div class="modal fade" id="modalEditarTema" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tema CE</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarTema" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_tema_id" name="ce_tema_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_tema" class="form-label">Nombre del Tema <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_tema" name="tema" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar Tema
                     </button>
                 </div>
             </form>
@@ -335,12 +402,65 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Subtema CE</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarSubtema" method="POST" action="#">
+            <form id="formAgregarSubtema" method="POST" action="{{ route('sigem.admin.consultas.subtema.crear') }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                        <select class="form-select" id="ce_tema_id" name="ce_tema_id" required>
+                        <select class="form-select @error('ce_tema_id') is-invalid @enderror" 
+                                id="ce_tema_id" name="ce_tema_id" required>
+                            <option value="">Seleccionar tema...</option>
+                            @if(isset($ce_temas))
+                                @foreach($ce_temas as $tema)
+                                    <option value="{{ $tema->ce_tema_id }}" 
+                                            {{ old('ce_tema_id') == $tema->ce_tema_id ? 'selected' : '' }}>
+                                        {{ $tema->tema }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        @error('ce_tema_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="ce_subtema" class="form-label">Nombre del Subtema <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('ce_subtema') is-invalid @enderror" 
+                               id="ce_subtema" name="ce_subtema" 
+                               placeholder="Ej: Población por Edad" 
+                               value="{{ old('ce_subtema') }}" required>
+                        @error('ce_subtema')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Guardar Subtema
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Subtema CE -->
+<div class="modal fade" id="modalEditarSubtema" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Subtema CE</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarSubtema" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_subtema_id" name="ce_subtema_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
+                        <select class="form-select" id="edit_ce_tema_id" name="ce_tema_id" required>
                             <option value="">Seleccionar tema...</option>
                             @if(isset($ce_temas))
                                 @foreach($ce_temas as $tema)
@@ -350,15 +470,14 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="ce_subtema" class="form-label">Nombre del Subtema <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="ce_subtema" name="ce_subtema" 
-                               placeholder="Ej: Población por Edad" required>
+                        <label for="edit_ce_subtema" class="form-label">Nombre del Subtema <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_ce_subtema" name="ce_subtema" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar Subtema
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar Subtema
                     </button>
                 </div>
             </form>
@@ -374,40 +493,55 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Contenido CE</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formAgregarContenido" method="POST" action="#">
+            <form id="formAgregarContenido" method="POST" action="{{ route('sigem.admin.consultas.contenido.crear') }}">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="ce_tema_select" name="ce_tema_select" required>
+                                <select class="form-select @error('ce_tema_select') is-invalid @enderror" 
+                                        id="ce_tema_select" name="ce_tema_select" required>
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($ce_temas))
                                         @foreach($ce_temas as $tema)
-                                            <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
+                                            <option value="{{ $tema->ce_tema_id }}" 
+                                                    {{ old('ce_tema_select') == $tema->ce_tema_id ? 'selected' : '' }}>
+                                                {{ $tema->tema }}
+                                            </option>
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('ce_tema_select')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="ce_subtema_id" name="ce_subtema_id" required>
+                                <select class="form-select @error('ce_subtema_id') is-invalid @enderror" 
+                                        id="ce_subtema_id" name="ce_subtema_id" required>
                                     <option value="">Seleccionar subtema...</option>
                                 </select>
+                                @error('ce_subtema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="ce_contenido" class="form-label">Contenido HTML <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="ce_contenido" name="ce_contenido" rows="15" required 
-                                  placeholder="Ingrese el contenido HTML aquí..."></textarea>
+                        <textarea class="form-control @error('ce_contenido') is-invalid @enderror" 
+                                  id="ce_contenido" name="ce_contenido" rows="15" required 
+                                  placeholder="Ingrese el contenido HTML aquí...">{{ old('ce_contenido') }}</textarea>
                         <small class="form-text text-muted">
                             El contenido se sanitizará automáticamente para prevenir XSS. Tablas HTML están permitidas.
                         </small>
+                        @error('ce_contenido')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -421,65 +555,235 @@
     </div>
 </div>
 
+<!-- Modal Editar Contenido CE -->
+<div class="modal fade" id="modalEditarContenido" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Contenido CE</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarContenido" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_contenido_id" name="ce_contenido_id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_ce_tema_select" name="ce_tema_select" required>
+                                    <option value="">Seleccionar tema...</option>
+                                    @if(isset($ce_temas))
+                                        @foreach($ce_temas as $tema)
+                                            <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_ce_subtema_id" name="ce_subtema_id" required>
+                                    <option value="">Seleccionar subtema...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_ce_contenido" class="form-label">Contenido HTML <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="edit_ce_contenido" name="ce_contenido" rows="15" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar Contenido
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript para funcionalidades -->
 <script>
 // Datos para filtrado
 const ceSubtemasData = @json($ce_subtemas ?? []);
 
+// Rutas para JavaScript
+const routesConsultas = {
+    temaUpdate: '{{ route("sigem.admin.consultas.tema.actualizar", ":id") }}',
+    temaDelete: '{{ route("sigem.admin.consultas.tema.eliminar", ":id") }}',
+    subtemaUpdate: '{{ route("sigem.admin.consultas.subtema.actualizar", ":id") }}',
+    subtemaDelete: '{{ route("sigem.admin.consultas.subtema.eliminar", ":id") }}',
+    contenidoUpdate: '{{ route("sigem.admin.consultas.contenido.actualizar", ":id") }}',
+    contenidoDelete: '{{ route("sigem.admin.consultas.contenido.eliminar", ":id") }}',
+    subtemasAjax: '{{ url("/sigem/admin/consultas/subtemas-ce") }}'
+};
+
 // ============ FUNCIONES DE TEMAS CE ============
-function verTemaCI(id) {
-    alert('Ver detalles del tema CE ID: ' + id + '\n(Funcionalidad pendiente)');
+function verTemaCE(id) {
+    alert('Ver detalles del tema CE ID: ' + id + '\n(Funcionalidad de vista pendiente)');
 }
 
-function editarTemaCI(id, nombre) {
-    const nuevoNombre = prompt('Editar tema:', nombre);
-    if (nuevoNombre && nuevoNombre.trim() !== '') {
-        alert('Actualizar tema ID: ' + id + ' a "' + nuevoNombre + '"\n(Funcionalidad pendiente)');
-    }
+function editarTemaCE(id, nombre) {
+    // Llenar el modal de edición
+    document.getElementById('edit_tema_id').value = id;
+    document.getElementById('edit_tema').value = nombre;
+    
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarTema');
+    form.action = routesConsultas.temaUpdate.replace(':id', id);
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarTema')).show();
 }
 
-function eliminarTemaCI(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el tema "' + nombre + '"?\n\nEsto también eliminará todos los subtemas y contenidos asociados.')) {
-        alert('Eliminar tema ID: ' + id + '\n(Funcionalidad pendiente)');
+function eliminarTemaCE(id, nombre) {
+    if (confirm('¿Estás seguro de eliminar el tema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los subtemas y contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesConsultas.temaDelete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
 // ============ FUNCIONES DE SUBTEMAS CE ============
-function verSubtemaCI(id) {
-    alert('Ver detalles del subtema CE ID: ' + id + '\n(Funcionalidad pendiente)');
+function verSubtemaCE(id) {
+    alert('Ver detalles del subtema CE ID: ' + id + '\n(Funcionalidad de vista pendiente)');
 }
 
-function editarSubtemaCI(id) {
-    alert('Editar subtema CE ID: ' + id + '\n(Funcionalidad pendiente)');
+function editarSubtemaCE(id) {
+    // Buscar los datos del subtema en la tabla
+    const fila = event.target.closest('tr');
+    const subtema_nombre = fila.cells[1].querySelector('strong').textContent;
+    const tema_badge = fila.cells[2].querySelector('.badge');
+    
+    // Llenar el modal de edición
+    document.getElementById('edit_subtema_id').value = id;
+    document.getElementById('edit_ce_subtema').value = subtema_nombre;
+    
+    // Seleccionar el tema en el select
+    const temaSelect = document.getElementById('edit_ce_tema_id');
+    if (tema_badge) {
+        const temaTexto = tema_badge.textContent;
+        for (let option of temaSelect.options) {
+            if (option.text === temaTexto) {
+                option.selected = true;
+                break;
+            }
+        }
+    }
+    
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarSubtema');
+    form.action = routesConsultas.subtemaUpdate.replace(':id', id);
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarSubtema')).show();
 }
 
-function eliminarSubtemaCI(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el subtema "' + nombre + '"?\n\nEsto también eliminará todos los contenidos asociados.')) {
-        alert('Eliminar subtema ID: ' + id + '\n(Funcionalidad pendiente)');
+function eliminarSubtemaCE(id, nombre) {
+    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesConsultas.subtemaDelete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
 // ============ FUNCIONES DE CONTENIDOS CE ============
-function verContenidoCI(id) {
-    alert('Ver detalles del contenido CE ID: ' + id + '\n(Funcionalidad pendiente)');
+function verContenidoCE(id) {
+    // Buscar el contenido en la tabla y mostrar en modal
+    const fila = event.target.closest('tr');
+    const contenidoPreview = fila.cells[1].querySelector('small') ? 
+        fila.cells[1].querySelector('small').textContent : 
+        'Sin contenido disponible';
+    
+    alert('Contenido CE ID: ' + id + '\n\nPreview:\n' + contenidoPreview + '\n\n(Modal de vista completa pendiente)');
 }
 
-function editarContenidoCI(id) {
-    alert('Editar contenido CE ID: ' + id + '\n(Funcionalidad pendiente)');
+function editarContenidoCE(id) {
+    // Implementar edición de contenido
+    alert('Editar contenido CE ID: ' + id + '\n(Funcionalidad pendiente - requiere cargar contenido HTML completo)');
 }
 
-function eliminarContenidoCI(id) {
-    if (confirm('¿Estás seguro de eliminar este contenido?\n\nEsta acción no se puede deshacer.')) {
-        alert('Eliminar contenido ID: ' + id + '\n(Funcionalidad pendiente)');
+function eliminarContenidoCE(id) {
+    if (confirm('¿Estás seguro de eliminar este contenido CE?\n\nEsta acción no se puede deshacer.')) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesConsultas.contenidoDelete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
-// ============ FILTRADO DE SUBTEMAS ============
+// ============ FILTRADO DE SUBTEMAS CE ============
 function filtrarSubtemasCE(temaSelect, subtemaSelect) {
     const temaId = temaSelect.value;
     subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
     
     if (temaId) {
+        // Usar datos locales si están disponibles
         const subtemasDelTema = ceSubtemasData.filter(subtema => subtema.ce_tema_id == temaId);
         
         subtemasDelTema.forEach(subtema => {
@@ -488,11 +792,57 @@ function filtrarSubtemasCE(temaSelect, subtemaSelect) {
             option.textContent = subtema.ce_subtema;
             subtemaSelect.appendChild(option);
         });
+        
+        // Alternativamente, usar AJAX si se necesita datos frescos
+        /*
+        fetch(`${routesConsultas.subtemasAjax}/${temaId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.subtemas.forEach(subtema => {
+                    const option = document.createElement('option');
+                    option.value = subtema.ce_subtema_id;
+                    option.textContent = subtema.ce_subtema;
+                    subtemaSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        */
     }
 }
 
-// Event listener para filtrado de subtemas en modal de contenido
+// Event listeners para filtrado de subtemas
 document.getElementById('ce_tema_select')?.addEventListener('change', function() {
     filtrarSubtemasCE(this, document.getElementById('ce_subtema_id'));
+});
+
+document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
+    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
+});
+
+// Limpiar modales al cerrar
+document.getElementById('modalAgregarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalAgregarContenido')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
+});
+
+document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+    document.getElementById('edit_ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
 });
 </script>

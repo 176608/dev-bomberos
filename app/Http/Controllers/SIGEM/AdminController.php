@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SIGEM;
 
 use App\Http\Controllers\SIGEM\Controller; // NOTA: Controller siempre debe ser esta dirección
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; // AGREGAR: Para funciones de string
 use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
@@ -767,21 +768,363 @@ class AdminController extends Controller
     }
 
     // ============ MÉTODOS CRUD PARA CONSULTAS EXPRESS ============
+    
+    /**
+     * Crear nuevo tema CE
+     */
     public function crearTemaCE(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'tema' => 'required|string|max:255|unique:consulta_express_tema,tema'
+            ]);
+
+            // Crear tema CE
+            $temaCE = ce_tema::create([
+                'tema' => $request->tema
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Tema CE '{$temaCE->tema}' creado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al crear el tema CE: ' . $e->getMessage());
+        }
     }
 
+    /**
+     * Actualizar tema CE
+     */
+    public function actualizarTemaCE(Request $request, $id)
+    {
+        try {
+            $temaCE = ce_tema::find($id);
+            
+            if (!$temaCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Tema CE no encontrado');
+            }
+
+            // Validar datos (excluir el ID actual de la validación única)
+            $request->validate([
+                'tema' => 'required|string|max:255|unique:consulta_express_tema,tema,' . $id . ',ce_tema_id'
+            ]);
+
+            // Actualizar tema CE
+            $temaCE->update([
+                'tema' => $request->tema
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Tema CE actualizado a '{$temaCE->tema}' exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al actualizar el tema CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar tema CE
+     */
+    public function eliminarTemaCE($id)
+    {
+        try {
+            $temaCE = ce_tema::find($id);
+            
+            if (!$temaCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Tema CE no encontrado');
+            }
+
+            // Verificar si tiene subtemas asociados
+            $subtemasCount = $temaCE->subtemas()->count();
+            
+            if ($subtemasCount > 0) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', "No se puede eliminar el tema CE '{$temaCE->tema}' porque tiene {$subtemasCount} subtema(s) asociado(s). Elimine o reasigne los subtemas primero.");
+            }
+
+            // Guardar nombre para el mensaje
+            $nombreTema = $temaCE->tema;
+
+            // Eliminar tema CE
+            $temaCE->delete();
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Tema CE '{$nombreTema}' eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al eliminar el tema CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crear nuevo subtema CE
+     */
     public function crearSubtemaCE(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'ce_tema_id' => 'required|integer|exists:consulta_express_tema,ce_tema_id',
+                'ce_subtema' => 'required|string|max:255'
+            ]);
+
+            // Crear subtema CE
+            $subtemaCE = ce_subtema::create([
+                'ce_tema_id' => $request->ce_tema_id,
+                'ce_subtema' => $request->ce_subtema
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Subtema CE '{$subtemaCE->ce_subtema}' creado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al crear el subtema CE: ' . $e->getMessage());
+        }
     }
 
+    /**
+     * Actualizar subtema CE
+     */
+    public function actualizarSubtemaCE(Request $request, $id)
+    {
+        try {
+            $subtemaCE = ce_subtema::find($id);
+            
+            if (!$subtemaCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Subtema CE no encontrado');
+            }
+
+            // Validar datos
+            $request->validate([
+                'ce_tema_id' => 'required|integer|exists:consulta_express_tema,ce_tema_id',
+                'ce_subtema' => 'required|string|max:255'
+            ]);
+
+            // Actualizar subtema CE
+            $subtemaCE->update([
+                'ce_tema_id' => $request->ce_tema_id,
+                'ce_subtema' => $request->ce_subtema
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Subtema CE '{$subtemaCE->ce_subtema}' actualizado exitosamente");
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al actualizar el subtema CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar subtema CE
+     */
+    public function eliminarSubtemaCE($id)
+    {
+        try {
+            $subtemaCE = ce_subtema::find($id);
+            
+            if (!$subtemaCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Subtema CE no encontrado');
+            }
+
+            // Verificar si tiene contenidos asociados
+            $contenidosCount = $subtemaCE->contenidos()->count();
+            
+            if ($contenidosCount > 0) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', "No se puede eliminar el subtema CE '{$subtemaCE->ce_subtema}' porque tiene {$contenidosCount} contenido(s) asociado(s). Elimine los contenidos primero.");
+            }
+
+            // Guardar datos para el mensaje
+            $nombreSubtema = $subtemaCE->ce_subtema;
+            $nombreTema = $subtemaCE->tema ? $subtemaCE->tema->tema : 'Sin tema';
+
+            // Eliminar subtema CE
+            $subtemaCE->delete();
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Subtema CE '{$nombreSubtema}' del tema '{$nombreTema}' eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al eliminar el subtema CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crear nuevo contenido CE
+     */
     public function crearContenidoCE(Request $request)
     {
-        // TODO: Implementar método
-        return redirect()->route('sigem.admin.consultas')->with('error', 'Método no implementado aún');
+        try {
+            // Validar datos
+            $request->validate([
+                'ce_subtema_id' => 'required|integer|exists:consulta_express_subtema,ce_subtema_id',
+                'ce_contenido' => 'required|string'
+            ]);
+
+            // Sanitizar contenido HTML
+            $contenidoSanitizado = ce_contenido::prepararContenidoHTML($request->ce_contenido);
+
+            // Crear contenido CE
+            $contenidoCE = ce_contenido::create([
+                'ce_subtema_id' => $request->ce_subtema_id,
+                'ce_contenido' => $contenidoSanitizado
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', 'Contenido CE creado exitosamente');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al crear el contenido CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Actualizar contenido CE
+     */
+    public function actualizarContenidoCE(Request $request, $id)
+    {
+        try {
+            $contenidoCE = ce_contenido::find($id);
+            
+            if (!$contenidoCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Contenido CE no encontrado');
+            }
+
+            // Validar datos
+            $request->validate([
+                'ce_subtema_id' => 'required|integer|exists:consulta_express_subtema,ce_subtema_id',
+                'ce_contenido' => 'required|string'
+            ]);
+
+            // Sanitizar contenido HTML
+            $contenidoSanitizado = ce_contenido::prepararContenidoHTML($request->ce_contenido);
+
+            // Actualizar contenido CE
+            $contenidoCE->update([
+                'ce_subtema_id' => $request->ce_subtema_id,
+                'ce_contenido' => $contenidoSanitizado
+            ]);
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', 'Contenido CE actualizado exitosamente');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al actualizar el contenido CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar contenido CE
+     */
+    public function eliminarContenidoCE($id)
+    {
+        try {
+            $contenidoCE = ce_contenido::find($id);
+            
+            if (!$contenidoCE) {
+                return redirect()
+                    ->route('sigem.admin.consultas')
+                    ->with('error', 'Contenido CE no encontrado');
+            }
+
+            // Guardar datos para el mensaje
+            $tituloContenido = Str::limit(strip_tags($contenidoCE->ce_contenido), 50);
+            $nombreSubtema = $contenidoCE->subtema ? $contenidoCE->subtema->ce_subtema : 'Sin subtema';
+
+            // Eliminar contenido CE
+            $contenidoCE->delete();
+
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('success', "Contenido CE del subtema '{$nombreSubtema}' eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.consultas')
+                ->with('error', 'Error al eliminar el contenido CE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * AJAX: Obtener subtemas CE por tema
+     */
+    public function obtenerSubtemasCEPorTema($tema_id)
+    {
+        try {
+            $subtemas = ce_subtema::where('ce_tema_id', $tema_id)
+                                  ->orderBy('ce_subtema_id', 'asc')
+                                  ->get(['ce_subtema_id', 'ce_subtema']);
+            
+            return response()->json(['subtemas' => $subtemas]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener subtemas CE'], 500);
+        }
     }
 }
