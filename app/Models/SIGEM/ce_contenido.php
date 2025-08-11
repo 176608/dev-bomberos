@@ -42,9 +42,11 @@ class ce_contenido extends Model
      * Casting de atributos
      */
     protected $casts = [
-        'tabla_datos' => 'array', // Automáticamente convierte JSON a array
+        'tabla_datos' => 'array', // IMPORTANTE: Esto debe convertir JSON a array automáticamente
         'tabla_filas' => 'integer',
-        'tabla_columnas' => 'integer'
+        'tabla_columnas' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
     
     /**

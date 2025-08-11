@@ -203,6 +203,14 @@ function cargarContenidoConsultaExpress(subtemaId) {
 
 // Función para mostrar contenido CE con renderizado de tabla
 function mostrarContenidoCE(contenido, actualizado) {
+    console.log('Datos recibidos completos:', contenido); // Debug para ver estructura
+    
+    // Verificar que tenemos datos válidos
+    if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos)) {
+        mostrarErrorCE('Estructura de datos de tabla inválida');
+        return;
+    }
+    
     // Renderizar tabla HTML usando la misma lógica que el backend
     const tablaHtml = renderizarTablaCE(contenido);
     
@@ -216,7 +224,7 @@ function mostrarContenidoCE(contenido, actualizado) {
                 <div class="d-flex justify-content-center gap-2 mb-2">
                     <span class="badge bg-success fs-7">
                         <i class="bi bi-grid-3x3 me-1"></i>
-                        ${contenido.tabla_filas}×${contenido.tabla_columnas}
+                        ${contenido.tabla_filas || 0}×${contenido.tabla_columnas || 0}
                     </span>
                 </div>
             </div>
@@ -246,9 +254,11 @@ function mostrarContenidoCE(contenido, actualizado) {
     metadataDiv.style.display = 'block';
 }
 
-// Función para renderizar tabla CE (JavaScript - similar al backend)
+// Función para renderizar tabla CE (JavaScript - CORREGIDA para coincidir con PHP)
 function renderizarTablaCE(contenido) {
-    if (!contenido.tabla_datos || contenido.tabla_datos.length === 0) {
+    console.log('Renderizando tabla con datos:', contenido.tabla_datos); // Debug
+    
+    if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos) || contenido.tabla_datos.length === 0) {
         return `
             <div class="alert alert-warning text-center">
                 <i class="bi bi-exclamation-triangle me-2"></i>
@@ -258,10 +268,18 @@ function renderizarTablaCE(contenido) {
     }
     
     let html = '<div class="consulta-express-tabla-modal">';
+    
+    // Agregar título si existe (ya lo mostramos arriba, pero por consistencia)
     html += '<div class="table-responsive">';
     html += '<table class="table table-striped table-bordered table-hover table-sm">';
     
+    // Procesar cada fila
     contenido.tabla_datos.forEach((fila, filaIndex) => {
+        if (!Array.isArray(fila)) {
+            console.warn('Fila no es array:', fila);
+            return;
+        }
+        
         html += '<tr>';
         
         fila.forEach((celda, colIndex) => {
@@ -269,25 +287,27 @@ function renderizarTablaCE(contenido) {
             const esEncabezado = (filaIndex === 0 && esFilaEncabezadoCE(contenido.tabla_datos[0]));
             const tag = esEncabezado ? 'th' : 'td';
             
-            // Clases CSS según el tipo de celda
+            // Clases CSS según el tipo de celda (igual que PHP)
             let clases = '';
             if (esEncabezado) {
                 clases = 'table-success text-center fw-bold';
             } else if (colIndex === 0 && !esNumericoPuro(celda)) {
-                // Primera columna con texto (categorías)
+                // Primera columna con texto (categorías) - igual que PHP
                 clases = 'fw-semibold';
             } else if (esNumericoPuro(celda)) {
-                // Números alineados a la derecha
+                // Números alineados a la derecha - igual que PHP
                 clases = 'text-end';
             }
             
-            // Contenido de la celda
-            const contenidoCelda = celda?.toString().trim() || '-';
-            const contenidoFinal = contenidoCelda === '' || contenidoCelda === '-' ? 
-                '<span class="text-muted">-</span>' : 
-                escapeHtmlCE(contenidoCelda);
+            // Contenido de la celda - manejar valores null/undefined
+            let contenidoCelda = '';
+            if (celda === null || celda === undefined || celda === '') {
+                contenidoCelda = '<span class="text-muted">-</span>';
+            } else {
+                contenidoCelda = escapeHtmlCE(celda.toString().trim());
+            }
             
-            html += `<${tag}${clases ? ` class="${clases}"` : ''}>${contenidoFinal}</${tag}>`;
+            html += `<${tag}${clases ? ` class="${clases}"` : ''}>${contenidoCelda}</${tag}>`;
         });
         
         html += '</tr>';
@@ -300,9 +320,9 @@ function renderizarTablaCE(contenido) {
     return html;
 }
 
-// Función auxiliar: determinar si una fila es encabezado
+// Función auxiliar: determinar si una fila es encabezado (MEJORADA)
 function esFilaEncabezadoCE(fila) {
-    if (!fila || fila.length === 0) return false;
+    if (!fila || !Array.isArray(fila) || fila.length === 0) return false;
     
     let celdasConTexto = 0;
     let celdasNumericas = 0;
@@ -311,7 +331,7 @@ function esFilaEncabezadoCE(fila) {
     fila.forEach(celda => {
         const celdaLimpia = (celda?.toString() || '').trim();
         
-        if (!celdaLimpia) {
+        if (!celdaLimpia || celdaLimpia === '-') {
             celdasVacias++;
         } else if (esNumericoPuro(celdaLimpia)) {
             celdasNumericas++;
@@ -322,22 +342,35 @@ function esFilaEncabezadoCE(fila) {
     
     const totalCeldas = fila.length;
     
-    // Es encabezado si tiene más texto que números y no está mayormente vacía
+    // Es encabezado si:
+    // 1. Tiene más texto que números
+    // 2. No tiene demasiadas celdas vacías  
+    // 3. Tiene al menos algo de contenido
     return (celdasConTexto > celdasNumericas) && 
            (celdasVacias < totalCeldas * 0.5) &&
            (celdasConTexto + celdasNumericas > 0);
 }
 
-// Función auxiliar: determinar si un valor es numérico puro
+// Función auxiliar: determinar si un valor es numérico puro (MEJORADA)
 function esNumericoPuro(valor) {
-    const valorLimpio = (valor?.toString() || '').trim().replace(/,/g, '');
-    return !isNaN(valorLimpio) && !isNaN(parseFloat(valorLimpio)) && valorLimpio !== '';
+    if (valor === null || valor === undefined || valor === '') return false;
+    
+    // Limpiar el valor: quitar comas, espacios extras
+    const valorLimpio = valor.toString().trim().replace(/[,\s]/g, '');
+    
+    // Verificar si es un número válido
+    return !isNaN(valorLimpio) && 
+           !isNaN(parseFloat(valorLimpio)) && 
+           valorLimpio !== '' && 
+           isFinite(parseFloat(valorLimpio));
 }
 
-// Función auxiliar: escapar HTML
+// Función auxiliar: escapar HTML (MEJORADA)
 function escapeHtmlCE(text) {
+    if (!text) return '';
+    
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text.toString();
     return div.innerHTML;
 }
 
