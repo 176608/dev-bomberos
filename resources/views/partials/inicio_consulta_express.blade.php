@@ -213,7 +213,7 @@ function mostrarContenidoCE(contenido, actualizado) {
             <!-- Título centrado -->
             <div class="text-center mb-4">
                 <h4 class="text-primary fw-bold mb-2">
-                    ${contenido.titulo_tabla || 'Información Estadística'}
+                    ${escapeHtmlCE(contenido.titulo_tabla || 'Información Estadística')}
                 </h4>
                 <div class="d-flex justify-content-center gap-2 mb-2">
                     <span class="badge bg-success fs-7">
@@ -233,7 +233,7 @@ function mostrarContenidoCE(contenido, actualizado) {
                 <div class="text-center mt-3">
                     <small class="text-muted fst-italic">
                         <i class="bi bi-info-circle me-1"></i>
-                        ${contenido.pie_tabla}
+                        ${escapeHtmlCE(contenido.pie_tabla)}
                     </small>
                 </div>
             ` : ''}
@@ -270,16 +270,16 @@ function renderizarTablaCESimple(contenido) {
             fila.forEach((celda, colIndex) => {
                 // Primera fila = encabezados
                 if (filaIndex === 0) {
-                    html += `<th class="table-success text-center fw-bold">${celda || '-'}</th>`;
+                    html += `<th class="table-success text-center fw-bold">${escapeHtmlCE(celda || '-')}</th>`;
                 } else {
                     // Primera columna = categorías (texto en negrita)
                     if (colIndex === 0) {
-                        html += `<td class="fw-semibold">${celda || '-'}</td>`;
+                        html += `<td class="fw-semibold">${escapeHtmlCE(celda || '-')}</td>`;
                     } else {
                         // Otras columnas = números (alineados a la derecha)
                         const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
                         const clase = esNumero ? 'text-end' : '';
-                        html += `<td class="${clase}">${celda || '-'}</td>`;
+                        html += `<td class="${clase}">${escapeHtmlCE(celda || '-')}</td>`;
                     }
                 }
             });
@@ -453,5 +453,11 @@ document.getElementById('consultaExpressModal')?.addEventListener('hidden.bs.mod
 
 #ce_contenido_container_modal::-webkit-scrollbar-thumb:hover {
     background: #146c43;
+}
+
+/* Estilos para la fuente de la tabla */
+.consulta-express-modal-content small.text-muted.fst-italic {
+    font-size: 0.8rem;
+    margin-top: 1rem;
 }
 </style>
