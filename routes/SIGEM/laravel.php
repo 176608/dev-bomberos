@@ -41,7 +41,7 @@ Route::prefix('sigem')->group(function () {
 // Rutas AJAX para Consulta Express - ADMIN
 Route::middleware(['auth'])->prefix('sigem')->group(function () {
     // Rutas administrativas protegidas
-    Route::get('/admin', [AdminController::class, 'index'])->name('sigem.admin');
+    Route::get('/admin', [AdminController::class, 'index'])->name('sigem.admin.index');
     
     // Rutas GET para mostrar vistas
     Route::get('/admin/mapas', [AdminController::class, 'mapas'])->name('sigem.admin.mapas');
