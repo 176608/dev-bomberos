@@ -281,7 +281,6 @@
             document.dispatchEvent(evento);
         },
 
-        // Reemplazar el método openConsultaExpress con esta versión más simple
         openConsultaExpress: function() {            
             // Verificar si ya existe una instancia del modal
             const consultaExpressModal = document.getElementById('consultaExpressModal');
@@ -418,7 +417,7 @@
                 }
             });
             
-            // Cuando cambia el subtema - habilitar botón
+            // Cuando cambia el subtema - REEMPLAZAR ESTA SECCIÓN COMPLETA
             subtemaSelect.addEventListener('change', function() {
                 const subtemaId = subtemaSelect.value;
                 
@@ -433,11 +432,13 @@
                             return response.json();
                         })
                         .then(data => {
+                            console.log(' Datos recibidos en sigem.js:', data); // Debug
+                            
                             if (data.success && data.contenido) {
-                                // Mostrar contenido
-                                contenidoContainer.innerHTML = data.contenido.ce_contenido;
+                                // NUEVA FUNCIÓN: Renderizar la tabla aquí mismo
+                                mostrarContenidoCESigem(data.contenido, data.actualizado);
                                 
-                                // Si hay un elemento de metadata
+                                // Metadata
                                 const metadataDiv = document.getElementById('ce_metadata_modal');
                                 const fechaActualizacion = document.getElementById('ce_fecha_actualizacion_modal');
                                 
@@ -452,12 +453,11 @@
                         .catch(error => {
                             console.error('Error al cargar contenido:', error);
                             contenidoContainer.innerHTML = `
-
                             <div class="alert alert-danger">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                 Error al cargar contenido: ${error.message}
                             </div>
-                    `;
+                            `;
                         });
                 }
             });

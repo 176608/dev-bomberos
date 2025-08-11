@@ -173,8 +173,59 @@
             .product-section img {
                 max-width: 100%;
             }
+
+.consulta-express-modal-content {
+animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.consulta-express-tabla-modal .table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.consulta-express-tabla-modal .table th {
+    background-color: #198754 !important;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.85rem;
+}
+
+.consulta-express-tabla-modal .table td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+    font-size: 0.85rem;
+}
+
+.consulta-express-tabla-modal .table-responsive {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.fs-7 { font-size: 0.8rem !important; }
+
+@media (max-width: 768px) {
+    .consulta-express-tabla-modal .table {
+        font-size: 0.75rem;
+    }
+    .consulta-express-tabla-modal .table th,
+    .consulta-express-tabla-modal .table td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.75rem;
+    }
+}
         }
     </style>
+
+    
 
     @php
         $img1 = asset('imagenes/logoadmin.png');
