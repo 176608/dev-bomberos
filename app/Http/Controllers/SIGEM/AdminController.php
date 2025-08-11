@@ -1160,7 +1160,7 @@ class AdminController extends Controller
     /**
      * AJAX: Obtener contenido CE para edición
      */
-    public function obtenerContenidoCEParaEdicion($id)
+    public function obtenerContenidoCE($id)
     {
         try {
             $contenido = ce_contenido::with(['subtema.tema'])->find($id);
