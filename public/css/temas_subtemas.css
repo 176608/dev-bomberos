@@ -84,7 +84,6 @@
     justify-content: center;
     padding: 5px 0;
     position: relative;
-    /*left: 1px;  Pequeño ajuste para centrar en el sidebar colapsado */
 }
 
 /* Ocultar la estructura de columnas cuando está colapsado */
@@ -105,16 +104,41 @@
     justify-content: center;
 }
 
-/* Ajuste para la imagen cuando el sidebar está colapsado */
+/* CAMBIO PRINCIPAL: Ajuste para mostrar solo la mitad derecha de la imagen */
 .sidebar-mini .subtema-image {
-    width: 32px !important; /* Tamaño fijo para modo colapsado */
-    height: 32px !important;
-    object-fit: cover; /* En modo colapsado usar cover para llenar el círculo */
+    width: 80px !important; /* Doble del ancho del contenedor para mostrar solo la mitad */
+    height: 40px !important; /* Mismo alto que el contenedor */
+    object-fit: cover; /* Mantener para recortar correctamente */
+    object-position: right center; /* CLAVE: Mostrar la parte derecha de la imagen */
     border-radius: 50%;
-    object-position: center center;
+    transform: translateX(-20px); /* Mover la imagen hacia la izquierda para mostrar la parte derecha */
+    transition: all 0.3s ease;
 }
 
-/* Ajuste para el placeholder cuando no hay imagen */
+/* Alternativa más precisa: usar clip-path para cortar exactamente la mitad derecha */
+.sidebar-mini .subtema-image-alt {
+    width: 60px !important; /* Tamaño original mayor */
+    height: 40px !important;
+    object-fit: cover;
+    object-position: center center;
+    border-radius: 50%;
+    /* Recortar para mostrar solo la mitad derecha */
+    clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%);
+    transform: scale(1.5) translateX(10px); /* Escalar y posicionar */
+}
+
+/* Si prefieres usar background-image para mayor control */
+.sidebar-mini .subtema-image-bg {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50%;
+    background-size: 80px 40px; /* Doble ancho para mostrar solo la mitad */
+    background-position: right center; /* Mostrar la parte derecha */
+    background-repeat: no-repeat;
+    background-clip: content-box;
+}
+
+/* Ajuste para el placeholder cuando no hay imagen en modo colapsado */
 .sidebar-mini .no-image-placeholder {
     width: 40px;
     height: 40px;
@@ -128,155 +152,60 @@
     font-size: 1.2rem; /* Icono más pequeño en modo colapsado */
 }
 
-/* Tooltip para modo colapsado */
-.sidebar-mini .subtema-nav-item {
+/* ======== SOLUCIÓN JAVASCRIPT COMPLEMENTARIA ======== */
+/* Si necesitas mayor control, puedes usar esta clase especial */
+.sidebar-mini .subtema-image-crop {
     position: relative;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
-/* Efecto visual para item activo */
-.subtema-nav-item.active::before {
+.sidebar-mini .subtema-image-crop::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
-    height: 100%;
-    background-color: #0c7912;
-    opacity: 1;
-    z-index: 3;
-}
-
-.sidebar-mini .subtema-nav-item.active::before {
-    width: 100%;
-    height: 4px;
-    top: 0;
-    left: 0;
-    background-color: #0c7912;
-    opacity: 0.4;
-}
-
-/* Ajustes para cuando el sidebar está colapsado */
-.sidebar-mini .subtema-nav-item {
-    min-height: 60px;
-    padding: 0;
-}
-
-.sidebar-mini .subtema-content-overlay {
-    justify-content: center;
-    background-color: rgba(41, 35, 35, 0.09);
-}
-
-/* Efecto visual mejorado */
-.subtema-nav-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    right: 50%; /* Ocultar la mitad izquierda */
     bottom: 0;
-    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: transparent;
     z-index: 1;
 }
 
-.subtema-nav-item:hover::before {
-    opacity: 1;
+.sidebar-mini .subtema-image-crop img {
+    width: 80px !important; /* Doble ancho */
+    height: 40px !important;
+    object-fit: cover;
+    object-position: center center;
+    transform: translateX(-20px); /* Mostrar solo la parte derecha */
 }
 
-.subtema-nav-item.active::before {
-    opacity: 1;
-    background: linear-gradient(to right, rgba(84, 151, 99, 0.72), transparent);
+/* ======== EFECTO HOVER PARA MODO COLAPSADO ======== */
+.sidebar-mini .subtema-nav-item:hover .subtema-image {
+    transform: translateX(-20px) scale(1.1); /* Mantener el desplazamiento en hover */
 }
 
-/* Asegurar que texto sea legible */
-.subtema-texto h6 {
-    color: #212529;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-}
-
-.cuadros-lista {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.cuadro-item {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid #dee2e6;
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.cuadro-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* Estilos para el sidebar colapsable */
-.transition-width {
+/* ======== TRANSICIONES SUAVES ======== */
+.subtema-image {
     transition: all 0.3s ease;
 }
 
-/* Estado colapsado del sidebar */
-#sidebar-subtemas.sidebar-mini {
-    flex: 0 0 auto;
-    width: 60px;
-    overflow: hidden;
+.sidebar-mini .subtema-image {
+    transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
-#contenido-principal.content-expanded {
-    flex: 0 0 auto;
-    width: calc(100% - 60px);
-}
-
-/* Ajustes para elementos del sidebar cuando está colapsado */
-.sidebar-mini .sidebar-title {
-    display: none;
-}
-
-.sidebar-mini .sidebar-content {
-    overflow: hidden;
-}
-
-.sidebar-mini .subtema-texto {
-    display: none;
-}
-
-.sidebar-mini .subtema-nav-item {
-    padding: 15px 0;
-    justify-content: center;
-}
-
-.sidebar-mini .subtema-icon {
-    margin: 0;
-    width: 30px;
-    height: 30px;
-}
-
-/* Estilo para el botón de toggle cuando está colapsado */
-.sidebar-mini #toggle-sidebar {
-    position: absolute;
-    right: -15px;
-    top: 10px;
-    z-index: 10;
+/* ======== VERSIÓN MEJORADA CON MASK (RECOMENDADA) ======== */
+.sidebar-mini .subtema-image-masked {
+    width: 80px !important;
+    height: 40px !important;
+    object-fit: cover;
+    object-position: center center;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-color: #0c7912ff;
-    color: #157415ff;
-}
-
-.sidebar-mini #toggle-sidebar i {
-    transform: rotate(180deg);
+    /* Crear máscara para mostrar solo la mitad derecha */
+    -webkit-mask: radial-gradient(circle at 75% 50%, black 50%, transparent 50%);
+    mask: radial-gradient(circle at 75% 50%, black 50%, transparent 50%);
+    transform: translateX(-20px);
 }
 
 /* Estilos específicos para el botón de colapso */
