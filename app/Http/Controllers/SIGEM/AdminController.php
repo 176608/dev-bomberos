@@ -77,7 +77,7 @@ class AdminController extends Controller
     public function consultas()
     {
         $ce_temas = ce_tema::obtenerTodos(); // Usar el método del modelo
-        $ce_subtemas = ce_subtema::with('tema')->orderBy('ce_subtema_id', 'asc')->get(); // Corregir nombre de campo
+        $ce_subtemas = ce_subtema::obtenerTodos(); // Usar el método del modelo
         $ce_contenidos = ce_contenido::with(['subtema.tema'])->orderBy('created_at', 'desc')->get(); // Con relaciones
         
         return view('roles.sigem_admin')->with([
@@ -780,8 +780,8 @@ class AdminController extends Controller
                 'tema' => 'required|string|max:255|unique:consulta_express_tema,tema'
             ]);
 
-            // Crear tema CE
-            $temaCE = ce_tema::create([
+            // Crear tema CE usando el método del modelo
+            $temaCE = ce_tema::crear([
                 'tema' => $request->tema
             ]);
 
@@ -807,7 +807,7 @@ class AdminController extends Controller
     public function actualizarTemaCE(Request $request, $id)
     {
         try {
-            $temaCE = ce_tema::find($id);
+            $temaCE = ce_tema::obtenerPorId($id);
             
             if (!$temaCE) {
                 return redirect()
@@ -820,8 +820,8 @@ class AdminController extends Controller
                 'tema' => 'required|string|max:255|unique:consulta_express_tema,tema,' . $id . ',ce_tema_id'
             ]);
 
-            // Actualizar tema CE
-            $temaCE->update([
+            // Actualizar tema CE usando el método del modelo
+            $temaCE->actualizar([
                 'tema' => $request->tema
             ]);
 
@@ -847,7 +847,7 @@ class AdminController extends Controller
     public function eliminarTemaCE($id)
     {
         try {
-            $temaCE = ce_tema::find($id);
+            $temaCE = ce_tema::obtenerPorId($id);
             
             if (!$temaCE) {
                 return redirect()
@@ -867,8 +867,8 @@ class AdminController extends Controller
             // Guardar nombre para el mensaje
             $nombreTema = $temaCE->tema;
 
-            // Eliminar tema CE
-            $temaCE->delete();
+            // Eliminar tema CE usando el método del modelo
+            $temaCE->eliminar();
 
             return redirect()
                 ->route('sigem.admin.consultas')
@@ -893,8 +893,8 @@ class AdminController extends Controller
                 'ce_subtema' => 'required|string|max:255'
             ]);
 
-            // Crear subtema CE
-            $subtemaCE = ce_subtema::create([
+            // Crear subtema CE usando el método del modelo
+            $subtemaCE = ce_subtema::crear([
                 'ce_tema_id' => $request->ce_tema_id,
                 'ce_subtema' => $request->ce_subtema
             ]);
@@ -921,7 +921,7 @@ class AdminController extends Controller
     public function actualizarSubtemaCE(Request $request, $id)
     {
         try {
-            $subtemaCE = ce_subtema::find($id);
+            $subtemaCE = ce_subtema::obtenerPorId($id);
             
             if (!$subtemaCE) {
                 return redirect()
@@ -935,8 +935,8 @@ class AdminController extends Controller
                 'ce_subtema' => 'required|string|max:255'
             ]);
 
-            // Actualizar subtema CE
-            $subtemaCE->update([
+            // Actualizar subtema CE usando el método del modelo
+            $subtemaCE->actualizar([
                 'ce_tema_id' => $request->ce_tema_id,
                 'ce_subtema' => $request->ce_subtema
             ]);
@@ -963,7 +963,7 @@ class AdminController extends Controller
     public function eliminarSubtemaCE($id)
     {
         try {
-            $subtemaCE = ce_subtema::find($id);
+            $subtemaCE = ce_subtema::obtenerPorId($id);
             
             if (!$subtemaCE) {
                 return redirect()
@@ -984,8 +984,8 @@ class AdminController extends Controller
             $nombreSubtema = $subtemaCE->ce_subtema;
             $nombreTema = $subtemaCE->tema ? $subtemaCE->tema->tema : 'Sin tema';
 
-            // Eliminar subtema CE
-            $subtemaCE->delete();
+            // Eliminar subtema CE usando el método del modelo
+            $subtemaCE->eliminar();
 
             return redirect()
                 ->route('sigem.admin.consultas')
@@ -1154,6 +1154,28 @@ class AdminController extends Controller
             return response()->json(['subtemas' => $subtemas]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener subtemas CE'], 500);
+        }
+    }
+
+    /**
+     * AJAX: Obtener contenido CE completo para vista
+     */
+    public function obtenerContenidoCE($id)
+    {
+        try {
+            $contenido = ce_contenido::with(['subtema.tema'])->find($id);
+            
+            if (!$contenido) {
+                return response()->json(['error' => 'Contenido no encontrado'], 404);
+            }
+            
+            return response()->json([
+                'contenido' => $contenido,
+                'tabla_html' => $contenido->renderizarTabla(),
+                'resumen' => $contenido->resumen_tabla
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener contenido CE'], 500);
         }
     }
 }

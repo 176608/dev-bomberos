@@ -83,16 +83,12 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-info" title="Ver" 
-                                                    onclick="verTemaCE({{ $tema->ce_tema_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" title="Editar" 
                                                     onclick="editarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarTemaCI({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
+                                                    onclick="eliminarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -167,16 +163,12 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-info" title="Ver" 
-                                                    onclick="verSubtemaCI({{ $subtema->ce_subtema_id }})">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                             <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarSubtemaCI({{ $subtema->ce_subtema_id }})">
+                                                    onclick="editarSubtemaCE({{ $subtema->ce_subtema_id }})">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarSubtemaCI({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
+                                                    onclick="eliminarSubtemaCE({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -650,9 +642,6 @@ const routesConsultas = {
 };
 
 // ============ FUNCIONES DE TEMAS CE ============
-function verTemaCE(id) {
-    alert('Ver detalles del tema CE ID: ' + id + '\n(Funcionalidad de vista pendiente)');
-}
 
 function editarTemaCE(id, nombre) {
     // Llenar el modal de edición
@@ -696,9 +685,6 @@ function eliminarTemaCE(id, nombre) {
 }
 
 // ============ FUNCIONES DE SUBTEMAS CE ============
-function verSubtemaCE(id) {
-    alert('Ver detalles del subtema CE ID: ' + id + '\n(Funcionalidad de vista pendiente)');
-}
 
 function editarSubtemaCE(id) {
     // Buscar los datos del subtema en la tabla
@@ -900,7 +886,65 @@ function actualizarPreviewDimensiones() {
     document.getElementById('preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${total} celdas total)`;
 }
 
-// Limpiar modal de contenido
+// ============ FILTRADO DE SUBTEMAS CE ============
+function filtrarSubtemasCE(temaSelect, subtemaSelect) {
+    const temaId = temaSelect.value;
+    subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
+    
+    if (temaId) {
+        // Usar datos locales si están disponibles
+        const subtemasDelTema = ceSubtemasData.filter(subtema => subtema.ce_tema_id == temaId);
+        
+        subtemasDelTema.forEach(subtema => {
+            const option = document.createElement('option');
+            option.value = subtema.ce_subtema_id;
+            option.textContent = subtema.ce_subtema;
+            subtemaSelect.appendChild(option);
+        });
+        
+        // Alternativamente, usar AJAX si se necesita datos frescos
+        /*
+        fetch(`${routesConsultas.subtemasAjax}/${temaId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.subtemas.forEach(subtema => {
+                    const option = document.createElement('option');
+                    option.value = subtema.ce_subtema_id;
+                    option.textContent = subtema.ce_subtema;
+                    subtemaSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        */
+    }
+}
+
+// Event listeners para filtrado de subtemas
+document.getElementById('ce_tema_select')?.addEventListener('change', function() {
+    filtrarSubtemasCE(this, document.getElementById('ce_subtema_id'));
+});
+
+document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
+    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
+});
+
+// Limpiar modales al cerrar
+document.getElementById('modalAgregarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarTema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
+document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
+    this.querySelector('form').reset();
+});
+
 document.getElementById('modalAgregarContenido')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';

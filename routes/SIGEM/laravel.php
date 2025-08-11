@@ -79,6 +79,9 @@ Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])
     // AJAX para obtener subtemas CE por tema
     Route::get('/admin/consultas/subtemas-ce/{tema_id}', [AdminController::class, 'obtenerSubtemasCEPorTema']);
     
+    // AJAX para obtener contenido CE completo
+    Route::get('/admin/consultas/contenido/{id}', [AdminController::class, 'obtenerContenidoCE']);
+    
     // Consultas Express - CRUD completo
     Route::post('/admin/consultas/tema/crear', [AdminController::class, 'crearTemaCE'])->name('sigem.admin.consultas.tema.crear');
     Route::put('/admin/consultas/tema/{id}/actualizar', [AdminController::class, 'actualizarTemaCE'])->name('sigem.admin.consultas.tema.actualizar');
