@@ -432,11 +432,11 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log(' Datos recibidos en sigem.js:', data); // Debug
+                            console.log('✅ Datos recibidos en sigem.js:', data); // Debug
                             
                             if (data.success && data.contenido) {
-                                // NUEVA FUNCIÓN: Renderizar la tabla aquí mismo
-                                mostrarContenidoCE(data.contenido, data.actualizado);
+                                // NUEVA FUNCIÓN: Renderizar la tabla desde sigem.js
+                                mostrarContenidoCESigem(data.contenido, data.actualizado, contenidoContainer);
                                 
                                 // Metadata
                                 const metadataDiv = document.getElementById('ce_metadata_modal');
@@ -1062,6 +1062,196 @@
     document.addEventListener('DOMContentLoaded', function () {
         SIGEMApp.init();
         
+        // Inyectar estilos de Consulta Express
+        inyectarEstilosCESigem();
     });
 
 })(window, document);
+
+// ===== NUEVAS FUNCIONES PARA CONSULTA EXPRESS =====
+
+// Función principal para renderizar contenido CE desde sigem.js
+function mostrarContenidoCESigem(contenido, actualizado, container) {
+    console.log('sigem.js:', contenido);
+    
+    // Verificar que tenemos tabla_datos
+    if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos) || contenido.tabla_datos.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Sin datos de tabla disponibles
+            </div>
+        `;
+        return;
+    }
+    
+    // Renderizar tabla HTML
+    const tablaHtml = renderizarTablaCESigem(contenido.tabla_datos);
+    
+    // Construir HTML completo con título centrado
+    const contenidoCompleto = `
+        <div class="consulta-express-modal-content">
+            <!-- Título centrado -->
+            <div class="text-center mb-4">
+                <h4 class="text-primary fw-bold mb-2">
+                    ${escapeHtmlSigem(contenido.titulo_tabla || 'Información Estadística')}
+                </h4>
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                    <span class="badge bg-success fs-7">
+                        <i class="bi bi-grid-3x3 me-1"></i>
+                        ${contenido.tabla_filas || 0}×${contenido.tabla_columnas || 0}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="table-container">
+                ${tablaHtml}
+            </div>
+
+            <!-- Pie de tabla centrado -->
+            ${contenido.pie_tabla ? `
+                <div class="text-center mt-3">
+                    <small class="text-muted fst-italic">
+                        <i class="bi bi-info-circle me-1"></i>
+                        ${escapeHtmlSigem(contenido.pie_tabla)}
+                    </small>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Mostrar el contenido en el contenedor
+    container.innerHTML = contenidoCompleto;
+}
+
+// Función para renderizar solo la tabla
+function renderizarTablaCESigem(tablaDatos) {
+    let html = '<div class="consulta-express-tabla-modal">';
+    html += '<div class="table-responsive">';
+    html += '<table class="table table-striped table-bordered table-hover">';
+    
+    // Procesar cada fila
+    tablaDatos.forEach((fila, filaIndex) => {
+        html += '<tr>';
+        
+        if (Array.isArray(fila)) {
+            fila.forEach((celda, colIndex) => {
+                // Primera fila = encabezados (verde success)
+                if (filaIndex === 0) {
+                    html += `<th class="table-success text-center fw-bold">${escapeHtmlSigem(celda || '-')}</th>`;
+                } else {
+                    // Primera columna = categorías (texto en negrita)
+                    if (colIndex === 0) {
+                        html += `<td class="fw-semibold">${escapeHtmlSigem(celda || '-')}</td>`;
+                    } else {
+                        // Otras columnas = números (alineados a la derecha)
+                        const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
+                        const clase = esNumero ? 'text-end' : '';
+                        html += `<td class="${clase}">${escapeHtmlSigem(celda || '-')}</td>`;
+                    }
+                }
+            });
+        }
+        
+        html += '</tr>';
+    });
+    
+    html += '</table>';
+    html += '</div>';
+    html += '</div>';
+    
+    return html;
+}
+
+// Función para escapar HTML
+function escapeHtmlSigem(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text.toString();
+    return div.innerHTML;
+}
+
+// Inyectar estilos CSS para las tablas (solo una vez)
+function inyectarEstilosCESigem() {
+    if (!document.getElementById('sigem-ce-styles')) {
+        const styleElement = document.createElement('style');
+        styleElement.id = 'sigem-ce-styles';
+        styleElement.textContent = `
+            /* Estilos para Consulta Express desde sigem.js */
+            .consulta-express-modal-content {
+                animation: fadeInUp 0.4s ease-out;
+            }
+
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .consulta-express-tabla-modal {
+                margin: 0;
+            }
+
+            .consulta-express-tabla-modal .table {
+                margin-bottom: 0;
+                font-size: 0.9rem;
+            }
+
+            .consulta-express-tabla-modal .table th {
+                background-color: #198754 !important;
+                color: white;
+                font-weight: 600;
+                text-align: center;
+                border: 1px solid rgba(255,255,255,0.2);
+                font-size: 0.85rem;
+            }
+
+            .consulta-express-tabla-modal .table td {
+                border: 1px solid #dee2e6;
+                vertical-align: middle;
+                font-size: 0.85rem;
+            }
+
+            .consulta-express-tabla-modal .table-responsive {
+                border-radius: 0.375rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                max-height: 350px;
+                overflow-y: auto;
+            }
+
+            .fs-7 { font-size: 0.8rem !important; }
+
+            @media (max-width: 768px) {
+                .consulta-express-tabla-modal .table {
+                    font-size: 0.75rem;
+                }
+                .consulta-express-tabla-modal .table th,
+                .consulta-express-tabla-modal .table td {
+                    padding: 0.4rem 0.2rem;
+                    font-size: 0.75rem;
+                }
+            }
+
+            #ce_contenido_container_modal::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #ce_contenido_container_modal::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            #ce_contenido_container_modal::-webkit-scrollbar-thumb {
+                background: #198754;
+                border-radius: 3px;
+            }
+
+            #ce_contenido_container_modal::-webkit-scrollbar-thumb:hover {
+                background: #146c43;
+            }
+        `;
+        document.head.appendChild(styleElement);
+    }
+}
+
+// ===== FIN DE FUNCIONES CONSULTA EXPRESS =====
