@@ -436,7 +436,7 @@
                             
                             if (data.success && data.contenido) {
                                 // NUEVA FUNCIÓN: Renderizar la tabla aquí mismo
-                                mostrarContenidoCESigem(data.contenido, data.actualizado);
+                                mostrarContenidoCE(data.contenido, data.actualizado);
                                 
                                 // Metadata
                                 const metadataDiv = document.getElementById('ce_metadata_modal');
