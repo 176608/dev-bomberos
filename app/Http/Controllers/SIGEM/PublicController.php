@@ -548,7 +548,7 @@ class PublicController extends Controller
     public function ajaxObtenerContenido($subtema_id)
     {
         try {
-            $contenido = \App\Models\SIGEM\ce_contenido::where('ce_subtema_id', $subtema_id)
+            $contenido = ce_contenido::where('ce_subtema_id', $subtema_id)
                     ->orderBy('created_at', 'desc')
                     ->first();
         
@@ -559,13 +559,39 @@ class PublicController extends Controller
                 ]);
             }
             
+            // Obtener información del subtema para contexto
+            $subtema = ce_subtema::with('tema')->find($subtema_id);
+            
             return response()->json([
                 'success' => true,
-                'contenido' => $contenido,
-                'actualizado' => $contenido->updated_at->format('d/m/Y H:i:s')
+                'message' => 'Contenido cargado exitosamente',
+                'contenido' => [
+                    'ce_contenido_id' => $contenido->ce_contenido_id,
+                    'titulo_tabla' => $contenido->titulo_tabla,
+                    'pie_tabla' => $contenido->pie_tabla,
+                    'tabla_filas' => $contenido->tabla_filas,
+                    'tabla_columnas' => $contenido->tabla_columnas,
+                    'tabla_datos' => $contenido->tabla_datos, // Datos JSON para renderizar
+                    'created_at' => $contenido->created_at,
+                    'updated_at' => $contenido->updated_at
+                ],
+                'subtema' => $subtema ? [
+                    'ce_subtema_id' => $subtema->ce_subtema_id,
+                    'ce_subtema' => $subtema->ce_subtema,
+                    'tema' => $subtema->tema ? [
+                        'ce_tema_id' => $subtema->tema->ce_tema_id,
+                        'tema' => $subtema->tema->tema
+                    ] : null
+                ] : null,
+                'actualizado' => $contenido->updated_at ? $contenido->updated_at->format('d/m/Y H:i:s') : null
             ]);
+            
         } catch (\Exception $e) {
-            \Log::error('Error al cargar contenido: ' . $e->getMessage());
+            \Log::error('Error al cargar contenido de consulta express:', [
+                'subtema_id' => $subtema_id,
+                'error' => $e->getMessage()
+            ]);
+        
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar contenido: ' . $e->getMessage()

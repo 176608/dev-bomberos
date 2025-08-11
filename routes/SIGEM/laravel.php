@@ -29,21 +29,19 @@ Route::prefix('sigem')->group(function () {
     Route::get('/datos-inicio', [PublicController::class, 'obtenerDatosInicio'])->name('sigem.inicio');
     Route::get('/catalogo', [PublicController::class, 'obtenerCatalogo'])->name('sigem.catalogo');
     Route::get('/mapas', [PublicController::class, 'obtenerMapas'])->name('sigem.mapas');
+    
+    // Rutas para Consulta Express (públicas)
+    Route::prefix('consulta-express')->group(function () {
+        Route::get('/temas', [PublicController::class, 'obtenerConsultaExpressTemas'])->name('sigem.consulta-express.temas');
+        Route::get('/subtemas/{tema_id}', [PublicController::class, 'ajaxObtenerSubtemas'])->name('sigem.consulta-express.subtemas');
+        Route::get('/contenido/{subtema_id}', [PublicController::class, 'ajaxObtenerContenido'])->name('sigem.consulta-express.contenido');
+    });
 });
 
-// Rutas AJAX para Consulta Express
-Route::prefix('sigem/ajax')->group(function () {
-    Route::get('/consulta-express/subtemas/{tema_id}', [PublicController::class, 'ajaxObtenerSubtemas']);
-    Route::get('/consulta-express/contenido/{subtema_id}', [PublicController::class, 'ajaxObtenerContenido']);
-});
-
-// Ruta para cargar el modal de Consulta Express directamente
-Route::get('/sigem/partial/consulta-express', [PublicController::class, 'partialConsultaExpress'])
-    ->name('sigem.partial.consulta-express');
-
-// === RUTAS ADMINISTRATIVAS COMPLETAS ===
-Route::prefix('sigem')->middleware(['auth', 'role:Administrador,Desarrollador'])->group(function () {  
-    Route::get('/admin', [AdminController::class, 'index'])->name('sigem.admin.index');
+// Rutas AJAX para Consulta Express - ADMIN
+Route::middleware(['auth'])->prefix('sigem')->group(function () {
+    // Rutas administrativas protegidas
+    Route::get('/admin', [AdminController::class, 'index'])->name('sigem.admin');
     
     // Rutas GET para mostrar vistas
     Route::get('/admin/mapas', [AdminController::class, 'mapas'])->name('sigem.admin.mapas');

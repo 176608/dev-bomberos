@@ -1380,7 +1380,7 @@ document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.mod
 }
 
 #modalVerTabla .modal-header {
-    background-color: #f8f9fa;
+    background-color: #23753eff;
     border-bottom: 2px solid #dee2e6;
 }
 
