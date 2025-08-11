@@ -359,7 +359,7 @@
                     //consultarBtn.disabled = true;
                     
                     // Realizar petición fetch
-                    fetch(`${CONFIG.BASE_URL}/ajax/consulta-express/subtemas/${temaId}`)
+                    fetch(`${CONFIG.BASE_URL}/consulta-express/subtemas/${temaId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`Error en la respuesta: ${response.status}`);
@@ -425,7 +425,7 @@
                 if (subtemaId) {
                     showLoader();
                     
-                    fetch(`${CONFIG.BASE_URL}/ajax/consulta-express/contenido/${subtemaId}`)
+                    fetch(`${CONFIG.BASE_URL}/consulta-express/contenido/${subtemaId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`Error en la respuesta: ${response.status}`);
