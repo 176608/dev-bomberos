@@ -205,9 +205,10 @@ function cargarContenidoConsultaExpress(subtemaId) {
 function mostrarContenidoCE(contenido, actualizado) {
     console.log('Datos recibidos:', contenido); // Debug
     
-    // Usar la misma lógica del CRUD - renderizar HTML directamente
+    // Renderizar la tabla
     const tablaHtml = renderizarTablaCESimple(contenido);
-    
+
+    // Construir el HTML completo
     const contenidoHtml = `
         <div class="consulta-express-modal-content">
             <!-- Título centrado -->
@@ -222,12 +223,12 @@ function mostrarContenidoCE(contenido, actualizado) {
                     </span>
                 </div>
             </div>
-            
+
             <!-- Tabla -->
             <div class="table-container">
                 ${tablaHtml}
             </div>
-            
+
             <!-- Pie de tabla centrado -->
             ${contenido.pie_tabla ? `
                 <div class="text-center mt-3">
@@ -239,9 +240,10 @@ function mostrarContenidoCE(contenido, actualizado) {
             ` : ''}
         </div>
     `;
-    
+
+    // Mostrar el contenido en el modal
     document.getElementById('ce_contenido_container_modal').innerHTML = contenidoHtml;
-    
+
     // Mostrar metadata de actualización
     const metadataDiv = document.getElementById('ce_metadata_modal');
     document.getElementById('ce_fecha_actualizacion_modal').textContent = actualizado || 'No disponible';
@@ -250,22 +252,21 @@ function mostrarContenidoCE(contenido, actualizado) {
 
 // NUEVA función simple que copia exactamente la lógica del CRUD
 function renderizarTablaCESimple(contenido) {
-    
     if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos) || contenido.tabla_datos.length === 0) {
         return `<div class="alert alert-warning text-center">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     Sin datos de tabla disponibles
                 </div>`;
     }
-    
+
     let html = '<div class="consulta-express-tabla-modal">';
     html += '<div class="table-responsive">';
     html += '<table class="table table-striped table-bordered table-hover">';
-    
-    // Procesar cada fila exactamente como el CRUD
+
+    // Procesar cada fila
     contenido.tabla_datos.forEach((fila, filaIndex) => {
         html += '<tr>';
-        
+
         if (Array.isArray(fila)) {
             fila.forEach((celda, colIndex) => {
                 // Primera fila = encabezados
@@ -284,14 +285,14 @@ function renderizarTablaCESimple(contenido) {
                 }
             });
         }
-        
+
         html += '</tr>';
     });
-    
+
     html += '</table>';
     html += '</div>';
     html += '</div>';
-    
+
     return html;
 }
 
