@@ -41,14 +41,14 @@
     justify-content: center;
 }
 
-/* Estilos para el texto del subtema */
+/* Ajustes para el texto del subtema - reducir padding para dar más espacio a imagen */
 .subtema-texto {
     padding: 0.75rem 0.25rem; /* Reducir padding horizontal */
     transition: all 0.3s ease;
 }
 
 .subtema-texto h6 {
-    font-size: 0.9rem;
+    font-size: 0.85rem; /* Reducir ligeramente el texto */
     line-height: 1.2;
     margin: 0;
     color: #212529;
@@ -59,13 +59,13 @@
     -webkit-box-orient: vertical;
 }
 
-/* Efecto hover */
+/* Efecto hover - reducir el efecto de escalado */
 .subtema-nav-item:hover {
     background-color: rgba(77, 150, 80, 0.1);
 }
 
 .subtema-nav-item:hover .subtema-image {
-    transform: scale(0.80);
+    transform: scale(0.95); /* Efecto más sutil */
 }
 
 /* Estado activo */
@@ -100,31 +100,32 @@
     margin: 0 auto;
     overflow: hidden;
     position: relative;
-    /*left: -1px; Pequeño ajuste para alinear con el diseño */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Ajuste para la imagen cuando el sidebar está colapsado */
 .sidebar-mini .subtema-image {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
+    width: 32px !important; /* Tamaño fijo para modo colapsado */
+    height: 32px !important;
+    object-fit: cover; /* En modo colapsado usar cover para llenar el círculo */
     border-radius: 50%;
-    position: relative;
-    left: 0;
-    top: 0;
-    object-position: right center;
+    object-position: center center;
 }
 
 /* Ajuste para el placeholder cuando no hay imagen */
 .sidebar-mini .no-image-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    position: relative;
-    /*left: -1px;  Pequeño ajuste para alinear con el diseño */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-mini .no-image-placeholder i {
+    font-size: 1.2rem; /* Icono más pequeño en modo colapsado */
 }
 
 /* Tooltip para modo colapsado */
