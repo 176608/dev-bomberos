@@ -30,8 +30,8 @@
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}"
                                 >
                                     <div class="row g-0 w-100 align-items-center">
-                                        <!-- Columna de la imagen (6 columnas) -->
-                                        <div class="col-6 subtema-image-container">
+                                        <!-- Columna de la imagen (4 columnas) -->
+                                        <div class="col-4 subtema-image-container">
                                             @if($tema_subtema->imagen)
                                                 <img src="{{ asset('imagenes/subtemas_u/'.$tema_subtema->imagen) }}" 
                                                      alt="{{ $tema_subtema->subtema_titulo }}" 
@@ -42,9 +42,9 @@
                                                 </div>
                                             @endif
                                         </div>
-                                        
-                                        <!-- Columna del texto (6 columnas) -->
-                                        <div class="col-6 subtema-texto">
+
+                                        <!-- Columna del texto (8 columnas) -->
+                                        <div class="col-8 subtema-texto">
                                             <div class="d-flex align-items-center justify-content-between w-100">
                                                 <h6 class="mb-1">{{ $tema_subtema->subtema_titulo }}</h6>
                                                 <i class="bi bi-chevron-right ms-2"></i>
