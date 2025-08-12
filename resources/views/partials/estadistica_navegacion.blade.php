@@ -75,9 +75,9 @@
                                             @elseif($tema->orden_indice == 4)
                                                 <i class="bi bi-archive-fill"></i>
                                             @elseif($tema->orden_indice == 5)
-                                                <i class="bi bi-person-badge"></i>
+                                                <i class="bi bi-cash-coin"></i>
                                             @elseif($tema->orden_indice == 6)
-                                                <i class="bi bi-person-badge"></i>
+                                                <i class="bi bi-bank2"></i>
                                             @else
                                                 <i class="bi bi-file-earmark-text"></i>
                                             @endif
