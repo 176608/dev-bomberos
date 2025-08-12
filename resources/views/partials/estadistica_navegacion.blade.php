@@ -80,13 +80,9 @@
                                                 </h5>
                                             </div>
                                         </div>
-                                        
-                                        <div class="row">
-                                            <span class="ifhover text-muted text-end">
-                                                Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
-                                            </span>
-                                        </div>
+
                                     </a>
+
                                 </div>
                             @endforeach
                         </div>
