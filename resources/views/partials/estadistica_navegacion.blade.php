@@ -62,7 +62,15 @@
                                        data-tema-id="{{ $tema->tema_id }}">
 
                                        <div class="row text-center pt-2 m-2">
-                                            <i class="bi bi-file-earmark-text"></i>
+                                            @if($tema->orden_indice == 1)
+                                                <i class="bi bi-globe"></i>
+                                            @elseif($tema->orden_indice == 2)
+                                                <i class="bi bi-leaf"></i>
+                                            @elseif($tema->orden_indice == 3)
+                                                <i class="bi bi-person-badge"></i>
+                                            @else
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            @endif
                                         </div>
 
                                         <div class="row text-center">
@@ -92,27 +100,96 @@
 <style>
 /* Estilos necesarios */
 
-.enlaceTema:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #91a00eff;
-    text-decoration: none !important;
-    background-color: #0e663dff;
-}
-
 .enlaceTema {
-    transition: background-color 0.3s ease;
+    border-radius: 12px;
+    min-height: 140px;
+    display: flex;
+    align-items: stretch;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    background: inherit;
 }
 
-.enlaceTema span {
-    font-size: 1 rem;
-    transition: all 0.3s ease;
+.enlaceTema a {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    color: #fff !important;
+    text-decoration: none !important;
+    padding: 0;
 }
 
-/* Efecto de pulsación al hacer clic */
+.enlaceTema .row.text-center.pt-2.m-2 {
+    margin: 0 !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.enlaceTema i.bi {
+    font-size: 2.5rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+}
+
+.enlaceTema h5 {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+    letter-spacing: 0.01em;
+}
+
+.enlaceTema .ifhover {
+    position: absolute;
+    right: 1.2rem;
+    bottom: 0.7rem;
+    font-size: 0.95rem;
+    color: #fff;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.enlaceTema:hover {
+    filter: brightness(0.85) saturate(1.1);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
+    background: inherit !important;
+}
+
 .enlaceTema:active {
-    transform: translateY(-2px);
+    filter: brightness(0.8);
+    transform: translateY(-2px) scale(0.99);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
+.enlaceTema:hover .ifhover {
+    opacity: 1;
+}
+
+/* Opcional: para que el fondo no cambie de color en hover, solo se oscurezca */
+.enlaceTema {
+    background-blend-mode: multiply;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .enlaceTema {
+        min-height: 100px;
+    }
+    .enlaceTema i.bi {
+        font-size: 2rem;
+    }
+    .enlaceTema h5 {
+        font-size: 1rem;
+    }
+}
 </style>
