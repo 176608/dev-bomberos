@@ -61,7 +61,7 @@
                                        class="h-100 text-decoration-none" 
                                        data-tema-id="{{ $tema->tema_id }}">
 
-                                       <div class="row text-center pt-5 m-2">
+                                       <div class="row text-center pt-2 m-2">
                                             <i class="bi bi-file-earmark-text"></i>
                                         </div>
 
@@ -97,24 +97,16 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     border-color: #91a00eff;
     text-decoration: none !important;
+    background-color: #0e663dff;
 }
 
 .enlaceTema {
     transition: background-color 0.3s ease;
 }
 
-.enlaceTema:hover {
-    background-color: #28aa6dff;
-}
-
 .enlaceTema span {
-    font-size: 0.9rem;
+    font-size: 1 rem;
     transition: all 0.3s ease;
-}
-
-.enlaceTema:hover span {
-    color: #000000ff !important;
-    font-weight: bold;
 }
 
 /* Efecto de pulsación al hacer clic */
@@ -123,8 +115,4 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Asegura que no se vea como un enlace tradicional */
-.enlaceTema.text-decoration-none:hover {
-    text-decoration: none !important;
-}
 </style>
