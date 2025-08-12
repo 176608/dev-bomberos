@@ -118,7 +118,6 @@
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    color: #fff !important;
     text-decoration: none !important;
     padding: 0;
 }
@@ -131,14 +130,13 @@
 
 .enlaceTema i.bi {
     font-size: 2.5rem;
-    color: #c7c7c7ff;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
     margin-bottom: 0.5rem;
     transition: color 0.2s;
 }
 
 .enlaceTema h5 {
-    color: #fff;
+    color: #0e663dff;
     font-size: 1.25rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0,0,0,0.18);
