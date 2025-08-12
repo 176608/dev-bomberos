@@ -47,34 +47,32 @@
                             @foreach($temas as $index => $tema)
                                 @php 
                                     $coloresEstilo = [
-                                        'background-color: #8FBC8F; color: black;',
-                                        'background-color: #87CEEB; color: black;',
-                                        'background-color: #DDA0DD; color: black;',
-                                        'background-color: #F0E68C; color: black;',
-                                        'background-color: #FFA07A; color: black;',
-                                        'background-color: #98FB98; color: black;'
+                                        'background-color: #8FBC8F; color: white;',
+                                        'background-color: #87CEEB; color: white;',
+                                        'background-color: #DDA0DD; color: white;',
+                                        'background-color: #F0E68C; color: white;',
+                                        'background-color: #FFA07A; color: white;',
+                                        'background-color: #98FB98; color: white;'
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
                                 <div class="col-lg-4 col-md-6 mb-4">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
                                        class="card h-100 tema-card text-decoration-none" 
-                                       data-tema-id="{{ $tema->tema_id }}">
-                                        <div class="card-header text-center" style="{{ $colorTema }}">
-                                            <h5 class="mb-0 fw-bold">
+                                       data-tema-id="{{ $tema->tema_id }}" style="{{ $colorTema }}">
+                                        <div class="row text-center">
+                                            <div class="col-12">
+                                                <h5 class="mb-0 fw-bold">
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                            </h5>
+                                                </h5>
+                                            </div>
                                         </div>
-                                        <div class="card-body text-center p-4">
-                                            <p class="mt-3 mb-0">
-                                                <small class="text-muted">
-                                                    {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
-                                                </small>
-                                            </p>
+                                        <div class="row text-center p-4">
+                                            <i class="bi bi-file-earmark-text"></i>
                                         </div>
-                                        <div class="card-footer text-center">
-                                            <span class="text-success">
-                                                <i class="bi bi-hand-index-thumb me-1"></i>Da click para explorar
+                                        <div class="div-footer">
+                                            <span class="ifhover text-muted">
+                                                Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
                                             </span>
                                         </div>
                                     </a>
