@@ -56,10 +56,15 @@
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
-                                <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="col-lg-4 col-md-6 mb-4 enlaceTema" style="{{ $colorTema }}">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
-                                       class="card h-100 tema-card text-decoration-none" 
-                                       data-tema-id="{{ $tema->tema_id }}" style="{{ $colorTema }}">
+                                       class="h-100 text-decoration-none" 
+                                       data-tema-id="{{ $tema->tema_id }}">
+
+                                       <div class="row text-center pt-5 m-2">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </div>
+
                                         <div class="row text-center">
                                             <div class="col-12">
                                                 <h5 class="mb-0 fw-bold">
@@ -67,11 +72,9 @@
                                                 </h5>
                                             </div>
                                         </div>
-                                        <div class="row text-center p-4">
-                                            <i class="bi bi-file-earmark-text"></i>
-                                        </div>
-                                        <div class="div-footer">
-                                            <span class="ifhover text-muted">
+                                        
+                                        <div class="row">
+                                            <span class="ifhover text-muted text-end">
                                                 Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
                                             </span>
                                         </div>
@@ -88,47 +91,40 @@
 
 <style>
 /* Estilos necesarios */
-.tema-card {
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    display: block; /* Asegura que el enlace ocupe toda la tarjeta */
-    color: inherit; /* Mantiene colores de texto originales */
-}
 
-.tema-card:hover {
+.enlaceTema:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     border-color: #91a00eff;
     text-decoration: none !important;
 }
 
-.tema-card .card-footer {
+.enlaceTema {
     transition: background-color 0.3s ease;
 }
 
-.tema-card:hover .card-footer {
+.enlaceTema:hover {
     background-color: #28aa6dff;
 }
 
-.tema-card .card-footer span {
+.enlaceTema span {
     font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
-.tema-card:hover .card-footer span {
+.enlaceTema:hover span {
     color: #000000ff !important;
     font-weight: bold;
 }
 
 /* Efecto de pulsación al hacer clic */
-.tema-card:active {
+.enlaceTema:active {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 /* Asegura que no se vea como un enlace tradicional */
-.tema-card.text-decoration-none:hover {
+.enlaceTema.text-decoration-none:hover {
     text-decoration: none !important;
 }
 </style>
