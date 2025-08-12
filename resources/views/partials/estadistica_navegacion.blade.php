@@ -131,7 +131,7 @@
 
 .enlaceTema i.bi {
     font-size: 2.5rem;
-    color: #fff;
+    color: #c7c7c7ff;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
     margin-bottom: 0.5rem;
     transition: color 0.2s;
@@ -152,7 +152,7 @@
     right: 1.2rem;
     bottom: 0.7rem;
     font-size: 0.95rem;
-    color: #fff;
+    color: #0e663dff;
     opacity: 0.7;
     transition: opacity 0.2s;
     z-index: 2;
