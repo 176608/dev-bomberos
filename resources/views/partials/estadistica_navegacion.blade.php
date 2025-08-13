@@ -126,6 +126,7 @@
     padding: 1.5rem 1rem !important;
     position: relative;
     z-index: 1;
+    margin: 0 0.5rem; /* Margen interno en lugar de externo */
 }
 
 .enlaceTema {
@@ -138,7 +139,7 @@
     position: relative;
     overflow: hidden;
     border: none;
-    margin: 0 0.75rem 1.5rem 0.75rem; /* AJUSTE: Mayor separación entre elementos */
+    margin-bottom: 2rem; /* Solo margen inferior para separar filas */
 }
 
 /* Fila del icono */
