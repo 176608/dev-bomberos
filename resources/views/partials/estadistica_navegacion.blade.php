@@ -188,10 +188,10 @@
     right: 0.6rem;
     left: auto;
     color: #fff;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0);
     padding: 0.25rem 0.4rem;
     border-radius: 6px;
-    transform: translateY(15px) translateX(15px);
+    transform: translateY(5px) translateX(5px);
     opacity: 0;
     transition: all 0.3s ease;
 }
@@ -202,8 +202,8 @@
     justify-content: flex-end;
     color: #fff;
     background: transparent;
-    font-size: 0.3rem;
-    font-weight: 250;
+    font-size: 0.45rem;
+    font-weight: 300;
 }
 
 .hover-text {
@@ -267,7 +267,7 @@
     }
     
     .hover-content {
-        font-size: 0.3rem;
+        font-size: 0.4rem;
     }
     
     .enlace-completo {
