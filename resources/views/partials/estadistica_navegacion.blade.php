@@ -56,7 +56,7 @@
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
-                                <div class="col-lg-4 col-md-6 mb-4 enlaceTema" style="{{ $colorTema }}">
+                                <div class="col-lg-4 col-md-6 mb-4 mx-2 enlaceTema" style="{{ $colorTema }}">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
                                        class="enlace-completo" 
                                        data-tema-id="{{ $tema->tema_id }}">
