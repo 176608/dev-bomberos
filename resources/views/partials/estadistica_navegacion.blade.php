@@ -95,7 +95,7 @@
                                             <div class="hover-content">
                                                 <i class="bi bi-cursor-fill me-2"></i>
                                                 <span class="hover-text">
-                                                    Explorar {{ $tema->subtemas_count ?? 0 }} subtemas disponibles
+                                                    Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
                                                 </span>
                                             </div>
                                         </div>
@@ -248,6 +248,7 @@
     }
     
     .svg-icon {
+        color: black;
         width: 2rem;
         height: 2rem;
     }
