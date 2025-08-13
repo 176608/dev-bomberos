@@ -128,7 +128,6 @@
     z-index: 1;
 }
 
-
 .enlaceTema {
     border-radius: 12px;
     min-height: 140px;
@@ -139,9 +138,8 @@
     position: relative;
     overflow: hidden;
     border: none;
-    /*background: inherit;*/
+    margin: 0 0.75rem 1.5rem 0.75rem; /* AJUSTE: Mayor separación entre elementos */
 }
-
 
 /* Fila del icono */
 .row-icono {
@@ -185,23 +183,25 @@
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0.5rem; /* AJUSTE: Separar un poco del borde inferior */
+    right: 0.75rem; /* AJUSTE: Posicionar en esquina derecha */
+    left: auto; /* AJUSTE: Quitar el left:0 para que esté solo en la derecha */
     color: #fff;
-    background: rgba(0, 0, 0, 0);
-    padding: 0.5rem;
-    transform: translateY(100%);
+    background: rgba(0, 0, 0, 0.8); /* AJUSTE: Fondo más visible */
+    padding: 0.3rem 0.5rem; /* AJUSTE: Padding más pequeño */
+    border-radius: 4px; /* NUEVO: Bordes redondeados pequeños para el texto hover */
+    transform: translateY(20px) translateX(20px); /* AJUSTE: Ocultar fuera de vista */
+    opacity: 0; /* AJUSTE: Transparencia inicial */
     transition: all 0.3s ease;
 }
 
 .hover-content {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; /* AJUSTE: Alinear contenido a la derecha */
     color: #fff;
-    background: rgba(0, 0, 0, 1);
-    font-size: 0.85rem;
+    background: transparent; /* AJUSTE: Quitar el fondo negro del contenido */
+    font-size: 0.7rem; /* AJUSTE: Texto más pequeño */
     font-weight: 500;
 }
 
@@ -209,19 +209,21 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* Efectos hover */
-.enlace-completo:hover {
-    background-color: rgba(0, 0, 0, 1) !important;
-}
-
+/* Efectos hover - AJUSTE: Aplicar hover a todo el div enlaceTema */
 .enlaceTema:hover {
     transform: translateY(-6px) scale(1.02);
     filter: brightness(0.9) saturate(1.1);
-    background-color: rgba(0, 0, 0, 1) !important;
+    background-color: rgba(0, 0, 0, 0.85) !important; /* AJUSTE: Hover más sutil */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2); /* AJUSTE: Sombra más pronunciada */
+}
+
+.enlaceTema:hover .enlace-completo {
+    background-color: transparent !important; /* AJUSTE: No cambiar fondo del enlace */
 }
 
 .enlaceTema:hover .row-hover {
-    transform: translateY(0);
+    transform: translateY(0) translateX(0); /* AJUSTE: Mostrar en posición final */
+    opacity: 1; /* AJUSTE: Hacer visible */
 }
 
 .enlaceTema:hover .row-icono i.bi,
@@ -245,6 +247,7 @@
 @media (max-width: 768px) {
     .enlaceTema {
         min-height: 120px;
+        margin: 0 0.5rem 1rem 0.5rem; /* AJUSTE: Menor separación en móvil */
     }
     
     .row-icono i.bi,
@@ -263,11 +266,17 @@
     }
     
     .hover-content {
-        font-size: 0.8rem;
+        font-size: 0.65rem; /* AJUSTE: Aún más pequeño en móvil */
     }
     
     .enlace-completo {
         padding: 1rem 0.5rem !important;
+    }
+    
+    .row-hover {
+        bottom: 0.3rem; /* AJUSTE: Más cerca del borde en móvil */
+        right: 0.5rem; /* AJUSTE: Menos separación del borde */
+        padding: 0.25rem 0.4rem; /* AJUSTE: Padding más pequeño */
     }
 }
 
