@@ -85,7 +85,7 @@
 
                                         <!-- Fila 2: Título -->
                                         <div class="row-titulo">
-                                            <h5 class="titulo-tema">
+                                            <h5 class="titulo-tema mb-2">
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
                                             </h5>
                                         </div>
