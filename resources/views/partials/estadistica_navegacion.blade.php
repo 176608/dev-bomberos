@@ -120,7 +120,7 @@
     justify-content: space-between !important;
     align-items: center !important;
     height: 100% !important;
-    width: 100% !important;
+    width: 75% !important;
     color: inherit !important;
     text-decoration: none !important;
     padding: 1rem 0.75rem !important;
