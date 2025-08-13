@@ -123,23 +123,23 @@
     width: 100% !important;
     color: inherit !important;
     text-decoration: none !important;
-    padding: 1.5rem 1rem !important;
+    padding: 1rem 0.75rem !important;
     position: relative;
     z-index: 1;
-    margin: 0 0.5rem; /* Margen interno en lugar de externo */
+    margin: 0 0.3rem;
 }
 
 .enlaceTema {
-    border-radius: 12px;
-    min-height: 140px;
+    border-radius: 16px;
+    min-height: 110px;
     display: flex;
     align-items: stretch;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
     position: relative;
     overflow: hidden;
     border: none;
-    margin-bottom: 2rem; /* Solo margen inferior para separar filas */
+    margin-bottom: 1.5rem;
 }
 
 /* Fila del icono */
@@ -148,18 +148,18 @@
     justify-content: center;
     align-items: center;
     flex: 1;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
 }
 
 .row-icono i.bi,
 .row-icono .svg-icon {
-    font-size: 2.5rem;
+    font-size: 2rem;
     transition: all 0.3s ease;
 }
 
 .svg-icon {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
 }
 
 /* Fila del título */
@@ -173,36 +173,36 @@
 
 .titulo-tema {
     color: #000000ff !important;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0,0,0,0.18);
     margin: 0;
     letter-spacing: 0.01em;
-    line-height: 1.3;
+    line-height: 1.2;
 }
 
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0.5rem; /* AJUSTE: Separar un poco del borde inferior */
-    right: 0.75rem; /* AJUSTE: Posicionar en esquina derecha */
-    left: auto; /* AJUSTE: Quitar el left:0 para que esté solo en la derecha */
+    bottom: 0.4rem;
+    right: 0.6rem;
+    left: auto;
     color: #fff;
-    background: rgba(0, 0, 0, 0.8); /* AJUSTE: Fondo más visible */
-    padding: 0.3rem 0.5rem; /* AJUSTE: Padding más pequeño */
-    border-radius: 4px; /* NUEVO: Bordes redondeados pequeños para el texto hover */
-    transform: translateY(20px) translateX(20px); /* AJUSTE: Ocultar fuera de vista */
-    opacity: 0; /* AJUSTE: Transparencia inicial */
+    background: rgba(0, 0, 0, 0.85);
+    padding: 0.25rem 0.4rem;
+    border-radius: 6px;
+    transform: translateY(15px) translateX(15px);
+    opacity: 0;
     transition: all 0.3s ease;
 }
 
 .hover-content {
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* AJUSTE: Alinear contenido a la derecha */
+    justify-content: flex-end;
     color: #fff;
-    background: transparent; /* AJUSTE: Quitar el fondo negro del contenido */
-    font-size: 0.7rem; /* AJUSTE: Texto más pequeño */
+    background: transparent;
+    font-size: 0.65rem;
     font-weight: 500;
 }
 
@@ -212,83 +212,87 @@
 
 /* Efectos hover - AJUSTE: Aplicar hover a todo el div enlaceTema */
 .enlaceTema:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-4px) scale(1.01);
     filter: brightness(0.9) saturate(1.1);
-    background-color: rgba(0, 0, 0, 0.85) !important; /* AJUSTE: Hover más sutil */
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2); /* AJUSTE: Sombra más pronunciada */
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .enlaceTema:hover .enlace-completo {
-    background-color: transparent !important; /* AJUSTE: No cambiar fondo del enlace */
+    background-color: transparent !important;
 }
 
 .enlaceTema:hover .row-hover {
-    transform: translateY(0) translateX(0); /* AJUSTE: Mostrar en posición final */
-    opacity: 1; /* AJUSTE: Hacer visible */
+    transform: translateY(0) translateX(0);
+    opacity: 1;
 }
 
 .enlaceTema:hover .row-icono i.bi,
 .enlaceTema:hover .row-icono .svg-icon {
-    transform: scale(1.1);
+    transform: scale(1.05);
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) brightness(0) saturate(100%) invert(100%);
 }
 
 .enlaceTema:hover .titulo-tema {
     color: #ffffffff !important;
-    transform: translateY(-5px);
+    transform: translateY(-3px);
 }
 
 /* Efecto activo */
 .enlaceTema:active {
-    transform: translateY(-2px) scale(0.99);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: translateY(-1px) scale(0.995);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .enlaceTema {
-        min-height: 120px;
-        margin: 0 0.5rem 1rem 0.5rem; /* AJUSTE: Menor separación en móvil */
+        min-height: 90px;
+        margin-bottom: 1rem;
     }
     
     .row-icono i.bi,
     .row-icono .svg-icon {
-        font-size: 2rem;
+        font-size: 1.6rem;
     }
     
     .svg-icon {
         color: black;
-        width: 2rem;
-        height: 2rem;
+        width: 1.6rem;
+        height: 1.6rem;
     }
     
     .titulo-tema {
-        font-size: 1rem;
+        font-size: 0.85rem;
     }
     
     .hover-content {
-        font-size: 0.65rem; /* AJUSTE: Aún más pequeño en móvil */
+        font-size: 0.6rem;
     }
     
     .enlace-completo {
-        padding: 1rem 0.5rem !important;
+        padding: 0.75rem 0.4rem !important;
     }
     
     .row-hover {
-        bottom: 0.3rem; /* AJUSTE: Más cerca del borde en móvil */
-        right: 0.5rem; /* AJUSTE: Menos separación del borde */
-        padding: 0.25rem 0.4rem; /* AJUSTE: Padding más pequeño */
+        bottom: 0.25rem;
+        right: 0.4rem;
+        padding: 0.2rem 0.35rem;
     }
 }
 
 @media (max-width: 576px) {
     .row-icono i.bi,
     .row-icono .svg-icon {
-        font-size: 1.8rem;
+        font-size: 1.4rem;
     }
     
     .titulo-tema {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+    }
+    
+    .enlaceTema {
+        min-height: 80px;
     }
 }
 </style>
