@@ -95,7 +95,7 @@
                                             <div class="hover-content">
                                                 <i class="bi bi-arrow-right-circle-fill"></i> &nbsp;
                                                 <span class="hover-text">
-                                                    Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas
+                                                    &nbsp; Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas
                                                 </span>
                                             </div>
                                         </div>
