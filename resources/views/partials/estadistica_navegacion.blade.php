@@ -126,7 +126,7 @@
     padding: 1rem 0.75rem !important;
     position: relative;
     z-index: 1;
-    margin: 0 0.5rem;
+    margin: 0 0.3rem; /* NUEVO: Margen interno más pequeño */
 }
 
 .enlaceTema {
@@ -294,5 +294,14 @@
     .enlaceTema {
         min-height: 80px;
     }
+}
+
+#temas-grid {
+    padding: 0 0.5rem; /* NUEVO: Padding al contenedor padre */
+}
+
+#temas-grid .enlaceTema {
+    margin-bottom: 1.5rem;
+    /* Sin márgenes laterales que causen overflow */
 }
 </style>
