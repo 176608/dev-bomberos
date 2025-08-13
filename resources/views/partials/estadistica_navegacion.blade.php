@@ -211,13 +211,13 @@
 
 /* Efectos hover */
 .enlace-completo:hover {
-    background-color: rgba(0, 0, 0, 1);
+    background-color: rgba(0, 0, 0, 1) !important;
 }
 
 .enlaceTema:hover {
     transform: translateY(-6px) scale(1.02);
     filter: brightness(0.9) saturate(1.1);
-    background-color: rgba(0, 0, 0, 1);
+    background-color: rgba(0, 0, 0, 1) !important;
 }
 
 .enlaceTema:hover .row-hover {
