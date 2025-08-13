@@ -127,9 +127,7 @@
     position: relative;
     z-index: 1;
 }
-.enlace-completo:hover {
-    background: rgba(0, 0, 0, 1);
-}
+
 
 .enlaceTema {
     border-radius: 12px;
@@ -212,10 +210,15 @@
 }
 
 /* Efectos hover */
+.enlace-completo:hover {
+    background: rgba(0, 0, 0, 1);
+}
+
 .enlaceTema:hover {
     transform: translateY(-6px) scale(1.02);
     box-shadow: 0 15px 40px rgba(0,0,0,0.2);
     filter: brightness(0.9) saturate(1.1);
+    background: rgba(0, 0, 0, 1);
 }
 
 .enlaceTema:hover .row-hover {
