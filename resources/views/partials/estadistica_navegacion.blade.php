@@ -47,12 +47,12 @@
                             @foreach($temas as $index => $tema)
                                 @php 
                                     $coloresEstilo = [
-                                        'background-color: #8FBC8F; color: white;',
-                                        'background-color: #87CEEB; color: white;',
-                                        'background-color: #DDA0DD; color: white;',
-                                        'background-color: #F0E68C; color: white;',
-                                        'background-color: #FFA07A; color: white;',
-                                        'background-color: #98FB98; color: white;'
+                                        'background-color: #8FBC8F; color: black;',
+                                        'background-color: #87CEEB; color: black;',
+                                        'background-color: #DDA0DD; color: black;',
+                                        'background-color: #F0E68C; color: black;',
+                                        'background-color: #FFA07A; color: black;',
+                                        'background-color: #98FB98; color: black;'
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
@@ -121,6 +121,7 @@
     align-items: center !important;
     height: 100% !important;
     width: 100% !important;
+    color: inherit !important;
     text-decoration: none !important;
     padding: 1.5rem 1rem !important;
     position: relative;
@@ -190,10 +191,9 @@
     right: 0;
     color: #fff;
     background: rgba(0, 0, 0, 0);
-    padding: 0.75rem;
+    padding: 0.5rem;
     transform: translateY(100%);
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
 }
 
 .hover-content {
