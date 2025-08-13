@@ -184,12 +184,12 @@
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0.4rem;
-    right: 0.6rem;
+    bottom: 0.3rem;
+    right: 0.4rem;
     left: auto;
     color: #fff;
     background: rgba(0, 0, 0, 0);
-    padding: 0.25rem 0.4rem;
+    padding: 0.1rem 0.2rem;
     border-radius: 6px;
     transform: translateY(5px) translateX(5px);
     opacity: 0;
@@ -202,7 +202,7 @@
     justify-content: flex-end;
     color: #fff;
     background: transparent;
-    font-size: 0.45rem;
+    font-size: 0.5rem;
     font-weight: 300;
 }
 
@@ -267,7 +267,7 @@
     }
     
     .hover-content {
-        font-size: 0.4rem;
+        font-size: 0.5rem;
     }
     
     .enlace-completo {
