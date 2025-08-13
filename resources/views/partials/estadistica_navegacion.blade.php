@@ -47,9 +47,9 @@
                             @foreach($temas as $index => $tema)
                                 @php 
                                     $coloresEstilo = [
-                                        'background-color: #8FBC8F; color: black;',
-                                        'background-color: #87CEEB; color: black;',
-                                        'background-color: #DDA0DD; color: black;',
+                                        'background-color: #8FBC8F; color: white;',
+                                        'background-color: #87CEEB; color: white;',
+                                        'background-color: #DDA0DD; color: white;',
                                         'background-color: #F0E68C; color: white;',
                                         'background-color: #FFA07A; color: white;',
                                         'background-color: #98FB98; color: white;'
@@ -113,21 +113,6 @@
 </div>
 
 <style>
-/* Estilos necesarios */
-
-.enlaceTema {
-    border-radius: 12px;
-    min-height: 140px;
-    display: flex;
-    align-items: stretch;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    position: relative;
-    overflow: hidden;
-    border: none;
-    background: inherit;
-}
-
 /* CAMBIO PRINCIPAL: El enlace debe llenar todo el contenedor */
 .enlace-completo {
     display: flex !important;
@@ -142,6 +127,20 @@
     position: relative;
     z-index: 1;
 }
+
+.enlaceTema {
+    border-radius: 12px;
+    min-height: 140px;
+    display: flex;
+    align-items: stretch;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    background: inherit;
+}
+
 
 /* Fila del icono */
 .row-icono {
