@@ -58,16 +58,18 @@
                                 @endphp
                                 <div class="col-lg-4 col-md-6 mb-4 enlaceTema" style="{{ $colorTema }}">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
-                                       class="h-100 text-decoration-none" 
+                                       class="enlace-completo" 
                                        data-tema-id="{{ $tema->tema_id }}">
 
-                                       <div class="row text-center pt-2 m-2">
+                                        <!-- Fila 1: Icono -->
+                                        <div class="row-icono">
                                             @if($tema->orden_indice == 1)
                                                 <i class="bi bi-globe"></i>
                                             @elseif($tema->orden_indice == 2)
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-leaf-fill">
-                                                    <path d="M1.4 1.7c.217.289.65.84 1.725 1.274 1.093.44 2.885.774 5.834.528 2.02-.168 3.431.51 4.326 1.556C14.161 6.082 14.5 7.41 14.5 8.5q0 .344-.027.734C13.387 8.252 11.877 7.76 10.39 7.5c-2.016-.288-4.188-.445-5.59-2.045-.142-.162-.402-.102-.379.112.108.985 1.104 1.82 1.844 2.308 2.37 1.566 5.772-.118 7.6 3.071.505.8 1.374 2.7 1.75 4.292.07.298-.066.611-.354.715a.7.7 0 0 1-.161.042 1 1 0 0 1-1.08-.794c-.13-.97-.396-1.913-.868-2.77C12.173 13.386 10.565 14 8 14c-1.854 0-3.32-.544-4.45-1.435-1.124-.887-1.889-2.095-2.39-3.383-1-2.562-1-5.536-.65-7.28L.73.806z"/>
-                                                </svg>
+                                                <img src="{{ asset('img/iconsBT/leaf-fill.svg') }}" 
+                                                     alt="Medio Ambiente" 
+                                                     class="svg-icon"
+                                                     onerror="this.outerHTML='<i class=\'bi bi-leaf\'></i>';">
                                             @elseif($tema->orden_indice == 3)
                                                 <i class="bi bi-person-bounding-box"></i>
                                             @elseif($tema->orden_indice == 4)
@@ -81,11 +83,20 @@
                                             @endif
                                         </div>
 
-                                        <div class="row text-center">
-                                            <div class="col-12">
-                                                <h5 class="mb-0 fw-bold">
+                                        <!-- Fila 2: Título -->
+                                        <div class="row-titulo">
+                                            <h5 class="titulo-tema">
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
-                                                </h5>
+                                            </h5>
+                                        </div>
+
+                                        <!-- Fila 3: Hover info (solo visible en hover) -->
+                                        <div class="row-hover">
+                                            <div class="hover-content">
+                                                <i class="bi bi-cursor-fill me-2"></i>
+                                                <span class="hover-text">
+                                                    Explorar {{ $tema->subtemas_count ?? 0 }} subtemas disponibles
+                                                </span>
                                             </div>
                                         </div>
 
@@ -109,7 +120,7 @@
     min-height: 140px;
     display: flex;
     align-items: stretch;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    transition: all 0.3s ease;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
     position: relative;
     overflow: hidden;
@@ -117,81 +128,153 @@
     background: inherit;
 }
 
-.enlaceTema a {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
+/* CAMBIO PRINCIPAL: El enlace debe llenar todo el contenedor */
+.enlace-completo {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
     text-decoration: none !important;
-    padding: 0;
+    color: inherit !important;
+    padding: 1.5rem 1rem !important;
+    position: relative;
+    z-index: 1;
 }
 
-.enlaceTema .row.text-center.pt-2.m-2 {
-    margin: 0 !important;
-    padding-top: 1.5rem !important;
-    padding-bottom: 0.5rem !important;
-}
-
-.enlaceTema i.bi {
-    font-size: 2.5rem;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+/* Fila del icono */
+.row-icono {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
     margin-bottom: 0.5rem;
-    transition: color 0.2s;
 }
 
-.enlaceTema h5 {
-    color: #0e663dff;
-    font-size: 1.25rem;
+.row-icono i.bi,
+.row-icono .svg-icon {
+    font-size: 2.5rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    transition: all 0.3s ease;
+}
+
+.svg-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    filter: brightness(0) saturate(100%) invert(100%);
+}
+
+/* Fila del título */
+.row-titulo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: auto;
+}
+
+.titulo-tema {
+    color: #fff !important;
+    font-size: 1.1rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    margin-bottom: 0.5rem;
-    margin-top: 0;
+    margin: 0;
     letter-spacing: 0.01em;
+    line-height: 1.3;
 }
 
-.enlaceTema .ifhover {
+/* Fila hover (inicialmente oculta) */
+.row-hover {
     position: absolute;
-    right: 1.2rem;
-    bottom: 0.7rem;
-    font-size: 0.95rem;
-    color: #0e663dff;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-    z-index: 2;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.3);
+    padding: 0.75rem;
+    transform: translateY(100%);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
+.hover-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.hover-text {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Efectos hover */
 .enlaceTema:hover {
-    filter: brightness(0.85) saturate(1.1);
     transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
-    background: inherit !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    filter: brightness(0.9) saturate(1.1);
 }
 
+.enlaceTema:hover .row-hover {
+    transform: translateY(0);
+}
+
+.enlaceTema:hover .row-icono i.bi,
+.enlaceTema:hover .row-icono .svg-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) brightness(0) saturate(100%) invert(100%);
+}
+
+.enlaceTema:hover .titulo-tema {
+    transform: translateY(-5px);
+}
+
+/* Efecto activo */
 .enlaceTema:active {
-    filter: brightness(0.8);
     transform: translateY(-2px) scale(0.99);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.enlaceTema:hover .ifhover {
-    opacity: 1;
-}
-
-/* Opcional: para que el fondo no cambie de color en hover, solo se oscurezca */
-.enlaceTema {
-    background-blend-mode: multiply;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .enlaceTema {
-        min-height: 100px;
+        min-height: 120px;
     }
-    .enlaceTema i.bi {
+    
+    .row-icono i.bi,
+    .row-icono .svg-icon {
         font-size: 2rem;
     }
-    .enlaceTema h5 {
+    
+    .svg-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .titulo-tema {
         font-size: 1rem;
+    }
+    
+    .hover-content {
+        font-size: 0.8rem;
+    }
+    
+    .enlace-completo {
+        padding: 1rem 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .row-icono i.bi,
+    .row-icono .svg-icon {
+        font-size: 1.8rem;
+    }
+    
+    .titulo-tema {
+        font-size: 0.9rem;
     }
 }
 </style>
