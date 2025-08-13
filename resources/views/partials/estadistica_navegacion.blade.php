@@ -93,7 +93,7 @@
                                         <!-- Fila 3: Hover info (solo visible en hover) -->
                                         <div class="row-hover">
                                             <div class="hover-content">
-                                                <i class="bi bi-arrow-right-circle-fill"></i>
+                                                <i class="bi bi-arrow-right-circle-fill"></i> &nbsp;
                                                 <span class="hover-text">
                                                     Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas
                                                 </span>
