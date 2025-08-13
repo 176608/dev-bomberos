@@ -95,7 +95,7 @@
                                             <div class="hover-content">
                                                 <i class="bi bi-arrow-right-circle-fill"></i>
                                                 <span class="hover-text">
-                                                    Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
+                                                    Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas
                                                 </span>
                                             </div>
                                         </div>
@@ -184,8 +184,8 @@
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0.3rem;
-    right: 0.4rem;
+    bottom: 0.1rem;
+    right: 0.3rem;
     left: auto;
     color: #fff;
     background: rgba(0, 0, 0, 0);
@@ -202,7 +202,7 @@
     justify-content: flex-end;
     color: #fff;
     background: transparent;
-    font-size: 0.5rem;
+    font-size: 0.65rem;
     font-weight: 300;
 }
 
@@ -267,7 +267,7 @@
     }
     
     .hover-content {
-        font-size: 0.5rem;
+        font-size: 0.65rem;
     }
     
     .enlace-completo {
