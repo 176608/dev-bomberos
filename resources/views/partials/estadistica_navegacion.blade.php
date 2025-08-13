@@ -93,7 +93,7 @@
                                         <!-- Fila 3: Hover info (solo visible en hover) -->
                                         <div class="row-hover">
                                             <div class="hover-content">
-                                                <i class="bi bi-cursor-fill me-2"></i>
+                                                <i class="bi bi-arrow-right-circle-fill"></i>
                                                 <span class="hover-text">
                                                     Explorar {{ $tema->subtemas ? $tema->subtemas->count() : 0 }} subtemas disponibles
                                                 </span>
@@ -202,8 +202,8 @@
     justify-content: flex-end;
     color: #fff;
     background: transparent;
-    font-size: 0.65rem;
-    font-weight: 500;
+    font-size: 0.3rem;
+    font-weight: 250;
 }
 
 .hover-text {
@@ -267,7 +267,7 @@
     }
     
     .hover-content {
-        font-size: 0.6rem;
+        font-size: 0.3rem;
     }
     
     .enlace-completo {
