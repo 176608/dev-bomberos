@@ -154,14 +154,12 @@
 .row-icono i.bi,
 .row-icono .svg-icon {
     font-size: 2.5rem;
-    /*filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));*/
     transition: all 0.3s ease;
 }
 
 .svg-icon {
     width: 2.5rem;
     height: 2.5rem;
-    filter: brightness(0) saturate(100%) invert(100%);
 }
 
 /* Fila del título */
@@ -174,7 +172,7 @@
 }
 
 .titulo-tema {
-    color: #fff !important;
+    color: #000000ff !important;
     font-size: 1.1rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0,0,0,0.18);
@@ -227,6 +225,7 @@
 }
 
 .enlaceTema:hover .titulo-tema {
+    color: #ffffffff !important;
     transform: translateY(-5px);
 }
 
