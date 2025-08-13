@@ -127,6 +127,9 @@
     position: relative;
     z-index: 1;
 }
+.enlace-completo:hover {
+    background: rgba(0, 0, 0, 1);
+}
 
 .enlaceTema {
     border-radius: 12px;
@@ -138,7 +141,7 @@
     position: relative;
     overflow: hidden;
     border: none;
-    background: inherit;
+    /*background: inherit;*/
 }
 
 
@@ -199,6 +202,7 @@
     align-items: center;
     justify-content: center;
     color: #fff;
+    background: rgba(0, 0, 0, 1);
     font-size: 0.85rem;
     font-weight: 500;
 }
