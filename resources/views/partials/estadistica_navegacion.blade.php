@@ -122,7 +122,6 @@
     height: 100% !important;
     width: 100% !important;
     text-decoration: none !important;
-    color: inherit !important;
     padding: 1.5rem 1rem !important;
     position: relative;
     z-index: 1;
@@ -154,8 +153,7 @@
 .row-icono i.bi,
 .row-icono .svg-icon {
     font-size: 2.5rem;
-    color: #fff;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    /*filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));*/
     transition: all 0.3s ease;
 }
 
@@ -190,7 +188,8 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0,0,0,0.3);
+    color: #fff;
+    background: rgba(0, 0, 0, 0);
     padding: 0.75rem;
     transform: translateY(100%);
     transition: all 0.3s ease;
