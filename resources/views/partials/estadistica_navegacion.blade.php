@@ -66,10 +66,7 @@
                                             @if($tema->orden_indice == 1)
                                                 <i class="bi bi-globe"></i>
                                             @elseif($tema->orden_indice == 2)
-                                                <img src="{{ asset('img/iconsBT/leaf-fill.svg') }}" 
-                                                     alt="Medio Ambiente" 
-                                                     class="svg-icon"
-                                                     onerror="this.outerHTML='<i class=\'bi bi-leaf\'></i>';">
+                                                <i class="bi bi-leaf-fill"></i>
                                             @elseif($tema->orden_indice == 3)
                                                 <i class="bi bi-person-bounding-box"></i>
                                             @elseif($tema->orden_indice == 4)
@@ -169,6 +166,8 @@
     color: #3b3b3bff !important;
     width: 2rem;
     height: 2rem;
+    /* Estado normal: oscuro */
+    filter: brightness(0.25) saturate(0.8);
 }
 
 /* Fila del título */
