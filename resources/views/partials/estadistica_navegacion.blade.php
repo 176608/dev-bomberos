@@ -160,6 +160,7 @@
 
 .row-icono i.bi,
 .row-icono .svg-icon {
+    color: #3b3b3bff !important;
     font-size: 2rem;
     transition: all 0.3s ease;
 }
@@ -273,10 +274,12 @@
     
     .row-icono i.bi,
     .row-icono .svg-icon {
+        color: #3b3b3bff !important;
         font-size: 1.6rem;
     }
     
     .svg-icon {
+        color: #3b3b3bff !important;
         width: 1.6rem;
         height: 1.6rem;
     }
