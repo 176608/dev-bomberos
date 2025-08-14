@@ -1093,15 +1093,9 @@ function mostrarContenidoCESigem(contenido, actualizado, container) {
         <div class="consulta-express-modal-content">
             <!-- Título centrado -->
             <div class="text-center mb-4">
-                <h4 class="text-primary fw-bold mb-2">
+                <h4 class="text-success fw-bold mb-2">
                     ${escapeHtmlSigem(contenido.titulo_tabla || 'Información Estadística')}
                 </h4>
-                <div class="d-flex justify-content-center gap-2 mb-2">
-                    <span class="badge bg-success fs-7">
-                        <i class="bi bi-grid-3x3 me-1"></i>
-                        ${contenido.tabla_filas || 0}×${contenido.tabla_columnas || 0}
-                    </span>
-                </div>
             </div>
 
             <!-- Tabla -->
@@ -1112,8 +1106,7 @@ function mostrarContenidoCESigem(contenido, actualizado, container) {
             <!-- Pie de tabla centrado -->
             ${contenido.pie_tabla ? `
                 <div class="text-center mt-3">
-                    <small class="text-muted fst-italic">
-                        <i class="bi bi-info-circle me-1"></i>
+                    <small class="text-muted fw-semibold fst-italic">
                         ${escapeHtmlSigem(contenido.pie_tabla)}
                     </small>
                 </div>
@@ -1143,7 +1136,7 @@ function renderizarTablaCESigem(tablaDatos) {
                 } else {
                     // Primera columna = categorías (texto en negrita)
                     if (colIndex === 0) {
-                        html += `<td class="fw-semibold">${escapeHtmlSigem(celda || '-')}</td>`;
+                        html += `<td class="text-center fw-semibold">${escapeHtmlSigem(celda || '-')}</td>`;
                     } else {
                         // Otras columnas = números (alineados a la derecha)
                         const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
