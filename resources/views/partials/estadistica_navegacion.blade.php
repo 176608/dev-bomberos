@@ -141,7 +141,7 @@
     align-items: center !important;
     height: 100% !important;
     width: 100% !important;
-    color: inherit !important;
+    color: #3b3b3bff !important;
     text-decoration: none !important;
     padding: 1rem 0.75rem !important;
     position: relative;
@@ -179,7 +179,7 @@
 }
 
 .titulo-tema {
-    color: #000000ff !important;
+    color: #3b3b3bff !important;
     font-size: 0.95rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0,0,0,0.18);
