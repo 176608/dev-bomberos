@@ -145,7 +145,7 @@
                                         <div class="row align-items-center">
                                             <div class="col-12">
                                                 <span class="mb-1 d-block text-dark">
-                                                    <span class="fw-bold d-block text-success">
+                                                    <span class="fw-bold text-success">
                                                         {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                     </span>
                                                     {{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}
