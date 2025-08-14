@@ -66,7 +66,7 @@
                                             @if($tema->orden_indice == 1)
                                                 <i class="bi bi-globe"></i>
                                             @elseif($tema->orden_indice == 2)
-                                                <i class="bi bi-leaf-fill"></i>
+                                                <i class="bi bi-leaf"></i>
                                             @elseif($tema->orden_indice == 3)
                                                 <i class="bi bi-person-bounding-box"></i>
                                             @elseif($tema->orden_indice == 4)
