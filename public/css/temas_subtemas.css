@@ -15,22 +15,21 @@
     height: 80px;
     overflow: hidden;
     position: relative;
-    /* NUEVO: Centrar contenido */
+    /* CAMBIO: Centrar en Y, alinear a la izquierda en X */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa; /* Fondo sutil por si la imagen es más pequeña */
+    align-items: center; /* Centrado vertical */
+    justify-content: flex-start; /* Alineado a la izquierda */
+    background-color: #f8f9fa;
 }
 
 .subtema-image {
     /* CAMBIO PRINCIPAL: Tamaño automático en lugar de forzar 100% */
     width: auto;
     height: auto;
-    max-width: 100%; /* No exceder el ancho del contenedor */
-    max-height: 100%; /* No exceder la altura del contenedor */
-    object-fit: contain; /* CAMBIO: contain en lugar de cover para no recortar */
+    max-width: 100%; /* Espacio para el padding */
+    max-height: 100%;
+    object-fit: contain;
     transition: all 0.3s ease;
-    /* NUEVO: Centrar la imagen */
     display: block;
 }
 
@@ -55,6 +54,7 @@
     position: relative;
     /* MANTENER: Sin cambios para el modo minimizado */
     display: block; /* Resetear flex para modo minimizado */
+    padding-left: 0; /* Quitar padding en modo mini */
 }
 
 /* Estilos para el texto del subtema */
