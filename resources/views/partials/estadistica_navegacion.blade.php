@@ -156,18 +156,10 @@
 }
 
 .row-icono i.bi,
-.row-icono .svg-icon {
+.row-icono {
     color: #3b3b3bff !important;
     font-size: 2rem;
     transition: all 0.3s ease;
-}
-
-.svg-icon {
-    color: #3b3b3bff !important;
-    width: 2rem;
-    height: 2rem;
-    /* Estado normal: oscuro */
-    filter: brightness(0.25) saturate(0.8);
 }
 
 /* Fila del título */
@@ -236,7 +228,7 @@
 }
 
 .tema-card:hover .row-icono i.bi,
-.tema-card:hover .row-icono .svg-icon {
+.tema-card:hover .row-icono {
     transform: scale(1.05);
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) brightness(0) saturate(100%) invert(100%);
 }
@@ -272,15 +264,9 @@
     }
     
     .row-icono i.bi,
-    .row-icono .svg-icon {
+    .row-icono {
         color: #3b3b3bff !important;
         font-size: 1.6rem;
-    }
-    
-    .svg-icon {
-        color: #3b3b3bff !important;
-        width: 1.6rem;
-        height: 1.6rem;
     }
     
     .titulo-tema {
@@ -294,7 +280,7 @@
 
 @media (max-width: 576px) {
     .row-icono i.bi,
-    .row-icono .svg-icon {
+    .row-icono {
         font-size: 1.4rem;
     }
     
