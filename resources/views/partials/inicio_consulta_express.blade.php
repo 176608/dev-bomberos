@@ -14,13 +14,13 @@
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <!-- Columna de imagen - Ahora 2 columnas -->
+                        <!-- Columna de imagen - Ahora 2 columnas 
                         <div class="col-md-2 text-center mb-3 mb-md-0">
                             <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
-                        </div>
+                        </div>-->
                         
                         <!-- Columna de selectores - Ahora 4 columnas -->
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             @php
                                 use App\Models\SIGEM\ce_tema;
                                 $temas = ce_tema::orderBy('tema', 'asc')->get();
@@ -62,7 +62,7 @@
                         </div>
                         
                         <!-- Columna de contenido - Se mantiene en 6 columnas -->
-                        <div class="col-md-6">
+                        <div class="col-md-7">
                             <div id="ce_contenido_container_modal" class="border rounded p-3 bg-light" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
                                 <div class="text-center text-muted py-5" id="ce_estado_inicial">
                                     <i class="bi bi-table" style="font-size: 3rem; opacity: 0.5;"></i>
