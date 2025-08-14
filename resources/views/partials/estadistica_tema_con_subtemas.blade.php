@@ -143,7 +143,7 @@
                                        onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" 
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                                         <div class="row align-items-center">
-                                            <div class="col-12 d-flex">
+                                            <div class="col-12">
                                                 <span class="fw-bold d-block text-success">
                                                     {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                 </span>
@@ -399,7 +399,7 @@ function renderizarCuadros(cuadros) {
                onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" 
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
-                    <div class="col-12 d-flex">
+                    <div class="col-12">
                         <span class="fw-bold d-block text-success">
                             ${cuadro.codigo_cuadro || 'N/A'}
                         </span>
