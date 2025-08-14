@@ -165,6 +165,7 @@
 }
 
 .svg-icon {
+    color: #3b3b3bff !important;
     width: 2rem;
     height: 2rem;
 }
