@@ -1140,7 +1140,7 @@ function renderizarTablaCESigem(tablaDatos) {
                     } else {
                         // Otras columnas = números (alineados a la derecha)
                         const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
-                        const clase = esNumero ? 'text-end' : '';
+                        const clase = esNumero ? 'text-center' : '';
                         html += `<td class="${clase}">${escapeHtmlSigem(celda || '-')}</td>`;
                     }
                 }
@@ -1192,15 +1192,15 @@ function inyectarEstilosCESigem() {
 
             .consulta-express-tabla-modal .table th {
                 background-color: #198754 !important;
-                color: white;
-                font-weight: 600;
+                color: black;
+                font-weight: 500;
                 text-align: center;
                 border: 1px solid rgba(255,255,255,0.2);
                 font-size: 0.85rem;
             }
 
             .consulta-express-tabla-modal .table td {
-                border: 1px solid #dee2e6;
+                border: 1px solid #e5e9eeff;
                 vertical-align: middle;
                 font-size: 0.85rem;
             }
