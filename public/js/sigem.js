@@ -1138,10 +1138,7 @@ function renderizarTablaCESigem(tablaDatos) {
                     if (colIndex === 0) {
                         html += `<td class="text-center fw-semibold">${escapeHtmlSigem(celda || '-')}</td>`;
                     } else {
-                        // Otras columnas = números (alineados a la derecha)
-                        const esNumero = !isNaN(celda) && !isNaN(parseFloat(celda)) && celda !== '';
-                        const clase = esNumero ? 'text-center' : '';
-                        html += `<td class="${clase}">${escapeHtmlSigem(celda || '-')}</td>`;
+                        html += `<td class="text-center">${escapeHtmlSigem(celda || '-')}</td>`;
                     }
                 }
             });
