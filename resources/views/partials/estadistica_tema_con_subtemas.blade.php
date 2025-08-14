@@ -93,14 +93,14 @@
                         </a>
                     </div>
 
-                    <!-- Encabezado de subtema seleccionado -->
+                    <!-- Encabezado de subtema seleccionado headerUsado -->
                     <div class="p-3 border-bottom" id="subtema-header">
                         @if(isset($subtema_seleccionado))
                             <h5 class="mb-0">{{ $subtema_seleccionado->subtema_titulo }}</h5>
-                            <p class="text-muted small mb-0">{{ $tema_seleccionado->tema_titulo }}</p>
+                            <p class="headerUsado text-muted small mb-0">{{ $tema_seleccionado->tema_titulo }}</p>
                         @else
                             <h5 class="mb-0">{{ $tema_seleccionado->tema_titulo }}</h5>
-                            <p class="text-muted small mb-0">Seleccione un subtema para ver sus cuadros</p>
+                            <p class="headerUsado text-muted small mb-0">Seleccione un subtema para ver sus cuadros</p>
                         @endif
                     </div>
 
