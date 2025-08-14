@@ -17,7 +17,6 @@
     </div>
 </div>
 
-
         <!-- Contenido principal -->
         <div class="row g-0 min-vh-75">
             <!-- Área de temas -->
@@ -42,8 +41,8 @@
                             }, 3000);
                         </script>
                     @else
-                        <!-- El contenido normal cuando $temas está definida -->
-                        <div class="row" id="temas-grid">
+                        <!-- CAMBIO: Usar contenedor flex personalizado en lugar de row Bootstrap -->
+                        <div class="temas-grid-container">
                             @foreach($temas as $index => $tema)
                                 @php 
                                     $coloresEstilo = [
@@ -56,7 +55,8 @@
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
-                                <div class="col-lg-4 col-md-6 mb-4 enlaceTema" style="{{ $colorTema }}">
+                                <!-- CAMBIO: Quitar clases Bootstrap y usar clase personalizada -->
+                                <div class="tema-card" style="{{ $colorTema }}">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
                                        class="enlace-completo" 
                                        data-tema-id="{{ $tema->tema_id }}">
@@ -101,7 +101,6 @@
                                         </div>
 
                                     </a>
-
                                 </div>
                             @endforeach
                         </div>
@@ -113,7 +112,28 @@
 </div>
 
 <style>
-/* CAMBIO PRINCIPAL: El enlace debe llenar todo el contenedor */
+/* CONTENEDOR PRINCIPAL - Reemplaza el sistema Bootstrap */
+.temas-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+    gap: 1.5rem; /* Espacio uniforme entre tarjetas */
+    padding: 0.5rem;
+    width: 100%;
+}
+
+/* TARJETA DE TEMA - Reemplaza .enlaceTema */
+.tema-card {
+    border-radius: 16px;
+    min-height: 110px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    display: flex; /* Para que el enlace llene toda la tarjeta */
+}
+
+/* ENLACE COMPLETO - Llena toda la tarjeta */
 .enlace-completo {
     display: flex !important;
     flex-direction: column !important;
@@ -126,20 +146,7 @@
     padding: 1rem 0.75rem !important;
     position: relative;
     z-index: 1;
-    margin: 0 0.3rem; /* NUEVO: Margen interno más pequeño */
-}
-
-.enlaceTema {
-    border-radius: 16px;
-    min-height: 110px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    position: relative;
-    overflow: hidden;
-    border: none;
-    /* CAMBIO: Definir ancho específico con márgenes */
-    flex: 0 1 calc(33.333% - 1rem); /* 3 por fila con espacio */
-    margin: 0.5rem; /* Margen uniforme alrededor */
+    /* QUITAR: margin ya no necesario */
 }
 
 /* Fila del icono */
@@ -184,14 +191,14 @@
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0.1rem;
-    right: 0.3rem;
+    bottom: 0.4rem;
+    right: 0.6rem;
     left: auto;
     color: #fff;
-    background: rgba(0, 0, 0, 0);
-    padding: 0.1rem 0.2rem;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 0.25rem 0.4rem;
     border-radius: 6px;
-    transform: translateY(5px) translateX(5px);
+    transform: translateY(15px) translateX(15px);
     opacity: 0;
     transition: all 0.3s ease;
 }
@@ -203,71 +210,97 @@
     color: #fff;
     background: transparent;
     font-size: 0.65rem;
-    font-weight: 300;
+    font-weight: 500;
 }
 
 .hover-text {
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* Efectos hover - AJUSTE: Aplicar hover a todo el div enlaceTema */
-.enlaceTema:hover {
+/* EFECTOS HOVER */
+.tema-card:hover {
     transform: translateY(-4px) scale(1.01);
     filter: brightness(0.9) saturate(1.1);
     background-color: rgba(0, 0, 0, 0.85) !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-.enlaceTema:hover .enlace-completo {
+.tema-card:hover .enlace-completo {
     background-color: transparent !important;
 }
 
-.enlaceTema:hover .row-hover {
+.tema-card:hover .row-hover {
     transform: translateY(0) translateX(0);
     opacity: 1;
 }
 
-.enlaceTema:hover .row-icono i.bi,
-.enlaceTema:hover .row-icono .svg-icon {
+.tema-card:hover .row-icono i.bi,
+.tema-card:hover .row-icono .svg-icon {
     transform: scale(1.05);
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) brightness(0) saturate(100%) invert(100%);
 }
 
-.enlaceTema:hover .titulo-tema {
+.tema-card:hover .titulo-tema {
     color: #ffffffff !important;
     transform: translateY(-3px);
 }
 
 /* Efecto activo */
-.enlaceTema:active {
+.tema-card:active {
     transform: translateY(-1px) scale(0.995);
     box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-/* Contenedor principal con espaciado */
-#temas-grid {
-    padding: 0.75rem;
-    gap: 1.5rem; /* NUEVO: Espacio entre elementos */
-    display: flex;
-    flex-wrap: wrap;
-}
-
-/* Responsive ajustado */
+/* RESPONSIVE DESIGN */
 @media (max-width: 991px) {
-    .enlaceTema {
-        flex: 0 1 calc(50% - 1rem); /* 2 por fila en tablet */
+    .temas-grid-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablet */
+        gap: 1.2rem;
     }
 }
 
 @media (max-width: 767px) {
-    .enlaceTema {
-        flex: 0 1 calc(100% - 1rem); /* 1 por fila en móvil */
-        margin: 0.5rem 0; /* Solo margen vertical en móvil */
+    .temas-grid-container {
+        grid-template-columns: 1fr; /* 1 columna en móvil */
+        gap: 1rem;
+        padding: 0.25rem;
     }
     
-    #temas-grid {
-        padding: 0.5rem;
-        gap: 1rem;
+    .tema-card {
+        min-height: 90px;
+    }
+    
+    .row-icono i.bi,
+    .row-icono .svg-icon {
+        font-size: 1.6rem;
+    }
+    
+    .svg-icon {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+    
+    .titulo-tema {
+        font-size: 0.85rem;
+    }
+    
+    .enlace-completo {
+        padding: 0.75rem 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .row-icono i.bi,
+    .row-icono .svg-icon {
+        font-size: 1.4rem;
+    }
+    
+    .titulo-tema {
+        font-size: 0.8rem;
+    }
+    
+    .tema-card {
+        min-height: 80px;
     }
 }
 </style>
