@@ -143,9 +143,8 @@
                                        onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" 
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                                         <div class="row align-items-center">
-                                            <div class="col-12">
+                                            <div class="col-12 d-flex">
                                                 <span class="fw-bold d-block text-success">
-                                                    <i class="bi bi-file-earmark-excel me-2"></i>
                                                     {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                 </span>
                                                 <span class="mb-1 d-block text-dark">{{ $cuadro['cuadro_estadistico_titulo'] ?? 'Sin título' }}</span>
@@ -400,9 +399,8 @@ function renderizarCuadros(cuadros) {
                onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" 
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
-                    <div class="col-12">
+                    <div class="col-12 d-flex">
                         <span class="fw-bold d-block text-success">
-                            <i class="bi bi-file-earmark-excel me-2"></i>
                             ${cuadro.codigo_cuadro || 'N/A'}
                         </span>
                         <span class="mb-1 d-block text-dark">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</span>
