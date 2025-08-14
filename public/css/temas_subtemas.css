@@ -10,24 +10,51 @@
     min-height: 80px;
 }
 
-/* Estilos para la imagen del subtema */
+/* Estilos para la imagen del subtema - SOLO CUANDO SIDEBAR ESTÁ EXPANDIDA */
 .subtema-image-container {
     height: 80px;
     overflow: hidden;
     position: relative;
+    /* NUEVO: Centrar contenido */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa; /* Fondo sutil por si la imagen es más pequeña */
 }
 
 .subtema-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    /* CAMBIO PRINCIPAL: Tamaño automático en lugar de forzar 100% */
+    width: auto;
+    height: auto;
+    max-width: 100%; /* No exceder el ancho del contenedor */
+    max-height: 100%; /* No exceder la altura del contenedor */
+    object-fit: contain; /* CAMBIO: contain en lugar de cover para no recortar */
     transition: all 0.3s ease;
+    /* NUEVO: Centrar la imagen */
+    display: block;
 }
 
-.no-image-placeholder {
-    width: 100%;
-    height: 100%;
-    background-color: #f8f9fa;
+/* IMPORTANTE: Mantener el comportamiento original para sidebar MINIMIZADA */
+.sidebar-mini .subtema-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover; /* Mantener cover para los círculos pequeños */
+    border-radius: 50%;
+    position: relative;
+    left: 0;
+    top: 0;
+    object-position: right center;
+}
+
+.sidebar-mini .subtema-image-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    /* MANTENER: Sin cambios para el modo minimizado */
+    display: block; /* Resetear flex para modo minimizado */
 }
 
 /* Estilos para el texto del subtema */
@@ -89,7 +116,6 @@
     margin: 0 auto;
     overflow: hidden;
     position: relative;
-    /*left: -1px; Pequeño ajuste para alinear con el diseño */
 }
 
 /* Ajuste para la imagen cuando el sidebar está colapsado */

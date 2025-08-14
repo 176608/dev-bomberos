@@ -189,7 +189,7 @@
     left: auto;
     color: #fff;
     background: rgba(0, 0, 0, 0);
-    padding: 0.25rem 0.4rem;
+    padding: 0.25rem 0.2rem;
     border-radius: 6px;
     transform: translateY(15px) translateX(15px);
     opacity: 0;
