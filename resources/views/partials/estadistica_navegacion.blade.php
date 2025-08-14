@@ -132,14 +132,14 @@
 .enlaceTema {
     border-radius: 16px;
     min-height: 110px;
-    display: flex;
-    align-items: stretch;
     transition: all 0.3s ease;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     position: relative;
     overflow: hidden;
     border: none;
-    margin-bottom: 1.5rem;
+    /* CAMBIO: Definir ancho específico con márgenes */
+    flex: 0 1 calc(33.333% - 1rem); /* 3 por fila con espacio */
+    margin: 0.5rem; /* Margen uniforme alrededor */
 }
 
 /* Fila del icono */
@@ -244,64 +244,30 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .enlaceTema {
-        min-height: 90px;
-        margin-bottom: 1rem;
-    }
-    
-    .row-icono i.bi,
-    .row-icono .svg-icon {
-        font-size: 1.6rem;
-    }
-    
-    .svg-icon {
-        color: black;
-        width: 1.6rem;
-        height: 1.6rem;
-    }
-    
-    .titulo-tema {
-        font-size: 0.85rem;
-    }
-    
-    .hover-content {
-        font-size: 0.65rem;
-    }
-    
-    .enlace-completo {
-        padding: 0.75rem 0.4rem !important;
-    }
-    
-    .row-hover {
-        bottom: 0.25rem;
-        right: 0.4rem;
-        padding: 0.2rem 0.35rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .row-icono i.bi,
-    .row-icono .svg-icon {
-        font-size: 1.4rem;
-    }
-    
-    .titulo-tema {
-        font-size: 0.8rem;
-    }
-    
-    .enlaceTema {
-        min-height: 80px;
-    }
-}
-
+/* Contenedor principal con espaciado */
 #temas-grid {
-    padding: 0 0.5rem; /* NUEVO: Padding al contenedor padre */
+    padding: 0.75rem;
+    gap: 1.5rem; /* NUEVO: Espacio entre elementos */
+    display: flex;
+    flex-wrap: wrap;
 }
 
-#temas-grid .enlaceTema {
-    margin-bottom: 1.5rem;
-    /* Sin márgenes laterales que causen overflow */
+/* Responsive ajustado */
+@media (max-width: 991px) {
+    .enlaceTema {
+        flex: 0 1 calc(50% - 1rem); /* 2 por fila en tablet */
+    }
+}
+
+@media (max-width: 767px) {
+    .enlaceTema {
+        flex: 0 1 calc(100% - 1rem); /* 1 por fila en móvil */
+        margin: 0.5rem 0; /* Solo margen vertical en móvil */
+    }
+    
+    #temas-grid {
+        padding: 0.5rem;
+        gap: 1rem;
+    }
 }
 </style>
