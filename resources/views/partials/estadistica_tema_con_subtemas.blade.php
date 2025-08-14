@@ -402,12 +402,13 @@ function renderizarCuadros(cuadros) {
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
                     <div class="col-12">
-                        <span class="fw-bold text-success">
-                            ${cuadro.codigo_cuadro || 'N/A'}
+                        <span class="mb-1 d-block text-dark">
+                            <span class="fw-bold text-success">
+                                ${cuadro.codigo_cuadro || 'N/A'}
+                            </span>
+                        ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
                         </span>
-                        <span class="mb-1 d-block text-dark">${cuadro.cuadro_estadistico_titulo || 'Sin título'}</span>
                         ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted d-block">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
-
                     </div>
                 </div>
             </a>
