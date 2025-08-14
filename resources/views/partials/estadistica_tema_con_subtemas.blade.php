@@ -293,14 +293,13 @@ function cargarSubtema(subtema_id) {
     
     // 1. PRIMERO actualizar el encabezado (para respuesta inmediata)
     const subtemaSeleccionado = event.currentTarget.querySelector('.subtema-texto h6')?.innerText || 'Subtema';
-    const temaSeleccionado = document.querySelector('#tema-selector option:checked')?.text || 'Tema';
+    //const temaSeleccionado = document.querySelector('#tema-selector option:checked')?.text || 'Tema';
     
     // Actualizar de forma preliminar mientras se carga la información completa
     const headerContainer = document.getElementById('subtema-header');
     if (headerContainer) {
         headerContainer.innerHTML = `
             <h5 class="mb-0">${subtemaSeleccionado}</h5>
-            <p class="text-muted small mb-0">${temaSeleccionado}</p>
         `;
     }
     
@@ -334,7 +333,7 @@ function cargarSubtema(subtema_id) {
         });
 }
 
-// Función para actualizar el encabezado del subtema
+// Función para actualizar el encabezado del subtema act15
 function actualizarEncabezadoSubtema(subtema_id) {
     // Obtener información del subtema seleccionado
     fetch('{{ url("/sigem/obtener-info-subtema") }}/' + subtema_id)
@@ -344,7 +343,7 @@ function actualizarEncabezadoSubtema(subtema_id) {
                 const headerContainer = document.getElementById('subtema-header');
                 headerContainer.innerHTML = `
                     <h5 class="mb-0">${data.subtema.subtema_titulo}</h5>
-                    <p class="text-muted small mb-0">${data.subtema.tema ? data.subtema.tema.tema_titulo : ''}</p>
+                    <p class="act15 text-muted small mb-0">${data.subtema.tema ? data.subtema.tema.tema_titulo : ''}</p>
                 `;
             }
         })
