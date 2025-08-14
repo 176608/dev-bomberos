@@ -46,12 +46,12 @@
                             @foreach($temas as $index => $tema)
                                 @php 
                                     $coloresEstilo = [
-                                        'background-color: #8FBC8F; color: black;',
-                                        'background-color: #87CEEB; color: black;',
-                                        'background-color: #DDA0DD; color: black;',
-                                        'background-color: #F0E68C; color: black;',
-                                        'background-color: #FFA07A; color: black;',
-                                        'background-color: #98FB98; color: black;'
+                                        'background-color: #8FBC8F; color: #3b3b3bff;',
+                                        'background-color: #87CEEB; color: #3b3b3bff;',
+                                        'background-color: #DDA0DD; color: #3b3b3bff;',
+                                        'background-color: #F0E68C; color: #3b3b3bff;',
+                                        'background-color: #FFA07A; color: #3b3b3bff;',
+                                        'background-color: #98FB98; color: #3b3b3bff;'
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
@@ -195,7 +195,7 @@
     right: 0.6rem;
     left: auto;
     color: #fff;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0);
     padding: 0.25rem 0.4rem;
     border-radius: 6px;
     transform: translateY(15px) translateX(15px);
@@ -226,7 +226,7 @@
 }
 
 .tema-card:hover .enlace-completo {
-    background-color: transparent !important;
+    background-color: #15412cff !important;
 }
 
 .tema-card:hover .row-hover {
