@@ -184,14 +184,14 @@
 /* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
-    bottom: 0.4rem;
+    bottom: 0.2rem;
     right: 0.6rem;
     left: auto;
     color: #fff;
     background: rgba(0, 0, 0, 0);
     padding: 0.25rem 0.2rem;
     border-radius: 6px;
-    transform: translateY(15px) translateX(15px);
+    transform: translateY(10px) translateX(10px);
     opacity: 0;
     transition: all 0.3s ease;
 }
