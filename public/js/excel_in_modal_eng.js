@@ -635,8 +635,8 @@ class ExcelModalEngine {
                     <h5 class="mb-0">
                         ${fileName || 'Archivo Excel'}
                     </h5>
-                    <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
-                        <i class="bi bi-download me-1"></i>Descargar
+                    <a href="#" class="btn btn-sm btn-outline-success">
+                        Graficar WIP
                     </a>
                 </div>
                 <div class="table-responsive excel-table-wrapper">

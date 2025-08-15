@@ -427,12 +427,8 @@ document.addEventListener('verCuadroEstadistico', function(event) {
 
 // FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
 function mostrarModalCuadro(cuadroId, codigo) {
-    //console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
-    
-    // Obtener información del cuadro
     fetch(`{{ url('/sigem/obtener-excel-cuadro') }}/${cuadroId}`)
         .then(response => {
-            //console.log('Status de respuesta:', response.status);
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
             }
@@ -448,7 +444,6 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const cuadro = data.cuadro;
             console.log('BLADE: Información del cuadro:', cuadro);
             
-            // Verificar si tiene archivo Excel y si existe físicamente
             const tieneExcel = data.tiene_excel && data.archivo_existe;
             const excelUrl = data.excel_url;
             
