@@ -92,6 +92,10 @@
     filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4)) brightness(1.1);
 }
 
+.module-image-wrapper:hover .module-overlay {
+    opacity: 1;
+}
+
 .module-overlay i {
     transform: scale(0.8);
     transition: all 0.3s ease;
@@ -143,7 +147,7 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* === RESPONSIVE AJUSTADO === */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
     .module-image-container {
         height: 140px; /* Altura reducida pero uniforme en tablet */
@@ -282,7 +286,7 @@
                         </div>
                         <!-- Descripción -->
                         <p class="text-muted mb-3">
-                            Explora nuestro catálogo completo de cuadros estadísticos organizados por temas y subtemas con sistema de navegación intuitivo.
+                            Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva.
                         </p>
                         <!-- Botón -->
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=catalogo') }}'">
