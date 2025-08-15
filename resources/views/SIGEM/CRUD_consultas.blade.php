@@ -6,10 +6,33 @@
                 <h5 class="mb-0"><i class="bi bi-search"></i> Panel CRUD de Consultas Express</h5>
             </div>
             <div class="card-body">
-                <p class="mb-0">Administra el sistema de Consultas Express de SIGEM. Gestiona temas, subtemas y contenidos de manera jerárquica.</p>
-                <small class="text-muted">
-                    Tablas: <code>consulta_express_tema</code>, <code>consulta_express_subtema</code>, <code>consulta_express_contenido</code>
-                </small>
+                <!-- Mensajes de éxito, error y validación -->
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        <strong>Errores de validación:</strong>
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -296,34 +319,6 @@
 </div>
 
 <!-- ========================================== MODALES ========================================== -->
-
-<!-- Mensajes de éxito, error y validación -->
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle"></i> 
-        <strong>Errores de validación:</strong>
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 
 <!-- Modal Agregar Tema CE -->
 <div class="modal fade" id="modalAgregarTema" tabindex="-1">
