@@ -26,7 +26,7 @@ class ExcelModalEngine {
             script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
             script.onload = () => {
                 this.sheetJSLoaded = true;
-                console.log('SheetJS cargado correctamente');
+                //console.log('SheetJS cargado correctamente');
                 resolve();
             };
             script.onerror = () => {
@@ -111,11 +111,11 @@ class ExcelModalEngine {
         
         // 1. PRIMERO: Determinar el rango útil (eliminar filas/columnas completamente vacías)
         const usefulRange = this.calculateUsefulRange(worksheet, range);
-        console.log('Rango útil calculado:', usefulRange);
+        //console.log('Rango útil calculado:', usefulRange);
         
         // 2. SEGUNDO: Calcular anchos de columnas basado en contenido
         const columnWidths = this.calculateColumnWidths(worksheet, usefulRange, workbook);
-        console.log('Anchos de columnas calculados:', columnWidths);
+        //console.log('Anchos de columnas calculados:', columnWidths);
         
         // Mapear celdas combinadas
         const mergedCellsMap = this.createMergedCellsMap(mergedCells);
@@ -599,7 +599,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Obtener clases CSS para una fila (MEJORADO)
+     * Obtener clases CSS para una fila
      */
     getRowClasses(rowIndex, lastRowIndex) {
         // Solo la primera fila es header
@@ -914,7 +914,7 @@ window.ExcelModalEngine = new ExcelModalEngine();
 
 // Función para mostrar modal con Excel (compatibilidad con código existente)
 function mostrarModalCuadroSimple(cuadroId, codigo) {
-    console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
+    console.log(`JS: Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
     
     // Obtener información del cuadro
     fetch(`/sigem/obtener-excel-cuadro/${cuadroId}`)
@@ -930,7 +930,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             }
             
             const cuadro = data.cuadro;
-            console.log('Información del cuadro:', cuadro);
+            console.log('JS: Información del cuadro:', cuadro);
             
             // Verificar si tiene archivo Excel y si existe físicamente
             const tieneExcel = data.tiene_excel && data.archivo_existe;
@@ -940,11 +940,10 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl bb">
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    <i class="bi bi-file-earmark-excel me-2"></i>
                                     ${cuadro.codigo_cuadro} - ${cuadro.cuadro_estadistico_titulo}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>

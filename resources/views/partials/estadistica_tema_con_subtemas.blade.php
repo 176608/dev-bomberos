@@ -273,7 +273,7 @@ function cambiarTema(tema_id) {
 
 // Función para cargar un subtema específico
 function cargarSubtema(subtema_id) {
-    console.log('Cargando subtema ID:', subtema_id);
+    //console.log('BLADE: Cargando subtema ID:', subtema_id);
     
     // Mostrar indicador de carga
     document.getElementById('cuadros-container-estadistica').innerHTML = `
@@ -439,14 +439,14 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             return response.json();
         })
         .then(data => {
-            console.log('Datos recibidos del servidor:', data);
+            console.log('BLADE: Datos recibidos del servidor:', data);
             
             if (!data.success) {
                 throw new Error(data.message || 'Error al obtener información del cuadro');
             }
             
             const cuadro = data.cuadro;
-            console.log('Información del cuadro:', cuadro);
+            console.log('BLADE: Información del cuadro:', cuadro);
             
             // Verificar si tiene archivo Excel y si existe físicamente
             const tieneExcel = data.tiene_excel && data.archivo_existe;
@@ -457,7 +457,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl aa">
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
@@ -533,7 +533,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
 
 // Función SIMPLIFICADA para cargar y mostrar Excel usando el motor
 function cargarExcelEnModal(modalId, excelUrl, fileName) {
-    console.log(`Cargando Excel desde: ${excelUrl}`);
+    console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
     // Usar el motor de Excel para renderizar
