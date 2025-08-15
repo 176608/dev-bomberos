@@ -99,14 +99,15 @@ class LoginController extends Controller
         ]);
     }
 
+    //funcion redirije basado en Rol
     protected function redirectBasedOnRole()
     {
         $user = Auth::user();
         
         if ($user->role === 'Administrador') {
-            return redirect()->route('admin.panel');
+            return redirect()->route('sigem.admin.index');
         } elseif ($user->role === 'Desarrollador') {
-            return redirect()->route('dev.panel');
+            return redirect()->route('admin.panel');
         } elseif ($user->role === 'Capturista') {
             return redirect()->route('capturista.panel');
         }
