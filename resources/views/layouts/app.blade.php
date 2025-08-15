@@ -126,19 +126,18 @@
 
     .bg-fonde {
         background-image: url('{{ asset('imagenes/fondo.png') }}');
-        background-size: auto;
+        background-size: cover;
         background-position: center;
         background-repeat: repeat-y;
     }
 
     .bg-fonde::before {
     content: "";
-    position: absolute;
+    /*position: absolute;*/
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
     z-index: -1;
 }
 

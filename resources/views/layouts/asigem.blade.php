@@ -232,7 +232,8 @@ animation: fadeInUp 0.4s ease-out;
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
-    <div class="container-fluid pb-4 bg-fonde" >
+    <div class="container-fluid pb-4 bg-fonde img-fluid" >
+
         <div class="header-logos container-fluid">
             <div class="logo-section">
                 <img src="{{ $img1 }}" alt="JRZ Logo">
