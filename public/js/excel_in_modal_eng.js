@@ -633,7 +633,6 @@ class ExcelModalEngine {
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
-                        <i class="bi bi-file-earmark-excel me-2"></i>
                         ${fileName || 'Archivo Excel'}
                     </h5>
                     <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
@@ -913,7 +912,8 @@ class ExcelModalEngine {
 window.ExcelModalEngine = new ExcelModalEngine();
 
 // Función para mostrar modal con Excel (compatibilidad con código existente)
-function mostrarModalCuadroSimple(cuadroId, codigo) {
+
+function mostrarModalCuadro(cuadroId, codigo) {
     console.log(`JS: Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
     
     // Obtener información del cuadro
