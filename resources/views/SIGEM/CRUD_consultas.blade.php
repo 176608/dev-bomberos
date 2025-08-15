@@ -768,9 +768,6 @@ function editarTemaCE(id, nombre) {
     const form = document.getElementById('formEditarTema');
     form.action = routesConsultas.temaUpdate.replace(':id', id);
     
-    // NUEVO: Agregar campo hidden para mantener tab
-    agregarCampoTab(form, 'nav-temas');
-    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarTema')).show();
 }
@@ -796,9 +793,6 @@ function eliminarTemaCE(id, nombre) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
-        
-        // NUEVO: Agregar campo para mantener tab
-        agregarCampoTab(form, 'nav-temas');
         
         // Enviar formulario
         document.body.appendChild(form);
@@ -834,9 +828,6 @@ function editarSubtemaCE(id) {
     const form = document.getElementById('formEditarSubtema');
     form.action = routesConsultas.subtemaUpdate.replace(':id', id);
     
-    // NUEVO: Agregar campo hidden para mantener tab
-    agregarCampoTab(form, 'nav-subtemas');
-    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarSubtema')).show();
 }
@@ -862,9 +853,6 @@ function eliminarSubtemaCE(id, nombre) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
-        
-        // NUEVO: Agregar campo para mantener tab
-        agregarCampoTab(form, 'nav-subtemas');
         
         // Enviar formulario
         document.body.appendChild(form);
@@ -914,9 +902,6 @@ function eliminarContenidoCE(id) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
-        
-        // NUEVO: Agregar campo para mantener tab
-        agregarCampoTab(form, 'nav-contenidos');
         
         // Enviar formulario
         document.body.appendChild(form);
