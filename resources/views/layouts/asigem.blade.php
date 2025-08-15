@@ -1,6 +1,6 @@
 <!-- Archivo A SIGEM-->
 @extends('layouts.app')
-@section('title', 'SIGEM - Sistema de Información Geográfica')
+@section('title', 'SIGEM')
 
 @section('content')
     <style>

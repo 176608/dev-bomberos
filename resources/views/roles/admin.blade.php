@@ -1,7 +1,7 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
-@section('title', 'Panel de Administrador')
+@section('title', 'Usuarios de modulo auxiliar')
 
 @section('content')
 <div class="card py-4">

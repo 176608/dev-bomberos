@@ -1,7 +1,7 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
-@section('title', 'Bomberos')
+@section('title', 'Sistema de gestión de hidrantes')
 
 @section('content')
 <style>
