@@ -768,6 +768,9 @@ function editarTemaCE(id, nombre) {
     const form = document.getElementById('formEditarTema');
     form.action = routesConsultas.temaUpdate.replace(':id', id);
     
+    // NUEVO: Agregar campo hidden para mantener tab
+    agregarCampoTab(form, 'nav-temas');
+    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarTema')).show();
 }
@@ -793,6 +796,9 @@ function eliminarTemaCE(id, nombre) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
+        
+        // NUEVO: Agregar campo para mantener tab
+        agregarCampoTab(form, 'nav-temas');
         
         // Enviar formulario
         document.body.appendChild(form);
@@ -828,6 +834,9 @@ function editarSubtemaCE(id) {
     const form = document.getElementById('formEditarSubtema');
     form.action = routesConsultas.subtemaUpdate.replace(':id', id);
     
+    // NUEVO: Agregar campo hidden para mantener tab
+    agregarCampoTab(form, 'nav-subtemas');
+    
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarSubtema')).show();
 }
@@ -853,6 +862,9 @@ function eliminarSubtemaCE(id, nombre) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
+        
+        // NUEVO: Agregar campo para mantener tab
+        agregarCampoTab(form, 'nav-subtemas');
         
         // Enviar formulario
         document.body.appendChild(form);
@@ -902,6 +914,9 @@ function eliminarContenidoCE(id) {
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
+        
+        // NUEVO: Agregar campo para mantener tab
+        agregarCampoTab(form, 'nav-contenidos');
         
         // Enviar formulario
         document.body.appendChild(form);
@@ -1332,6 +1347,26 @@ document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.mod
     document.getElementById('edit_tabla-editor').style.display = 'none';
     document.getElementById('edit_btn-guardar-tabla').disabled = true;
     document.getElementById('edit_preview-dimensiones').textContent = 'Tabla cargada';
+});
+
+// Versión simplificada que solo usa localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const tabActivo = localStorage.getItem('consultas_tab_activo') || 'nav-temas';
+    
+    // Restaurar tab
+    const tabBtn = document.querySelector(`#${tabActivo}-tab`);
+    if (tabBtn) {
+        const tab = new bootstrap.Tab(tabBtn);
+        tab.show();
+    }
+    
+    // Guardar cuando cambie
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
+            localStorage.setItem('consultas_tab_activo', tabId);
+        });
+    });
 });
 </script>
 
