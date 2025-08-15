@@ -126,9 +126,9 @@
 
     .bg-fonde {
         background-image: url('{{ asset('imagenes/fondo.png') }}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: repeat-y;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
     }
 
     .bg-fonde::before {
