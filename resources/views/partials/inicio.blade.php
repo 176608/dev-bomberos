@@ -331,7 +331,7 @@
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-geo-alt-fill me-2"></i>Cartografía
+                            <i class="bi bi-map-fill"></i>Cartografía
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">

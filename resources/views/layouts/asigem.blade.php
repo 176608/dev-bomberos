@@ -1,4 +1,4 @@
-<!-- Archivo SIGEM P-->
+<!-- Archivo A SIGEM-->
 @extends('layouts.app')
 @section('title', 'SIGEM - Sistema de Información Geográfica')
 
@@ -344,12 +344,10 @@ animation: fadeInUp 0.4s ease-out;
                 currentSection = 'catalogo';
             }
             
-            // Aplicar clase active al elemento correcto
             document.querySelectorAll('.sigem-nav-link').forEach(link => {
-                // Quitar todas las clases active
+
                 link.classList.remove('active');
                 
-                // Detectar qué sección corresponde a cada enlace
                 if (link.textContent.trim().includes('INICIO') && currentSection === 'inicio') {
                     link.classList.add('active');
                 } else if (link.textContent.trim().includes('CATÁLOGO') && currentSection === 'catalogo') {
