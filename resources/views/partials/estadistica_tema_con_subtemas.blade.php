@@ -422,7 +422,6 @@ function renderizarCuadros(cuadros) {
 // Escuchar el evento personalizado desde sigem.js
 document.addEventListener('verCuadroEstadistico', function(event) {
     const { cuadroId, codigo } = event.detail;
-    console.log(`Blade: Recibiendo evento para mostrar cuadro: ID=${cuadroId}, Código=${codigo}`);
     mostrarModalCuadroSimple(cuadroId, codigo);
 });
 
@@ -458,7 +457,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-fullscreen">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
