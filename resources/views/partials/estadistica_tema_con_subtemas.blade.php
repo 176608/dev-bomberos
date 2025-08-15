@@ -427,12 +427,12 @@ document.addEventListener('verCuadroEstadistico', function(event) {
 
 // FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
 function mostrarModalCuadroSimple(cuadroId, codigo) {
-    console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
+    //console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
     
     // Obtener información del cuadro
     fetch(`{{ url('/sigem/obtener-excel-cuadro') }}/${cuadroId}`)
         .then(response => {
-            console.log('Status de respuesta:', response.status);
+            //console.log('Status de respuesta:', response.status);
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
             }
@@ -461,8 +461,7 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    <i class="bi bi-file-earmark-excel me-2"></i>
-                                    ${cuadro.titulo || 'Sin título'}
+                                    ${cuadro.titulo || 'Sin título'} <small class="text-muted">${cuadro.subtitulo || ''}</small>
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
@@ -473,6 +472,16 @@ function mostrarModalCuadroSimple(cuadroId, codigo) {
                                             <span class="visually-hidden">Cargando...</span>
                                         </div>
                                         <p class="mt-3">Cargando archivo Excel...</p>
+                                    </div>
+                                </div>
+                                <div id="excel-info-${modalId}" class="p-3">
+                                    <div class="text-center py-5">
+                                        Datos del cuadro estadistico:
+                                        <ul>
+                                            <li><strong>tipo_graficas:</strong> ${cuadro.tipo_graficas}</li>
+                                            <li><strong>permite_grafica:</strong> ${cuadro.permite_grafica}</li>
+                                            <li><strong>pie_pagina:</strong> ${cuadro.pie_pagina}</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

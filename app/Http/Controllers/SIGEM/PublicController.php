@@ -675,7 +675,11 @@ class PublicController extends Controller
                 'cuadro' => [
                     'id' => $cuadro->cuadro_estadistico_id,
                     'codigo' => $cuadro->codigo_cuadro,
-                    'titulo' => $cuadro->cuadro_estadistico_titulo
+                    'titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
+                    'pie_pagina' => $cuadro->pie_pagina,
+                    'permite_grafica' => $cuadro->permite_grafica,
+                    'tipo_graficas' => $cuadro->tipo_grafica_permitida
                 ],
                 'nombre_archivo' => $nombreArchivo,
                 'tiene_excel' => $tieneExcel,
