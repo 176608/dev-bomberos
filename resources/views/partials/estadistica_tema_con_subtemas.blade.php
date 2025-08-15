@@ -422,12 +422,11 @@ function renderizarCuadros(cuadros) {
 // Escuchar el evento personalizado desde sigem.js
 document.addEventListener('verCuadroEstadistico', function(event) {
     const { cuadroId, codigo } = event.detail;
-    //mostrarModalCuadroSimple(cuadroId, codigo);
     mostrarModalCuadro(cuadroId, codigo);
 });
 
 // FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
-function mostrarModalCuadroSimple(cuadroId, codigo) {
+function mostrarModalCuadro(cuadroId, codigo) {
     //console.log(`Mostrando modal para cuadro ID=${cuadroId}, Código=${codigo}`);
     
     // Obtener información del cuadro
