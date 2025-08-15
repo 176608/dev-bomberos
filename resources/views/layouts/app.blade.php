@@ -128,7 +128,7 @@
         background-image: url('{{ asset('imagenes/fondo.png') }}');
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
+        background-repeat: repeat-y;
     }
 
     .bg-fonde::before {
@@ -138,7 +138,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Overlay negro con 50% de opacidad */
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: -1;
 }
 

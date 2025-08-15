@@ -2,7 +2,6 @@
 <div class="modal fade" id="consultaExpressModal" tabindex="-1" aria-labelledby="consultaExpressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <!-- Header del Modal -->
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="consultaExpressModalLabel">
                     <i class="bi bi-search me-2"></i>Consulta Express
@@ -10,23 +9,15 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <!-- Cuerpo del Modal -->
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <!-- Columna de imagen - Ahora 2 columnas 
-                        <div class="col-md-2 text-center mb-3 mb-md-0">
-                            <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow-sm" style="max-height: 220px;">
-                        </div>-->
-                        
-                        <!-- Columna de selectores - Ahora 4 columnas -->
                         <div class="col-md-5">
                             @php
                                 use App\Models\SIGEM\ce_tema;
                                 $temas = ce_tema::orderBy('tema', 'asc')->get();
                             @endphp
                             
-                            <!-- Formulario para selección en modal -->
                             <div id="ce_form_modal">
                                 <div class="form-group mb-3">
                                     <label for="ce_tema_select_modal" class="form-label fw-semibold">
@@ -52,8 +43,8 @@
                                 </div>
                                 
                                 <div class="mt-4">
-                                    <div class="alert alert-info alert-sm">
-                                        <i class="bi bi-info-circle me-2"></i>
+                                    <div class="alert alert-success alert-sm">
+                                        <i class="bi bi-journal-text me-2"></i>
                                         <strong>Consulta Express</strong><br>
                                         <small>Sistema de consulta rápida de información estadística municipal organizada por temas y subtemas.</small>
                                     </div>
@@ -61,7 +52,6 @@
                             </div>
                         </div>
                         
-                        <!-- Columna de contenido - Se mantiene en 6 columnas -->
                         <div class="col-md-7">
                             <div id="ce_contenido_container_modal" class="border rounded p-3 bg-light" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
                                 <div class="text-center text-muted py-5" id="ce_estado_inicial">
@@ -83,7 +73,7 @@
                 <div class="me-auto">
                     <small class="text-muted">
                         <i class="bi bi-info-circle me-1"></i>
-                        Sistema Integral de Gestión de Estadísticas Municipales
+                        Sistema de Información Geográfica y Estadística Municipal
                     </small>
                 </div>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
