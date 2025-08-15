@@ -1,1 +1,0 @@
-Esta es la vista por defecto en autentificacion satisfactoria con usuario administrador
