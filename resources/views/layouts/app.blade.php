@@ -202,7 +202,8 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('sigem.index') || request()->routeIs('sigem.estadistica-por-tema') ? 'active' : '' }}" 
+                            <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'sigem.') && 
+                                                   !str_starts_with(request()->route()->getName(), 'sigem.admin.') ? 'active' : '' }}" 
                                href="{{ route('sigem.index') }}" title="Panel de consulta público de SIGEM">
                                 <i class="bi bi-binoculars-fill"></i> SIGEM
                             </a>
