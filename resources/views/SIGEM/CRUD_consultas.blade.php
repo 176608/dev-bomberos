@@ -80,7 +80,7 @@
             <div class="card-body">
                 @if(isset($ce_temas) && count($ce_temas) > 0)
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table id="tablaTemasCE" class="table table-striped table-hover">
                             <thead class="table-primary">
                                 <tr>
                                     <th>ID</th>
@@ -94,7 +94,7 @@
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $tema->ce_tema_id }}</span></td>
                                     <td><strong>{{ $tema->tema }}</strong></td>
-                                    <td>
+                                    <td data-order="{{ $tema->subtemas()->count() }}">
                                         @php
                                             $subtemas_count = $tema->subtemas()->count();
                                         @endphp
@@ -152,7 +152,7 @@
             <div class="card-body">
                 @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table id="tablaSubtemasCE" class="table table-striped table-hover">
                             <thead class="table-success">
                                 <tr>
                                     <th>ID</th>
@@ -174,7 +174,7 @@
                                             <span class="text-danger">Sin tema padre</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $subtema->contenidos()->count() }}">
                                         @php
                                             $contenidos_count = $subtema->contenidos()->count();
                                         @endphp
@@ -232,7 +232,7 @@
             <div class="card-body">
                 @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm">
+                        <table id="tablaContenidosCE" class="table table-striped table-hover table-sm">
                             <thead class="table-warning">
                                 <tr>
                                     <th>ID</th>
@@ -256,9 +256,9 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $contenido->tabla_filas * $contenido->tabla_columnas }}">
                                         <span class="badge bg-info">
-                                            {{ $contenido->tabla_filas }}x{{ $contenido->tabla_columnas }}
+                                            {{ $contenido->tabla_filas }}×{{ $contenido->tabla_columnas }}
                                         </span>
                                         <br><small class="text-muted">{{ $contenido->tabla_filas * $contenido->tabla_columnas }} celdas</small>
                                     </td>
@@ -276,7 +276,7 @@
                                             <span class="text-danger">Sin subtema</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $contenido->created_at ? $contenido->created_at->timestamp : 0 }}">
                                         @if($contenido->created_at)
                                             <small>{{ $contenido->created_at->format('d/m/Y H:i') }}</small>
                                         @else
@@ -738,6 +738,184 @@
 
 <!-- JavaScript actualizado -->
 <script>
+// Inicializar DataTables
+$(document).ready(function() {
+    // Configuración común de idioma para todas las tablas
+    const dataTablesLanguage = {
+        "sProcessing": "Procesando...",
+        "sLengthMenu": "Mostrar _MENU_ registros",
+        "sZeroRecords": "No se encontraron resultados",
+        "sEmptyTable": "Ningún dato disponible en esta tabla",
+        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "sInfoPostFix": "",
+        "sSearch": "Buscar:",
+        "sUrl": "",
+        "sInfoThousands": ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Último",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        }
+    };
+
+    // DataTable para Temas CE
+    @if(isset($ce_temas) && count($ce_temas) > 0)
+    $('#tablaTemasCE').DataTable({
+        responsive: true,
+        language: dataTablesLanguage,
+        columnDefs: [
+            {
+                targets: 0, // ID
+                width: "10%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Tema
+                width: "50%"
+            },
+            {
+                targets: 2, // Subtemas
+                width: "20%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 3, // Acciones
+                width: "20%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[1, 'asc']], // Ordenar por tema por defecto
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+
+    // DataTable para Subtemas CE
+    @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
+    $('#tablaSubtemasCE').DataTable({
+        responsive: true,
+        language: dataTablesLanguage,
+        columnDefs: [
+            {
+                targets: 0, // ID
+                width: "8%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Subtema
+                width: "35%"
+            },
+            {
+                targets: 2, // Tema Padre
+                width: "25%"
+            },
+            {
+                targets: 3, // Contenidos
+                width: "15%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 4, // Acciones
+                width: "17%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[2, 'asc'], [1, 'asc']], // Ordenar por tema padre y luego por subtema
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+
+    // DataTable para Contenidos CE
+    @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
+    $('#tablaContenidosCE').DataTable({
+        responsive: true,
+        language: dataTablesLanguage,
+        columnDefs: [
+            {
+                targets: 0, // ID
+                width: "6%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Tabla
+                width: "25%"
+            },
+            {
+                targets: 2, // Dimensiones
+                width: "12%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 3, // Tema
+                width: "15%"
+            },
+            {
+                targets: 4, // Subtema
+                width: "15%"
+            },
+            {
+                targets: 5, // Fecha
+                width: "12%",
+                className: "text-center",
+                type: "date"
+            },
+            {
+                targets: 6, // Acciones
+                width: "15%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[5, 'desc']], // Ordenar por fecha más reciente por defecto
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+
+    // Reinicializar DataTables cuando se cambia de tab
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        // Pequeño delay para asegurar que el contenido esté visible
+        setTimeout(function() {
+            $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+        }, 100);
+    });
+});
+
 // Datos para filtrado
 const ceSubtemasData = @json($ce_subtemas ?? []);
 
@@ -768,7 +946,7 @@ function editarTemaCE(id, nombre) {
 }
 
 function eliminarTemaCE(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el tema CE "' + nombre + '"?\n\n ADVERTENCIA: Esto también eliminará todos los subtemas y contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+    if (confirm('¿Estás seguro de eliminar el tema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los subtemas y contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -828,7 +1006,7 @@ function editarSubtemaCE(id) {
 }
 
 function eliminarSubtemaCE(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
+    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -867,8 +1045,55 @@ function verContenidoCE(id) {
 }
 
 function editarContenidoCE(id) {
-    // Implementar edición de contenido
-    alert('Editar contenido CE ID: ' + id + '\n(Funcionalidad pendiente - requiere cargar contenido HTML completo)');
+    // Mostrar loading en el modal de edición
+    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarContenido'));
+    modalEditar.show();
+    
+    // Cargar datos existentes
+    fetch(`{{ url('/sigem/admin/consultas/contenido') }}/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+                modalEditar.hide();
+                return;
+            }
+            
+            const contenido = data.contenido;
+            
+            // Llenar formulario de edición
+            document.getElementById('edit_contenido_id').value = contenido.ce_contenido_id;
+            document.getElementById('edit_titulo_tabla').value = contenido.titulo_tabla || '';
+            document.getElementById('edit_pie_tabla').value = contenido.pie_tabla || '';
+            document.getElementById('edit_tabla_filas').value = contenido.tabla_filas;
+            document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
+            
+            // Seleccionar tema
+            const temaSelect = document.getElementById('edit_ce_tema_select');
+            if (contenido.subtema && contenido.subtema.tema) {
+                temaSelect.value = contenido.subtema.tema.ce_tema_id;
+                
+                // Cargar subtemas del tema seleccionado
+                filtrarSubtemasCE(temaSelect, document.getElementById('edit_ce_subtema_id'));
+                
+                // Dar tiempo para que se carguen los subtemas y luego seleccionar
+                setTimeout(() => {
+                    document.getElementById('edit_ce_subtema_id').value = contenido.ce_subtema_id;
+                }, 100);
+            }
+            
+            // Generar tabla con datos existentes
+            generarTablaEdicion(contenido.tabla_filas, contenido.tabla_columnas, contenido.tabla_datos);
+            
+            // Actualizar la acción del formulario
+            const form = document.getElementById('formEditarContenido');
+            form.action = routesConsultas.contenidoUpdate.replace(':id', id);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos del contenido');
+            modalEditar.hide();
+        });
 }
 
 function eliminarContenidoCE(id) {
@@ -877,7 +1102,7 @@ function eliminarContenidoCE(id) {
     const titulo = fila.cells[1].querySelector('strong').textContent;
     const dimensiones = fila.cells[2].querySelector('.badge').textContent;
     
-    if (confirm(`¿Estás seguro de eliminar la tabla "${titulo}" (${dimensiones})?\n\n Esta acción no se puede deshacer.`)) {
+    if (confirm(`¿Estás seguro de eliminar la tabla "${titulo}" (${dimensiones})?\n\n⚠️ Esta acción no se puede deshacer.`)) {
         // Crear formulario temporal para envío DELETE
         const form = document.createElement('form');
         form.method = 'POST';
@@ -920,7 +1145,7 @@ function generarTabla() {
     document.getElementById('preview-dimensiones').textContent = `Tabla de ${filas}x${columnas} (${totalCeldas} celdas total)`;
     
     // Generar campos de entrada
-    let html = '<div class="table-responsive"><table class="table table-bordered table-sm>';
+    let html = '<div class="table-responsive"><table class="table table-bordered table-sm">';
     
     for (let fila = 0; fila < filas; fila++) {
         html += '<tr>';
@@ -1232,21 +1457,6 @@ function filtrarSubtemasCE(temaSelect, subtemaSelect) {
             option.textContent = subtema.ce_subtema;
             subtemaSelect.appendChild(option);
         });
-        
-        // Alternativamente, usar AJAX si se necesita datos frescos
-        /*
-        fetch(`${routesConsultas.subtemasAjax}/${temaId}`)
-            .then(response => response.json())
-            .then(data => {
-                data.subtemas.forEach(subtema => {
-                    const option = document.createElement('option');
-                    option.value = subtema.ce_subtema_id;
-                    option.textContent = subtema.ce_subtema;
-                    subtemaSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-        */
     }
 }
 
@@ -1314,11 +1524,6 @@ function regenerarTablaEdicion() {
         generarTablaEdicion(filas, columnas);
     }
 }
-
-// Event listener para filtrado de subtemas en edición
-document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
-    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
-});
 
 // Limpiar modal de edición al cerrar
 document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.modal', function() {

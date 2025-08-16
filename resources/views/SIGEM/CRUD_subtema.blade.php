@@ -57,7 +57,7 @@
             <div class="card-body">
                 @if(isset($subtemas) && count($subtemas) > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table id="tablaSubtemas" class="table table-striped table-hover">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -95,7 +95,7 @@
                                             <i class="bi bi-image text-muted"></i>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $subtema->orden_indice ?? 0 }}">
                                         <span class="badge bg-info">{{ $subtema->orden_indice ?? 0 }}</span>
                                     </td>
                                     <td>
@@ -330,6 +330,94 @@
 
 <!-- JavaScript actualizado -->
 <script>
+// Inicializar DataTables
+$(document).ready(function() {
+    @if(isset($subtemas) && count($subtemas) > 0)
+    $('#tablaSubtemas').DataTable({
+        responsive: true,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        columnDefs: [
+            {
+                targets: 0, // Columna ID
+                width: "6%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Columna Título Subtema
+                width: "25%"
+            },
+            {
+                targets: 2, // Columna Tema Padre
+                width: "15%"
+            },
+            {
+                targets: 3, // Columna Imagen
+                width: "8%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            },
+            {
+                targets: 4, // Columna Orden
+                width: "8%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 5, // Columna Clave Subtema
+                width: "12%",
+                className: "text-center"
+            },
+            {
+                targets: 6, // Columna Clave Efectiva
+                width: "12%",
+                className: "text-center"
+            },
+            {
+                targets: 7, // Columna Acciones
+                width: "120px",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[2, 'asc'], [4, 'asc']], // Ordenar por tema padre y luego por orden
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            // Reinicializar tooltips de Bootstrap después de cada redibujado
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+});
+
 // Definir rutas para usar en JavaScript
 const routesSubtemas = {
     update: '{{ route("sigem.admin.subtemas.actualizar", ":id") }}',

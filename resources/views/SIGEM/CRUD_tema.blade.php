@@ -410,7 +410,6 @@ function eliminarTema(id, titulo) {
         csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         form.appendChild(csrfToken);
         
-        // Method spoofing para DELETE
         const methodField = document.createElement('input');
         methodField.type = 'hidden';
         methodField.name = '_method';

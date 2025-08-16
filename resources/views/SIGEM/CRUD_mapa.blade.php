@@ -58,7 +58,7 @@
             <div class="card-body">
                 @if(isset($mapas) && count($mapas) > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table id="tablaMapas" class="table table-striped table-hover">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -295,6 +295,94 @@
 
 <!-- JavaScript para acciones CRUD -->
 <script>
+// Inicializar DataTables
+$(document).ready(function() {
+    @if(isset($mapas) && count($mapas) > 0)
+    $('#tablaMapas').DataTable({
+        responsive: true,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        columnDefs: [
+            {
+                targets: 0, // Columna ID
+                width: "6%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Columna Nombre Sección
+                width: "15%"
+            },
+            {
+                targets: 2, // Columna Nombre Mapa
+                width: "20%"
+            },
+            {
+                targets: 3, // Columna Descripción
+                width: "25%"
+            },
+            {
+                targets: 4, // Columna Enlace
+                width: "8%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            },
+            {
+                targets: 5, // Columna Icono
+                width: "6%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            },
+            {
+                targets: 6, // Columna Código
+                width: "10%",
+                className: "text-center"
+            },
+            {
+                targets: 7, // Columna Acciones
+                width: "10%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            // Reinicializar tooltips de Bootstrap después de cada redibujado
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+});
+
 // Definir rutas para usar en JavaScript
 const routes = {
     update: '{{ route("sigem.admin.mapas.actualizar", ":id") }}',
