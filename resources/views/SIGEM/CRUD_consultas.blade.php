@@ -1584,6 +1584,152 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
+/* ===== NUEVO: Anchos consistentes para todas las tablas ===== */
+
+/* Tabla de Temas CE */
+#tablaTemasCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaTemasCE th:nth-child(1), 
+#tablaTemasCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaTemasCE th:nth-child(2), 
+#tablaTemasCE td:nth-child(2) { 
+    width: calc(100% - 280px); /* Tema - flexible */
+    min-width: 200px;
+}
+
+#tablaTemasCE th:nth-child(3), 
+#tablaTemasCE td:nth-child(3) { 
+    width: 120px; /* Subtemas */
+    min-width: 120px;
+}
+
+#tablaTemasCE th:nth-child(4), 
+#tablaTemasCE td:nth-child(4) { 
+    width: 120px; /* Acciones */
+    min-width: 120px;
+}
+
+/* Tabla de Subtemas CE */
+#tablaSubtemasCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaSubtemasCE th:nth-child(1), 
+#tablaSubtemasCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaSubtemasCE th:nth-child(2), 
+#tablaSubtemasCE td:nth-child(2) { 
+    width: calc(35% - 40px); /* Subtema */
+    min-width: 150px;
+}
+
+#tablaSubtemasCE th:nth-child(3), 
+#tablaSubtemasCE td:nth-child(3) { 
+    width: calc(35% - 40px); /* Tema Padre */
+    min-width: 150px;
+}
+
+#tablaSubtemasCE th:nth-child(4), 
+#tablaSubtemasCE td:nth-child(4) { 
+    width: 120px; /* Contenidos */
+    min-width: 120px;
+}
+
+#tablaSubtemasCE th:nth-child(5), 
+#tablaSubtemasCE td:nth-child(5) { 
+    width: 120px; /* Acciones */
+    min-width: 120px;
+}
+
+/* Tabla de Contenidos CE */
+#tablaContenidosCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaContenidosCE th:nth-child(1), 
+#tablaContenidosCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaContenidosCE th:nth-child(2), 
+#tablaContenidosCE td:nth-child(2) { 
+    width: calc(30% - 27px); /* Tabla */
+    min-width: 200px;
+}
+
+#tablaContenidosCE th:nth-child(3), 
+#tablaContenidosCE td:nth-child(3) { 
+    width: 100px; /* Dimensiones */
+    min-width: 100px;
+}
+
+#tablaContenidosCE th:nth-child(4), 
+#tablaContenidosCE td:nth-child(4) { 
+    width: calc(20% - 27px); /* Tema */
+    min-width: 120px;
+}
+
+#tablaContenidosCE th:nth-child(5), 
+#tablaContenidosCE td:nth-child(5) { 
+    width: calc(20% - 27px); /* Subtema */
+    min-width: 120px;
+}
+
+#tablaContenidosCE th:nth-child(6), 
+#tablaContenidosCE td:nth-child(6) { 
+    width: 110px; /* Fecha */
+    min-width: 110px;
+}
+
+#tablaContenidosCE th:nth-child(7), 
+#tablaContenidosCE td:nth-child(7) { 
+    
+    width: 140px; /* Acciones */
+    min-width: 140px;
+}
+
+/* Prevenir overflow de texto largo */
+.table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Permitir wrap solo en columnas de contenido principal */
+#tablaTemasCE td:nth-child(2),
+#tablaSubtemasCE td:nth-child(2),
+#tablaSubtemasCE td:nth-child(3),
+#tablaContenidosCE td:nth-child(2) {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Responsive: En pantallas pequeñas, permitir scroll horizontal */
+@media (max-width: 992px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Mantener anchos mínimos en móvil */
+    .table {
+        min-width: 800px;
+    }
+}
+
 /* Animación suave para el loading */
 .tabla-loading {
     animation: fadeIn 0.3s ease-in-out;
