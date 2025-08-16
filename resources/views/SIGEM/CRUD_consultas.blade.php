@@ -43,17 +43,17 @@
     <div class="col-12">
         <nav>
             <div class="nav nav-pills nav-fill" id="nav-tab" role="tablist">
-                <button class="nav-link active" id="nav-temas-tab" data-bs-toggle="tab" data-bs-target="#nav-temas" 
-                        type="button" role="tab" aria-controls="nav-temas" aria-selected="true">
-                    <i class="bi bi-bookmark-fill"></i> Temas CE <span class="badge bg-primary ms-2">{{ count($ce_temas ?? []) }}</span>
+                <button class="nav-link active" id="nav-contenidos-tab" data-bs-toggle="tab" data-bs-target="#nav-contenidos" 
+                        type="button" role="tab" aria-controls="nav-contenidos" aria-selected="true">
+                    <i class="bi bi-file-earmark-text-fill"></i> Contenidos CE <span class="badge bg-warning ms-2">{{ count($ce_contenidos ?? []) }}</span>
                 </button>
                 <button class="nav-link" id="nav-subtemas-tab" data-bs-toggle="tab" data-bs-target="#nav-subtemas" 
                         type="button" role="tab" aria-controls="nav-subtemas" aria-selected="false">
                     <i class="bi bi-bookmarks-fill"></i> Subtemas CE <span class="badge bg-success ms-2">{{ count($ce_subtemas ?? []) }}</span>
                 </button>
-                <button class="nav-link" id="nav-contenidos-tab" data-bs-toggle="tab" data-bs-target="#nav-contenidos" 
-                        type="button" role="tab" aria-controls="nav-contenidos" aria-selected="false">
-                    <i class="bi bi-file-earmark-text-fill"></i> Contenidos CE <span class="badge bg-warning ms-2">{{ count($ce_contenidos ?? []) }}</span>
+                <button class="nav-link" id="nav-temas-tab" data-bs-toggle="tab" data-bs-target="#nav-temas" 
+                        type="button" role="tab" aria-controls="nav-temas" aria-selected="false">
+                    <i class="bi bi-bookmark-fill"></i> Temas CE <span class="badge bg-primary ms-2">{{ count($ce_temas ?? []) }}</span>
                 </button>
             </div>
         </nav>
@@ -62,160 +62,8 @@
 
 <div class="tab-content" id="nav-tabContent">
     
-    <!-- ========================================== TEMAS CE ========================================== -->
-    <div class="tab-pane fade show active" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <h6><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
-                <small class="text-muted">Gestiona los temas principales para las consultas express</small>
-            </div>
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Tema CE
-                </button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                @if(isset($ce_temas) && count($ce_temas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaTemasCE" class="table table-striped table-hover">
-                            <thead class="table-primary">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tema</th>
-                                    <th>Subtemas</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ce_temas as $tema)
-                                <tr>
-                                    <td><span class="badge bg-secondary">{{ $tema->ce_tema_id }}</span></td>
-                                    <td><strong>{{ $tema->tema }}</strong></td>
-                                    <td data-order="{{ $tema->subtemas()->count() }}">
-                                        @php
-                                            $subtemas_count = $tema->subtemas()->count();
-                                        @endphp
-                                        @if($subtemas_count > 0)
-                                            <span class="badge bg-success">{{ $subtemas_count }} subtemas</span>
-                                        @else
-                                            <span class="text-muted">Sin subtemas</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay temas registrados</h5>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Tema CE
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================== SUBTEMAS CE ========================================== -->
-    <div class="tab-pane fade" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <h6><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
-                <small class="text-muted">Gestiona los subtemas asociados a cada tema principal</small>
-            </div>
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Subtema CE
-                </button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaSubtemasCE" class="table table-striped table-hover">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Subtema</th>
-                                    <th>Tema Padre</th>
-                                    <th>Contenidos</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ce_subtemas as $subtema)
-                                <tr>
-                                    <td><span class="badge bg-secondary">{{ $subtema->ce_subtema_id }}</span></td>
-                                    <td><strong>{{ $subtema->ce_subtema }}</strong></td>
-                                    <td>
-                                        @if($subtema->tema)
-                                            <span class="badge bg-primary">{{ $subtema->tema->tema }}</span>
-                                        @else
-                                            <span class="text-danger">Sin tema padre</span>
-                                        @endif
-                                    </td>
-                                    <td data-order="{{ $subtema->contenidos()->count() }}">
-                                        @php
-                                            $contenidos_count = $subtema->contenidos()->count();
-                                        @endphp
-                                        @if($contenidos_count > 0)
-                                            <span class="badge bg-warning">{{ $contenidos_count }} contenidos</span>
-                                        @else
-                                            <span class="text-muted">Sin contenidos</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarSubtemaCE({{ $subtema->ce_subtema_id }})">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarSubtemaCE({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Subtema CE
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
     <!-- ========================================== CONTENIDOS CE ========================================== -->
-    <div class="tab-pane fade" id="nav-contenidos" role="tabpanel" aria-labelledby="nav-contenidos-tab">
+    <div class="tab-pane fade show active" id="nav-contenidos" role="tabpanel" aria-labelledby="nav-contenidos-tab">
         <div class="row mb-3">
             <div class="col-md-8">
                 <h6><i class="bi bi-file-earmark-text-fill"></i> Contenidos de Consultas Express</h6>
@@ -310,6 +158,158 @@
                         <h5 class="text-muted mt-3">No hay contenidos registrados</h5>
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalAgregarContenido">
                             <i class="bi bi-plus-circle"></i> Agregar Primer Contenido CE
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== SUBTEMAS CE ========================================== -->
+    <div class="tab-pane fade" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h6><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
+                <small class="text-muted">Gestiona los subtemas asociados a cada tema principal</small>
+            </div>
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                    <i class="bi bi-plus-circle"></i> Nuevo Subtema CE
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
+                    <div class="table-responsive">
+                        <table id="tablaSubtemasCE" class="table table-striped table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Subtema</th>
+                                    <th>Tema Padre</th>
+                                    <th>Contenidos</th>
+                                    <th width="120">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ce_subtemas as $subtema)
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ $subtema->ce_subtema_id }}</span></td>
+                                    <td><strong>{{ $subtema->ce_subtema }}</strong></td>
+                                    <td>
+                                        @if($subtema->tema)
+                                            <span class="badge bg-primary">{{ $subtema->tema->tema }}</span>
+                                        @else
+                                            <span class="text-danger">Sin tema padre</span>
+                                        @endif
+                                    </td>
+                                    <td data-order="{{ $subtema->contenidos()->count() }}">
+                                        @php
+                                            $contenidos_count = $subtema->contenidos()->count();
+                                        @endphp
+                                        @if($contenidos_count > 0)
+                                            <span class="badge bg-warning">{{ $contenidos_count }} contenidos</span>
+                                        @else
+                                            <span class="text-muted">Sin contenidos</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
+                                                    onclick="editarSubtemaCE({{ $subtema->ce_subtema_id }})">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
+                                                    onclick="eliminarSubtemaCE({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                            <i class="bi bi-plus-circle"></i> Agregar Primer Subtema CE
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== TEMAS CE ========================================== -->
+    <div class="tab-pane fade" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h6><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
+                <small class="text-muted">Gestiona los temas principales para las consultas express</small>
+            </div>
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                    <i class="bi bi-plus-circle"></i> Nuevo Tema CE
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                @if(isset($ce_temas) && count($ce_temas) > 0)
+                    <div class="table-responsive">
+                        <table id="tablaTemasCE" class="table table-striped table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tema</th>
+                                    <th>Subtemas</th>
+                                    <th width="120">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ce_temas as $tema)
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ $tema->ce_tema_id }}</span></td>
+                                    <td><strong>{{ $tema->tema }}</strong></td>
+                                    <td data-order="{{ $tema->subtemas()->count() }}">
+                                        @php
+                                            $subtemas_count = $tema->subtemas()->count();
+                                        @endphp
+                                        @if($subtemas_count > 0)
+                                            <span class="badge bg-success">{{ $subtemas_count }} subtemas</span>
+                                        @else
+                                            <span class="text-muted">Sin subtemas</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
+                                                    onclick="editarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
+                                                    onclick="eliminarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No hay temas registrados</h5>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                            <i class="bi bi-plus-circle"></i> Agregar Primer Tema CE
                         </button>
                     </div>
                 @endif
@@ -1536,7 +1536,7 @@ document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.mod
 
 // Versión simplificada que solo usa localStorage
 document.addEventListener('DOMContentLoaded', function() {
-    const tabActivo = localStorage.getItem('consultas_tab_activo') || 'nav-temas';
+    const tabActivo = localStorage.getItem('consultas_tab_activo') || 'nav-contenidos';
     
     // Restaurar tab
     const tabBtn = document.querySelector(`#${tabActivo}-tab`);
@@ -1697,6 +1697,7 @@ document.addEventListener('DOMContentLoaded', function() {
 #tablaContenidosCE th:nth-child(7), 
 #tablaContenidosCE td:nth-child(7) { 
     
+ 
     width: 140px; /* Acciones */
     min-width: 140px;
 }
