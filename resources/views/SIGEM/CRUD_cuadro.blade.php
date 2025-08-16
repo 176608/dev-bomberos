@@ -125,9 +125,6 @@
                                                     <i class="bi bi-image"></i>
                                                 </span>
                                             @endif
-                                            @if(!$cuadro->excel_file && !$cuadro->pdf_file && !$cuadro->img_name)
-                                                <span class="text-muted">Sin archivos</span>
-                                            @endif
                                         </div>
                                     </td>
                                     <td data-order="{{ $cuadro->permite_grafica ? 1 : 0 }}">
@@ -520,8 +517,7 @@ $(document).ready(function() {
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         drawCallback: function() {
-            // Reinicializar tooltips de Bootstrap después de cada redibujado
-            $('[title]').tooltip();
+            // Ya no necesitamos reinicializar tooltips de Bootstrap
         }
     });
     @endif

@@ -802,7 +802,7 @@ $(document).ready(function() {
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         drawCallback: function() {
-            $('[title]').tooltip();
+            // Ya no necesitamos reinicializar tooltips de Bootstrap
         }
     });
     @endif
@@ -847,7 +847,7 @@ $(document).ready(function() {
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         drawCallback: function() {
-            $('[title]').tooltip();
+            // Ya no necesitamos reinicializar tooltips de Bootstrap
         }
     });
     @endif
@@ -902,7 +902,7 @@ $(document).ready(function() {
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         drawCallback: function() {
-            $('[title]').tooltip();
+            // Ya no necesitamos reinicializar tooltips de Bootstrap
         }
     });
     @endif
