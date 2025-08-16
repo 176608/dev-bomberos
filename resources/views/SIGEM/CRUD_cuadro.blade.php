@@ -57,7 +57,7 @@
             <div class="card-body">
                 @if(isset($cuadros) && count($cuadros) > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover table-sm">
+                        <table id="tablaCuadros" class="table table-striped table-hover table-sm">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -83,7 +83,13 @@
                                     </td>
                                     <td>
                                         @if($cuadro->cuadro_estadistico_subtitulo)
-                                            <small class="text-muted">{{ Str::limit($cuadro->cuadro_estadistico_subtitulo, 30) }}</small>
+                                            @if(strlen($cuadro->cuadro_estadistico_subtitulo) > 30)
+                                                <span title="{{ $cuadro->cuadro_estadistico_subtitulo }}">
+                                                    <small class="text-muted">{{ Str::limit($cuadro->cuadro_estadistico_subtitulo, 30) }}</small>
+                                                </span>
+                                            @else
+                                                <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo }}</small>
+                                            @endif
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -102,7 +108,7 @@
                                             <span class="text-danger">Sin subtema</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ ($cuadro->excel_file ? 1 : 0) + ($cuadro->pdf_file ? 1 : 0) + ($cuadro->img_name ? 1 : 0) }}">
                                         <div class="d-flex gap-1">
                                             @if($cuadro->excel_file)
                                                 <span class="badge bg-success" title="Excel disponible">
@@ -119,15 +125,18 @@
                                                     <i class="bi bi-image"></i>
                                                 </span>
                                             @endif
+                                            @if(!$cuadro->excel_file && !$cuadro->pdf_file && !$cuadro->img_name)
+                                                <span class="text-muted">Sin archivos</span>
+                                            @endif
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $cuadro->permite_grafica ? 1 : 0 }}">
                                         @if($cuadro->permite_grafica)
                                             <span class="badge bg-info" title="Permite gráfica: {{ $cuadro->tipo_grafica_permitida }}">
-                                                <i class="bi bi-graph-up"></i>
+                                                <i class="bi bi-graph-up"></i> {{ ucfirst($cuadro->tipo_grafica_permitida) }}
                                             </span>
                                         @else
-                                            <span class="text-muted">-</span>
+                                            <span class="text-muted">Sin gráfica</span>
                                         @endif
                                     </td>
                                     <td>
@@ -428,6 +437,96 @@
 
 <!-- JavaScript para funcionalidades -->
 <script>
+// Inicializar DataTables
+$(document).ready(function() {
+    @if(isset($cuadros) && count($cuadros) > 0)
+    $('#tablaCuadros').DataTable({
+        responsive: true,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        columnDefs: [
+            {
+                targets: 0, // Columna ID
+                width: "6%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Columna Código
+                width: "10%",
+                className: "text-center"
+            },
+            {
+                targets: 2, // Columna Título
+                width: "25%"
+            },
+            {
+                targets: 3, // Columna Subtítulo
+                width: "15%"
+            },
+            {
+                targets: 4, // Columna Tema
+                width: "12%"
+            },
+            {
+                targets: 5, // Columna Subtema
+                width: "12%"
+            },
+            {
+                targets: 6, // Columna Archivos
+                width: "8%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 7, // Columna Gráfica
+                width: "8%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 8, // Columna Acciones
+                width: "120px",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[2, 'asc']], // Ordenar por título por defecto
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            // Reinicializar tooltips de Bootstrap después de cada redibujado
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+});
+
 // Rutas para JavaScript
 const routesCuadros = {
     update: '{{ route("sigem.admin.cuadros.actualizar", ":id") }}',
@@ -446,11 +545,71 @@ function editarCuadro(id) {
     const subtitulo_cell = fila.cells[3];
     const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
     
+    // Obtener tema y subtema
+    const tema_badge = fila.cells[4].querySelector('.badge');
+    const subtema_badge = fila.cells[5].querySelector('.badge');
+    
     // Llenar el modal de edición
     document.getElementById('edit_cuadro_estadistico_id').value = id;
     document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
     document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
     document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
+    
+    // Seleccionar tema y subtema
+    if (tema_badge && subtema_badge) {
+        const temaTexto = tema_badge.textContent;
+        const subtemaTexto = subtema_badge.textContent;
+        
+        // Seleccionar tema
+        const temaSelect = document.getElementById('edit_tema_id_select');
+        for (let option of temaSelect.options) {
+            if (option.text === temaTexto) {
+                option.selected = true;
+                
+                // Cargar subtemas del tema seleccionado
+                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+                
+                // Dar tiempo para que se carguen los subtemas y luego seleccionar
+                setTimeout(() => {
+                    const subtemaSelect = document.getElementById('edit_subtema_id');
+                    for (let option of subtemaSelect.options) {
+                        if (option.text === subtemaTexto) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }, 100);
+                break;
+            }
+        }
+    }
+    
+    // Mostrar archivos actuales
+    const archivosCell = fila.cells[6];
+    const archivosActualesDiv = document.getElementById('archivos_actuales');
+    
+    let archivosHtml = '<div class="card"><div class="card-header"><h6 class="mb-0">Archivos Actuales</h6></div><div class="card-body"><div class="row">';
+    
+    const excelBadge = archivosCell.querySelector('.badge.bg-success');
+    const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
+    const imgBadge = archivosCell.querySelector('.badge.bg-primary');
+    
+    if (excelBadge) {
+        archivosHtml += '<div class="col-md-4"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel</span></div>';
+    }
+    if (pdfBadge) {
+        archivosHtml += '<div class="col-md-4"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF</span></div>';
+    }
+    if (imgBadge) {
+        archivosHtml += '<div class="col-md-4"><span class="badge bg-primary"><i class="bi bi-image"></i> Imagen</span></div>';
+    }
+    
+    if (!excelBadge && !pdfBadge && !imgBadge) {
+        archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
+    }
+    
+    archivosHtml += '</div></div></div>';
+    archivosActualesDiv.innerHTML = archivosHtml;
     
     // Actualizar la acción del formulario
     const form = document.getElementById('formEditarCuadro');
@@ -461,7 +620,19 @@ function editarCuadro(id) {
 }
 
 function eliminarCuadro(id, titulo) {
-    const mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}"?\n\n⚠️ Esta acción eliminará:\n- El registro del cuadro\n- Archivos Excel y PDF asociados\n- NO se puede deshacer`;
+    // Obtener información adicional de la fila para confirmación más específica
+    const fila = event.target.closest('tr');
+    const codigo = fila.cells[1].querySelector('code').textContent;
+    const archivosCell = fila.cells[6];
+    const tieneArchivos = archivosCell.querySelector('.badge') !== null;
+    
+    let mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}" (${codigo})?`;
+    
+    if (tieneArchivos) {
+        mensaje += `\n\n⚠️ ADVERTENCIA: Este cuadro tiene archivos asociados que también serán eliminados.`;
+    }
+    
+    mensaje += `\n\n✗ Esta acción NO se puede deshacer.`;
     
     if (confirm(mensaje)) {
         // Crear formulario temporal para envío DELETE
@@ -551,10 +722,13 @@ document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal
     this.querySelector('form').reset();
     document.getElementById('tipo_grafica_permitida').disabled = true;
     document.getElementById('eje_vertical_mchart').disabled = true;
+    document.getElementById('subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
+    document.getElementById('codigo_cuadro').placeholder = 'Ej: CUA001';
 });
 
 document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('archivos_actuales').innerHTML = '';
+    document.getElementById('edit_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
 });
 </script>
