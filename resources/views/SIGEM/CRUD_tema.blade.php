@@ -58,7 +58,7 @@
             <div class="card-body">
                 @if(isset($temas) && count($temas) > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table id="tablaTemas" class="table table-striped table-hover">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -79,7 +79,7 @@
                                             <br><small class="text-muted">Clave: {{ $tema->clave_tema }}</small>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $tema->orden_indice ?? 0 }}">
                                         <span class="badge bg-info">{{ $tema->orden_indice ?? 0 }}</span>
                                     </td>
                                     <td>
@@ -89,7 +89,7 @@
                                             <span class="text-muted">Sin clave</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-order="{{ $tema->subtemas()->count() ?? 0 }}">
                                         @php
                                             $subtemas_count = $tema->subtemas()->count() ?? 0;
                                         @endphp
@@ -260,8 +260,96 @@
     </div>
 </div>
 
+<!-- Enlaces a librerías DataTables 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>-->
+
 <!-- JavaScript funcional para acciones -->
 <script>
+// Inicializar DataTables
+$(document).ready(function() {
+    @if(isset($temas) && count($temas) > 0)
+    $('#tablaTemas').DataTable({
+        responsive: true,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        columnDefs: [
+            {
+                targets: 0, // Columna ID
+                width: "8%",
+                className: "text-center"
+            },
+            {
+                targets: 1, // Columna Título
+                width: "30%"
+            },
+            {
+                targets: 2, // Columna Orden
+                width: "12%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 3, // Columna Clave
+                width: "15%",
+                className: "text-center"
+            },
+            {
+                targets: 4, // Columna Subtemas
+                width: "15%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 5, // Columna Acciones
+                width: "120px",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[2, 'asc']], // Ordenar por orden_indice por defecto
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+            // Reinicializar tooltips de Bootstrap después de cada redibujado
+            $('[title]').tooltip();
+        }
+    });
+    @endif
+});
+
 // Definir rutas para usar en JavaScript
 const routesTemas = {
     update: '{{ route("sigem.admin.temas.actualizar", ":id") }}',
@@ -272,7 +360,7 @@ function editarTema(id) {
     // Buscar los datos del tema en la tabla
     const fila = event.target.closest('tr');
     const tema_titulo = fila.cells[1].querySelector('strong').textContent;
-    const orden_indice = fila.cells[2].querySelector('.badge').textContent;
+    const orden_indice = fila.cells[2].getAttribute('data-order') || fila.cells[2].querySelector('.badge').textContent;
     const clave_tema_cell = fila.cells[3];
     const clave_tema = clave_tema_cell.querySelector('.badge')?.textContent || '';
     
@@ -293,7 +381,7 @@ function editarTema(id) {
 function eliminarTema(id, titulo) {
     // Obtener información de subtemas asociados
     const fila = event.target.closest('tr');
-    const subtemasCell = fila.cells[5];
+    const subtemasCell = fila.cells[4];
     const subtemaBadge = subtemasCell.querySelector('.badge');
     const tieneSubtemas = subtemaBadge && !subtemaBadge.classList.contains('text-muted');
     
@@ -301,7 +389,7 @@ function eliminarTema(id, titulo) {
     
     if (tieneSubtemas) {
         const numSubtemas = subtemaBadge.textContent.split(' ')[0];
-        mensaje += `\n\n⚠️ ADVERTENCIA: Este tema tiene ${numSubtemas} subtema(s) asociado(s).`;
+        mensaje += `\n\n ADVERTENCIA: Este tema tiene ${numSubtemas} subtema(s) asociado(s).`;
         mensaje += `\nPara eliminarlo, primero debes eliminar o reasignar todos los subtemas.`;
         mensaje += `\n\n¿Deseas continuar de todas formas?`;
     } else {
