@@ -573,8 +573,8 @@ function editarMapa(id) {
     const celdas = fila.cells;
     
     // Extraer datos de las celdas
-    const nombre_seccion = celdas[1].textContent.trim();
-    const nombre_mapa = celdas[2].querySelector('strong').textContent.trim();
+    const nombre_mapa = celdas[1].querySelector('strong').textContent.trim();
+    const nombre_seccion = celdas[2].textContent.trim();
     const descripcion_completa = celdas[3].querySelector('span') ? 
         celdas[3].querySelector('span').getAttribute('title') || celdas[3].textContent.trim() : 
         celdas[3].textContent.trim();
