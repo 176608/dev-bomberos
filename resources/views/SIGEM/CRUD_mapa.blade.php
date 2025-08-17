@@ -98,7 +98,7 @@
                                     <td>
                                         @if($mapa->icono)
                                             <img src="{{ asset('img/SIGEM_mapas/' . $mapa->icono) }}" alt="Icono" 
-                                                 class="img-thumbnail" style="max-width: 30px; max-height: 30px;">
+                                                 class="img-thumbnail" style="max-width: 50px; max-height: 50px;">
                                         @else
                                             <i class="bi bi-image text-muted"></i>
                                         @endif
@@ -151,16 +151,7 @@
             <form id="formAgregarMapa" method="POST" action="{{ route('sigem.admin.mapas.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="nombre_seccion" class="form-label">Nombre de Sección</label>
-                                <input type="text" class="form-control" id="nombre_seccion" name="nombre_seccion" 
-                                       placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}">
-                            </div>
-                        </div>
-                    </div>
-                    
+
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
@@ -172,6 +163,16 @@
                                 @error('nombre_mapa')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="nombre_seccion" class="form-label">Nombre de Sección</label>
+                                <input type="text" class="form-control" id="nombre_seccion" name="nombre_seccion" 
+                                       placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}">
                             </div>
                         </div>
                     </div>
@@ -243,7 +244,7 @@
                                     </button>
                                 </div>
                                 
-                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
+                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG.</small>
                                 @error('icono')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -275,22 +276,23 @@
                 @method('PUT')
                 <input type="hidden" id="edit_mapa_id" name="mapa_id">
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="edit_nombre_seccion" class="form-label">Nombre de Sección</label>
-                                <input type="text" class="form-control" id="edit_nombre_seccion" name="nombre_seccion" 
-                                       placeholder="Ej: Cartografía Básica">
-                            </div>
-                        </div>
-                    </div>
-                    
+
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_nombre_mapa" class="form-label">Nombre del Mapa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nombre_mapa" name="nombre_mapa" 
                                        placeholder="Ej: Mapa de División Política" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="edit_nombre_seccion" class="form-label">Nombre de Sección</label>
+                                <input type="text" class="form-control" id="edit_nombre_seccion" name="nombre_seccion" 
+                                       placeholder="Ej: Cartografía Básica">
                             </div>
                         </div>
                     </div>
@@ -320,7 +322,7 @@
                             <div class="mb-3">
                                 <label for="edit_codigo_mapa" class="form-label">Código del Mapa</label>
                                 <input type="text" class="form-control" id="edit_codigo_mapa" name="codigo_mapa" 
-                                       placeholder="MP001">
+                                       placeholder="http://www.arcgis.com/">
                             </div>
                         </div>
                     </div>
@@ -357,6 +359,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-warning">
@@ -368,7 +371,6 @@
     </div>
 </div>
 
-<!-- JavaScript para acciones CRUD -->
 <script>
 // Inicializar DataTables
 $(document).ready(function() {
@@ -402,16 +404,16 @@ $(document).ready(function() {
         columnDefs: [
             {
                 targets: 0, // Columna ID
-                width: "6%",
+                width: "5%",
                 className: "text-center"
             },
             {
-                targets: 1, // Columna Nombre Sección
-                width: "15%"
+                targets: 1, // Columna Nombre Mapa
+                width: "20%"
             },
             {
-                targets: 2, // Columna Nombre Mapa
-                width: "20%"
+                targets: 2, // Columna Nombre Sección
+                width: "15%"
             },
             {
                 targets: 3, // Columna Descripción
@@ -419,14 +421,14 @@ $(document).ready(function() {
             },
             {
                 targets: 4, // Columna Enlace
-                width: "8%",
+                width: "5%",
                 className: "text-center",
                 orderable: false,
                 searchable: false
             },
             {
                 targets: 5, // Columna Icono
-                width: "6%",
+                width: "10%",
                 className: "text-center",
                 orderable: false,
                 searchable: false
@@ -450,9 +452,6 @@ $(document).ready(function() {
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-        drawCallback: function() {
-            // Ya no necesitamos reinicializar tooltips de Bootstrap
-        }
     });
     @endif
 
