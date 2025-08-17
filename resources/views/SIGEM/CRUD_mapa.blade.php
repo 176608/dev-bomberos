@@ -403,7 +403,7 @@ $(document).ready(function() {
                 "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
         },
-        /*columnDefs: [
+        columnDefs: [
             {
                 targets: 0, // Columna ID
                 width: "5%",
@@ -448,7 +448,7 @@ $(document).ready(function() {
                 searchable: false
             }
         ],
-        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto*/
+        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
