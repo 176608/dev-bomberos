@@ -62,8 +62,8 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Nombre Sección</th>
                                     <th>Nombre Mapa</th>
+                                    <th>Nombre Sección</th>
                                     <th>Descripción</th>
                                     <th>Enlace</th>
                                     <th>Icono</th>
@@ -75,8 +75,10 @@
                                 @foreach($mapas as $mapa)
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $mapa->mapa_id }}</span></td>
-                                    <td>{{ $mapa->nombre_seccion ?? 'Sin sección' }}</td>
+                                    
                                     <td><strong>{{ $mapa->nombre_mapa }}</strong></td>
+                                    <td>{{ $mapa->nombre_seccion ?? 'Sin sección' }}</td>
+                                    
                                     <td>
                                         @if(strlen($mapa->descripcion ?? '') > 50)
                                             <span title="{{ $mapa->descripcion }}">
@@ -207,7 +209,7 @@
                             <div class="mb-3">
                                 <label for="codigo_mapa" class="form-label">Código del Mapa</label>
                                 <input type="text" class="form-control" id="codigo_mapa" name="codigo_mapa" 
-                                       placeholder="MP001" value="{{ old('codigo_mapa') }}">
+                                       placeholder="http://www.arcgis.com/" value="{{ old('codigo_mapa') }}">
                             </div>
                         </div>
                     </div>
@@ -401,7 +403,7 @@ $(document).ready(function() {
                 "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
         },
-        columnDefs: [
+        /*columnDefs: [
             {
                 targets: 0, // Columna ID
                 width: "5%",
@@ -446,7 +448,7 @@ $(document).ready(function() {
                 searchable: false
             }
         ],
-        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto
+        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto*/
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
