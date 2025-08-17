@@ -172,9 +172,12 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
-                                <label for="nombre_seccion" class="form-label">Nombre de Sección</label>
-                                <input type="text" class="form-control" id="nombre_seccion" name="nombre_seccion" 
-                                       placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}">
+                                <label for="nombre_seccion" class="form-label">Nombre de Sección <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('nombre_seccion') is-invalid @enderror" id="nombre_seccion" name="nombre_seccion" 
+                                       placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}" required>
+                                @error('nombre_seccion')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -454,6 +457,9 @@ $(document).ready(function() {
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        drawCallback: function() {
+        }
+
     });
     @endif
 
