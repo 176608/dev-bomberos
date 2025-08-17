@@ -111,7 +111,7 @@
                                             <button type="button" class="btn btn-outline-warning" 
                                                     title="Editar" 
                                                     onclick="editarMapa({{ $mapa->mapa_id }})">
-                                                <i class="bi bi-pencil"></i>
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
                                             <button type="button" class="btn btn-outline-danger" 
                                                     title="Eliminar" 
@@ -227,7 +227,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Mapa</h5>
+                <h5 class="modal-title"> <i class="bi bi-pencil-square"></i> Editar Mapa</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formEditarMapa" method="POST" action="" enctype="multipart/form-data">
@@ -236,14 +236,17 @@
                 <input type="hidden" id="edit_mapa_id" name="mapa_id">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_nombre_seccion" class="form-label">Nombre de Sección</label>
                                 <input type="text" class="form-control" id="edit_nombre_seccion" name="nombre_seccion" 
                                        placeholder="Ej: Cartografía Básica">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_nombre_mapa" class="form-label">Nombre del Mapa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nombre_mapa" name="nombre_mapa" 
@@ -252,21 +255,28 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="edit_descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="edit_descripcion" name="descripcion" rows="3" 
-                                  placeholder="Describe brevemente el contenido del mapa..."></textarea>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="edit_descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="edit_descripcion" name="descripcion" rows="3" 
+                                          placeholder="Describe brevemente el contenido del mapa..."></textarea>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_enlace" class="form-label">Enlace</label>
                                 <input type="url" class="form-control" id="edit_enlace" name="enlace" 
                                        placeholder="https://ejemplo.com/mapa.html">
                             </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_codigo_mapa" class="form-label">Código del Mapa</label>
                                 <input type="text" class="form-control" id="edit_codigo_mapa" name="codigo_mapa" 
@@ -275,11 +285,15 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="edit_icono" class="form-label">Cambiar Icono (PNG)</label>
-                        <input type="file" class="form-control" id="edit_icono" name="icono" accept=".png">
-                        <small class="form-text text-muted">Solo archivos PNG. Dejar vacío para mantener el icono actual.</small>
-                        <div id="icono_actual" class="mt-2"></div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="edit_icono" class="form-label">Cambiar Icono (PNG)</label>
+                                <input type="file" class="form-control" id="edit_icono" name="icono" accept=".png">
+                                <small class="form-text text-muted">Solo archivos PNG. Dejar vacío para mantener el icono actual.</small>
+                                <div id="icono_actual" class="img-fluid mt-3"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
