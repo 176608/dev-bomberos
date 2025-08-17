@@ -152,14 +152,17 @@
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="nombre_seccion" class="form-label">Nombre de Sección</label>
                                 <input type="text" class="form-control" id="nombre_seccion" name="nombre_seccion" 
                                        placeholder="Ej: Cartografía Básica" value="{{ old('nombre_seccion') }}">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="nombre_mapa" class="form-label">Nombre del Mapa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('nombre_mapa') is-invalid @enderror" 
@@ -173,14 +176,18 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
-                                  placeholder="Describe brevemente el contenido del mapa...">{{ old('descripcion') }}</textarea>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
+                                          placeholder="Describe brevemente el contenido del mapa...">{{ old('descripcion') }}</textarea>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="enlace" class="form-label">Enlace</label>
                                 <input type="url" class="form-control @error('enlace') is-invalid @enderror" 
@@ -192,7 +199,10 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="codigo_mapa" class="form-label">Código del Mapa</label>
                                 <input type="text" class="form-control" id="codigo_mapa" name="codigo_mapa" 
@@ -201,14 +211,44 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="icono" class="form-label">Icono (PNG)</label>
-                        <input type="file" class="form-control @error('icono') is-invalid @enderror" 
-                               id="icono" name="icono" accept=".png">
-                        <small class="form-text text-muted">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
-                        @error('icono')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="icono" class="form-label">Icono (PNG)</label>
+                                
+                                <!-- Vista previa del icono -->
+                                <div id="preview_icono_create" class="border rounded p-3 mb-3" style="min-height: 120px; background-color: #f8f9fa;">
+                                    <div id="icono_nuevo_container">
+                                        <div class="text-center text-muted">
+                                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                            <p class="small mt-2 mb-0">Sin icono</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Input de archivo oculto -->
+                                <input type="file" class="d-none @error('icono') is-invalid @enderror" 
+                                       id="icono" name="icono" accept=".png">
+                                
+                                <!-- Botones de acción -->
+                                <div id="botones_icono_create" class="d-flex gap-2">
+                                    <button type="button" class="btn btn-success btn-sm" id="btn_agregar_icono_create">
+                                        <i class="bi bi-plus-circle"></i> Agregar imagen
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm d-none" id="btn_remover_icono_create">
+                                        Remover
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm d-none" id="btn_cambiar_icono_create">
+                                        <i class="bi bi-arrow-clockwise"></i> Cambiar imagen
+                                    </button>
+                                </div>
+                                
+                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
+                                @error('icono')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -416,12 +456,64 @@ $(document).ready(function() {
     });
     @endif
 
-    // Botón agregar/cambiar imagen
+    // ========================================
+    // EVENTOS PARA MODAL DE CREACIÓN
+    // ========================================
+    
+    // Botón agregar/cambiar imagen para CREAR
+    $('#btn_agregar_icono_create, #btn_cambiar_icono_create').on('click', function() {
+        $('#icono').click();
+    });
+    
+    // Botón remover imagen para CREAR
+    $('#btn_remover_icono_create').on('click', function() {
+        // Limpiar input y vista previa
+        $('#icono').val('');
+        $('#icono_nuevo_container').html(`
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin icono</p>
+            </div>
+        `);
+        
+        // Cambiar botones
+        $('#btn_agregar_icono_create').removeClass('d-none');
+        $('#btn_remover_icono_create').addClass('d-none');
+        $('#btn_cambiar_icono_create').addClass('d-none');
+    });
+    
+    // Manejar cambio de archivo para CREAR
+    $('#icono').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#icono_nuevo_container').html(`
+                    <div class="text-center">
+                        <img src="${e.target.result}" alt="Vista previa" style="max-width: 100%; max-height: 100px;" class="rounded">
+                        <p class="text-muted small mt-2 mb-0">Nueva imagen seleccionada</p>
+                    </div>
+                `);
+                
+                // Cambiar botones
+                $('#btn_agregar_icono_create').addClass('d-none');
+                $('#btn_remover_icono_create').removeClass('d-none');
+                $('#btn_cambiar_icono_create').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ========================================
+    // EVENTOS PARA MODAL DE EDICIÓN
+    // ========================================
+
+    // Botón agregar/cambiar imagen para EDITAR
     $('#btn_agregar_icono_edit, #btn_cambiar_icono_edit').on('click', function() {
         $('#edit_icono').click();
     });
     
-    // Botón remover imagen
+    // Botón remover imagen para EDITAR
     $('#btn_remover_icono_edit').on('click', function() {
         // Limpiar input y vista previa
         $('#edit_icono').val('');
@@ -438,7 +530,7 @@ $(document).ready(function() {
         $('#btn_cambiar_icono_edit').addClass('d-none');
     });
     
-    // Manejar cambio de archivo
+    // Manejar cambio de archivo para EDITAR
     $('#edit_icono').on('change', function() {
         const file = this.files[0];
         if (file) {
@@ -558,13 +650,24 @@ function eliminarMapa(id, nombre) {
     }
 }
 
-// Limpiar modal al cerrarlo
+// Limpiar modales al cerrarse
 document.getElementById('modalAgregarMapa')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
+    // Resetear la vista previa del icono
+    document.getElementById('icono_nuevo_container').innerHTML = `
+        <div class="text-center text-muted">
+            <i class="bi bi-image" style="font-size: 2rem;"></i>
+            <p class="small mt-2 mb-0">Sin icono</p>
+        </div>
+    `;
+    // Resetear botones
+    document.getElementById('btn_agregar_icono_create').classList.remove('d-none');
+    document.getElementById('btn_remover_icono_create').classList.add('d-none');
+    document.getElementById('btn_cambiar_icono_create').classList.add('d-none');
 });
 
 document.getElementById('modalEditarMapa')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('icono_actual').innerHTML = '';
+    document.getElementById('icono_actual_container').innerHTML = '';
 });
 </script>
