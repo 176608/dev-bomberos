@@ -289,9 +289,30 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_icono" class="form-label">Cambiar Icono (PNG)</label>
-                                <input type="file" class="form-control" id="edit_icono" name="icono" accept=".png">
-                                <small class="form-text text-muted">Solo archivos PNG. Dejar vacío para mantener el icono actual.</small>
-                                <div id="icono_actual" class="img-fluid mt-3"></div>
+                                
+                                <!-- Vista previa del icono -->
+                                <div id="preview_icono_edit" class="border rounded p-3 mb-3" style="min-height: 120px; background-color: #f8f9fa;">
+                                    <div id="icono_actual_container">
+                                    </div>
+                                </div>
+                                
+                                <!-- Input de archivo oculto -->
+                                <input type="file" class="d-none" id="edit_icono" name="icono" accept=".png">
+                                
+                                <!-- Botones de acción -->
+                                <div id="botones_icono_edit" class="d-flex gap-2">
+                                    <button type="button" class="btn btn-success btn-sm" id="btn_agregar_icono_edit">
+                                        <i class="bi bi-plus-circle"></i> Agregar imagen
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm d-none" id="btn_remover_icono_edit">
+                                        Remover
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm d-none" id="btn_cambiar_icono_edit">
+                                        <i class="bi bi-arrow-clockwise"></i> Cambiar imagen
+                                    </button>
+                                </div>
+                                
+                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
                             </div>
                         </div>
                     </div>
@@ -394,6 +415,51 @@ $(document).ready(function() {
         }
     });
     @endif
+
+    // Botón agregar/cambiar imagen
+    $('#btn_agregar_icono_edit, #btn_cambiar_icono_edit').on('click', function() {
+        $('#edit_icono').click();
+    });
+    
+    // Botón remover imagen
+    $('#btn_remover_icono_edit').on('click', function() {
+        // Limpiar input y vista previa
+        $('#edit_icono').val('');
+        $('#icono_actual_container').html(`
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin icono</p>
+            </div>
+        `);
+        
+        // Cambiar botones
+        $('#btn_agregar_icono_edit').removeClass('d-none');
+        $('#btn_remover_icono_edit').addClass('d-none');
+        $('#btn_cambiar_icono_edit').addClass('d-none');
+    });
+    
+    // Manejar cambio de archivo
+    $('#edit_icono').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#icono_actual_container').html(`
+                    <div class="text-center">
+                        <img src="${e.target.result}" alt="Vista previa" style="max-width: 100%; max-height: 100px;" class="rounded">
+                        <p class="text-muted small mt-2 mb-0">Nueva imagen seleccionada</p>
+                    </div>
+                `);
+                
+                // Cambiar botones
+                $('#btn_agregar_icono_edit').addClass('d-none');
+                $('#btn_remover_icono_edit').removeClass('d-none');
+                $('#btn_cambiar_icono_edit').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
 });
 
 // Definir rutas para usar en JavaScript
@@ -426,15 +492,34 @@ function editarMapa(id) {
     document.getElementById('edit_enlace').value = enlace;
     document.getElementById('edit_codigo_mapa').value = codigo === 'Sin código' ? '' : codigo;
     
-    // Mostrar icono actual
-    const iconoActualDiv = document.getElementById('icono_actual');
+    // Configurar vista previa del icono
+    const iconoContainer = document.getElementById('icono_actual_container');
+    const btnAgregar = document.getElementById('btn_agregar_icono_edit');
+    const btnRemover = document.getElementById('btn_remover_icono_edit');
+    const btnCambiar = document.getElementById('btn_cambiar_icono_edit');
+    
     if (icono_img) {
-        iconoActualDiv.innerHTML = `
-            <small class="text-muted">Icono actual:</small><br>
-            <img src="${icono_img.src}" alt="Icono actual" class="img-thumbnail" style="max-width: 60px;">
+        // Mostrar icono existente
+        iconoContainer.innerHTML = `
+            <div class="text-center">
+                <img src="${icono_img.src}" alt="Icono actual" style="max-width: 100%; max-height: 100px;" class="rounded">
+                <p class="text-muted small mt-2 mb-0">Icono actual</p>
+            </div>
         `;
+        btnAgregar.classList.add('d-none');
+        btnRemover.classList.remove('d-none');
+        btnCambiar.classList.remove('d-none');
     } else {
-        iconoActualDiv.innerHTML = '<small class="text-muted">Sin icono actual</small>';
+        // Mostrar placeholder sin icono
+        iconoContainer.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin icono</p>
+            </div>
+        `;
+        btnAgregar.classList.remove('d-none');
+        btnRemover.classList.add('d-none');
+        btnCambiar.classList.add('d-none');
     }
     
     // Actualizar la acción del formulario usando las rutas named
