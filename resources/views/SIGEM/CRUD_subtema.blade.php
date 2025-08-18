@@ -49,7 +49,7 @@
 
 <!-- Tabla de datos -->
 <div class="row">
-    <div class="col-9 align-self-center">
+    <div class="col-10 offset-1">
         <div class="card">
             <div class="card-header">
                 <h6 class="mb-0"><i class="bi bi-table"></i> Listado de Subtemas</h6>

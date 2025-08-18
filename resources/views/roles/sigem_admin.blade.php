@@ -4,7 +4,7 @@
 @section('content')
 <div class="container-fluid bg-fonde">
     <!-- Navbar sencilla de administración -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light my-2">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('sigem.admin.index') }}">
                 <i class="bi bi-gear"></i> Panel SIGEM Admin
@@ -58,4 +58,41 @@
         </div>
     @endif
 </div>
+
+<style>
+    /* ===== ESPACIADO MEJORADO PARA DATATABLES ===== */
+
+/* Padding superior e inferior para el row que contiene search y length */
+.dataTables_wrapper .row:first-child {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+}
+
+/* Padding superior e inferior para el row que contiene info y pagination */
+.dataTables_wrapper .row:last-child {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-top: 0;
+}
+
+/* Alternativa más específica si necesitas mayor control */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    padding: 1rem 0;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding: 1rem 0;
+}
+
+/* Para separar visualmente de la tabla */
+.dataTables_wrapper .table {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+</style>
+
 @endsection
