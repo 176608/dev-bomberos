@@ -2,7 +2,7 @@
 <div class="row mb-4">
     <div class="col-md-8">
         <div class="card">
-            <div class="card-header bg-warning text-dark">
+            <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="bi bi-bookmarks"></i> Panel CRUD de Subtemas</h5>
             </div>
             <div class="card-body">
@@ -38,7 +38,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center">
-                <button type="button" class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
                     <i class="bi bi-plus-circle"></i> Nuevo Subtema
                 </button>
                 <small class="text-muted d-block mt-2">Total de registros: <strong>{{ count($subtemas ?? []) }}</strong></small>
@@ -144,7 +144,7 @@
                         <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
                         <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
                         <p class="text-muted">Comienza agregando tu primer subtema haciendo clic en el botón "Nuevo Subtema".</p>
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
                             <i class="bi bi-plus-circle"></i> Agregar Primer Subtema
                         </button>
                     </div>
@@ -277,7 +277,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">
+                    <button type="submit" class="btn btn-success">
                         <i class="bi bi-save"></i> Guardar Subtema
                     </button>
                 </div>

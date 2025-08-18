@@ -2,7 +2,7 @@
 <div class="row mb-4">
     <div class="col-md-8">
         <div class="card">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="bi bi-table"></i> Panel CRUD de Cuadros Estadísticos</h5>
             </div>
             <div class="card-body">
@@ -38,7 +38,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center">
-                <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarCuadro">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarCuadro">
                     <i class="bi bi-plus-circle"></i> Nuevo Cuadro
                 </button>
                 <small class="text-muted d-block mt-2">Total de registros: <strong>{{ count($cuadros ?? []) }}</strong></small>
@@ -352,7 +352,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-info">
+                    <button type="submit" class="btn btn-success">
                         <i class="bi bi-save"></i> Guardar Cuadro
                     </button>
                 </div>

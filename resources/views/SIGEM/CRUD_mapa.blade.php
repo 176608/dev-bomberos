@@ -2,7 +2,7 @@
 <div class="row mb-4">
     <div class="col-md-8">
         <div class="card">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="bi bi-map"></i> Panel CRUD de Mapas</h5>
             </div>
             <div class="card-body">
@@ -132,7 +132,7 @@
                         <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
                         <h5 class="text-muted mt-3">No hay mapas registrados</h5>
                         <p class="text-muted">Comienza agregando tu primer mapa haciendo clic en el botón "Nuevo Mapa".</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarMapa">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarMapa">
                             <i class="bi bi-plus-circle"></i> Agregar Primer Mapa
                         </button>
                     </div>
