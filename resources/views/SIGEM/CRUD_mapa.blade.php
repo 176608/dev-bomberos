@@ -451,7 +451,7 @@ $(document).ready(function() {
                 searchable: false
             }
         ],
-        order: [[2, 'asc']], // Ordenar por nombre_mapa por defecto
+        order: [[1, 'asc']], // Ordenar por nombre_mapa (ahora en la columna 1)
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
@@ -572,16 +572,16 @@ function editarMapa(id) {
     const fila = event.target.closest('tr');
     const celdas = fila.cells;
     
-    // Extraer datos de las celdas
-    const nombre_mapa = celdas[1].querySelector('strong').textContent.trim();
-    const nombre_seccion = celdas[2].textContent.trim();
+    // Extraer datos de las celdas con los índices correctos
+    const nombre_mapa = celdas[1].querySelector('strong').textContent.trim();  // Columna 1: Nombre Mapa
+    const nombre_seccion = celdas[2].textContent.trim();                      // Columna 2: Nombre Sección
     const descripcion_completa = celdas[3].querySelector('span') ? 
         celdas[3].querySelector('span').getAttribute('title') || celdas[3].textContent.trim() : 
-        celdas[3].textContent.trim();
-    const enlace_btn = celdas[4].querySelector('a');
+        celdas[3].textContent.trim();                                         // Columna 3: Descripción
+    const enlace_btn = celdas[4].querySelector('a');                          // Columna 4: Enlace
     const enlace = enlace_btn ? enlace_btn.getAttribute('href') : '';
-    const codigo = celdas[6].querySelector('code').textContent.trim();
-    const icono_img = celdas[5].querySelector('img');
+    const icono_img = celdas[5].querySelector('img');                         // Columna 5: Icono
+    const codigo = celdas[6].querySelector('code').textContent.trim();        // Columna 6: Código
     
     // Llenar el modal de edición
     document.getElementById('edit_mapa_id').value = id;
