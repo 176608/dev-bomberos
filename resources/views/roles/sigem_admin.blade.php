@@ -75,17 +75,6 @@
     margin-top: 0;
 }
 
-/* Alternativa más específica si necesitas mayor control */
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter {
-    padding: 1rem 0;
-}
-
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate {
-    padding: 1rem 0;
-}
-
 /* Para separar visualmente de la tabla */
 .dataTables_wrapper .table {
     margin-top: 0.5rem;
