@@ -105,9 +105,9 @@ class LoginController extends Controller
             return redirect()->route('admin.panel');
         } elseif ($user->role === 'Capturista') {
             return redirect()->route('capturista.panel');
-        } /*elseif ($user->role === 'Registrador') {
+        } elseif ($user->role === 'Registrador') {
             return redirect()->route('registrador.panel');
-        }*/
+        }
 
         return redirect()->route('dashboard');
     }

@@ -240,12 +240,12 @@
                                     </a>
                                 </li>
 
-                                <!--<li class="nav-item">
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
                                        href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Zonas">
                                         <i class="bi bi-journal-text"></i> Vias y Zonas
                                     </a>
-                                </li>-->
+                                </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
                                 {{-- Administrador: solo su panel --}}

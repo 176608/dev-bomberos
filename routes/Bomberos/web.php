@@ -4,6 +4,7 @@ use App\Http\Controllers\Bomberos\DashboardController;
 use App\Http\Controllers\Bomberos\AdminController;
 use App\Http\Controllers\Bomberos\DesarrolladorController;
 use App\Http\Controllers\Bomberos\CapturistaController;
+use App\Http\Controllers\Bomberos\RegistradorController;
 use App\Http\Controllers\Bomberos\Auth\LoginController;
 use App\Http\Controllers\Bomberos\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,11 @@ Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->gro
     Route::get('/capturista', [CapturistaController::class, 'index'])
         ->name('capturista.panel')
         ->middleware('role:Capturista,Desarrollador');
+
+    // Registrador panel - NUEVA RUTA
+    Route::get('/registrador', [RegistradorController::class, 'index'])
+        ->name('registrador.panel')
+        ->middleware('role:Registrador,Desarrollador');
 
     // Admin CRUD routes - CORREGIR NOMBRES DE ROLES
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
