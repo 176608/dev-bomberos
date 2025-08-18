@@ -64,7 +64,7 @@
 
 /* Padding superior e inferior para el row que contiene search y length */
 .dataTables_wrapper .row:first-child {
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
     margin-bottom: 0;
 }
 
