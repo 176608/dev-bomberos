@@ -39,7 +39,8 @@
         </div>
     </nav>
 
-    <!-- Contenido dinámico -->
+    <div class="container-fluid bg-fonde">
+        <!-- Contenido dinámico -->
     @if(isset($crud_view))
         @include($crud_view)
     @else
@@ -57,5 +58,7 @@
             </div>
         </div>
     @endif
+    </div>
+
 </div>
 @endsection
