@@ -207,7 +207,7 @@
                             <label for="clave_subtema" class="form-label">Clave del Subtema</label>
                             <input type="text" class="form-control @error('clave_subtema') is-invalid @enderror" 
                                    id="clave_subtema" name="clave_subtema" 
-                                   placeholder="Ej: DEM001A" maxlength="15"
+                                   placeholder="Ej: ECO" maxlength="15"
                                    value="{{ old('clave_subtema') }}">
                             <small class="form-text text-muted">Opcional. Si no se especifica, heredará la clave del tema.</small>
                             @error('clave_subtema')
@@ -745,7 +745,7 @@ document.getElementById('subtema_titulo')?.addEventListener('input', function() 
                               return replacements[match];
                           })
                           .replace(/[^A-Z0-9]/g, '')
-                          .substring(0, 3) + 'A';
+                          .substring(0, 2) + 'A';
         
         document.getElementById('clave_subtema').placeholder = `Sugerido: ${clave}`;
     }
@@ -755,7 +755,7 @@ document.getElementById('subtema_titulo')?.addEventListener('input', function() 
 document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('orden_indice').placeholder = 'Auto';
-    document.getElementById('clave_subtema').placeholder = 'Ej: DEM001A';
+    document.getElementById('clave_subtema').placeholder = 'Ej: ECO';
     document.getElementById('imagen_preview_container').innerHTML = `
         <div class="text-center text-muted">
             <i class="bi bi-image" style="font-size: 2rem;"></i>
