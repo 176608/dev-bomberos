@@ -145,7 +145,7 @@
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('tema_titulo') is-invalid @enderror" 
@@ -157,27 +157,24 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    
+                    <div class="row">
+
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="clave_tema" class="form-label">Clave del Tema</label>
                                 <input type="text" class="form-control @error('clave_tema') is-invalid @enderror" 
                                        id="clave_tema" name="clave_tema" 
-                                       placeholder="Ej: DEM001" maxlength="10"
+                                       placeholder="Ej: ECO" maxlength="10"
                                        value="{{ old('clave_tema') }}">
                                 @error('clave_tema')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                na
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="orden_indice" class="form-label">Orden en Índice</label>
                                 <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
@@ -196,6 +193,7 @@
                         <i class="bi bi-info-circle"></i>
                         <strong>Información:</strong> Una vez creado el tema, podrás agregar subtemas asociados desde el panel de Subtemas.
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -221,32 +219,33 @@
                 @method('PUT')
                 <input type="hidden" id="edit_tema_id" name="tema_id">
                 <div class="modal-body">
+                    
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <div class="mb-3">
                                 <label for="edit_tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_tema_titulo" name="tema_titulo" required>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    
+                    <div class="row">
+
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="edit_clave_tema" class="form-label">Clave del Tema</label>
                                 <input type="text" class="form-control" id="edit_clave_tema" name="clave_tema" maxlength="10">
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-8">
-                            na
-                        </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
                                 <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
                                        min="0" max="999">
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">

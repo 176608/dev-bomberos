@@ -295,7 +295,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
-                                <label for="edit_nombre_seccion" class="form-label">Nombre de Sección</label>
+                                <label for="edit_nombre_seccion" class="form-label">Nombre de Sección <span class="text-danger">*</span> </label>
                                 <input type="text" class="form-control" id="edit_nombre_seccion" name="nombre_seccion" 
                                        placeholder="Ej: Cartografía Básica">
                             </div>
@@ -359,7 +359,7 @@
                                     </button>
                                 </div>
                                 
-                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG. Tamaño recomendado: 64x64px (Max: 2MB)</small>
+                                <small class="form-text text-muted d-block mt-2">Solo archivos PNG.</small>
                             </div>
                         </div>
                     </div>
