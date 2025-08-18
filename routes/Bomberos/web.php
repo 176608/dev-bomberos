@@ -90,4 +90,3 @@ Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->gro
         ->name('capturista.panel-auxiliar')
         ->middleware('role:Capturista,Desarrollador');
 });
-

@@ -30,47 +30,57 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
-                        <!-- Sección Colonias -->
+                        <!-- Sección Zonas -->
                         <div class="col-md-6">
                             <div class="card h-100 border-success">
                                 <div class="card-header bg-success text-white">
                                     <h6 class="mb-0">
                                         <i class="bi bi-houses"></i> 
-                                        Gestión de Colonias
+                                        Gestión de Zonas
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted">Administra las colonias del sistema</p>
+                                    <p class="text-muted">Administra las Zonas del sistema</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-success" type="button">
-                                            <i class="bi bi-plus-circle"></i> Nueva Colonia
+                                            <i class="bi bi-plus-circle"></i> Nueva Zona
                                         </button>
                                         <button class="btn btn-outline-primary" type="button">
-                                            <i class="bi bi-list-ul"></i> Ver Colonias
+                                            <i class="bi bi-list-ul"></i> Ver Zonas
                                         </button>
+                                    </div>
+                                    <div class="col">
+                                        <div class="border-end">
+                                            <h4 class="text-success">--</h4>
+                                            <small class="text-muted">Total Zonas</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sección Calles -->
+                        <!-- Sección Vías -->
                         <div class="col-md-6">
                             <div class="card h-100 border-warning">
                                 <div class="card-header bg-warning text-dark">
                                     <h6 class="mb-0">
                                         <i class="bi bi-signpost"></i> 
-                                        Gestión de Calles
+                                        Gestión de Vías
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted">Administra las calles del sistema</p>
+                                    <p class="text-muted">Administra las Vías del sistema</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-warning" type="button">
-                                            <i class="bi bi-plus-circle"></i> Nueva Calle
+                                            <i class="bi bi-plus-circle"></i> Nueva Vía
                                         </button>
                                         <button class="btn btn-outline-primary" type="button">
-                                            <i class="bi bi-list-ul"></i> Ver Calles
+                                            <i class="bi bi-list-ul"></i> Ver Vías
                                         </button>
+                                    </div>
+                                    <div class="col">
+                                        <h4 class="text-warning">--</h4>
+                                        <small class="text-muted">Total Vías</small>
                                     </div>
                                 </div>
                             </div>
@@ -80,28 +90,7 @@
                     <!-- Estadísticas -->
                     <div class="row mt-4">
                         <div class="col-12">
-                            <div class="card border-info">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0">
-                                        <i class="bi bi-graph-up"></i> 
-                                        Estadísticas Rápidas
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row text-center">
-                                        <div class="col-md-6">
-                                            <div class="border-end">
-                                                <h4 class="text-success">--</h4>
-                                                <small class="text-muted">Total Colonias</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h4 class="text-warning">--</h4>
-                                            <small class="text-muted">Total Calles</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            TABLA Zonas / Calles Yajra
                         </div>
                     </div>
                 </div>

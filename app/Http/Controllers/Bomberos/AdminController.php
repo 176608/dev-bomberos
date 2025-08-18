@@ -36,7 +36,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
+            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador'])],
         ]);
 
         // Contraseña temporal por defecto
@@ -60,7 +60,7 @@ class AdminController extends Controller
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista'])],
+                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador'])],
                 'status' => ['required', 'boolean'],
             ]);
 
