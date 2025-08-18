@@ -478,7 +478,7 @@
     </div>
 </div>
 
-<!-- Modal Agregar Contenido CE - ACTUALIZADO -->
+<!-- Modal Agregar Contenido CE -->
 <div class="modal fade" id="modalAgregarContenido" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -1068,18 +1068,33 @@ function editarContenidoCE(id) {
             document.getElementById('edit_tabla_filas').value = contenido.tabla_filas;
             document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
             
-            // Seleccionar tema
+            // Seleccionar tema y cargar subtemas
             const temaSelect = document.getElementById('edit_ce_tema_select');
+            const subtemaSelect = document.getElementById('edit_ce_subtema_id');
+            
             if (contenido.subtema && contenido.subtema.tema) {
+                // Primero seleccionar el tema
                 temaSelect.value = contenido.subtema.tema.ce_tema_id;
                 
                 // Cargar subtemas del tema seleccionado
-                filtrarSubtemasCE(temaSelect, document.getElementById('edit_ce_subtema_id'));
+                filtrarSubtemasCE(temaSelect, subtemaSelect);
                 
-                // Dar tiempo para que se carguen los subtemas y luego seleccionar
+                // Esperar un poco más para asegurar que los subtemas se carguen
                 setTimeout(() => {
-                    document.getElementById('edit_ce_subtema_id').value = contenido.ce_subtema_id;
-                }, 100);
+                    // Verificar si el subtema existe en las opciones
+                    const subtemaOption = subtemaSelect.querySelector(`option[value="${contenido.ce_subtema_id}"]`);
+                    if (subtemaOption) {
+                        subtemaSelect.value = contenido.ce_subtema_id;
+                    } else {
+                        console.warn('Subtema no encontrado en las opciones:', contenido.ce_subtema_id);
+                        // Agregar la opción manualmente si no existe
+                        const option = document.createElement('option');
+                        option.value = contenido.ce_subtema_id;
+                        option.textContent = contenido.subtema.ce_subtema;
+                        option.selected = true;
+                        subtemaSelect.appendChild(option);
+                    }
+                }, 200); // Aumentado el tiempo de espera
             }
             
             // Generar tabla con datos existentes
@@ -1346,18 +1361,33 @@ function editarContenidoCE(id) {
             document.getElementById('edit_tabla_filas').value = contenido.tabla_filas;
             document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
             
-            // Seleccionar tema
+            // Seleccionar tema y cargar subtemas
             const temaSelect = document.getElementById('edit_ce_tema_select');
+            const subtemaSelect = document.getElementById('edit_ce_subtema_id');
+            
             if (contenido.subtema && contenido.subtema.tema) {
+                // Primero seleccionar el tema
                 temaSelect.value = contenido.subtema.tema.ce_tema_id;
                 
                 // Cargar subtemas del tema seleccionado
-                filtrarSubtemasCE(temaSelect, document.getElementById('edit_ce_subtema_id'));
+                filtrarSubtemasCE(temaSelect, subtemaSelect);
                 
-                // Dar tiempo para que se carguen los subtemas y luego seleccionar
+                // Esperar un poco más para asegurar que los subtemas se carguen
                 setTimeout(() => {
-                    document.getElementById('edit_ce_subtema_id').value = contenido.ce_subtema_id;
-                }, 100);
+                    // Verificar si el subtema existe en las opciones
+                    const subtemaOption = subtemaSelect.querySelector(`option[value="${contenido.ce_subtema_id}"]`);
+                    if (subtemaOption) {
+                        subtemaSelect.value = contenido.ce_subtema_id;
+                    } else {
+                        console.warn('Subtema no encontrado en las opciones:', contenido.ce_subtema_id);
+                        // Agregar la opción manualmente si no existe
+                        const option = document.createElement('option');
+                        option.value = contenido.ce_subtema_id;
+                        option.textContent = contenido.subtema.ce_subtema;
+                        option.selected = true;
+                        subtemaSelect.appendChild(option);
+                    }
+                }, 200); // Aumentado el tiempo de espera
             }
             
             // Generar tabla con datos existentes

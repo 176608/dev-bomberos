@@ -1191,6 +1191,10 @@ class AdminController extends Controller
             \Log::info('Contenido CE cargado:', [
                 'id' => $contenido->ce_contenido_id,
                 'titulo' => $contenido->titulo_tabla,
+                'subtema_id' => $contenido->ce_subtema_id,
+                'subtema_nombre' => $contenido->subtema ? $contenido->subtema->ce_subtema : null,
+                'tema_id' => $contenido->subtema && $contenido->subtema->tema ? $contenido->subtema->tema->ce_tema_id : null,
+                'tema_nombre' => $contenido->subtema && $contenido->subtema->tema ? $contenido->subtema->tema->tema : null,
                 'datos' => $contenido->tabla_datos,
                 'filas' => $contenido->tabla_filas,
                 'columnas' => $contenido->tabla_columnas
@@ -1207,6 +1211,7 @@ class AdminController extends Controller
                     'tabla_filas' => $contenido->tabla_filas,
                     'tabla_columnas' => $contenido->tabla_columnas,
                     'tabla_datos' => $contenido->tabla_datos,
+                    'ce_subtema_id' => $contenido->ce_subtema_id, // Asegurar que esto esté incluido
                     'created_at' => $contenido->created_at,
                     'subtema' => $contenido->subtema ? [
                         'ce_subtema_id' => $contenido->subtema->ce_subtema_id,
@@ -1218,8 +1223,9 @@ class AdminController extends Controller
                     ] : null
                 ],
                 'tabla_html' => $tablaHtml,
-                'resumen' => $contenido->resumen_tabla
+                'resumen' => $contenido->resumen_tabla ?? null
             ]);
+            
         } catch (\Exception $e) {
             \Log::error('Error al obtener contenido CE:', [
                 'id' => $id,
@@ -1228,7 +1234,7 @@ class AdminController extends Controller
             ]);
             
             return response()->json([
-                'error' => 'Error al obtener contenido CE: ' . $e->getMessage()
+                'error' => 'Error interno del servidor: ' . $e->getMessage()
             ], 500);
         }
     }
