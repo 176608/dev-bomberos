@@ -53,7 +53,7 @@
                 </button>
                 <button class="nav-link" id="nav-temas-tab" data-bs-toggle="tab" data-bs-target="#nav-temas" 
                         type="button" role="tab" aria-controls="nav-temas" aria-selected="false">
-                    <i class="bi bi-bookmark-fill"></i> Temas CE <span class="badge bg-primary ms-2">{{ count($ce_temas ?? []) }}</span>
+                    <i class="bi bi-bookmark-fill"></i> Temas CE <span class="badge bg-info ms-2">{{ count($ce_temas ?? []) }}</span>
                 </button>
             </div>
         </nav>
@@ -254,7 +254,7 @@
                 <small class="text-muted">Gestiona los temas principales para las consultas express</small>
             </div>
             <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
                     <i class="bi bi-plus-circle"></i> Nuevo Tema CE
                 </button>
             </div>
@@ -309,7 +309,7 @@
                     <div class="text-center py-4">
                         <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
                         <h5 class="text-muted mt-3">No hay temas registrados</h5>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
                             <i class="bi bi-plus-circle"></i> Agregar Primer Tema CE
                         </button>
                     </div>
@@ -350,7 +350,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-info">
                         <i class="bi bi-save"></i> Guardar Tema
                     </button>
                 </div>
