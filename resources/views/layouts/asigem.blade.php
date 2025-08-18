@@ -232,7 +232,7 @@ animation: fadeInUp 0.4s ease-out;
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
-    <div class="container-fluid py-5 bg-fonde img-fluid" >
+    <div class="container-fluid pb-5 bg-fonde img-fluid" >
 
         <div class="header-logos container-fluid">
             <div class="logo-section">
