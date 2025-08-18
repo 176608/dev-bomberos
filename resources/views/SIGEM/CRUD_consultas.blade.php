@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card tabla-contenidos-ce">
             <div class="card-body">
                 @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
                     <div class="table-responsive">
@@ -179,7 +179,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card tabla-subtemas-ce">
             <div class="card-body">
                 @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
                     <div class="table-responsive">
@@ -189,7 +189,7 @@
                                     <th>ID</th>
                                     <th>Subtema</th>
                                     <th>Tema Padre</th>
-                                    <th>Contenidos</th>
+                                    <th>Contenido</th>
                                     <th width="120">Acciones</th>
                                 </tr>
                             </thead>
@@ -205,14 +205,15 @@
                                             <span class="text-danger">Sin tema padre</span>
                                         @endif
                                     </td>
-                                    <td data-order="{{ $subtema->contenidos()->count() }}">
-                                        @php
-                                            $contenidos_count = $subtema->contenidos()->count();
-                                        @endphp
-                                        @if($contenidos_count > 0)
-                                            <span class="badge bg-warning">{{ $contenidos_count }} contenidos</span>
+                                    <td data-order="{{ $subtema->contenidos()->count() > 0 ? 1 : 0 }}">
+                                        @if($subtema->contenidos()->count() > 0)
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle-fill"></i> Con contenido
+                                            </span>
                                         @else
-                                            <span class="text-muted">Sin contenidos</span>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="bi bi-x-circle"></i> Sin contenido
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
@@ -259,7 +260,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card tabla-temas-ce">
             <div class="card-body">
                 @if(isset($ce_temas) && count($ce_temas) > 0)
                     <div class="table-responsive">
@@ -1423,9 +1424,28 @@ function filtrarSubtemasCE(temaSelect, subtemaSelect) {
     }
 }
 
-// Event listeners para filtrado de subtemas
+// Event listeners para filtrado de subtemas Y AUTO-COMPLETAR TÍTULO
 document.getElementById('ce_tema_select')?.addEventListener('change', function() {
     filtrarSubtemasCE(this, document.getElementById('ce_subtema_id'));
+    // Limpiar título cuando cambia tema
+    document.getElementById('titulo_tabla').value = '';
+});
+
+document.getElementById('ce_subtema_id')?.addEventListener('change', function() {
+    // Auto-completar título con el nombre del subtema seleccionado
+    const subtemaSelect = this;
+    const tituloInput = document.getElementById('titulo_tabla');
+    
+    if (subtemaSelect.value && subtemaSelect.selectedOptions.length > 0) {
+        const subtemaTexto = subtemaSelect.selectedOptions[0].textContent;
+        tituloInput.value = subtemaTexto;
+        
+        // Enfocar el campo de título para que el usuario vea el cambio
+        tituloInput.focus();
+        tituloInput.select();
+    } else {
+        tituloInput.value = '';
+    }
 });
 
 document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
@@ -1517,187 +1537,294 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 <style>
-        /* Estilos específicos para las tablas de Consulta Express */
-        .consulta-express-tabla {
-            margin: 0;
-        }
-        .consulta-express-tabla .table {
-            margin-bottom: 0;
-            font-size: 0.9rem;
-        }
-        .consulta-express-tabla .table th {
-            background-color: var(--bs-primary) !important;
-            color: white;
-            font-weight: 600;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .consulta-express-tabla .table td {
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-        }
-        .consulta-express-tabla .table-responsive {
-            border-radius: 0.375rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
+/* ===== DISEÑO ESCALONADO DE TABLAS CE ===== */
 
-        /* ===== NUEVO: Anchos consistentes para todas las tablas ===== */
-        /* Tabla de Temas CE */
-        #tablaTemasCE {
-            table-layout: fixed;
-            width: 100%;
-        }
-        #tablaTemasCE th:nth-child(1), 
-        #tablaTemasCE td:nth-child(1) { 
-            width: 80px; /* ID */
-            min-width: 80px;
-        }
-        #tablaTemasCE th:nth-child(2), 
-        #tablaTemasCE td:nth-child(2) { 
-            width: calc(100% - 280px); /* Tema - flexible */
-            min-width: 200px;
-        }
-        #tablaTemasCE th:nth-child(3), 
-        #tablaTemasCE td:nth-child(3) { 
-            width: 120px; /* Subtemas */
-            min-width: 120px;
-        }
-        #tablaTemasCE th:nth-child(4), 
-        #tablaTemasCE td:nth-child(4) { 
-            width: 120px; /* Acciones */
-            min-width: 120px;
-        }
+/* Tabla de Contenidos CE - 100% del viewport */
+.tabla-contenidos-ce {
+    width: 100%;
+    margin: 0 auto;
+}
 
-        /* Tabla de Subtemas CE */
-        #tablaSubtemasCE {
-            table-layout: fixed;
-            width: 100%;
-        }
-        #tablaSubtemasCE th:nth-child(1), 
-        #tablaSubtemasCE td:nth-child(1) { 
-            width: 80px; /* ID */
-            min-width: 80px;
-        }
-        #tablaSubtemasCE th:nth-child(2), 
-        #tablaSubtemasCE td:nth-child(2) { 
-            width: calc(35% - 40px); /* Subtema */
-            min-width: 150px;
-        }
-        #tablaSubtemasCE th:nth-child(3), 
-        #tablaSubtemasCE td:nth-child(3) { 
-            width: calc(35% - 40px); /* Tema Padre */
-            min-width: 150px;
-        }
-        #tablaSubtemasCE th:nth-child(4), 
-        #tablaSubtemasCE td:nth-child(4) { 
-            width: 120px; /* Contenidos */
-            min-width: 120px;
-        }
-        #tablaSubtemasCE th:nth-child(5), 
-        #tablaSubtemasCE td:nth-child(5) { 
-            width: 120px; /* Acciones */
-            min-width: 120px;
-        }
+/* Tabla de Subtemas CE - 75% del viewport */
+.tabla-subtemas-ce {
+    width: 75%;
+    margin: 0 auto;
+}
 
-        /* Tabla de Contenidos CE */
-        #tablaContenidosCE {
-            table-layout: fixed;
-            width: 100%;
-        }
-        #tablaContenidosCE th:nth-child(1), 
-        #tablaContenidosCE td:nth-child(1) { 
-            width: 80px; /* ID */
-            min-width: 80px;
-        }
-        #tablaContenidosCE th:nth-child(2), 
-        #tablaContenidosCE td:nth-child(2) { 
-            width: calc(30% - 27px); /* Tabla */
-            min-width: 200px;
-        }
-        #tablaContenidosCE th:nth-child(3), 
-        #tablaContenidosCE td:nth-child(3) { 
-            width: 100px; /* Dimensiones */
-            min-width: 100px;
-        }
-        #tablaContenidosCE th:nth-child(4), 
-        #tablaContenidosCE td:nth-child(4) { 
-            width: calc(20% - 27px); /* Tema */
-            min-width: 120px;
-        }
-        #tablaContenidosCE th:nth-child(5), 
-        #tablaContenidosCE td:nth-child(5) { 
-            width: calc(20% - 27px); /* Subtema */
-            min-width: 120px;
-        }
-        #tablaContenidosCE th:nth-child(6), 
-        #tablaContenidosCE td:nth-child(6) { 
-            width: 110px; /* Fecha */
-            min-width: 110px;
-        }
-        #tablaContenidosCE th:nth-child(7), 
-        #tablaContenidosCE td:nth-child(7) { 
-            width: 140px; /* Acciones */
-            min-width: 140px;
-        }
+/* Tabla de Temas CE - 50% del viewport */
+.tabla-temas-ce {
+    width: 50%;
+    margin: 0 auto;
+}
 
-        /* Prevenir overflow de texto largo */
-        .table td {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+/* ===== RESPONSIVE DESIGN ===== */
 
-        /* Permitir wrap solo en columnas de contenido principal */
-        #tablaTemasCE td:nth-child(2),
-        #tablaSubtemasCE td:nth-child(2),
-        #tablaSubtemasCE td:nth-child(3),
-        #tablaContenidosCE td:nth-child(2) {
-            white-space: normal;
-            word-wrap: break-word;
-        }
+/* En tablets (768px - 992px) */
+@media (max-width: 992px) {
+    .tabla-contenidos-ce {
+        width: 100%;
+    }
+    
+    .tabla-subtemas-ce {
+        width: 85%;
+    }
+    
+    .tabla-temas-ce {
+        width: 70%;
+    }
+}
 
-        /* Responsive: En pantallas pequeñas, permitir scroll horizontal */
-        @media (max-width: 992px) {
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            /* Mantener anchos mínimos en móvil */
-            .table {
-                min-width: 800px;
-            }
-        }
+/* En móviles (576px - 768px) */
+@media (max-width: 768px) {
+    .tabla-contenidos-ce,
+    .tabla-subtemas-ce,
+    .tabla-temas-ce {
+        width: 100%;
+    }
+}
 
-        /* Animación suave para el loading */
-        .tabla-loading {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+/* En móviles pequeños (hasta 576px) */
+@media (max-width: 576px) {
+    .tabla-contenidos-ce,
+    .tabla-subtemas-ce,
+    .tabla-temas-ce {
+        width: 100%;
+        margin: 0;
+    }
+}
 
-        /* Mejorar el spacing del modal */
-        #modalVerTabla .modal-body {
-            padding: 1.5rem;
-        }
-        #modalVerTabla .modal-header {
-            background-color: #23753eff;
-            border-bottom: 2px solid #dee2e6;
-        }
+/* ===== ESTILOS ORIGINALES MANTENIDOS ===== */
 
-        /* Responsive para tablas en modales */
-        @media (max-width: 768px) {
-            .consulta-express-tabla .table {
-                font-size: 0.8rem;
-            }
-            .consulta-express-tabla .table th,
-            .consulta-express-tabla .table td {
-                padding: 0.5rem 0.25rem;
-            }
-        }
-    </style>
+.consulta-express-tabla {
+    margin: 0;
+}
+
+.consulta-express-tabla .table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.consulta-express-tabla .table th {
+    background-color: var(--bs-primary) !important;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.consulta-express-tabla .table td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.consulta-express-tabla .table-responsive {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Tabla de Temas CE */
+#tablaTemasCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaTemasCE th:nth-child(1), 
+#tablaTemasCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaTemasCE th:nth-child(2), 
+#tablaTemasCE td:nth-child(2) { 
+    width: calc(100% - 280px); /* Tema - flexible */
+    min-width: 200px;
+}
+
+#tablaTemasCE th:nth-child(3), 
+#tablaTemasCE td:nth-child(3) { 
+    width: 120px; /* Subtemas */
+    min-width: 120px;
+}
+
+#tablaTemasCE th:nth-child(4), 
+#tablaTemasCE td:nth-child(4) { 
+    width: 120px; /* Acciones */
+    min-width: 120px;
+}
+
+/* Tabla de Subtemas CE */
+#tablaSubtemasCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaSubtemasCE th:nth-child(1), 
+#tablaSubtemasCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaSubtemasCE th:nth-child(2), 
+#tablaSubtemasCE td:nth-child(2) { 
+    width: calc(35% - 40px); /* Subtema */
+    min-width: 150px;
+}
+
+#tablaSubtemasCE th:nth-child(3), 
+#tablaSubtemasCE td:nth-child(3) { 
+    width: calc(35% - 40px); /* Tema Padre */
+    min-width: 150px;
+}
+
+#tablaSubtemasCE th:nth-child(4), 
+#tablaSubtemasCE td:nth-child(4) { 
+    width: 120px; /* Contenido */
+    min-width: 120px;
+}
+
+#tablaSubtemasCE th:nth-child(5), 
+#tablaSubtemasCE td:nth-child(5) { 
+    width: 120px; /* Acciones */
+    min-width: 120px;
+}
+
+/* Tabla de Contenidos CE */
+#tablaContenidosCE {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#tablaContenidosCE th:nth-child(1), 
+#tablaContenidosCE td:nth-child(1) { 
+    width: 80px; /* ID */
+    min-width: 80px;
+}
+
+#tablaContenidosCE th:nth-child(2), 
+#tablaContenidosCE td:nth-child(2) { 
+    width: calc(30% - 27px); /* Tabla */
+    min-width: 200px;
+}
+
+#tablaContenidosCE th:nth-child(3), 
+#tablaContenidosCE td:nth-child(3) { 
+    width: 100px; /* Dimensiones */
+    min-width: 100px;
+}
+
+#tablaContenidosCE th:nth-child(4), 
+#tablaContenidosCE td:nth-child(4) { 
+    width: calc(20% - 27px); /* Tema */
+    min-width: 120px;
+}
+
+#tablaContenidosCE th:nth-child(5), 
+#tablaContenidosCE td:nth-child(5) { 
+    width: calc(20% - 27px); /* Subtema */
+    min-width: 120px;
+}
+
+#tablaContenidosCE th:nth-child(6), 
+#tablaContenidosCE td:nth-child(6) { 
+    width: 110px; /* Fecha */
+    min-width: 110px;
+}
+
+#tablaContenidosCE th:nth-child(7), 
+#tablaContenidosCE td:nth-child(7) { 
+    width: 140px; /* Acciones */
+    min-width: 140px;
+}
+
+/* Prevenir overflow de texto largo */
+.table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Permitir wrap solo en columnas de contenido principal */
+#tablaTemasCE td:nth-child(2),
+#tablaSubtemasCE td:nth-child(2),
+#tablaSubtemasCE td:nth-child(3),
+#tablaContenidosCE td:nth-child(2) {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Animación suave para el loading */
+.tabla-loading {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mejorar el spacing del modal */
+#modalVerTabla .modal-body {
+    padding: 1.5rem;
+}
+
+#modalVerTabla .modal-header {
+    background-color: #23753eff;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Responsive para tablas en modales */
+@media (max-width: 768px) {
+    .consulta-express-tabla .table {
+        font-size: 0.8rem;
+    }
+    
+    .consulta-express-tabla .table th,
+    .consulta-express-tabla .table td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+/* ===== EFECTO VISUAL DE ESCALONADO ===== */
+
+.tabla-contenidos-ce {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    transform: scale(1);
+    z-index: 3;
+}
+
+.tabla-subtemas-ce {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    border-radius: 8px;
+    transform: scale(0.98);
+    z-index: 2;
+    margin-top: 10px;
+}
+
+.tabla-temas-ce {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    transform: scale(0.96);
+    z-index: 1;
+    margin-top: 20px;
+}
+
+/* Animación suave al cambiar tabs */
+.tab-pane {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Badges mejorados para contenido */
+.badge.bg-success i.bi-check-circle-fill {
+    margin-right: 4px;
+}
+
+.badge.bg-light i.bi-x-circle {
+    margin-right: 4px;
+}
+</style>
 
 </body>
 </html>
