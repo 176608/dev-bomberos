@@ -49,7 +49,7 @@
 
 
 <!-- Tabla de datos -->
-<div class="row p-3 mb-4">
+<div class="row mb-5">
     <div class="col-12">
         <div class="card">
             <div class="card-header">

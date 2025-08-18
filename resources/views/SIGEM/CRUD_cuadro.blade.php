@@ -48,7 +48,7 @@
 </div>
 
 <!-- Tabla de datos -->
-<div class="row">
+<div class="row mb-5">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
