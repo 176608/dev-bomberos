@@ -11,6 +11,12 @@ class CatalogoCalle extends Model
     protected $primaryKey = 'IDKEY';
 
     public $timestamps = false;
+    
+    protected $fillable = [
+        'Nomvial',
+        'Tipovial',
+        'CLAVE'
+    ];
 }
 
 /*

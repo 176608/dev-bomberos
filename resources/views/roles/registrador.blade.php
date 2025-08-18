@@ -86,11 +86,13 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Estadísticas -->
                     <div class="row mt-4">
                         <div class="col-12">
-                            TABLA Zonas / Calles Yajra
+                         <!-- Imprimir tabla de Zonas -->
+                         @include('partials.registrador_zonas')
+                         <!-- Imprimir tabla de Vías -->
+                         @include('partials.registrador_vias')
                         </div>
                     </div>
                 </div>
