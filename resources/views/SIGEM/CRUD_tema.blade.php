@@ -50,7 +50,7 @@
 
 <!-- Tabla de datos -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-6 offset-3">
         <div class="card">
             <div class="card-header">
                 <h6 class="mb-0"><i class="bi bi-table"></i> Listado de Temas</h6>

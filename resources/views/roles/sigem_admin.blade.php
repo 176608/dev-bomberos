@@ -1,10 +1,10 @@
 <!-- SIGEM PUNTO BLADE PUNTO PHP -->
 @extends('layouts.app')
 <title>@yield('title', 'Módulo Administración SIGEM')</title>
-@section('content')
+
 <div class="container-fluid bg-fonde">
     <!-- Navbar sencilla de administración -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light my-2">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('sigem.admin.index') }}">
                 <i class="bi bi-gear"></i> Panel SIGEM Admin
