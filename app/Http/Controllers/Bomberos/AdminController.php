@@ -45,11 +45,10 @@ class AdminController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            //'password' => Hash::make($request->password),
             'password' => bcrypt($defaultPassword),
             'role' => $request->role,
             'status' => 1,
-            'log_in_status' => 1, // Nuevo usuario debe cambiar contraseña
+            'log_in_status' => 1,
         ]);
 
         return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente');

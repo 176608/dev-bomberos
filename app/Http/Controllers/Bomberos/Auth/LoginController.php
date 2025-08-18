@@ -13,11 +13,6 @@ class LoginController extends Controller
 {
     protected $redirectTo = '/dashboard';
 
-    /*public function __construct()
-    {
-        // Corregimos la sintaxis del middleware
-        $this->middleware('guest')->except('logout');
-    }*/
 
     public function showLoginForm()
     {
@@ -104,13 +99,15 @@ class LoginController extends Controller
     {
         $user = Auth::user();
         
-        if ($user->role === 'Administrador') {
+          if ($user->role === 'Administrador') {
             return redirect()->route('sigem.admin.index');
         } elseif ($user->role === 'Desarrollador') {
             return redirect()->route('admin.panel');
         } elseif ($user->role === 'Capturista') {
             return redirect()->route('capturista.panel');
-        }
+        } /*elseif ($user->role === 'Registrador') {
+            return redirect()->route('registrador.panel');
+        }*/
 
         return redirect()->route('dashboard');
     }

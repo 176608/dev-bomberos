@@ -212,12 +212,12 @@
                         @if(auth()->user()->log_in_status === 0)
                             @if(auth()->user()->role === 'Desarrollador')
                                 {{-- Desarrollador: 4 pestañas --}}
-                                <li class="nav-item">
+                                <!--<li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('dev.panel') ? 'active' : '' }}" 
                                        href="{{ route('dev.panel') }}" title="Panel de Desarrollador">
                                         <i class="bi bi-code-slash"></i> DEV
                                     </a>
-                                </li>
+                                </li>-->
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
@@ -237,6 +237,13 @@
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
                                        href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
                                         <i class="bi bi-droplet-fill"></i> Hidrantes
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
+                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Zonas">
+                                        <i class="bi bi-journal-text"></i> Vias y Zonas
                                     </a>
                                 </li>
                                 
