@@ -459,8 +459,16 @@ class AdminController extends Controller
                     : $subtema->orden_indice;
             }
 
+            // Manejar eliminación de imagen si se solicita
+            if ($request->has('remove_imagen') && $request->remove_imagen == '1') {
+                // El usuario quiere eliminar la imagen actual
+                if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
+                    unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+                }
+                $datos['imagen'] = null;
+            }
             // Manejar upload de nueva imagen
-            if ($request->hasFile('imagen')) {
+            elseif ($request->hasFile('imagen')) {
                 // Eliminar imagen anterior si existe
                 if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
                     unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
@@ -477,6 +485,7 @@ class AdminController extends Controller
                 $archivo->move($directorioImagenes, $nombreArchivo);
                 $datos['imagen'] = $nombreArchivo;
             }
+            // Si no hay remove_imagen ni nuevo archivo, mantener la imagen actual (no hacer nada)
 
             // Actualizar subtema
             $subtema->actualizar($datos);

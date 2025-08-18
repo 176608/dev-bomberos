@@ -165,78 +165,105 @@
             <form id="formAgregarSubtema" method="POST" action="{{ route('sigem.admin.subtemas.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="subtema_titulo" class="form-label">Título del Subtema <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('subtema_titulo') is-invalid @enderror" 
-                                       id="subtema_titulo" name="subtema_titulo" 
-                                       placeholder="Ej: Población por Edad y Sexo" 
-                                       value="{{ old('subtema_titulo') }}" required>
-                                @error('subtema_titulo')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="orden_indice" class="form-label">Orden <small class="text-muted">(en el tema)</small></label>
-                                <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
-                                       id="orden_indice" name="orden_indice" 
-                                       placeholder="Auto" min="1" max="999" 
-                                       value="{{ old('orden_indice') }}">
-                                <small class="form-text text-muted">Dejar vacío para usar el siguiente disponible</small>
-                                @error('orden_indice')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    <!-- Tema Padre -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
+                            <select class="form-select @error('tema_id') is-invalid @enderror" 
+                                    id="tema_id" name="tema_id" required>
+                                <option value="">Seleccionar tema...</option>
+                                @if(isset($temas))
+                                    @foreach($temas as $tema)
+                                        <option value="{{ $tema->tema_id }}" 
+                                                {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
+                                            {{ $tema->tema_titulo }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('tema_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                                <select class="form-select @error('tema_id') is-invalid @enderror" 
-                                        id="tema_id" name="tema_id" required>
-                                    <option value="">Seleccionar tema...</option>
-                                    @if(isset($temas))
-                                        @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}" 
-                                                    {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
-                                                {{ $tema->tema_titulo }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @error('tema_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="clave_subtema" class="form-label">Clave del Subtema</label>
-                                <input type="text" class="form-control @error('clave_subtema') is-invalid @enderror" 
-                                       id="clave_subtema" name="clave_subtema" 
-                                       placeholder="Ej: DEM001A" maxlength="15"
-                                       value="{{ old('clave_subtema') }}">
-                                <small class="form-text text-muted">Opcional. Si no se especifica, heredará la clave del tema.</small>
-                                @error('clave_subtema')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+
+                    <!-- Título del Subtema -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="subtema_titulo" class="form-label">Título del Subtema <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('subtema_titulo') is-invalid @enderror" 
+                                   id="subtema_titulo" name="subtema_titulo" 
+                                   placeholder="Ej: Población por Edad y Sexo" 
+                                   value="{{ old('subtema_titulo') }}" required>
+                            @error('subtema_titulo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="imagen" class="form-label">Imagen del Subtema</label>
-                        <input type="file" class="form-control @error('imagen') is-invalid @enderror" 
-                               id="imagen" name="imagen" accept="image/*">
-                        <small class="form-text text-muted">Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
-                        @error('imagen')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+
+                    <!-- Clave y Orden -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="clave_subtema" class="form-label">Clave del Subtema</label>
+                            <input type="text" class="form-control @error('clave_subtema') is-invalid @enderror" 
+                                   id="clave_subtema" name="clave_subtema" 
+                                   placeholder="Ej: DEM001A" maxlength="15"
+                                   value="{{ old('clave_subtema') }}">
+                            <small class="form-text text-muted">Opcional. Si no se especifica, heredará la clave del tema.</small>
+                            @error('clave_subtema')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-6">
+                            <label for="orden_indice" class="form-label">Orden <small class="text-muted">(en el tema)</small></label>
+                            <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
+                                   id="orden_indice" name="orden_indice" 
+                                   placeholder="Auto" min="1" max="999" 
+                                   value="{{ old('orden_indice') }}">
+                            <small class="form-text text-muted">Dejar vacío para usar el siguiente disponible</small>
+                            @error('orden_indice')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Imagen/Icono -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Imagen del Subtema</label>
+                            <div class="d-flex align-items-start gap-3">
+                                <div id="imagen_preview_container" class="border rounded p-3 text-center" style="width: 120px; height: 120px; background-color: #f8f9fa;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                        <p class="small mt-2 mb-0">Sin imagen</p>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input type="file" class="form-control @error('imagen') is-invalid @enderror d-none" 
+                                           id="imagen" name="imagen" accept="image/*">
+                                    
+                                    <!-- Botones de gestión -->
+                                    <div class="btn-group-vertical d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-primary" id="btn_agregar_imagen_create">
+                                            <i class="bi bi-plus-circle"></i> Agregar Imagen
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning d-none" id="btn_cambiar_imagen_create">
+                                            <i class="bi bi-arrow-repeat"></i> Cambiar Imagen
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger d-none" id="btn_remover_imagen_create">
+                                            <i class="bi bi-trash"></i> Remover Imagen
+                                        </button>
+                                    </div>
+                                    
+                                    <small class="form-text text-muted d-block mt-2">
+                                        Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 2MB
+                                    </small>
+                                    @error('imagen')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="alert alert-info">
@@ -273,48 +300,76 @@
                 <div class="modal-body">
                     <input type="hidden" id="edit_subtema_id" name="subtema_id">
                     
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="edit_subtema_titulo" class="form-label">Título del Subtema <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit_subtema_titulo" name="subtema_titulo" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="edit_orden_indice" class="form-label">Orden</label>
-                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
-                                       min="0" max="999">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_tema_id" name="tema_id" required>
-                                    <option value="">Seleccionar tema...</option>
-                                    @if(isset($temas))
-                                        @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_clave_subtema" class="form-label">Clave del Subtema</label>
-                                <input type="text" class="form-control" id="edit_clave_subtema" name="clave_subtema" maxlength="15">
-                            </div>
+                    <!-- Tema Padre -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="edit_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit_tema_id" name="tema_id" required>
+                                <option value="">Seleccionar tema...</option>
+                                @if(isset($temas))
+                                    @foreach($temas as $tema)
+                                        <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit_imagen" class="form-label">Cambiar Imagen</label>
-                        <input type="file" class="form-control" id="edit_imagen" name="imagen" accept="image/*">
-                        <div id="imagen_actual" class="mt-2"></div>
+
+                    <!-- Título del Subtema -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="edit_subtema_titulo" class="form-label">Título del Subtema <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_subtema_titulo" name="subtema_titulo" required>
+                        </div>
+                    </div>
+
+                    <!-- Clave y Orden -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="edit_clave_subtema" class="form-label">Clave del Subtema</label>
+                            <input type="text" class="form-control" id="edit_clave_subtema" name="clave_subtema" maxlength="15">
+                        </div>
+                        <div class="col-6">
+                            <label for="edit_orden_indice" class="form-label">Orden</label>
+                            <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
+                                   min="0" max="999">
+                        </div>
+                    </div>
+
+                    <!-- Imagen/Icono -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Imagen del Subtema</label>
+                            <div class="d-flex align-items-start gap-3">
+                                <div id="imagen_actual_container" class="border rounded p-3 text-center" style="width: 120px; height: 120px; background-color: #f8f9fa;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                        <p class="small mt-2 mb-0">Sin imagen</p>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input type="file" class="form-control d-none" 
+                                           id="edit_imagen" name="imagen" accept="image/*">
+                                    
+                                    <!-- Botones de gestión -->
+                                    <div class="btn-group-vertical d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-primary" id="btn_agregar_imagen_edit">
+                                            <i class="bi bi-plus-circle"></i> Agregar Imagen
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning d-none" id="btn_cambiar_imagen_edit">
+                                            <i class="bi bi-arrow-repeat"></i> Cambiar Imagen
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger d-none" id="btn_remover_imagen_edit">
+                                            <i class="bi bi-trash"></i> Remover Imagen
+                                        </button>
+                                    </div>
+                                    
+                                    <small class="form-text text-muted d-block mt-2">
+                                        Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 2MB
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -415,6 +470,123 @@ $(document).ready(function() {
         }
     });
     @endif
+
+    // ========================================
+    // EVENTOS PARA MODAL DE CREACIÓN
+    // ========================================
+    
+    // Botón agregar/cambiar imagen para CREAR
+    $('#btn_agregar_imagen_create, #btn_cambiar_imagen_create').on('click', function() {
+        $('#imagen').click();
+    });
+    
+    // Botón remover imagen para CREAR
+    $('#btn_remover_imagen_create').on('click', function() {
+        // Limpiar input y vista previa
+        $('#imagen').val('');
+        $('#imagen_preview_container').html(`
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin imagen</p>
+            </div>
+        `);
+        
+        // Cambiar botones
+        $('#btn_agregar_imagen_create').removeClass('d-none');
+        $('#btn_remover_imagen_create').addClass('d-none');
+        $('#btn_cambiar_imagen_create').addClass('d-none');
+    });
+    
+    // Manejar cambio de archivo para CREAR
+    $('#imagen').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagen_preview_container').html(`
+                    <div class="text-center">
+                        <img src="${e.target.result}" alt="Vista previa" style="max-width: 100%; max-height: 100px;" class="rounded">
+                        <p class="text-muted small mt-2 mb-0">Nueva imagen seleccionada</p>
+                    </div>
+                `);
+                
+                // Cambiar botones
+                $('#btn_agregar_imagen_create').addClass('d-none');
+                $('#btn_remover_imagen_create').removeClass('d-none');
+                $('#btn_cambiar_imagen_create').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ========================================
+    // EVENTOS PARA MODAL DE EDICIÓN
+    // ========================================
+
+    // Botón agregar/cambiar imagen para EDITAR
+    $('#btn_agregar_imagen_edit, #btn_cambiar_imagen_edit').on('click', function() {
+        $('#edit_imagen').click();
+    });
+    
+    // Botón remover imagen para EDITAR
+    $('#btn_remover_imagen_edit').on('click', function() {
+        // Limpiar input y vista previa
+        $('#edit_imagen').val('');
+        $('#imagen_actual_container').html(`
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin imagen</p>
+            </div>
+        `);
+        
+        // Agregar campo oculto para indicar que se debe eliminar la imagen
+        const form = document.getElementById('formEditarSubtema');
+        let removeImageField = form.querySelector('input[name="remove_imagen"]');
+        if (!removeImageField) {
+            removeImageField = document.createElement('input');
+            removeImageField.type = 'hidden';
+            removeImageField.name = 'remove_imagen';
+            removeImageField.value = '1';
+            form.appendChild(removeImageField);
+        } else {
+            removeImageField.value = '1';
+        }
+        
+        // Cambiar botones
+        $('#btn_agregar_imagen_edit').removeClass('d-none');
+        $('#btn_remover_imagen_edit').addClass('d-none');
+        $('#btn_cambiar_imagen_edit').addClass('d-none');
+    });
+    
+    // Manejar cambio de archivo para EDITAR
+    $('#edit_imagen').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Remover el campo de eliminación si existe (ya que se está subiendo una nueva imagen)
+            const form = document.getElementById('formEditarSubtema');
+            const removeImageField = form.querySelector('input[name="remove_imagen"]');
+            if (removeImageField) {
+                removeImageField.remove();
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagen_actual_container').html(`
+                    <div class="text-center">
+                        <img src="${e.target.result}" alt="Vista previa" style="max-width: 100%; max-height: 100px;" class="rounded">
+                        <p class="text-muted small mt-2 mb-0">Nueva imagen seleccionada</p>
+                    </div>
+                `);
+                
+                // Cambiar botones
+                $('#btn_agregar_imagen_edit').addClass('d-none');
+                $('#btn_remover_imagen_edit').removeClass('d-none');
+                $('#btn_cambiar_imagen_edit').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
 });
 
 // Definir rutas para usar en JavaScript
@@ -438,6 +610,13 @@ function editarSubtema(id) {
     document.getElementById('edit_orden_indice').value = orden_indice;
     document.getElementById('edit_clave_subtema').value = clave_code ? clave_code.textContent : '';
     
+    // Limpiar campo de eliminación de imagen si existe
+    const form = document.getElementById('formEditarSubtema');
+    const removeImageField = form.querySelector('input[name="remove_imagen"]');
+    if (removeImageField) {
+        removeImageField.remove();
+    }
+    
     // Seleccionar el tema en el select
     const temaSelect = document.getElementById('edit_tema_id');
     if (tema_badge) {
@@ -450,22 +629,39 @@ function editarSubtema(id) {
         }
     }
     
-    // Mostrar imagen actual si existe
+    // Configurar vista previa de la imagen
     const imagenCell = fila.cells[3];
     const imagenImg = imagenCell.querySelector('img');
-    const imagenActualDiv = document.getElementById('imagen_actual');
+    const imagenActualContainer = document.getElementById('imagen_actual_container');
+    const btnAgregar = document.getElementById('btn_agregar_imagen_edit');
+    const btnRemover = document.getElementById('btn_remover_imagen_edit');
+    const btnCambiar = document.getElementById('btn_cambiar_imagen_edit');
     
     if (imagenImg) {
-        imagenActualDiv.innerHTML = `
-            <small class="text-muted">Imagen actual:</small><br>
-            <img src="${imagenImg.src}" alt="Imagen actual" class="img-thumbnail" style="max-width: 100px;">
+        // Mostrar imagen existente
+        imagenActualContainer.innerHTML = `
+            <div class="text-center">
+                <img src="${imagenImg.src}" alt="Imagen actual" style="max-width: 100%; max-height: 100px;" class="rounded">
+                <p class="text-muted small mt-2 mb-0">Imagen actual</p>
+            </div>
         `;
+        btnAgregar.classList.add('d-none');
+        btnRemover.classList.remove('d-none');
+        btnCambiar.classList.remove('d-none');
     } else {
-        imagenActualDiv.innerHTML = '<small class="text-muted">Sin imagen actual</small>';
+        // Mostrar placeholder sin imagen
+        imagenActualContainer.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="bi bi-image" style="font-size: 2rem;"></i>
+                <p class="small mt-2 mb-0">Sin imagen</p>
+            </div>
+        `;
+        btnAgregar.classList.remove('d-none');
+        btnRemover.classList.add('d-none');
+        btnCambiar.classList.add('d-none');
     }
     
     // Actualizar la acción del formulario
-    const form = document.getElementById('formEditarSubtema');
     form.action = routesSubtemas.update.replace(':id', id);
     
     // Mostrar modal
@@ -549,7 +745,7 @@ document.getElementById('subtema_titulo')?.addEventListener('input', function() 
                               return replacements[match];
                           })
                           .replace(/[^A-Z0-9]/g, '')
-                          .substring(0, 6) + 'A';
+                          .substring(0, 3) + 'A';
         
         document.getElementById('clave_subtema').placeholder = `Sugerido: ${clave}`;
     }
@@ -560,10 +756,25 @@ document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.moda
     this.querySelector('form').reset();
     document.getElementById('orden_indice').placeholder = 'Auto';
     document.getElementById('clave_subtema').placeholder = 'Ej: DEM001A';
+    document.getElementById('imagen_preview_container').innerHTML = `
+        <div class="text-center text-muted">
+            <i class="bi bi-image" style="font-size: 2rem;"></i>
+            <p class="small mt-2 mb-0">Sin imagen</p>
+        </div>
+    `;
+    $('#btn_agregar_imagen_create').removeClass('d-none');
+    $('#btn_remover_imagen_create').addClass('d-none');
+    $('#btn_cambiar_imagen_create').addClass('d-none');
 });
 
 document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('imagen_actual').innerHTML = '';
+    document.getElementById('imagen_actual_container').innerHTML = '';
+    
+    // Limpiar campo de eliminación de imagen si existe
+    const removeImageField = this.querySelector('input[name="remove_imagen"]');
+    if (removeImageField) {
+        removeImageField.remove();
+    }
 });
 </script>
