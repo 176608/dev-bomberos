@@ -43,13 +43,13 @@
                                     <p class="text-muted">Administra las Zonas del sistema</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-success" type="button">
-                                            <i class="bi bi-plus-circle"></i> Nueva Zona
+                                            <i class="bi bi-plus-circle"></i> Alta Zona
                                         </button>
                                         <button class="btn btn-outline-primary" type="button">
                                             <i class="bi bi-list-ul"></i> Ver Zonas
                                         </button>
                                     </div>
-                                    <div class="col">
+                                    <div class="text-center">
                                         <div class="border-end">
                                             <h4 class="text-success">--</h4>
                                             <small class="text-muted">Total Zonas</small>
@@ -72,13 +72,13 @@
                                     <p class="text-muted">Administra las Vías del sistema</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-warning" type="button">
-                                            <i class="bi bi-plus-circle"></i> Nueva Vía
+                                            <i class="bi bi-plus-circle"></i> Alta Vía
                                         </button>
                                         <button class="btn btn-outline-primary" type="button">
                                             <i class="bi bi-list-ul"></i> Ver Vías
                                         </button>
                                     </div>
-                                    <div class="col">
+                                    <div class="text-center">
                                         <h4 class="text-warning">--</h4>
                                         <small class="text-muted">Total Vías</small>
                                     </div>
