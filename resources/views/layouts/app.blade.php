@@ -272,6 +272,16 @@
                                     </a>
                                 </li>
                             @endif
+
+                            @elseif(auth()->user()->role === 'Registrador')
+                                {{-- Registrador: solo su panel --}}
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
+                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Zonas">
+                                        <i class="bi bi-journal-text"></i> Vias y Zonas
+                                    </a>
+                                </li>
+                            @endif
                         @endif
                     </ul>
 
