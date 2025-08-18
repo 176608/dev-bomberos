@@ -271,7 +271,6 @@
                                         <i class="bi bi-droplet-fill"></i> Hidrantes
                                     </a>
                                 </li>
-                            @endif
 
                             @elseif(auth()->user()->role === 'Registrador')
                                 {{-- Registrador: solo su panel --}}
