@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Bomberos;
 use App\Models\Bomberos\Hidrante;
 use App\Models\Bomberos\Colonias;
 use App\Models\Bomberos\Calles;
-//use App\Models\Bomberos\CatalogoCalle;
+use App\Models\Bomberos\CatalogoCalle;
 use App\Models\Bomberos\ConfiguracionCapturista;
 use App\Models\Bomberos\CambioEnHidrante;
 use Illuminate\Http\Request;

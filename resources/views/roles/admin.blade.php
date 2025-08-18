@@ -107,6 +107,7 @@
                         <label class="form-label">Rol</label>
                         <select class="form-select" name="role" required>
                             <option value="Capturista">Capturista</option>
+                            <option value="Registrador">Registrador</option>
                             <option value="Desarrollador">Desarrollador</option>
                             <option value="Administrador">Administrador</option>
                         </select>
@@ -148,6 +149,7 @@
                             <label class="form-label">Rol</label>
                             <select class="form-select @error('role') is-invalid @enderror" name="role" required>
                                 <option value="Capturista" {{ $user->role === 'Capturista' ? 'selected' : '' }}>Capturista</option>
+                                <option value="Registrador" {{ $user->role === 'Registrador' ? 'selected' : '' }}>Registrador</option>
                                 <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
                             </select>
