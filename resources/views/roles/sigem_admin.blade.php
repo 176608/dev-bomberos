@@ -1,7 +1,7 @@
 <!-- SIGEM PUNTO BLADE PUNTO PHP -->
 @extends('layouts.app')
 <title>@yield('title', 'Módulo Administración SIGEM')</title>
-
+@section('content')
 <div class="container-fluid bg-fonde">
     <!-- Navbar sencilla de administración -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light my-2">
