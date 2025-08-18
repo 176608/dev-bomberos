@@ -91,7 +91,7 @@ class AdminController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar usuario: ' . $e->getMessage()
+                    'message' => '1Error al actualizar usuario: ' . $e->getMessage()
                 ], 422);
             }
 
