@@ -2,7 +2,7 @@
 @extends('layouts.app')
 <title>@yield('title', 'Módulo Administración SIGEM')</title>
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid bg-fonde">
     <!-- Navbar sencilla de administración -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container-fluid">
@@ -39,8 +39,7 @@
         </div>
     </nav>
 
-    <div class="container-fluid bg-fonde">
-        <!-- Contenido dinámico -->
+    <!-- Contenido dinámico -->
     @if(isset($crud_view))
         @include($crud_view)
     @else
@@ -58,7 +57,5 @@
             </div>
         </div>
     @endif
-    </div>
-
 </div>
 @endsection
