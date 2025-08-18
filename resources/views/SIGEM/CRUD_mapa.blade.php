@@ -531,6 +531,19 @@ $(document).ready(function() {
             </div>
         `);
         
+        // Agregar campo oculto para indicar que se debe eliminar la imagen
+        const form = document.getElementById('formEditarMapa');
+        let removeIconField = form.querySelector('input[name="remove_icon"]');
+        if (!removeIconField) {
+            removeIconField = document.createElement('input');
+            removeIconField.type = 'hidden';
+            removeIconField.name = 'remove_icon';
+            removeIconField.value = '1';
+            form.appendChild(removeIconField);
+        } else {
+            removeIconField.value = '1';
+        }
+        
         // Cambiar botones
         $('#btn_agregar_icono_edit').removeClass('d-none');
         $('#btn_remover_icono_edit').addClass('d-none');
@@ -541,6 +554,13 @@ $(document).ready(function() {
     $('#edit_icono').on('change', function() {
         const file = this.files[0];
         if (file) {
+            // Remover el campo de eliminación si existe (ya que se está subiendo una nueva imagen)
+            const form = document.getElementById('formEditarMapa');
+            const removeIconField = form.querySelector('input[name="remove_icon"]');
+            if (removeIconField) {
+                removeIconField.remove();
+            }
+            
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#icono_actual_container').html(`
@@ -573,15 +593,15 @@ function editarMapa(id) {
     const celdas = fila.cells;
     
     // Extraer datos de las celdas con los índices correctos
-    const nombre_mapa = celdas[1].querySelector('strong').textContent.trim();  // Columna 1: Nombre Mapa
-    const nombre_seccion = celdas[2].textContent.trim();                      // Columna 2: Nombre Sección
+    const nombre_mapa = celdas[1].querySelector('strong').textContent.trim();
+    const nombre_seccion = celdas[2].textContent.trim();
     const descripcion_completa = celdas[3].querySelector('span') ? 
         celdas[3].querySelector('span').getAttribute('title') || celdas[3].textContent.trim() : 
-        celdas[3].textContent.trim();                                         // Columna 3: Descripción
-    const enlace_btn = celdas[4].querySelector('a');                          // Columna 4: Enlace
+        celdas[3].textContent.trim();
+    const enlace_btn = celdas[4].querySelector('a');
     const enlace = enlace_btn ? enlace_btn.getAttribute('href') : '';
-    const icono_img = celdas[5].querySelector('img');                         // Columna 5: Icono
-    const codigo = celdas[6].querySelector('code').textContent.trim();        // Columna 6: Código
+    const icono_img = celdas[5].querySelector('img');
+    const codigo = celdas[6].querySelector('code').textContent.trim();
     
     // Llenar el modal de edición
     document.getElementById('edit_mapa_id').value = id;
@@ -590,6 +610,13 @@ function editarMapa(id) {
     document.getElementById('edit_descripcion').value = descripcion_completa === 'Sin descripción' ? '' : descripcion_completa;
     document.getElementById('edit_enlace').value = enlace;
     document.getElementById('edit_codigo_mapa').value = codigo === 'Sin código' ? '' : codigo;
+    
+    // Limpiar campo de eliminación de icono si existe
+    const form = document.getElementById('formEditarMapa');
+    const removeIconField = form.querySelector('input[name="remove_icon"]');
+    if (removeIconField) {
+        removeIconField.remove();
+    }
     
     // Configurar vista previa del icono
     const iconoContainer = document.getElementById('icono_actual_container');
@@ -622,7 +649,6 @@ function editarMapa(id) {
     }
     
     // Actualizar la acción del formulario usando las rutas named
-    const form = document.getElementById('formEditarMapa');
     form.action = routes.update.replace(':id', id);
     
     // Mostrar modal
@@ -675,6 +701,13 @@ document.getElementById('modalAgregarMapa')?.addEventListener('hidden.bs.modal',
 
 document.getElementById('modalEditarMapa')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
+    
+    // Limpiar campo de eliminación de icono si existe
+    const removeIconField = this.querySelector('input[name="remove_icon"]');
+    if (removeIconField) {
+        removeIconField.remove();
+    }
+    
     document.getElementById('icono_actual_container').innerHTML = '';
 });
 </script>

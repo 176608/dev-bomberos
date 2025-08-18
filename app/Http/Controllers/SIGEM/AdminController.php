@@ -168,8 +168,16 @@ class AdminController extends Controller
                 'codigo_mapa'
             ]);
 
+            // Manejar eliminación de icono si se solicita
+            if ($request->has('remove_icon') && $request->remove_icon == '1') {
+                // El usuario quiere eliminar el icono actual
+                if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
+                    unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+                }
+                $datos['icono'] = null;
+            }
             // Manejar upload de nuevo icono
-            if ($request->hasFile('icono')) {
+            elseif ($request->hasFile('icono')) {
                 // Eliminar icono anterior si existe
                 if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
                     unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
@@ -180,6 +188,7 @@ class AdminController extends Controller
                 $archivo->move(public_path('img/SIGEM_mapas'), $nombreArchivo);
                 $datos['icono'] = $nombreArchivo;
             }
+            // Si no hay remove_icon ni nuevo archivo, mantener el icono actual (no hacer nada)
 
             // Actualizar mapa
             $mapa->actualizar($datos);
