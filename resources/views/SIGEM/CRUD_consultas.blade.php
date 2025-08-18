@@ -1043,7 +1043,7 @@ function verContenidoCE(id) {
     
     alert('Contenido CE ID: ' + id + '\n\nPreview:\n' + contenidoPreview + '\n\n(Modal de vista completa pendiente)');
 }
-
+/*
 function editarContenidoCE(id) {
     // Mostrar loading en el modal de edición
     const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarContenido'));
@@ -1109,7 +1109,7 @@ function editarContenidoCE(id) {
             alert('Error al cargar los datos del contenido');
             modalEditar.hide();
         });
-}
+}*/
 
 function eliminarContenidoCE(id) {
     // Obtener información de la fila para confirmación más específica
