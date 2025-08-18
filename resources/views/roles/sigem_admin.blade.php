@@ -2,7 +2,7 @@
 @extends('layouts.app')
 <title>@yield('title', 'Módulo Administración SIGEM')</title>
 @section('content')
-<div class="container-fluid bg-fonde">
+<div class="container-fluid bg-fonde pb-4">
     <!-- Navbar sencilla de administración -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4">
         <div class="container-fluid">
