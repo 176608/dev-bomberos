@@ -64,7 +64,7 @@
     
     <!-- ========================================== CONTENIDOS CE ========================================== -->
     <div class="tab-pane fade show active pb-5" id="nav-contenidos" role="tabpanel" aria-labelledby="nav-contenidos-tab">
-        <div class="row">
+        <div class="row pb-2">
             <div class="col-md-8">
                 <h6><i class="bi bi-file-earmark-text-fill"></i> Contenidos de Consultas Express</h6>
                 <small class="text-muted">Gestiona el contenido HTML de las consultas express</small>
@@ -167,7 +167,7 @@
 
     <!-- ========================================== SUBTEMAS CE ========================================== -->
     <div class="tab-pane fade pb-5" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
-        <div class="row">
+        <div class="row pb-2">
             <div class="col-md-8">
                 <h6><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
                 <small class="text-muted">Gestiona los subtemas asociados a cada tema principal</small>
@@ -248,7 +248,7 @@
 
     <!-- ========================================== TEMAS CE ========================================== -->
     <div class="tab-pane fade pb-5" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
-        <div class="row">
+        <div class="row pb-2">
             <div class="col-md-8">
                 <h6><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
                 <small class="text-muted">Gestiona los temas principales para las consultas express</small>
