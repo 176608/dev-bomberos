@@ -1,7 +1,7 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
-@section('title', 'Sistema registro de Vías y Zonas')
+@section('title', 'Sistema registro de Vías y Colonias')
 
 @section('content')
 <div class="container-fluid mt-4">
@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="text-primary">
                     <i class="bi bi-journal-text"></i> 
-                    Sistema de Registro de Vías y Zonas
+                    Sistema de Registro de Vías y Colonias
                 </h2>
                 <div class="text-muted">
                     <small>
