@@ -400,7 +400,7 @@ $(document).ready(function() {
                 { data: 'Tipovial', name: 'Tipovial' },
                 { data: 'CLAVE', name: 'CLAVE' },
                 { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
-            ]},
+            ],
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
             },
