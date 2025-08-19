@@ -49,12 +49,6 @@
                                             <i class="bi bi-list-ul"></i> Ver Zonas
                                         </button>
                                     </div>
-                                    <div class="text-center mt-3">
-                                        <div class="border-end">
-                                            <h4 class="text-success">--</h4>
-                                            <small class="text-muted">Total Zonas</small>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -77,10 +71,6 @@
                                         <button class="btn btn-outline-primary" type="button" id="verViasBtn">
                                             <i class="bi bi-list-ul"></i> Ver Vías
                                         </button>
-                                    </div>
-                                    <div class="text-center mt-3">
-                                        <h4 class="text-warning">--</h4>
-                                        <small class="text-muted">Total Vías</small>
                                     </div>
                                 </div>
                             </div>
