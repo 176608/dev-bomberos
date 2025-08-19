@@ -28,7 +28,7 @@
                         Panel de Control - Vías y Zonas
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: grey;">
                     <div class="row g-4">
                         <!-- Sección Zonas -->
                         <div class="col-md-6">
