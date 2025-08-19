@@ -108,11 +108,19 @@
                         <label for="tipo" class="form-label">Tipo</label>
                         <select class="form-select" id="tipo" name="tipo" required>
                             <option value="">Seleccionar tipo...</option>
-                            <option value="COLONIA">COLONIA</option>
                             <option value="FRACCIONAMIENTO">FRACCIONAMIENTO</option>
-                            <option value="UNIDAD HABITACIONAL">UNIDAD HABITACIONAL</option>
-                            <option value="BARRIO">BARRIO</option>
-                            <option value="PUEBLO">PUEBLO</option>
+                            <option value="CONDOMINIO">CONDOMINIO</option>
+                            <option value="COLONIA">COLONIA</option>
+                            <option value="NINGUNO">NINGUNO</option>
+                            <option value="INDUSTRIAL">INDUSTRIAL</option>
+                            <option value="PANTEON">PANTEON</option>
+                            <option value="MAQUILA">MAQUILA</option>
+                            <option value="UNIVERSIDAD">UNIVERSIDAD</option>
+                            <option value="PARQUE">PARQUE</option>
+                            <option value="PARQUE INDUSTRIAL">PARQUE INDUSTRIAL</option>
+                            <option value="INSTALACION DE RIESGO">INSTALACION DE RIESGO</option>
+                            <option value="AEROPUERTO">AEROPUERTO</option>
+                            <option value="TRIBUNAL">TRIBUNAL</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -149,13 +157,20 @@
                         <select class="form-select" id="tipovial" name="tipovial" required>
                             <option value="">Seleccionar tipo...</option>
                             <option value="CALLE">CALLE</option>
+                            <option value="PRIVADA">PRIVADA</option>
+                            <option value="CERRADA">CERRADA</option>
                             <option value="AVENIDA">AVENIDA</option>
+                            <option value="CIRCUITO">CIRCUITO</option>
+                            <option value="PROLONGACION">PROLONGACION</option>
                             <option value="BOULEVARD">BOULEVARD</option>
                             <option value="CALLEJON">CALLEJON</option>
-                            <option value="CERRADA">CERRADA</option>
-                            <option value="PRIVADA">PRIVADA</option>
-                            <option value="PASAJE">PASAJE</option>
+                            <option value="RETORNO">RETORNO</option>
+                            <option value="CALZADA">CALZADA</option>
                             <option value="ANDADOR">ANDADOR</option>
+                            <option value="VIADUCTO">VIADUCTO</option>
+                            <option value="DIAGONAL">DIAGONAL</option>
+                            <option value="CARRETERA">CARRETERA</option>
+                            <option value="EJE VIAL">EJE VIAL</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -193,11 +208,19 @@
                         <label for="edit_tipo" class="form-label">Tipo</label>
                         <select class="form-select" id="edit_tipo" name="tipo" required>
                             <option value="">Seleccionar tipo...</option>
-                            <option value="COLONIA">COLONIA</option>
                             <option value="FRACCIONAMIENTO">FRACCIONAMIENTO</option>
-                            <option value="UNIDAD HABITACIONAL">UNIDAD HABITACIONAL</option>
-                            <option value="BARRIO">BARRIO</option>
-                            <option value="PUEBLO">PUEBLO</option>
+                            <option value="CONDOMINIO">CONDOMINIO</option>
+                            <option value="COLONIA">COLONIA</option>
+                            <option value="NINGUNO">NINGUNO</option>
+                            <option value="INDUSTRIAL">INDUSTRIAL</option>
+                            <option value="PANTEON">PANTEON</option>
+                            <option value="MAQUILA">MAQUILA</option>
+                            <option value="UNIVERSIDAD">UNIVERSIDAD</option>
+                            <option value="PARQUE">PARQUE</option>
+                            <option value="PARQUE INDUSTRIAL">PARQUE INDUSTRIAL</option>
+                            <option value="INSTALACION DE RIESGO">INSTALACION DE RIESGO</option>
+                            <option value="AEROPUERTO">AEROPUERTO</option>
+                            <option value="TRIBUNAL">TRIBUNAL</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -236,13 +259,20 @@
                         <select class="form-select" id="edit_tipovial" name="tipovial" required>
                             <option value="">Seleccionar tipo...</option>
                             <option value="CALLE">CALLE</option>
+                            <option value="PRIVADA">PRIVADA</option>
+                            <option value="CERRADA">CERRADA</option>
                             <option value="AVENIDA">AVENIDA</option>
+                            <option value="CIRCUITO">CIRCUITO</option>
+                            <option value="PROLONGACION">PROLONGACION</option>
                             <option value="BOULEVARD">BOULEVARD</option>
                             <option value="CALLEJON">CALLEJON</option>
-                            <option value="CERRADA">CERRADA</option>
-                            <option value="PRIVADA">PRIVADA</option>
-                            <option value="PASAJE">PASAJE</option>
+                            <option value="RETORNO">RETORNO</option>
+                            <option value="CALZADA">CALZADA</option>
                             <option value="ANDADOR">ANDADOR</option>
+                            <option value="VIADUCTO">VIADUCTO</option>
+                            <option value="DIAGONAL">DIAGONAL</option>
+                            <option value="CARRETERA">CARRETERA</option>
+                            <option value="EJE VIAL">EJE VIAL</option>
                         </select>
                     </div>
                     <div class="mb-3">
