@@ -269,8 +269,8 @@ $(document).ready(function() {
 
     // Función para resetear estados de botones
     function resetButtonStates() {
-        $('#verZonasBtn, #verViasBtn').removeClass('btn-warning btn-success btn-warning')
-            .addClass('btn-outline-warning');
+        $('#verZonasBtn, #verViasBtn').removeClass('btn-warning btn-success')
+            .addClass('btn-outline-warning btn-outline-success');
     }
 
     // Función para cargar tabla de zonas
