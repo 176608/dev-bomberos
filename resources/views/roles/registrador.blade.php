@@ -267,10 +267,11 @@ $(document).ready(function() {
     let zonasTable = null;
     let viasTable = null;
 
-    // Función para resetear estados de botones
     function resetButtonStates() {
-        $('#verZonasBtn, #verViasBtn').removeClass('btn-success btn-warning')
-            .addClass('btn-outline-success btn-outline-warning');
+        // Resetear botón de zonas (mantener success)
+        $('#verZonasBtn').removeClass('btn-success').addClass('btn-outline-success');
+        // Resetear botón de vías (mantener warning)
+        $('#verViasBtn').removeClass('btn-warning').addClass('btn-outline-warning');
     }
 
     // Función para cargar tabla de zonas
