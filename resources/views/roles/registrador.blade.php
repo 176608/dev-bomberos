@@ -45,7 +45,7 @@
                                         <button class="btn btn-outline-success" type="button" id="altaZonaBtn" data-bs-toggle="modal" data-bs-target="#createZonaModal">
                                             <i class="bi bi-plus-circle"></i> Alta Zona
                                         </button>
-                                        <button class="btn btn-outline-primary" type="button" id="verZonasBtn">
+                                        <button class="btn btn-outline-success" type="button" id="verZonasBtn">
                                             <i class="bi bi-list-ul"></i> Ver Zonas
                                         </button>
                                     </div>
@@ -68,7 +68,7 @@
                                         <button class="btn btn-outline-warning" type="button" id="altaViaBtn" data-bs-toggle="modal" data-bs-target="#createViaModal">
                                             <i class="bi bi-plus-circle"></i> Alta Vía
                                         </button>
-                                        <button class="btn btn-outline-primary" type="button" id="verViasBtn">
+                                        <button class="btn btn-outline-warning" type="button" id="verViasBtn">
                                             <i class="bi bi-list-ul"></i> Ver Vías
                                         </button>
                                     </div>
@@ -269,8 +269,8 @@ $(document).ready(function() {
 
     // Función para resetear estados de botones
     function resetButtonStates() {
-        $('#verZonasBtn, #verViasBtn').removeClass('btn-primary btn-success btn-warning')
-            .addClass('btn-outline-primary');
+        $('#verZonasBtn, #verViasBtn').removeClass('btn-warning btn-success btn-warning')
+            .addClass('btn-outline-warning');
     }
 
     // Función para cargar tabla de zonas
@@ -399,7 +399,7 @@ $(document).ready(function() {
         } else {
             // Mostrar tabla de zonas
             resetButtonStates();
-            $(this).removeClass('btn-outline-primary').addClass('btn-success');
+            $(this).removeClass('btn-outline-success').addClass('btn-success');
             loadZonasTable();
         }
     });
@@ -413,7 +413,7 @@ $(document).ready(function() {
         } else {
             // Mostrar tabla de vías
             resetButtonStates();
-            $(this).removeClass('btn-outline-primary').addClass('btn-warning');
+            $(this).removeClass('btn-outline-warning').addClass('btn-warning');
             loadViasTable();
         }
     });
@@ -440,7 +440,7 @@ $(document).ready(function() {
                     
                     // Mostrar tabla de zonas automáticamente
                     resetButtonStates();
-                    $('#verZonasBtn').removeClass('btn-outline-primary').addClass('btn-success');
+                    $('#verZonasBtn').removeClass('btn-outline-success').addClass('btn-success');
                     loadZonasTable();
                 }
             },
@@ -473,7 +473,7 @@ $(document).ready(function() {
                     
                     // Mostrar tabla de vías automáticamente
                     resetButtonStates();
-                    $('#verViasBtn').removeClass('btn-outline-primary').addClass('btn-warning');
+                    $('#verViasBtn').removeClass('btn-outline-warning').addClass('btn-warning');
                     loadViasTable();
                 }
             },
