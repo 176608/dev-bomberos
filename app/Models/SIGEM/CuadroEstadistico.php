@@ -33,10 +33,7 @@ class CuadroEstadistico extends Model
         'pdf_file',
         'permite_grafica',
         'tipo_grafica_permitida',
-        'eje_vertical_mchart',
-        'pie_pagina',
-        'mapa_id',
-        'invertir_eje_vertical_horizontal'
+        'pie_pagina'
     ];
     
     /**
@@ -51,11 +48,8 @@ class CuadroEstadistico extends Model
         'excel_file' => 'string',
         'pdf_file' => 'string',
         'permite_grafica' => 'boolean',
-        'tipo_grafica_permitida' => 'string',
-        'eje_vertical_mchart' => 'string',
-        'pie_pagina' => 'string',
-        'mapa_id' => 'integer',
-        'invertir_eje_vertical_horizontal' => 'boolean'
+        'tipo_grafica_permitida' => 'array', // Cambiado a array para múltiples opciones
+        'pie_pagina' => 'string'
     ];
     
     /**

@@ -575,24 +575,29 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
                 'permite_grafica' => 'nullable|boolean',
-                'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
-                'eje_vertical_mchart' => 'nullable|string|max:100',
-                'pie_pagina' => 'nullable|string|max:500',
-                'invertir_eje_vertical_horizontal' => 'nullable|boolean'
+                'tipo_grafica_permitida' => 'nullable|array',
+                'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
+                'pie_pagina' => 'nullable|string|max:1000'
             ]);
+
+            // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
+            if ($request->has('permite_grafica') && (!$request->has('tipo_grafica_permitida') || empty($request->tipo_grafica_permitida))) {
+                return redirect()
+                    ->route('sigem.admin.cuadros')
+                    ->withErrors(['tipo_grafica_permitida' => 'Si permite gráfica, debe seleccionar al menos un tipo.'])
+                    ->withInput();
+            }
 
             $datos = $request->only([
                 'codigo_cuadro',
                 'cuadro_estadistico_titulo',
                 'cuadro_estadistico_subtitulo',
                 'subtema_id',
-                'eje_vertical_mchart',
                 'pie_pagina'
             ]);
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['invertir_eje_vertical_horizontal'] = $request->has('invertir_eje_vertical_horizontal');
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Crear directorios si no existen
@@ -661,24 +666,29 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
                 'permite_grafica' => 'nullable|boolean',
-                'tipo_grafica_permitida' => 'nullable|string|in:bar,line,pie,doughnut',
-                'eje_vertical_mchart' => 'nullable|string|max:100',
-                'pie_pagina' => 'nullable|string|max:500',
-                'invertir_eje_vertical_horizontal' => 'nullable|boolean'
+                'tipo_grafica_permitida' => 'nullable|array',
+                'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
+                'pie_pagina' => 'nullable|string|max:1000'
             ]);
+
+            // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
+            if ($request->has('permite_grafica') && (!$request->has('tipo_grafica_permitida') || empty($request->tipo_grafica_permitida))) {
+                return redirect()
+                    ->route('sigem.admin.cuadros')
+                    ->withErrors(['tipo_grafica_permitida' => 'Si permite gráfica, debe seleccionar al menos un tipo.'])
+                    ->withInput();
+            }
 
             $datos = $request->only([
                 'codigo_cuadro',
                 'cuadro_estadistico_titulo',
                 'cuadro_estadistico_subtitulo',
                 'subtema_id',
-                'eje_vertical_mchart',
                 'pie_pagina'
             ]);
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['invertir_eje_vertical_horizontal'] = $request->has('invertir_eje_vertical_horizontal');
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Directorios para archivos

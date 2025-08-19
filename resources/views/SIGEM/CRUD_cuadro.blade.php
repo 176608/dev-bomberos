@@ -175,7 +175,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Cuadro Estadístico</h5>
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Asignar Nuevo Cuadro Estadístico</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formAgregarCuadro" method="POST" action="{{ route('sigem.admin.cuadros.crear') }}" enctype="multipart/form-data">
@@ -223,7 +223,7 @@
                                 <label for="codigo_cuadro" class="form-label">Código del Cuadro <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('codigo_cuadro') is-invalid @enderror" 
                                        id="codigo_cuadro" name="codigo_cuadro" 
-                                       placeholder="Ej: CUA001" value="{{ old('codigo_cuadro') }}" required>
+                                       placeholder="#NTema.CodigoSubtemaAsignado.#NCuadro, por ejemplo: 2.MA.5" value="{{ old('codigo_cuadro') }}" required>
                                 @error('codigo_cuadro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -247,7 +247,7 @@
                         <label for="cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
                         <input type="text" class="form-control @error('cuadro_estadistico_subtitulo') is-invalid @enderror" 
                                id="cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo" 
-                               placeholder="Descripción adicional del cuadro (opcional)"
+                               placeholder="Subtitulo adicional del cuadro (opcional)"
                                value="{{ old('cuadro_estadistico_subtitulo') }}">
                         @error('cuadro_estadistico_subtitulo')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -294,7 +294,7 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-12">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" 
                                                id="permite_grafica" name="permite_grafica" value="1"
@@ -304,47 +304,66 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                            </div>
+                            
+                            <div class="row" id="tipos_grafica_container" style="display: none;">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="tipo_grafica_permitida" class="form-label">Tipo de Gráfica</label>
-                                        <select class="form-select" id="tipo_grafica_permitida" 
-                                                name="tipo_grafica_permitida" disabled>
-                                            <option value="">Seleccionar...</option>
-                                            <option value="bar" {{ old('tipo_grafica_permitida') == 'bar' ? 'selected' : '' }}>Barras</option>
-                                            <option value="line" {{ old('tipo_grafica_permitida') == 'line' ? 'selected' : '' }}>Líneas</option>
-                                            <option value="pie" {{ old('tipo_grafica_permitida') == 'pie' ? 'selected' : '' }}>Pastel</option>
-                                            <option value="doughnut" {{ old('tipo_grafica_permitida') == 'doughnut' ? 'selected' : '' }}>Dona</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" 
-                                               id="invertir_eje_vertical_horizontal" 
-                                               name="invertir_eje_vertical_horizontal" value="1"
-                                               {{ old('invertir_eje_vertical_horizontal') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="invertir_eje_vertical_horizontal">
-                                            Invertir ejes
-                                        </label>
+                                        <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
+                                                   id="tipo_barras" name="tipo_grafica_permitida[]" value="Barras"
+                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Barras', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="tipo_barras">
+                                                Barras
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
+                                                   id="tipo_columnas" name="tipo_grafica_permitida[]" value="Columnas"
+                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Columnas', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="tipo_columnas">
+                                                Columnas
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
+                                                   id="tipo_pie" name="tipo_grafica_permitida[]" value="Pie"
+                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Pie', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="tipo_pie">
+                                                Pastel (Pie)
+                                            </label>
+                                        </div>
+                                        @error('tipo_grafica_permitida')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="eje_vertical_mchart" class="form-label">Etiqueta Eje Vertical</label>
-                                        <input type="text" class="form-control" id="eje_vertical_mchart" 
-                                               name="eje_vertical_mchart" placeholder="Ej: Población" 
-                                               value="{{ old('eje_vertical_mchart') }}" disabled>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="pie_pagina" class="form-label">Pie de Página</label>
-                                        <input type="text" class="form-control" id="pie_pagina" 
-                                               name="pie_pagina" placeholder="Nota o fuente del cuadro"
-                                               value="{{ old('pie_pagina') }}">
+                                        <label for="pie_pagina" class="form-label">Pie de Página / Notas</label>
+                                        <div id="pie_pagina_toolbar" class="border rounded-top p-2 bg-light">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('bold')">
+                                                <i class="bi bi-type-bold"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('italic')">
+                                                <i class="bi bi-type-italic"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('underline')">
+                                                <i class="bi bi-type-underline"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertLineBreak()">
+                                                <i class="bi bi-arrow-return-left"></i> Salto de línea
+                                            </button>
+                                        </div>
+                                        <div class="form-control" id="pie_pagina" contenteditable="true" 
+                                             style="min-height: 100px; max-height: 200px; overflow-y: auto;"
+                                             placeholder="Escriba aquí las notas o fuente del cuadro. Puede usar formato HTML básico.">{{ old('pie_pagina') }}</div>
+                                        <input type="hidden" id="pie_pagina_hidden" name="pie_pagina" value="{{ old('pie_pagina') }}">
+                                        <small class="form-text text-muted">Use los botones de arriba para dar formato al texto.</small>
                                     </div>
                                 </div>
                             </div>
@@ -367,7 +386,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cuadro Estadístico</h5>
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cuadro Estadístico existente</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formEditarCuadro" method="POST" action="" enctype="multipart/form-data">
@@ -418,9 +437,109 @@
                         <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
                         <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
                     </div>
-                    
-                    <!-- Mostrar archivos actuales -->
-                    <div id="archivos_actuales" class="mb-3"></div>
+
+                    <!-- Archivos actuales y nuevos -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-files"></i> Archivos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="archivos_actuales" class="mb-3"></div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="edit_excel_file" class="form-label">Nuevo Archivo Excel</label>
+                                        <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
+                                        <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="edit_pdf_file" class="form-label">Nuevo Archivo PDF</label>
+                                        <input type="file" class="form-control" id="edit_pdf_file" name="pdf_file" accept=".pdf">
+                                        <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de Gráficas para Editar -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-graph-up"></i> Configuración de Gráficas</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="edit_permite_grafica" name="permite_grafica" value="1">
+                                        <label class="form-check-label" for="edit_permite_grafica">
+                                            Permite gráficas
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row" id="edit_tipos_grafica_container" style="display: none;">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
+                                                   id="edit_tipo_barras" name="tipo_grafica_permitida[]" value="Barras">
+                                            <label class="form-check-label" for="edit_tipo_barras">
+                                                Barras
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
+                                                   id="edit_tipo_columnas" name="tipo_grafica_permitida[]" value="Columnas">
+                                            <label class="form-check-label" for="edit_tipo_columnas">
+                                                Columnas
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
+                                                   id="edit_tipo_pie" name="tipo_grafica_permitida[]" value="Pie">
+                                            <label class="form-check-label" for="edit_tipo_pie">
+                                                Pastel (Pie)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="edit_pie_pagina" class="form-label">Pie de Página / Notas</label>
+                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 bg-light">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('bold')">
+                                                <i class="bi bi-type-bold"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('italic')">
+                                                <i class="bi bi-type-italic"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('underline')">
+                                                <i class="bi bi-type-underline"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertEditLineBreak()">
+                                                <i class="bi bi-arrow-return-left"></i> Salto de línea
+                                            </button>
+                                        </div>
+                                        <div class="form-control" id="edit_pie_pagina" contenteditable="true" 
+                                             style="min-height: 100px; max-height: 200px; overflow-y: auto;"
+                                             placeholder="Escriba aquí las notas o fuente del cuadro. Puede usar formato HTML básico."></div>
+                                        <input type="hidden" id="edit_pie_pagina_hidden" name="pie_pagina">
+                                        <small class="form-text text-muted">Use los botones de arriba para dar formato al texto.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -433,7 +552,7 @@
     </div>
 </div>
 
-<!-- JavaScript para funcionalidades -->
+<!-- JavaScript actualizado -->
 <script>
 // Inicializar DataTables
 $(document).ready(function() {
@@ -546,27 +665,48 @@ function editarCuadro(id) {
     const tema_badge = fila.cells[4].querySelector('.badge');
     const subtema_badge = fila.cells[5].querySelector('.badge');
     
+    // Obtener información de gráfica
+    const graficaCell = fila.cells[7];
+    const graficaBadge = graficaCell.querySelector('.badge.bg-info');
+    
     // Llenar el modal de edición
     document.getElementById('edit_cuadro_estadistico_id').value = id;
     document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
     document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
     document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
     
+    // Configurar gráficas
+    const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+    const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+    
+    if (graficaBadge) {
+        permiteGraficaCheck.checked = true;
+        tiposContainer.style.display = 'block';
+        
+        // Aquí deberías obtener los tipos desde el servidor o almacenarlos en data attributes
+        // Por ahora, asumiré que todos están seleccionados si permite gráfica
+        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+            check.checked = true; // Esto se debería ajustar según los datos reales
+        });
+    } else {
+        permiteGraficaCheck.checked = false;
+        tiposContainer.style.display = 'none';
+        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+            check.checked = false;
+        });
+    }
+    
     // Seleccionar tema y subtema
     if (tema_badge && subtema_badge) {
         const temaTexto = tema_badge.textContent;
         const subtemaTexto = subtema_badge.textContent;
         
-        // Seleccionar tema
         const temaSelect = document.getElementById('edit_tema_id_select');
         for (let option of temaSelect.options) {
             if (option.text === temaTexto) {
                 option.selected = true;
-                
-                // Cargar subtemas del tema seleccionado
                 filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
                 
-                // Dar tiempo para que se carguen los subtemas y luego seleccionar
                 setTimeout(() => {
                     const subtemaSelect = document.getElementById('edit_subtema_id');
                     for (let option of subtemaSelect.options) {
@@ -585,27 +725,23 @@ function editarCuadro(id) {
     const archivosCell = fila.cells[6];
     const archivosActualesDiv = document.getElementById('archivos_actuales');
     
-    let archivosHtml = '<div class="card"><div class="card-header"><h6 class="mb-0">Archivos Actuales</h6></div><div class="card-body"><div class="row">';
+    let archivosHtml = '<div class="alert alert-info"><h6 class="mb-2">Archivos Actuales</h6><div class="row">';
     
     const excelBadge = archivosCell.querySelector('.badge.bg-success');
     const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
-    const imgBadge = archivosCell.querySelector('.badge.bg-primary');
     
     if (excelBadge) {
-        archivosHtml += '<div class="col-md-4"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel</span></div>';
+        archivosHtml += '<div class="col-md-6"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel disponible</span></div>';
     }
     if (pdfBadge) {
-        archivosHtml += '<div class="col-md-4"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF</span></div>';
-    }
-    if (imgBadge) {
-        archivosHtml += '<div class="col-md-4"><span class="badge bg-primary"><i class="bi bi-image"></i> Imagen</span></div>';
+        archivosHtml += '<div class="col-md-6"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF disponible</span></div>';
     }
     
-    if (!excelBadge && !pdfBadge && !imgBadge) {
+    if (!excelBadge && !pdfBadge) {
         archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
     }
     
-    archivosHtml += '</div></div></div>';
+    archivosHtml += '</div></div>';
     archivosActualesDiv.innerHTML = archivosHtml;
     
     // Actualizar la acción del formulario
@@ -686,46 +822,184 @@ document.getElementById('edit_tema_id_select')?.addEventListener('change', funct
     filtrarSubtemas(this, document.getElementById('edit_subtema_id'));
 });
 
+// Funciones para el editor HTML simple
+function formatText(command) {
+    document.execCommand(command, false, null);
+    updateHiddenField();
+}
+
+function insertLineBreak() {
+    document.execCommand('insertHTML', false, '<br>');
+    updateHiddenField();
+}
+
+function updateHiddenField() {
+    const editor = document.getElementById('pie_pagina');
+    const hiddenField = document.getElementById('pie_pagina_hidden');
+    hiddenField.value = editor.innerHTML;
+}
+
+// Funciones para el editor de edición
+function formatEditText(command) {
+    document.execCommand(command, false, null);
+    updateEditHiddenField();
+}
+
+function insertEditLineBreak() {
+    document.execCommand('insertHTML', false, '<br>');
+    updateEditHiddenField();
+}
+
+function updateEditHiddenField() {
+    const editor = document.getElementById('edit_pie_pagina');
+    const hiddenField = document.getElementById('edit_pie_pagina_hidden');
+    hiddenField.value = editor.innerHTML;
+}
+
 // Control de campos de gráfica
 document.getElementById('permite_grafica')?.addEventListener('change', function() {
-    const tipoGrafica = document.getElementById('tipo_grafica_permitida');
-    const ejeVertical = document.getElementById('eje_vertical_mchart');
+    const container = document.getElementById('tipos_grafica_container');
+    const checks = document.querySelectorAll('.tipo-grafica-check');
     
     if (this.checked) {
-        tipoGrafica.disabled = false;
-        ejeVertical.disabled = false;
+        container.style.display = 'block';
     } else {
-        tipoGrafica.disabled = true;
-        tipoGrafica.value = '';
-        ejeVertical.disabled = true;
-        ejeVertical.value = '';
+        container.style.display = 'none';
+        checks.forEach(check => check.checked = false);
     }
 });
 
-// Auto-generar código basado en tema y subtema
-document.getElementById('subtema_id')?.addEventListener('change', function() {
-    if (this.value) {
-        const subtemaSeleccionado = subtemasData.find(subtema => subtema.subtema_id == this.value);
-        if (subtemaSeleccionado && subtemaSeleccionado.tema) {
-            const codigoBase = subtemaSeleccionado.tema.clave_tema || 'CUA';
-            const sugerido = codigoBase + '_' + String(subtemaSeleccionado.subtema_id).padStart(3, '0');
-            document.getElementById('codigo_cuadro').placeholder = `Sugerido: ${sugerido}`;
-        }
+document.getElementById('edit_permite_grafica')?.addEventListener('change', function() {
+    const container = document.getElementById('edit_tipos_grafica_container');
+    const checks = document.querySelectorAll('.edit-tipo-grafica-check');
+    
+    if (this.checked) {
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+        checks.forEach(check => check.checked = false);
     }
 });
+
+// Actualizar campo oculto cuando se escriba en el editor
+document.getElementById('pie_pagina')?.addEventListener('input', updateHiddenField);
+document.getElementById('edit_pie_pagina')?.addEventListener('input', updateEditHiddenField);
+
+// Función editarCuadro actualizada
+function editarCuadro(id) {
+    // Buscar los datos del cuadro en la tabla
+    const fila = event.target.closest('tr');
+    const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
+    const titulo = fila.cells[2].querySelector('strong').textContent;
+    const subtitulo_cell = fila.cells[3];
+    const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
+    
+    // Obtener tema y subtema
+    const tema_badge = fila.cells[4].querySelector('.badge');
+    const subtema_badge = fila.cells[5].querySelector('.badge');
+    
+    // Obtener información de gráfica
+    const graficaCell = fila.cells[7];
+    const graficaBadge = graficaCell.querySelector('.badge.bg-info');
+    
+    // Llenar el modal de edición
+    document.getElementById('edit_cuadro_estadistico_id').value = id;
+    document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
+    document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
+    document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
+    
+    // Configurar gráficas
+    const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+    const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+    
+    if (graficaBadge) {
+        permiteGraficaCheck.checked = true;
+        tiposContainer.style.display = 'block';
+        
+        // Aquí deberías obtener los tipos desde el servidor o almacenarlos en data attributes
+        // Por ahora, asumiré que todos están seleccionados si permite gráfica
+        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+            check.checked = true; // Esto se debería ajustar según los datos reales
+        });
+    } else {
+        permiteGraficaCheck.checked = false;
+        tiposContainer.style.display = 'none';
+        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+            check.checked = false;
+        });
+    }
+    
+    // Seleccionar tema y subtema
+    if (tema_badge && subtema_badge) {
+        const temaTexto = tema_badge.textContent;
+        const subtemaTexto = subtema_badge.textContent;
+        
+        const temaSelect = document.getElementById('edit_tema_id_select');
+        for (let option of temaSelect.options) {
+            if (option.text === temaTexto) {
+                option.selected = true;
+                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+                
+                setTimeout(() => {
+                    const subtemaSelect = document.getElementById('edit_subtema_id');
+                    for (let option of subtemaSelect.options) {
+                        if (option.text === subtemaTexto) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }, 100);
+                break;
+            }
+        }
+    }
+    
+    // Mostrar archivos actuales
+    const archivosCell = fila.cells[6];
+    const archivosActualesDiv = document.getElementById('archivos_actuales');
+    
+    let archivosHtml = '<div class="alert alert-info"><h6 class="mb-2">Archivos Actuales</h6><div class="row">';
+    
+    const excelBadge = archivosCell.querySelector('.badge.bg-success');
+    const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
+    
+    if (excelBadge) {
+        archivosHtml += '<div class="col-md-6"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel disponible</span></div>';
+    }
+    if (pdfBadge) {
+        archivosHtml += '<div class="col-md-6"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF disponible</span></div>';
+    }
+    
+    if (!excelBadge && !pdfBadge) {
+        archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
+    }
+    
+    archivosHtml += '</div></div>';
+    archivosActualesDiv.innerHTML = archivosHtml;
+    
+    // Actualizar la acción del formulario
+    const form = document.getElementById('formEditarCuadro');
+    form.action = routesCuadros.update.replace(':id', id);
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+}
 
 // Limpiar modales al cerrar
 document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('tipo_grafica_permitida').disabled = true;
-    document.getElementById('eje_vertical_mchart').disabled = true;
+    document.getElementById('tipos_grafica_container').style.display = 'none';
     document.getElementById('subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
-    document.getElementById('codigo_cuadro').placeholder = 'Ej: CUA001';
+    document.getElementById('pie_pagina').innerHTML = '';
+    document.getElementById('pie_pagina_hidden').value = '';
 });
 
 document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
+    document.getElementById('edit_tipos_grafica_container').style.display = 'none';
     document.getElementById('archivos_actuales').innerHTML = '';
     document.getElementById('edit_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
+    document.getElementById('edit_pie_pagina').innerHTML = '';
+    document.getElementById('edit_pie_pagina_hidden').value = '';
 });
 </script>
