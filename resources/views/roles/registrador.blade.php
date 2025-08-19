@@ -267,6 +267,7 @@ $(document).ready(function() {
     let zonasTable = null;
     let viasTable = null;
 
+    // Función para resetear estados de botones manteniendo los colores específicos
     function resetButtonStates() {
         // Resetear botón de zonas (mantener success)
         $('#verZonasBtn').removeClass('btn-success').addClass('btn-outline-success');
@@ -419,6 +420,51 @@ $(document).ready(function() {
         }
     });
 
+    // Event listeners para botones de edición en las tablas
+    $(document).on('click', '.edit-zona', function() {
+        const zonaId = $(this).data('zona-id');
+        
+        $.ajax({
+            url: '{{ route("registrador.zonas.show", ":id") }}'.replace(':id', zonaId),
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const zona = response.data;
+                    $('#edit_zona_id').val(zona.IDKEY);
+                    $('#edit_nombre').val(zona.NOMBRE);
+                    $('#edit_tipo').val(zona.TIPO);
+                    $('#edit_id_colo').val(zona.ID_COLO);
+                    $('#editZonaModal').modal('show');
+                }
+            },
+            error: function(xhr) {
+                alert('Error al cargar los datos de la zona');
+            }
+        });
+    });
+
+    $(document).on('click', '.edit-via', function() {
+        const viaId = $(this).data('via-id');
+        
+        $.ajax({
+            url: '{{ route("registrador.vias.show", ":id") }}'.replace(':id', viaId),
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const via = response.data;
+                    $('#edit_via_id').val(via.IDKEY);
+                    $('#edit_nomvial').val(via.Nomvial);
+                    $('#edit_tipovial').val(via.Tipovial);
+                    $('#edit_clave').val(via.CLAVE);
+                    $('#editViaModal').modal('show');
+                }
+            },
+            error: function(xhr) {
+                alert('Error al cargar los datos de la vía');
+            }
+        });
+    });
+
     // Manejar envío del formulario de crear zona
     $('#createZonaForm').on('submit', function(e) {
         e.preventDefault();
@@ -485,28 +531,14 @@ $(document).ready(function() {
         });
     });
 
-    // Función para llenar formulario de edición de zona
-    window.fillEditZonaForm = function(data) {
-        $('#edit_zona_id').val(data.IDKEY);
-        $('#edit_nombre').val(data.NOMBRE);
-        $('#edit_tipo').val(data.TIPO);
-        $('#edit_id_colo').val(data.ID_COLO);
-    }
-
-    // Función para llenar formulario de edición de vía
-    window.fillEditViaForm = function(data) {
-        $('#edit_via_id').val(data.IDKEY);
-        $('#edit_nomvial').val(data.Nomvial);
-        $('#edit_tipovial').val(data.Tipovial);
-        $('#edit_clave').val(data.CLAVE);
-    }
-
     // Manejar envío del formulario de editar zona
     $('#editZonaForm').on('submit', function(e) {
         e.preventDefault();
         
+        const zonaId = $('#edit_zona_id').val();
+        
         $.ajax({
-            url: '{{ route("registrador.zonas.update", ":id") }}'.replace(':id', $('#edit_zona_id').val()),
+            url: '{{ route("registrador.zonas.update", ":id") }}'.replace(':id', zonaId),
             method: 'PUT',
             data: $(this).serialize(),
             success: function(response) {
@@ -521,9 +553,9 @@ $(document).ready(function() {
                     </div>`;
                     $('.card-body').first().prepend(alert);
                     
-                    // Actualizar tabla de zonas automáticamente
-                    if (currentTable === 'zonas') {
-                        loadZonasTable();
+                    // Recargar tabla si está visible
+                    if (currentTable === 'zonas' && zonasTable) {
+                        zonasTable.ajax.reload();
                     }
                 }
             },
@@ -538,8 +570,10 @@ $(document).ready(function() {
     $('#editViaForm').on('submit', function(e) {
         e.preventDefault();
         
+        const viaId = $('#edit_via_id').val();
+        
         $.ajax({
-            url: '{{ route("registrador.vias.update", ":id") }}'.replace(':id', $('#edit_via_id').val()),
+            url: '{{ route("registrador.vias.update", ":id") }}'.replace(':id', viaId),
             method: 'PUT',
             data: $(this).serialize(),
             success: function(response) {
@@ -554,9 +588,9 @@ $(document).ready(function() {
                     </div>`;
                     $('.card-body').first().prepend(alert);
                     
-                    // Actualizar tabla de vías automáticamente
-                    if (currentTable === 'vias') {
-                        loadViasTable();
+                    // Recargar tabla si está visible
+                    if (currentTable === 'vias' && viasTable) {
+                        viasTable.ajax.reload();
                     }
                 }
             },
