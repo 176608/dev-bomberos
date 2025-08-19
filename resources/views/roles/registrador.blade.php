@@ -181,6 +181,93 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para editar zona -->
+<div class="modal fade" id="editZonaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Zona</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editZonaForm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_zona_id" name="zona_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_nombre" class="form-label">Nombre de la Zona</label>
+                        <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_tipo" class="form-label">Tipo</label>
+                        <select class="form-select" id="edit_tipo" name="tipo" required>
+                            <option value="">Seleccionar tipo...</option>
+                            <option value="COLONIA">COLONIA</option>
+                            <option value="FRACCIONAMIENTO">FRACCIONAMIENTO</option>
+                            <option value="UNIDAD HABITACIONAL">UNIDAD HABITACIONAL</option>
+                            <option value="BARRIO">BARRIO</option>
+                            <option value="PUEBLO">PUEBLO</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_id_colo" class="form-label">ID Colonia (Opcional)</label>
+                        <input type="number" class="form-control" id="edit_id_colo" name="id_colo">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Actualizar Zona</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar vía -->
+<div class="modal fade" id="editViaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Vía</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editViaForm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_via_id" name="via_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_nomvial" class="form-label">Nombre de la Vía</label>
+                        <input type="text" class="form-control" id="edit_nomvial" name="nomvial" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_tipovial" class="form-label">Tipo de Vía</label>
+                        <select class="form-select" id="edit_tipovial" name="tipovial" required>
+                            <option value="">Seleccionar tipo...</option>
+                            <option value="CALLE">CALLE</option>
+                            <option value="AVENIDA">AVENIDA</option>
+                            <option value="BOULEVARD">BOULEVARD</option>
+                            <option value="CALLEJON">CALLEJON</option>
+                            <option value="CERRADA">CERRADA</option>
+                            <option value="PRIVADA">PRIVADA</option>
+                            <option value="PASAJE">PASAJE</option>
+                            <option value="ANDADOR">ANDADOR</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_clave" class="form-label">Clave (Opcional)</label>
+                        <input type="text" class="form-control" id="edit_clave" name="clave">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Actualizar Vía</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -403,6 +490,88 @@ $(document).ready(function() {
             error: function(xhr) {
                 const response = xhr.responseJSON;
                 alert('Error: ' + (response.message || 'Error al crear la vía'));
+            }
+        });
+    });
+
+    // Función para llenar formulario de edición de zona
+    window.fillEditZonaForm = function(data) {
+        $('#edit_zona_id').val(data.IDKEY);
+        $('#edit_nombre').val(data.NOMBRE);
+        $('#edit_tipo').val(data.TIPO);
+        $('#edit_id_colo').val(data.ID_COLO);
+    }
+
+    // Función para llenar formulario de edición de vía
+    window.fillEditViaForm = function(data) {
+        $('#edit_via_id').val(data.IDKEY);
+        $('#edit_nomvial').val(data.Nomvial);
+        $('#edit_tipovial').val(data.Tipovial);
+        $('#edit_clave').val(data.CLAVE);
+    }
+
+    // Manejar envío del formulario de editar zona
+    $('#editZonaForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '{{ route("registrador.zonas.update", ":id") }}'.replace(':id', $('#edit_zona_id').val()),
+            method: 'PUT',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#editZonaModal').modal('hide');
+                    $('#editZonaForm')[0].reset();
+                    
+                    // Mostrar mensaje de éxito
+                    const alert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${response.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>`;
+                    $('.card-body').first().prepend(alert);
+                    
+                    // Actualizar tabla de zonas automáticamente
+                    if (currentTable === 'zonas') {
+                        loadZonasTable();
+                    }
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Error: ' + (response.message || 'Error al actualizar la zona'));
+            }
+        });
+    });
+
+    // Manejar envío del formulario de editar vía
+    $('#editViaForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '{{ route("registrador.vias.update", ":id") }}'.replace(':id', $('#edit_via_id').val()),
+            method: 'PUT',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#editViaModal').modal('hide');
+                    $('#editViaForm')[0].reset();
+                    
+                    // Mostrar mensaje de éxito
+                    const alert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${response.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>`;
+                    $('.card-body').first().prepend(alert);
+                    
+                    // Actualizar tabla de vías automáticamente
+                    if (currentTable === 'vias') {
+                        loadViasTable();
+                    }
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Error: ' + (response.message || 'Error al actualizar la vía'));
             }
         });
     });

@@ -63,13 +63,13 @@ Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->gro
         
         // CRUD Zonas
         Route::post('/registrador/zonas', [RegistradorController::class, 'storeZona'])->name('registrador.zonas.store');
+        Route::get('/registrador/zonas/{zona}', [RegistradorController::class, 'showZona'])->name('registrador.zonas.show');
         Route::put('/registrador/zonas/{zona}', [RegistradorController::class, 'updateZona'])->name('registrador.zonas.update');
-        Route::delete('/registrador/zonas/{zona}', [RegistradorController::class, 'destroyZona'])->name('registrador.zonas.destroy');
         
         // CRUD Vías
         Route::post('/registrador/vias', [RegistradorController::class, 'storeVia'])->name('registrador.vias.store');
+        Route::get('/registrador/vias/{via}', [RegistradorController::class, 'showVia'])->name('registrador.vias.show');
         Route::put('/registrador/vias/{via}', [RegistradorController::class, 'updateVia'])->name('registrador.vias.update');
-        Route::delete('/registrador/vias/{via}', [RegistradorController::class, 'destroyVia'])->name('registrador.vias.destroy');
     });
 
     // Admin CRUD routes - CORREGIR NOMBRES DE ROLES

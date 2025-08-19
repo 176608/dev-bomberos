@@ -36,9 +36,6 @@ class RegistradorController extends Controller
                         <button class="btn btn-sm btn-warning edit-zona" title="Editar zona" data-zona-id="'.$zona->IDKEY.'">
                             <i class="bi bi-pen"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger delete-zona" title="Eliminar zona" data-zona-id="'.$zona->IDKEY.'">
-                            <i class="bi bi-trash"></i>
-                        </button>
                     ';
                 })
                 ->editColumn('NOMBRE', function($zona) {
@@ -79,9 +76,6 @@ class RegistradorController extends Controller
                         </button>
                         <button class="btn btn-sm btn-warning edit-via" title="Editar vía" data-via-id="'.$via->IDKEY.'">
                             <i class="bi bi-pen"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger delete-via" title="Eliminar vía" data-via-id="'.$via->IDKEY.'">
-                            <i class="bi bi-trash"></i>
                         </button>
                     ';
                 })
@@ -175,6 +169,122 @@ class RegistradorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear vía: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener zona para edición
+     */
+    public function showZona($id)
+    {
+        try {
+            $zona = Colonias::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => $zona
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Zona no encontrada'
+            ], 404);
+        }
+    }
+
+    /**
+     * Actualizar zona
+     */
+    public function updateZona(Request $request, $id)
+    {
+        try {
+            $zona = Colonias::findOrFail($id);
+            
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:53',
+                'tipo' => 'required|string|max:21',
+                'id_colo' => 'nullable|integer'
+            ]);
+
+            $zona->update([
+                'NOMBRE' => strtoupper(trim($validated['nombre'])),
+                'TIPO' => strtoupper(trim($validated['tipo'])),
+                'ID_COLO' => $validated['id_colo'] ?? null
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Zona actualizada exitosamente',
+                'data' => $zona
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error updating zona:', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar zona: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener vía para edición
+     */
+    public function showVia($id)
+    {
+        try {
+            $via = CatalogoCalle::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => $via
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vía no encontrada'
+            ], 404);
+        }
+    }
+
+    /**
+     * Actualizar vía
+     */
+    public function updateVia(Request $request, $id)
+    {
+        try {
+            $via = CatalogoCalle::findOrFail($id);
+            
+            $validated = $request->validate([
+                'nomvial' => 'required|string|max:100',
+                'tipovial' => 'required|string|max:20',
+                'clave' => 'nullable|string|max:20'
+            ]);
+
+            $via->update([
+                'Nomvial' => strtoupper(trim($validated['nomvial'])),
+                'Tipovial' => strtoupper(trim($validated['tipovial'])),
+                'CLAVE' => $validated['clave'] ?? null
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vía actualizada exitosamente',
+                'data' => $via
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error updating via:', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar vía: ' . $e->getMessage()
             ], 500);
         }
     }
