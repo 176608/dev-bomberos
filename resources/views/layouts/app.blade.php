@@ -242,8 +242,8 @@
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
-                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Zonas">
-                                        <i class="bi bi-journal-text"></i> Vias y Zonas
+                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
+                                        <i class="bi bi-journal-text"></i> Vias y Colonias
                                     </a>
                                 </li>
                                 
@@ -276,8 +276,8 @@
                                 {{-- Registrador: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
-                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Zonas">
-                                        <i class="bi bi-journal-text"></i> Vias y Zonas
+                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
+                                        <i class="bi bi-journal-text"></i> Vias y Colonias
                                     </a>
                                 </li>
                             @endif
