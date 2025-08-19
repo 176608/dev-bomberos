@@ -344,7 +344,7 @@ $(document).ready(function() {
                 { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
             ],
             language: {
-                url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
             },
             responsive: true,
             order: [[0, 'desc']]
@@ -402,7 +402,7 @@ $(document).ready(function() {
                 { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
             ],
             language: {
-                url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+                url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
             },
             responsive: true,
             order: [[0, 'desc']]
