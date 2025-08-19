@@ -222,7 +222,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-success">Actualizar Zona</button>
+                    <button type="submit" class="btn btn-success">Actualizar Zona</button>
                 </div>
             </form>
         </div>
