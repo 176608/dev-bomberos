@@ -28,7 +28,7 @@
                         Panel de Control - Vías y Zonas
                     </h5>
                 </div>
-                <div class="card-body" style="background-color: grey;">
+                <div class="card-body" style="background-color: #b6b6b6ff;">
                     <div class="row g-4">
                         <!-- Sección Zonas -->
                         <div class="col-md-6">
@@ -79,7 +79,7 @@
                     
                     <!-- Contenedor dinámico para tablas -->
                     <div class="row mt-4">
-                        <div class="col-12" id="tablaContainer">
+                        <div class="col-12" id="tablaContainer" style="background-color: #bbbbbbff;">
                             <!-- Las tablas se cargan dinámicamente aquí -->
                         </div>
                     </div>
