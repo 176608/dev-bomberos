@@ -30,9 +30,6 @@ class RegistradorController extends Controller
             return DataTables::eloquent($query)
                 ->addColumn('acciones', function($zona) {
                     return '
-                        <button class="btn btn-sm btn-primary view-zona" title="Ver información de la zona" data-zona-id="'.$zona->IDKEY.'">
-                            <i class="bi bi-eye"></i>
-                        </button>
                         <button class="btn btn-sm btn-warning edit-zona" title="Editar zona" data-zona-id="'.$zona->IDKEY.'">
                             <i class="bi bi-pen"></i>
                         </button>
@@ -71,9 +68,6 @@ class RegistradorController extends Controller
             return DataTables::eloquent($query)
                 ->addColumn('acciones', function($via) {
                     return '
-                        <button class="btn btn-sm btn-primary view-via" title="Ver información de la vía" data-via-id="'.$via->IDKEY.'">
-                            <i class="bi bi-eye"></i>
-                        </button>
                         <button class="btn btn-sm btn-warning edit-via" title="Editar vía" data-via-id="'.$via->IDKEY.'">
                             <i class="bi bi-pen"></i>
                         </button>
