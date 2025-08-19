@@ -25,28 +25,28 @@
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
                         <i class="bi bi-map"></i> 
-                        Panel de Control - Vías y Zonas
+                        Panel de Control - Vías y Colonias
                     </h5>
                 </div>
                 <div class="card-body" style="background-color: #b6b6b6ff;">
                     <div class="row g-4">
-                        <!-- Sección Zonas -->
+                        <!-- Sección Colonias -->
                         <div class="col-md-6">
                             <div class="card h-100 border-success">
                                 <div class="card-header bg-success text-white">
                                     <h6 class="mb-0">
                                         <i class="bi bi-houses"></i> 
-                                        Gestión de Zonas
+                                        Gestión de Colonias
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted">Administra las Zonas del sistema</p>
+                                    <p class="text-muted">Administra las Colonias del sistema</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-success" type="button" id="altaZonaBtn" data-bs-toggle="modal" data-bs-target="#createZonaModal">
-                                            <i class="bi bi-plus-circle"></i> Alta Zona
+                                            <i class="bi bi-plus-circle"></i> Alta Colonia
                                         </button>
                                         <button class="btn btn-outline-success" type="button" id="verZonasBtn">
-                                            <i class="bi bi-list-ul"></i> Ver Zonas
+                                            <i class="bi bi-list-ul"></i> Ver Colonias
                                         </button>
                                     </div>
                                 </div>
@@ -89,12 +89,12 @@
     </div>
 </div>
 
-<!-- Modal para crear zona -->
+<!-- Modal para crear colonia -->
 <div class="modal fade" id="createZonaModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nueva Zona</h5>
+                <h5 class="modal-title">Nueva Colonia</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="createZonaForm">
@@ -120,13 +120,13 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre de la Zona</label>
+                        <label for="nombre" class="form-label">Nombre de la Colonia</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Crear Zona</button>
+                    <button type="submit" class="btn btn-success">Crear Colonia</button>
                 </div>
             </form>
         </div>
@@ -188,7 +188,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar Zona</h5>
+                <h5 class="modal-title">Editar Colonia</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="editZonaForm">
@@ -216,13 +216,13 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_nombre" class="form-label">Nombre de la Zona</label>
+                        <label for="edit_nombre" class="form-label">Nombre de la Colonia</label>
                         <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Actualizar Zona</button>
+                    <button type="submit" class="btn btn-success">Actualizar Colonia</button>
                 </div>
             </form>
         </div>
@@ -312,7 +312,7 @@ $(document).ready(function() {
                 <div class="card-header bg-success text-white">
                     <h6 class="mb-0">
                         <i class="bi bi-houses"></i> 
-                        Gestión de Zonas
+                        Gestión de Colonias
                     </h6>
                 </div>
                 <div class="card-body">
