@@ -101,10 +101,6 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre de la Zona</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo</label>
                         <select class="form-select" id="tipo" name="tipo" required>
                             <option value="">Seleccionar tipo...</option>
@@ -124,8 +120,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="id_colo" class="form-label">ID Colonia (Opcional)</label>
-                        <input type="number" class="form-control" id="id_colo" name="id_colo">
+                        <label for="nombre" class="form-label">Nombre de la Zona</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -201,10 +197,6 @@
                 <input type="hidden" id="edit_zona_id" name="zona_id">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="edit_nombre" class="form-label">Nombre de la Zona</label>
-                        <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="edit_tipo" class="form-label">Tipo</label>
                         <select class="form-select" id="edit_tipo" name="tipo" required>
                             <option value="">Seleccionar tipo...</option>
@@ -224,13 +216,13 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_id_colo" class="form-label">ID Colonia (Opcional)</label>
-                        <input type="number" class="form-control" id="edit_id_colo" name="id_colo">
+                        <label for="edit_nombre" class="form-label">Nombre de la Zona</label>
+                        <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Actualizar Zona</button>
+                    <button type="submit" class="btn-success">Actualizar Zona</button>
                 </div>
             </form>
         </div>
@@ -321,9 +313,8 @@ $(document).ready(function() {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Nombre</th>
                                     <th>Tipo</th>
-                                    <th>ID Colonia</th>
+                                    <th>Nombre</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -348,9 +339,8 @@ $(document).ready(function() {
             },
             columns: [
                 { data: 'IDKEY', name: 'IDKEY' },
-                { data: 'NOMBRE', name: 'NOMBRE' },
                 { data: 'TIPO', name: 'TIPO' },
-                { data: 'ID_COLO', name: 'ID_COLO' },
+                { data: 'NOMBRE', name: 'NOMBRE' },
                 { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
             ],
             language: {
@@ -410,7 +400,7 @@ $(document).ready(function() {
                 { data: 'Tipovial', name: 'Tipovial' },
                 { data: 'CLAVE', name: 'CLAVE' },
                 { data: 'acciones', name: 'acciones', orderable: false, searchable: false }
-            ],
+            },
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
             },
@@ -461,9 +451,8 @@ $(document).ready(function() {
                 if (response.success) {
                     const zona = response.data;
                     $('#edit_zona_id').val(zona.IDKEY);
-                    $('#edit_nombre').val(zona.NOMBRE);
                     $('#edit_tipo').val(zona.TIPO);
-                    $('#edit_id_colo').val(zona.ID_COLO);
+                    $('#edit_nombre').val(zona.NOMBRE);
                     $('#editZonaModal').modal('show');
                 }
             },

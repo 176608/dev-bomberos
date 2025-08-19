@@ -25,7 +25,7 @@ class RegistradorController extends Controller
     public function zonasDataTable(Request $request)
     {
         try {
-            $query = Colonias::select(['IDKEY', 'NOMBRE', 'TIPO', 'ID_COLO']);
+            $query = Colonias::select(['IDKEY', 'NOMBRE', 'TIPO']);
 
             return DataTables::eloquent($query)
                 ->addColumn('acciones', function($zona) {
@@ -40,9 +40,6 @@ class RegistradorController extends Controller
                 })
                 ->editColumn('TIPO', function($zona) {
                     return $zona->TIPO ?? 'N/A';
-                })
-                ->editColumn('ID_COLO', function($zona) {
-                    return $zona->ID_COLO ?? 'N/A';
                 })
                 ->rawColumns(['acciones'])
                 ->make(true);
@@ -103,14 +100,12 @@ class RegistradorController extends Controller
         try {
             $validated = $request->validate([
                 'nombre' => 'required|string|max:53',
-                'tipo' => 'required|string|max:21',
-                'id_colo' => 'nullable|integer'
+                'tipo' => 'required|string|max:21'
             ]);
 
             Colonias::create([
                 'NOMBRE' => strtoupper(trim($validated['nombre'])),
-                'TIPO' => strtoupper(trim($validated['tipo'])),
-                'ID_COLO' => $validated['id_colo'] ?? null
+                'TIPO' => strtoupper(trim($validated['tipo']))
             ]);
 
             return response()->json([
@@ -196,14 +191,12 @@ class RegistradorController extends Controller
             
             $validated = $request->validate([
                 'nombre' => 'required|string|max:53',
-                'tipo' => 'required|string|max:21',
-                'id_colo' => 'nullable|integer'
+                'tipo' => 'required|string|max:21'
             ]);
 
             $zona->update([
                 'NOMBRE' => strtoupper(trim($validated['nombre'])),
-                'TIPO' => strtoupper(trim($validated['tipo'])),
-                'ID_COLO' => $validated['id_colo'] ?? null
+                'TIPO' => strtoupper(trim($validated['tipo']))
             ]);
 
             return response()->json([
