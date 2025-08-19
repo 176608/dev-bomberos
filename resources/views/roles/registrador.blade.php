@@ -289,11 +289,12 @@ $(document).ready(function() {
     let zonasTable = null;
     let viasTable = null;
 
-    // Función para limpiar backdrop de modales
+    // Función para limpiar backdrop de modales (solo para modales de creación)
     function cleanModalBackdrop() {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
         $('body').css('padding-right', '');
+        $('body').css('overflow', '');
     }
 
     // Función para resetear estados de botones manteniendo los colores específicos
@@ -501,11 +502,10 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(response) {
                 if (response.success) {
-                    $('#createZonaModal').modal('hide');
-                    // Limpiar backdrop después de un pequeño delay
-                    setTimeout(function() {
+                    // Cerrar modal y limpiar backdrop
+                    $('#createZonaModal').one('hidden.bs.modal', function() {
                         cleanModalBackdrop();
-                    }, 300);
+                    }).modal('hide');
                     
                     $('#createZonaForm')[0].reset();
                     
@@ -539,11 +539,10 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(response) {
                 if (response.success) {
-                    $('#createViaModal').modal('hide');
-                    // Limpiar backdrop después de un pequeño delay
-                    setTimeout(function() {
+                    // Cerrar modal y limpiar backdrop
+                    $('#createViaModal').one('hidden.bs.modal', function() {
                         cleanModalBackdrop();
-                    }, 300);
+                    }).modal('hide');
                     
                     $('#createViaForm')[0].reset();
                     
@@ -637,12 +636,6 @@ $(document).ready(function() {
         });
     });
 
-    // Event listeners adicionales para limpiar backdrop en casos de cierre manual
-    $('#createZonaModal, #createViaModal').on('hidden.bs.modal', function() {
-        cleanModalBackdrop();
-    });
-
-    console.log('Panel Registrador cargado correctamente');
 });
 </script>
 @endsection
