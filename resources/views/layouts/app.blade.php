@@ -150,8 +150,8 @@
 
 <body>
     <div class="top-bar text-white">
-        <div class="container-fluid"> {{-- CAMBIO: usar container-fluid en lugar de container --}}
-            <div class="d-flex justify-content-between align-items-center w-100"> {{-- AGREGAR: w-100 --}}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center w-100">
                 <div class="left-section">
                     <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
                        Instituto Municipal de Investigación y Planeación
@@ -211,7 +211,6 @@
                         
                         @if(auth()->user()->log_in_status === 0)
                             @if(auth()->user()->role === 'Desarrollador')
-                                {{-- Desarrollador: 4 pestañas --}}
                                 <!--<li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('dev.panel') ? 'active' : '' }}" 
                                        href="{{ route('dev.panel') }}" title="Panel de Desarrollador">
@@ -248,7 +247,6 @@
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
-                                {{-- Administrador: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
@@ -264,7 +262,6 @@
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Capturista') 
-                                {{-- Capturista: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
                                        href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
@@ -273,7 +270,6 @@
                                 </li>
 
                             @elseif(auth()->user()->role === 'Registrador')
-                                {{-- Registrador: solo su panel --}}
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
                                        href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">

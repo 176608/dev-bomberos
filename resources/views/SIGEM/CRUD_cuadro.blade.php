@@ -181,6 +181,42 @@
             <form id="formAgregarCuadro" method="POST" action="{{ route('sigem.admin.cuadros.crear') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tema_id_select" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select @error('tema_id') is-invalid @enderror" 
+                                        id="tema_id_select" name="tema_id" required>
+                                    <option value="">Seleccionar tema...</option>
+                                    @if(isset($temas))
+                                        @foreach($temas as $tema)
+                                            <option value="{{ $tema->tema_id }}" 
+                                                    {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
+                                                {{ $tema->tema_titulo }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('tema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select @error('subtema_id') is-invalid @enderror" 
+                                        id="subtema_id" name="subtema_id" required>
+                                    <option value="">Seleccionar subtema...</option>
+                                </select>
+                                @error('subtema_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -216,41 +252,6 @@
                         @error('cuadro_estadistico_subtitulo')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tema_id_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select @error('tema_id') is-invalid @enderror" 
-                                        id="tema_id_select" name="tema_id" required>
-                                    <option value="">Seleccionar tema...</option>
-                                    @if(isset($temas))
-                                        @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}" 
-                                                    {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
-                                                {{ $tema->tema_titulo }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @error('tema_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select @error('subtema_id') is-invalid @enderror" 
-                                        id="subtema_id" name="subtema_id" required>
-                                    <option value="">Seleccionar subtema...</option>
-                                </select>
-                                @error('subtema_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Archivos -->
@@ -375,26 +376,6 @@
                 <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="edit_codigo_cuadro" class="form-label">Código del Cuadro <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit_codigo_cuadro" name="codigo_cuadro" required>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="edit_cuadro_estadistico_titulo" class="form-label">Título del Cuadro <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit_cuadro_estadistico_titulo" name="cuadro_estadistico_titulo" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
-                        <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
-                    </div>
-                    
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="edit_tema_id_select" class="form-label">Tema <span class="text-danger">*</span></label>
@@ -416,6 +397,26 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_codigo_cuadro" class="form-label">Código del Cuadro <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_codigo_cuadro" name="codigo_cuadro" required>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="edit_cuadro_estadistico_titulo" class="form-label">Título del Cuadro <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_cuadro_estadistico_titulo" name="cuadro_estadistico_titulo" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
+                        <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
                     </div>
                     
                     <!-- Mostrar archivos actuales -->
