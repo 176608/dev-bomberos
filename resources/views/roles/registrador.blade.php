@@ -55,8 +55,8 @@
 
                         <!-- Sección Vías -->
                         <div class="col-md-6">
-                            <div class="card h-100 border-warning">
-                                <div class="card-header bg-warning text-dark">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-dark">
                                     <h6 class="mb-0">
                                         <i class="bi bi-signpost"></i> 
                                         Gestión de Vías
@@ -65,10 +65,10 @@
                                 <div class="card-body">
                                     <p class="text-muted">Administra las Vías del sistema</p>
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-warning" type="button" id="altaViaBtn" data-bs-toggle="modal" data-bs-target="#createViaModal">
+                                        <button class="btn btn-outline-info" type="button" id="altaViaBtn" data-bs-toggle="modal" data-bs-target="#createViaModal">
                                             <i class="bi bi-plus-circle"></i> Alta Vía
                                         </button>
-                                        <button class="btn btn-outline-warning" type="button" id="verViasBtn">
+                                        <button class="btn btn-outline-info" type="button" id="verViasBtn">
                                             <i class="bi bi-list-ul"></i> Ver Vías
                                         </button>
                                     </div>
@@ -176,7 +176,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Crear Vía</button>
+                    <button type="submit" class="btn btn-info">Crear Vía</button>
                 </div>
             </form>
         </div>
@@ -274,7 +274,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Actualizar Vía</button>
+                    <button type="submit" class="btn btn-info">Actualizar Vía</button>
                 </div>
             </form>
         </div>
@@ -293,8 +293,8 @@ $(document).ready(function() {
     function resetButtonStates() {
         // Resetear botón de zonas (mantener success)
         $('#verZonasBtn').removeClass('btn-success').addClass('btn-outline-success');
-        // Resetear botón de vías (mantener warning)
-        $('#verViasBtn').removeClass('btn-warning').addClass('btn-outline-warning');
+        // Resetear botón de vías (mantener info)
+        $('#verViasBtn').removeClass('btn-info').addClass('btn-outline-info');
     }
 
     // Función para cargar tabla de zonas
@@ -356,8 +356,8 @@ $(document).ready(function() {
     // Función para cargar tabla de vías
     function loadViasTable() {
         const viasHtml = `
-            <div class="card border-warning mt-4" id="viasTableCard">
-                <div class="card-header bg-warning text-dark">
+            <div class="card border-info mt-4" id="viasTableCard">
+                <div class="card-header bg-info text-dark">
                     <h6 class="mb-0">
                         <i class="bi bi-signpost"></i> 
                         Gestión de Vías
@@ -435,7 +435,7 @@ $(document).ready(function() {
         } else {
             // Mostrar tabla de vías
             resetButtonStates();
-            $(this).removeClass('btn-outline-warning').addClass('btn-warning');
+            $(this).removeClass('btn-outline-info').addClass('btn-info');
             loadViasTable();
         }
     });
@@ -539,7 +539,7 @@ $(document).ready(function() {
                     
                     // Mostrar tabla de vías automáticamente
                     resetButtonStates();
-                    $('#verViasBtn').removeClass('btn-outline-warning').addClass('btn-warning');
+                    $('#verViasBtn').removeClass('btn-outline-info').addClass('btn-info');
                     loadViasTable();
                 }
             },
