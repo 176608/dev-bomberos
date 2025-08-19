@@ -289,6 +289,13 @@ $(document).ready(function() {
     let zonasTable = null;
     let viasTable = null;
 
+    // Función para limpiar backdrop de modales
+    function cleanModalBackdrop() {
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+    }
+
     // Función para resetear estados de botones manteniendo los colores específicos
     function resetButtonStates() {
         // Resetear botón de zonas (mantener success)
@@ -495,6 +502,11 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     $('#createZonaModal').modal('hide');
+                    // Limpiar backdrop después de un pequeño delay
+                    setTimeout(function() {
+                        cleanModalBackdrop();
+                    }, 300);
+                    
                     $('#createZonaForm')[0].reset();
                     
                     // Mostrar mensaje de éxito
@@ -528,6 +540,11 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     $('#createViaModal').modal('hide');
+                    // Limpiar backdrop después de un pequeño delay
+                    setTimeout(function() {
+                        cleanModalBackdrop();
+                    }, 300);
+                    
                     $('#createViaForm')[0].reset();
                     
                     // Mostrar mensaje de éxito
@@ -618,6 +635,11 @@ $(document).ready(function() {
                 alert('Error: ' + (response.message || 'Error al actualizar la vía'));
             }
         });
+    });
+
+    // Event listeners adicionales para limpiar backdrop en casos de cierre manual
+    $('#createZonaModal, #createViaModal').on('hidden.bs.modal', function() {
+        cleanModalBackdrop();
     });
 
     console.log('Panel Registrador cargado correctamente');
