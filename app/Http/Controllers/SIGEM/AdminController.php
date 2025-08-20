@@ -832,6 +832,11 @@ class AdminController extends Controller
         try {
             $cuadro = CuadroEstadistico::obtenerPorId($id);
 
+            \Log::info('DEBUG tipo_grafica_permitida', [
+                'raw' => $cuadro->getRawOriginal('tipo_grafica_permitida'),
+                'accessor' => $cuadro->tipo_grafica_permitida
+            ]);
+
             if (!$cuadro) {
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
