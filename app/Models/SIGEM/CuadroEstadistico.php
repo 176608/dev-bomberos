@@ -42,14 +42,7 @@ class CuadroEstadistico extends Model
     protected $casts = [
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
-        'codigo_cuadro' => 'string',
-        'cuadro_estadistico_titulo' => 'string',
-        'cuadro_estadistico_subtitulo' => 'string',
-        'excel_file' => 'string',
-        'pdf_file' => 'string',
         'permite_grafica' => 'boolean',
-        'tipo_grafica_permitida' => 'text',
-        'pie_pagina' => 'string'
     ];
     
     /**
