@@ -152,7 +152,7 @@
             </div>
             <form id="formAgregarMapa" method="POST" action="{{ route('sigem.admin.mapas.crear') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body" style="background-color: #9bf5cfff;">
+                <div class="modal-body" style="background-color: #ccf8e6ff;">
 
                     <div class="row">
                         <div class="col-12">
@@ -280,7 +280,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_mapa_id" name="mapa_id">
-                <div class="modal-body" style="background-color: #9bf5cfff;">
+                <div class="modal-body" style="background-color: #ccf8e6ff;">
 
                     <div class="row">
                         <div class="col-12">
