@@ -977,7 +977,9 @@ document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal
 document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('edit_tipos_grafica_container').style.display = 'none';
-    document.getElementById('archivos_actuales').innerHTML = '';
+    // Solo limpiar si existe el elemento
+    const archivosActuales = document.getElementById('archivos_actuales');
+    if (archivosActuales) archivosActuales.innerHTML = '';
     document.getElementById('edit_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
     document.getElementById('edit_pie_pagina').innerHTML = '';
     document.getElementById('edit_pie_pagina_hidden').value = '';

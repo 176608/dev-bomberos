@@ -157,4 +157,37 @@ class CuadroEstadistico extends Model
         
         return $nombreArchivo; // Fallback al nombre completo
     }
+
+public function getTipoGraficaPermitidaAttribute($value)
+{
+    // Si ya es array (por el cast), devuélvelo
+    if (is_array($value)) {
+        return $value;
+    }
+
+    // Si es null o vacío, devuelve array vacío
+    if (is_null($value) || $value === '') {
+        return [];
+    }
+
+    // Si es JSON válido, decodifica
+    $decoded = json_decode($value, true);
+    if (is_array($decoded)) {
+        return $decoded;
+    }
+
+    // Si es CSV, sepáralo
+    if (is_string($value)) {
+        // Quitar corchetes y comillas si las tiene
+        $clean = trim($value, "[]");
+        $clean = str_replace('"', '', $clean);
+        $clean = str_replace("'", '', $clean);
+        $parts = array_map('trim', explode(',', $clean));
+        return array_filter($parts, fn($v) => $v !== '');
+    }
+
+    // Fallback
+    return [];
+}
+
 }
