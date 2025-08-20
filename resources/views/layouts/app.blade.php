@@ -149,8 +149,6 @@
     right: 0;
     bottom: 0;
     z-index: -1;
-    filter: blur(0.5px);
-    transition: opacity 0.8s, filter 0.8s;
 }
 
     @keyframes pulse {
