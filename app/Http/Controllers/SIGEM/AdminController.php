@@ -562,6 +562,23 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * AJAX: Obtener subtemas por tema
+     */
+    public function obtenerSubtemasPorTema($tema_id)
+    {
+        try {
+            $subtemas = Subtema::where('tema_id', $tema_id)
+                              ->orderBy('orden_indice', 'asc')
+                              ->orderBy('subtema_titulo', 'asc')
+                              ->get(['subtema_id', 'subtema_titulo']);
+            
+            return response()->json(['subtemas' => $subtemas]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener subtemas'], 500);
+        }
+    }
+
     // ============ MÉTODOS CRUD PARA CUADROS ============
     public function crearCuadro(Request $request)
     {
@@ -614,7 +631,12 @@ class AdminController extends Controller
             // Manejar upload de archivo Excel
             if ($request->hasFile('excel_file')) {
                 $archivo = $request->file('excel_file');
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $nombreOriginal = $archivo->getClientOriginalName();
+                $extension = $archivo->getClientOriginalExtension();
+                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+                
+                // Crear nombre único: codigo_cuadro_nombreOriginal_timestamp.extension
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
                 $archivo->move($directorioExcel, $nombreArchivo);
                 $datos['excel_file'] = $nombreArchivo;
             }
@@ -622,7 +644,12 @@ class AdminController extends Controller
             // Manejar upload de archivo PDF
             if ($request->hasFile('pdf_file')) {
                 $archivo = $request->file('pdf_file');
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $nombreOriginal = $archivo->getClientOriginalName();
+                $extension = $archivo->getClientOriginalExtension();
+                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+                
+                // Crear nombre único: codigo_cuadro_nombreOriginal_timestamp.extension
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
                 $archivo->move($directorioPdf, $nombreArchivo);
                 $datos['pdf_file'] = $nombreArchivo;
             }
@@ -695,28 +722,50 @@ class AdminController extends Controller
             $directorioExcel = public_path('archivos/cuadros_estadisticos/excel');
             $directorioPdf = public_path('archivos/cuadros_estadisticos/pdf');
 
+            // Manejar eliminación específica de archivo Excel
+            if ($request->has('remove_excel') && $request->remove_excel == '1') {
+                if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
+                    unlink($directorioExcel . '/' . $cuadro->excel_file);
+                }
+                $datos['excel_file'] = null;
+            }
             // Manejar upload de nuevo archivo Excel
-            if ($request->hasFile('excel_file')) {
+            elseif ($request->hasFile('excel_file')) {
                 // Eliminar archivo anterior si existe
                 if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
                     unlink($directorioExcel . '/' . $cuadro->excel_file);
                 }
 
                 $archivo = $request->file('excel_file');
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $nombreOriginal = $archivo->getClientOriginalName();
+                $extension = $archivo->getClientOriginalExtension();
+                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+                
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
                 $archivo->move($directorioExcel, $nombreArchivo);
                 $datos['excel_file'] = $nombreArchivo;
             }
 
+            // Manejar eliminación específica de archivo PDF
+            if ($request->has('remove_pdf') && $request->remove_pdf == '1') {
+                if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
+                    unlink($directorioPdf . '/' . $cuadro->pdf_file);
+                }
+                $datos['pdf_file'] = null;
+            }
             // Manejar upload de nuevo archivo PDF
-            if ($request->hasFile('pdf_file')) {
+            elseif ($request->hasFile('pdf_file')) {
                 // Eliminar archivo anterior si existe
                 if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
                     unlink($directorioPdf . '/' . $cuadro->pdf_file);
                 }
 
                 $archivo = $request->file('pdf_file');
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                $nombreOriginal = $archivo->getClientOriginalName();
+                $extension = $archivo->getClientOriginalExtension();
+                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+                
+                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
                 $archivo->move($directorioPdf, $nombreArchivo);
                 $datos['pdf_file'] = $nombreArchivo;
             }
@@ -740,58 +789,37 @@ class AdminController extends Controller
         }
     }
 
-    public function eliminarCuadro($id)
+    /**
+     * AJAX: Obtener datos de cuadro para edición
+     */
+    public function obtenerCuadroParaEdicion($id)
     {
         try {
             $cuadro = CuadroEstadistico::obtenerPorId($id);
             
             if (!$cuadro) {
-                return redirect()
-                    ->route('sigem.admin.cuadros')
-                    ->with('error', 'Cuadro estadístico no encontrado');
+                return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
-            // Eliminar archivos físicos si existen
-            if ($cuadro->excel_file && file_exists(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file))) {
-                unlink(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file));
-            }
-
-            if ($cuadro->pdf_file && file_exists(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file))) {
-                unlink(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file));
-            }
-
-            // Guardar datos para el mensaje
-            $nombreCuadro = $cuadro->cuadro_estadistico_titulo;
-            $codigoCuadro = $cuadro->codigo_cuadro;
-
-            // Eliminar cuadro
-            $cuadro->eliminar();
-
-            return redirect()
-                ->route('sigem.admin.cuadros')
-                ->with('success', "Cuadro estadístico '{$nombreCuadro}' (código: {$codigoCuadro}) eliminado exitosamente");
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sigem.admin.cuadros')
-                ->with('error', 'Error al eliminar el cuadro estadístico: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * AJAX: Obtener subtemas por tema
-     */
-    public function obtenerSubtemasPorTema($tema_id)
-    {
-        try {
-            $subtemas = Subtema::where('tema_id', $tema_id)
-                              ->orderBy('orden_indice', 'asc')
-                              ->orderBy('subtema_titulo', 'asc')
-                              ->get(['subtema_id', 'subtema_titulo']);
+            return response()->json([
+                'success' => true,
+                'cuadro' => [
+                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                    'codigo_cuadro' => $cuadro->codigo_cuadro,
+                    'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
+                    'subtema_id' => $cuadro->subtema_id,
+                    'excel_file' => $cuadro->excel_file,
+                    'pdf_file' => $cuadro->pdf_file,
+                    'permite_grafica' => $cuadro->permite_grafica,
+                    'tipo_grafica_permitida' => $cuadro->tipo_grafica_permitida,
+                    'pie_pagina' => $cuadro->pie_pagina,
+                    'tema_id' => $cuadro->subtema ? $cuadro->subtema->tema_id : null
+                ]
+            ]);
             
-            return response()->json(['subtemas' => $subtemas]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener subtemas'], 500);
+            return response()->json(['error' => 'Error interno del servidor'], 500);
         }
     }
 

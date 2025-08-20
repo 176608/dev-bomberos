@@ -121,4 +121,46 @@ class CuadroEstadistico extends Model
     {
         return $this->delete();
     }
+    
+    /**
+     * Obtener nombre original del archivo Excel
+     */
+    public function getNombreOriginalExcelAttribute()
+    {
+        if (!$this->excel_file) return null;
+        
+        // Remover el prefijo del código y timestamp para obtener el nombre original
+        $nombreArchivo = $this->excel_file;
+        $codigoCuadro = $this->codigo_cuadro;
+        
+        // Patrón: codigo_cuadro_nombreOriginal_timestamp.extension
+        $patron = '/^' . preg_quote($codigoCuadro, '/') . '_(.+)_\d+\.(xlsx|xls)$/';
+        
+        if (preg_match($patron, $nombreArchivo, $matches)) {
+            return $matches[1] . '.' . $matches[2];
+        }
+        
+        return $nombreArchivo; // Fallback al nombre completo
+    }
+    
+    /**
+     * Obtener nombre original del archivo PDF
+     */
+    public function getNombreOriginalPdfAttribute()
+    {
+        if (!$this->pdf_file) return null;
+        
+        // Remover el prefijo del código y timestamp para obtener el nombre original
+        $nombreArchivo = $this->pdf_file;
+        $codigoCuadro = $this->codigo_cuadro;
+        
+        // Patrón: codigo_cuadro_nombreOriginal_timestamp.pdf
+        $patron = '/^' . preg_quote($codigoCuadro, '/') . '_(.+)_\d+\.pdf$/';
+        
+        if (preg_match($patron, $nombreArchivo, $matches)) {
+            return $matches[1] . '.pdf';
+        }
+        
+        return $nombreArchivo; // Fallback al nombre completo
+    }
 }

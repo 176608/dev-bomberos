@@ -386,7 +386,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cuadro Estadístico existente</h5>
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cuadro Estadístico</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formEditarCuadro" method="POST" action="" enctype="multipart/form-data">
@@ -394,6 +394,7 @@
                 @method('PUT')
                 <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
                 <div class="modal-body">
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -441,22 +442,68 @@
                     <!-- Archivos actuales y nuevos -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="bi bi-files"></i> Archivos</h6>
+                            <h6 class="mb-0"><i class="bi bi-files"></i> Gestión de Archivos</h6>
                         </div>
                         <div class="card-body">
-                            <div id="archivos_actuales" class="mb-3"></div>
                             
+                            <!-- Archivos actuales -->
+                            <div id="archivos_actuales_section" class="mb-4">
+                                <h6 class="text-muted mb-3">Archivos Actuales</h6>
+                                <div id="archivo_excel_actual" class="alert alert-info d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-excel text-success"></i>
+                                            <strong>Excel:</strong> <span id="nombre_excel_actual"></span>
+                                            <br><small class="text-muted">Archivo guardado como: <span id="archivo_excel_sistema"></span></small>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="remove_excel_hidden" name="remove_excel" value="0">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoExcel()">
+                                                <i class="bi bi-trash"></i> Eliminar Excel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="archivo_pdf_actual" class="alert alert-warning d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                            <strong>PDF:</strong> <span id="nombre_pdf_actual"></span>
+                                            <br><small class="text-muted">Archivo guardado como: <span id="archivo_pdf_sistema"></span></small>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="remove_pdf_hidden" name="remove_pdf" value="0">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoPdf()">
+                                                <i class="bi bi-trash"></i> Eliminar PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="sin_archivos_actuales" class="alert alert-light">
+                                    <i class="bi bi-info-circle"></i> No hay archivos actuales asociados a este cuadro.
+                                </div>
+                            </div>
+                            
+                            <!-- Subir nuevos archivos -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="edit_excel_file" class="form-label">Nuevo Archivo Excel</label>
+                                        <label for="edit_excel_file" class="form-label">
+                                            <span id="label_excel_nuevo">Nuevo Archivo Excel</span>
+                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Excel</span>
+                                        </label>
                                         <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="edit_pdf_file" class="form-label">Nuevo Archivo PDF</label>
+                                        <label for="edit_pdf_file" class="form-label">
+                                            <span id="label_pdf_nuevo">Nuevo Archivo PDF</span>
+                                            <span id="label_pdf_reemplazar" class="d-none">Reemplazar Archivo PDF</span>
+                                        </label>
                                         <input type="file" class="form-control" id="edit_pdf_file" name="pdf_file" accept=".pdf">
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
                                     </div>
@@ -647,173 +694,217 @@ $(document).ready(function() {
 const routesCuadros = {
     update: '{{ route("sigem.admin.cuadros.actualizar", ":id") }}',
     delete: '{{ route("sigem.admin.cuadros.eliminar", ":id") }}',
-    subtemasPorTema: '{{ url("/sigem/admin/cuadros/subtemas") }}'
+    subtemasPorTema: '{{ url("/sigem/admin/cuadros/subtemas") }}',
+    obtenerCuadro: '{{ route("sigem.admin.cuadros.obtener", ":id") }}'
 };
 
 // Datos de subtemas para filtrado
 const subtemasData = @json($subtemas ?? []);
 
 function editarCuadro(id) {
-    // Buscar los datos del cuadro en la tabla
-    const fila = event.target.closest('tr');
-    const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
-    const titulo = fila.cells[2].querySelector('strong').textContent;
-    const subtitulo_cell = fila.cells[3];
-    const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
-    
-    // Obtener tema y subtema
-    const tema_badge = fila.cells[4].querySelector('.badge');
-    const subtema_badge = fila.cells[5].querySelector('.badge');
-    
-    // Obtener información de gráfica
-    const graficaCell = fila.cells[7];
-    const graficaBadge = graficaCell.querySelector('.badge.bg-info');
-    
-    // Llenar el modal de edición
-    document.getElementById('edit_cuadro_estadistico_id').value = id;
-    document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
-    document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
-    document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
-    
-    // Configurar gráficas
-    const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-    const tiposContainer = document.getElementById('edit_tipos_grafica_container');
-    
-    if (graficaBadge) {
-        permiteGraficaCheck.checked = true;
-        tiposContainer.style.display = 'block';
-        
-        // Aquí deberías obtener los tipos desde el servidor o almacenarlos en data attributes
-        // Por ahora, asumiré que todos están seleccionados si permite gráfica
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = true; // Esto se debería ajustar según los datos reales
-        });
-    } else {
-        permiteGraficaCheck.checked = false;
-        tiposContainer.style.display = 'none';
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = false;
-        });
-    }
-    
-    // Seleccionar tema y subtema
-    if (tema_badge && subtema_badge) {
-        const temaTexto = tema_badge.textContent;
-        const subtemaTexto = subtema_badge.textContent;
-        
-        const temaSelect = document.getElementById('edit_tema_id_select');
-        for (let option of temaSelect.options) {
-            if (option.text === temaTexto) {
-                option.selected = true;
-                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+    // Hacer petición AJAX para obtener datos completos del cuadro
+    fetch(routesCuadros.obtenerCuadro.replace(':id', id))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cuadro = data.cuadro;
                 
-                setTimeout(() => {
-                    const subtemaSelect = document.getElementById('edit_subtema_id');
-                    for (let option of subtemaSelect.options) {
-                        if (option.text === subtemaTexto) {
-                            option.selected = true;
-                            break;
-                        }
+                // Llenar campos básicos
+                document.getElementById('edit_cuadro_estadistico_id').value = cuadro.cuadro_estadistico_id;
+                document.getElementById('edit_codigo_cuadro').value = cuadro.codigo_cuadro;
+                document.getElementById('edit_cuadro_estadistico_titulo').value = cuadro.cuadro_estadistico_titulo;
+                document.getElementById('edit_cuadro_estadistico_subtitulo').value = cuadro.cuadro_estadistico_subtitulo || '';
+                
+                // Configurar tema y subtema
+                if (cuadro.tema_id) {
+                    document.getElementById('edit_tema_id_select').value = cuadro.tema_id;
+                    filtrarSubtemas(document.getElementById('edit_tema_id_select'), document.getElementById('edit_subtema_id'));
+                    
+                    setTimeout(() => {
+                        document.getElementById('edit_subtema_id').value = cuadro.subtema_id;
+                    }, 100);
+                }
+                
+                // Configurar gráficas
+                const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+                const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+                
+                permiteGraficaCheck.checked = cuadro.permite_grafica;
+                if (cuadro.permite_grafica) {
+                    tiposContainer.style.display = 'block';
+                    
+                    // Limpiar checkboxes anteriores
+                    document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                        check.checked = false;
+                    });
+                    
+                    // Marcar tipos seleccionados
+                    if (cuadro.tipo_grafica_permitida && Array.isArray(cuadro.tipo_grafica_permitida)) {
+                        cuadro.tipo_grafica_permitida.forEach(tipo => {
+                            const checkbox = document.querySelector(`#edit_tipo_${tipo.toLowerCase()}`);
+                            if (checkbox) checkbox.checked = true;
+                        });
                     }
-                }, 100);
-                break;
+                } else {
+                    tiposContainer.style.display = 'none';
+                }
+                
+                // Configurar pie de página
+                const editorPie = document.getElementById('edit_pie_pagina');
+                const hiddenPie = document.getElementById('edit_pie_pagina_hidden');
+                if (cuadro.pie_pagina) {
+                    editorPie.innerHTML = cuadro.pie_pagina;
+                    hiddenPie.value = cuadro.pie_pagina;
+                } else {
+                    editorPie.innerHTML = '';
+                    hiddenPie.value = '';
+                }
+                
+                // Gestionar archivos actuales
+                mostrarArchivosActuales(cuadro);
+                
+                // Actualizar la acción del formulario
+                const form = document.getElementById('formEditarCuadro');
+                form.action = routesCuadros.update.replace(':id', id);
+                
+                // Mostrar modal
+                new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+            } else {
+                alert('Error al cargar los datos del cuadro: ' + (data.error || 'Error desconocido'));
             }
-        }
-    }
-    
-    // Mostrar archivos actuales
-    const archivosCell = fila.cells[6];
-    const archivosActualesDiv = document.getElementById('archivos_actuales');
-    
-    let archivosHtml = '<div class="alert alert-info"><h6 class="mb-2">Archivos Actuales</h6><div class="row">';
-    
-    const excelBadge = archivosCell.querySelector('.badge.bg-success');
-    const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
-    
-    if (excelBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel disponible</span></div>';
-    }
-    if (pdfBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF disponible</span></div>';
-    }
-    
-    if (!excelBadge && !pdfBadge) {
-        archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
-    }
-    
-    archivosHtml += '</div></div>';
-    archivosActualesDiv.innerHTML = archivosHtml;
-    
-    // Actualizar la acción del formulario
-    const form = document.getElementById('formEditarCuadro');
-    form.action = routesCuadros.update.replace(':id', id);
-    
-    // Mostrar modal
-    new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos del cuadro');
+        });
 }
 
-function eliminarCuadro(id, titulo) {
-    // Obtener información adicional de la fila para confirmación más específica
-    const fila = event.target.closest('tr');
-    const codigo = fila.cells[1].querySelector('code').textContent;
-    const archivosCell = fila.cells[6];
-    const tieneArchivos = archivosCell.querySelector('.badge') !== null;
+function mostrarArchivosActuales(cuadro) {
+    const excelActual = document.getElementById('archivo_excel_actual');
+    const pdfActual = document.getElementById('archivo_pdf_actual');
+    const sinArchivos = document.getElementById('sin_archivos_actuales');
     
-    let mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}" (${codigo})?`;
+    let tieneArchivos = false;
     
+    // Resetear estado
+    excelActual.classList.add('d-none');
+    pdfActual.classList.add('d-none');
+    document.getElementById('remove_excel_hidden').value = '0';
+    document.getElementById('remove_pdf_hidden').value = '0';
+    
+    // Mostrar Excel si existe
+    if (cuadro.excel_file) {
+        const nombreOriginal = extraerNombreOriginal(cuadro.excel_file, cuadro.codigo_cuadro, 'excel');
+        document.getElementById('nombre_excel_actual').textContent = nombreOriginal;
+        document.getElementById('archivo_excel_sistema').textContent = cuadro.excel_file;
+        excelActual.classList.remove('d-none');
+        document.getElementById('label_excel_nuevo').classList.add('d-none');
+        document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+        tieneArchivos = true;
+    } else {
+        document.getElementById('label_excel_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_reemplazar').classList.add('d-none');
+    }
+    
+    // Mostrar PDF si existe
+    if (cuadro.pdf_file) {
+        const nombreOriginal = extraerNombreOriginal(cuadro.pdf_file, cuadro.codigo_cuadro, 'pdf');
+        document.getElementById('nombre_pdf_actual').textContent = nombreOriginal;
+        document.getElementById('archivo_pdf_sistema').textContent = cuadro.pdf_file;
+        pdfActual.classList.remove('d-none');
+        document.getElementById('label_pdf_nuevo').classList.add('d-none');
+        document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
+        tieneArchivos = true;
+    } else {
+        document.getElementById('label_pdf_nuevo').classList.remove('d-none');
+        document.getElementById('label_pdf_reemplazar').classList.add('d-none');
+    }
+    
+    // Mostrar mensaje si no hay archivos
     if (tieneArchivos) {
-        mensaje += `\n\n⚠️ ADVERTENCIA: Este cuadro tiene archivos asociados que también serán eliminados.`;
-    }
-    
-    mensaje += `\n\n✗ Esta acción NO se puede deshacer.`;
-    
-    if (confirm(mensaje)) {
-        // Crear formulario temporal para envío DELETE
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = routesCuadros.delete.replace(':id', id);
-        form.style.display = 'none';
-        
-        // Token CSRF
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        form.appendChild(csrfToken);
-        
-        // Method spoofing para DELETE
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        form.appendChild(methodField);
-        
-        // Enviar formulario
-        document.body.appendChild(form);
-        form.submit();
+        sinArchivos.style.display = 'none';
+    } else {
+        sinArchivos.style.display = 'block';
     }
 }
 
-// Filtrar subtemas por tema seleccionado
-function filtrarSubtemas(temaSelect, subtemaSelect) {
-    const temaId = temaSelect.value;
-    subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
+function extraerNombreOriginal(nombreArchivo, codigoCuadro, tipo) {
+    // Patrón: codigo_cuadro_nombreOriginal_timestamp.extension
+    const extension = tipo === 'excel' ? '(xlsx|xls)' : 'pdf';
+    const patron = new RegExp(`^${codigoCuadro.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}_(.+)_\\d+\\.(${extension})$`);
+    
+    const match = nombreArchivo.match(patron);
+    if (match) {
+        return match[1] + '.' + match[2];
+    }
+    
+    return nombreArchivo; // Fallback
+}
+
+function eliminarArchivoExcel() {
+    if (confirm('¿Está seguro de eliminar el archivo Excel? Esta acción no se puede deshacer.')) {
+        document.getElementById('remove_excel_hidden').value = '1';
+        document.getElementById('archivo_excel_actual').classList.add('d-none');
+        document.getElementById('label_excel_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_reemplazar').classList.add('d-none');
+        
+        // Verificar si quedan archivos
+        verificarArchivosRestantes();
+    }
+}
+
+function eliminarArchivoPdf() {
+    if (confirm('¿Está seguro de eliminar el archivo PDF? Esta acción no se puede deshacer.')) {
+        document.getElementById('remove_pdf_hidden').value = '1';
+        document.getElementById('archivo_pdf_actual').classList.add('d-none');
+        document.getElementById('label_pdf_nuevo').classList.remove('d-none');
+        document.getElementById('label_pdf_reemplazar').classList.add('d-none');
+        
+        // Verificar si quedan archivos
+        verificarArchivosRestantes();
+    }
+}
+
+function verificarArchivosRestantes() {
+    const excelVisible = !document.getElementById('archivo_excel_actual').classList.contains('d-none');
+    const pdfVisible = !document.getElementById('archivo_pdf_actual').classList.contains('d-none');
+    const sinArchivos = document.getElementById('sin_archivos_actuales');
+    
+    if (!excelVisible && !pdfVisible) {
+        sinArchivos.style.display = 'block';
+    } else {
+        sinArchivos.style.display = 'none';
+    }
+}
+
+// Función para filtrar subtemas por tema (FALTABA ESTA FUNCIÓN)
+function filtrarSubtemas(selectTema, selectSubtema) {
+    const temaId = selectTema.value;
+    
+    // Limpiar subtemas
+    selectSubtema.innerHTML = '<option value="">Seleccionar subtema...</option>';
     
     if (temaId) {
-        const subtemasDelTema = subtemasData.filter(subtema => 
-            subtema.tema && subtema.tema.tema_id == temaId
-        );
-        
-        subtemasDelTema.forEach(subtema => {
-            const option = document.createElement('option');
-            option.value = subtema.subtema_id;
-            option.textContent = subtema.subtema_titulo;
-            subtemaSelect.appendChild(option);
-        });
+        // Hacer petición AJAX para obtener subtemas
+        fetch(`${routesCuadros.subtemasPorTema}/${temaId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.subtemas) {
+                    data.subtemas.forEach(subtema => {
+                        const option = document.createElement('option');
+                        option.value = subtema.subtema_id;
+                        option.textContent = subtema.subtema_titulo;
+                        selectSubtema.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar subtemas:', error);
+            });
     }
 }
 
-// Event listeners para filtrado de subtemas
+// Event listeners para los selects de tema (FALTABA ESTO TAMBIÉN)
 document.getElementById('tema_id_select')?.addEventListener('change', function() {
     filtrarSubtemas(this, document.getElementById('subtema_id'));
 });
@@ -822,184 +913,19 @@ document.getElementById('edit_tema_id_select')?.addEventListener('change', funct
     filtrarSubtemas(this, document.getElementById('edit_subtema_id'));
 });
 
-// Funciones para el editor HTML simple
-function formatText(command) {
-    document.execCommand(command, false, null);
-    updateHiddenField();
-}
-
-function insertLineBreak() {
-    document.execCommand('insertHTML', false, '<br>');
-    updateHiddenField();
-}
-
-function updateHiddenField() {
-    const editor = document.getElementById('pie_pagina');
-    const hiddenField = document.getElementById('pie_pagina_hidden');
-    hiddenField.value = editor.innerHTML;
-}
-
-// Funciones para el editor de edición
-function formatEditText(command) {
-    document.execCommand(command, false, null);
-    updateEditHiddenField();
-}
-
-function insertEditLineBreak() {
-    document.execCommand('insertHTML', false, '<br>');
-    updateEditHiddenField();
-}
-
-function updateEditHiddenField() {
-    const editor = document.getElementById('edit_pie_pagina');
-    const hiddenField = document.getElementById('edit_pie_pagina_hidden');
-    hiddenField.value = editor.innerHTML;
-}
-
-// Control de campos de gráfica
-document.getElementById('permite_grafica')?.addEventListener('change', function() {
-    const container = document.getElementById('tipos_grafica_container');
-    const checks = document.querySelectorAll('.tipo-grafica-check');
-    
-    if (this.checked) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        checks.forEach(check => check.checked = false);
-    }
-});
-
-document.getElementById('edit_permite_grafica')?.addEventListener('change', function() {
-    const container = document.getElementById('edit_tipos_grafica_container');
-    const checks = document.querySelectorAll('.edit-tipo-grafica-check');
-    
-    if (this.checked) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        checks.forEach(check => check.checked = false);
-    }
-});
-
-// Actualizar campo oculto cuando se escriba en el editor
-document.getElementById('pie_pagina')?.addEventListener('input', updateHiddenField);
-document.getElementById('edit_pie_pagina')?.addEventListener('input', updateEditHiddenField);
-
-// Función editarCuadro actualizada
-function editarCuadro(id) {
-    // Buscar los datos del cuadro en la tabla
-    const fila = event.target.closest('tr');
-    const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
-    const titulo = fila.cells[2].querySelector('strong').textContent;
-    const subtitulo_cell = fila.cells[3];
-    const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
-    
-    // Obtener tema y subtema
-    const tema_badge = fila.cells[4].querySelector('.badge');
-    const subtema_badge = fila.cells[5].querySelector('.badge');
-    
-    // Obtener información de gráfica
-    const graficaCell = fila.cells[7];
-    const graficaBadge = graficaCell.querySelector('.badge.bg-info');
-    
-    // Llenar el modal de edición
-    document.getElementById('edit_cuadro_estadistico_id').value = id;
-    document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
-    document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
-    document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
-    
-    // Configurar gráficas
-    const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-    const tiposContainer = document.getElementById('edit_tipos_grafica_container');
-    
-    if (graficaBadge) {
-        permiteGraficaCheck.checked = true;
-        tiposContainer.style.display = 'block';
-        
-        // Aquí deberías obtener los tipos desde el servidor o almacenarlos en data attributes
-        // Por ahora, asumiré que todos están seleccionados si permite gráfica
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = true; // Esto se debería ajustar según los datos reales
-        });
-    } else {
-        permiteGraficaCheck.checked = false;
-        tiposContainer.style.display = 'none';
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = false;
-        });
-    }
-    
-    // Seleccionar tema y subtema
-    if (tema_badge && subtema_badge) {
-        const temaTexto = tema_badge.textContent;
-        const subtemaTexto = subtema_badge.textContent;
-        
-        const temaSelect = document.getElementById('edit_tema_id_select');
-        for (let option of temaSelect.options) {
-            if (option.text === temaTexto) {
-                option.selected = true;
-                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
-                
-                setTimeout(() => {
-                    const subtemaSelect = document.getElementById('edit_subtema_id');
-                    for (let option of subtemaSelect.options) {
-                        if (option.text === subtemaTexto) {
-                            option.selected = true;
-                            break;
-                        }
-                    }
-                }, 100);
-                break;
-            }
-        }
-    }
-    
-    // Mostrar archivos actuales
-    const archivosCell = fila.cells[6];
-    const archivosActualesDiv = document.getElementById('archivos_actuales');
-    
-    let archivosHtml = '<div class="alert alert-info"><h6 class="mb-2">Archivos Actuales</h6><div class="row">';
-    
-    const excelBadge = archivosCell.querySelector('.badge.bg-success');
-    const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
-    
-    if (excelBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel disponible</span></div>';
-    }
-    if (pdfBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF disponible</span></div>';
-    }
-    
-    if (!excelBadge && !pdfBadge) {
-        archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
-    }
-    
-    archivosHtml += '</div></div>';
-    archivosActualesDiv.innerHTML = archivosHtml;
-    
-    // Actualizar la acción del formulario
-    const form = document.getElementById('formEditarCuadro');
-    form.action = routesCuadros.update.replace(':id', id);
-    
-    // Mostrar modal
-    new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
-}
-
-// Limpiar modales al cerrar
-document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-    document.getElementById('tipos_grafica_container').style.display = 'none';
-    document.getElementById('subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
-    document.getElementById('pie_pagina').innerHTML = '';
-    document.getElementById('pie_pagina_hidden').value = '';
-});
-
+// Limpiar modal de edición al cerrar
 document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
     document.getElementById('edit_tipos_grafica_container').style.display = 'none';
-    document.getElementById('archivos_actuales').innerHTML = '';
     document.getElementById('edit_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
     document.getElementById('edit_pie_pagina').innerHTML = '';
     document.getElementById('edit_pie_pagina_hidden').value = '';
+    
+    // Resetear archivos
+    document.getElementById('archivo_excel_actual').classList.add('d-none');
+    document.getElementById('archivo_pdf_actual').classList.add('d-none');
+    document.getElementById('sin_archivos_actuales').style.display = 'block';
+    document.getElementById('remove_excel_hidden').value = '0';
+    document.getElementById('remove_pdf_hidden').value = '0';
 });
 </script>
