@@ -716,103 +716,123 @@ function editarCuadro(id) {
     const graficaCell = fila.cells[7];
     const graficaBadge = graficaCell.querySelector('.badge.bg-info');
     
-    // Llenar el modal de edición
-    document.getElementById('edit_cuadro_estadistico_id').value = id;
-    document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
-    document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
-    document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
-    
-    // Configurar gráficas
-    const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-    const tiposContainer = document.getElementById('edit_tipos_grafica_container');
-    
-    if (graficaBadge) {
-        permiteGraficaCheck.checked = true;
-        tiposContainer.style.display = 'block';
-        
-        // Obtener los tipos de gráfica del badge (texto después del ícono)
-        const tiposTexto = graficaBadge.textContent.trim();
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            // Verificar si el tipo está en el texto del badge
-            if (tiposTexto.toLowerCase().includes(check.value.toLowerCase())) {
-                check.checked = true;
-            } else {
-                check.checked = false;
-            }
-        });
-    } else {
-        permiteGraficaCheck.checked = false;
-        tiposContainer.style.display = 'none';
-        document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = false;
-        });
-    }
-    
-    // Seleccionar tema y subtema
-    if (tema_badge && subtema_badge) {
-        const temaTexto = tema_badge.textContent;
-        const subtemaTexto = subtema_badge.textContent;
-        
-        const temaSelect = document.getElementById('edit_tema_id_select');
-        for (let option of temaSelect.options) {
-            if (option.text === temaTexto) {
-                option.selected = true;
-                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+    // OBTENER DATOS REALES DEL BACKEND VIA AJAX
+    fetch(routesCuadros.obtenerCuadro.replace(':id', id))
+        .then(response => response.json())
+        .then(cuadroData => {
+            
+            // Llenar el modal de edición con datos básicos
+            document.getElementById('edit_cuadro_estadistico_id').value = id;
+            document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
+            document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
+            document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
+            
+            // Configurar gráficas CON DATOS REALES
+            const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+            const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+            
+            permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
+            
+            if (cuadroData.permite_grafica == 1) {
+                tiposContainer.style.display = 'block';
                 
-                setTimeout(() => {
-                    const subtemaSelect = document.getElementById('edit_subtema_id');
-                    for (let option of subtemaSelect.options) {
-                        if (option.text === subtemaTexto) {
-                            option.selected = true;
-                            break;
-                        }
-                    }
-                }, 100);
-                break;
+                // Parsear los tipos de gráfica del JSON
+                let tiposPermitidos = [];
+                try {
+                    tiposPermitidos = JSON.parse(cuadroData.tipo_grafica_permitida || '[]');
+                } catch (e) {
+                    console.log('Error parsing tipos gráfica:', e);
+                    tiposPermitidos = [];
+                }
+                
+                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                    check.checked = tiposPermitidos.includes(check.value);
+                });
+            } else {
+                tiposContainer.style.display = 'none';
+                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                    check.checked = false;
+                });
             }
-        }
-    }
-    
-    // Mostrar archivos actuales - CORREGIDO: usar los elementos correctos del HTML
-    const archivosCell = fila.cells[6];
-    
-    // Resetear visibilidad de archivos
-    document.getElementById('archivo_excel_actual').classList.add('d-none');
-    document.getElementById('archivo_pdf_actual').classList.add('d-none');
-    document.getElementById('sin_archivos_actuales').style.display = 'block';
-    
-    // Resetear campos de eliminación
-    document.getElementById('remove_excel_hidden').value = '0';
-    document.getElementById('remove_pdf_hidden').value = '0';
-    
-    const excelBadge = archivosCell.querySelector('.badge.bg-success');
-    const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
-    
-    if (excelBadge) {
-        document.getElementById('archivo_excel_actual').classList.remove('d-none');
-        document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
-        document.getElementById('archivo_excel_sistema').textContent = 'excel_' + codigo_cuadro + '.xlsx';
-        document.getElementById('label_excel_reemplazar').classList.remove('d-none');
-        document.getElementById('label_excel_nuevo').classList.add('d-none');
-    }
-    
-    if (pdfBadge) {
-        document.getElementById('archivo_pdf_actual').classList.remove('d-none');
-        document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
-        document.getElementById('archivo_pdf_sistema').textContent = 'pdf_' + codigo_cuadro + '.pdf';
-        document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
-        document.getElementById('label_pdf_nuevo').classList.add('d-none');
-    }
-    
-    // Verificar si hay archivos para ocultar el mensaje "sin archivos"
-    verificarArchivosRestantes();
-    
-    // Actualizar la acción del formulario
-    const form = document.getElementById('formEditarCuadro');
-    form.action = routesCuadros.update.replace(':id', id);
-    
-    // Mostrar modal
-    new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+            
+            // Configurar pie de página CON DATOS REALES
+            const piePaginaEditor = document.getElementById('edit_pie_pagina');
+            const piePaginaHidden = document.getElementById('edit_pie_pagina_hidden');
+            
+            piePaginaEditor.innerHTML = cuadroData.pie_pagina || '';
+            piePaginaHidden.value = cuadroData.pie_pagina || '';
+            
+            // Seleccionar tema y subtema
+            if (tema_badge && subtema_badge) {
+                const temaTexto = tema_badge.textContent;
+                const subtemaTexto = subtema_badge.textContent;
+                
+                const temaSelect = document.getElementById('edit_tema_id_select');
+                for (let option of temaSelect.options) {
+                    if (option.text === temaTexto) {
+                        option.selected = true;
+                        filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+                        
+                        setTimeout(() => {
+                            const subtemaSelect = document.getElementById('edit_subtema_id');
+                            for (let option of subtemaSelect.options) {
+                                if (option.text === subtemaTexto) {
+                                    option.selected = true;
+                                    break;
+                                }
+                            }
+                        }, 100);
+                        break;
+                    }
+                }
+            }
+            
+            // Mostrar archivos actuales - CORREGIDO: usar los elementos correctos del HTML
+            const archivosCell = fila.cells[6];
+            
+            // Resetear visibilidad de archivos
+            document.getElementById('archivo_excel_actual').classList.add('d-none');
+            document.getElementById('archivo_pdf_actual').classList.add('d-none');
+            document.getElementById('sin_archivos_actuales').style.display = 'block';
+            
+            // Resetear campos de eliminación
+            document.getElementById('remove_excel_hidden').value = '0';
+            document.getElementById('remove_pdf_hidden').value = '0';
+            
+            const excelBadge = archivosCell.querySelector('.badge.bg-success');
+            const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
+            
+            if (excelBadge) {
+                document.getElementById('archivo_excel_actual').classList.remove('d-none');
+                document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
+                document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file || ('excel_' + codigo_cuadro + '.xlsx');
+                document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+                document.getElementById('label_excel_nuevo').classList.add('d-none');
+            }
+            
+            if (pdfBadge) {
+                document.getElementById('archivo_pdf_actual').classList.remove('d-none');
+                document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
+                document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file || ('pdf_' + codigo_cuadro + '.pdf');
+                document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
+                document.getElementById('label_pdf_nuevo').classList.add('d-none');
+            }
+            
+            // Verificar si hay archivos para ocultar el mensaje "sin archivos"
+            verificarArchivosRestantes();
+            
+            // Actualizar la acción del formulario
+            const form = document.getElementById('formEditarCuadro');
+            form.action = routesCuadros.update.replace(':id', id);
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+            
+        })
+        .catch(error => {
+            console.error('Error obteniendo datos del cuadro:', error);
+            alert('Error al cargar los datos del cuadro');
+        });
 }
 
 
