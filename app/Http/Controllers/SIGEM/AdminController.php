@@ -836,12 +836,26 @@ class AdminController extends Controller
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
-            // Procesar tipo_grafica_permitida como texto separado por comas
+            // Procesar tipo_grafica_permitida correctamente
             $tiposGrafica = [];
             if ($cuadro->tipo_grafica_permitida) {
-                // Si está almacenado como texto separado por comas
-                $tiposGrafica = explode(',', $cuadro->tipo_grafica_permitida);
-                $tiposGrafica = array_map('trim', $tiposGrafica);
+                // Si está almacenado como JSON (que es lo que está pasando)
+                if (is_string($cuadro->tipo_grafica_permitida)) {
+                    try {
+                        $tiposGrafica = json_decode($cuadro->tipo_grafica_permitida, true);
+                        // Si no es un array válido, intentar con explode por si acaso
+                        if (!is_array($tiposGrafica)) {
+                            $tiposGrafica = explode(',', $cuadro->tipo_grafica_permitida);
+                            $tiposGrafica = array_map('trim', $tiposGrafica);
+                        }
+                    } catch (\Exception $e) {
+                        // Fallback a explode si JSON falla
+                        $tiposGrafica = explode(',', $cuadro->tipo_grafica_permitida);
+                        $tiposGrafica = array_map('trim', $tiposGrafica);
+                    }
+                } elseif (is_array($cuadro->tipo_grafica_permitida)) {
+                    $tiposGrafica = $cuadro->tipo_grafica_permitida;
+                }
             }
 
             return response()->json([

@@ -43,6 +43,7 @@ class CuadroEstadistico extends Model
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
         'permite_grafica' => 'boolean',
+        'tipo_grafica_permitida' => 'array', // AGREGAR ESTA LÍNEA
     ];
     
     /**
