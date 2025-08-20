@@ -693,13 +693,14 @@ $(document).ready(function() {
 const routesCuadros = {
     update: '{{ route("sigem.admin.cuadros.actualizar", ":id") }}',
     delete: '{{ route("sigem.admin.cuadros.eliminar", ":id") }}',
-    subtemasPorTema: '{{ url("/sigem/admin/cuadros/subtemas") }}'
+    subtemasPorTema: '{{ url("/sigem/admin/cuadros/subtemas") }}',
+    obtenerCuadro: '{{ route("sigem.admin.cuadros.obtener", ":id") }}'
 };
 
 // Datos de subtemas para filtrado
 const subtemasData = @json($subtemas ?? []);
 
-function editarCuadro(id) {
+/*function editarCuadro(id) {
     // Buscar los datos del cuadro en la tabla
     const fila = event.target.closest('tr');
     const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
@@ -812,6 +813,84 @@ function editarCuadro(id) {
     
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+}*/
+
+function editarCuadro(id) {
+    // Hacer petición AJAX para obtener datos completos del cuadro
+    fetch(routesCuadros.obtenerCuadro.replace(':id', id))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cuadro = data.cuadro;
+                
+                // Llenar campos básicos
+                document.getElementById('edit_cuadro_estadistico_id').value = cuadro.cuadro_estadistico_id;
+                document.getElementById('edit_codigo_cuadro').value = cuadro.codigo_cuadro;
+                document.getElementById('edit_cuadro_estadistico_titulo').value = cuadro.cuadro_estadistico_titulo;
+                document.getElementById('edit_cuadro_estadistico_subtitulo').value = cuadro.cuadro_estadistico_subtitulo || '';
+                
+                // Configurar tema y subtema
+                if (cuadro.tema_id) {
+                    document.getElementById('edit_tema_id_select').value = cuadro.tema_id;
+                    filtrarSubtemas(document.getElementById('edit_tema_id_select'), document.getElementById('edit_subtema_id'));
+                    
+                    setTimeout(() => {
+                        document.getElementById('edit_subtema_id').value = cuadro.subtema_id;
+                    }, 100);
+                }
+                
+                // Configurar gráficas
+                const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+                const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+                
+                permiteGraficaCheck.checked = cuadro.permite_grafica;
+                if (cuadro.permite_grafica) {
+                    tiposContainer.style.display = 'block';
+                    
+                    // Limpiar checkboxes anteriores
+                    document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                        check.checked = false;
+                    });
+                    
+                    // Marcar tipos seleccionados
+                    if (cuadro.tipo_grafica_permitida && Array.isArray(cuadro.tipo_grafica_permitida)) {
+                        cuadro.tipo_grafica_permitida.forEach(tipo => {
+                            const checkbox = document.querySelector(`#edit_tipo_${tipo.toLowerCase()}`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                } else {
+                    tiposContainer.style.display = 'none';
+                }
+                
+                // Configurar pie de página
+                const editorPie = document.getElementById('edit_pie_pagina');
+                const hiddenPie = document.getElementById('edit_pie_pagina_hidden');
+                if (cuadro.pie_pagina) {
+                    editorPie.innerHTML = cuadro.pie_pagina;
+                    hiddenPie.value = cuadro.pie_pagina;
+                } else {
+                    editorPie.innerHTML = '';
+                    hiddenPie.value = '';
+                }
+                
+                // Gestionar archivos actuales
+                mostrarArchivosActuales(cuadro);
+                
+                // Actualizar la acción del formulario
+                const form = document.getElementById('formEditarCuadro');
+                form.action = routesCuadros.update.replace(':id', id);
+                
+                // Mostrar modal
+                new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+            } else {
+                alert('Error al cargar los datos del cuadro: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos del cuadro');
+        });
 }
 
 function eliminarCuadro(id, titulo) {

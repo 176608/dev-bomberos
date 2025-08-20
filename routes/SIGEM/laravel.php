@@ -70,7 +70,8 @@ Route::middleware(['auth'])->prefix('sigem')->group(function () {
     Route::post('/admin/cuadros/crear', [AdminController::class, 'crearCuadro'])->name('sigem.admin.cuadros.crear');
     Route::put('/admin/cuadros/{id}/actualizar', [AdminController::class, 'actualizarCuadro'])->name('sigem.admin.cuadros.actualizar');
     Route::delete('/admin/cuadros/{id}/eliminar', [AdminController::class, 'eliminarCuadro'])->name('sigem.admin.cuadros.eliminar');
-    
+    Route::get('/admin/cuadros/{id}/editar', [AdminController::class, 'obtenerCuadroParaEdicion'])->name('sigem.admin.cuadros.obtener');
+
     // AJAX para obtener subtemas por tema
     Route::get('/admin/cuadros/subtemas/{tema_id}', [AdminController::class, 'obtenerSubtemasPorTema']);
         
