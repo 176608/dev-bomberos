@@ -43,7 +43,7 @@ class CuadroEstadistico extends Model
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
         'permite_grafica' => 'boolean',
-        // 'tipo_grafica_permitida' => 'array'  // QUITADO: lo normalizamos con el accesor
+        'tipo_grafica_permitida' => 'array'
     ];
     
     /**
@@ -60,63 +60,6 @@ class CuadroEstadistico extends Model
     public function getTemaAttribute()
     {
         return $this->subtema ? $this->subtema->tema : null;
-    }
-    
-    /**
-     * Accessor para normalizar tipo_grafica_permitida (VARCHAR -> array)
-     */
-    public function getTipoGraficaPermitidaAttribute($value)
-    {
-        // Priorizar valor directo
-        $raw = $value;
-
-        // Si la columna tiene otro nombre con mayúsculas (p. ej. 'Tipo_Grafica_Permitida')
-        if (is_null($raw) && array_key_exists('Tipo_Grafica_Permitida', $this->attributes)) {
-            $raw = $this->attributes['Tipo_Grafica_Permitida'];
-        }
-
-        // Nulo o vacío -> array vacío
-        if (is_null($raw) || $raw === '') {
-            return [];
-        }
-
-        // Si ya viene como array (por algún otro procesamiento), devolver tal cual
-        if (is_array($raw)) {
-            return $raw;
-        }
-
-        // Limpiar caracteres de control y espacios
-        $raw = trim($raw);
-        $raw = trim($raw, "\x00..\x1F"); // quitar control chars (incluye newline)
-
-        // Intentar JSON directo
-        $decoded = json_decode($raw, true);
-        if (is_array($decoded)) {
-            return array_values($decoded);
-        }
-
-        // Quitar corchetes externos y comillas envolventes
-        $clean = trim($raw);
-        $clean = preg_replace('/^\[|\]$/', '', $clean); // quitar [] externos
-        $clean = trim($clean, " \t\n\r\0\x0B\"'");
-
-        if ($clean === '') {
-            return [];
-        }
-
-        // Reemplazar distintos separadores por coma
-        $clean = str_replace([';', '，', '、'], ',', $clean);
-
-        // Quitar comillas internas sobrantes
-        $clean = str_replace(['"', "'"], '', $clean);
-
-        // Separar por comas y limpiar cada item
-        $parts = array_map('trim', explode(',', $clean));
-        $parts = array_filter($parts, function ($v) {
-            return $v !== '' && $v !== null;
-        });
-
-        return array_values($parts);
     }
     
     /**
