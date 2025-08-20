@@ -48,7 +48,7 @@ class CuadroEstadistico extends Model
         'excel_file' => 'string',
         'pdf_file' => 'string',
         'permite_grafica' => 'boolean',
-        'tipo_grafica_permitida' => 'array', // Cambiado a array para múltiples opciones
+        'tipo_grafica_permitida' => 'text',
         'pie_pagina' => 'string'
     ];
     

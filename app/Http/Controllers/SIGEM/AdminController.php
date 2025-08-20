@@ -836,21 +836,30 @@ class AdminController extends Controller
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
+            // Procesar tipo_grafica_permitida como texto separado por comas
+            $tiposGrafica = [];
+            if ($cuadro->tipo_grafica_permitida) {
+                // Si está almacenado como texto separado por comas
+                $tiposGrafica = explode(',', $cuadro->tipo_grafica_permitida);
+                $tiposGrafica = array_map('trim', $tiposGrafica);
+            }
+
             return response()->json([
-                'success' => true,
-                'cuadro' => [
-                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
-                    'codigo_cuadro' => $cuadro->codigo_cuadro,
-                    'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
-                    'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
-                    'subtema_id' => $cuadro->subtema_id,
-                    'excel_file' => $cuadro->excel_file,
-                    'pdf_file' => $cuadro->pdf_file,
-                    'permite_grafica' => $cuadro->permite_grafica,
-                    'tipo_grafica_permitida' => $cuadro->tipo_grafica_permitida,
-                    'pie_pagina' => $cuadro->pie_pagina,
-                    'tema_id' => $cuadro->subtema ? $cuadro->subtema->tema_id : null
-                ]
+                'codigo_cuadro' => $cuadro->codigo_cuadro,
+                'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
+                'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
+                'subtema_id' => $cuadro->subtema_id,
+                'excel_file' => $cuadro->excel_file,
+                'pdf_file' => $cuadro->pdf_file,
+                'permite_grafica' => $cuadro->permite_grafica,
+                'tipo_grafica_permitida' => $tiposGrafica, // Array directo
+                'pie_pagina' => $cuadro->pie_pagina,
+                'subtema' => $cuadro->subtema ? [
+                    'subtema_id' => $cuadro->subtema->subtema_id,
+                    'tema' => $cuadro->subtema->tema ? [
+                        'tema_id' => $cuadro->subtema->tema->tema_id
+                    ] : null
+                ] : null
             ]);
             
         } catch (\Exception $e) {

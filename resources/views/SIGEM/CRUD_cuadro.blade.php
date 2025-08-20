@@ -700,150 +700,6 @@ const routesCuadros = {
 // Datos de subtemas para filtrado
 const subtemasData = @json($subtemas ?? []);
 
-function editarCuadro(id) {
-    // OBTENER DATOS REALES DEL BACKEND VIA AJAX
-    fetch(routesCuadros.obtenerCuadro.replace(':id', id))
-        .then(response => response.json())
-        .then(cuadroData => {
-            console.log('Datos del backend:', cuadroData); // Para debugging
-            
-            // Llenar el modal de edición con datos del backend
-            document.getElementById('edit_cuadro_estadistico_id').value = id;
-            document.getElementById('edit_codigo_cuadro').value = cuadroData.codigo_cuadro || '';
-            document.getElementById('edit_cuadro_estadistico_titulo').value = cuadroData.cuadro_estadistico_titulo || '';
-            document.getElementById('edit_cuadro_estadistico_subtitulo').value = cuadroData.cuadro_estadistico_subtitulo || '';
-            
-            // Configurar gráficas CON DATOS REALES
-            const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-            const tiposContainer = document.getElementById('edit_tipos_grafica_container');
-            
-            permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
-            
-            if (cuadroData.permite_grafica == 1) {
-                tiposContainer.style.display = 'block';
-                
-                // Parsear los tipos de gráfica del JSON
-                let tiposPermitidos = [];
-                try {
-                    tiposPermitidos = JSON.parse(cuadroData.tipo_grafica_permitida || '[]');
-                } catch (e) {
-                    console.log('Error parsing tipos gráfica:', e);
-                    tiposPermitidos = [];
-                }
-                
-                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-                    check.checked = tiposPermitidos.includes(check.value);
-                });
-            } else {
-                tiposContainer.style.display = 'none';
-                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-                    check.checked = false;
-                });
-            }
-            
-            // Configurar pie de página CON DATOS REALES
-            const piePaginaEditor = document.getElementById('edit_pie_pagina');
-            const piePaginaHidden = document.getElementById('edit_pie_pagina_hidden');
-            
-            piePaginaEditor.innerHTML = cuadroData.pie_pagina || '';
-            piePaginaHidden.value = cuadroData.pie_pagina || '';
-            
-            // Seleccionar tema y subtema con IDs del backend
-            const temaSelect = document.getElementById('edit_tema_id_select');
-            if (cuadroData.subtema && cuadroData.subtema.tema) {
-                temaSelect.value = cuadroData.subtema.tema.tema_id;
-                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
-                
-                setTimeout(() => {
-                    document.getElementById('edit_subtema_id').value = cuadroData.subtema_id;
-                }, 100);
-            }
-            
-            // Mostrar archivos actuales usando datos del backend
-            // Resetear visibilidad de archivos
-            document.getElementById('archivo_excel_actual').classList.add('d-none');
-            document.getElementById('archivo_pdf_actual').classList.add('d-none');
-            document.getElementById('sin_archivos_actuales').style.display = 'block';
-            
-            // Resetear campos de eliminación
-            document.getElementById('remove_excel_hidden').value = '0';
-            document.getElementById('remove_pdf_hidden').value = '0';
-            
-            if (cuadroData.excel_file) {
-                document.getElementById('archivo_excel_actual').classList.remove('d-none');
-                document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
-                document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file;
-                document.getElementById('label_excel_reemplazar').classList.remove('d-none');
-                document.getElementById('label_excel_nuevo').classList.add('d-none');
-            }
-            
-            if (cuadroData.pdf_file) {
-                document.getElementById('archivo_pdf_actual').classList.remove('d-none');
-                document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
-                document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file;
-                document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
-                document.getElementById('label_pdf_nuevo').classList.add('d-none');
-            }
-            
-            // Verificar si hay archivos para ocultar el mensaje "sin archivos"
-            verificarArchivosRestantes();
-            
-            // Actualizar la acción del formulario
-            const form = document.getElementById('formEditarCuadro');
-            form.action = routesCuadros.update.replace(':id', id);
-            
-            // Mostrar modal
-            new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
-            
-        })
-        .catch(error => {
-            console.error('Error obteniendo datos del cuadro:', error);
-            alert('Error al cargar los datos del cuadro');
-        });
-}
-
-
-function eliminarCuadro(id, titulo) {
-    // Obtener información adicional de la fila para confirmación más específica
-    const fila = event.target.closest('tr');
-    const codigo = fila.cells[1].querySelector('code').textContent;
-    const archivosCell = fila.cells[6];
-    const tieneArchivos = archivosCell.querySelector('.badge') !== null;
-    
-    let mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}" (${codigo})?`;
-    
-    if (tieneArchivos) {
-        mensaje += `\n\n⚠️ ADVERTENCIA: Este cuadro tiene archivos asociados que también serán eliminados.`;
-    }
-    
-    mensaje += `\n\n✗ Esta acción NO se puede deshacer.`;
-    
-    if (confirm(mensaje)) {
-        // Crear formulario temporal para envío DELETE
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = routesCuadros.delete.replace(':id', id);
-        form.style.display = 'none';
-        
-        // Token CSRF
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        form.appendChild(csrfToken);
-        
-        // Method spoofing para DELETE
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        form.appendChild(methodField);
-        
-        // Enviar formulario
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 
 function verificarArchivosRestantes() {
     const excelVisible = !document.getElementById('archivo_excel_actual').classList.contains('d-none');
@@ -967,6 +823,143 @@ document.getElementById('edit_permite_grafica')?.addEventListener('change', func
         checks.forEach(check => check.checked = false);
     }
 });
+
+
+function editarCuadro(id) {
+    fetch(routesCuadros.obtenerCuadro.replace(':id', id))
+        .then(response => response.json())
+        .then(cuadroData => {
+            console.log('Datos del backend:', cuadroData);
+            
+            // Llenar el modal de edición con datos del backend
+            document.getElementById('edit_cuadro_estadistico_id').value = id;
+            document.getElementById('edit_codigo_cuadro').value = cuadroData.codigo_cuadro || '';
+            document.getElementById('edit_cuadro_estadistico_titulo').value = cuadroData.cuadro_estadistico_titulo || '';
+            document.getElementById('edit_cuadro_estadistico_subtitulo').value = cuadroData.cuadro_estadistico_subtitulo || '';
+            
+            // Configurar gráficas CON DATOS REALES
+            const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
+            const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+            
+            permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
+            
+            if (cuadroData.permite_grafica == 1) {
+                tiposContainer.style.display = 'block';
+                
+                // Tipos de gráfica ahora es un array directo
+                const tiposPermitidos = cuadroData.tipo_grafica_permitida || [];
+                
+                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                    check.checked = tiposPermitidos.includes(check.value);
+                });
+            } else {
+                tiposContainer.style.display = 'none';
+                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
+                    check.checked = false;
+                });
+            }
+            
+            // Configurar pie de página CON DATOS REALES
+            const piePaginaEditor = document.getElementById('edit_pie_pagina');
+            const piePaginaHidden = document.getElementById('edit_pie_pagina_hidden');
+            
+            piePaginaEditor.innerHTML = cuadroData.pie_pagina || '';
+            piePaginaHidden.value = cuadroData.pie_pagina || '';
+            
+            // Seleccionar tema y subtema con IDs del backend
+            const temaSelect = document.getElementById('edit_tema_id_select');
+            if (cuadroData.subtema && cuadroData.subtema.tema) {
+                temaSelect.value = cuadroData.subtema.tema.tema_id;
+                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
+                
+                setTimeout(() => {
+                    document.getElementById('edit_subtema_id').value = cuadroData.subtema_id;
+                }, 100);
+            }
+            
+            // Resetear visibilidad de archivos
+            document.getElementById('archivo_excel_actual').classList.add('d-none');
+            document.getElementById('archivo_pdf_actual').classList.add('d-none');
+            document.getElementById('sin_archivos_actuales').style.display = 'block';
+            
+            // Resetear campos de eliminación
+            document.getElementById('remove_excel_hidden').value = '0';
+            document.getElementById('remove_pdf_hidden').value = '0';
+            
+            if (cuadroData.excel_file) {
+                document.getElementById('archivo_excel_actual').classList.remove('d-none');
+                document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
+                document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file;
+                document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+                document.getElementById('label_excel_nuevo').classList.add('d-none');
+            }
+            
+            if (cuadroData.pdf_file) {
+                document.getElementById('archivo_pdf_actual').classList.remove('d-none');
+                document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
+                document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file;
+                document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
+                document.getElementById('label_pdf_nuevo').classList.add('d-none');
+            }
+            
+            verificarArchivosRestantes();
+            
+            // Actualizar la acción del formulario
+            const form = document.getElementById('formEditarCuadro');
+            form.action = routesCuadros.update.replace(':id', id);
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+            
+        })
+        .catch(error => {
+            console.error('Error obteniendo datos del cuadro:', error);
+            alert('Error al cargar los datos del cuadro');
+        });
+}
+
+
+function eliminarCuadro(id, titulo) {
+    // Obtener información adicional de la fila para confirmación más específica
+    const fila = event.target.closest('tr');
+    const codigo = fila.cells[1].querySelector('code').textContent;
+    const archivosCell = fila.cells[6];
+    const tieneArchivos = archivosCell.querySelector('.badge') !== null;
+    
+    let mensaje = `¿Estás seguro de eliminar el cuadro estadístico "${titulo}" (${codigo})?`;
+    
+    if (tieneArchivos) {
+        mensaje += `\n\n⚠️ ADVERTENCIA: Este cuadro tiene archivos asociados que también serán eliminados.`;
+    }
+    
+    mensaje += `\n\n✗ Esta acción NO se puede deshacer.`;
+    
+    if (confirm(mensaje)) {
+        // Crear formulario temporal para envío DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = routesCuadros.delete.replace(':id', id);
+        form.style.display = 'none';
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Method spoofing para DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 
 // Actualizar campo oculto cuando se escriba en el editor
 document.getElementById('pie_pagina')?.addEventListener('input', updateHiddenField);
