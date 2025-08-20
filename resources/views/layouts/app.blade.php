@@ -130,26 +130,30 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
         /* Mejora: transición suave para cambios de fondo */
-        transition: background-image 0.6s cubic-bezier(0.4,0,0.2,1), background-size 0.6s cubic-bezier(0.4,0,0.2,1);
-        /* Mejora: animación de opacidad al cargar */
-        opacity: 0;
-        animation: bgFadeIn 1.2s ease-in forwards;
+        transition: background-image 0.7s cubic-bezier(0.4,0,0.2,1), background-size 0.7s cubic-bezier(0.4,0,0.2,1), filter 0.7s;
+        /* Mejora: animación de desenfoque y opacidad al cargar */
+        filter: blur(0.5px) brightness(0.98);
+        animation: bgFadeIn 1.2s ease-in;
     }
 
     @keyframes bgFadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+        from { filter: blur(8px) brightness(0.92); }
+        to   { filter: blur(0.5px) brightness(0.98); }
     }
 
     .bg-fonde::before {
-    content: "";
-    /*position: absolute;*/
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-}
+        content: "";
+        /*position: absolute;*/
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        /* Mejora: transición sutil de opacidad y desenfoque */
+        transition: opacity 0.8s, filter 0.8s;
+        opacity: 0.7;
+        filter: blur(0.5px);
+    }
 
     @keyframes pulse {
         0% { opacity: 1; }
