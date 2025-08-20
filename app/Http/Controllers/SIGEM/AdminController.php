@@ -832,11 +832,6 @@ class AdminController extends Controller
         try {
             $cuadro = CuadroEstadistico::obtenerPorId($id);
 
-            \Log::info('DEBUG tipo_grafica_permitida', [
-                'raw' => $cuadro->getRawOriginal('tipo_grafica_permitida'),
-                'accessor' => $cuadro->tipo_grafica_permitida
-            ]);
-
             if (!$cuadro) {
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
@@ -867,6 +862,7 @@ class AdminController extends Controller
                 'pdf_file' => $cuadro->pdf_file,
                 'permite_grafica' => $cuadro->permite_grafica,
                 'tipo_grafica_permitida' => $tiposGrafica, // array garantizado
+                'raw_tipo_grafica_permitida' => $cuadro->getRawOriginal('tipo_grafica_permitida'),
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [
                     'subtema_id' => $cuadro->subtema->subtema_id,
