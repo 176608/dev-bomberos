@@ -441,22 +441,68 @@
                     <!-- Archivos actuales y nuevos -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="bi bi-files"></i> Archivos</h6>
+                            <h6 class="mb-0"><i class="bi bi-files"></i> Gestión de Archivos</h6>
                         </div>
                         <div class="card-body">
-                            <div id="archivos_actuales" class="mb-3"></div>
                             
+                            <!-- Archivos actuales -->
+                            <div id="archivos_actuales_section" class="mb-4">
+                                <h6 class="text-muted mb-3">Archivos Actuales</h6>
+                                <div id="archivo_excel_actual" class="alert alert-info d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-excel text-success"></i>
+                                            <strong>Excel:</strong> <span id="nombre_excel_actual"></span>
+                                            <br><small class="text-muted">Archivo guardado como: <span id="archivo_excel_sistema"></span></small>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="remove_excel_hidden" name="remove_excel" value="0">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoExcel()">
+                                                <i class="bi bi-trash"></i> Eliminar Excel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="archivo_pdf_actual" class="alert alert-warning d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                            <strong>PDF:</strong> <span id="nombre_pdf_actual"></span>
+                                            <br><small class="text-muted">Archivo guardado como: <span id="archivo_pdf_sistema"></span></small>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="remove_pdf_hidden" name="remove_pdf" value="0">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoPdf()">
+                                                <i class="bi bi-trash"></i> Eliminar PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="sin_archivos_actuales" class="alert alert-light">
+                                    <i class="bi bi-info-circle"></i> No hay archivos actuales asociados a este cuadro.
+                                </div>
+                            </div>
+                            
+                            <!-- Subir nuevos archivos -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="edit_excel_file" class="form-label">Nuevo Archivo Excel</label>
+                                        <label for="edit_excel_file" class="form-label">
+                                            <span id="label_excel_nuevo">Nuevo Archivo Excel</span>
+                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Excel</span>
+                                        </label>
                                         <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="edit_pdf_file" class="form-label">Nuevo Archivo PDF</label>
+                                        <label for="edit_pdf_file" class="form-label">
+                                            <span id="label_pdf_nuevo">Nuevo Archivo PDF</span>
+                                            <span id="label_pdf_reemplazar" class="d-none">Reemplazar Archivo PDF</span>
+                                        </label>
                                         <input type="file" class="form-control" id="edit_pdf_file" name="pdf_file" accept=".pdf">
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
                                     </div>
@@ -791,6 +837,42 @@ function eliminarCuadro(id, titulo) {
         // Enviar formulario
         document.body.appendChild(form);
         form.submit();
+    }
+}
+
+function verificarArchivosRestantes() {
+    const excelVisible = !document.getElementById('archivo_excel_actual').classList.contains('d-none');
+    const pdfVisible = !document.getElementById('archivo_pdf_actual').classList.contains('d-none');
+    const sinArchivos = document.getElementById('sin_archivos_actuales');
+    
+    if (!excelVisible && !pdfVisible) {
+        sinArchivos.style.display = 'block';
+    } else {
+        sinArchivos.style.display = 'none';
+    }
+}
+
+function eliminarArchivoExcel() {
+    if (confirm('¿Está seguro de eliminar el archivo Excel? Esta acción no se puede deshacer.')) {
+        document.getElementById('remove_excel_hidden').value = '1';
+        document.getElementById('archivo_excel_actual').classList.add('d-none');
+        document.getElementById('label_excel_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_reemplazar').classList.add('d-none');
+        
+        // Verificar si quedan archivos
+        verificarArchivosRestantes();
+    }
+}
+
+function eliminarArchivoPdf() {
+    if (confirm('¿Está seguro de eliminar el archivo PDF? Esta acción no se puede deshacer.')) {
+        document.getElementById('remove_pdf_hidden').value = '1';
+        document.getElementById('archivo_pdf_actual').classList.add('d-none');
+        document.getElementById('label_pdf_nuevo').classList.remove('d-none');
+        document.getElementById('label_pdf_reemplazar').classList.add('d-none');
+        
+        // Verificar si quedan archivos
+        verificarArchivosRestantes();
     }
 }
 

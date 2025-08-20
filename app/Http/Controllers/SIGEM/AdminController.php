@@ -789,9 +789,8 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * AJAX: Obtener datos de cuadro para edición
-     */
+    /* AJAX: Obtener datos de cuadro para edición
+     
     public function obtenerCuadroParaEdicion($id)
     {
         try {
@@ -820,6 +819,44 @@ class AdminController extends Controller
             
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error interno del servidor'], 500);
+        }
+    }*/
+
+      public function eliminarCuadro($id)
+    {
+        try {
+            $cuadro = CuadroEstadistico::obtenerPorId($id);
+            
+            if (!$cuadro) {
+                return redirect()
+                    ->route('sigem.admin.cuadros')
+                    ->with('error', 'Cuadro estadístico no encontrado');
+            }
+
+            // Eliminar archivos físicos si existen
+            if ($cuadro->excel_file && file_exists(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file))) {
+                unlink(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file));
+            }
+
+            if ($cuadro->pdf_file && file_exists(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file))) {
+                unlink(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file));
+            }
+
+            // Guardar datos para el mensaje
+            $nombreCuadro = $cuadro->cuadro_estadistico_titulo;
+            $codigoCuadro = $cuadro->codigo_cuadro;
+
+            // Eliminar cuadro
+            $cuadro->eliminar();
+
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('success', "Cuadro estadístico '{$nombreCuadro}' (código: {$codigoCuadro}) eliminado exitosamente");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('sigem.admin.cuadros')
+                ->with('error', 'Error al eliminar el cuadro estadístico: ' . $e->getMessage());
         }
     }
 

@@ -73,10 +73,7 @@ Route::middleware(['auth'])->prefix('sigem')->group(function () {
     
     // AJAX para obtener subtemas por tema
     Route::get('/admin/cuadros/subtemas/{tema_id}', [AdminController::class, 'obtenerSubtemasPorTema']);
-    
-    // AJAX para obtener datos de cuadro para edición
-    Route::get('/admin/cuadros/{id}/editar', [AdminController::class, 'obtenerCuadroParaEdicion'])->name('sigem.admin.cuadros.obtener');
-    
+        
     // AJAX para obtener subtemas CE por tema
     Route::get('/admin/consultas/subtemas-ce/{tema_id}', [AdminController::class, 'obtenerSubtemasCEPorTema']);
     
