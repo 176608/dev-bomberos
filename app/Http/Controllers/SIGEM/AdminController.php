@@ -618,8 +618,8 @@ class AdminController extends Controller
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Crear directorios si no existen
-            $directorioExcel = public_path('archivos/cuadros_estadisticos/excel');
-            $directorioPdf = public_path('archivos/cuadros_estadisticos/pdf');
+            $directorioExcel = public_path('u_excel');
+            $directorioPdf = public_path('u_pdf');
             
             if (!file_exists($directorioExcel)) {
                 mkdir($directorioExcel, 0755, true);
@@ -719,8 +719,8 @@ class AdminController extends Controller
             $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Directorios para archivos
-            $directorioExcel = public_path('archivos/cuadros_estadisticos/excel');
-            $directorioPdf = public_path('archivos/cuadros_estadisticos/pdf');
+            $directorioExcel = public_path('u_excel');
+            $directorioPdf = public_path('u_pdf');
 
             // Manejar eliminación específica de archivo Excel
             if ($request->has('remove_excel') && $request->remove_excel == '1') {
@@ -801,12 +801,12 @@ class AdminController extends Controller
             }
 
             // Eliminar archivos físicos si existen
-            if ($cuadro->excel_file && file_exists(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file))) {
-                unlink(public_path('archivos/cuadros_estadisticos/excel/' . $cuadro->excel_file));
+            if ($cuadro->excel_file && file_exists(public_path('u_excel/' . $cuadro->excel_file))) {
+                unlink(public_path('u_excel/' . $cuadro->excel_file));
             }
 
-            if ($cuadro->pdf_file && file_exists(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file))) {
-                unlink(public_path('archivos/cuadros_estadisticos/pdf/' . $cuadro->pdf_file));
+            if ($cuadro->pdf_file && file_exists(public_path('u_pdf/' . $cuadro->pdf_file))) {
+                unlink(public_path('u_pdf/' . $cuadro->pdf_file));
             }
 
             // Guardar datos para el mensaje
