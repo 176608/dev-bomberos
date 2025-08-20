@@ -157,4 +157,54 @@ class CuadroEstadistico extends Model
         
         return $nombreArchivo; // Fallback al nombre completo
     }
+    
+    /**
+     * Obtener tipo de gráfica permitida (conversión de atributos)
+     */
+    public function getTipoGraficaPermitidaAttribute($value)
+    {
+        // 1) Priorizar valor directo (Eloquent pasa $value si existe columna con ese nombre)
+        $raw = $value;
+
+        // 2) Fallback si la columna en la BD tiene otro nombre con mayúsculas (p.ej. Tipo_Grafica_Permitida)
+        if (is_null($raw) && array_key_exists('Tipo_Grafica_Permitida', $this->attributes)) {
+            $raw = $this->attributes['Tipo_Grafica_Permitida'];
+        }
+
+        if (is_null($raw) || $raw === '') {
+            return [];
+        }
+
+        // Si ya es array
+        if (is_array($raw)) {
+            return $raw;
+        }
+
+        // Intentar JSON
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        // Normalizar separadores y quitar corchetes/comillas
+        $clean = str_replace([';', '，'], ',', $raw); // incluir variantes
+        $clean = trim($clean);
+        $clean = trim($clean, "[] \t\n\r\0\x0B");
+        $clean = preg_replace('/^[\"\']|[\"\']$/', '', $clean); // quitar comillas si envuelven todo
+
+        // Quitar comillas internas y espacios extra
+        $clean = str_replace(['"', "'"], '', $clean);
+
+        if ($clean === '') {
+            return [];
+        }
+
+        $parts = array_map('trim', explode(',', $clean));
+        $parts = array_filter($parts, function ($v) {
+            return $v !== '' && $v !== null;
+        });
+
+        // Reindexar y devolver
+        return array_values($parts);
+    }
 }
