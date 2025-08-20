@@ -143,7 +143,7 @@
             </div>
             <form id="formAgregarTema" method="POST" action="{{ route('sigem.admin.temas.crear') }}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
