@@ -218,7 +218,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_tema_id" name="tema_id">
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     
                     <div class="row">
                         <div class="col-md-12">

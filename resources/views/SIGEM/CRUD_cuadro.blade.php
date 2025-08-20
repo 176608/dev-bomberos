@@ -181,7 +181,7 @@
             </div>
             <form id="formAgregarCuadro" method="POST" action="{{ route('sigem.admin.cuadros.crear') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
 
                     <div class="row">
                         <div class="col-md-6">
@@ -394,7 +394,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">

@@ -164,7 +164,7 @@
             </div>
             <form id="formAgregarSubtema" method="POST" action="{{ route('sigem.admin.subtemas.crear') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <!-- Tema Padre -->
                     <div class="row mb-3">
                         <div class="col-12">
@@ -297,7 +297,7 @@
             <form id="formEditarSubtema" method="POST" action="#" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <input type="hidden" id="edit_subtema_id" name="subtema_id">
                     
                     <!-- Tema Padre -->

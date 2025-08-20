@@ -331,7 +331,7 @@
             </div>
             <form id="formAgregarTema" method="POST" action="{{ route('sigem.admin.consultas.tema.crear') }}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="mb-3">
                         <label for="tema" class="form-label">Nombre del Tema <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('tema') is-invalid @enderror" 
@@ -371,7 +371,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_tema_id" name="ce_tema_id">
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="mb-3">
                         <label for="edit_tema" class="form-label">Nombre del Tema <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="edit_tema" name="tema" required>
@@ -398,7 +398,7 @@
             </div>
             <form id="formAgregarSubtema" method="POST" action="{{ route('sigem.admin.consultas.subtema.crear') }}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="mb-3">
                         <label for="ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
                         <select class="form-select @error('ce_tema_id') is-invalid @enderror" 
@@ -451,7 +451,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_subtema_id" name="ce_subtema_id">
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <div class="mb-3">
                         <label for="edit_ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
                         <select class="form-select" id="edit_ce_tema_id" name="ce_tema_id" required>
@@ -489,7 +489,7 @@
             </div>
             <form id="formAgregarContenido" method="POST" action="{{ route('sigem.admin.consultas.contenido.crear') }}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <!-- Información básica -->
                     <div class="row">
                         <div class="col-md-6">
@@ -633,7 +633,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_contenido_id" name="ce_contenido_id">
-                <div class="modal-body">
+                <div class="modal-body bg-fonde">
                     <!-- Información básica -->
                     <div class="row">
                         <div class="col-md-6">
