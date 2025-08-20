@@ -729,10 +729,15 @@ function editarCuadro(id) {
         permiteGraficaCheck.checked = true;
         tiposContainer.style.display = 'block';
         
-        // Aquí deberías obtener los tipos desde el servidor o almacenarlos en data attributes
-        // Por ahora, asumiré que todos están seleccionados si permite gráfica
+        // Obtener los tipos de gráfica del badge (texto después del ícono)
+        const tiposTexto = graficaBadge.textContent.trim();
         document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-            check.checked = true; // Esto se debería ajustar según los datos reales
+            // Verificar si el tipo está en el texto del badge
+            if (tiposTexto.toLowerCase().includes(check.value.toLowerCase())) {
+                check.checked = true;
+            } else {
+                check.checked = false;
+            }
         });
     } else {
         permiteGraficaCheck.checked = false;
@@ -767,28 +772,39 @@ function editarCuadro(id) {
         }
     }
     
-    // Mostrar archivos actuales
+    // Mostrar archivos actuales - CORREGIDO: usar los elementos correctos del HTML
     const archivosCell = fila.cells[6];
-    const archivosActualesDiv = document.getElementById('archivos_actuales');
     
-    let archivosHtml = '<div class="alert alert-info"><h6 class="mb-2">Archivos Actuales</h6><div class="row">';
+    // Resetear visibilidad de archivos
+    document.getElementById('archivo_excel_actual').classList.add('d-none');
+    document.getElementById('archivo_pdf_actual').classList.add('d-none');
+    document.getElementById('sin_archivos_actuales').style.display = 'block';
+    
+    // Resetear campos de eliminación
+    document.getElementById('remove_excel_hidden').value = '0';
+    document.getElementById('remove_pdf_hidden').value = '0';
     
     const excelBadge = archivosCell.querySelector('.badge.bg-success');
     const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
     
     if (excelBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-success"><i class="bi bi-file-earmark-excel"></i> Excel disponible</span></div>';
+        document.getElementById('archivo_excel_actual').classList.remove('d-none');
+        document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
+        document.getElementById('archivo_excel_sistema').textContent = 'excel_' + codigo_cuadro + '.xlsx';
+        document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+        document.getElementById('label_excel_nuevo').classList.add('d-none');
     }
+    
     if (pdfBadge) {
-        archivosHtml += '<div class="col-md-6"><span class="badge bg-danger"><i class="bi bi-file-earmark-pdf"></i> PDF disponible</span></div>';
+        document.getElementById('archivo_pdf_actual').classList.remove('d-none');
+        document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
+        document.getElementById('archivo_pdf_sistema').textContent = 'pdf_' + codigo_cuadro + '.pdf';
+        document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
+        document.getElementById('label_pdf_nuevo').classList.add('d-none');
     }
     
-    if (!excelBadge && !pdfBadge) {
-        archivosHtml += '<div class="col-12"><span class="text-muted">Sin archivos actuales</span></div>';
-    }
-    
-    archivosHtml += '</div></div>';
-    archivosActualesDiv.innerHTML = archivosHtml;
+    // Verificar si hay archivos para ocultar el mensaje "sin archivos"
+    verificarArchivosRestantes();
     
     // Actualizar la acción del formulario
     const form = document.getElementById('formEditarCuadro');

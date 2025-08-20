@@ -789,39 +789,6 @@ class AdminController extends Controller
         }
     }
 
-    /* AJAX: Obtener datos de cuadro para edición
-     
-    public function obtenerCuadroParaEdicion($id)
-    {
-        try {
-            $cuadro = CuadroEstadistico::obtenerPorId($id);
-            
-            if (!$cuadro) {
-                return response()->json(['error' => 'Cuadro no encontrado'], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'cuadro' => [
-                    'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
-                    'codigo_cuadro' => $cuadro->codigo_cuadro,
-                    'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
-                    'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
-                    'subtema_id' => $cuadro->subtema_id,
-                    'excel_file' => $cuadro->excel_file,
-                    'pdf_file' => $cuadro->pdf_file,
-                    'permite_grafica' => $cuadro->permite_grafica,
-                    'tipo_grafica_permitida' => $cuadro->tipo_grafica_permitida,
-                    'pie_pagina' => $cuadro->pie_pagina,
-                    'tema_id' => $cuadro->subtema ? $cuadro->subtema->tema_id : null
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error interno del servidor'], 500);
-        }
-    }*/
-
       public function eliminarCuadro($id)
     {
         try {
