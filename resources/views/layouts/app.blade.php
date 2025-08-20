@@ -129,6 +129,16 @@
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-attachment: fixed;
+        /* Mejora: transición suave para cambios de fondo */
+        transition: background-image 0.6s cubic-bezier(0.4,0,0.2,1), background-size 0.6s cubic-bezier(0.4,0,0.2,1);
+        /* Mejora: animación de opacidad al cargar */
+        opacity: 0;
+        animation: bgFadeIn 1.2s ease-in forwards;
+    }
+
+    @keyframes bgFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
 
     .bg-fonde::before {
