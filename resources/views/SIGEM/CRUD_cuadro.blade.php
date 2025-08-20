@@ -129,8 +129,9 @@
                                     </td>
                                     <td data-order="{{ $cuadro->permite_grafica ? 1 : 0 }}">
                                         @if($cuadro->permite_grafica)
-                                            <span class="badge bg-info" title="Permite gráfica: {{ $cuadro->tipo_grafica_permitida }}">
-                                                <i class="bi bi-graph-up"></i> {{ ucfirst($cuadro->tipo_grafica_permitida) }}
+                                            <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}">
+                                                <i class="bi bi-graph-up"></i>
+                                                {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}
                                             </span>
                                         @else
                                             <span class="text-muted">Sin gráfica</span>
