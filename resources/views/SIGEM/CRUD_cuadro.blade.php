@@ -967,8 +967,8 @@ document.getElementById('edit_permite_grafica')?.addEventListener('change', func
 document.getElementById('pie_pagina')?.addEventListener('input', updateHiddenField);
 document.getElementById('edit_pie_pagina')?.addEventListener('input', updateEditHiddenField);
 
-// Función editarCuadro actualizada
-function editarCuadro(id) {
+// Función editarCuadro actualizada 
+/*function editarCuadro(id) {
     // Buscar los datos del cuadro en la tabla
     const fila = event.target.closest('tr');
     const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
@@ -1065,7 +1065,7 @@ function editarCuadro(id) {
     
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
-}
+}*/
 
 // Limpiar modales al cerrar
 document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal', function() {
