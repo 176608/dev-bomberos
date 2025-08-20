@@ -129,21 +129,6 @@
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        transition: background-image 0.8s cubic-bezier(0.4,0,0.2,1), background-size 0.5s;
-        /* Fade-in effect */
-        opacity: 0;
-        animation: bgFadeIn 1.2s ease-in forwards;
-    }
-
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.7; }
-        100% { opacity: 1; }
-    }
-
-    @keyframes bgFadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
     }
 
     .bg-fonde::before {
@@ -154,9 +139,15 @@
     right: 0;
     bottom: 0;
     z-index: -1;
-    transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1);
-    opacity: 0.7;
+    filter: blur(0.5px);
+    transition: opacity 0.8s, filter 0.8s;
 }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
 </style>
 
 <body>
