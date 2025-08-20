@@ -700,7 +700,7 @@ const routesCuadros = {
 // Datos de subtemas para filtrado
 const subtemasData = @json($subtemas ?? []);
 
-/*function editarCuadro(id) {
+function editarCuadro(id) {
     // Buscar los datos del cuadro en la tabla
     const fila = event.target.closest('tr');
     const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
@@ -813,9 +813,9 @@ const subtemasData = @json($subtemas ?? []);
     
     // Mostrar modal
     new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
-}*/
+}
 
-function editarCuadro(id) {
+/*function editarCuadro(id) {
     // Hacer petición AJAX para obtener datos completos del cuadro
     fetch(routesCuadros.obtenerCuadro.replace(':id', id))
         .then(response => response.json())
@@ -891,7 +891,7 @@ function editarCuadro(id) {
             console.error('Error:', error);
             alert('Error al cargar los datos del cuadro');
         });
-}
+}*/
 
 function eliminarCuadro(id, titulo) {
     // Obtener información adicional de la fila para confirmación más específica
