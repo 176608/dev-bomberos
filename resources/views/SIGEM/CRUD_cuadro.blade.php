@@ -701,31 +701,17 @@ const routesCuadros = {
 const subtemasData = @json($subtemas ?? []);
 
 function editarCuadro(id) {
-    // Buscar los datos del cuadro en la tabla
-    const fila = event.target.closest('tr');
-    const codigo_cuadro = fila.cells[1].querySelector('code').textContent;
-    const titulo = fila.cells[2].querySelector('strong').textContent;
-    const subtitulo_cell = fila.cells[3];
-    const subtitulo = subtitulo_cell.classList.contains('text-muted') ? '' : subtitulo_cell.textContent;
-    
-    // Obtener tema y subtema
-    const tema_badge = fila.cells[4].querySelector('.badge');
-    const subtema_badge = fila.cells[5].querySelector('.badge');
-    
-    // Obtener información de gráfica
-    const graficaCell = fila.cells[7];
-    const graficaBadge = graficaCell.querySelector('.badge.bg-info');
-    
     // OBTENER DATOS REALES DEL BACKEND VIA AJAX
     fetch(routesCuadros.obtenerCuadro.replace(':id', id))
         .then(response => response.json())
         .then(cuadroData => {
+            console.log('Datos del backend:', cuadroData); // Para debugging
             
-            // Llenar el modal de edición con datos básicos
+            // Llenar el modal de edición con datos del backend
             document.getElementById('edit_cuadro_estadistico_id').value = id;
-            document.getElementById('edit_codigo_cuadro').value = codigo_cuadro;
-            document.getElementById('edit_cuadro_estadistico_titulo').value = titulo;
-            document.getElementById('edit_cuadro_estadistico_subtitulo').value = subtitulo === '-' ? '' : subtitulo;
+            document.getElementById('edit_codigo_cuadro').value = cuadroData.codigo_cuadro || '';
+            document.getElementById('edit_cuadro_estadistico_titulo').value = cuadroData.cuadro_estadistico_titulo || '';
+            document.getElementById('edit_cuadro_estadistico_subtitulo').value = cuadroData.cuadro_estadistico_subtitulo || '';
             
             // Configurar gráficas CON DATOS REALES
             const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
@@ -762,34 +748,18 @@ function editarCuadro(id) {
             piePaginaEditor.innerHTML = cuadroData.pie_pagina || '';
             piePaginaHidden.value = cuadroData.pie_pagina || '';
             
-            // Seleccionar tema y subtema
-            if (tema_badge && subtema_badge) {
-                const temaTexto = tema_badge.textContent;
-                const subtemaTexto = subtema_badge.textContent;
+            // Seleccionar tema y subtema con IDs del backend
+            const temaSelect = document.getElementById('edit_tema_id_select');
+            if (cuadroData.subtema && cuadroData.subtema.tema) {
+                temaSelect.value = cuadroData.subtema.tema.tema_id;
+                filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
                 
-                const temaSelect = document.getElementById('edit_tema_id_select');
-                for (let option of temaSelect.options) {
-                    if (option.text === temaTexto) {
-                        option.selected = true;
-                        filtrarSubtemas(temaSelect, document.getElementById('edit_subtema_id'));
-                        
-                        setTimeout(() => {
-                            const subtemaSelect = document.getElementById('edit_subtema_id');
-                            for (let option of subtemaSelect.options) {
-                                if (option.text === subtemaTexto) {
-                                    option.selected = true;
-                                    break;
-                                }
-                            }
-                        }, 100);
-                        break;
-                    }
-                }
+                setTimeout(() => {
+                    document.getElementById('edit_subtema_id').value = cuadroData.subtema_id;
+                }, 100);
             }
             
-            // Mostrar archivos actuales - CORREGIDO: usar los elementos correctos del HTML
-            const archivosCell = fila.cells[6];
-            
+            // Mostrar archivos actuales usando datos del backend
             // Resetear visibilidad de archivos
             document.getElementById('archivo_excel_actual').classList.add('d-none');
             document.getElementById('archivo_pdf_actual').classList.add('d-none');
@@ -799,21 +769,18 @@ function editarCuadro(id) {
             document.getElementById('remove_excel_hidden').value = '0';
             document.getElementById('remove_pdf_hidden').value = '0';
             
-            const excelBadge = archivosCell.querySelector('.badge.bg-success');
-            const pdfBadge = archivosCell.querySelector('.badge.bg-danger');
-            
-            if (excelBadge) {
+            if (cuadroData.excel_file) {
                 document.getElementById('archivo_excel_actual').classList.remove('d-none');
                 document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
-                document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file || ('excel_' + codigo_cuadro + '.xlsx');
+                document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file;
                 document.getElementById('label_excel_reemplazar').classList.remove('d-none');
                 document.getElementById('label_excel_nuevo').classList.add('d-none');
             }
             
-            if (pdfBadge) {
+            if (cuadroData.pdf_file) {
                 document.getElementById('archivo_pdf_actual').classList.remove('d-none');
                 document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
-                document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file || ('pdf_' + codigo_cuadro + '.pdf');
+                document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file;
                 document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
                 document.getElementById('label_pdf_nuevo').classList.add('d-none');
             }
