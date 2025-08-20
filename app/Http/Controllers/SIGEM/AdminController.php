@@ -835,8 +835,28 @@ class AdminController extends Controller
             if (!$cuadro) {
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
-            
-            $tiposGrafica = $cuadro->tipo_grafica_permitida ?? [];
+
+            // Procesar tipo_grafica_permitida desde VARCHAR a array
+            $tiposGrafica = [];
+            if ($cuadro->tipo_grafica_permitida) {
+                // Si es string JSON (como lo guardas en crearCuadro)
+                if (is_string($cuadro->tipo_grafica_permitida)) {
+                    try {
+                        $decoded = json_decode($cuadro->tipo_grafica_permitida, true);
+                        if (is_array($decoded)) {
+                            $tiposGrafica = $decoded;
+                        } else {
+                            // Fallback: separado por comas
+                            $tiposGrafica = array_map('trim', explode(',', $cuadro->tipo_grafica_permitida));
+                        }
+                    } catch (\Exception $e) {
+                        // Fallback: separado por comas
+                        $tiposGrafica = array_map('trim', explode(',', $cuadro->tipo_grafica_permitida));
+                    }
+                } elseif (is_array($cuadro->tipo_grafica_permitida)) {
+                    $tiposGrafica = $cuadro->tipo_grafica_permitida;
+                }
+            }
 
             return response()->json([
                 'codigo_cuadro' => $cuadro->codigo_cuadro,
@@ -846,7 +866,7 @@ class AdminController extends Controller
                 'excel_file' => $cuadro->excel_file,
                 'pdf_file' => $cuadro->pdf_file,
                 'permite_grafica' => $cuadro->permite_grafica,
-                'tipo_grafica_permitida' => $tipo_grafica_permitida, // Array directo
+                'tipo_grafica_permitida' => $tiposGrafica, // CORREGIR: usar $tiposGrafica
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [
                     'subtema_id' => $cuadro->subtema->subtema_id,
