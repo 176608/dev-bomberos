@@ -831,30 +831,25 @@ class AdminController extends Controller
     {
         try {
             $cuadro = CuadroEstadistico::obtenerPorId($id);
-            
+
             if (!$cuadro) {
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
-            // Procesar tipo_grafica_permitida desde VARCHAR a array
-            $tiposGrafica = [];
-            if ($cuadro->tipo_grafica_permitida) {
-                // Si es string JSON (como lo guardas en crearCuadro)
-                if (is_string($cuadro->tipo_grafica_permitida)) {
-                    try {
-                        $decoded = json_decode($cuadro->tipo_grafica_permitida, true);
-                        if (is_array($decoded)) {
-                            $tiposGrafica = $decoded;
-                        } else {
-                            // Fallback: separado por comas
-                            $tiposGrafica = array_map('trim', explode(',', $cuadro->tipo_grafica_permitida));
-                        }
-                    } catch (\Exception $e) {
-                        // Fallback: separado por comas
-                        $tiposGrafica = array_map('trim', explode(',', $cuadro->tipo_grafica_permitida));
-                    }
-                } elseif (is_array($cuadro->tipo_grafica_permitida)) {
-                    $tiposGrafica = $cuadro->tipo_grafica_permitida;
+            // Asegurar que tipo_grafica_permitida se devuelva como array
+            $tiposGrafica = $cuadro->tipo_grafica_permitida ?? [];
+
+            // Si por alguna razón Eloquent devolvió string (o DB tiene texto), intentar decodificar/parsear
+            if (!is_array($tiposGrafica)) {
+                $raw = (string) $tiposGrafica;
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    $tiposGrafica = $decoded;
+                } else {
+                    // Fallback: CSV en texto
+                    $tiposGrafica = array_filter(array_map('trim', explode(',', $raw)));
+                    // Normalizar valores vacíos a []
+                    $tiposGrafica = $tiposGrafica ?: [];
                 }
             }
 
@@ -866,7 +861,7 @@ class AdminController extends Controller
                 'excel_file' => $cuadro->excel_file,
                 'pdf_file' => $cuadro->pdf_file,
                 'permite_grafica' => $cuadro->permite_grafica,
-                'tipo_grafica_permitida' => $tiposGrafica, // CORREGIR: usar $tiposGrafica
+                'tipo_grafica_permitida' => $tiposGrafica, // array garantizado
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [
                     'subtema_id' => $cuadro->subtema->subtema_id,
@@ -875,8 +870,9 @@ class AdminController extends Controller
                     ] : null
                 ] : null
             ]);
-            
+
         } catch (\Exception $e) {
+            \Log::error('obtenerCuadroParaEdicion error', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json(['error' => 'Error interno del servidor'], 500);
         }
     }
