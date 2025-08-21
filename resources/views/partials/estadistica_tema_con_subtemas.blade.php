@@ -415,7 +415,6 @@ function renderizarCuadros(cuadros) {
                onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" 
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
-                    <!-- Columna 1: Iconos y datos rápidos -->
                     <div class="col-2 mb-2 mb-md-0">
                         ${cuadro.excel_file ? `<span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
                         ${cuadro.pdf_file ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
@@ -424,7 +423,6 @@ function renderizarCuadros(cuadros) {
                             : ``
                         }
                     </div>
-                    <!-- Columna 2: Título y subtítulo -->
                     <div class="col-10">
                         <span class="mb-1 d-block text-dark">
                             <span class="fw-bold text-success">
