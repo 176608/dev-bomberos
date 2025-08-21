@@ -479,13 +479,15 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                 </div>
                             
                             </div>
-                            <div class="modal-footer text-center">
-                                ${tieneExcel ? `
-                                    <a href="#" class="btn btn-outline-success me-2">
-                                        <i class="bi bi-graph-up-arrow"></i>Graficar
-                                    </a>
-                                ` : ''}
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <div class="modal-footer">
+                                <div class="d-flex justify-content-center w-100">
+                                    ${tieneExcel ? `
+                                        <a href="#" class="btn btn-outline-success me-2">
+                                            <i class="bi bi-graph-up-arrow"></i>Graficar
+                                        </a>
+                                    ` : ''}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
