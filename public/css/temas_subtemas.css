@@ -359,7 +359,7 @@
     top: 0;
     height: 100%;
     width: 0;
-    z-index: 1000; /* Valor muy alto para superar cualquier otro elemento */
+    z-index: 1000;
 }
 
 .btn-toggle-sidebar-fixed {

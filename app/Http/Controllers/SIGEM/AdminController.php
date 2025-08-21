@@ -594,7 +594,7 @@ class AdminController extends Controller
                 'permite_grafica' => 'nullable|boolean',
                 'tipo_grafica_permitida' => 'nullable|array',
                 'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
-                'pie_pagina' => 'nullable|string|max:1000'
+                'pie_pagina' => 'nullable|string|max:60000'
             ]);
 
             // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
@@ -695,7 +695,7 @@ class AdminController extends Controller
                 'permite_grafica' => 'nullable|boolean',
                 'tipo_grafica_permitida' => 'nullable|array',
                 'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
-                'pie_pagina' => 'nullable|string|max:1000'
+                'pie_pagina' => 'nullable|string|max:60000'
             ]);
 
             // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado

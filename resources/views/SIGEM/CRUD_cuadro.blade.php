@@ -563,18 +563,15 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="edit_pie_pagina" class="form-label">Pie de Página / Notas</label>
-                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 bg-light">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('bold')">
+                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 bg-light d-flex justify-content-center">
+                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('bold')">
                                                 <i class="bi bi-type-bold"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('italic')">
+                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('italic')">
                                                 <i class="bi bi-type-italic"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('underline')">
+                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('underline')">
                                                 <i class="bi bi-type-underline"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertEditLineBreak()">
-                                                <i class="bi bi-arrow-return-left"></i> Salto de línea
                                             </button>
                                         </div>
                                         <div class="form-control" id="edit_pie_pagina" contenteditable="true" 
@@ -789,10 +786,6 @@ function formatEditText(command) {
     updateEditHiddenField();
 }
 
-function insertEditLineBreak() {
-    document.execCommand('insertHTML', false, '<br>');
-    updateEditHiddenField();
-}
 
 function updateEditHiddenField() {
     const editor = document.getElementById('edit_pie_pagina');

@@ -3,6 +3,8 @@
 /public/build
 /public/hot
 /public/storage
+/public/u_excel
+/public/u_pdf
 /storage/*.key
 /storage/pail
 /vendor
