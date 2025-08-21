@@ -472,14 +472,9 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                     </div>
                                 </div>
 
-                                <div id="excel-info-${modalId}" class="p-3">
-                                    <div class="text-center py-5">
-                                        Datos del cuadro estadistico:
-                                        <ul>
-                                            <li><strong>tipo_graficas:</strong> ${cuadro.tipo_graficas}</li>
-                                            <li><strong>permite_grafica:</strong> ${cuadro.permite_grafica}</li>
-                                            <li><strong>pie_pagina:</strong> ${cuadro.pie_pagina}</li>
-                                        </ul>
+                                <div id="excel-info-${modalId}" class="">
+                                    <div class="text-center">
+                                        ${cuadro.pie_pagina}
                                     </div>
                                 </div>
                             
