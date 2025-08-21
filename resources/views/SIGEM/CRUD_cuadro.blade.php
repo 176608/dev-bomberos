@@ -295,41 +295,6 @@
                                 </div>
                             </div>
                             
-                            <!--<div class="row" id="tipos_grafica_container" style="display: none;">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
-                                        <div class="form-check">
-                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
-                                                   id="tipo_barras" name="tipo_grafica_permitida[]" value="Barras"
-                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Barras', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipo_barras">
-                                                Barras
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
-                                                   id="tipo_columnas" name="tipo_grafica_permitida[]" value="Columnas"
-                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Columnas', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipo_columnas">
-                                                Columnas
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input tipo-grafica-check" type="checkbox" 
-                                                   id="tipo_pie" name="tipo_grafica_permitida[]" value="Pie"
-                                                   {{ is_array(old('tipo_grafica_permitida')) && in_array('Pie', old('tipo_grafica_permitida')) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipo_pie">
-                                                Pastel (Pie)
-                                            </label>
-                                        </div>
-                                        @error('tipo_grafica_permitida')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div> -->
-                            
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
@@ -517,35 +482,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!--<div class="row" id="edit_tipos_grafica_container" style="display: none;">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
-                                        <div class="form-check">
-                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
-                                                   id="edit_tipo_barras" name="tipo_grafica_permitida[]" value="Barras">
-                                            <label class="form-check-label" for="edit_tipo_barras">
-                                                Barras
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
-                                                   id="edit_tipo_columnas" name="tipo_grafica_permitida[]" value="Columnas">
-                                            <label class="form-check-label" for="edit_tipo_columnas">
-                                                Columnas
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input edit-tipo-grafica-check" type="checkbox" 
-                                                   id="edit_tipo_pie" name="tipo_grafica_permitida[]" value="Pie">
-                                            <label class="form-check-label" for="edit_tipo_pie">
-                                                Pastel (Pie)
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>-->
                             
                             <div class="row">
                                 <div class="col-md-12">
@@ -937,8 +873,6 @@ document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal
 
 document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('edit_tipos_grafica_container').style.display = 'none';
-    // Solo limpiar si existe el elemento
     const archivosActuales = document.getElementById('archivos_actuales');
     if (archivosActuales) archivosActuales.innerHTML = '';
     document.getElementById('edit_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
