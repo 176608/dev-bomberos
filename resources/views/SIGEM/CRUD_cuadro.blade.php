@@ -635,21 +635,21 @@ $(document).ready(function() {
             },
             {
                 targets: 3, // Columna Tema
-                width: "12%"
+                width: "8%"
             },
             {
                 targets: 4, // Columna Subtema
-                width: "12%"
+                width: "8%"
             },
             {
                 targets: 5, // Columna Archivos
-                width: "8%",
+                width: "10%",
                 className: "text-center",
                 type: "num"
             },
             {
                 targets: 6, // Columna Gráfica
-                width: "8%",
+                width: "14%",
                 className: "text-center",
                 type: "num"
             },
@@ -662,8 +662,8 @@ $(document).ready(function() {
             }
         ],
         order: [[1, 'asc']],
-        pageLength: 10,
-        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        pageLength: 25,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
