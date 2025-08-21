@@ -489,8 +489,8 @@ function mostrarModalCuadro(cuadroId, codigo) {
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    <span class="fw-bold">
-                                        ${cuadro.codigo}
+                                    <span class="fw-semibold">
+                                        ${cuadro.codigo}:
                                     </span>
                                     ${cuadro.titulo || ''} 
                                     ${cuadro.subtitulo ? `<small class="text-muted ms-2">${cuadro.subtitulo}</small>` : ''}
