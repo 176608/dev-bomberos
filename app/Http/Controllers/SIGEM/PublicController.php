@@ -318,6 +318,9 @@ class PublicController extends Controller
                 ->map(function($cuadro) {
                     return [
                         'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
+                        'excel_file' => $cuadro->excel_file,
+                        'pdf_file' => $cuadro->pdf_file,
+                        'permite_grafica' => $cuadro->permite_grafica,
                         'codigo_cuadro' => $cuadro->codigo_cuadro,
                         'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
                         'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo
