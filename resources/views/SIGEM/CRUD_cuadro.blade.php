@@ -63,43 +63,27 @@
                                     <th>ID</th>
                                     <th>Código</th>
                                     <th>Título</th>
-                                    <th>Subtítulo</th>
                                     <th>Tema</th>
                                     <th>Subtema</th>
                                     <th>Archivos</th>
                                     <th>Gráfica</th>
-                                    <th width="120">Acciones</th>
+                                    <th width="160">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($cuadros as $cuadro)
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $cuadro->cuadro_estadistico_id }}</span></td>
-
                                     <?php
                                         $codigoParts = explode('.', $cuadro->codigo_cuadro);
                                         $nTema = intval($codigoParts[0] ?? 0);
                                         $nCuadro = intval($codigoParts[2] ?? 0);
                                     ?>
-                                    
                                     <td data-order="{{ sprintf('%03d.%03d', $nTema, $nCuadro) }}">
                                         <code class="text-primary">{{ $cuadro->codigo_cuadro }}</code>
                                     </td>
                                     <td>
                                         <strong>{{ $cuadro->cuadro_estadistico_titulo }}</strong>
-                                    </td>
-                                    <td>
-                                        @if($cuadro->cuadro_estadistico_subtitulo)
-                                            @if(strlen($cuadro->cuadro_estadistico_subtitulo) > 30)
-                                                <span title="{{ $cuadro->cuadro_estadistico_subtitulo }}">
-                                                    <small class="text-muted">{{ Str::limit($cuadro->cuadro_estadistico_subtitulo, 30) }}</small>
-                                                </span>
-                                            @else
-                                                <small class="text-muted">{{ $cuadro->cuadro_estadistico_subtitulo }}</small>
-                                            @endif
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
                                     </td>
                                     <td>
                                         @if($cuadro->subtema && $cuadro->subtema->tema)
@@ -145,14 +129,14 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm" role="group">
+                                        <div class="btn-group btn-group-lg" role="group">
                                             <button type="button" class="btn btn-outline-warning" 
-                                                    title="Editar" 
+                                                    title="Editar cuadro" 
                                                     onclick="editarCuadro({{ $cuadro->cuadro_estadistico_id }})">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button type="button" class="btn btn-outline-danger" 
-                                                    title="Eliminar" 
+                                                    title="Eliminar cuadro" 
                                                     onclick="eliminarCuadro({{ $cuadro->cuadro_estadistico_id }}, '{{ addslashes($cuadro->cuadro_estadistico_titulo) }}')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -650,38 +634,34 @@ $(document).ready(function() {
                 width: "25%"
             },
             {
-                targets: 3, // Columna Subtítulo
-                width: "15%"
-            },
-            {
-                targets: 4, // Columna Tema
+                targets: 3, // Columna Tema
                 width: "12%"
             },
             {
-                targets: 5, // Columna Subtema
+                targets: 4, // Columna Subtema
                 width: "12%"
             },
             {
-                targets: 6, // Columna Archivos
+                targets: 5, // Columna Archivos
                 width: "8%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 7, // Columna Gráfica
+                targets: 6, // Columna Gráfica
                 width: "8%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 8, // Columna Acciones
-                width: "120px",
+                targets: 7, // Columna Acciones
+                width: "160px",
                 className: "text-center",
                 orderable: false,
                 searchable: false
             }
         ],
-        order: [[2, 'asc']], // Ordenar por título por defecto
+        order: [[1, 'asc']],
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
