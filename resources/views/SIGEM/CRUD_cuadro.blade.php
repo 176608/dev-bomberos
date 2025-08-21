@@ -77,9 +77,12 @@
                                     <?php
                                         $codigoParts = explode('.', $cuadro->codigo_cuadro);
                                         $nTema = intval($codigoParts[0] ?? 0);
+                                        $TSubtema = $codigoParts[1] ?? '';
                                         $nCuadro = intval($codigoParts[2] ?? 0);
+                                        // Para el subtema, rellena a 10 caracteres para que ordene bien (alfanumérico)
+                                        $subtemaOrden = str_pad($TSubtema, 10, ' ', STR_PAD_RIGHT);
                                     ?>
-                                    <td data-order="{{ sprintf('%03d.%03d', $nTema, $nCuadro) }}">
+                                    <td data-order="{{ sprintf('%03d.%s.%03d', $nTema, $subtemaOrden, $nCuadro) }}">
                                         <code class="text-primary">{{ $cuadro->codigo_cuadro }}</code>
                                     </td>
                                     <td>

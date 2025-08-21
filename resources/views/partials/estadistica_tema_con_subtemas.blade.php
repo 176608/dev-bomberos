@@ -155,10 +155,6 @@
                                                     <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro['tipo_grafica_permitida'] ?? []) }}">
                                                         <i class="bi bi-graph-up"></i>
                                                     </span>
-                                                @else
-                                                    <span class="badge bg-danger" title="Sin gráfica">
-                                                        <i class="bi bi-graph-up"></i>
-                                                    </span>
                                                 @endif
                                             </div>
                                             <!-- Columna 2: Título y subtítulo -->
