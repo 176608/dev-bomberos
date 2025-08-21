@@ -404,7 +404,7 @@ function renderizarCuadros(cuadros) {
         return numA - numB;
     });
 
-    console.log('BLADE: cuadrosOrdenados:', cuadrosOrdenados);
+    console.log('BLADE: cuadros:', cuadros);
     
     let html = '<div class="cuadros-lista">';
     
