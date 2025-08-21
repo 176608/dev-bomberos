@@ -421,7 +421,7 @@ function renderizarCuadros(cuadros) {
                         ${cuadro.pdf_file ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
                         ${cuadro.permite_grafica
                             ? `<span class="badge bg-info" title="Permite gráfica: ${(cuadro.tipo_grafica_permitida || []).join(', ')}"><i class="bi bi-graph-up"></i></span>`
-                            : `<span class="badge bg-danger" title="Sin gráfica"><i class="bi bi-graph-up"></i></span>`
+                            : ``
                         }
                     </div>
                     <!-- Columna 2: Título y subtítulo -->
