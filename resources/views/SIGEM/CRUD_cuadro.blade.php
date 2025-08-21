@@ -224,7 +224,7 @@
                                 <label for="codigo_cuadro" class="form-label">Código del Cuadro <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('codigo_cuadro') is-invalid @enderror" 
                                        id="codigo_cuadro" name="codigo_cuadro" 
-                                       placeholder="#NTema.CodigoSubtemaAsignado.#NCuadro, por ejemplo: 2.MA.5" value="{{ old('codigo_cuadro') }}" required>
+                                       placeholder="#NTema.CodigoSubtemaAsignado.#NCuadro" value="{{ old('codigo_cuadro') }}" required>
                                 @error('codigo_cuadro')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -563,14 +563,14 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="edit_pie_pagina" class="form-label">Pie de Página / Notas</label>
-                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 bg-light d-flex justify-content-center">
-                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('bold')">
+                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 mx-2 bg-light d-flex justify-content-center">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('bold')">
                                                 <i class="bi bi-type-bold"></i>
                                             </button>
-                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('italic')">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('italic')">
                                                 <i class="bi bi-type-italic"></i>
                                             </button>
-                                            <button type="button" class="btn btn btn-outline-secondary" onclick="formatEditText('underline')">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('underline')">
                                                 <i class="bi bi-type-underline"></i>
                                             </button>
                                         </div>
