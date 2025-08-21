@@ -44,8 +44,9 @@ class ExcelModalEngine {
      * @param {string} containerId - ID del contenedor donde renderizar
      * @param {string} excelUrl - URL del archivo Excel
      * @param {string} fileName - Nombre del archivo
+     * @param {string} pdfUrl - URL del archivo PDF (opcional)
      */
-    async renderExcelInContainer(containerId, excelUrl, fileName) {
+    async renderExcelInContainer(containerId, excelUrl, fileName, pdfUrl = null) {
         const container = document.getElementById(containerId);
         if (!container) {
             throw new Error(`Contenedor ${containerId} no encontrado`);
@@ -63,7 +64,7 @@ class ExcelModalEngine {
 
             // Obtener y procesar el archivo
             const arrayBuffer = await this.fetchExcelFile(excelUrl);
-            const htmlContent = await this.processExcelFile(arrayBuffer, fileName, excelUrl);
+            const htmlContent = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl);
             
             // Renderizar resultado
             container.innerHTML = htmlContent;
@@ -88,7 +89,7 @@ class ExcelModalEngine {
     /**
      * Procesar archivo Excel y generar HTML
      */
-    async processExcelFile(arrayBuffer, fileName, excelUrl) {
+    async processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl = null) {
         const data = new Uint8Array(arrayBuffer);
         const workbook = XLSX.read(data, { type: 'array', cellStyles: true });
         
@@ -99,7 +100,7 @@ class ExcelModalEngine {
         // Crear tabla HTML personalizada que respete el formato
         const tablaHTML = this.createFormattedTable(worksheet, workbook);
         
-        return this.wrapInContainer(tablaHTML, fileName, excelUrl);
+        return this.wrapInContainer(tablaHTML, fileName, excelUrl, pdfUrl);
     }
 
     /**
@@ -628,16 +629,36 @@ class ExcelModalEngine {
     /**
      * Envolver tabla en contenedor con estilos
      */
-    wrapInContainer(tableHTML, fileName, excelUrl) {
+    wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl = null) {
+        // Crear botones dinámicamente según disponibilidad de archivos
+        let buttonsHTML = '';
+        
+        if (pdfUrl) {
+            buttonsHTML += `
+                <a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download>
+                    <i class="bi bi-file-pdf me-1"></i>Descargar PDF
+                </a>
+            `;
+        }
+        
+        if (excelUrl) {
+            buttonsHTML += `
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
+                    <i class="bi bi-file-excel me-1"></i>Descargar Excel
+                </a>
+            `;
+        }
+        
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
+                        <i class="bi bi-file-excel text-success me-2"></i>
                         ${fileName || 'Archivo Excel'}
                     </h5>
-                    <a href="#" class="btn btn-sm btn-outline-success">
-                        Graficar WIP
-                    </a>
+                    <div class="btn-group">
+                        ${buttonsHTML}
+                    </div>
                 </div>
                 <div class="table-responsive excel-table-wrapper">
                     ${this.getTableStyles()}

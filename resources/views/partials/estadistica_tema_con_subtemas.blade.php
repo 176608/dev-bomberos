@@ -186,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
         script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
         script.async = true;
         document.head.appendChild(script);
-        //console.log('SheetJS cargado preventivamente');
     }
 });
 

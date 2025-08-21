@@ -600,47 +600,6 @@ class PublicController extends Controller
     }
 
     /**
-     * FUNCIÓN AJAX: Obtener datos del cuadro
-     */
-    public function obtenerCuadroData($cuadro_id)
-    {
-        try {
-            $cuadro = CuadroEstadistico::with(['subtema.tema'])->find($cuadro_id);
-            
-            if (!$cuadro) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cuadro estadístico no encontrado',
-                    'cuadro' => null
-                ]);
-            }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Cuadro cargado exitosamente',
-                'cuadro' => $cuadro->toArray(),
-                'tema_info' => $cuadro->subtema->tema ?? null,
-                'subtema_info' => $cuadro->subtema ?? null,
-                'debug_info' => [
-                    'cuadro_id' => $cuadro_id,
-                    'timestamp' => now()
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar cuadro: ' . $e->getMessage(),
-                'cuadro' => null,
-                'error_details' => [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ]
-            ]);
-        }
-    }
-
-    /**
      * Obtener información básica de un cuadro estadístico y su archivo Excel
      * @param int $cuadro_id ID del cuadro estadístico
      * @return \Illuminate\Http\JsonResponse
@@ -686,6 +645,73 @@ class PublicController extends Controller
                 'excel_url' => $urlAsset,
                 'archivo_existe' => $existeEnPublic,
                 'ruta_fisica' => $rutaPublic
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener información básica de un cuadro estadístico y sus archivos Excel y PDF
+     * @param int $cuadro_id ID del cuadro estadístico
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function obtenerArchivosCuadro($cuadro_id)
+    {
+        try {
+            // Obtener el cuadro estadístico
+            $cuadro = CuadroEstadistico::find($cuadro_id);
+            
+            if (!$cuadro) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cuadro estadístico no encontrado'
+                ], 404);
+            }
+            
+            // Información del archivo Excel
+            $nombreArchivoExcel = $cuadro->excel_file;
+            $tieneExcel = !empty($nombreArchivoExcel);
+            $urlExcel = $tieneExcel ? asset('u_excel/' . $nombreArchivoExcel) : null;
+            $rutaExcel = public_path('u_excel/' . $nombreArchivoExcel);
+            $existeExcel = $tieneExcel ? file_exists($rutaExcel) : false;
+            
+            // Información del archivo PDF
+            $nombreArchivoPdf = $cuadro->pdf_file; // Asumiendo que tienes este campo
+            $tienePdf = !empty($nombreArchivoPdf);
+            $urlPdf = $tienePdf ? asset('u_pdf/' . $nombreArchivoPdf) : null; // Asumiendo carpeta u_pdf
+            $rutaPdf = public_path('u_pdf/' . $nombreArchivoPdf);
+            $existePdf = $tienePdf ? file_exists($rutaPdf) : false;
+            
+            // Devolver información del cuadro y ambos archivos
+            return response()->json([
+                'success' => true,
+                'cuadro' => [
+                    'id' => $cuadro->cuadro_estadistico_id,
+                    'codigo' => $cuadro->codigo_cuadro,
+                    'titulo' => $cuadro->cuadro_estadistico_titulo,
+                    'subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
+                    'pie_pagina' => $cuadro->pie_pagina,
+                    'permite_grafica' => $cuadro->permite_grafica,
+                    'tipo_graficas' => $cuadro->tipo_grafica_permitida
+                ],
+                'excel' => [
+                    'nombre_archivo' => $nombreArchivoExcel,
+                    'tiene_archivo' => $tieneExcel,
+                    'url' => $urlExcel,
+                    'archivo_existe' => $existeExcel,
+                    'ruta_fisica' => $rutaExcel
+                ],
+                'pdf' => [
+                    'nombre_archivo' => $nombreArchivoPdf,
+                    'tiene_archivo' => $tienePdf,
+                    'url' => $urlPdf,
+                    'archivo_existe' => $existePdf,
+                    'ruta_fisica' => $rutaPdf
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
