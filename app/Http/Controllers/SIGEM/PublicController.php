@@ -136,7 +136,7 @@ class PublicController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error catalogo: ' . $e->getMessage(),
                 'catalogo_modelo' => null,
                 'cuadros_modelo' => [],
                 'total_temas' => 0,
