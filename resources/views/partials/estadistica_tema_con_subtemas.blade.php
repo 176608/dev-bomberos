@@ -143,7 +143,21 @@
                                        onclick="SIGEMApp.verCuadro('{{ $cuadro['cuadro_estadistico_id'] }}', '{{ $cuadro['codigo_cuadro'] }}')" 
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                                         <div class="row align-items-center">
-                                            <div class="col-12">
+                                            <!-- Columna 1: Iconos y datos rápidos -->
+                                            <div class="col-md-4 col-12 mb-2 mb-md-0">
+                                                @if(!empty($cuadro['excel_file']))
+                                                    <span class="text-success me-2"><i class="bi bi-file-earmark-excel"></i> Excel</span>
+                                                @endif
+                                                @if(!empty($cuadro['pdf_file']))
+                                                    <span class="text-danger me-2"><i class="bi bi-file-earmark-pdf"></i> PDF</span>
+                                                @endif
+                                                <span class="text-info">
+                                                    @if($cuadro['permite_grafica']) Sí @else No @endif
+                                                    - {{ $cuadro['tipo_grafica_permitida'] ?? 'N/A' }}
+                                                </span>
+                                            </div>
+                                            <!-- Columna 2: Título y subtítulo -->
+                                            <div class="col-md-8 col-12">
                                                 <span class="mb-1 d-block text-dark">
                                                     <span class="fw-bold text-success">
                                                         {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
@@ -400,12 +414,21 @@ function renderizarCuadros(cuadros) {
                onclick="SIGEMApp.verCuadro('${cuadro.cuadro_estadistico_id}', '${cuadro.codigo_cuadro || ''}')" 
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
-                    <div class="col-12">
+                    <!-- Columna 1: Iconos y datos rápidos -->
+                    <div class="col-md-4 col-12 mb-2 mb-md-0">
+                        ${cuadro.excel_file ? `<span class="text-success me-2"><i class="bi bi-file-earmark-excel"></i> Excel</span>` : ''}
+                        ${cuadro.pdf_file ? `<span class="text-danger me-2"><i class="bi bi-file-earmark-pdf"></i> PDF</span>` : ''}
+                        <span class="text-info">
+                            ${cuadro.permite_grafica ? 'Sí' : 'No'} - ${cuadro.tipo_graficas || 'N/A'}
+                        </span>
+                    </div>
+                    <!-- Columna 2: Título y subtítulo -->
+                    <div class="col-md-8 col-12">
                         <span class="mb-1 d-block text-dark">
                             <span class="fw-bold text-success">
                                 ${cuadro.codigo_cuadro || 'N/A'}
                             </span>
-                        ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
+                            ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
                         </span>
                         ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted d-block">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
                     </div>
@@ -443,7 +466,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const cuadro = data.cuadro;
             console.log('BLADE: Información del cuadro:', cuadro);
             
-            // CORREGIR: Usar la nueva estructura de datos
+            // Usar la nueva estructura de datos
             const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
             const excelUrl = data.excel.url;
             const tienePdf = data.pdf.tiene_archivo && data.pdf.archivo_existe;
@@ -457,7 +480,10 @@ function mostrarModalCuadro(cuadroId, codigo) {
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    ${cuadro.titulo || 'Sin título'} 
+                                    <span class="fw-bold text-success">
+                                        ${cuadro.codigo}
+                                    </span>
+                                    ${cuadro.titulo || ''} 
                                     ${cuadro.subtitulo ? `<small class="text-muted ms-2">${cuadro.subtitulo}</small>` : ''}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
