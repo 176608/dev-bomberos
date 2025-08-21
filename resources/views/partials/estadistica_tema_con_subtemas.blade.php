@@ -485,14 +485,9 @@ function mostrarModalCuadro(cuadroId, codigo) {
                             
                             </div>
                             <div class="modal-footer">
-                                ${tienePdf ? `
-                                    <a href="${pdfUrl}" class="btn btn-outline-danger me-2" target="_blank" download>
-                                        <i class="bi bi-file-pdf me-1"></i>Descargar PDF
-                                    </a>
-                                ` : ''}
                                 ${tieneExcel ? `
-                                    <a href="${excelUrl}" class="btn btn-outline-success me-2" download>
-                                        <i class="bi bi-file-excel me-1"></i>Descargar Excel
+                                    <a href="#" class="btn btn-outline-success me-2">
+                                        <i class="bi bi-graph-up-arrow"></i>Graficar
                                     </a>
                                 ` : ''}
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
