@@ -640,8 +640,7 @@ class PublicController extends Controller
                     'titulo' => $cuadro->cuadro_estadistico_titulo,
                     'subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
                     'pie_pagina' => $cuadro->pie_pagina,
-                    'permite_grafica' => $cuadro->permite_grafica,
-                    'tipo_graficas' => $cuadro->tipo_grafica_permitida
+                    'permite_grafica' => $cuadro->permite_grafica
                 ],
                 'nombre_archivo' => $nombreArchivo,
                 'tiene_excel' => $tieneExcel,
@@ -698,8 +697,7 @@ class PublicController extends Controller
                     'titulo' => $cuadro->cuadro_estadistico_titulo,
                     'subtitulo' => $cuadro->cuadro_estadistico_subtitulo,
                     'pie_pagina' => $cuadro->pie_pagina,
-                    'permite_grafica' => $cuadro->permite_grafica,
-                    'tipo_graficas' => $cuadro->tipo_grafica_permitida
+                    'permite_grafica' => $cuadro->permite_grafica
                 ],
                 'excel' => [
                     'nombre_archivo' => $nombreArchivoExcel,

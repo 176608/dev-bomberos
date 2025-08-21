@@ -592,16 +592,13 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
                 'permite_grafica' => 'nullable|boolean',
-                'tipo_grafica_permitida' => 'nullable|array',
-                'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
                 'pie_pagina' => 'nullable|string|max:60000'
             ]);
 
             // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
-            if ($request->has('permite_grafica') && (!$request->has('tipo_grafica_permitida') || empty($request->tipo_grafica_permitida))) {
+            if ($request->has('permite_grafica')) {
                 return redirect()
                     ->route('sigem.admin.cuadros')
-                    ->withErrors(['tipo_grafica_permitida' => 'Si permite gráfica, debe seleccionar al menos un tipo.'])
                     ->withInput();
             }
 
@@ -615,7 +612,6 @@ class AdminController extends Controller
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
 
             // Crear directorios si no existen
             $directorioExcel = public_path('u_excel');
@@ -693,16 +689,13 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
                 'permite_grafica' => 'nullable|boolean',
-                'tipo_grafica_permitida' => 'nullable|array',
-                'tipo_grafica_permitida.*' => 'string|in:Barras,Columnas,Pie',
                 'pie_pagina' => 'nullable|string|max:60000'
             ]);
 
             // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
-            if ($request->has('permite_grafica') && (!$request->has('tipo_grafica_permitida') || empty($request->tipo_grafica_permitida))) {
+            if ($request->has('permite_grafica')) {
                 return redirect()
                     ->route('sigem.admin.cuadros')
-                    ->withErrors(['tipo_grafica_permitida' => 'Si permite gráfica, debe seleccionar al menos un tipo.'])
                     ->withInput();
             }
 
@@ -716,8 +709,6 @@ class AdminController extends Controller
 
             // Manejar checkboxes
             $datos['permite_grafica'] = $request->has('permite_grafica');
-            $datos['tipo_grafica_permitida'] = $datos['permite_grafica'] ? $request->tipo_grafica_permitida : null;
-
             // Directorios para archivos
             $directorioExcel = public_path('u_excel');
             $directorioPdf = public_path('u_pdf');
@@ -836,9 +827,6 @@ class AdminController extends Controller
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
-            // Asegurar que tipo_grafica_permitida se devuelva como array
-            $tiposGrafica = $cuadro->tipo_grafica_permitida ?? [];
-
             // Si por alguna razón Eloquent devolvió string (o DB tiene texto), intentar decodificar/parsear
             if (!is_array($tiposGrafica)) {
                 $raw = (string) $tiposGrafica;
@@ -861,8 +849,6 @@ class AdminController extends Controller
                 'excel_file' => $cuadro->excel_file,
                 'pdf_file' => $cuadro->pdf_file,
                 'permite_grafica' => $cuadro->permite_grafica,
-                'tipo_grafica_permitida' => $tiposGrafica, // array garantizado
-                'raw_tipo_grafica_permitida' => $cuadro->getRawOriginal('tipo_grafica_permitida'),
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [
                     'subtema_id' => $cuadro->subtema->subtema_id,

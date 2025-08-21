@@ -102,7 +102,7 @@
                                             <span class="text-danger">Sin subtema</span>
                                         @endif
                                     </td>
-                                    <td data-order="{{ ($cuadro->excel_file ? 1 : 0) + ($cuadro->pdf_file ? 1 : 0) + ($cuadro->img_name ? 1 : 0) }}">
+                                    <td data-order="{{ ($cuadro->excel_file ? 1 : 0) + ($cuadro->pdf_file ? 1 : 0) }}">
                                         <div class="d-flex gap-1">
                                             @if($cuadro->excel_file)
                                                 <span class="badge bg-success" title="Excel disponible">
@@ -114,18 +114,12 @@
                                                     <i class="bi bi-file-earmark-pdf"></i>
                                                 </span>
                                             @endif
-                                            @if($cuadro->img_name)
-                                                <span class="badge bg-primary" title="Imagen disponible">
-                                                    <i class="bi bi-image"></i>
-                                                </span>
-                                            @endif
                                         </div>
                                     </td>
                                     <td data-order="{{ $cuadro->permite_grafica ? 1 : 0 }}">
                                         @if($cuadro->permite_grafica)
-                                            <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}">
+                                            <span class="badge bg-info" title="Permite gráfica">
                                                 <i class="bi bi-graph-up"></i>
-                                                {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}
                                             </span>
                                         @else
                                             <span class="text-muted">Sin gráfica</span>
@@ -301,7 +295,7 @@
                                 </div>
                             </div>
                             
-                            <div class="row" id="tipos_grafica_container" style="display: none;">
+                            <!--<div class="row" id="tipos_grafica_container" style="display: none;">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
@@ -334,7 +328,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                             
                             <div class="row">
                                 <div class="col-md-12">
@@ -524,7 +518,7 @@
                                 </div>
                             </div>
                             
-                            <div class="row" id="edit_tipos_grafica_container" style="display: none;">
+                            <!--<div class="row" id="edit_tipos_grafica_container" style="display: none;">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Tipos de Gráfica Permitidos <span class="text-danger">*</span></label>
@@ -551,12 +545,12 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                             
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="edit_pie_pagina" class="form-label">Pie de Página / Notas</label>
+                                        <label for="edit_pie_pagina" class="form-label d-flex justify-content-center">Pie de Página:</label>
                                         <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 mx-2 bg-light d-flex justify-content-center">
                                             <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('bold')">
                                                 <i class="bi bi-type-bold"></i>
@@ -825,22 +819,6 @@ function editarCuadro(id) {
             const tiposContainer = document.getElementById('edit_tipos_grafica_container');
             
             permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
-            
-            if (cuadroData.permite_grafica == 1) {
-                tiposContainer.style.display = 'block';
-                
-                // Tipos de gráfica ahora es un array directo
-                const tiposPermitidos = cuadroData.tipo_grafica_permitida || [];
-                
-                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-                    check.checked = tiposPermitidos.includes(check.value);
-                });
-            } else {
-                tiposContainer.style.display = 'none';
-                document.querySelectorAll('.edit-tipo-grafica-check').forEach(check => {
-                    check.checked = false;
-                });
-            }
             
             // Configurar pie de página CON DATOS REALES
             const piePaginaEditor = document.getElementById('edit_pie_pagina');

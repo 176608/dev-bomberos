@@ -152,7 +152,7 @@
                                                     <span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>
                                                 @endif
                                                 @if(!empty($cuadro['permite_grafica']))
-                                                    <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro['tipo_grafica_permitida'] ?? []) }}">
+                                                    <span class="badge bg-info" title="Permite gráficas">
                                                         <i class="bi bi-graph-up"></i>
                                                     </span>
                                                 @endif
@@ -404,7 +404,7 @@ function renderizarCuadros(cuadros) {
         return numA - numB;
     });
 
-    console.log('BLADE: cuadros:', cuadros);
+    //console.log('BLADE: cuadros:', cuadros);
     
     let html = '<div class="cuadros-lista">';
     
@@ -418,7 +418,7 @@ function renderizarCuadros(cuadros) {
                         ${cuadro.excel_file && cuadro.excel_file !== '' ? `<span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
                         ${cuadro.pdf_file && cuadro.pdf_file !== '' ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
                         ${cuadro.permite_grafica
-                            ? `<span class="badge bg-info" title="Permite gráfica: ${(cuadro.tipo_grafica_permitida || []).join(', ')}"><i class="bi bi-graph-up"></i></span>`
+                            ? `<span class="badge bg-info" title="Permite gráficas"><i class="bi bi-graph-up"></i></span>`
                             : ''
                         }
                     </div>
@@ -459,14 +459,14 @@ function mostrarModalCuadro(cuadroId, codigo) {
             return response.json();
         })
         .then(data => {
-            console.log('BLADE: Datos recibidos del servidor:', data);
+            //console.log('BLADE: Datos recibidos del servidor:', data);
             
             if (!data.success) {
                 throw new Error(data.message || 'Error al obtener información del cuadro');
             }
             
             const cuadro = data.cuadro;
-            console.log('BLADE: Información del cuadro:', cuadro);
+           //console.log('BLADE: Información del cuadro:', cuadro);
             
             // Usar la nueva estructura de datos
             const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
@@ -559,7 +559,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
 
 // Función CORREGIDA para cargar y mostrar Excel usando el motor
 function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
-    console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
+    //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
     // Usar el motor de Excel para renderizar con ambas URLs

@@ -32,7 +32,6 @@ class CuadroEstadistico extends Model
         'excel_file',
         'pdf_file',
         'permite_grafica',
-        'tipo_grafica_permitida',
         'pie_pagina'
     ];
     
@@ -42,8 +41,7 @@ class CuadroEstadistico extends Model
     protected $casts = [
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
-        'permite_grafica' => 'boolean',
-        'tipo_grafica_permitida' => 'array'
+        'permite_grafica' => 'boolean'
     ];
     
     /**
