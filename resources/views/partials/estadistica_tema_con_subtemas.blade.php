@@ -489,10 +489,12 @@ function mostrarModalCuadro(cuadroId, codigo) {
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    <span class="fw-semibold">
-                                        ${cuadro.codigo}:
+                                    <span class="fw-bold">
+                                        ${cuadro.codigo}
                                     </span>
-                                    ${cuadro.titulo || ''} 
+                                    <span class="fw-lighter">
+                                        ${cuadro.titulo || ''}
+                                    </span>
                                     ${cuadro.subtitulo ? `<small class="text-muted ms-2">${cuadro.subtitulo}</small>` : ''}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
