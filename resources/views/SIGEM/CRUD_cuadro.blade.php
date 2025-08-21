@@ -75,12 +75,13 @@
                                 @foreach($cuadros as $cuadro)
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $cuadro->cuadro_estadistico_id }}</span></td>
-                                    <td>
-                                        @php
-                                            $codigoParts = explode('.', $cuadro->codigo_cuadro);
-                                            $nTema = intval($codigoParts[0] ?? 0);
-                                            $nCuadro = intval($codigoParts[2] ?? 0);
-                                        @endphp
+
+                                    <?php
+                                        $codigoParts = explode('.', $cuadro->codigo_cuadro);
+                                        $nTema = intval($codigoParts[0] ?? 0);
+                                        $nCuadro = intval($codigoParts[2] ?? 0);
+                                    ?>
+                                    
                                     <td data-order="{{ sprintf('%03d.%03d', $nTema, $nCuadro) }}">
                                         <code class="text-primary">{{ $cuadro->codigo_cuadro }}</code>
                                     </td>
