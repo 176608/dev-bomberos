@@ -649,7 +649,7 @@ class PublicController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error obtenerExcelCuadro: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -716,7 +716,7 @@ class PublicController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error obtenerArchivosCuadro: ' . $e->getMessage()
             ], 500);
         }
     }
