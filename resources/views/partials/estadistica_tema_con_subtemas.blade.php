@@ -424,7 +424,7 @@ document.addEventListener('verCuadroEstadistico', function(event) {
     mostrarModalCuadro(cuadroId, codigo);
 });
 
-// FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
+// FUNCIÓN PRINCIPAL CORREGIDA - Modal completo con Excel y PDF
 function mostrarModalCuadro(cuadroId, codigo) {
     fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
@@ -443,19 +443,22 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const cuadro = data.cuadro;
             console.log('BLADE: Información del cuadro:', cuadro);
             
-            const tieneExcel = data.tiene_excel && data.archivo_existe;
-            const excelUrl = data.excel_url;
-            
+            // CORREGIR: Usar la nueva estructura de datos
+            const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
+            const excelUrl = data.excel.url;
+            const tienePdf = data.pdf.tiene_archivo && data.pdf.archivo_existe;
+            const pdfUrl = data.pdf.url;
             
             // Crear modal básico
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl aa">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
-                                    ${cuadro.titulo || 'Sin título'} <small class="text-muted">${cuadro.subtitulo || ''}</small>
+                                    ${cuadro.titulo || 'Sin título'} 
+                                    ${cuadro.subtitulo ? `<small class="text-muted ms-2">${cuadro.subtitulo}</small>` : ''}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
@@ -468,6 +471,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                         <p class="mt-3">Cargando archivo Excel...</p>
                                     </div>
                                 </div>
+
                                 <div id="excel-info-${modalId}" class="p-3">
                                     <div class="text-center py-5">
                                         Datos del cuadro estadistico:
@@ -478,11 +482,17 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                         </ul>
                                     </div>
                                 </div>
+                            
                             </div>
                             <div class="modal-footer">
+                                ${tienePdf ? `
+                                    <a href="${pdfUrl}" class="btn btn-outline-danger me-2" target="_blank" download>
+                                        <i class="bi bi-file-pdf me-1"></i>Descargar PDF
+                                    </a>
+                                ` : ''}
                                 ${tieneExcel ? `
-                                    <a href="${excelUrl}" class="btn btn-success" download>
-                                        <i class="bi bi-download me-1"></i>Descargar Excel
+                                    <a href="${excelUrl}" class="btn btn-outline-success me-2" download>
+                                        <i class="bi bi-file-excel me-1"></i>Descargar Excel
                                     </a>
                                 ` : ''}
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -506,13 +516,13 @@ function mostrarModalCuadro(cuadroId, codigo) {
             
             // Cargar Excel en el modal si existe
             if (tieneExcel) {
-                cargarExcelEnModal(modalId, excelUrl, data.nombre_archivo);
+                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, tienePdf ? pdfUrl : null);
             } else {
                 // Mostrar mensaje si no hay Excel
                 document.getElementById(`excel-container-${modalId}`).innerHTML = `
                     <div class="alert alert-warning text-center">
                         <i class="bi bi-exclamation-triangle me-2"></i>
-                        ${data.tiene_excel && !data.archivo_existe ? 
+                        ${data.excel.tiene_archivo && !data.excel.archivo_existe ? 
                           'El archivo Excel asociado no se encuentra en el servidor.' : 
                           'Este cuadro no tiene un archivo Excel asociado.'}
                     </div>
@@ -525,13 +535,13 @@ function mostrarModalCuadro(cuadroId, codigo) {
         });
 }
 
-// Función SIMPLIFICADA para cargar y mostrar Excel usando el motor
-function cargarExcelEnModal(modalId, excelUrl, fileName) {
+// Función CORREGIDA para cargar y mostrar Excel usando el motor
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
     console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
-    // Usar el motor de Excel para renderizar
-    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName)
+    // Usar el motor de Excel para renderizar con ambas URLs
+    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl)
         .catch(error => {
             console.error('Error al cargar Excel con el motor:', error);
         });
