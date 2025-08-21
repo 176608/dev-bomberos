@@ -487,15 +487,15 @@ function mostrarModalCuadro(cuadroId, codigo) {
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
-                            <div class="modal-header bg-success text-white">
+                            <div class="modal-header bg-success ">
                                 <h5 class="modal-title">
                                     <span class="fw-bold">
                                         ${cuadro.codigo}:
                                     </span>
-                                    <span class="fw-lighter">
+                                    <span class="fw-light">
                                         ${cuadro.titulo || ''}
                                     </span>
-                                    ${cuadro.subtitulo ? `<small class="text-muted ms-2">${cuadro.subtitulo}</small>` : ''}
+                                    ${cuadro.subtitulo ? `<small class="text-white fst-italic ms-2">${cuadro.subtitulo}</small>` : ''}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
