@@ -654,13 +654,13 @@ class ExcelModalEngine {
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
                         <i class="bi bi-file-excel text-success me-2"></i>
-                        ${fileName || 'Archivo Excel'}
+                        Archivo Excel: ${fileName || ''}
                     </h5>
                     <div class="btn-group">
                         ${buttonsHTML}
                     </div>
                 </div>
-                <div class="table-responsive excel-table-wrapper">
+                <div class="table-responsive excel-table-wrapper ">
                     ${this.getTableStyles()}
                     ${tableHTML}
                 </div>
@@ -834,6 +834,8 @@ class ExcelModalEngine {
                     overflow-x: auto;
                     margin: 0 auto;
                     background-color: #ffffff;
+                    display: flex;
+                    justify-content: center;
                 }
                 
                 /* Estilos para bordes personalizados */
