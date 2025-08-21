@@ -287,8 +287,6 @@ function cambiarTema(tema_id) {
 
 // Función para cargar un subtema específico
 function cargarSubtema(subtema_id) {
-    console.log('BLADE: Cargando subtema ID:', subtema_id);
-    
     // Mostrar indicador de carga
     document.getElementById('cuadros-container-estadistica').innerHTML = `
         <div class="text-center p-5">
@@ -322,7 +320,6 @@ function cargarSubtema(subtema_id) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Actualizar encabezado con información completa del subtema
                 actualizarEncabezadoSubtema(subtema_id);
                 
                 // Renderizar cuadros
@@ -406,6 +403,8 @@ function renderizarCuadros(cuadros) {
         const numB = extraerNumeroIndice(b.codigo_cuadro || '');
         return numA - numB;
     });
+
+    console.log('BLADE: cuadrosOrdenados:', cuadrosOrdenados);
     
     let html = '<div class="cuadros-lista">';
     
