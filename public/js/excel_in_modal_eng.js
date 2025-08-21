@@ -749,7 +749,6 @@ class ExcelModalEngine {
                 /* Sub-headers */
                 .excel-table .header-row:nth-child(2) th,
                 .excel-table tr:nth-child(2) th {
-                    background-color: #92c5f7;
                     color: #000000;
                     font-weight: bold;
                     text-align: center;

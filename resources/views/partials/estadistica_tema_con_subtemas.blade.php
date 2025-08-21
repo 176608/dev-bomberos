@@ -420,22 +420,26 @@ function renderizarCuadros(cuadros) {
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
                     <!-- Columna 1: Iconos y datos rápidos -->
-                    <div class="col-md-4 col-12 mb-2 mb-md-0">
-                        ${cuadro.excel_file ? `<span class="text-success me-2"><i class="bi bi-file-earmark-excel"></i> Excel</span>` : ''}
-                        ${cuadro.pdf_file ? `<span class="text-danger me-2"><i class="bi bi-file-earmark-pdf"></i> PDF</span>` : ''}
-                        <span class="text-info">
-                            ${cuadro.permite_grafica ? 'Sí' : 'No'} - ${cuadro.tipo_graficas || 'N/A'}
-                        </span>
+                    <div class="col-2 mb-2 mb-md-0">
+                        ${cuadro.excel_file ? `<span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
+                        ${cuadro.pdf_file ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
+                        ${cuadro.permite_grafica
+                            ? `<span class="badge bg-info" title="Permite gráfica: ${(cuadro.tipo_grafica_permitida || []).join(', ')}"><i class="bi bi-graph-up"></i></span>`
+                            : `<span class="badge bg-danger" title="Sin gráfica"><i class="bi bi-graph-up"></i></span>`
+                        }
                     </div>
                     <!-- Columna 2: Título y subtítulo -->
-                    <div class="col-md-8 col-12">
+                    <div class="col-10">
                         <span class="mb-1 d-block text-dark">
                             <span class="fw-bold text-success">
                                 ${cuadro.codigo_cuadro || 'N/A'}
                             </span>
                             ${cuadro.cuadro_estadistico_titulo || 'Sin título'}
                         </span>
-                        ${cuadro.cuadro_estadistico_subtitulo ? `<small class="text-muted d-block">${cuadro.cuadro_estadistico_subtitulo}</small>` : ''}
+                        ${cuadro.cuadro_estadistico_subtitulo
+                            ? `<small class="text-muted d-block">${cuadro.cuadro_estadistico_subtitulo}</small>`
+                            : ''
+                        }
                     </div>
                 </div>
             </a>
