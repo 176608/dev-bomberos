@@ -426,7 +426,7 @@ document.addEventListener('verCuadroEstadistico', function(event) {
 
 // FUNCIÓN PRINCIPAL RESTAURADA - Modal completo con Excel
 function mostrarModalCuadro(cuadroId, codigo) {
-    fetch(`{{ url('/sigem/obtener-excel-cuadro') }}/${cuadroId}`)
+    fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
