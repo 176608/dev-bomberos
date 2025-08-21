@@ -151,10 +151,9 @@
                                                 @if(!empty($cuadro['pdf_file']))
                                                     <span class="text-danger me-2"><i class="bi bi-file-earmark-pdf"></i> PDF</span>
                                                 @endif
-                                                @if($cuadro->permite_grafica)
-                                                    <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}">
+                                                @if(!empty($cuadro['permite_grafica']))
+                                                    <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro['tipo_grafica_permitida'] ?? []) }}">
                                                         <i class="bi bi-graph-up"></i>
-                                                        {{ implode(', ', $cuadro->tipo_grafica_permitida ?? []) }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">Sin gráfica</span>
