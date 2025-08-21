@@ -479,7 +479,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                 </div>
                             
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer text-center">
                                 ${tieneExcel ? `
                                     <a href="#" class="btn btn-outline-success me-2">
                                         <i class="bi bi-graph-up-arrow"></i>Graficar
