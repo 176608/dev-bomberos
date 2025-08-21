@@ -472,7 +472,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                     </div>
                                 </div>
 
-                                <div id="excel-info-${modalId}" class="">
+                                <div id="excel-info-${modalId}" class="p-2">
                                     <div class="text-center">
                                         ${cuadro.pie_pagina}
                                     </div>
