@@ -564,13 +564,13 @@
                                     <div class="mb-3">
                                         <label for="edit_pie_pagina" class="form-label">Pie de Página / Notas</label>
                                         <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 mx-2 bg-light d-flex justify-content-center">
-                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('bold')">
+                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('bold')">
                                                 <i class="bi bi-type-bold"></i>
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('italic')">
+                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('italic')">
                                                 <i class="bi bi-type-italic"></i>
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary" onclick="formatEditText('underline')">
+                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('underline')">
                                                 <i class="bi bi-type-underline"></i>
                                             </button>
                                         </div>
