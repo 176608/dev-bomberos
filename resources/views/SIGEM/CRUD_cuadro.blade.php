@@ -76,6 +76,12 @@
                                 <tr>
                                     <td><span class="badge bg-secondary">{{ $cuadro->cuadro_estadistico_id }}</span></td>
                                     <td>
+                                        @php
+                                            $codigoParts = explode('.', $cuadro->codigo_cuadro);
+                                            $nTema = intval($codigoParts[0] ?? 0);
+                                            $nCuadro = intval($codigoParts[2] ?? 0);
+                                        @endphp
+                                    <td data-order="{{ sprintf('%03d.%03d', $nTema, $nCuadro) }}">
                                         <code class="text-primary">{{ $cuadro->codigo_cuadro }}</code>
                                     </td>
                                     <td>
@@ -681,7 +687,6 @@ $(document).ready(function() {
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         drawCallback: function() {
-            // Ya no necesitamos reinicializar tooltips de Bootstrap
         }
     });
     @endif
