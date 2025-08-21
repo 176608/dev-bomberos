@@ -144,23 +144,25 @@
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                                         <div class="row align-items-center">
                                             <!-- Columna 1: Iconos y datos rápidos -->
-                                            <div class="col-md-3 col-12 mb-2 mb-md-0">
+                                            <div class="col-md-2 col-12 mb-2 mb-md-0">
                                                 @if(!empty($cuadro['excel_file']))
-                                                    <span class="text-success me-2"><i class="bi bi-file-earmark-excel"></i> Excel</span>
+                                                    <span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
                                                 @endif
                                                 @if(!empty($cuadro['pdf_file']))
-                                                    <span class="text-danger me-2"><i class="bi bi-file-earmark-pdf"></i> PDF</span>
+                                                    <span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>
                                                 @endif
                                                 @if(!empty($cuadro['permite_grafica']))
                                                     <span class="badge bg-info" title="Permite gráfica: {{ implode(', ', $cuadro['tipo_grafica_permitida'] ?? []) }}">
                                                         <i class="bi bi-graph-up"></i>
                                                     </span>
                                                 @else
-                                                    <span class="text-muted">Sin gráfica</span>
+                                                    <span class="badge bg-danger" title="Sin gráfica">
+                                                        <i class="bi bi-graph-up"></i>
+                                                    </span>
                                                 @endif
                                             </div>
                                             <!-- Columna 2: Título y subtítulo -->
-                                            <div class="col-md-9 col-12">
+                                            <div class="col-md-10 col-12">
                                                 <span class="mb-1 d-block text-dark">
                                                     <span class="fw-bold text-success">
                                                         {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
