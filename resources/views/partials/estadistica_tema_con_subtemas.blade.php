@@ -468,14 +468,17 @@ function mostrarModalCuadro(cuadroId, codigo) {
             }
             
             const cuadro = data.cuadro;
-           //console.log('BLADE: Información del cuadro:', cuadro);
+            console.log('BLADE: Información del cuadro:', cuadro);
             
             // Usar la nueva estructura de datos
             const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
             const excelUrl = data.excel.url;
             const tienePdf = data.pdf.tiene_archivo && data.pdf.archivo_existe;
             const pdfUrl = data.pdf.url;
-            
+            // nuevo campo
+            const tieneFormatedExcel = data.excel_formated.tiene_archivo && data.excel_formated.archivo_existe;
+            const formatedExcelUrl = data.excel_formated.url;
+
             // Crear modal básico
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
@@ -529,7 +532,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                         </button>
                                     ` : ''}
                                     <button type="button" class="btn btn-outline-success me-2 d-none" id="btn-toggle-excel-${modalId}">
-                                        <i class="bi bi-table"></i> Vista Excel
+                                        <i class="bi bi-table"></i> Vista Dataset
                                     </button>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
@@ -610,14 +613,16 @@ function mostrarModalCuadro(cuadroId, codigo) {
 }
 
 // Función CORREGIDA para cargar y mostrar Excel usando el motor
-function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
-    //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, excelFormatedUrl = null) {
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
-    
-    // Usar el motor de Excel para renderizar con ambas URLs
-    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl)
-        .catch(error => {
-            console.error('Error al cargar Excel con el motor:', error);
-        });
+    window.ExcelModalEngine.renderExcelInContainer(
+        `excel-container-${modalId}`,
+        excelUrl,
+        fileName,
+        pdfUrl,
+        excelFormatedUrl
+    ).catch(error => {
+        console.error('Error al cargar Excel con el motor:', error);
+    });
 }
 </script>
