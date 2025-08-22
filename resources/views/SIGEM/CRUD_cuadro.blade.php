@@ -668,7 +668,11 @@ function filtrarSubtemas(temaSelect, subtemaSelect) {
         subtemasDelTema.forEach(subtema => {
             const option = document.createElement('option');
             option.value = subtema.subtema_id;
-            option.textContent = subtema.clave_subtema + ' - ' + subtema.subtema_titulo;
+            if (!subtema.clave_subtema) {
+                option.textContent = (subtema.tema?.clave_tema ? subtema.tema.clave_tema + ' - ' : '') + subtema.subtema_titulo;
+            } else {
+                option.textContent = subtema.clave_subtema + ' - ' + subtema.subtema_titulo;
+            }
             subtemaSelect.appendChild(option);
         });
     }
