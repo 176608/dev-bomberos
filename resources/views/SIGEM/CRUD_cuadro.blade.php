@@ -509,7 +509,7 @@
                                     <div class="mb-3">
                                         <label for="edit_excel_formated_file" class="form-label">
                                             <span id="edit_excel_formated_file">Nuevo Archivo Excel Formateado</span>
-                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
+                                            <span id="label_excel_formated_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_formated_file" name="excel_formated_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
