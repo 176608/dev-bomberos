@@ -592,15 +592,8 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
                 'permite_grafica' => 'nullable|boolean',
-                'pie_pagina' => 'nullable|string|max:60000'
+                'pie_pagina' => 'nullable|string|max:50000'
             ]);
-
-            // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
-            if ($request->has('permite_grafica')) {
-                return redirect()
-                    ->route('sigem.admin.cuadros')
-                    ->withInput();
-            }
 
             $datos = $request->only([
                 'codigo_cuadro',
@@ -689,15 +682,8 @@ class AdminController extends Controller
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
                 'permite_grafica' => 'nullable|boolean',
-                'pie_pagina' => 'nullable|string|max:60000'
+                'pie_pagina' => 'nullable|string|max:50000'
             ]);
-
-            // Validación personalizada: si permite gráfica, debe tener al menos un tipo seleccionado
-            if ($request->has('permite_grafica')) {
-                return redirect()
-                    ->route('sigem.admin.cuadros')
-                    ->withInput();
-            }
 
             $datos = $request->only([
                 'codigo_cuadro',
