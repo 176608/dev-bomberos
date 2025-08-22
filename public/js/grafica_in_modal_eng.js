@@ -122,14 +122,14 @@ class GraficaModalEngine {
 
                 <!-- Columnas X -->
                 <div class="mb-3">
-                    <label class="form-label">Seleccionar columnas (Eje X):</label>
-                    <div id="columnCheckboxes"></div>
+                    <label class="form-label">Seleccionar columna de eje X:</label>
+                    <select id="xAxisSelect" class="form-select"></select>
                 </div>
 
-                <!-- Filas Y -->
+                <!-- Columnas Y -->
                 <div class="mb-3">
-                    <label class="form-label">Seleccionar filas (Eje Y):</label>
-                    <div id="rowCheckboxes"></div>
+                    <label class="form-label">Seleccionar columnas/grupos (Eje Y):</label>
+                    <div id="groupedColumnCheckboxes"></div>
                 </div>
 
                 <!-- Tipo de gráfica -->
@@ -150,104 +150,112 @@ class GraficaModalEngine {
 
         container.innerHTML = selectionHTML;
 
-        // Generar checkboxes para columnas (Eje X)
-        const headers = dataMatrix[0];
-        const columnsContainer = document.getElementById('columnCheckboxes');
-        columnsContainer.innerHTML = headers.map(header => `
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="col-${header}" value="${header}">
-                <label class="form-check-label" for="col-${header}">${header}</label>
+        // --- Selección de eje X ---
+        const headers = dataMatrix[1]; // Segunda fila: nombres de columnas
+        const xAxisSelect = document.getElementById('xAxisSelect');
+        xAxisSelect.innerHTML = headers.map((header, idx) =>
+            `<option value="${idx}">${header}</option>`
+        ).join('');
+        xAxisSelect.selectedIndex = 0; // Por defecto la primera columna
+
+        // --- Selección jerárquica de grupos y columnas (Eje Y) ---
+        const groupRow = dataMatrix[0]; // Primera fila: grupos
+        const groupedColumns = [];
+        let currentGroup = null;
+        for (let i = 1; i < groupRow.length; i++) {
+            if (groupRow[i] && groupRow[i].trim() !== "") {
+                currentGroup = { name: groupRow[i], columns: [] };
+                groupedColumns.push(currentGroup);
+            }
+            if (currentGroup) {
+                currentGroup.columns.push({ name: headers[i], index: i });
+            }
+        }
+
+        // Renderizar checkboxes jerárquicos
+        const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
+        groupedColumnCheckboxes.innerHTML = groupedColumns.map((group, gIdx) => `
+            <div class="mb-2 border rounded p-2">
+                <div>
+                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
+                    <label class="form-check-label fw-bold" for="group-${gIdx}">${group.name}</label>
+                </div>
+                <div class="ms-3">
+                    ${group.columns.map((col, cIdx) => `
+                        <div>
+                            <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" id="col-${col.index}" value="${col.index}">
+                            <label class="form-check-label" for="col-${col.index}">${col.name}</label>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         `).join('');
 
-        // Generar checkboxes para filas (Eje Y)
-        const rowCheckboxes = document.getElementById('rowCheckboxes');
-        rowCheckboxes.innerHTML = dataMatrix.slice(1).map((row, i) => {
-            const label = row[0] || `Fila ${i + 1}`;
-            return `
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="row-${i}" value="${label}">
-                    <label class="form-check-label" for="row-${i}">${label}</label>
-                </div>
-            `;
-        }).join('');
+        // --- Lógica de selección jerárquica ---
+        // Al seleccionar un grupo, selecciona/deselecciona todas sus columnas
+        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+            groupCb.addEventListener('change', function() {
+                const checked = this.checked;
+                groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => {
+                    cb.checked = checked;
+                });
+            });
+        });
+        // Si todas las columnas de un grupo están seleccionadas, marca el grupo
+        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                groupedColumns.forEach((group, gIdx) => {
+                    const allChecked = group.columns.every(col =>
+                        groupedColumnCheckboxes.querySelector(`#col-${col.index}`).checked
+                    );
+                    groupedColumnCheckboxes.querySelector(`#group-${gIdx}`).checked = allChecked;
+                });
+            });
+        });
+        // Selecciona todas las columnas por defecto
+        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => cb.checked = true);
+        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = true);
 
-        // Habilitar todos los checkboxes por defecto
-        document.querySelectorAll('.form-check-input').forEach(cb => cb.checked = true);
-
-        // Botón de renderización
+        // --- Botón de renderización ---
         const renderBtn = document.getElementById('renderChartBtn');
         const chartContainer = document.getElementById('chartContainer');
         const chartType = document.getElementById('chartType');
 
         renderBtn.addEventListener('click', () => {
-            const selectedColumns = Array.from(document.querySelectorAll('#columnCheckboxes .form-check-input:checked'))
-                .map(cb => cb.value);
+            const xAxisIdx = parseInt(xAxisSelect.value, 10);
 
-            const selectedRows = Array.from(document.querySelectorAll('#rowCheckboxes .form-check-input:checked'))
-                .map(cb => cb.value);
+            // Obtener índices de columnas seleccionadas (Eje Y)
+            const selectedColIndices = Array.from(groupedColumnCheckboxes.querySelectorAll('.column-checkbox:checked'))
+                .map(cb => parseInt(cb.value, 10));
 
-            const type = chartType.value;
-
-            if (selectedColumns.length === 0) {
-                alert('Por favor seleccione al menos una columna.');
+            if (selectedColIndices.length === 0) {
+                alert('Por favor seleccione al menos una columna/grupo para el eje Y.');
                 return;
             }
 
-            if (selectedRows.length === 0) {
-                alert('Por favor seleccione al menos una fila.');
-                return;
-            }
-
-            this.renderChart(chartContainer, dataMatrix, selectedRows, selectedColumns, type);
+            this.renderChartHierarchical(chartContainer, dataMatrix, xAxisIdx, selectedColIndices, chartType.value);
         });
     }
 
     /**
-     * Genera la gráfica con Chart.js
+     * Genera la gráfica con Chart.js usando selección jerárquica
      */
-    renderChart(container, dataMatrix, selectedRows, selectedColumns, type) {
-        // Limpiar contenedores anteriores
+    renderChartHierarchical(container, dataMatrix, xAxisIdx, yColIndices, type) {
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
 
-        // Buscar índices de las columnas seleccionadas
-        const colIndices = selectedColumns.map(col => {
-            const idx = dataMatrix[0].findIndex(h => h === col);
-            return idx >= 0 ? idx : -1;
-        }).filter(idx => idx !== -1);
+        // Etiquetas eje X (todas las filas, excepto las dos primeras)
+        const labels = dataMatrix.slice(2).map(row => row[xAxisIdx]);
 
-        // Construir etiquetas (filas seleccionadas)
-        const rowIndices = selectedRows.map(row => {
-            const idx = dataMatrix.findIndex(r => r[0] === row);
-            return idx >= 0 ? idx : -1;
-        }).filter(idx => idx !== -1);
-
-        // Si no hay filas válidas, mostrar error
-        if (rowIndices.length === 0) {
-            container.innerHTML = '<div class="alert alert-warning">No se encontraron datos para las filas seleccionadas.</div>';
-            return;
-        }
-
-        // Construir etiquetas para el eje Y
-        const labels = rowIndices.map(i => dataMatrix[i][0]);
-
-        // Construir datasets para cada columna seleccionada
-        const datasets = colIndices.map((colIndex, i) => {
-            const data = rowIndices.map(rowIndex => {
-                const value = parseFloat(dataMatrix[rowIndex][colIndex]) || 0;
-                return value;
-            });
-
-            return {
-                label: selectedColumns[i],
-                data: data,
-                backgroundColor: this.getColor(i),
-                borderColor: this.getColor(i),
-                borderWidth: 1
-            };
-        });
+        // Datasets para cada columna seleccionada (Eje Y)
+        const datasets = yColIndices.map((colIdx, i) => ({
+            label: dataMatrix[1][colIdx],
+            data: dataMatrix.slice(2).map(row => parseFloat(row[colIdx]) || 0),
+            backgroundColor: this.getColor(i),
+            borderColor: this.getColor(i),
+            borderWidth: 1
+        }));
 
         // Crear canvas
         const canvas = document.createElement('canvas');
@@ -258,13 +266,7 @@ class GraficaModalEngine {
 
         const ctx = canvas.getContext('2d');
 
-        // Configurar datos para Chart.js
-        const chartData = {
-            labels: labels,
-            datasets: datasets
-        };
-
-        // Opciones
+        const chartData = { labels, datasets };
         const options = {
             responsive: true,
             plugins: {
@@ -273,7 +275,6 @@ class GraficaModalEngine {
             }
         };
 
-        // Crear gráfica
         this.chartInstance = new Chart(ctx, {
             type: type,
             data: chartData,
