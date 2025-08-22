@@ -5,6 +5,7 @@
 /public/storage
 /public/u_excel
 /public/u_pdf
+/public/u_xlsx_formated
 /storage/*.key
 /storage/pail
 /vendor

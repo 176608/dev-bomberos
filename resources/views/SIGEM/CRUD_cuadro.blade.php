@@ -106,7 +106,7 @@
                                         <div class="d-flex gap-1">
                                             @if($cuadro->excel_file)
                                                 <span class="badge bg-primary" title="Dataset disponible">
-                                                    <i class="bi bi-file-earmark-excel"></i>
+                                                    <i class="bi bi-table"></i>
                                                 </span>
                                             @endif
                                             @if($cuadro->pdf_file)

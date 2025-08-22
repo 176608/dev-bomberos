@@ -320,6 +320,7 @@ class PublicController extends Controller
                         'cuadro_estadistico_id' => $cuadro->cuadro_estadistico_id,
                         'excel_file' => $cuadro->excel_file,
                         'pdf_file' => $cuadro->pdf_file,
+                        'excel_formated_file' => $cuadro->excel_formated_file,
                         'permite_grafica' => $cuadro->permite_grafica,
                         'codigo_cuadro' => $cuadro->codigo_cuadro,
                         'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
