@@ -433,17 +433,17 @@
                             <!-- Archivos actuales -->
                             <div id="archivos_actuales_section" class="mb-4">
                                 <h6 class="text-muted mb-3">Archivos Actuales</h6>
-                                <div id="archivo_excel_actual" class="alert alert-info d-none">
+                                <div id="archivo_excel_actual" class="alert alert-primary d-none">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <i class="bi bi-file-earmark-excel text-success"></i>
-                                            <strong>Excel:</strong> <span id="nombre_excel_actual"></span>
+                                            <i class="bi bi-table text-primary"></i>
+                                            <strong>Dataset:</strong> <span id="nombre_excel_actual"></span>
                                             <br><small class="text-muted">Archivo guardado como: <span id="archivo_excel_sistema"></span></small>
                                         </div>
                                         <div>
                                             <input type="hidden" id="remove_excel_hidden" name="remove_excel" value="0">
                                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoExcel()">
-                                                <i class="bi bi-trash"></i> Eliminar Excel
+                                                <i class="bi bi-trash"></i> Eliminar Dataset
                                             </button>
                                         </div>
                                     </div>
@@ -463,10 +463,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div id="archivo_excel_formated_actual" class="alert alert-primary d-none">
+                                <div id="archivo_excel_formated_actual" class="alert alert-success d-none">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <i class="bi bi-file-earmark-excel text-primary"></i>
+                                            <i class="bi bi-file-earmark-excel text-success"></i>
                                             <strong>Excel Formateado:</strong> <span id="nombre_excel_formated_actual"></span>
                                             <br><small class="text-muted">Archivo guardado como: <span id="archivo_excel_formated_sistema"></span></small>
                                         </div>

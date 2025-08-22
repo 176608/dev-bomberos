@@ -435,14 +435,14 @@ class ExcelModalEngine {
      * Envuelve tabla en contenedores con botones
      */
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
-        console.log('BLADE: excelUrl', excelUrl);
-        console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
+        //console.log('BLADE: excelUrl', excelUrl);
+        //console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
         const buttons = this.buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl);
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
-                        <i class="bi bi-file-excel text-success me-2"></i>
+                        <i class="bi bi-file-excel text-primary me-2"></i>
                         Archivo Excel: ${fileName || ''}
                     </h5>
                     <div class="btn-group">${buttons}</div>
@@ -471,7 +471,7 @@ class ExcelModalEngine {
         
         if (excelUrl) {
             buttons += `
-                <a href="${excelUrl}" class="btn btn-sm btn-outline-success rounded-4" download>
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-primary rounded-4 me-2" download>
                     <i class="bi bi-table"></i> * Descargar dataset *
                 </a>
             `;
@@ -479,7 +479,7 @@ class ExcelModalEngine {
         
         if (excelFormatedUrl) {
             buttons += `
-                <a href="${excelFormatedUrl}" class="btn btn-sm btn-outline-primary rounded-4" download>
+                <a href="${excelFormatedUrl}" class="btn btn-sm btn-outline-success rounded-4" download>
                     <i class="bi bi-file-earmark-excel"></i> Descargar Excel Formateado
                 </a>
             `;
