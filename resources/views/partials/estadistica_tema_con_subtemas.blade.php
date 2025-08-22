@@ -553,9 +553,46 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const modal = new bootstrap.Modal(document.getElementById(modalId));
             modal.show();
             
+            const btnGrafica = document.getElementById(`btn-toggle-grafica-${modalId}`);
+            const btnExcel = document.getElementById(`btn-toggle-excel-${modalId}`);
+            const excelView = document.getElementById(`excel-view-${modalId}`);
+            const graficaView = document.getElementById(`grafica-view-${modalId}`);
+            
+            if (btnGrafica) {
+                btnGrafica.addEventListener('click', function() {
+                    excelView.style.display = 'none';
+                    graficaView.style.display = '';
+                    btnGrafica.classList.add('d-none');
+                    btnExcel.classList.remove('d-none');
+                    // Solo cargar la gráfica la primera vez
+                    if (!graficaView.dataset.loaded) {
+                        if (window.GraficaModalEngine && typeof window.GraficaModalEngine.renderGraficaInContainer === 'function') {
+                            window.GraficaModalEngine.renderGraficaInContainer(
+                                `grafica-container-${modalId}`,
+                                excelUrl,
+                                data.excel.nombre_archivo
+                            );
+                            graficaView.dataset.loaded = "1";
+                        } else {
+                            document.getElementById(`grafica-container-${modalId}`).innerHTML = `
+                                <div class="alert alert-danger">No se encontró el motor de gráficas.</div>
+                            `;
+                        }
+                    }
+                });
+            }
+            if (btnExcel) {
+                btnExcel.addEventListener('click', function() {
+                    graficaView.style.display = 'none';
+                    excelView.style.display = '';
+                    btnExcel.classList.add('d-none');
+                    btnGrafica.classList.remove('d-none');
+                });
+            }
+            
             // Cargar Excel en el modal si existe
             if (tieneExcel) {
-                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, tienePdf ? pdfUrl : null);
+                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null);
             } else {
                 // Mostrar mensaje si no hay Excel
                 document.getElementById(`excel-container-${modalId}`).innerHTML = `

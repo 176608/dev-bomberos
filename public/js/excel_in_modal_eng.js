@@ -462,7 +462,7 @@ class ExcelModalEngine {
         
         if (pdfUrl) {
             buttons += `
-                <a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download>
+                <a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2 rounded-4" target="_blank" download>
                     <i class="bi bi-file-pdf me-1"></i>Descargar PDF
                 </a>
             `;
@@ -470,7 +470,7 @@ class ExcelModalEngine {
         
         if (excelUrl) {
             buttons += `
-                <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-success rounded-4" download>
                     <i class="bi bi-file-excel me-1"></i>Descargar Excel
                 </a>
             `;
