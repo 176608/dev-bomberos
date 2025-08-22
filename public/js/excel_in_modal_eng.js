@@ -8,6 +8,8 @@ class ExcelModalEngine {
         this.loadingPromise = null;
     }
 
+    // === CARGA Y RENDERIZADO ===
+
     /**
      * Inicializa SheetJS si no está cargado
      */
@@ -26,9 +28,7 @@ class ExcelModalEngine {
                 this.sheetJSLoaded = true;
                 resolve();
             };
-            script.onerror = () => {
-                reject(new Error('No se pudo cargar SheetJS'));
-            };
+            script.onerror = () => reject(new Error('No se pudo cargar SheetJS'));
             document.head.appendChild(script);
         });
 
@@ -40,7 +40,7 @@ class ExcelModalEngine {
      */
     async renderExcelInContainer(containerId, excelUrl, fileName, pdfUrl = null) {
         const container = document.getElementById(containerId);
-        if (!container) throw new Error(`Contener ${containerId} no encontrado`);
+        if (!container) throw new Error(`Contenedor ${containerId} no encontrado`);
 
         this.showLoadingState(container, 'Cargando biblioteca...');
         try {
@@ -65,11 +65,19 @@ class ExcelModalEngine {
         return await res.arrayBuffer();
     }
 
+    // === PROCESAMIENTO DE DATOS ===
+
     /**
      * Procesa el archivo Excel y genera HTML
      */
     async processExcelFile(buffer, fileName, excelUrl, pdfUrl) {
-        const workbook = XLSX.read(buffer, { type: 'array', cellStyles: true });
+        const workbook = XLSX.read(buffer, { 
+            type: 'array', 
+            cellStyles: true,
+            cellNF: true,    // Preserva formatos numéricos
+            cellText: false  // Permite formato personalizado
+        });
+        
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
 
@@ -110,26 +118,23 @@ class ExcelModalEngine {
      * Calcula anchos de columnas basados en contenido
      */
     calculateColumnWidths(worksheet, range) {
+        const widths = {};
         const minWidth = 80;
         const maxWidth = 400;
         const charWidth = 7;
         const padding = 16;
 
-        const widths = {};
         for (let c = range.s.c; c <= range.e.c; c++) {
             let maxLen = 0;
             for (let r = range.s.r; r <= range.e.r; r++) {
                 const ref = XLSX.utils.encode_cell({ r, c });
                 const cell = worksheet[ref];
                 if (cell && cell.v !== undefined && cell.v !== null) {
-                    const val = this.formatCellValue(cell).toString();
-                    if (val.includes('\n')) {
-                        const lines = val.split('\n');
-                        const longest = Math.max(...lines.map(l => l.length));
-                        maxLen = Math.max(maxLen, longest);
-                    } else {
-                        maxLen = Math.max(maxLen, val.length);
-                    }
+                    const val = this.getDisplayValue(cell).toString();
+                    const len = val.includes('\n') 
+                        ? Math.max(...val.split('\n').map(l => l.length))
+                        : val.length;
+                    maxLen = Math.max(maxLen, len);
                 }
             }
 
@@ -159,6 +164,8 @@ class ExcelModalEngine {
         return map;
     }
 
+    // === GENERACIÓN DE HTML ===
+
     /**
      * Construye tabla HTML con formato
      */
@@ -166,11 +173,13 @@ class ExcelModalEngine {
         const htmlParts = [];
         const dynamicStyles = [];
 
-        // Colgroup
+        // Colgroup con ancho mínimo garantizado para primera columna
         htmlParts.push('<colgroup>');
         for (let c = range.s.c; c <= range.e.c; c++) {
             const width = colWidths[c] || 100;
-            htmlParts.push(`<col style="width: ${width}px; min-width: ${width}px;">`);
+            // Garantizar ancho mínimo para primera columna
+            const minWidth = c === range.s.c ? Math.max(width, 120) : width;
+            htmlParts.push(`<col style="width: ${minWidth}px; min-width: ${minWidth}px;">`);
         }
         htmlParts.push('</colgroup>');
 
@@ -178,8 +187,7 @@ class ExcelModalEngine {
         htmlParts.push('<table class="table excel-table table-bordered">');
 
         for (let r = range.s.r; r <= range.e.r; r++) {
-            const rowClasses = this.getRowClasses(r, range.e.r);
-            htmlParts.push(`<tr class="${rowClasses}">`);
+            htmlParts.push(`<tr class="${this.getRowClasses(r, range.e.r)}">`);
 
             for (let c = range.s.c; c <= range.e.c; c++) {
                 const key = `${r}_${c}`;
@@ -192,25 +200,17 @@ class ExcelModalEngine {
                 const cellData = this.processCellData(cell, ref);
 
                 const tag = r <= 1 ? 'th' : 'td';
-                const classes = [
-                    ...cellData.classes,
-                    cellData.hasCustomStyle ? `cell-${r}-${c}` : ''
-                ].filter(Boolean).join(' ');
-
-                const mergeAttrs = mergeInfo
-                    ? `rowspan="${mergeInfo.rowspan}" colspan="${mergeInfo.colspan}"`
-                    : '';
-
-                const style = cellData.customStyle
-                    ? `style="${cellData.customStyle}"`
-                    : '';
+                const classes = this.buildCellClasses(cellData, r, c);
+                const mergeAttrs = this.buildMergeAttributes(mergeInfo);
+                const style = cellData.customStyle ? `style="${cellData.customStyle}"` : '';
 
                 htmlParts.push(
                     `<${tag} class="${classes}" ${mergeAttrs} ${style}>${cellData.displayValue}</${tag}>`
                 );
 
-                if (cellData.hasCustomStyle) {
-                    dynamicStyles.push(`.${classes.split(' ')[0]} { ${cellData.customStyle} }`);
+                if (cellData.hasCustomStyle && cellData.classes.length > 0) {
+                    const className = `cell-${r}-${c}`;
+                    dynamicStyles.push(`.${className} { ${cellData.customStyle} }`);
                 }
             }
 
@@ -226,24 +226,24 @@ class ExcelModalEngine {
         return htmlParts.join('');
     }
 
+    // === PROCESAMIENTO DE CELDAS ===
+
     /**
      * Procesa datos de celda
      */
     processCellData(cell, ref) {
         if (!cell || cell.v === null || cell.v === undefined || cell.v === '') {
-            return { displayValue: '&nbsp;', classes: ['empty-cell'], customStyle: '', hasCustomStyle: false };
+            return { 
+                displayValue: '&nbsp;', 
+                classes: ['empty-cell'], 
+                customStyle: '', 
+                hasCustomStyle: false 
+            };
         }
 
-        const value = this.formatCellValue(cell);
-        const contentStr = value.toString();
-
-        const classes = [
-            contentStr.length > 30 || contentStr.includes('\n') ? 'long-text-cell' : '',
-            contentStr.length > 15 ? 'medium-text-cell' : '',
-            contentStr.length <= 15 ? 'short-text-cell' : '',
-            cell.t === 'n' ? 'number-cell' : 'text-cell'
-        ].filter(Boolean);
-
+        const displayValue = this.getDisplayValue(cell);
+        const contentStr = displayValue.toString();
+        const classes = this.getContentClasses(contentStr, cell);
         let customStyle = '';
         let hasCustomStyle = false;
 
@@ -263,22 +263,74 @@ class ExcelModalEngine {
             }
         }
 
-        return { displayValue: value, classes, customStyle, hasCustomStyle };
+        return { displayValue, classes, customStyle, hasCustomStyle };
     }
 
     /**
-     * Formatea valor de celda
+     * Obtiene el valor formateado de la celda (respeta fórmulas y formatos)
      */
-    formatCellValue(cell) {
+    getDisplayValue(cell) {
+        // Si hay valor formateado (w), usarlo (respeta redondeos y fórmulas)
+        if (cell.w !== undefined) return cell.w;
+        
+        // Si no, formatear según tipo
         if (cell.v === undefined || cell.v === null) return '';
+        
         if (cell.t === 'n') {
-            if (cell.z?.includes('%')) return (cell.v * 100).toFixed(2) + '%';
-            if (cell.z?.includes('$')) return '$' + cell.v.toLocaleString('en-US', { minimumFractionDigits: 2 });
-            if (cell.z?.includes(',')) return cell.v.toLocaleString();
+            if (cell.z) {
+                // Usar formato numérico si está disponible
+                return XLSX.SSF.format(cell.z, cell.v);
+            }
             return cell.v.toString();
         }
+        
         return cell.v.toString();
     }
+
+    /**
+     * Determina clases según contenido
+     */
+    getContentClasses(contentStr, cell) {
+        const classes = [];
+        
+        // Clases por longitud de contenido
+        if (contentStr.length > 30 || contentStr.includes('\n')) {
+            classes.push('long-text-cell');
+        } else if (contentStr.length > 15) {
+            classes.push('medium-text-cell');
+        } else {
+            classes.push('short-text-cell');
+        }
+        
+        // Clases por tipo de dato
+        classes.push(cell.t === 'n' ? 'number-cell' : 'text-cell');
+        
+        return classes;
+    }
+
+    /**
+     * Construye clases CSS para celda
+     */
+    buildCellClasses(cellData, row, col) {
+        const baseClasses = cellData.classes.filter(Boolean);
+        if (cellData.hasCustomStyle) {
+            baseClasses.push(`cell-${row}-${col}`);
+        }
+        return baseClasses.join(' ');
+    }
+
+    /**
+     * Construye atributos de combinación
+     */
+    buildMergeAttributes(mergeInfo) {
+        if (!mergeInfo) return '';
+        const attrs = [];
+        if (mergeInfo.rowspan > 1) attrs.push(`rowspan="${mergeInfo.rowspan}"`);
+        if (mergeInfo.colspan > 1) attrs.push(`colspan="${mergeInfo.colspan}"`);
+        return attrs.join(' ');
+    }
+
+    // === ESTILOS Y FORMATOS ===
 
     /**
      * Extrae estilos de celda
@@ -301,10 +353,13 @@ class ExcelModalEngine {
         if (style.alignment) {
             const alignMap = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
             const vAlignMap = { top: 'top', middle: 'middle', bottom: 'bottom' };
+            
             const hAlign = alignMap[style.alignment.horizontal] || style.alignment.horizontal;
             const vAlign = vAlignMap[style.alignment.vertical] || style.alignment.vertical;
+            
             if (hAlign) css.push(`text-align: ${hAlign}`);
             if (vAlign) css.push(`vertical-align: ${vAlign}`);
+            
             if (style.alignment.wrapText) {
                 css.push('white-space: pre-wrap');
                 css.push('word-wrap: break-word');
@@ -369,25 +424,19 @@ class ExcelModalEngine {
      * Clases para filas
      */
     getRowClasses(rowIndex, lastRow) {
-        return rowIndex === 0 ? 'header-row' : rowIndex === lastRow ? 'footer-row' : 'data-row';
+        if (rowIndex === 0) return 'header-row';
+        if (rowIndex === lastRow) return 'footer-row';
+        return 'data-row';
     }
 
+    // === RENDERIZADO FINAL ===
+
     /**
-     * Envuelve tabla en contenedores con botones y estilos
+     * Envuelve tabla en contenedores con botones
      */
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl) {
-        let buttons = '';
-        if (pdfUrl) {
-            buttons += `<a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download>
-                <i class="bi bi-file-pdf me-1"></i>Descargar PDF
-            </a>`;
-        }
-        if (excelUrl) {
-            buttons += `<a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
-                <i class="bi bi-file-excel me-1"></i>Descargar Excel
-            </a>`;
-        }
-
+        const buttons = this.buildDownloadButtons(excelUrl, pdfUrl);
+        
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -406,16 +455,40 @@ class ExcelModalEngine {
     }
 
     /**
+     * Construye botones de descarga
+     */
+    buildDownloadButtons(excelUrl, pdfUrl) {
+        let buttons = '';
+        
+        if (pdfUrl) {
+            buttons += `
+                <a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download>
+                    <i class="bi bi-file-pdf me-1"></i>Descargar PDF
+                </a>
+            `;
+        }
+        
+        if (excelUrl) {
+            buttons += `
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
+                    <i class="bi bi-file-excel me-1"></i>Descargar Excel
+                </a>
+            `;
+        }
+        
+        return buttons;
+    }
+
+    /**
      * Estilos CSS globales para tabla
      */
     getTableStyles() {
-        return `
-            <style>
-                
-            </style>
-        `;
+        return `<style></style>`;
     }
 
+    /**
+     * Mostrar estado de carga
+     */
     showLoadingState(container, message) {
         container.innerHTML = `
             <div class="text-center py-4">
@@ -425,6 +498,9 @@ class ExcelModalEngine {
         `;
     }
 
+    /**
+     * Mostrar estado de error
+     */
     showErrorState(container, errorMessage, excelUrl) {
         container.innerHTML = `
             <div class="alert alert-danger">
