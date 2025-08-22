@@ -522,7 +522,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                 </div>
 
                             </div>
-                            
+
                             <div class="modal-footer">
                                 <div class="d-flex justify-content-center w-100">
                                     ${tieneExcel ? `
@@ -556,4 +556,33 @@ function mostrarModalCuadro(cuadroId, codigo) {
             // Cargar Excel en el modal si existe
             if (tieneExcel) {
                 cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, tienePdf ? pdfUrl : null);
+            } else {
+                // Mostrar mensaje si no hay Excel
+                document.getElementById(`excel-container-${modalId}`).innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        ${data.excel.tiene_archivo && !data.excel.archivo_existe ? 
+                          'El archivo Excel asociado no se encuentra en el servidor.' : 
+                          'Este cuadro no tiene un archivo Excel asociado.'}
+                    </div>
+                `;
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+}
+
+// Función CORREGIDA para cargar y mostrar Excel usando el motor
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
+    //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
+    const excelContainer = document.getElementById(`excel-container-${modalId}`);
+    
+    // Usar el motor de Excel para renderizar con ambas URLs
+    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl)
+        .catch(error => {
+            console.error('Error al cargar Excel con el motor:', error);
+        });
+}
+</script>
