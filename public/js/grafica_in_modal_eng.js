@@ -39,24 +39,77 @@ class GraficaModalEngine {
 
             console.log('📊 Matriz limpia:', dataMatrix);
 
-            // Determinar tipo de gráfica y extraer estructura
-            const {
-                CabeceraY,
-                RowsY,
-                GroupColsX,
-                ColsX,
-                isTipoA
-            } = this.analyzeDataMatrix(dataMatrix);
+            // 1) Detectar tipo de gráfica y CabeceraY
+            let tipoGrafica = null;
+            let CabeceraY = null;
 
-            console.log('🔍 Análisis:');
-            console.log('CabeceraY:', CabeceraY);
-            console.log('RowsY:', RowsY);
-            console.log('GroupColsX:', GroupColsX);
-            console.log('ColsX:', ColsX);
-            console.log('isTipoA:', isTipoA);
+            if (!dataMatrix[0][0] || dataMatrix[0][0].trim() === "") {
+                // Gráfica Tipo A
+                tipoGrafica = "A";
+                CabeceraY = dataMatrix[1][0];
+            } else {
+                // Gráfica Tipo B
+                tipoGrafica = "B";
+                CabeceraY = dataMatrix[0][0];
+            }
+
+            // 2) RowsY
+            let RowsY = [];
+            if (tipoGrafica === "A") {
+                // Desde dataMatrix[2] en adelante, columna 0
+                RowsY = dataMatrix.slice(2).map(row => row[0]);
+            } else {
+                // Desde dataMatrix[1] en adelante, columna 0
+                RowsY = dataMatrix.slice(1).map(row => row[0]);
+            }
+
+            // 3) GroupColsX y ColsX
+            let GroupColsX = [];
+            let ColsX = [];
+
+            if (tipoGrafica === "A") {
+                // GroupColsX: Agrupar por dataMatrix[0], ignorando el primer elemento (col 0)
+                const groupRow = dataMatrix[0].slice(1);
+                const colHeaders = dataMatrix[1].slice(1);
+
+                let currentGroup = null;
+                let currentCols = [];
+                for (let i = 0; i < groupRow.length; i++) {
+                    if (groupRow[i] && groupRow[i].trim() !== "") {
+                        // Nuevo grupo
+                        if (currentGroup) {
+                            GroupColsX.push({ group: currentGroup, cols: currentCols });
+                        }
+                        currentGroup = groupRow[i];
+                        currentCols = [colHeaders[i]];
+                    } else if (currentGroup) {
+                        // Columna vacía, pertenece al grupo actual
+                        currentCols.push(colHeaders[i]);
+                    }
+                }
+                // Push último grupo
+                if (currentGroup) {
+                    GroupColsX.push({ group: currentGroup, cols: currentCols });
+                }
+
+                // ColsX: todos los headers de la fila 1, excepto el primero
+                ColsX = colHeaders;
+            } else {
+                // Tipo B: ColsX = todos los elementos de dataMatrix[0] excepto el primero
+                ColsX = dataMatrix[0].slice(1);
+                // GroupColsX no aplica o es igual a ColsX
+                GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
+            }
+
+            // Ejemplo de salida:
+            console.log("Tipo de gráfica:", tipoGrafica);
+            console.log("CabeceraY:", CabeceraY);
+            console.log("RowsY:", RowsY);
+            console.log("GroupColsX:", GroupColsX);
+            console.log("ColsX:", ColsX);
 
             // Mostrar interfaz de selección
-            this.renderSelectionInterface(container, dataMatrix, CabeceraY, RowsY, GroupColsX, ColsX, isTipoA, fileName, excelUrl);
+            this.renderSelectionInterface(container, dataMatrix, fileName, excelUrl);
 
         } catch (error) {
             console.error('Error al cargar gráfica:', error);
@@ -100,6 +153,7 @@ class GraficaModalEngine {
         const dataMatrix = [];
         const headerRow = [];
 
+        // Recorrer todas las celdas
         for (let r = range.s.r; r <= range.e.r; r++) {
             const row = [];
             for (let c = range.s.c; c <= range.e.c; c++) {
@@ -128,69 +182,20 @@ class GraficaModalEngine {
     }
 
     /**
-     * Analiza la matriz para determinar tipo y extraer estructura
-     */
-    analyzeDataMatrix(dataMatrix) {
-        const isTipoA = dataMatrix[0][0] === '' || dataMatrix[0][0].trim() === '';
-        const isTipoB = !isTipoA;
-
-        // --- CabeceraY ---
-        const CabeceraY = isTipoA ? dataMatrix[1][0] : dataMatrix[0][0];
-
-        // --- RowsY ---
-        const RowsY = isTipoA 
-            ? dataMatrix.slice(2).map(row => row[0]) 
-            : dataMatrix.slice(1).map(row => row[0]);
-
-        // --- GroupColsX y ColsX ---
-        const GroupColsX = {};
-        const ColsX = [];
-
-        if (isTipoA) {
-            // Tipo A: Grupo de columnas anidadas
-            let currentGroup = null;
-            for (let i = 0; i < dataMatrix[0].length; i++) {
-                const groupHeader = dataMatrix[0][i];
-                if (groupHeader && groupHeader.trim() !== '') {
-                    currentGroup = groupHeader;
-                    GroupColsX[currentGroup] = [];
-                }
-                if (currentGroup) {
-                    GroupColsX[currentGroup].push(i);
-                }
-            }
-
-            // ColsX: nombres de columnas (fila 1, ignorando CabeceraY)
-            ColsX.push(...dataMatrix[1].slice(1));
-        } else {
-            // Tipo B: Columnas simples
-            ColsX.push(...dataMatrix[0].slice(1));
-        }
-
-        return {
-            CabeceraY,
-            RowsY,
-            GroupColsX,
-            ColsX,
-            isTipoA
-        };
-    }
-
-    /**
      * Renderiza la interfaz de selección de parámetros
      */
-    renderSelectionInterface(container, dataMatrix, CabeceraY, RowsY, GroupColsX, ColsX, isTipoA, fileName, excelUrl) {
+    renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
         const selectionHTML = `
             <div class="d-flex flex-column mb-3">
                 <h6>Selecciona los datos para graficar:</h6>
 
-                <!-- Eje X -->
+                <!-- Columnas X -->
                 <div class="mb-3">
                     <label class="form-label">Seleccionar columna de eje X:</label>
                     <select id="xAxisSelect" class="form-select"></select>
                 </div>
 
-                <!-- Eje Y -->
+                <!-- Columnas Y -->
                 <div class="mb-3">
                     <label class="form-label">Seleccionar columnas/grupos (Eje Y):</label>
                     <div id="groupedColumnCheckboxes"></div>
@@ -215,64 +220,70 @@ class GraficaModalEngine {
         container.innerHTML = selectionHTML;
 
         // --- Selección de eje X ---
+        const headers = dataMatrix[1]; // Segunda fila: nombres de columnas
         const xAxisSelect = document.getElementById('xAxisSelect');
-        xAxisSelect.innerHTML = ColsX.map((col, idx) =>
-            `<option value="${idx}">${col}</option>`
+        xAxisSelect.innerHTML = headers.map((header, idx) =>
+            `<option value="${idx}">${header}</option>`
         ).join('');
-        xAxisSelect.selectedIndex = 0;
+        xAxisSelect.selectedIndex = 0; // Por defecto la primera columna
 
         // --- Selección jerárquica de grupos y columnas (Eje Y) ---
-        const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
-        if (isTipoA) {
-            // Tipo A: Grupos anidados
-            groupedColumnCheckboxes.innerHTML = Object.entries(GroupColsX).map(([groupName, colIndices]) => `
-                <div class="mb-2 border rounded p-2">
-                    <div>
-                        <input type="checkbox" class="form-check-input group-checkbox" id="group-${groupName}">
-                        <label class="form-check-label fw-bold" for="group-${groupName}">${groupName}</label>
-                    </div>
-                    <div class="ms-3">
-                        ${colIndices.map(idx => `
-                            <div>
-                                <input type="checkbox" class="form-check-input column-checkbox group-${groupName}" id="col-${idx}" value="${idx}">
-                                <label class="form-check-label" for="col-${idx}">${ColsX[idx]}</label>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            // Tipo B: Columnas simples
-            groupedColumnCheckboxes.innerHTML = ColsX.map((col, idx) => `
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="col-${idx}" value="${idx}">
-                    <label class="form-check-label" for="col-${idx}">${col}</label>
-                </div>
-            `).join('');
+        const groupRow = dataMatrix[0]; // Primera fila: grupos
+        const groupedColumns = [];
+        let currentGroup = null;
+        for (let i = 1; i < groupRow.length; i++) {
+            if (groupRow[i] && groupRow[i].trim() !== "") {
+                currentGroup = { name: groupRow[i], columns: [] };
+                groupedColumns.push(currentGroup);
+            }
+            if (currentGroup) {
+                currentGroup.columns.push({ name: headers[i], index: i });
+            }
         }
+
+        // Renderizar checkboxes jerárquicos
+        const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
+        groupedColumnCheckboxes.innerHTML = groupedColumns.map((group, gIdx) => `
+            <div class="mb-2 border rounded p-2">
+                <div>
+                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
+                    <label class="form-check-label fw-bold" for="group-${gIdx}">${group.name}</label>
+                </div>
+                <div class="ms-3">
+                    ${group.columns.map((col, cIdx) => `
+                        <div>
+                            <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" id="col-${col.index}" value="${col.index}">
+                            <label class="form-check-label" for="col-${col.index}">${col.name}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
 
         // --- Lógica de selección jerárquica ---
-        if (isTipoA) {
-            groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
-                groupCb.addEventListener('change', function() {
-                    const checked = this.checked;
-                    groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${this.id.split('-')[1]}`).forEach(cb => {
-                        cb.checked = checked;
-                    });
+        // Al seleccionar un grupo, selecciona/deselecciona todas sus columnas
+        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+            groupCb.addEventListener('change', function() {
+                const checked = this.checked;
+                groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => {
+                    cb.checked = checked;
                 });
             });
-
-            groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
-                cb.addEventListener('change', function() {
-                    const groupName = this.id.split('-')[1];
-                    const allChecked = groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${groupName}`).every(cb => cb.checked);
-                    groupedColumnCheckboxes.querySelector(`#group-${groupName}`).checked = allChecked;
+        });
+        // Si todas las columnas de un grupo están seleccionadas, marca el grupo
+        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                groupedColumns.forEach((group, gIdx) => {
+                    const allChecked = group.columns.every(col =>
+                        groupedColumnCheckboxes.querySelector(`#col-${col.index}`).checked
+                    );
+                    groupedColumnCheckboxes.querySelector(`#group-${gIdx}`).checked = allChecked;
                 });
             });
-        }
-
-        // Seleccionar todo por defecto
-        groupedColumnCheckboxes.querySelectorAll('.form-check-input').forEach(cb => cb.checked = true);
+        });
+        // Selecciona todas las columnas por defecto
+        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => cb.checked = true);
+        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = true);
 
         // --- Botón de renderización ---
         const renderBtn = document.getElementById('renderChartBtn');
@@ -291,27 +302,25 @@ class GraficaModalEngine {
                 return;
             }
 
-            this.renderChart(chartContainer, dataMatrix, xAxisIdx, selectedColIndices, chartType.value, isTipoA);
+            this.renderChartHierarchical(chartContainer, dataMatrix, xAxisIdx, selectedColIndices, chartType.value);
         });
     }
 
     /**
-     * Genera la gráfica con Chart.js
+     * Genera la gráfica con Chart.js usando selección jerárquica
      */
-    renderChart(container, dataMatrix, xAxisIdx, yColIndices, type, isTipoA) {
+    renderChartHierarchical(container, dataMatrix, xAxisIdx, yColIndices, type) {
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
 
-        // Etiquetas eje X (filas de datos)
-        const labels = isTipoA 
-            ? dataMatrix.slice(2).map(row => row[0])
-            : dataMatrix.slice(1).map(row => row[0]);
+        // Etiquetas eje X (todas las filas, excepto las dos primeras)
+        const labels = dataMatrix.slice(2).map(row => row[xAxisIdx]);
 
         // Datasets para cada columna seleccionada (Eje Y)
         const datasets = yColIndices.map((colIdx, i) => ({
-            label: dataMatrix[isTipoA ? 1 : 0][colIdx],
-            data: dataMatrix.slice(isTipoA ? 2 : 1).map(row => parseFloat(row[colIdx]) || 0),
+            label: dataMatrix[1][colIdx],
+            data: dataMatrix.slice(2).map(row => parseFloat(row[colIdx]) || 0),
             backgroundColor: this.getColor(i),
             borderColor: this.getColor(i),
             borderWidth: 1
