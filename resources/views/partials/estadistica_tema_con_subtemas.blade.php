@@ -613,16 +613,14 @@ function mostrarModalCuadro(cuadroId, codigo) {
 }
 
 // Función CORREGIDA para cargar y mostrar Excel usando el motor
-function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, excelFormatedUrl = null) {
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, pdfUrl = null) {
+    //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
-    window.ExcelModalEngine.renderExcelInContainer(
-        `excel-container-${modalId}`,
-        excelUrl,
-        fileName,
-        pdfUrl,
-        excelFormatedUrl
-    ).catch(error => {
-        console.error('Error al cargar Excel con el motor:', error);
-    });
+    
+    // Usar el motor de Excel para renderizar con ambas URLs
+    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl)
+        .catch(error => {
+            console.error('Error al cargar Excel con el motor:', error);
+        });
 }
 </script>

@@ -435,6 +435,8 @@ class ExcelModalEngine {
      * Envuelve tabla en contenedores con botones
      */
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
+        console.log('BLADE: excelUrl', excelUrl);
+        console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
         const buttons = this.buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl);
         return `
             <div class="excel-viewer-container">
@@ -482,9 +484,6 @@ class ExcelModalEngine {
                 </a>
             `;
         }
-
-        console.log('BLADE: excelUrl', excelUrl);
-        console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
 
         return buttons;
     }
