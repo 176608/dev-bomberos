@@ -117,20 +117,25 @@ class GraficaModalEngine {
             dataMatrix.push(row);
         }
 
-        // --- 1. Determinar HeaderEjeY ---
+        // --- 1. Purgar filas vacías ---
+        const cleanedMatrix = dataMatrix.filter(row => {
+            return row.some(cell => cell && cell.trim().length > 0);
+        });
+
+        // --- 2. Determinar HeaderEjeY ---
         const HeaderEjeY = firstColumn.find(val => val && val.trim().length > 0) || '';
 
-        // --- 2. HeadersRowsY ---
+        // --- 3. HeadersRowsY ---
         const HeadersRowsY = firstColumn.slice(1).filter(Boolean);
 
-        // --- 3. GroupHeadersX ---
-        const GroupHeadersX = this.parseGroupHeadersX(headerRow, dataMatrix);
+        // --- 4. GroupHeadersX ---
+        const GroupHeadersX = this.parseGroupHeadersX(headerRow, cleanedMatrix);
 
         return {
             HeaderEjeY,
             HeadersRowsY,
             GroupHeadersX,
-            dataMatrix
+            dataMatrix: cleanedMatrix
         };
     }
 
