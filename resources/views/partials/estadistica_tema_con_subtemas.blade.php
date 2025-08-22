@@ -613,7 +613,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
 }
 
 // Función CORREGIDA para cargar y mostrar Excel usando el motor
-function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, pdfUrl = null) {
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
     //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
