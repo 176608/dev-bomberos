@@ -247,8 +247,8 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4">
-                            <div class="form-check mb-3">
+                        <div class="col-md-4 d-flex justify-content-center align-items-center" style="min-height: 56px;">
+                            <div class="form-check mb-0">
                                 <input class="form-check-input" type="checkbox" 
                                        id="permite_grafica" name="permite_grafica" value="1"
                                        {{ old('permite_grafica') ? 'checked' : '' }}>
@@ -293,10 +293,9 @@
                         </div>
                     </div>
 
-                    <!-- Configuración de Gráficas -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0">Diseñador de notas en los cuadros</h6>
+                            <h6 class="mb-0">Editor:</h6>
                         </div>
                         <div class="card-body">
 
@@ -314,9 +313,6 @@
                                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('underline')">
                                                 <i class="bi bi-type-underline"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertLineBreak()">
-                                                <i class="bi bi-arrow-return-left"></i> Salto de línea
-                                            </button>
                                         </div>
 
                                         <div class="form-control" id="pie_pagina" contenteditable="true" 
@@ -330,6 +326,7 @@
 
                         </div>
                     </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
