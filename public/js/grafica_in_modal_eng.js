@@ -118,13 +118,16 @@ class GraficaModalEngine {
             dataMatrix.push(row);
         }
 
-        // Determinar HeaderEjeY (primera columna)
-        const HeaderEjeY = firstColumn[0] || '';
+        // --- 1. Determinar HeaderEjeY ---
+        // Buscar la primera celda no vacía en la primera columna
+        const HeaderEjeY = firstColumn.find(val => val && val.trim().length > 0) || '';
 
-        // HeadersRowsY (todo lo que sigue bajo el HeaderEjeY)
+        // --- 2. HeadersRowsY ---
+        // Todas las filas debajo de HeaderEjeY (sin incluirlo)
         const HeadersRowsY = firstColumn.slice(1).filter(Boolean);
 
-        // GroupHeadersX (estructura de encabezados horizontales)
+        // --- 3. GroupHeadersX ---
+        // Detectar grupos de columnas horizontales
         const GroupHeadersX = this.parseGroupHeadersX(headerRow, dataMatrix);
 
         return {
@@ -139,13 +142,26 @@ class GraficaModalEngine {
      * Analiza los encabezados de columnas para detectar grupos
      */
     parseGroupHeadersX(headerRow, dataMatrix) {
-        const groupHeaders = {};
+        const groups = {};
         const cols = headerRow.length;
 
-        // Detectar niveles de encabezado
-        const level1Headers = [];
-        const level2Headers = [];
+        // Si hay más de una fila, analizar estructura
+        if (dataMatrix.length < 2) return { [headerRow[0]]: [] };
 
+        const secondRow = dataMatrix[1];
+        const thirdRow = dataMatrix[2];
+
+        // Detectar si hay subencabezados
+        const hasSubheaders = secondRow.some(cell => cell && cell.trim().length > 0);
+
+        if (!hasSubheaders) {
+            // Caso simple: solo un nivel
+            return { [headerRow[0]]: [] };
+        }
+
+        // --- Detectar grupos de columnas ---
+        // Paso 1: Encontrar los encabezados principales (nivel 1)
+        const level1Headers = [];
         for (let i = 0; i < cols; i++) {
             const val = headerRow[i];
             if (val && !level1Headers.includes(val)) {
@@ -153,38 +169,39 @@ class GraficaModalEngine {
             }
         }
 
-        // Si hay más de una fila de datos, analizar si hay subencabezados
-        if (dataMatrix.length > 1) {
-            const secondRow = dataMatrix[1];
-            const thirdRow = dataMatrix[2];
+        // Paso 2: Crear grupos por cada nivel 1
+        for (const group of level1Headers) {
+            groups[group] = [];
+        }
 
-            // Si hay datos en la segunda fila, es posible que sean subencabezados
-            const hasSubheaders = secondRow.some(cell => cell && cell.trim().length > 0);
+        // Paso 3: Asignar subencabezados a sus grupos
+        for (let i = 0; i < cols; i++) {
+            const mainHeader = headerRow[i];
+            const subHeader = secondRow[i];
 
-            if (hasSubheaders) {
-                // Crear grupos por nivel 1
-                let currentGroup = '';
-                const groups = {};
-
-                for (let i = 0; i < cols; i++) {
-                    const val = headerRow[i];
-                    const subVal = secondRow[i];
-
-                    if (val && !groups[val]) {
-                        groups[val] = [];
-                    }
-
-                    if (subVal && groups[val]) {
-                        groups[val].push(subVal);
-                    }
+            if (mainHeader && groups[mainHeader]) {
+                if (subHeader && subHeader.trim().length > 0) {
+                    groups[mainHeader].push(subHeader);
                 }
-
-                return groups;
             }
         }
 
-        // Caso simple: solo uno nivel
-        return { [headerRow[0]]: [] };
+        // --- Detectar múltiples niveles ---
+        // Ejemplo: "Equipamiento" -> ["Escuelas", "Aulas", "Grupos"]
+        //          "Personal por funciones" -> ["Director sin grupo", "Docente", ...]
+
+        // Para evitar duplicados, usar un objeto para almacenar todos los grupos
+        const result = {};
+        for (const [key, values] of Object.entries(groups)) {
+            if (values.length > 0) {
+                result[key] = values;
+            } else {
+                // Si no hay subencabezados, crear un grupo vacío
+                result[key] = [];
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -300,7 +317,6 @@ class GraficaModalEngine {
             // Buscar en subencabezados
             for (let i = 0; i < headers.length; i++) {
                 if (headers[i] === groupName) {
-                    // Aquí puedes hacer lógica adicional si hay múltiples columnas
                     break;
                 }
             }
