@@ -21,14 +21,6 @@ Route::prefix('sigem')->group(function () {
     Route::get('/obtener-info-subtema/{subtema_id}', [PublicController::class, 'obtenerInfoSubtema'])
         ->name('sigem.ajax.subtema');
 
-    // Ruta para obtener información del cuadro y su archivo Excel
-    /*Route::get('/obtener-excel-cuadro/{cuadro_id}', [PublicController::class, 'obtenerExcelCuadro'])
-        ->name('sigem.obtener.excel.cuadro');
-
-    // Ruta para obtener el archivo PDF del cuadro
-    Route::get('/obtener-pdf-cuadro/{cuadro_id}', [PublicController::class, 'obtenerPdfCuadro'])
-        ->name('sigem.obtener.pdf.cuadro');*/
-
     // Ruta para obtener información del cuadro y su archivos Excel y PDF
     Route::get('/obtener-archivos-cuadro/{cuadro_id}', [PublicController::class, 'obtenerArchivosCuadro'])
         ->name('sigem.obtener.archivos.cuadro');

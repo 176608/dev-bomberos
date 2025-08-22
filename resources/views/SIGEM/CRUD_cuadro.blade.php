@@ -105,12 +105,17 @@
                                     <td data-order="{{ ($cuadro->excel_file ? 1 : 0) + ($cuadro->pdf_file ? 1 : 0) }}">
                                         <div class="d-flex gap-1">
                                             @if($cuadro->excel_file)
-                                                <span class="badge bg-success" title="Excel disponible">
+                                                <span class="badge bg-primary" title="Dataset disponible">
                                                     <i class="bi bi-file-earmark-excel"></i>
                                                 </span>
                                             @endif
                                             @if($cuadro->pdf_file)
                                                 <span class="badge bg-danger" title="PDF disponible">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                </span>
+                                            @endif
+                                            @if($cuadro->excel_formated_file)
+                                                <span class="badge bg-success" title="Excel formateado disponible">
                                                     <i class="bi bi-file-earmark-pdf"></i>
                                                 </span>
                                             @endif
@@ -267,9 +272,9 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="excel_file" class="form-label">Archivo Excel</label>
+                                        <label for="excel_file" class="form-label">Archivo Excel Dataset*</label>
                                         <input type="file" class="form-control @error('excel_file') is-invalid @enderror" 
                                                id="excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -278,13 +283,24 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="pdf_file" class="form-label">Archivo PDF</label>
                                         <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" 
                                                id="pdf_file" name="pdf_file" accept=".pdf">
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
                                         @error('pdf_file')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="excel_formated_file" class="form-label">Excel Formateado</label>
+                                        <input type="file" class="form-control @error('excel_formated_file') is-invalid @enderror"
+                                            id="excel_formated_file" name="excel_formated_file" accept=".xlsx">
+                                        <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
+                                        @error('excel_formated_file')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -447,13 +463,29 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div id="archivo_excel_formated_actual" class="alert alert-primary d-none">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-excel text-primary"></i>
+                                            <strong>Excel Formateado:</strong> <span id="nombre_excel_formated_actual"></span>
+                                            <br><small class="text-muted">Archivo guardado como: <span id="archivo_excel_formated_sistema"></span></small>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="remove_excel_formated_hidden" name="remove_excel_formated" value="0">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivoExcelFormated()">
+                                                <i class="bi bi-trash"></i> Eliminar Excel Formateado
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div id="sin_archivos_actuales" class="alert alert-light">
                                     <i class="bi bi-info-circle"></i> No hay archivos actuales asociados a este cuadro.
                                 </div>
                             </div>
                             <!-- Subir nuevos archivos -->
                             <div class="row">
-                                <div class="col-md-6">
+
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_excel_file" class="form-label">
                                             <span id="label_excel_nuevo">Nuevo Archivo Excel</span>
@@ -463,7 +495,7 @@
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_pdf_file" class="form-label">
                                             <span id="label_pdf_nuevo">Nuevo Archivo PDF</span>
@@ -473,6 +505,17 @@
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="edit_excel_formated_file" class="form-label">
+                                            <span id="edit_excel_formated_file">Nuevo Archivo Excel Formateado</span>
+                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
+                                        </label>
+                                        <input type="file" class="form-control" id="edit_excel_formated_file" name="excel_formated_file" accept=".xlsx,.xls">
+                                        <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -655,6 +698,18 @@ function eliminarArchivoPdf() {
     }
 }
 
+function eliminarArchivoExcelFormated() {
+    if (confirm('¿Está seguro de eliminar el archivo Excel formateado? Esta acción no se puede deshacer.')) {
+        document.getElementById('remove_excel_formated_hidden').value = '1';
+        document.getElementById('archivo_excel_formated_actual').classList.add('d-none');
+        document.getElementById('label_excel_formated_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_formated_reemplazar').classList.add('d-none');
+        
+        // Verificar si quedan archivos
+        verificarArchivosRestantes();
+    }
+}
+
 // Filtrar subtemas por tema seleccionado
 function filtrarSubtemas(temaSelect, subtemaSelect) {
     const temaId = temaSelect.value;
@@ -773,11 +828,13 @@ function editarCuadro(id) {
             // Resetear visibilidad de archivos
             document.getElementById('archivo_excel_actual').classList.add('d-none');
             document.getElementById('archivo_pdf_actual').classList.add('d-none');
+            document.getElementById('archivo_excel_formated_actual').classList.add('d-none');
             document.getElementById('sin_archivos_actuales').style.display = 'block';
             
             // Resetear campos de eliminación
             document.getElementById('remove_excel_hidden').value = '0';
             document.getElementById('remove_pdf_hidden').value = '0';
+            document.getElementById('remove_excel_formated_hidden').value = '0';
             
             if (cuadroData.excel_file) {
                 document.getElementById('archivo_excel_actual').classList.remove('d-none');
@@ -793,6 +850,14 @@ function editarCuadro(id) {
                 document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file;
                 document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
                 document.getElementById('label_pdf_nuevo').classList.add('d-none');
+            }
+            
+            if (cuadroData.excel_formated_file) {
+                document.getElementById('archivo_excel_formated_actual').classList.remove('d-none');
+                document.getElementById('nombre_excel_formated_actual').textContent = 'Archivo Excel Formateado disponible';
+                document.getElementById('archivo_excel_formated_sistema').textContent = cuadroData.excel_formated_file;
+                document.getElementById('label_excel_formated_reemplazar').classList.remove('d-none');
+                document.getElementById('label_excel_formated_nuevo').classList.add('d-none');
             }
             
             verificarArchivosRestantes();

@@ -591,6 +591,7 @@ class AdminController extends Controller
                 'subtema_id' => 'required|integer|exists:subtema,subtema_id',
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
+                'excel_formated_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'permite_grafica' => 'nullable|boolean',
                 'pie_pagina' => 'nullable|string|max:50000'
             ]);
@@ -609,6 +610,8 @@ class AdminController extends Controller
             // Crear directorios si no existen
             $directorioExcel = public_path('u_excel');
             $directorioPdf = public_path('u_pdf');
+            $directorioFormated = public_path('u_xlsx_formated');
+
             
             if (!file_exists($directorioExcel)) {
                 mkdir($directorioExcel, 0755, true);
@@ -616,16 +619,19 @@ class AdminController extends Controller
             if (!file_exists($directorioPdf)) {
                 mkdir($directorioPdf, 0755, true);
             }
+            if (!file_exists($directorioFormated)) {
+                mkdir($directorioFormated, 0755, true);
+            }
 
+            $fecha = date('d_m_Y');
             // Manejar upload de archivo Excel
             if ($request->hasFile('excel_file')) {
                 $archivo = $request->file('excel_file');
                 $nombreOriginal = $archivo->getClientOriginalName();
                 $extension = $archivo->getClientOriginalExtension();
                 $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
-                
-                // Crear nombre único: codigo_cuadro_nombreOriginal_timestamp.extension
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
+
+                $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
                 $archivo->move($directorioExcel, $nombreArchivo);
                 $datos['excel_file'] = $nombreArchivo;
             }
@@ -637,10 +643,17 @@ class AdminController extends Controller
                 $extension = $archivo->getClientOriginalExtension();
                 $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
                 
-                // Crear nombre único: codigo_cuadro_nombreOriginal_timestamp.extension
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
+                $nombreArchivo = 'vista' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
                 $archivo->move($directorioPdf, $nombreArchivo);
                 $datos['pdf_file'] = $nombreArchivo;
+            }
+
+            if ($request->hasFile('excel_formated_file')) {
+                $codigo = $datos['codigo_cuadro'];
+                $nombreArchivo = $codigo . '_' . $fecha . '.xlsx';
+                $archivo = $request->file('excel_formated_file');
+                $archivo->move($directorioFormated, $nombreArchivo);
+                $datos['excel_formated_file'] = $nombreArchivo;
             }
 
             // Crear cuadro
@@ -648,7 +661,7 @@ class AdminController extends Controller
 
             return redirect()
                 ->route('sigem.admin.cuadros')
-                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' creado exitosamente");
+                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' (código: {$cuadro->codigo_cuadro}) creado exitosamente");
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()
@@ -681,6 +694,7 @@ class AdminController extends Controller
                 'subtema_id' => 'required|integer|exists:subtema,subtema_id',
                 'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
+                'excel_formated_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
                 'permite_grafica' => 'nullable|boolean',
                 'pie_pagina' => 'nullable|string|max:50000'
             ]);
@@ -698,6 +712,8 @@ class AdminController extends Controller
             // Directorios para archivos
             $directorioExcel = public_path('u_excel');
             $directorioPdf = public_path('u_pdf');
+            $directorioFormated = public_path('u_xlsx_formated');
+            $fecha = date('d_m_Y');
 
             // Manejar eliminación específica de archivo Excel
             if ($request->has('remove_excel') && $request->remove_excel == '1') {
@@ -718,7 +734,7 @@ class AdminController extends Controller
                 $extension = $archivo->getClientOriginalExtension();
                 $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
                 
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
+                $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
                 $archivo->move($directorioExcel, $nombreArchivo);
                 $datos['excel_file'] = $nombreArchivo;
             }
@@ -742,9 +758,29 @@ class AdminController extends Controller
                 $extension = $archivo->getClientOriginalExtension();
                 $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
                 
-                $nombreArchivo = $datos['codigo_cuadro'] . '_' . $nombreSinExtension . '_' . time() . '.' . $extension;
+                $nombreArchivo = 'vista' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
                 $archivo->move($directorioPdf, $nombreArchivo);
                 $datos['pdf_file'] = $nombreArchivo;
+            }
+
+            // Eliminar archivo si el usuario lo solicita
+            if ($request->has('remove_excel_formated') && $request->remove_excel_formated == '1') {
+                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
+                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                }
+                $datos['excel_formated_file'] = null;
+            }
+            // Subir nuevo archivo
+            elseif ($request->hasFile('excel_formated_file')) {
+                // Eliminar anterior si existe
+                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
+                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                }
+                $codigo = $datos['codigo_cuadro'];
+                $nombreArchivo = $codigo . '_' . $fecha . '.xlsx';
+                $archivo = $request->file('excel_formated_file');
+                $archivo->move($directorioFormated, $nombreArchivo);
+                $datos['excel_formated_file'] = $nombreArchivo;
             }
 
             // Actualizar cuadro
@@ -752,7 +788,7 @@ class AdminController extends Controller
 
             return redirect()
                 ->route('sigem.admin.cuadros')
-                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' actualizado exitosamente");
+                ->with('success', "Cuadro estadístico '{$cuadro->cuadro_estadistico_titulo}' (código: {$cuadro->codigo_cuadro}) actualizado exitosamente");
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()
@@ -784,6 +820,10 @@ class AdminController extends Controller
 
             if ($cuadro->pdf_file && file_exists(public_path('u_pdf/' . $cuadro->pdf_file))) {
                 unlink(public_path('u_pdf/' . $cuadro->pdf_file));
+            }
+
+            if ($cuadro->excel_formated_file && file_exists(public_path('u_xlsx_formated/' . $cuadro->excel_formated_file))) {
+                unlink(public_path('u_xlsx_formated/' . $cuadro->excel_formated_file));
             }
 
             // Guardar datos para el mensaje
@@ -820,6 +860,7 @@ class AdminController extends Controller
                 'subtema_id' => $cuadro->subtema_id,
                 'excel_file' => $cuadro->excel_file,
                 'pdf_file' => $cuadro->pdf_file,
+                'excel_formated_file' => $cuadro->excel_formated_file,
                 'permite_grafica' => $cuadro->permite_grafica,
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [

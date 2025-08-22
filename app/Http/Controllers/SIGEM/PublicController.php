@@ -606,7 +606,7 @@ class PublicController extends Controller
      * Obtener información básica de un cuadro estadístico y su archivo Excel
      * @param int $cuadro_id ID del cuadro estadístico
      * @return \Illuminate\Http\JsonResponse
-     */
+     *//*
     public function obtenerExcelCuadro($cuadro_id)
     {
         try {
@@ -654,7 +654,7 @@ class PublicController extends Controller
                 'message' => 'Error obtenerExcelCuadro: ' . $e->getMessage()
             ], 500);
         }
-    }
+    }*/
 
     /**
      * Obtener información básica de un cuadro estadístico y sus archivos Excel y PDF
@@ -688,6 +688,13 @@ class PublicController extends Controller
             $rutaPdf = public_path('u_pdf/' . $nombreArchivoPdf);
             $existePdf = $tienePdf ? file_exists($rutaPdf) : false;
             
+            // Información del archivo Excel Formateado
+            $nombreArchivoExcelFormated = $cuadro->excel_formated_file;
+            $tieneExcelFormated = !empty($nombreArchivoExcelFormated);
+            $urlExcelFormated = $tieneExcelFormated ? asset('u_xlsx_formated/' . $nombreArchivoExcelFormated) : null;
+            $rutaExcelFormated = public_path('u_xlsx_formated/' . $nombreArchivoExcelFormated);
+            $existeExcelFormated = $tieneExcelFormated ? file_exists($rutaExcelFormated) : false;
+            
             // Devolver información del cuadro y ambos archivos
             return response()->json([
                 'success' => true,
@@ -712,6 +719,13 @@ class PublicController extends Controller
                     'url' => $urlPdf,
                     'archivo_existe' => $existePdf,
                     'ruta_fisica' => $rutaPdf
+                ],
+                'excel_formated' => [
+                    'nombre_archivo' => $nombreArchivoExcelFormated,
+                    'tiene_archivo' => $tieneExcelFormated,
+                    'url' => $urlExcelFormated,
+                    'archivo_existe' => $existeExcelFormated,
+                    'ruta_fisica' => $rutaExcelFormated
                 ]
             ]);
         } catch (\Exception $e) {

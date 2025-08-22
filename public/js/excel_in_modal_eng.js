@@ -434,9 +434,8 @@ class ExcelModalEngine {
     /**
      * Envuelve tabla en contenedores con botones
      */
-    wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl) {
-        const buttons = this.buildDownloadButtons(excelUrl, pdfUrl);
-        
+    wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
+        const buttons = this.buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl);
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -457,7 +456,7 @@ class ExcelModalEngine {
     /**
      * Construye botones de descarga
      */
-    buildDownloadButtons(excelUrl, pdfUrl) {
+    buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl = null) {
         let buttons = '';
         
         if (pdfUrl) {
@@ -471,7 +470,15 @@ class ExcelModalEngine {
         if (excelUrl) {
             buttons += `
                 <a href="${excelUrl}" class="btn btn-sm btn-outline-success rounded-4" download>
-                    <i class="bi bi-file-excel me-1"></i>Descargar Excel
+                    <i class="bi bi-table"></i> * Descargar dataset *
+                </a>
+            `;
+        }
+        
+        if (excelFormatedUrl) {
+            buttons += `
+                <a href="${excelFormatedUrl}" class="btn btn-sm btn-outline-primary rounded-4" download>
+                    <i class="bi bi-file-earmark-excel"></i> Descargar Excel Formateado
                 </a>
             `;
         }
