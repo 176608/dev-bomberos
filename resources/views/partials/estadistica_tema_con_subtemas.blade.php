@@ -593,7 +593,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
             
             // Cargar Excel en el modal si existe
             if (tieneExcel) {
-                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null);
+                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null, formatedExcelUrl);
             } else {
                 // Mostrar mensaje si no hay Excel
                 document.getElementById(`excel-container-${modalId}`).innerHTML = `
@@ -613,12 +613,11 @@ function mostrarModalCuadro(cuadroId, codigo) {
 }
 
 // Función CORREGIDA para cargar y mostrar Excel usando el motor
-function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null) {
-    //console.log(`BLADE: Cargando Excel desde: ${excelUrl}`);
+function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, excelFormatedUrl = null) {
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
-    // Usar el motor de Excel para renderizar con ambas URLs
-    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl)
+    // Usar el motor de Excel para renderizar con TODAS las URLs
+    window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl, excelFormatedUrl)
         .catch(error => {
             console.error('Error al cargar Excel con el motor:', error);
         });

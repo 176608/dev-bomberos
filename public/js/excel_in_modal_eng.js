@@ -38,7 +38,7 @@ class ExcelModalEngine {
     /**
      * Renderiza el archivo Excel en un contenedor
      */
-    async renderExcelInContainer(containerId, excelUrl, fileName, pdfUrl = null) {
+    async renderExcelInContainer(containerId, excelUrl, fileName, pdfUrl = null, excelFormatedUrl = null) {
         const container = document.getElementById(containerId);
         if (!container) throw new Error(`Contenedor ${containerId} no encontrado`);
 
@@ -48,7 +48,7 @@ class ExcelModalEngine {
             this.showLoadingState(container, 'Procesando archivo...');
 
             const arrayBuffer = await this.fetchExcelFile(excelUrl);
-            const html = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl);
+            const html = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl, excelFormatedUrl);
             container.innerHTML = html;
         } catch (error) {
             console.error('Error:', error);
@@ -70,7 +70,7 @@ class ExcelModalEngine {
     /**
      * Procesa el archivo Excel y genera HTML
      */
-    async processExcelFile(buffer, fileName, excelUrl, pdfUrl) {
+    async processExcelFile(buffer, fileName, excelUrl, pdfUrl, excelFormatedUrl = null) {
         const workbook = XLSX.read(buffer, { 
             type: 'array', 
             cellStyles: true,
@@ -87,7 +87,7 @@ class ExcelModalEngine {
         const mergedMap = this.createMergedCellsMap(worksheet['!merges'] || []);
 
         const tableHTML = this.buildTableHTML(worksheet, usefulRange, colWidths, mergedMap);
-        return this.wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl);
+        return this.wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl);
     }
 
     /**
