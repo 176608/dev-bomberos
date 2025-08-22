@@ -232,15 +232,32 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
-                        <input type="text" class="form-control @error('cuadro_estadistico_subtitulo') is-invalid @enderror" 
-                               id="cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo" 
-                               placeholder="Subtitulo adicional del cuadro (opcional)"
-                               value="{{ old('cuadro_estadistico_subtitulo') }}">
-                        @error('cuadro_estadistico_subtitulo')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    
+
+                    <div class="row">
+
+                        <div class="col-8 mb-3">
+                            <label for="cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
+                            <input type="text" class="form-control @error('cuadro_estadistico_subtitulo') is-invalid @enderror" 
+                                id="cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo" 
+                                placeholder="Subtitulo adicional del cuadro (opcional)"
+                                value="{{ old('cuadro_estadistico_subtitulo') }}">
+                            @error('cuadro_estadistico_subtitulo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="permite_grafica" name="permite_grafica" value="1"
+                                       {{ old('permite_grafica') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="permite_grafica">
+                                   <i class="bi bi-graph-up"></i> Permite gráficas
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Archivos -->
@@ -279,26 +296,14 @@
                     <!-- Configuración de Gráficas -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="bi bi-graph-up"></i> Configuración de Gráficas</h6>
+                            <h6 class="mb-0">Diseñador de notas en los cuadros</h6>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" 
-                                               id="permite_grafica" name="permite_grafica" value="1"
-                                               {{ old('permite_grafica') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="permite_grafica">
-                                            Permite gráficas
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="pie_pagina" class="form-label">Pie de Página / Notas</label>
+                                        <label for="pie_pagina" class="form-label">Pie de Página:</label>
                                         <div id="pie_pagina_toolbar" class="border rounded-top p-2 bg-light">
                                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('bold')">
                                                 <i class="bi bi-type-bold"></i>
@@ -313,6 +318,7 @@
                                                 <i class="bi bi-arrow-return-left"></i> Salto de línea
                                             </button>
                                         </div>
+
                                         <div class="form-control" id="pie_pagina" contenteditable="true" 
                                              style="min-height: 100px; max-height: 200px; overflow-y: auto;"
                                              placeholder="Escriba aquí las notas o fuente del cuadro. Puede usar formato HTML básico.">{{ old('pie_pagina') }}</div>
@@ -321,6 +327,7 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
