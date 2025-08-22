@@ -182,7 +182,7 @@
                                         @foreach($temas as $tema)
                                             <option value="{{ $tema->tema_id }}" 
                                                     {{ old('tema_id') == $tema->tema_id ? 'selected' : '' }}>
-                                                {{ $tema->tema_titulo }}
+                                                {{$tema -> orden_indice}}. {{ $tema->tema_titulo }}
                                             </option>
                                         @endforeach
                                     @endif
@@ -352,6 +352,7 @@
                 @method('PUT')
                 <input type="hidden" id="edit_cuadro_estadistico_id" name="cuadro_estadistico_id">
                 <div class="modal-body bg-fonde">
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -360,7 +361,7 @@
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($temas))
                                         @foreach($temas as $tema)
-                                            <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
+                                            <option value="{{ $tema->tema_id }}">{{ $tema->orden_indice }}. {{ $tema->tema_titulo }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -390,10 +391,21 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
-                        <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
+
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
+                            <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
+                        </div>
+                        <div class="col-md-4 d-flex justify-content-center align-items-center" style="min-height: 56px;">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="edit_permite_grafica" name="permite_grafica" value="1">
+                                <label class="form-check-label" for="edit_permite_grafica">
+                                    <i class="bi bi-graph-up"></i> Permite gráficas
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Archivos actuales y nuevos -->
@@ -402,7 +414,6 @@
                             <h6 class="mb-0"><i class="bi bi-files"></i> Gestión de Archivos</h6>
                         </div>
                         <div class="card-body">
-                            
                             <!-- Archivos actuales -->
                             <div id="archivos_actuales_section" class="mb-4">
                                 <h6 class="text-muted mb-3">Archivos Actuales</h6>
@@ -421,7 +432,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div id="archivo_pdf_actual" class="alert alert-warning d-none">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
@@ -437,12 +447,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div id="sin_archivos_actuales" class="alert alert-light">
                                     <i class="bi bi-info-circle"></i> No hay archivos actuales asociados a este cuadro.
                                 </div>
                             </div>
-                            
                             <!-- Subir nuevos archivos -->
                             <div class="row">
                                 <div class="col-md-6">
@@ -469,36 +477,24 @@
                         </div>
                     </div>
 
-                    <!-- Configuración de Gráficas para Editar -->
+                    <!-- Editor Pie de Página -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="bi bi-graph-up"></i> Configuración de Gráficas</h6>
+                            <h6 class="mb-0">Editor:</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" 
-                                               id="edit_permite_grafica" name="permite_grafica" value="1">
-                                        <label class="form-check-label" for="edit_permite_grafica">
-                                            Permite gráficas
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="edit_pie_pagina" class="form-label d-flex justify-content-center">Pie de Página:</label>
-                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 mx-2 bg-light d-flex justify-content-center">
-                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('bold')">
+                                        <label for="edit_pie_pagina" class="form-label">Pie de Página:</label>
+                                        <div id="edit_pie_pagina_toolbar" class="border rounded-top p-2 bg-light">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('bold')">
                                                 <i class="bi bi-type-bold"></i>
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('italic')">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('italic')">
                                                 <i class="bi bi-type-italic"></i>
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary p-2 mx-2" onclick="formatEditText('underline')">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatEditText('underline')">
                                                 <i class="bi bi-type-underline"></i>
                                             </button>
                                         </div>
@@ -512,6 +508,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -671,7 +668,7 @@ function filtrarSubtemas(temaSelect, subtemaSelect) {
         subtemasDelTema.forEach(subtema => {
             const option = document.createElement('option');
             option.value = subtema.subtema_id;
-            option.textContent = subtema.subtema_titulo;
+            option.textContent = subtema.clave + ' - ' + subtema.subtema_descripcion;
             subtemaSelect.appendChild(option);
         });
     }
@@ -717,30 +714,21 @@ function updateEditHiddenField() {
 }
 
 // Control de campos de gráfica
+/*
 document.getElementById('permite_grafica')?.addEventListener('change', function() {
     const container = document.getElementById('tipos_grafica_container');
     const checks = document.querySelectorAll('.tipo-grafica-check');
     
-    if (this.checked) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        checks.forEach(check => check.checked = false);
-    }
+    
 });
 
 document.getElementById('edit_permite_grafica')?.addEventListener('change', function() {
     const container = document.getElementById('edit_tipos_grafica_container');
     const checks = document.querySelectorAll('.edit-tipo-grafica-check');
     
-    if (this.checked) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        checks.forEach(check => check.checked = false);
-    }
+    
 });
-
+*/
 
 function editarCuadro(id) {
     fetch(routesCuadros.obtenerCuadro.replace(':id', id))
@@ -756,7 +744,7 @@ function editarCuadro(id) {
             
             // Configurar gráficas CON DATOS REALES
             const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-            const tiposContainer = document.getElementById('edit_tipos_grafica_container');
+            //const tiposContainer = document.getElementById('edit_tipos_grafica_container');
             
             permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
             
