@@ -34,22 +34,13 @@ class GraficaModalEngine {
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 
-            // Extraer datos estructurados
-            const {
-                HeaderEjeY,
-                HeadersRowsY,
-                GroupHeadersX,
-                dataMatrix
-            } = this.extractDataFromWorksheet(worksheet, range);
+            // Extraer y limpiar la matriz
+            const dataMatrix = this.extractAndCleanData(worksheet, range);
 
-            console.log('📊 Datos extraídos:');
-            console.log('HeaderEjeY:', HeaderEjeY);
-            console.log('HeadersRowsY:', HeadersRowsY);
-            console.log('GroupHeadersX:', GroupHeadersX);
-            console.log('dataMatrix:', dataMatrix);
+            console.log('📊 Matriz limpia:', dataMatrix);
 
             // Mostrar interfaz de selección
-            this.renderSelectionInterface(container, HeaderEjeY, HeadersRowsY, GroupHeadersX, dataMatrix, fileName, excelUrl);
+            this.renderSelectionInterface(container, dataMatrix, fileName, excelUrl);
 
         } catch (error) {
             console.error('Error al cargar gráfica:', error);
@@ -87,12 +78,11 @@ class GraficaModalEngine {
     }
 
     /**
-     * Extrae datos estructurados del worksheet
+     * Extrae y limpia la matriz de datos
      */
-    extractDataFromWorksheet(worksheet, range) {
+    extractAndCleanData(worksheet, range) {
         const dataMatrix = [];
         const headerRow = [];
-        const firstColumn = [];
 
         // Recorrer todas las celdas
         for (let r = range.s.r; r <= range.e.r; r++) {
@@ -109,119 +99,36 @@ class GraficaModalEngine {
                 if (r === range.s.r) {
                     headerRow.push(value);
                 }
-                if (c === range.s.c) {
-                    firstColumn.push(value);
-                }
                 row.push(value);
             }
             dataMatrix.push(row);
         }
 
-        // --- 1. Purgar filas vacías ---
+        // Purgar filas vacías
         const cleanedMatrix = dataMatrix.filter(row => {
             return row.some(cell => cell && cell.trim().length > 0);
         });
 
-        // --- 2. Determinar HeaderEjeY ---
-        const HeaderEjeY = firstColumn.find(val => val && val.trim().length > 0) || '';
-
-        // --- 3. HeadersRowsY ---
-        const HeadersRowsY = firstColumn.slice(1).filter(Boolean);
-
-        // --- 4. GroupHeadersX ---
-        const GroupHeadersX = this.parseGroupHeadersX(headerRow, cleanedMatrix);
-
-        return {
-            HeaderEjeY,
-            HeadersRowsY,
-            GroupHeadersX,
-            dataMatrix: cleanedMatrix
-        };
-    }
-
-    /**
-     * Analiza los encabezados de columnas para detectar grupos
-     */
-    parseGroupHeadersX(headerRow, dataMatrix) {
-        const groups = {};
-        const cols = headerRow.length;
-
-        if (dataMatrix.length < 2) return { [headerRow[0]]: [] };
-
-        const secondRow = dataMatrix[1];
-        const hasSubheaders = secondRow.some(cell => cell && cell.trim().length > 0);
-
-        if (!hasSubheaders) {
-            return { [headerRow[0]]: [] };
-        }
-
-        // Encontrar encabezados principales
-        const level1Headers = [];
-        for (let i = 0; i < cols; i++) {
-            const val = headerRow[i];
-            if (val && !level1Headers.includes(val)) {
-                level1Headers.push(val);
-            }
-        }
-
-        // Crear grupos
-        for (const group of level1Headers) {
-            groups[group] = [];
-        }
-
-        // Asignar subencabezados
-        for (let i = 0; i < cols; i++) {
-            const mainHeader = headerRow[i];
-            const subHeader = secondRow[i];
-
-            if (mainHeader && groups[mainHeader]) {
-                if (subHeader && subHeader.trim().length > 0) {
-                    groups[mainHeader].push(subHeader);
-                }
-            }
-        }
-
-        // Retornar solo grupos con subencabezados
-        const result = {};
-        for (const [key, values] of Object.entries(groups)) {
-            if (values.length > 0) {
-                result[key] = values;
-            } else {
-                result[key] = [];
-            }
-        }
-
-        return result;
+        return cleanedMatrix;
     }
 
     /**
      * Renderiza la interfaz de selección de parámetros
      */
-    renderSelectionInterface(container, HeaderEjeY, HeadersRowsY, GroupHeadersX, dataMatrix, fileName, excelUrl) {
+    renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
         const selectionHTML = `
             <div class="d-flex flex-column mb-3">
                 <h6>Selecciona los datos para graficar:</h6>
 
-                <!-- Grupo -->
+                <!-- Columnas X -->
                 <div class="mb-3">
-                    <label class="form-label">Grupo de columnas:</label>
-                    <select id="groupSelect" class="form-select">
-                        <option value="">-- Seleccione un grupo --</option>
-                        ${Object.keys(GroupHeadersX).map(key => 
-                            `<option value="${key}">${key}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-
-                <!-- Columnas del grupo -->
-                <div class="mb-3" id="columnsContainer">
-                    <label class="form-label">Seleccionar columnas:</label>
+                    <label class="form-label">Seleccionar columnas (Eje X):</label>
                     <div id="columnCheckboxes"></div>
                 </div>
 
                 <!-- Filas Y -->
                 <div class="mb-3">
-                    <label class="form-label">Seleccionar filas:</label>
+                    <label class="form-label">Seleccionar filas (Eje Y):</label>
                     <div id="rowCheckboxes"></div>
                 </div>
 
@@ -243,50 +150,37 @@ class GraficaModalEngine {
 
         container.innerHTML = selectionHTML;
 
-        // Manejar eventos
-        const groupSelect = document.getElementById('groupSelect');
-        const chartType = document.getElementById('chartType');
-        const renderBtn = document.getElementById('renderChartBtn');
-        const chartContainer = document.getElementById('chartContainer');
+        // Generar checkboxes para columnas (Eje X)
+        const headers = dataMatrix[0];
         const columnsContainer = document.getElementById('columnCheckboxes');
-        const rowCheckboxes = document.getElementById('rowCheckboxes');
-
-        // Actualizar columnas cuando cambia el grupo
-        groupSelect.addEventListener('change', () => {
-            const selectedGroup = groupSelect.value;
-            if (!selectedGroup) {
-                columnsContainer.innerHTML = '';
-                return;
-            }
-
-            const subHeaders = GroupHeadersX[selectedGroup];
-            columnsContainer.innerHTML = subHeaders.map(header => `
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="col-${header}" value="${header}">
-                    <label class="form-check-label" for="col-${header}">${header}</label>
-                </div>
-            `).join('');
-        });
-
-        // Generar checkboxes para filas
-        rowCheckboxes.innerHTML = HeadersRowsY.map(label => `
+        columnsContainer.innerHTML = headers.map(header => `
             <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="row-${label}" value="${label}">
-                <label class="form-check-label" for="row-${label}">${label}</label>
+                <input type="checkbox" class="form-check-input" id="col-${header}" value="${header}">
+                <label class="form-check-label" for="col-${header}">${header}</label>
             </div>
         `).join('');
+
+        // Generar checkboxes para filas (Eje Y)
+        const rowCheckboxes = document.getElementById('rowCheckboxes');
+        rowCheckboxes.innerHTML = dataMatrix.slice(1).map((row, i) => {
+            const label = row[0] || `Fila ${i + 1}`;
+            return `
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="row-${i}" value="${label}">
+                    <label class="form-check-label" for="row-${i}">${label}</label>
+                </div>
+            `;
+        }).join('');
 
         // Habilitar todos los checkboxes por defecto
         document.querySelectorAll('.form-check-input').forEach(cb => cb.checked = true);
 
         // Botón de renderización
-        renderBtn.addEventListener('click', () => {
-            const selectedGroup = groupSelect.value;
-            if (!selectedGroup) {
-                alert('Por favor seleccione un grupo.');
-                return;
-            }
+        const renderBtn = document.getElementById('renderChartBtn');
+        const chartContainer = document.getElementById('chartContainer');
+        const chartType = document.getElementById('chartType');
 
+        renderBtn.addEventListener('click', () => {
             const selectedColumns = Array.from(document.querySelectorAll('#columnCheckboxes .form-check-input:checked'))
                 .map(cb => cb.value);
 
@@ -305,27 +199,22 @@ class GraficaModalEngine {
                 return;
             }
 
-            this.renderChart(chartContainer, dataMatrix, selectedRows, selectedGroup, selectedColumns, type);
+            this.renderChart(chartContainer, dataMatrix, selectedRows, selectedColumns, type);
         });
     }
 
     /**
      * Genera la gráfica con Chart.js
      */
-    renderChart(container, dataMatrix, selectedRows, selectedGroup, selectedColumns, type) {
+    renderChart(container, dataMatrix, selectedRows, selectedColumns, type) {
         // Limpiar contenedores anteriores
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
 
-        // Extraer datos para cada columna seleccionada
-        const datasets = [];
-        const labels = [];
-
         // Buscar índices de las columnas seleccionadas
-        const headers = dataMatrix[0];
         const colIndices = selectedColumns.map(col => {
-            const idx = headers.findIndex(h => h === col);
+            const idx = dataMatrix[0].findIndex(h => h === col);
             return idx >= 0 ? idx : -1;
         }).filter(idx => idx !== -1);
 
@@ -341,24 +230,23 @@ class GraficaModalEngine {
             return;
         }
 
-        // Construir etiquetas
-        labels.push(...selectedRows);
+        // Construir etiquetas para el eje Y
+        const labels = rowIndices.map(i => dataMatrix[i][0]);
 
-        // Construir datasets
-        colIndices.forEach((colIndex, i) => {
-            const data = [];
-            rowIndices.forEach(rowIndex => {
+        // Construir datasets para cada columna seleccionada
+        const datasets = colIndices.map((colIndex, i) => {
+            const data = rowIndices.map(rowIndex => {
                 const value = parseFloat(dataMatrix[rowIndex][colIndex]) || 0;
-                data.push(value);
+                return value;
             });
 
-            datasets.push({
+            return {
                 label: selectedColumns[i],
                 data: data,
                 backgroundColor: this.getColor(i),
                 borderColor: this.getColor(i),
                 borderWidth: 1
-            });
+            };
         });
 
         // Crear canvas
