@@ -516,9 +516,6 @@ function mostrarModalCuadro(cuadroId, codigo) {
                                             <p class="mt-3">Cargando gráfica...</p>
                                         </div>
                                     </div>
-                                    <div id="grafica-info-${modalId}" class="p-3">
-                                        <div class="text-center">${cuadro.pie_pagina}</div>
-                                    </div>
                                 </div>
 
                             </div>
@@ -552,7 +549,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById(modalId));
             modal.show();
-            
+
             const btnGrafica = document.getElementById(`btn-toggle-grafica-${modalId}`);
             const btnExcel = document.getElementById(`btn-toggle-excel-${modalId}`);
             const excelView = document.getElementById(`excel-view-${modalId}`);
