@@ -1,5 +1,6 @@
 /**
- * ExcelModalEngine - Motor para renderizar archivos Excel en modales
+ * ExcelModalEngine - Motor para visualizar archivos Excel en modales
+ * @class
  */
 class ExcelModalEngine {
     constructor() {
@@ -8,7 +9,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Inicializa SheetJS si aún no está cargado
+     * Inicializa SheetJS si no está cargado
      */
     async init() {
         if (typeof XLSX !== 'undefined') {
@@ -35,132 +36,61 @@ class ExcelModalEngine {
     }
 
     /**
-     * Renderiza un archivo Excel en un contenedor específico
+     * Renderiza el archivo Excel en un contenedor
      */
     async renderExcelInContainer(containerId, excelUrl, fileName, pdfUrl = null) {
         const container = document.getElementById(containerId);
-        if (!container) throw new Error(`Contenedores ${containerId} no encontrado`);
+        if (!container) throw new Error(`Contener ${containerId} no encontrado`);
 
         this.showLoadingState(container, 'Cargando biblioteca...');
         try {
             await this.init();
-            this.showLoadingState(container, 'Procesando archivo Excel...');
+            this.showLoadingState(container, 'Procesando archivo...');
 
             const arrayBuffer = await this.fetchExcelFile(excelUrl);
-            const htmlContent = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl);
-            container.innerHTML = htmlContent;
+            const html = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl);
+            container.innerHTML = html;
         } catch (error) {
-            console.error('Error al renderizar Excel:', error);
+            console.error('Error:', error);
             this.showErrorState(container, error.message, excelUrl);
         }
     }
 
     /**
-     * Carga el archivo Excel como ArrayBuffer
+     * Descarga el archivo Excel
      */
     async fetchExcelFile(url) {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Error al cargar Excel (${response.status})`);
-        return await response.arrayBuffer();
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Error al cargar archivo (${res.status})`);
+        return await res.arrayBuffer();
     }
 
     /**
-     * Procesa el archivo Excel y genera HTML con formato
+     * Procesa el archivo Excel y genera HTML
      */
-    async processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl) {
-        const data = new Uint8Array(arrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array', cellStyles: true });
+    async processExcelFile(buffer, fileName, excelUrl, pdfUrl) {
+        const workbook = XLSX.read(buffer, { type: 'array', cellStyles: true });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
 
-        const tableHTML = this.createFormattedTable(worksheet, workbook);
+        const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+        const usefulRange = this.calculateUsefulRange(worksheet, range);
+        const colWidths = this.calculateColumnWidths(worksheet, usefulRange);
+        const mergedMap = this.createMergedCellsMap(worksheet['!merges'] || []);
+
+        const tableHTML = this.buildTableHTML(worksheet, usefulRange, colWidths, mergedMap);
         return this.wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl);
     }
 
     /**
-     * Crea una tabla HTML con formato preservado
+     * Calcula el rango útil (elimina filas/columnas vacías)
      */
-    createFormattedTable(worksheet, workbook) {
-        const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-        const mergedCells = worksheet['!merges'] || [];
-        const usefulRange = this.calculateUsefulRange(worksheet, range);
-        const columnWidths = this.calculateColumnWidths(worksheet, usefulRange, workbook);
-        const mergedMap = this.createMergedCellsMap(mergedCells);
+    calculateUsefulRange(worksheet, range) {
+        let minRow = range.e.r, maxRow = range.s.r;
+        let minCol = range.e.c, maxCol = range.s.c;
 
-        let html = '<table class="table excel-table table-bordered">';
-        html += '<colgroup>';
-        for (let c = usefulRange.s.c; c <= usefulRange.e.c; c++) {
-            const width = columnWidths[c] || 100;
-            html += `<col style="width: ${width}px; min-width: ${width}px;">`;
-        }
-        html += '</colgroup>';
-
-        for (let r = usefulRange.s.r; r <= usefulRange.e.r; r++) {
-            const rowClasses = this.getRowClasses(r, usefulRange.e.r);
-            html += `<tr class="${rowClasses}">`;
-
-            for (let c = usefulRange.s.c; c <= usefulRange.e.c; c++) {
-                const cellKey = `${r}_${c}`;
-                const mergeInfo = mergedMap[cellKey];
-                if (mergeInfo && !mergeInfo.isMaster) continue;
-
-                const cellRef = XLSX.utils.encode_cell({ r, c });
-                const cell = worksheet[cellRef];
-                const cellData = this.processCellData(cell, cellRef, workbook);
-
-                if (mergeInfo && mergeInfo.isMaster) {
-                    cellData.classes.push('merged-cell');
-                    if (mergeInfo.colspan === (usefulRange.e.c - usefulRange.s.c + 1)) {
-                        cellData.classes.push('full-row-merged');
-                    }
-                    if (!cellData.customStyle.includes('text-align')) {
-                        cellData.customStyle += ' text-align: center';
-                        cellData.hasCustomStyle = true;
-                    }
-                }
-
-                const tag = r <= 1 ? 'th' : 'td';
-                const attrs = this.getMergeAttributes(mergeInfo);
-                const styleId = cellData.hasCustomStyle ? `cell-${r}-${c}` : '';
-                const classes = [...cellData.classes, styleId].filter(Boolean).join(' ');
-
-                html += `<${tag} class="${classes}" style="${cellData.customStyle}"${attrs}>${cellData.displayValue}</${tag}>`;
-            }
-            html += '</tr>';
-        }
-        html += '</table>';
-
-        // Agregar estilos dinámicos
-        const dynamicStyles = [];
-        for (let r = usefulRange.s.r; r <= usefulRange.e.r; r++) {
-            for (let c = usefulRange.s.c; c <= usefulRange.e.c; c++) {
-                const key = `cell-${r}-${c}`;
-                const cellRef = XLSX.utils.encode_cell({ r, c });
-                const cell = worksheet[cellRef];
-                if (!cell || !cell.s) continue;
-                const style = this.extractCellStyles(cell.s);
-                if (style.cssString) {
-                    dynamicStyles.push(`.${key} { ${style.cssString} }`);
-                }
-            }
-        }
-
-        if (dynamicStyles.length > 0) {
-            html = `<style>${dynamicStyles.join('\n')}</style>${html}`;
-        }
-
-        return html;
-    }
-
-    /**
-     * Calcula el rango útil eliminando filas/columnas vacías
-     */
-    calculateUsefulRange(worksheet, originalRange) {
-        let minRow = originalRange.e.r, maxRow = originalRange.s.r;
-        let minCol = originalRange.e.c, maxCol = originalRange.s.c;
-
-        for (let r = originalRange.s.r; r <= originalRange.e.r; r++) {
-            for (let c = originalRange.s.c; c <= originalRange.e.c; c++) {
+        for (let r = range.s.r; r <= range.e.r; r++) {
+            for (let c = range.s.c; c <= range.e.c; c++) {
                 const ref = XLSX.utils.encode_cell({ r, c });
                 const cell = worksheet[ref];
                 if (cell && cell.v !== undefined && cell.v !== null && cell.v !== '') {
@@ -172,209 +102,42 @@ class ExcelModalEngine {
             }
         }
 
-        if (minRow > maxRow || minCol > maxCol) return originalRange;
-
+        if (minRow > maxRow || minCol > maxCol) return range;
         return { s: { r: minRow, c: minCol }, e: { r: maxRow, c: maxCol } };
     }
 
     /**
      * Calcula anchos de columnas basados en contenido
      */
-    calculateColumnWidths(worksheet, range, workbook) {
-        const widths = {};
+    calculateColumnWidths(worksheet, range) {
         const minWidth = 80;
         const maxWidth = 400;
         const charWidth = 7;
         const padding = 16;
 
+        const widths = {};
         for (let c = range.s.c; c <= range.e.c; c++) {
             let maxLen = 0;
-            let hasLongText = false;
-            let maxWords = 0;
-
             for (let r = range.s.r; r <= range.e.r; r++) {
                 const ref = XLSX.utils.encode_cell({ r, c });
                 const cell = worksheet[ref];
-                if (!cell || cell.v === null || cell.v === undefined) continue;
-
-                const value = this.formatCellValue(cell);
-                const str = value.toString();
-
-                if (str.includes('\n') || str.length > 30) hasLongText = true;
-                maxWords = Math.max(maxWords, str.split(/\s+/).filter(w => w.length > 0).length);
-
-                if (str.includes('\n')) {
-                    const lines = str.split('\n');
-                    const longest = Math.max(...lines.map(l => l.length));
-                    maxLen = Math.max(maxLen, longest);
-                } else {
-                    maxLen = Math.max(maxLen, str.length);
+                if (cell && cell.v !== undefined && cell.v !== null) {
+                    const val = this.formatCellValue(cell).toString();
+                    if (val.includes('\n')) {
+                        const lines = val.split('\n');
+                        const longest = Math.max(...lines.map(l => l.length));
+                        maxLen = Math.max(maxLen, longest);
+                    } else {
+                        maxLen = Math.max(maxLen, val.length);
+                    }
                 }
             }
 
-            let width = maxLen * charWidth;
-            if (hasLongText && maxWords > 3) {
-                width = Math.min(width, 250);
-            } else if (maxLen > 20) {
-                width *= 0.9;
-            }
-            width += padding;
-            widths[c] = Math.round(Math.max(minWidth, Math.min(maxWidth, width)));
+            let width = maxLen * charWidth + padding;
+            width = Math.max(minWidth, Math.min(maxWidth, width));
+            widths[c] = Math.round(width);
         }
-
         return widths;
-    }
-
-    /**
-     * Procesa datos y formato de celda
-     */
-    processCellData(cell, cellRef, workbook) {
-        if (!cell || cell.v === undefined || cell.v === null || cell.v === '') {
-            return { displayValue: '&nbsp;', classes: ['empty-cell'], customStyle: '', hasCustomStyle: false };
-        }
-
-        const displayValue = this.formatCellValue(cell);
-        const contentStr = displayValue.toString();
-        const classes = [];
-
-        if (contentStr.length > 30 || contentStr.includes('\n')) {
-            classes.push('long-text-cell');
-        } else if (contentStr.length > 15) {
-            classes.push('medium-text-cell');
-        } else {
-            classes.push('short-text-cell');
-        }
-
-        if (cell.t === 'n') {
-            classes.push('number-cell');
-        } else {
-            classes.push('text-cell');
-        }
-
-        let customStyle = '';
-        let hasCustomStyle = false;
-
-        if (cell.s) {
-            const style = this.extractCellStyles(cell.s);
-            customStyle = style.cssString;
-            hasCustomStyle = style.hasStyles;
-            classes.push(...style.classes);
-        }
-
-        return { displayValue, classes, customStyle, hasCustomStyle };
-    }
-
-    /**
-     * Formatea valores de celdas según tipo y formato
-     */
-    formatCellValue(cell) {
-        if (cell.v === undefined || cell.v === null) return '';
-
-        if (cell.t === 'n') {
-            if (cell.z) {
-                if (cell.z.includes('%')) return (cell.v * 100).toFixed(2) + '%';
-                if (cell.z.includes('$')) return '$' + cell.v.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                if (cell.z.includes(',')) return cell.v.toLocaleString();
-            }
-            return cell.v.toString();
-        }
-
-        return cell.v.toString();
-    }
-
-    /**
-     * Extrae estilos CSS de una celda
-     */
-    extractCellStyles(style) {
-        const css = [];
-        const classes = [];
-
-        // Fuente
-        if (style.font) {
-            if (style.font.bold) css.push('font-weight: bold');
-            if (style.font.italic) css.push('font-style: italic');
-            if (style.font.underline) css.push('text-decoration: underline');
-            if (style.font.sz) css.push(`font-size: ${style.font.sz}px`);
-            if (style.font.color && style.font.color.rgb) css.push(`color: #${style.font.color.rgb}`);
-            if (style.font.name) css.push(`font-family: '${style.font.name}', sans-serif`);
-        }
-
-        // Alineación
-        if (style.alignment) {
-            const hAlignMap = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
-            const vAlignMap = { top: 'top', middle: 'middle', bottom: 'bottom' };
-            const hAlign = hAlignMap[style.alignment.horizontal] || style.alignment.horizontal;
-            const vAlign = vAlignMap[style.alignment.vertical] || style.alignment.vertical;
-
-            if (hAlign) css.push(`text-align: ${hAlign}`);
-            if (vAlign) css.push(`vertical-align: ${vAlign}`);
-            if (style.alignment.wrapText) {
-                css.push('white-space: pre-wrap');
-                css.push('word-wrap: break-word');
-            }
-        }
-
-        // Fondo
-        if (style.fill && style.fill.fgColor && style.fill.fgColor.rgb) {
-            css.push(`background-color: #${style.fill.fgColor.rgb}`);
-        }
-
-        // Bordes
-        if (style.border) {
-            const borderStyleMap = {
-                thin: '1px solid',
-                medium: '2px solid',
-                thick: '3px solid',
-                dotted: '1px dotted',
-                dashed: '2px dashed',
-                hair: '0.5px solid',
-                mediumDashed: '2px dashed',
-                thickDashed: '3px dashed',
-                mediumDotted: '2px dotted',
-                dashDot: '1px dashed',
-                mediumDashDot: '2px dashed',
-                dashDotDot: '1px dotted',
-                mediumDashDotDot: '2px dotted',
-                slantDashDot: '2px dashed',
-                double: '3px double',
-                none: 'none',
-                default: '1px solid'
-            };
-
-            const getBorderStyle = (border) => {
-                if (!border || !border.style) return null;
-                const style = borderStyleMap[border.style] || borderStyleMap.default;
-                let color = '#000000';
-                if (border.color && border.color.rgb) color = `#${border.color.rgb}`;
-                return `${style} ${color}`;
-            };
-
-            const sides = ['top', 'right', 'bottom', 'left'];
-            sides.forEach(side => {
-                if (style.border[side]) {
-                    const bs = getBorderStyle(style.border[side]);
-                    if (bs && bs !== 'none') css.push(`border-${side}: ${bs}`);
-                }
-            });
-
-            if (style.border.diagonal) {
-                classes.push('diagonal-border');
-                css.push('position: relative');
-            }
-        }
-
-        // Formatos numéricos especiales
-        if (style.numFmt) {
-            if (style.numFmt.includes('%')) classes.push('percentage-format');
-            if (style.numFmt.includes('$') || style.numFmt.includes('€')) classes.push('currency-format');
-            if (style.numFmt.includes('date') || style.numFmt.includes('yyyy')) classes.push('date-format');
-        }
-
-        return {
-            cssString: css.join('; '),
-            classes,
-            hasStyles: css.length > 0
-        };
     }
 
     /**
@@ -397,36 +160,241 @@ class ExcelModalEngine {
     }
 
     /**
+     * Construye tabla HTML con formato
+     */
+    buildTableHTML(worksheet, range, colWidths, mergedMap) {
+        const htmlParts = [];
+        const dynamicStyles = [];
+
+        // Colgroup
+        htmlParts.push('<colgroup>');
+        for (let c = range.s.c; c <= range.e.c; c++) {
+            const width = colWidths[c] || 100;
+            htmlParts.push(`<col style="width: ${width}px; min-width: ${width}px;">`);
+        }
+        htmlParts.push('</colgroup>');
+
+        // Tabla
+        htmlParts.push('<table class="table excel-table table-bordered">');
+
+        for (let r = range.s.r; r <= range.e.r; r++) {
+            const rowClasses = this.getRowClasses(r, range.e.r);
+            htmlParts.push(`<tr class="${rowClasses}">`);
+
+            for (let c = range.s.c; c <= range.e.c; c++) {
+                const key = `${r}_${c}`;
+                const mergeInfo = mergedMap[key];
+
+                if (mergeInfo && !mergeInfo.isMaster) continue;
+
+                const ref = XLSX.utils.encode_cell({ r, c });
+                const cell = worksheet[ref];
+                const cellData = this.processCellData(cell, ref);
+
+                const tag = r <= 1 ? 'th' : 'td';
+                const classes = [
+                    ...cellData.classes,
+                    cellData.hasCustomStyle ? `cell-${r}-${c}` : ''
+                ].filter(Boolean).join(' ');
+
+                const mergeAttrs = mergeInfo
+                    ? `rowspan="${mergeInfo.rowspan}" colspan="${mergeInfo.colspan}"`
+                    : '';
+
+                const style = cellData.customStyle
+                    ? `style="${cellData.customStyle}"`
+                    : '';
+
+                htmlParts.push(
+                    `<${tag} class="${classes}" ${mergeAttrs} ${style}>${cellData.displayValue}</${tag}>`
+                );
+
+                if (cellData.hasCustomStyle) {
+                    dynamicStyles.push(`.${classes.split(' ')[0]} { ${cellData.customStyle} }`);
+                }
+            }
+
+            htmlParts.push('</tr>');
+        }
+
+        htmlParts.push('</table>');
+
+        if (dynamicStyles.length) {
+            htmlParts.unshift(`<style>${dynamicStyles.join('\n')}</style>`);
+        }
+
+        return htmlParts.join('');
+    }
+
+    /**
+     * Procesa datos de celda
+     */
+    processCellData(cell, ref) {
+        if (!cell || cell.v === null || cell.v === undefined || cell.v === '') {
+            return { displayValue: '&nbsp;', classes: ['empty-cell'], customStyle: '', hasCustomStyle: false };
+        }
+
+        const value = this.formatCellValue(cell);
+        const contentStr = value.toString();
+
+        const classes = [
+            contentStr.length > 30 || contentStr.includes('\n') ? 'long-text-cell' : '',
+            contentStr.length > 15 ? 'medium-text-cell' : '',
+            contentStr.length <= 15 ? 'short-text-cell' : '',
+            cell.t === 'n' ? 'number-cell' : 'text-cell'
+        ].filter(Boolean);
+
+        let customStyle = '';
+        let hasCustomStyle = false;
+
+        if (cell.s) {
+            const styles = this.extractCellStyles(cell.s);
+            customStyle = styles.cssString;
+            hasCustomStyle = styles.hasStyles;
+            classes.push(...styles.classes);
+        }
+
+        // Forzar centrado en celdas combinadas
+        if (cell && cell.merged && cell.merged.master) {
+            classes.push('merged-cell');
+            if (!customStyle.includes('text-align')) {
+                customStyle += customStyle ? '; text-align: center' : 'text-align: center';
+                hasCustomStyle = true;
+            }
+        }
+
+        return { displayValue: value, classes, customStyle, hasCustomStyle };
+    }
+
+    /**
+     * Formatea valor de celda
+     */
+    formatCellValue(cell) {
+        if (cell.v === undefined || cell.v === null) return '';
+        if (cell.t === 'n') {
+            if (cell.z?.includes('%')) return (cell.v * 100).toFixed(2) + '%';
+            if (cell.z?.includes('$')) return '$' + cell.v.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            if (cell.z?.includes(',')) return cell.v.toLocaleString();
+            return cell.v.toString();
+        }
+        return cell.v.toString();
+    }
+
+    /**
+     * Extrae estilos de celda
+     */
+    extractCellStyles(style) {
+        const css = [];
+        const classes = [];
+
+        // Fuente
+        if (style.font) {
+            if (style.font.bold) css.push('font-weight: bold');
+            if (style.font.italic) css.push('font-style: italic');
+            if (style.font.underline) css.push('text-decoration: underline');
+            if (style.font.sz) css.push(`font-size: ${style.font.sz}px`);
+            if (style.font.color?.rgb) css.push(`color: #${style.font.color.rgb}`);
+            if (style.font.name) css.push(`font-family: '${style.font.name}', sans-serif`);
+        }
+
+        // Alineación
+        if (style.alignment) {
+            const alignMap = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
+            const vAlignMap = { top: 'top', middle: 'middle', bottom: 'bottom' };
+            const hAlign = alignMap[style.alignment.horizontal] || style.alignment.horizontal;
+            const vAlign = vAlignMap[style.alignment.vertical] || style.alignment.vertical;
+            if (hAlign) css.push(`text-align: ${hAlign}`);
+            if (vAlign) css.push(`vertical-align: ${vAlign}`);
+            if (style.alignment.wrapText) {
+                css.push('white-space: pre-wrap');
+                css.push('word-wrap: break-word');
+            }
+        }
+
+        // Fondo
+        if (style.fill && style.fill.fgColor?.rgb) {
+            css.push(`background-color: #${style.fill.fgColor.rgb}`);
+        }
+
+        // Bordes
+        if (style.border) {
+            const sides = ['top', 'right', 'bottom', 'left'];
+            const borderStyleMap = {
+                thin: '1px solid',
+                medium: '2px solid',
+                thick: '3px solid',
+                dotted: '1px dotted',
+                dashed: '2px dashed',
+                none: 'none',
+                default: '1px solid'
+            };
+
+            const getColor = (border) => {
+                if (!border) return '#000000';
+                if (border.color?.rgb) return `#${border.color.rgb}`;
+                if (border.color?.indexed === 0) return '#000000';
+                if (border.color?.indexed === 1) return '#FFFFFF';
+                return '#000000';
+            };
+
+            sides.forEach(side => {
+                if (style.border[side]) {
+                    const styleName = borderStyleMap[style.border[side].style] || borderStyleMap.default;
+                    const color = getColor(style.border[side]);
+                    css.push(`border-${side}: ${styleName} ${color}`);
+                }
+            });
+
+            if (style.border.diagonal) {
+                classes.push('diagonal-border');
+                css.push('position: relative');
+            }
+        }
+
+        // Formatos numéricos
+        if (style.numFmt) {
+            if (style.numFmt.includes('%')) classes.push('percentage-format');
+            if (style.numFmt.includes('$') || style.numFmt.includes('€')) classes.push('currency-format');
+            if (style.numFmt.includes('yyyy') || style.numFmt.includes('date')) classes.push('date-format');
+        }
+
+        return {
+            cssString: css.join('; '),
+            classes: classes.filter(Boolean),
+            hasStyles: css.length > 0
+        };
+    }
+
+    /**
      * Clases para filas
      */
-    getRowClasses(rowIndex, lastRowIndex) {
-        return rowIndex === 0 ? 'header-row' : rowIndex === lastRowIndex ? 'footer-row' : 'data-row';
+    getRowClasses(rowIndex, lastRow) {
+        return rowIndex === 0 ? 'header-row' : rowIndex === lastRow ? 'footer-row' : 'data-row';
     }
 
     /**
-     * Atributos para celdas combinadas
-     */
-    getMergeAttributes(mergeInfo) {
-        if (!mergeInfo || !mergeInfo.isMaster) return '';
-        return mergeInfo.rowspan > 1 ? ` rowspan="${mergeInfo.rowspan}"` : '';
-    }
-
-    /**
-     * Envuelve la tabla en contenedores con botones y estilos
+     * Envuelve tabla en contenedores con botones y estilos
      */
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl) {
         let buttons = '';
         if (pdfUrl) {
-            buttons += `<a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download><i class="bi bi-file-pdf me-1"></i>Descargar PDF</a>`;
+            buttons += `<a href="${pdfUrl}" class="btn btn-sm btn-outline-danger me-2" target="_blank" download>
+                <i class="bi bi-file-pdf me-1"></i>Descargar PDF
+            </a>`;
         }
         if (excelUrl) {
-            buttons += `<a href="${excelUrl}" class="btn btn-sm btn-outline-success" download><i class="bi bi-file-excel me-1"></i>Descargar Excel</a>`;
+            buttons += `<a href="${excelUrl}" class="btn btn-sm btn-outline-success" download>
+                <i class="bi bi-file-excel me-1"></i>Descargar Excel
+            </a>`;
         }
 
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0"><i class="bi bi-file-excel text-success me-2"></i>Archivo Excel: ${fileName}</h5>
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-excel text-success me-2"></i>
+                        Archivo Excel: ${fileName || ''}
+                    </h5>
                     <div class="btn-group">${buttons}</div>
                 </div>
                 <div class="table-responsive excel-table-wrapper">
@@ -438,7 +406,7 @@ class ExcelModalEngine {
     }
 
     /**
-     * Estilos CSS para la tabla
+     * Estilos CSS globales para tabla
      */
     getTableStyles() {
         return `
@@ -468,6 +436,8 @@ class ExcelModalEngine {
                 .excel-table .long-text-cell {
                     white-space: pre-wrap;
                     word-wrap: break-word;
+                    max-width: none;
+                    min-width: 120px;
                     text-align: left;
                     padding: 6px 10px;
                     line-height: 1.4;
@@ -475,6 +445,7 @@ class ExcelModalEngine {
 
                 .excel-table .medium-text-cell {
                     white-space: normal;
+                    word-wrap: break-word;
                     text-align: left;
                     padding: 4px 8px;
                 }
@@ -487,20 +458,11 @@ class ExcelModalEngine {
 
                 .excel-table .merged-cell {
                     white-space: pre-wrap;
+                    word-wrap: break-word;
                     text-align: center !important;
                     vertical-align: middle;
                     font-weight: bold;
                     padding: 6px 10px;
-                }
-
-                .excel-table .full-row-merged {
-                    background-color: #70ad47 !important;
-                    color: #ffffff !important;
-                    font-weight: bold;
-                    text-align: center !important;
-                    font-size: 12px;
-                    padding: 8px !important;
-                    white-space: pre-wrap;
                 }
 
                 .excel-table .header-row th {
@@ -513,21 +475,11 @@ class ExcelModalEngine {
                     line-height: 1.2;
                 }
 
-                .excel-table .header-row:nth-child(2) th,
-                .excel-table tr:nth-child(2) th {
+                .excel-table .header-row:nth-child(2) th {
                     background-color: #e2efda;
                     color: #000000;
                     font-weight: bold;
                     text-align: center;
-                }
-
-                .excel-table td:first-child:not(.merged-cell) {
-                    background-color: #c6e0b4;
-                    font-weight: bold;
-                    text-align: left;
-                    padding-left: 12px;
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
                 }
 
                 .excel-table .number-cell:not(.merged-cell) {
@@ -536,16 +488,19 @@ class ExcelModalEngine {
                     white-space: nowrap;
                 }
 
-                .excel-table .number-cell.merged-cell {
+                .excel-table .full-row-merged {
+                    background-color: #70ad47 !important;
+                    color: #ffffff !important;
+                    font-weight: bold;
                     text-align: center !important;
+                    font-size: 12px;
+                    padding: 8px !important;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
                 }
 
                 .excel-table tbody tr:nth-child(even) td:not(.merged-cell):not(.full-row-merged) {
                     background-color: #f2f8ec;
-                }
-
-                .excel-table tbody tr:nth-child(even) td:first-child:not(.merged-cell) {
-                    background-color: #d4e6c7;
                 }
 
                 .excel-table tbody tr:hover td:not(.merged-cell):not(.full-row-merged) {
@@ -553,11 +508,18 @@ class ExcelModalEngine {
                     transition: background-color 0.2s ease;
                 }
 
-                .excel-table colgroup col {
-                    width: auto !important;
-                    min-width: 80px;
+                /* Primera columna */
+                .excel-table td:first-child:not(.merged-cell) {
+                    background-color: #c6e0b4;
+                    font-weight: bold;
+                    text-align: left;
+                    padding-left: 12px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    min-width: 90px !important; /* ¡Clave! */
                 }
 
+                /* Contenedores */
                 .excel-viewer-container {
                     max-height: 85vh;
                     overflow: auto;
@@ -573,7 +535,6 @@ class ExcelModalEngine {
                     max-width: 100%;
                     overflow-x: auto;
                     margin: 0 auto;
-                    background-color: #ffffff;
                 }
 
                 .excel-table .diagonal-border::before {
@@ -590,28 +551,7 @@ class ExcelModalEngine {
                     z-index: 1;
                 }
 
-                .excel-table .percentage-format {
-                    text-align: right;
-                    color: #0066cc;
-                }
-
-                .excel-table .currency-format {
-                    text-align: right;
-                    color: #006600;
-                }
-
-                .excel-table .date-format {
-                    text-align: center;
-                    color: #333;
-                    white-space: nowrap;
-                }
-
-                .excel-table .empty-cell {
-                    background-color: #f8f9fa;
-                    min-width: 30px;
-                    height: 20px;
-                }
-
+                /* Responsive */
                 @media (max-width: 768px) {
                     .excel-table {
                         font-size: 10px;
@@ -619,18 +559,11 @@ class ExcelModalEngine {
                     .excel-table th, .excel-table td {
                         padding: 3px 6px;
                     }
-                    .excel-table .long-text-cell {
-                        min-width: 100px;
-                        padding: 4px 6px;
-                    }
                 }
             </style>
         `;
     }
 
-    /**
-     * Muestra estado de carga
-     */
     showLoadingState(container, message) {
         container.innerHTML = `
             <div class="text-center py-4">
@@ -640,9 +573,6 @@ class ExcelModalEngine {
         `;
     }
 
-    /**
-     * Muestra estado de error
-     */
     showErrorState(container, errorMessage, excelUrl) {
         container.innerHTML = `
             <div class="alert alert-danger">
