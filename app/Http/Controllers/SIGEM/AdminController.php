@@ -827,20 +827,6 @@ class AdminController extends Controller
                 return response()->json(['error' => 'Cuadro no encontrado'], 404);
             }
 
-            // Si por alguna razón Eloquent devolvió string (o DB tiene texto), intentar decodificar/parsear
-            if (!is_array($tiposGrafica)) {
-                $raw = (string) $tiposGrafica;
-                $decoded = json_decode($raw, true);
-                if (is_array($decoded)) {
-                    $tiposGrafica = $decoded;
-                } else {
-                    // Fallback: CSV en texto
-                    $tiposGrafica = array_filter(array_map('trim', explode(',', $raw)));
-                    // Normalizar valores vacíos a []
-                    $tiposGrafica = $tiposGrafica ?: [];
-                }
-            }
-
             return response()->json([
                 'codigo_cuadro' => $cuadro->codigo_cuadro,
                 'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
