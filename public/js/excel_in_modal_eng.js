@@ -482,7 +482,10 @@ class ExcelModalEngine {
                 </a>
             `;
         }
-        
+
+        console.log('BLADE: excelUrl', excelUrl);
+        console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
+
         return buttons;
     }
 
