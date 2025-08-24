@@ -256,14 +256,12 @@ class GraficaModalEngine {
                     <label class="form-label">Tipo de gráfica:</label>
                     <select id="chartType" class="form-select">
                         <option value="bar">Barra vertical</option>
-                        <option value="horizontalBar">Barra horizontal</option>
                         <option value="line">Línea</option>
                         <option value="area">Área</option>
                         <option value="radar">Radar</option>
                         <option value="polarArea">Polar</option>
-                        <option value="doughnut">Doughnut</option>
+                        <option value="doughnut">Dona</option>
                         <option value="pie">Pastel</option>
-                        <option value="scatter">Dispersión (Scatter)</option>
                     </select>
                 </div>
 
