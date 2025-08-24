@@ -233,47 +233,52 @@ class GraficaModalEngine {
         }
 
         // --- HTML ---
-        const selectionHTML = `
-            <div class="d-flex flex-column mb-3">
-                <h6>Selecciona los datos para graficar:</h6>
-
-                <div class="row">
-                    <!-- Cabecera -->
-                    <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label">(${CabeceraY}):</label>
-                        <div id="rowsYCheckboxes"></div>
+                const selectionHTML = `
+                <div class="accordion mb-3" id="graficaAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="graficaAccordionHeading">
+                            <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#graficaAccordionCollapse" aria-expanded="true" aria-controls="graficaAccordionCollapse">
+                                <strong>Opciones de visualización</strong>
+                            </button>
+                        </h2>
+                        <div id="graficaAccordionCollapse" class="accordion-collapse collapse show" aria-labelledby="graficaAccordionHeading" data-bs-parent="#graficaAccordion">
+                            <div class="accordion-body py-2 px-3">
+                                <div class="row g-2 align-items-start">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>${CabeceraY} (Eje Y):</b></small></label>
+                                        <div id="rowsYCheckboxes" class="small"></div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>Columnas/grupos (Eje X):</b></small></label>
+                                        <div id="groupedColumnCheckboxes" class="small"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
+                                        <select id="chartType" class="form-select form-select-sm">
+                                            <option value="bar">Barra vertical</option>
+                                            <option value="line">Línea</option>
+                                            <option value="area">Área</option>
+                                            <option value="radar">Radar</option>
+                                            <option value="polarArea">Polar</option>
+                                            <option value="doughnut">Dona</option>
+                                            <option value="pie">Pastel</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 d-flex align-items-end">
+                                        <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
+                                    <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Columnas/Grupos -->
-                    <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label">Seleccionar columnas/grupos:</label>
-                        <div id="groupedColumnCheckboxes"></div>
-                    </div>
                 </div>
-
-                <!-- Tipo de gráfica -->
-                <div class="mb-3">
-                    <label class="form-label">Tipo de gráfica:</label>
-                    <select id="chartType" class="form-select">
-                        <option value="bar">Barra vertical</option>
-                        <option value="line">Línea</option>
-                        <option value="area">Área</option>
-                        <option value="radar">Radar</option>
-                        <option value="polarArea">Polar</option>
-                        <option value="doughnut">Dona</option>
-                        <option value="pie">Pastel</option>
-                    </select>
-                </div>
-
-                <!-- Mensaje informativo -->
-                <div class="alert alert-info">
-                    <small><i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones</small>
-                </div>
-
-                <button id="renderChartBtn" class="btn btn-outline-primary">Actualizar Gráfica</button>
-            </div>
-            <div id="chartContainer" class="mb-3"></div>
-        `;
+                <div id="chartContainer" class="mb-3"></div>
+                `;
         container.innerHTML = selectionHTML;
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
