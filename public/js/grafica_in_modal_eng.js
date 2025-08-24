@@ -313,6 +313,8 @@ class GraficaModalEngine {
             
             // Obtener checkboxes de columnas seleccionadas
             const selectedColumnCheckboxes = Array.from(document.querySelectorAll('.column-checkbox:checked'));
+            console.log('🔍 Raw selectedColumnCheckboxes:', selectedColumnCheckboxes.length);
+            
             const selectedColNames = selectedColumnCheckboxes.map(cb => cb.value);
             const selectedColLabels = selectedColumnCheckboxes.map(cb => cb.getAttribute('data-full-label') || cb.value);
 
@@ -333,15 +335,17 @@ class GraficaModalEngine {
             // Mapear nombres de columnas a índices
             let colIndices = [];
             if (tipoGrafica === "A") {
-                selectedColNames.forEach(colName => {
+                selectedColNames.forEach((colName, i) => {
                     const index = dataMatrix[1].indexOf(colName);
+                    console.log(`🔍 Mapping A: "${colName}" -> index ${index}`);
                     if (index !== -1) {
                         colIndices.push(index);
                     }
                 });
             } else {
-                selectedColNames.forEach(colName => {
+                selectedColNames.forEach((colName, i) => {
                     const index = dataMatrix[0].indexOf(colName);
+                    console.log(`🔍 Mapping B: "${colName}" -> index ${index}`);
                     if (index !== -1) {
                         colIndices.push(index);
                     }
@@ -349,6 +353,8 @@ class GraficaModalEngine {
             }
 
             console.log('🔍 UPDATE colIndices:', colIndices);
+            console.log('🔍 UPDATE TOTAL colIndices length:', colIndices.length);
+            console.log('🔍 UPDATE TOTAL selectedColLabels length:', selectedColLabels.length);
 
             // Obtener tipo de gráfica seleccionado
             const chartTypeSelect = document.getElementById('chartType');
@@ -453,6 +459,9 @@ class GraficaModalEngine {
         }
 
         // Datasets para cada columna seleccionada (Eje Y)
+        console.log('🔍 DATASETS DEBUG - yColIndices length:', yColIndices.length);
+        console.log('🔍 DATASETS DEBUG - colLabels length:', colLabels ? colLabels.length : 'null');
+        
         const datasets = yColIndices.map((colIdx, i) => {
             // Usar el label personalizado si está disponible, si no usar el de la matriz
             const label = colLabels && colLabels[i] ? colLabels[i] : 
@@ -468,7 +477,7 @@ class GraficaModalEngine {
                 return value;
             });
 
-            console.log(`📈 Dataset ${i}:`, { label, colIdx, data });
+            console.log(`📈 Dataset ${i}:`, { label, colIdx, data, actualIndex: i });
 
             return {
                 label: label,
@@ -479,6 +488,8 @@ class GraficaModalEngine {
                 fill: false
             };
         });
+        
+        console.log('🔍 TOTAL DATASETS GENERATED:', datasets.length);
 
         console.log('📊 Final datasets:', datasets);
         console.log('📊 Final labels:', labels);
