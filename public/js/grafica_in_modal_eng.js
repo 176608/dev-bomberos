@@ -185,71 +185,13 @@ class GraficaModalEngine {
      * Renderiza la interfaz de selección de parámetros
      */
     renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
-        // Quitar acordeón y referencias. Agregar lógica de guardar/restaurar configuración.
 
-        // --- Funciones para guardar/restaurar configuración ---
-        function getConfigKey() {
-            // Puedes personalizar la clave si quieres que sea por archivo, etc.
-            return 'grafica_configuracion_guardada';
-        }
-        function saveConfig() {
-            const config = {
-                rowsY: Array.from(document.querySelectorAll('.rowy-checkbox')).map(cb => cb.checked),
-                selectAllRowsY: document.getElementById('rowy-select-all')?.checked || false,
-                columns: Array.from(document.querySelectorAll('.column-checkbox')).map(cb => cb.checked),
-                groups: Array.from(document.querySelectorAll('.group-checkbox')).map(cb => cb.checked),
-                chartType: document.getElementById('chartType')?.value || 'bar'
-            };
-            localStorage.setItem(getConfigKey(), JSON.stringify(config));
-        }
-        function restoreConfig() {
-            const configStr = localStorage.getItem(getConfigKey());
-            if (!configStr) return;
-            try {
-                const config = JSON.parse(configStr);
-                // Restaurar filas
-                document.querySelectorAll('.rowy-checkbox').forEach((cb, i) => {
-                    if (typeof config.rowsY[i] !== 'undefined') cb.checked = config.rowsY[i];
-                });
-                if (document.getElementById('rowy-select-all') && typeof config.selectAllRowsY !== 'undefined') {
-                    document.getElementById('rowy-select-all').checked = config.selectAllRowsY;
-                }
-                // Restaurar columnas
-                document.querySelectorAll('.column-checkbox').forEach((cb, i) => {
-                    if (typeof config.columns[i] !== 'undefined') cb.checked = config.columns[i];
-                });
-                // Restaurar grupos
-                document.querySelectorAll('.group-checkbox').forEach((cb, i) => {
-                    if (typeof config.groups[i] !== 'undefined') cb.checked = config.groups[i];
-                });
-                // Restaurar tipo de gráfica
-                if (document.getElementById('chartType') && config.chartType) {
-                    document.getElementById('chartType').value = config.chartType;
-                }
-            } catch (e) { console.error('Error restaurando configuración:', e); }
-        }
-
-        // --- Botones para guardar/restaurar ---
+        //Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
         setTimeout(() => {
-            const controlsRow = document.createElement('div');
-            controlsRow.className = 'row g-2 mb-2';
-            controlsRow.innerHTML = `
-                <div class="col-12 col-md-6 d-grid">
-                    <button id="btnGuardarConfigGrafica" class="btn btn-outline-success btn-sm">Guardar configuración</button>
-                </div>
-                <div class="col-12 col-md-6 d-grid">
-                    <button id="btnRestaurarConfigGrafica" class="btn btn-outline-secondary btn-sm">Restaurar configuración</button>
-                </div>
-            `;
-            const chartContainer = document.getElementById('chartContainer');
-            if (chartContainer && chartContainer.parentNode) {
-                chartContainer.parentNode.insertBefore(controlsRow, chartContainer);
-            }
-            document.getElementById('btnGuardarConfigGrafica').onclick = saveConfig;
-            document.getElementById('btnRestaurarConfigGrafica').onclick = function() {
-                restoreConfig();
-                if (typeof updateChart === 'function') updateChart();
-            };
+            document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+                const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb => cb.checked);
+                groupCb.checked = allChecked;
+            });
         }, 0);
         // --- NUEVA LÓGICA DE ARREGLOS ---
         let tipoGrafica = null;
