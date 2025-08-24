@@ -243,11 +243,17 @@ class GraficaModalEngine {
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
-                    <label class="form-label mb-1"><small><b>${CabeceraY}:</b></small></label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
+                        <button id="toggleRowsY" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
+                    </div>
                     <div id="rowsYCheckboxes" class="small"></div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <label class="form-label mb-1"><small><b>Columnas/grupos:</b></small></label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
+                        <button id="toggleColsX" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
+                    </div>
                     <div id="groupedColumnCheckboxes" class="small"></div>
                 </div>
             </div>
@@ -274,6 +280,51 @@ class GraficaModalEngine {
             <div id="chartContainer" class="mb-3"></div>
         `;
         container.innerHTML = selectionHTML;
+
+        // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
+        function getCollapseKey(which) {
+            return 'grafica_colapso_' + which;
+        }
+        function setCollapsed(which, collapsed) {
+            localStorage.setItem(getCollapseKey(which), collapsed ? '1' : '0');
+        }
+        function isCollapsed(which) {
+            return localStorage.getItem(getCollapseKey(which)) === '1';
+        }
+        // Eje Y
+        const rowsYDiv = document.getElementById('rowsYCheckboxes');
+        const btnRowsY = document.getElementById('toggleRowsY');
+        function updateRowsYCollapse() {
+            if (isCollapsed('rowsY')) {
+                rowsYDiv.style.display = 'none';
+                btnRowsY.innerHTML = '►';
+            } else {
+                rowsYDiv.style.display = '';
+                btnRowsY.innerHTML = '▼';
+            }
+        }
+        btnRowsY.addEventListener('click', function() {
+            setCollapsed('rowsY', !isCollapsed('rowsY'));
+            updateRowsYCollapse();
+        });
+        updateRowsYCollapse();
+        // Eje X
+        const colsXDiv = document.getElementById('groupedColumnCheckboxes');
+        const btnColsX = document.getElementById('toggleColsX');
+        function updateColsXCollapse() {
+            if (isCollapsed('colsX')) {
+                colsXDiv.style.display = 'none';
+                btnColsX.innerHTML = '►';
+            } else {
+                colsXDiv.style.display = '';
+                btnColsX.innerHTML = '▼';
+            }
+        }
+        btnColsX.addEventListener('click', function() {
+            setCollapsed('colsX', !isCollapsed('colsX'));
+            updateColsXCollapse();
+        });
+        updateColsXCollapse();
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
         const rowsYContainer = document.getElementById('rowsYCheckboxes');
