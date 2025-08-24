@@ -327,20 +327,40 @@ class GraficaModalEngine {
                 return;
             }
 
-            // Mapear nombres de columnas a índices
+            // Mapear nombres de columnas a índices (soportando nombres repetidos)
             let colIndices = [];
             if (tipoGrafica === "A") {
-                selectedColNames.forEach((colName, i) => {
-                    const index = dataMatrix[1].indexOf(colName);
-                    if (index !== -1) {
-                        colIndices.push(index);
+                // Buscar cada colName desde la última posición encontrada
+                let lastPos = 0;
+                selectedColNames.forEach((colName) => {
+                    // Buscar desde lastPos en adelante
+                    const headers = dataMatrix[1];
+                    let found = -1;
+                    for (let i = lastPos; i < headers.length; i++) {
+                        if (headers[i] === colName) {
+                            found = i;
+                            lastPos = i + 1;
+                            break;
+                        }
+                    }
+                    if (found !== -1) {
+                        colIndices.push(found);
                     }
                 });
             } else {
-                selectedColNames.forEach((colName, i) => {
-                    const index = dataMatrix[0].indexOf(colName);
-                    if (index !== -1) {
-                        colIndices.push(index);
+                let lastPos = 0;
+                selectedColNames.forEach((colName) => {
+                    const headers = dataMatrix[0];
+                    let found = -1;
+                    for (let i = lastPos; i < headers.length; i++) {
+                        if (headers[i] === colName) {
+                            found = i;
+                            lastPos = i + 1;
+                            break;
+                        }
+                    }
+                    if (found !== -1) {
+                        colIndices.push(found);
                     }
                 });
             }
