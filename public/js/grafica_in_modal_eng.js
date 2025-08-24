@@ -233,52 +233,57 @@ class GraficaModalEngine {
         }
 
         // --- HTML ---
-                const selectionHTML = `
-                <div class="accordion mb-3" id="graficaAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="graficaAccordionHeading">
-                            <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#graficaAccordionCollapse" aria-expanded="true" aria-controls="graficaAccordionCollapse">
-                                <strong>Opciones de visualización</strong>
-                            </button>
-                        </h2>
-                        <div id="graficaAccordionCollapse" class="accordion-collapse collapse show" aria-labelledby="graficaAccordionHeading" data-bs-parent="#graficaAccordion">
-                            <div class="accordion-body py-2 px-3">
-                                <div class="row g-2 align-items-start">
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label mb-1"><small><b>${CabeceraY} (Eje Y):</b></small></label>
+                        const selectionHTML = `
+                        <div class="accordion mb-2" id="accordionEjeY">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingEjeY">
+                                    <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEjeY" aria-expanded="true" aria-controls="collapseEjeY">
+                                        <strong>${CabeceraY} (Eje Y)</strong>
+                                    </button>
+                                </h2>
+                                <div id="collapseEjeY" class="accordion-collapse collapse show" aria-labelledby="headingEjeY" data-bs-parent="#accordionEjeY">
+                                    <div class="accordion-body py-2 px-3">
                                         <div id="rowsYCheckboxes" class="small"></div>
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label mb-1"><small><b>Columnas/grupos (Eje X):</b></small></label>
-                                        <div id="groupedColumnCheckboxes" class="small"></div>
-                                    </div>
-                                </div>
-                                <div class="row g-2 mt-2">
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
-                                        <select id="chartType" class="form-select form-select-sm">
-                                            <option value="bar">Barra vertical</option>
-                                            <option value="line">Línea</option>
-                                            <option value="area">Área</option>
-                                            <option value="radar">Radar</option>
-                                            <option value="polarArea">Polar</option>
-                                            <option value="doughnut">Dona</option>
-                                            <option value="pie">Pastel</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-md-6 d-flex align-items-end">
-                                        <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
-                                    </div>
-                                </div>
-                                <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
-                                    <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div id="chartContainer" class="mb-3"></div>
-                `;
+                        <div class="accordion mb-2" id="accordionEjeX">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingEjeX">
+                                    <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEjeX" aria-expanded="true" aria-controls="collapseEjeX">
+                                        <strong>Columnas/grupos (Eje X)</strong>
+                                    </button>
+                                </h2>
+                                <div id="collapseEjeX" class="accordion-collapse collapse show" aria-labelledby="headingEjeX" data-bs-parent="#accordionEjeX">
+                                    <div class="accordion-body py-2 px-3">
+                                        <div id="groupedColumnCheckboxes" class="small"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2 mb-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
+                                <select id="chartType" class="form-select form-select-sm">
+                                    <option value="bar">Barra vertical</option>
+                                    <option value="line">Línea</option>
+                                    <option value="area">Área</option>
+                                    <option value="radar">Radar</option>
+                                    <option value="polarArea">Polar</option>
+                                    <option value="doughnut">Dona</option>
+                                    <option value="pie">Pastel</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-end">
+                                <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
+                            <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
+                        </div>
+                        <div id="chartContainer" class="mb-3"></div>
+                        `;
         container.innerHTML = selectionHTML;
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
@@ -299,15 +304,17 @@ class GraficaModalEngine {
 
         // --- Renderizar checkboxes jerárquicos para columnas (Eje Y) ---
         const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
-        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => `
+        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => {
+            // Determinar si todos los hijos están seleccionados por defecto
+            const allChecked = true; // todos los hijos inician checked
+            return `
             <div class="mb-2 border rounded p-2">
                 <div>
-                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
+                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}" ${allChecked ? 'checked' : ''}>
                     <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
                 </div>
                 <div class="ms-3">
                     ${group.cols.map((col, cIdx) => {
-                        // Si el grupo y la columna son iguales, solo muestra uno
                         const showLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
                         const fullLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
                         return `
@@ -324,7 +331,8 @@ class GraficaModalEngine {
                     }).join('')}
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
 
         // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
         const updateChart = () => {
@@ -442,6 +450,38 @@ class GraficaModalEngine {
                 }
                 updateChart();
             });
+        });
+
+        // --- Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio ---
+        document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+            const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb => cb.checked);
+            groupCb.checked = allChecked;
+        });
+
+        // --- Guardar/restaurar estado de acordeones en localStorage ---
+        function saveAccordionState(id, isOpen) {
+            localStorage.setItem('graficaAccordion_' + id, isOpen ? '1' : '0');
+        }
+        function restoreAccordionState(id) {
+            return localStorage.getItem('graficaAccordion_' + id) === '0' ? false : true;
+        }
+        // Eje Y
+        const collapseEjeY = document.getElementById('collapseEjeY');
+        const btnEjeY = document.querySelector('[data-bs-target="#collapseEjeY"]');
+        if (!restoreAccordionState('EjeY')) collapseEjeY.classList.remove('show');
+        btnEjeY.addEventListener('click', function() {
+            setTimeout(() => {
+                saveAccordionState('EjeY', collapseEjeY.classList.contains('show'));
+            }, 300);
+        });
+        // Eje X
+        const collapseEjeX = document.getElementById('collapseEjeX');
+        const btnEjeX = document.querySelector('[data-bs-target="#collapseEjeX"]');
+        if (!restoreAccordionState('EjeX')) collapseEjeX.classList.remove('show');
+        btnEjeX.addEventListener('click', function() {
+            setTimeout(() => {
+                saveAccordionState('EjeX', collapseEjeX.classList.contains('show'));
+            }, 300);
         });
 
         // --- Agregar listener al selector de tipo de gráfica ---
