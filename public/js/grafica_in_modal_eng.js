@@ -238,15 +238,15 @@ class GraficaModalEngine {
                 <h6>Selecciona los datos para graficar:</h6>
 
                 <div class="row">
-                    <!-- CabeceraY -->
+                    <!-- Cabecera -->
                     <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label">Eje Y (${CabeceraY}):</label>
+                        <label class="form-label">(${CabeceraY}):</label>
                         <div id="rowsYCheckboxes"></div>
                     </div>
 
-                    <!-- Columnas/Grupos (Eje x) -->
+                    <!-- Columnas/Grupos -->
                     <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label">Seleccionar columnas/grupos (Eje x):</label>
+                        <label class="form-label">Seleccionar columnas/grupos:</label>
                         <div id="groupedColumnCheckboxes"></div>
                     </div>
                 </div>
@@ -278,7 +278,14 @@ class GraficaModalEngine {
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
         const rowsYContainer = document.getElementById('rowsYCheckboxes');
-        rowsYContainer.innerHTML = RowsY.map((row, idx) => `
+        // Checkbox seleccionar/deseleccionar todo
+        rowsYContainer.innerHTML = `
+            <div>
+                <input type="checkbox" class="form-check-input" id="rowy-select-all" checked>
+                <label class="form-check-label fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
+            </div>
+        `;
+        rowsYContainer.innerHTML += RowsY.map((row, idx) => `
             <div>
                 <input type="checkbox" class="form-check-input rowy-checkbox" id="rowy-${idx}" value="${idx}" checked>
                 <label class="form-check-label" for="rowy-${idx}">${row}</label>
@@ -294,17 +301,22 @@ class GraficaModalEngine {
                     <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
                 </div>
                 <div class="ms-3">
-                    ${group.cols.map((col, cIdx) => `
-                        <div>
-                            <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
-                                   id="col-${gIdx}-${cIdx}" 
-                                   value="${col}" 
-                                   data-group="${group.group}"
-                                   data-full-label="${group.group} - ${col}"
-                                   checked>
-                            <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
-                        </div>
-                    `).join('')}
+                    ${group.cols.map((col, cIdx) => {
+                        // Si el grupo y la columna son iguales, solo muestra uno
+                        const showLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
+                        const fullLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
+                        return `
+                            <div>
+                                <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
+                                       id="col-${gIdx}-${cIdx}" 
+                                       value="${col}" 
+                                       data-group="${group.group}"
+                                       data-full-label="${fullLabel}"
+                                       checked>
+                                <label class="form-check-label" for="col-${gIdx}-${cIdx}">${showLabel}</label>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `).join('');
@@ -403,8 +415,28 @@ class GraficaModalEngine {
         });
 
         // --- Agregar listeners a checkboxes de filas (RowsY) ---
+        // Listener para seleccionar/deseleccionar todo
+        const selectAllRowsY = document.getElementById('rowy-select-all');
+        selectAllRowsY.addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.rowy-checkbox').forEach(cb => {
+                cb.checked = checked;
+            });
+            updateChart();
+        });
+        // Listener para cada checkbox individual
         document.querySelectorAll('.rowy-checkbox').forEach(cb => {
-            cb.addEventListener('change', updateChart);
+            cb.addEventListener('change', function() {
+                // Si alguno se desmarca, desmarca el select-all
+                if (!this.checked) {
+                    selectAllRowsY.checked = false;
+                } else {
+                    // Si todos están marcados, marca el select-all
+                    const allChecked = Array.from(document.querySelectorAll('.rowy-checkbox')).every(cb2 => cb2.checked);
+                    selectAllRowsY.checked = allChecked;
+                }
+                updateChart();
+            });
         });
 
         // --- Agregar listener al selector de tipo de gráfica ---
