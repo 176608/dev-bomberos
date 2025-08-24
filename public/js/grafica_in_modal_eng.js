@@ -240,21 +240,36 @@ class GraficaModalEngine {
             GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
         }
 
+        // --- Cargar Choices.js y CSS si no está presente ---
+        function loadChoicesAssets() {
+            return new Promise((resolve) => {
+                if (window.Choices) return resolve();
+                // CSS
+                if (!document.getElementById('choicesjs-css')) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.id = 'choicesjs-css';
+                    link.href = 'https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css';
+                    document.head.appendChild(link);
+                }
+                // JS
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js';
+                script.onload = resolve;
+                document.head.appendChild(script);
+            });
+        }
+
+        // --- HTML: select múltiple para ambos ejes ---
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
-                        <button id="toggleRowsY" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
-                    </div>
-                    <div id="rowsYCheckboxes" class="small"></div>
+                    <label class="form-label mb-1"><small><b>${CabeceraY}:</b></small></label>
+                    <select id="rowsYSelect" multiple></select>
                 </div>
                 <div class="col-12 col-md-6">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
-                        <button id="toggleColsX" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
-                    </div>
-                    <div id="groupedColumnCheckboxes" class="small"></div>
+                    <label class="form-label mb-1"><small><b>Columnas/grupos:</b></small></label>
+                    <select id="colsXSelect" multiple></select>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -280,6 +295,76 @@ class GraficaModalEngine {
             <div id="chartContainer" class="mb-3"></div>
         `;
         container.innerHTML = selectionHTML;
+
+        // --- Inicializar Choices.js después de cargar assets ---
+        loadChoicesAssets().then(() => {
+            // Eje Y (Rows)
+            const rowsYSelect = document.getElementById('rowsYSelect');
+            rowsYSelect.innerHTML = RowsY.map((row, idx) => `<option value="${idx}" selected>${row}</option>`).join('');
+            const rowsYChoices = new Choices(rowsYSelect, {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Seleccione...',
+                searchPlaceholderValue: 'Buscar...',
+                itemSelectText: '',
+                maxItemCount: 100,
+                classNames: { containerOuter: 'choices choices-rowsy' }
+            });
+
+            // Eje X (Cols) con optgroups
+            const colsXSelect = document.getElementById('colsXSelect');
+            let colIdx = 0;
+            colsXSelect.innerHTML = GroupColsX.map(group => {
+                return `<optgroup label="${group.group}">` +
+                    group.cols.map(col => `<option value="${colIdx++}" selected>${col}</option>`).join('') +
+                `</optgroup>`;
+            }).join('');
+            const colsXChoices = new Choices(colsXSelect, {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Seleccione...',
+                searchPlaceholderValue: 'Buscar...',
+                itemSelectText: '',
+                maxItemCount: 100,
+                classNames: { containerOuter: 'choices choices-colsx' }
+            });
+
+            // --- Botones Marcar todas / Desmarcar todas ---
+            function addSelectAllBtns(choicesInstance, selectEl) {
+                const container = selectEl.closest('.col-12');
+                if (!container) return;
+                let btns = document.createElement('div');
+                btns.className = 'mb-1';
+                btns.innerHTML = `
+                    <button type="button" class="btn btn-link btn-sm p-0 me-2" style="color:#21807a;font-weight:bold;" tabindex="-1">✔ Marca todas</button>
+                    <button type="button" class="btn btn-link btn-sm p-0" style="color:#21807a;font-weight:bold;" tabindex="-1">✖ Desmarque todas</button>
+                `;
+                const [btnAll, btnNone] = btns.querySelectorAll('button');
+                btnAll.onclick = () => {
+                    Array.from(selectEl.options).forEach(opt => { opt.selected = true; });
+                    choicesInstance.setChoiceByValue(Array.from(selectEl.options).map(opt => opt.value));
+                };
+                btnNone.onclick = () => {
+                    Array.from(selectEl.options).forEach(opt => { opt.selected = false; });
+                    choicesInstance.removeActiveItems();
+                };
+                container.insertBefore(btns, selectEl);
+            }
+            addSelectAllBtns(rowsYChoices, rowsYSelect);
+            addSelectAllBtns(colsXChoices, colsXSelect);
+
+            // --- Actualizar gráfica al cambiar selección ---
+            rowsYSelect.addEventListener('change', updateChart);
+            colsXSelect.addEventListener('change', updateChart);
+
+            // --- Actualizar gráfica manual ---
+            document.getElementById('renderChartBtn').addEventListener('click', updateChart);
+
+            // --- Actualizar gráfica automáticamente al cargar ---
+            setTimeout(updateChart, 200);
+        });
 
         // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
         function getCollapseKey(which) {
@@ -326,63 +411,19 @@ class GraficaModalEngine {
         });
         updateColsXCollapse();
 
-        // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
-        const rowsYContainer = document.getElementById('rowsYCheckboxes');
-        // Checkbox seleccionar/deseleccionar todo
-        rowsYContainer.innerHTML = `
-            <div>
-                <input type="checkbox" class="form-check-input" id="rowy-select-all" checked>
-                <label class="form-check-label fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
-            </div>
-        `;
-        rowsYContainer.innerHTML += RowsY.map((row, idx) => `
-            <div>
-                <input type="checkbox" class="form-check-input rowy-checkbox" id="rowy-${idx}" value="${idx}" checked>
-                <label class="form-check-label" for="rowy-${idx}">${row}</label>
-            </div>
-        `).join('');
 
-        // --- Renderizar checkboxes jerárquicos para columnas (Eje Y) ---
-        const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
-        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => `
-            <div class="mb-2 border rounded p-2">
-                <div>
-                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
-                    <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
-                </div>
-                <div class="ms-3">
-                    ${group.cols.map((col, cIdx) => {
-                        // Si el grupo y la columna son iguales, solo muestra uno
-                        const showLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
-                        const fullLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
-                        return `
-                            <div>
-                                <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
-                                       id="col-${gIdx}-${cIdx}" 
-                                       value="${col}" 
-                                       data-group="${group.group}"
-                                       data-full-label="${fullLabel}"
-                                       checked>
-                                <label class="form-check-label" for="col-${gIdx}-${cIdx}">${showLabel}</label>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `).join('');
 
-        // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
+
+        // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL (Choices.js) ---
         const updateChart = () => {
             // Obtener selecciones actuales
-            const selectedRowIndices = Array.from(document.querySelectorAll('.rowy-checkbox:checked'))
-                .map(cb => parseInt(cb.value, 10));
-            
-            // Obtener checkboxes de columnas seleccionadas
-            const selectedColumnCheckboxes = Array.from(document.querySelectorAll('.column-checkbox:checked'));
-            const selectedColNames = selectedColumnCheckboxes.map(cb => cb.value);
-            const selectedColLabels = selectedColumnCheckboxes.map(cb => cb.getAttribute('data-full-label') || cb.value);
+            const rowsYSelect = document.getElementById('rowsYSelect');
+            const colsXSelect = document.getElementById('colsXSelect');
+            const selectedRowIndices = Array.from(rowsYSelect.selectedOptions).map(opt => parseInt(opt.value, 10));
+            const selectedColIndices = Array.from(colsXSelect.selectedOptions).map(opt => parseInt(opt.value, 10));
+            const selectedColLabels = Array.from(colsXSelect.selectedOptions).map(opt => opt.textContent);
 
-            if (selectedRowIndices.length === 0 || selectedColNames.length === 0) {
+            if (selectedRowIndices.length === 0 || selectedColIndices.length === 0) {
                 // Limpiar gráfica si no hay selección
                 const chartContainer = document.getElementById('chartContainer');
                 if (this.chartInstance) {
@@ -393,51 +434,13 @@ class GraficaModalEngine {
                 return;
             }
 
-            // Mapear nombres de columnas a índices (soportando nombres repetidos)
-            let colIndices = [];
-            if (tipoGrafica === "A") {
-                // Buscar cada colName desde la última posición encontrada
-                let lastPos = 0;
-                selectedColNames.forEach((colName) => {
-                    // Buscar desde lastPos en adelante
-                    const headers = dataMatrix[1];
-                    let found = -1;
-                    for (let i = lastPos; i < headers.length; i++) {
-                        if (headers[i] === colName) {
-                            found = i;
-                            lastPos = i + 1;
-                            break;
-                        }
-                    }
-                    if (found !== -1) {
-                        colIndices.push(found);
-                    }
-                });
-            } else {
-                let lastPos = 0;
-                selectedColNames.forEach((colName) => {
-                    const headers = dataMatrix[0];
-                    let found = -1;
-                    for (let i = lastPos; i < headers.length; i++) {
-                        if (headers[i] === colName) {
-                            found = i;
-                            lastPos = i + 1;
-                            break;
-                        }
-                    }
-                    if (found !== -1) {
-                        colIndices.push(found);
-                    }
-                });
-            }
-
             // Obtener tipo de gráfica seleccionado
             const chartTypeSelect = document.getElementById('chartType');
             const type = chartTypeSelect ? chartTypeSelect.value : 'bar';
 
             // Regenerar gráfica pasando también los labels descriptivos
             const chartContainer = document.getElementById('chartContainer');
-            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, colIndices, type, tipoGrafica, selectedColLabels);
+            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, selectedColIndices, type, tipoGrafica, selectedColLabels);
         };
 
         // --- Lógica de selección jerárquica de columnas ---
