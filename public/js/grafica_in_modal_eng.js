@@ -255,9 +255,15 @@ class GraficaModalEngine {
                 <div class="mb-3">
                     <label class="form-label">Tipo de gráfica:</label>
                     <select id="chartType" class="form-select">
-                        <option value="bar">Barra</option>
+                        <option value="bar">Barra vertical</option>
+                        <option value="horizontalBar">Barra horizontal</option>
                         <option value="line">Línea</option>
+                        <option value="area">Área</option>
+                        <option value="radar">Radar</option>
+                        <option value="polarArea">Polar</option>
+                        <option value="doughnut">Doughnut</option>
                         <option value="pie">Pastel</option>
+                        <option value="scatter">Dispersión (Scatter)</option>
                     </select>
                 </div>
 
@@ -462,44 +468,30 @@ class GraficaModalEngine {
         }
 
         // Datasets para cada columna seleccionada (Eje Y)
-        console.log('🔍 DEBUG DATASET GENERATION:');
-        console.log('yColIndices:', yColIndices);
-        console.log('selectedRowIndices:', selectedRowIndices);
-        console.log('tipoGrafica:', tipoGrafica);
-        console.log('dataMatrix completa:', dataMatrix);
-        
         const datasets = yColIndices.map((colIdx, i) => {
-            // Usar el label personalizado si está disponible, si no usar el de la matriz
-            const label = colLabels && colLabels[i] ? colLabels[i] : 
-                         (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]);
-            
-            console.log(`\n📊 DATASET ${i} - Columna ${colIdx}:`);
-            console.log(`Label: "${label}"`);
-            
-            // Obtener datos de la columna específica para cada fila seleccionada
-            const data = selectedRowIndices.map(rowIdx => {
+            const label = colLabels && colLabels[i] ? colLabels[i] : (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]);
+            let data = selectedRowIndices.map(rowIdx => {
                 let value = 0;
                 let actualRowIndex;
-                
                 if (tipoGrafica === "A") {
-                    actualRowIndex = rowIdx + 2; // Las filas de datos empiezan en índice 2
+                    actualRowIndex = rowIdx + 2;
                 } else {
-                    actualRowIndex = rowIdx + 1; // Las filas de datos empiezan en índice 1
+                    actualRowIndex = rowIdx + 1;
                 }
-                
-                console.log(`  Fila ${rowIdx} -> actualRowIndex ${actualRowIndex}`);
-                console.log(`  dataMatrix[${actualRowIndex}]:`, dataMatrix[actualRowIndex]);
-                console.log(`  dataMatrix[${actualRowIndex}][${colIdx}]:`, dataMatrix[actualRowIndex] ? dataMatrix[actualRowIndex][colIdx] : 'undefined');
-                
                 if (dataMatrix[actualRowIndex] && dataMatrix[actualRowIndex][colIdx] !== undefined) {
                     value = parseFloat(dataMatrix[actualRowIndex][colIdx]) || 0;
                 }
-                
-                console.log(`  Valor final: ${value}`);
                 return value;
             });
 
-            console.log(`  Array de datos completo:`, data);
+            // Para scatter, transformar a [{x, y}] (x=label, y=valor)
+            if (type === 'scatter') {
+                data = data.map((y, idx) => ({ x: labels[idx], y }));
+            }
+
+            // Para área, usar tipo 'line' y fill: true
+            let fill = false;
+            if (type === 'area') fill = true;
 
             return {
                 label: label,
@@ -507,11 +499,9 @@ class GraficaModalEngine {
                 backgroundColor: this.getColor(i),
                 borderColor: this.getColor(i),
                 borderWidth: 2,
-                fill: false
+                fill: fill
             };
         });
-        
-        console.log('🔍 DATASETS FINALES:', datasets);
 
         // Crear canvas
         const canvas = document.createElement('canvas');
@@ -521,6 +511,11 @@ class GraficaModalEngine {
         container.appendChild(canvas);
 
         const ctx = canvas.getContext('2d');
+
+        // Ajustar tipo real de Chart.js
+        let chartType = type;
+        if (type === 'area') chartType = 'line';
+        if (type === 'horizontalBar') chartType = 'bar'; // Chart.js v3+ usa bar con indexAxis
 
         const chartData = { labels, datasets };
         const options = {
@@ -537,16 +532,19 @@ class GraficaModalEngine {
                     mode: 'index'
                 }
             },
-            scales: type !== 'pie' ? {
-                y: {
-                    beginAtZero: true
-                }
+            scales: (['bar','line','area','horizontalBar','scatter'].includes(type)) ? {
+                x: type === 'horizontalBar' ? { beginAtZero: true, type: 'category' } : {},
+                y: { beginAtZero: true }
             } : {}
         };
+        // Para barra horizontal, cambiar orientación
+        if (type === 'horizontalBar') {
+            options.indexAxis = 'y';
+        }
 
         try {
             this.chartInstance = new Chart(ctx, {
-                type: type,
+                type: chartType,
                 data: chartData,
                 options: options
             });
