@@ -232,84 +232,54 @@ class GraficaModalEngine {
             GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
         }
 
-                // --- HTML: dos acordeones independientes ---
+        // --- HTML ---
                 const selectionHTML = `
-                <div class="accordion mb-2" id="accordionEjeY">
+                <div class="accordion mb-3" id="graficaAccordion">
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingEjeY">
-                            <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEjeY" aria-expanded="true" aria-controls="collapseEjeY">
-                                <strong>${CabeceraY} (Eje Y)</strong>
+                        <h2 class="accordion-header" id="graficaAccordionHeading">
+                            <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#graficaAccordionCollapse" aria-expanded="true" aria-controls="graficaAccordionCollapse">
+                                <strong>Opciones de visualización</strong>
                             </button>
                         </h2>
-                        <div id="collapseEjeY" class="accordion-collapse collapse show" aria-labelledby="headingEjeY" data-bs-parent="#accordionEjeY">
+                        <div id="graficaAccordionCollapse" class="accordion-collapse collapse show" aria-labelledby="graficaAccordionHeading" data-bs-parent="#graficaAccordion">
                             <div class="accordion-body py-2 px-3">
-                                <div id="rowsYCheckboxes" class="small"></div>
+                                <div class="row g-2 align-items-start">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>${CabeceraY}:</b></small></label>
+                                        <div id="rowsYCheckboxes" class="small"></div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>Columnas/grupos:</b></small></label>
+                                        <div id="groupedColumnCheckboxes" class="small"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
+                                        <select id="chartType" class="form-select form-select-sm">
+                                            <option value="bar">Barra vertical</option>
+                                            <option value="line">Línea</option>
+                                            <option value="area">Área</option>
+                                            <option value="radar">Radar</option>
+                                            <option value="polarArea">Polar</option>
+                                            <option value="doughnut">Dona</option>
+                                            <option value="pie">Pastel</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 d-flex align-items-end">
+                                        <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
+                                    <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="accordion mb-2" id="accordionEjeX">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingEjeX">
-                            <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEjeX" aria-expanded="true" aria-controls="collapseEjeX">
-                                <strong>Columnas/grupos (Eje X)</strong>
-                            </button>
-                        </h2>
-                        <div id="collapseEjeX" class="accordion-collapse collapse show" aria-labelledby="headingEjeX" data-bs-parent="#accordionEjeX">
-                            <div class="accordion-body py-2 px-3">
-                                <div id="groupedColumnCheckboxes" class="small"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-2 mt-2 mb-2">
-                    <div class="col-12 col-md-6">
-                        <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
-                        <select id="chartType" class="form-select form-select-sm">
-                            <option value="bar">Barra vertical</option>
-                            <option value="line">Línea</option>
-                            <option value="area">Área</option>
-                            <option value="radar">Radar</option>
-                            <option value="polarArea">Polar</option>
-                            <option value="doughnut">Dona</option>
-                            <option value="pie">Pastel</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-6 d-flex align-items-end">
-                        <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
-                    </div>
-                </div>
-                <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
-                    <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
                 </div>
                 <div id="chartContainer" class="mb-3"></div>
                 `;
-                container.innerHTML = selectionHTML;
-        // --- Guardar/restaurar estado de acordeones en localStorage ---
-        function saveAccordionState(id, isOpen) {
-            localStorage.setItem('graficaAccordion_' + id, isOpen ? '1' : '0');
-        }
-        function restoreAccordionState(id) {
-            return localStorage.getItem('graficaAccordion_' + id) === '0' ? false : true;
-        }
-        // Eje Y
-        const collapseEjeY = document.getElementById('collapseEjeY');
-        const btnEjeY = document.querySelector('[data-bs-target="#collapseEjeY"]');
-        if (!restoreAccordionState('EjeY')) collapseEjeY.classList.remove('show');
-        btnEjeY.addEventListener('click', function() {
-            setTimeout(() => {
-                saveAccordionState('EjeY', collapseEjeY.classList.contains('show'));
-            }, 300);
-        });
-        // Eje X
-        const collapseEjeX = document.getElementById('collapseEjeX');
-        const btnEjeX = document.querySelector('[data-bs-target="#collapseEjeX"]');
-        if (!restoreAccordionState('EjeX')) collapseEjeX.classList.remove('show');
-        btnEjeX.addEventListener('click', function() {
-            setTimeout(() => {
-                saveAccordionState('EjeX', collapseEjeX.classList.contains('show'));
-            }, 300);
-        });
+        container.innerHTML = selectionHTML;
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
         const rowsYContainer = document.getElementById('rowsYCheckboxes');
