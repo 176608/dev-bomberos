@@ -186,13 +186,7 @@ class GraficaModalEngine {
      */
     renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
 
-        //Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
-        setTimeout(() => {
-            document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
-                const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb => cb.checked);
-                groupCb.checked = allChecked;
-            });
-        }, 0);
+    // Limpiar código legacy de checkboxes/collapse
         // --- NUEVA LÓGICA DE ARREGLOS ---
         let tipoGrafica = null;
         let CabeceraY = null;
@@ -366,50 +360,7 @@ class GraficaModalEngine {
             setTimeout(updateChart, 200);
         });
 
-        // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
-        function getCollapseKey(which) {
-            return 'grafica_colapso_' + which;
-        }
-        function setCollapsed(which, collapsed) {
-            localStorage.setItem(getCollapseKey(which), collapsed ? '1' : '0');
-        }
-        function isCollapsed(which) {
-            return localStorage.getItem(getCollapseKey(which)) === '1';
-        }
-        // Eje Y
-        const rowsYDiv = document.getElementById('rowsYCheckboxes');
-        const btnRowsY = document.getElementById('toggleRowsY');
-        function updateRowsYCollapse() {
-            if (isCollapsed('rowsY')) {
-                rowsYDiv.style.display = 'none';
-                btnRowsY.innerHTML = '►';
-            } else {
-                rowsYDiv.style.display = '';
-                btnRowsY.innerHTML = '▼';
-            }
-        }
-        btnRowsY.addEventListener('click', function() {
-            setCollapsed('rowsY', !isCollapsed('rowsY'));
-            updateRowsYCollapse();
-        });
-        updateRowsYCollapse();
-        // Eje X
-        const colsXDiv = document.getElementById('groupedColumnCheckboxes');
-        const btnColsX = document.getElementById('toggleColsX');
-        function updateColsXCollapse() {
-            if (isCollapsed('colsX')) {
-                colsXDiv.style.display = 'none';
-                btnColsX.innerHTML = '►';
-            } else {
-                colsXDiv.style.display = '';
-                btnColsX.innerHTML = '▼';
-            }
-        }
-        btnColsX.addEventListener('click', function() {
-            setCollapsed('colsX', !isCollapsed('colsX'));
-            updateColsXCollapse();
-        });
-        updateColsXCollapse();
+
 
 
 
@@ -443,66 +394,14 @@ class GraficaModalEngine {
             this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, selectedColIndices, type, tipoGrafica, selectedColLabels);
         };
 
-        // --- Lógica de selección jerárquica de columnas ---
-        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
-            groupCb.addEventListener('change', function() {
-                const checked = this.checked;
-                groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => {
-                    cb.checked = checked;
-                });
-                // Actualizar gráfica automáticamente
-                updateChart();
-            });
-        });
-        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-                GroupColsX.forEach((group, gIdx) => {
-                    const allChecked = group.cols.every((col, cIdx) =>
-                        groupedColumnCheckboxes.querySelector(`#col-${gIdx}-${cIdx}`).checked
-                    );
-                    groupedColumnCheckboxes.querySelector(`#group-${gIdx}`).checked = allChecked;
-                });
-                // Actualizar gráfica automáticamente
-                updateChart();
-            });
-        });
-
-        // --- Agregar listeners a checkboxes de filas (RowsY) ---
-        // Listener para seleccionar/deseleccionar todo
-        const selectAllRowsY = document.getElementById('rowy-select-all');
-        selectAllRowsY.addEventListener('change', function() {
-            const checked = this.checked;
-            document.querySelectorAll('.rowy-checkbox').forEach(cb => {
-                cb.checked = checked;
-            });
-            updateChart();
-        });
-        // Listener para cada checkbox individual
-        document.querySelectorAll('.rowy-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-                // Si alguno se desmarca, desmarca el select-all
-                if (!this.checked) {
-                    selectAllRowsY.checked = false;
-                } else {
-                    // Si todos están marcados, marca el select-all
-                    const allChecked = Array.from(document.querySelectorAll('.rowy-checkbox')).every(cb2 => cb2.checked);
-                    selectAllRowsY.checked = allChecked;
-                }
-                updateChart();
-            });
-        });
-
-        // --- Agregar listener al selector de tipo de gráfica ---
+        // --- Agregar listener al selector de tipo de gráfica y botón manual ---
         const chartTypeSelect = document.getElementById('chartType');
-        chartTypeSelect.addEventListener('change', updateChart);
-
-        // --- Botón de renderización manual (opcional) ---
+        if (chartTypeSelect) chartTypeSelect.addEventListener('change', updateChart);
         const renderBtn = document.getElementById('renderChartBtn');
-        renderBtn.addEventListener('click', updateChart);
+        if (renderBtn) renderBtn.addEventListener('click', updateChart);
 
         // --- CARGAR CHART.JS SI NO ESTÁ PRESENTE ---
         this.loadChartJS().then(() => {
-            // Generar gráfica inicial automáticamente después de un pequeño delay
             setTimeout(updateChart, 200);
         }).catch(error => {
             console.error('Error cargando Chart.js:', error);
