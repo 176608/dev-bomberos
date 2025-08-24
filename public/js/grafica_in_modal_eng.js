@@ -185,6 +185,21 @@ class GraficaModalEngine {
      * Renderiza la interfaz de selección de parámetros
      */
     renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
+        // 1. Habilitar funcionamiento del acordeón (Bootstrap 5)
+        // Si no está Bootstrap Collapse, cargarlo dinámicamente
+        if (typeof bootstrap === 'undefined' || typeof bootstrap.Collapse === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
+            document.head.appendChild(script);
+        }
+
+        // 2. Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
+        setTimeout(() => {
+            document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+                const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb => cb.checked);
+                groupCb.checked = allChecked;
+            });
+        }, 0);
         // --- NUEVA LÓGICA DE ARREGLOS ---
         let tipoGrafica = null;
         let CabeceraY = null;
