@@ -292,7 +292,12 @@ class GraficaModalEngine {
                 <div class="ms-3">
                     ${group.cols.map((col, cIdx) => `
                         <div>
-                            <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" id="col-${gIdx}-${cIdx}" value="${col}" checked>
+                            <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
+                                   id="col-${gIdx}-${cIdx}" 
+                                   value="${col}" 
+                                   data-group="${group.group}"
+                                   data-full-label="${group.group} - ${col}"
+                                   checked>
                             <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
                         </div>
                     `).join('')}
@@ -306,8 +311,13 @@ class GraficaModalEngine {
             const selectedRowIndices = Array.from(document.querySelectorAll('.rowy-checkbox:checked'))
                 .map(cb => parseInt(cb.value, 10));
             
-            const selectedColNames = Array.from(document.querySelectorAll('.column-checkbox:checked'))
-                .map(cb => cb.value);
+            // Obtener checkboxes de columnas seleccionadas
+            const selectedColumnCheckboxes = Array.from(document.querySelectorAll('.column-checkbox:checked'));
+            const selectedColNames = selectedColumnCheckboxes.map(cb => cb.value);
+            const selectedColLabels = selectedColumnCheckboxes.map(cb => cb.getAttribute('data-full-label') || cb.value);
+
+            console.log('🔄 UPDATE selectedColNames:', selectedColNames);
+            console.log('🔄 UPDATE selectedColLabels:', selectedColLabels);
 
             if (selectedRowIndices.length === 0 || selectedColNames.length === 0) {
                 // Limpiar gráfica si no hay selección
@@ -323,18 +333,30 @@ class GraficaModalEngine {
             // Mapear nombres de columnas a índices
             let colIndices = [];
             if (tipoGrafica === "A") {
-                colIndices = selectedColNames.map(colName => dataMatrix[1].indexOf(colName));
+                selectedColNames.forEach(colName => {
+                    const index = dataMatrix[1].indexOf(colName);
+                    if (index !== -1) {
+                        colIndices.push(index);
+                    }
+                });
             } else {
-                colIndices = selectedColNames.map(colName => dataMatrix[0].indexOf(colName));
+                selectedColNames.forEach(colName => {
+                    const index = dataMatrix[0].indexOf(colName);
+                    if (index !== -1) {
+                        colIndices.push(index);
+                    }
+                });
             }
+
+            console.log('🔍 UPDATE colIndices:', colIndices);
 
             // Obtener tipo de gráfica seleccionado
             const chartTypeSelect = document.getElementById('chartType');
             const type = chartTypeSelect ? chartTypeSelect.value : 'bar';
 
-            // Regenerar gráfica
+            // Regenerar gráfica pasando también los labels descriptivos
             const chartContainer = document.getElementById('chartContainer');
-            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, colIndices, type, tipoGrafica);
+            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, colIndices, type, tipoGrafica, selectedColLabels);
         };
 
         // --- Lógica de selección jerárquica de columnas ---
@@ -403,7 +425,7 @@ class GraficaModalEngine {
     /**
      * Genera la gráfica con Chart.js usando selección múltiple de filas y columnas
      */
-    renderChartHierarchical(container, dataMatrix, selectedRowIndices, yColIndices, type, tipoGrafica) {
+    renderChartHierarchical(container, dataMatrix, selectedRowIndices, yColIndices, type, tipoGrafica, colLabels = null) {
         // Destruir gráfica anterior si existe
         if (this.chartInstance) {
             this.chartInstance.destroy();
@@ -416,6 +438,12 @@ class GraficaModalEngine {
             return;
         }
 
+        console.log('📊 RENDER DEBUG:');
+        console.log('selectedRowIndices:', selectedRowIndices);
+        console.log('yColIndices:', yColIndices);
+        console.log('colLabels:', colLabels);
+        console.log('tipoGrafica:', tipoGrafica);
+
         // Etiquetas eje X: los valores seleccionados de RowsY
         let labels = [];
         if (tipoGrafica === "A") {
@@ -425,9 +453,12 @@ class GraficaModalEngine {
         }
 
         // Datasets para cada columna seleccionada (Eje Y)
-        const datasets = yColIndices.map((colIdx, i) => ({
-            label: (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]),
-            data: selectedRowIndices.map(idx => {
+        const datasets = yColIndices.map((colIdx, i) => {
+            // Usar el label personalizado si está disponible, si no usar el de la matriz
+            const label = colLabels && colLabels[i] ? colLabels[i] : 
+                         (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]);
+            
+            const data = selectedRowIndices.map(idx => {
                 let value = 0;
                 if (tipoGrafica === "A" && dataMatrix[idx + 2]) {
                     value = parseFloat(dataMatrix[idx + 2][colIdx]) || 0;
@@ -435,12 +466,22 @@ class GraficaModalEngine {
                     value = parseFloat(dataMatrix[idx + 1][colIdx]) || 0;
                 }
                 return value;
-            }),
-            backgroundColor: this.getColor(i),
-            borderColor: this.getColor(i),
-            borderWidth: 2,
-            fill: false
-        }));
+            });
+
+            console.log(`📈 Dataset ${i}:`, { label, colIdx, data });
+
+            return {
+                label: label,
+                data: data,
+                backgroundColor: this.getColor(i),
+                borderColor: this.getColor(i),
+                borderWidth: 2,
+                fill: false
+            };
+        });
+
+        console.log('📊 Final datasets:', datasets);
+        console.log('📊 Final labels:', labels);
 
         // Crear canvas
         const canvas = document.createElement('canvas');
