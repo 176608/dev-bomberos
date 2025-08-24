@@ -442,10 +442,19 @@ class GraficaModalEngine {
         }
 
         // Datasets para cada columna seleccionada (Eje Y)
+        console.log('🔍 DEBUG DATASET GENERATION:');
+        console.log('yColIndices:', yColIndices);
+        console.log('selectedRowIndices:', selectedRowIndices);
+        console.log('tipoGrafica:', tipoGrafica);
+        console.log('dataMatrix completa:', dataMatrix);
+        
         const datasets = yColIndices.map((colIdx, i) => {
             // Usar el label personalizado si está disponible, si no usar el de la matriz
             const label = colLabels && colLabels[i] ? colLabels[i] : 
                          (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]);
+            
+            console.log(`\n📊 DATASET ${i} - Columna ${colIdx}:`);
+            console.log(`Label: "${label}"`);
             
             // Obtener datos de la columna específica para cada fila seleccionada
             const data = selectedRowIndices.map(rowIdx => {
@@ -458,12 +467,19 @@ class GraficaModalEngine {
                     actualRowIndex = rowIdx + 1; // Las filas de datos empiezan en índice 1
                 }
                 
+                console.log(`  Fila ${rowIdx} -> actualRowIndex ${actualRowIndex}`);
+                console.log(`  dataMatrix[${actualRowIndex}]:`, dataMatrix[actualRowIndex]);
+                console.log(`  dataMatrix[${actualRowIndex}][${colIdx}]:`, dataMatrix[actualRowIndex] ? dataMatrix[actualRowIndex][colIdx] : 'undefined');
+                
                 if (dataMatrix[actualRowIndex] && dataMatrix[actualRowIndex][colIdx] !== undefined) {
                     value = parseFloat(dataMatrix[actualRowIndex][colIdx]) || 0;
                 }
                 
+                console.log(`  Valor final: ${value}`);
                 return value;
             });
+
+            console.log(`  Array de datos completo:`, data);
 
             return {
                 label: label,
@@ -474,6 +490,8 @@ class GraficaModalEngine {
                 fill: false
             };
         });
+        
+        console.log('🔍 DATASETS FINALES:', datasets);
 
         // Crear canvas
         const canvas = document.createElement('canvas');
