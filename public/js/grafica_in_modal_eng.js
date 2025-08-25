@@ -417,13 +417,13 @@ class GraficaModalEngine {
         const rowsYContainer = document.getElementById('rowsYCheckboxes');
         // Checkbox seleccionar/deseleccionar todo
         rowsYContainer.innerHTML = `
-            <div>
+            <div class="d-grid gap-2 col-12 mx-auto">
                 <input type="checkbox" class="btn-check" id="rowy-select-all" autocomplete="off" checked>
                 <label class="btn btn-outline-success mb-2 p-2 fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
         `;
         rowsYContainer.innerHTML += RowsY.map((row, idx) => `
-            <div>
+            <div class="d-grid gap-2 col-6 mx-auto">
                 <input type="checkbox" class="btn-check rowy-checkbox"  id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
                 <label class="btn btn-outline-success mb-2 p-2" for="rowy-${idx}">${row}</label>
             </div>
