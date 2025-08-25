@@ -493,8 +493,11 @@ class ExcelModalEngine {
      */
     getTableStyles() {
         return `<style>
-        .number-cell {
+        .text-cell {
             text-align: center !important;
+        }
+        .number-cell {
+            text-align: right !important;
         }
         </style>`;
     }
