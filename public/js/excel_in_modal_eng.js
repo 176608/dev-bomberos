@@ -492,7 +492,11 @@ class ExcelModalEngine {
      * Estilos CSS globales para tabla
      */
     getTableStyles() {
-        return `<style></style>`;
+        return `<style>
+        .data-row {
+            background-color: #ff0000;
+        }
+        </style>`;
     }
 
     /**
