@@ -9,7 +9,6 @@
                     </div>
                     <div class="col-6">
                         <div id="exportButtonsContainerResumen" class="d-flex justify-content-end">
-                            <!-- Los botones se moverán aquí automáticamente -->
                         </div>
                     </div>
                 </div>
@@ -60,7 +59,6 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializar DataTables con botones de exportación
     let table = $('#tablaResumenHidrantes').DataTable({
         paging: false,
         searching: false,
@@ -69,10 +67,9 @@ $(document).ready(function() {
         order: [],
         columnDefs: [
             { className: "text-center align-middle", targets: "_all" },
-            { targets: [1], className: 'no-export' }  // No exportar la columna de acciones
+            { targets: [1], className: 'no-export' }  
         ],
         
-        // Ocultar los botones originales de DataTables
         dom: "<'row d-none'<'col-sm-12'B>>" +
              "<'row'<'col-sm-12'tr>>",
         buttons: [
@@ -121,20 +118,16 @@ $(document).ready(function() {
             }
         ],
         drawCallback: function() {
-            // Mover los botones al header después de que la tabla se inicialice
             setTimeout(moverBotonesAlHeader, 100);
         }
     });
     
-    // Función para mover los botones al header
     function moverBotonesAlHeader() {
         const contenedorBotones = document.getElementById('exportButtonsContainerResumen');
         
         if (contenedorBotones && table) {
-            // Limpiar el contenedor si ya tiene botones
             contenedorBotones.innerHTML = '';
             
-            // Crear los botones manualmente
             const botonesConfig = [
                 {
                     text: '<i class="bi bi-clipboard"></i>',
@@ -175,7 +168,6 @@ $(document).ready(function() {
                 btnElement.title = config.title;
                 btnElement.style.marginLeft = '3px';
                 
-                // Agregar el evento click
                 btnElement.addEventListener('click', function() {
                     try {
                         table.button(index).trigger();

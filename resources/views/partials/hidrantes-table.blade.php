@@ -7,7 +7,6 @@
             </div>
             <div class="col-6">
                 <div id="exportButtonsContainer" class="d-flex justify-content-end">
-                    <!-- Los botones se moverán aquí automáticamente -->
                 </div>
             </div>
         </div>

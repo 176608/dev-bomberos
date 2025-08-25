@@ -19,7 +19,7 @@
 
         <p class="text-center lead">Son 6 temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
-        <!-- ESTRUCTURA PRINCIPAL -->
+    
         <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
                 <div class="card bg-light h-100">
@@ -65,7 +65,6 @@
 </div>
 
 <style>
-/* === ESTILOS PARA ÍNDICE DESPLEGADO (del contexto) === */
 .indice-tema-container {
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -102,7 +101,6 @@
     border-bottom: none;
 }
 
-/* === SISTEMA DE FOCUS/HIGHLIGHT === */
 .highlight-focus {
     background-color: #fff3cd !important;
     border: 2px solid #ffc107 !important;
@@ -127,7 +125,6 @@
     }
 }
 
-/* === ALTURAS SINCRONIZADAS === */
 .catalogo-row {
     align-items: stretch;
 }
@@ -142,7 +139,6 @@
     height: 100%;
 }
 
-/* === SCROLLBARS PERSONALIZADOS === */
 #indice-container::-webkit-scrollbar,
 #cuadros-container::-webkit-scrollbar {
     width: 8px;
@@ -165,7 +161,6 @@
     background: #555;
 }
 
-/* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
     .catalogo-row .card-body > div {
         max-height: 400px !important;

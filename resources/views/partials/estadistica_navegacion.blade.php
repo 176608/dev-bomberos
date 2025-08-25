@@ -1,6 +1,5 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <!-- Cabecera --> 
 <div class="row g-0 border-bottom">
     <div class="col-8">
         <div class="p-4">
@@ -11,15 +10,12 @@
         </div>
     </div>
     <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-        <!-- Corregir la ruta de la imagen -->
         <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
              onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
     </div>
 </div>
 
-        <!-- Contenido principal -->
         <div class="row g-0 min-vh-75">
-            <!-- Área de temas -->
             <div class="col-12">
                 <div class="p-4">
                     <h4 class="mb-4">
@@ -27,21 +23,18 @@
                     </h4>
 
                     @if(!isset($temas) || $temas->isEmpty())
-                        <!-- Manejo de error cuando $temas no está definida o está vacía -->
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             No se pudieron cargar los temas estadísticos. Por favor, 
                             <a href="{{ url('/sigem?section=estadistica') }}" class="alert-link">haz clic aquí para intentar nuevamente</a>.
                         </div>
 
-                        <!-- Agregar un script para recargar la página después de un breve retraso -->
                         <script>
                             setTimeout(function() {
                                 window.location.href = '{{ route("sigem.laravel.partial", ["section" => "estadistica"]) }}';
                             }, 3000);
                         </script>
                     @else
-                        <!-- CAMBIO: Usar contenedor flex personalizado en lugar de row Bootstrap -->
                         <div class="temas-grid-container">
                             @foreach($temas as $index => $tema)
                                 @php 
@@ -55,13 +48,11 @@
                                     ];
                                     $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
                                 @endphp
-                                <!-- CAMBIO: Quitar clases Bootstrap y usar clase personalizada -->
                                 <div class="tema-card" style="{{ $colorTema }}">
                                     <a href="{{ route('sigem.estadistica.tema', ['tema_id' => $tema->tema_id]) }}" 
                                        class="enlace-completo" 
                                        data-tema-id="{{ $tema->tema_id }}">
 
-                                        <!-- Fila 1: Icono -->
                                         <div class="row-icono">
                                             @if($tema->orden_indice == 1)
                                                 <i class="bi bi-globe"></i>
@@ -80,14 +71,12 @@
                                             @endif
                                         </div>
 
-                                        <!-- Fila 2: Título -->
                                         <div class="row-titulo">
                                             <h5 class="titulo-tema mb-3">
                                                 {{ $tema->orden_indice }}. {{ $tema->tema_titulo }}
                                             </h5>
                                         </div>
 
-                                        <!-- Fila 3: Hover info (solo visible en hover) -->
                                         <div class="row-hover">
                                             <div class="hover-content">
                                                 <i class="bi bi-arrow-right-circle-fill"></i>
@@ -109,16 +98,14 @@
 </div>
 
 <style>
-/* CONTENEDOR PRINCIPAL - Reemplaza el sistema Bootstrap */
 .temas-grid-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
-    gap: 1.5rem; /* Espacio uniforme entre tarjetas */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 1.5rem; 
     padding: 0.5rem;
     width: 100%;
 }
 
-/* TARJETA DE TEMA - Reemplaza .enlaceTema */
 .tema-card {
     border-radius: 16px;
     min-height: 110px;
@@ -127,10 +114,10 @@
     position: relative;
     overflow: hidden;
     border: none;
-    display: flex; /* Para que el enlace llene toda la tarjeta */
+    display: flex; 
 }
 
-/* ENLACE COMPLETO - Llena toda la tarjeta */
+/
 .enlace-completo {
     display: flex !important;
     flex-direction: column !important;
@@ -143,10 +130,8 @@
     padding: 1rem 0.75rem !important;
     position: relative;
     z-index: 1;
-    /* QUITAR: margin ya no necesario */
 }
 
-/* Fila del icono */
 .row-icono {
     display: flex;
     justify-content: center;
@@ -162,7 +147,6 @@
     transition: all 0.3s ease;
 }
 
-/* Fila del título */
 .row-titulo {
     display: flex;
     justify-content: center;
@@ -181,7 +165,6 @@
     line-height: 1.2;
 }
 
-/* Fila hover (inicialmente oculta) */
 .row-hover {
     position: absolute;
     bottom: 0.2rem;
@@ -210,7 +193,6 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* EFECTOS HOVER */
 .tema-card:hover {
     transform: translateY(-4px) scale(1.01);
     filter: brightness(0.9) saturate(1.1);
@@ -238,13 +220,11 @@
     transform: translateY(-3px);
 }
 
-/* Efecto activo */
 .tema-card:active {
     transform: translateY(-1px) scale(0.995);
     box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-/* RESPONSIVE DESIGN */
 @media (max-width: 991px) {
     .temas-grid-container {
         grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablet */

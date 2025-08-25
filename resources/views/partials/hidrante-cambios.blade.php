@@ -13,12 +13,10 @@
                     </div>
                 @else
                     @php
-                        // Agrupar cambios por fecha/hora y usuario
                         $cambiosAgrupados = $cambios->groupBy(function($item) {
                             return $item->fecha_hora->format('Y-m-d H:i') . '-' . $item->id_user;
                         });
 
-                        // Campos relacionados para mostrar juntos
                         $camposRelacionados = [
                             'id_colonia' => 'colonia',
                             'id_calle' => 'calle',
@@ -65,26 +63,21 @@
                                                 </thead>
                                                 <tbody>
                                                     @php
-                                                        // Procesar campos relacionados primero
                                                         $procesados = [];
                                                         $itemsOrdenados = collect();
                                                     @endphp
 
                                                     @foreach($items as $cambio)
                                                         @php
-                                                            // Saltarse los ya procesados
                                                             if(in_array($cambio->id_cambio_h, $procesados)) continue;
 
-                                                            // Marcar como procesado
                                                             $procesados[] = $cambio->id_cambio_h;
 
-                                                            // Buscar campo relacionado
                                                             $campoRelacionado = null;
                                                             $valorRelacionadoAntes = null;
                                                             $valorRelacionadoDespues = null;
                                                             $idCampoRelacionado = null;
                                                             
-                                                            // Si es un campo ID, buscar su relacionado
                                                             if(array_key_exists($cambio->campo, $camposRelacionados)) {
                                                                 $campoRelacionadoNombre = $camposRelacionados[$cambio->campo];
                                                                 foreach($items as $itemRelacionado) {
@@ -99,7 +92,6 @@
                                                                 }
                                                             }
                                                             
-                                                            // Si es un valor y no un ID, buscamos su ID relacionado
                                                             $relacionInversa = array_search($cambio->campo, $camposRelacionados);
                                                             if($relacionInversa !== false) {
                                                                 foreach($items as $itemRelacionado) {
@@ -190,10 +182,8 @@
     </div>
 </div>
 
-<!-- Agregar este script al final -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Asegurarse de que el accordion funcione dentro del modal
     var modalEl = document.getElementById('historialHidranteModal{{ $hidrante->id }}');
     if (modalEl) {
         modalEl.addEventListener('shown.bs.modal', function() {

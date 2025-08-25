@@ -4,7 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Reporte de Hidrante #{{ $hidrante->id }}</title>
     <style>
-        /* Estilos base */
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             line-height: 1.5;
@@ -13,7 +12,6 @@
             padding: 0;
         }
         
-        /* Contenedores */
         .container-fluid {
             width: 100%;
             padding: 0;
@@ -44,13 +42,11 @@
             font-size: 0.875rem;
         }
         
-        /* Colores de fondo */
         .bg-danger {
             background-color: #dc3545;
             color: white;
         }
         
-        /* Badges y estados */
         .badge {
             display: inline-block;
             padding: 0.25em 0.4em;
@@ -132,7 +128,6 @@
             margin: 1rem 0;
         }
         
-        /* Título y encabezado */
         .header-banner {
             background-color: #dc3545;
             color: white;
@@ -152,7 +147,6 @@
             margin: 0;
         }
         
-        /* Otros estilos */
         .location-box {
             border: 1px solid #dee2e6;
             background-color: #f8f9fa;
@@ -174,7 +168,6 @@
             margin-bottom: 10px;
         }
         
-        /* Estilo para etiquetas de campos (en negrita) */
         .info-label {
             font-weight: bold;
             display: inline-block;
@@ -182,7 +175,6 @@
             margin-bottom: 2px;
         }
         
-        /* Estilo para valores de campos (sin negrita) */
         .info-value {
             font-weight: normal;
             display: block;
@@ -204,7 +196,6 @@
             margin-top: 10px;
         }
         
-        /* Estilo para tabla de datos */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -227,13 +218,11 @@
 </head>
 <body>
     <div class="container-fluid">
-        <!-- Encabezado principal -->
         <div class="header-banner">
             <h1 class="header-title">Departamento de Bomberos</h1>
             <p class="header-subtitle">Registro de Hidrantes</p>
         </div>
         
-        <!-- Información principal -->
         <div class="row">
             <div class="col-md-6" style="text-align: center;">
                 <img src="{{ public_path('img/logo/Escudo_Ciudad_Juarez_smn.png') }}" alt="Escudo Ciudad Juárez" class="escudo">
@@ -258,7 +247,6 @@
         
         <hr>
         
-        <!-- Ubicación del Hidrante -->
         <div class="location-box">
             <div class="location-title">Ubicación del Hidrante</div>
             
@@ -301,7 +289,6 @@
         
         <hr>
         
-        <!-- Datos principales en formato tabla -->
         <table class="data-table">
             <tr>
                 <td class="label-cell">Estado de Hidrante:</td>

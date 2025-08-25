@@ -2,7 +2,6 @@
     <div class="card-body">
         
 
-        <!-- NUEVA SECCIÓN: Imagen + Texto descriptivo -->
         <div class="row mb-4 align-items-center">
             <div class="col-lg-4 col-md-5 mb-3 mb-md-0 text-center">
                 <div class="cartografia-intro-image mx-auto" style="max-width: 80%;">
@@ -26,7 +25,6 @@
             </div>
         </div>
 
-        <!-- NUEVA SECCIÓN: Footer con botones externos -->
         <div class="row mt-5 cartografia-footer">
             <div class="col-12">
                 <hr class="my-4">
@@ -35,7 +33,6 @@
                 </h5>
             </div>
             
-            <!-- Botón IMIP Mapas Digitales -->
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
                     <div class="external-map-image-container" onclick="window.open('https://www.imip.org.mx/imip/node/53', '_blank')">
@@ -56,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- Botón SIGIMIP -->
             <div class="col-md-6 mb-3">
                 <div class="external-map-card h-100">
                     <div class="external-map-image-container" onclick="window.open('https://sigimip.org.mx/', '_blank')">
@@ -81,7 +77,6 @@
 </div>
 
 <style>
-/* Estilos específicos para cartografía */
 .mapa-row {
     margin-bottom: 30px;
     border: 1px solid #e0e0e0;
@@ -149,7 +144,6 @@
     box-shadow: none !important;
 }
 
-/* NUEVO: Contenedor de imagen y descripción */
 .mapa-content {
     display: flex;
     min-height: 200px;
@@ -233,7 +227,6 @@
     text-align: justify;
 }
 
-/* Overlay de hover en imagen */
 .mapa-image-overlay {
     position: absolute;
     top: 0;
@@ -255,7 +248,6 @@
     opacity: 1;
 }
 
-/* Estilos para manejo de errores de imagen */
 .mapa-image-container.image-error .mapa-image-overlay {
     display: none;
 }
@@ -268,12 +260,11 @@
     height: 100%;
 }
 
-/* === NUEVOS ESTILOS PARA SECCIÓN INTRO === */
 .cartografia-intro-image {
     position: relative;
     overflow: hidden;
     border-radius: 10px;
-    margin: 0 auto; /* Centra el contenedor */
+    margin: 0 auto; 
 }
 
 .cartografia-intro-image img {
@@ -295,7 +286,6 @@
     font-weight: 600;
 }
 
-/* === NUEVOS ESTILOS PARA FOOTER EXTERNO === */
 .cartografia-footer {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 10px;
@@ -322,7 +312,7 @@
     height: 120px;
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     overflow: hidden;
-    cursor: pointer; /* AGREGAR: Cursor pointer para indicar clickeable */
+    cursor: pointer; 
 }
 
 .external-map-image {
@@ -357,7 +347,6 @@
     opacity: 1;
 }
 
-/* AGREGAR: Efecto adicional en hover de imagen para indicar clickeable */
 .external-map-image-container:hover {
     background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
 }
@@ -371,7 +360,6 @@
     100% { transform: scale(1.1); }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .mapa-header .row {
         flex-direction: column;

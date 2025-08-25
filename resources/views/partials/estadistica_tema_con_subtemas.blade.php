@@ -348,9 +348,7 @@ function cargarSubtema(subtema_id) {
         });
 }
 
-// Función para actualizar el encabezado del subtema act15
 function actualizarEncabezadoSubtema(subtema_id) {
-    // Obtener información del subtema seleccionado
     fetch('{{ url("/sigem/obtener-info-subtema") }}/' + subtema_id)
         .then(response => response.json())
         .then(data => {
@@ -365,7 +363,6 @@ function actualizarEncabezadoSubtema(subtema_id) {
         .catch(error => console.error('Error al obtener info del subtema:', error));
 }
 
-// Función para renderizar cuadros
 function renderizarCuadros(cuadros) {
     const container = document.getElementById('cuadros-container-estadistica');
     
@@ -379,36 +376,32 @@ function renderizarCuadros(cuadros) {
         return;
     }
     
-    // Función para extraer el número del índice después del último punto
     function extraerNumeroIndice(codigoCuadro) {
-        // Verificar si el código está vacío
         if (!codigoCuadro) {
-            return Number.MAX_VALUE; // Valor alto para que queden al final
+            return Number.MAX_VALUE; 
         }
         
-        // Patrón para extraer el número del índice (último componente después del punto)
         const match = codigoCuadro.match(/\.(\d+(?:\.\d+)*)$/);
         if (match) {
-            return parseFloat(match[1]); // Convertir a número para ordenamiento correcto
+            return parseFloat(match[1]); 
         } else {
             const matchEnd = codigoCuadro.match(/(\d+(?:\.\d+)*)$/);
             if (matchEnd) {
-                // Si no hay punto pero termina en número
+               
                 return parseFloat(matchEnd[1]);
             }
         }
         
-        return Number.MAX_VALUE; // Por defecto al final
+        return Number.MAX_VALUE; 
     }
     
-    // Ordenar los cuadros por el número de índice
+
     const cuadrosOrdenados = [...cuadros].sort((a, b) => {
         const numA = extraerNumeroIndice(a.codigo_cuadro || '');
         const numB = extraerNumeroIndice(b.codigo_cuadro || '');
         return numA - numB;
     });
 
-    //console.log('BLADE: cuadros:', cuadros);
     
     let html = '<div class="cuadros-lista">';
     
@@ -445,13 +438,11 @@ function renderizarCuadros(cuadros) {
     container.innerHTML = html;
 }
 
-// Escuchar el evento personalizado desde sigem.js
 document.addEventListener('verCuadroEstadistico', function(event) {
     const { cuadroId, codigo } = event.detail;
     mostrarModalCuadro(cuadroId, codigo);
 });
 
-// FUNCIÓN PRINCIPAL CORREGIDA - Modal completo con Excel y PDF
 function mostrarModalCuadro(cuadroId, codigo) {
     fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
@@ -461,7 +452,6 @@ function mostrarModalCuadro(cuadroId, codigo) {
             return response.json();
         })
         .then(data => {
-            //console.log('BLADE: Datos recibidos del servidor:', data);
             
             if (!data.success) {
                 throw new Error(data.message || 'Error al obtener información del cuadro');
@@ -470,16 +460,13 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const cuadro = data.cuadro;
             console.log('BLADE: Información del cuadro:', cuadro);
             
-            // Usar la nueva estructura de datos
             const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
             const excelUrl = data.excel.url;
             const tienePdf = data.pdf.tiene_archivo && data.pdf.archivo_existe;
             const pdfUrl = data.pdf.url;
-            // nuevo campo
             const tieneFormatedExcel = data.excel_formated.tiene_archivo && data.excel_formated.archivo_existe;
             const formatedExcelUrl = data.excel_formated.url;
 
-            // Crear modal básico
             const modalId = `modal_excel_${Date.now()}`;
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
@@ -542,15 +529,12 @@ function mostrarModalCuadro(cuadroId, codigo) {
                 </div>
             `;
             
-            // Agregar modal al DOM
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            // Remover del DOM al cerrar
             document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
                 document.getElementById(modalId).remove();
             });
             
-            // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById(modalId));
             modal.show();
 
@@ -565,7 +549,6 @@ function mostrarModalCuadro(cuadroId, codigo) {
                     graficaView.style.display = '';
                     btnGrafica.classList.add('d-none');
                     btnExcel.classList.remove('d-none');
-                    // Solo cargar la gráfica la primera vez
                     if (!graficaView.dataset.loaded) {
                         if (window.GraficaModalEngine && typeof window.GraficaModalEngine.renderGraficaInContainer === 'function') {
                             window.GraficaModalEngine.renderGraficaInContainer(
@@ -591,11 +574,9 @@ function mostrarModalCuadro(cuadroId, codigo) {
                 });
             }
             
-            // Cargar Excel en el modal si existe
             if (tieneExcel) {
                 cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null, formatedExcelUrl);
             } else {
-                // Mostrar mensaje si no hay Excel
                 document.getElementById(`excel-container-${modalId}`).innerHTML = `
                     <div class="alert alert-warning text-center">
                         <i class="bi bi-exclamation-triangle me-2"></i>
@@ -612,11 +593,9 @@ function mostrarModalCuadro(cuadroId, codigo) {
         });
 }
 
-// Función CORREGIDA para cargar y mostrar Excel usando el motor
 function cargarExcelEnModal(modalId, excelUrl, fileName, pdfUrl = null, excelFormatedUrl = null) {
     const excelContainer = document.getElementById(`excel-container-${modalId}`);
     
-    // Usar el motor de Excel para renderizar con TODAS las URLs
     window.ExcelModalEngine.renderExcelInContainer(`excel-container-${modalId}`, excelUrl, fileName, pdfUrl, excelFormatedUrl)
         .catch(error => {
             console.error('Error al cargar Excel con el motor:', error);

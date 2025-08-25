@@ -12,18 +12,16 @@
     </div>
     <div class="card-body" id="filterContainer">
         @if($modo === 'tabla')
-            <!-- Código existente para filtros en modo tabla -->
             @if(empty($filtros_act))
                 <div class="alert alert-info mb-0">
                     No hay filtros activos. Configure los filtros en el panel de configuración.
                 </div>
             @else
-                <!-- Contenido actual del modo tabla -->
                 <div class="row">
                     @foreach($filtros_act as $campo)
                         @php
                             $nombreCampo = $headerNames[$campo] ?? ucfirst(str_replace('_', ' ', $campo));
-                            $valorSeleccionado = ''; // Valor por defecto
+                            $valorSeleccionado = ''; 
                         @endphp
                         <div class="col-md-4 mb-3">
                             <div class="card h-100 border-primary">
@@ -83,9 +81,8 @@
                 </div>
             @endif
         @else
-            <!-- Modo resumen: mostrar botones y porcentajes -->
+            
             <div class="row">
-                <!-- Columna izquierda: botones de selección -->
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header bg-light">
@@ -114,7 +111,6 @@
                     </div>
                 </div>
                 
-                <!-- Columna derecha: porcentajes (si están disponibles) -->
                 <div class="col-md-6">
                     @if(isset($porcentajes) && count($porcentajes) > 0)
                         <div class="card">
@@ -163,34 +159,27 @@
 
 <script>
 $(function() {
-    // Toggle para expandir/contraer el panel de filtros
     $('#toggleFilters').click(function() {
         const $icon = $(this).find('i');
         const $container = $('#filterContainer');
         
         $container.slideToggle();
         
-        // Cambiar el icono y el título según el estado actual
         if ($icon.hasClass('bi-arrow-bar-up')) {
-             // Está contrayendo, cambiar al icono de expandir
             $icon.removeClass('bi-arrow-bar-up').addClass('bi-arrow-bar-down');
             $(this).attr('title', 'Expandir panel');
         } else {
-            // Está expandiendo, cambiar al icono de contraer
             $icon.removeClass('bi-arrow-bar-down').addClass('bi-arrow-bar-up');
             $(this).attr('title', 'Contraer panel');
         }
     });
     
-    // Manejo de filtros individuales
     $('.aplicar-filtro').click(function() {
         const campo = $(this).data('campo');
         const valor = $(this).prev('.filtro-valor').val();
         
-        // Actualizar el valor del filtro en la lista de filtros activos
         actualizarFiltroActivo(campo, valor);
         
-        // Aplicar solo este filtro a la tabla
         const filtros = {};
         if (valor) {
             filtros[campo] = valor;
@@ -198,7 +187,6 @@ $(function() {
         aplicarFiltrosATabla(filtros);
     });
     
-    // Aplicar todos los filtros
     $('#aplicarTodosFiltros').click(function() {
         const filtros = {};
         
@@ -210,54 +198,40 @@ $(function() {
             }
         });
         
-        // Aplicar filtros a la tabla
         aplicarFiltrosATabla(filtros);
     });
     
-    // Limpiar todos los filtros
     $('#limpiarFiltros').click(function() {
-        // Limpiar los selectores visuales
         $('.filtro-valor').val('');
         
-        // Limpiar localStorage
         localStorage.removeItem('hidrantesFilterState');
         
-        // Limpiar filtros globales no visibles
         window.filtrosNoVisibles = {};
         
-        // Aplicar filtros vacíos para limpiar todo (con noScroll = true)
         aplicarFiltrosATabla({}, true);
         
-        // Usar la función centralizada para mostrar el toast
         if (typeof mostrarToast === 'function') {
             mostrarToast('Filtros limpiados exitosamente');
         }
     });
     
     function actualizarFiltroActivo(campo, valor) {
-        // Obtener la lista actual de filtros activos
         let filtrosActivos = @json($filtros_act) || [];
         
-        // Convertir cualquier formato antiguo
         filtrosActivos = filtrosActivos.map(filtro => {
             return typeof filtro === 'string' && filtro.includes(':') ? 
                 filtro.split(':')[0] : filtro;
         });
         
-        // Buscar si ya existe un filtro para este campo
         const filtroIndex = filtrosActivos.indexOf(campo);
         
-        // Guardar la información del valor seleccionado por separado
         const valoresFiltros = {};
         valoresFiltros[campo] = valor;
         
-        // Actualizar o agregar el campo a los filtros activos
         if (filtroIndex === -1) {
             filtrosActivos.push(campo);
         }
-        
-        // Guardar los filtros actualizados y los valores
-        $.ajax({
+                $.ajax({
             url: "{{ route('configuracion.update-filtros') }}",
             method: 'POST',
             data: { 
@@ -268,7 +242,6 @@ $(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                //console.log('Filtro actualizado:', campo, valor);
             },
             error: function(xhr) {
                 console.error('Error al actualizar filtro:', xhr);
@@ -276,44 +249,33 @@ $(function() {
         });
     }
     
-    // Reemplazo completo de la función aplicarFiltrosATabla
     function aplicarFiltrosATabla(filtros, noScroll = false) {
-        // Guardar el estado de los filtros
         localStorage.setItem('hidrantesFilterState', JSON.stringify(filtros));
         
-        // Si estamos usando DataTables
         const table = $('#hidrantesConfigTable').DataTable();
         if (table) {
-            // Limpiar búsquedas anteriores
             table.search('').columns().search('');
             
-            // Verificar si estamos limpiando todos los filtros
             const limpiandoTodo = Object.keys(filtros).length === 0;
             
             if (limpiandoTodo) {
-                // Si estamos limpiando todo, asegurémonos de limpiar también filtros server-side
                 window.filtrosNoVisibles = {};
                 
                 try {
-                    // Restaurar URL de AJAX a su estado original sin parámetros adicionales
                     let ajaxUrl = new URL(table.ajax.url());
                     ajaxUrl.searchParams.delete('filtros_adicionales');
                     
-                    // Recargar la tabla sin filtros
-                    //console.log('Recargando tabla sin filtros');
                     table.ajax.url(ajaxUrl.toString()).load(function() {
                         if (noScroll) {
-                            // Scroll hacia el panel auxiliar en lugar de la tabla
                             scrollToAuxContainer();
                         }
                     });
-                    return; // Terminamos aquí para evitar código adicional
+                    return; 
                 } catch (error) {
                     console.error('Error al limpiar filtros:', error);
                 }
             }
             
-            // Separar filtros en visibles y no visibles
             const columnas = window.hidrantesTableConfig || [];
             const filtrosVisibles = {};
             const filtrosNoVisibles = {};
@@ -322,7 +284,6 @@ $(function() {
                 const valor = filtros[campo];
                 const columnIndex = columnas.indexOf(campo);
                 
-                // Para campos de fecha y ubicación, mandar al servidor siempre
                 if (campo === 'fecha_inspeccion' || 
                     (['calle', 'y_calle', 'colonia'].includes(campo) && valor === 'Con campo pendiente')) {
                     filtrosNoVisibles[campo] = valor;
@@ -330,40 +291,28 @@ $(function() {
                 }
                 
                 if (columnIndex >= 0) {
-                    // Es una columna visible, filtramos del lado del cliente
                     filtrosVisibles[campo] = valor;
                 } else {
-                    // Es una columna no visible, filtraremos del lado del servidor
                     filtrosNoVisibles[campo] = valor;
                 }
             });
             
-            // Depurar los filtros
-            //console.log('Filtros visibles:', filtrosVisibles);
-            //console.log('Filtros no visibles:', filtrosNoVisibles);
-            //console.log('Columnas configuradas:', columnas);
-
-            // Primero limpiar todos los filtros anteriores
+          
             table.columns().search('').draw();
             
-            // Aplicar filtros visibles directamente en DataTables
             Object.keys(filtrosVisibles).forEach(campo => {
                 const valor = filtrosVisibles[campo];
                 const columnIndex = columnas.indexOf(campo);
                 if (columnIndex >= 0) {
-                    // Determinar el índice real de la columna en la tabla
-                    // Las primeras 3 columnas son: id, acciones, stat
+                   
                     const realIndex = columnIndex + 3;
                     
                     console.log(`Aplicando filtro a columna ${campo} (índice ${realIndex}): "${valor}"`);
                     
-                    // Verificar primero que la columna existe en la tabla
                     if (realIndex < table.columns().nodes().length) {
                         if (valor === '') {
-                            // Filtro para valores vacíos
                             table.column(realIndex).search('^$|^N/A$', true, false);
                         } else {
-                            // Usar un filtro exacto (sin regex) para evitar problemas
                             table.column(realIndex).search(valor, false, false);
                         }
                     } else {
@@ -372,17 +321,13 @@ $(function() {
                 }
             });
             
-            // Si hay filtros para columnas no visibles, recargar la tabla con filtros server-side
             if (Object.keys(filtrosNoVisibles).length > 0) {
-                // Guardar los filtros no visibles globalmente para la recarga
                 window.filtrosNoVisibles = filtrosNoVisibles;
                 
                 try {
-                    // Guardar los filtros no visibles en la configuración de AJAX
                     const ajaxUrl = new URL(table.ajax.url());
                     ajaxUrl.searchParams.set('filtros_adicionales', JSON.stringify(filtrosNoVisibles));
                     
-                    // Actualizar la URL de AJAX y recargar
                     console.log('Recargando tabla con filtros server-side:', filtrosNoVisibles);
                     table.ajax.url(ajaxUrl.toString()).load(function() {
                         if (!noScroll) {
@@ -394,24 +339,19 @@ $(function() {
                     alert('Error al aplicar los filtros. Por favor, inténtelo de nuevo.');
                 }
             } else {
-                // Si no hay filtros para columnas no visibles, solo redibujamos
-                // Y limpiamos cualquier filtro server-side anterior si estaba presente antes
+             
                 if (window.filtrosNoVisibles && Object.keys(window.filtrosNoVisibles).length > 0) {
-                    // Había filtros server-side antes, necesitamos recargar para limpiarlos
                     window.filtrosNoVisibles = {};
                     try {
-                        // Restaurar URL de AJAX a su estado original
                         const ajaxUrl = new URL(table.ajax.url());
                         ajaxUrl.searchParams.delete('filtros_adicionales');
                         
-                        // Recargar tabla sin filtros server-side
                         table.ajax.url(ajaxUrl.toString()).load();
                     } catch (error) {
                         console.error('Error al limpiar filtros server-side:', error);
-                        table.draw(); // Como fallback
+                        table.draw(); 
                     }
                 } else {
-                    // No había filtros server-side antes, solo redibujamos
                     table.draw();
                 }
             }
@@ -420,21 +360,17 @@ $(function() {
         }
     }
     
-    // Reemplazar el manejador para los botones de resumen
     $('.cambiar-resumen').click(function() {
         const resumenId = $(this).data('resumen-id');
         
-        // Actualizar apariencia de los botones
         $('.cambiar-resumen').removeClass('btn-primary').addClass('btn-outline-primary');
         $(this).removeClass('btn-outline-primary').addClass('btn-primary');
         
-        // Mostrar indicador de carga
         $('#resumenHidrantesContainer').html(
             '<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div>' +
             '<div>Cargando resumen...</div></div>'
         );
         
-        // Ya no guardamos en la base de datos, solo cargamos el tipo de resumen apropiado
         let url;
         switch(resumenId) {
             case 0:
@@ -451,18 +387,14 @@ $(function() {
                 break;
         }
         
-        // Cargar la nueva vista de resumen
         $.get(url, function(html) {
             $('#resumenHidrantesContainer').html(html);
             
-            // Actualizar porcentajes en el panel auxiliar según el tipo seleccionado
             actualizarPorcentajes(resumenId);
         });
     });
     
-    // Nueva función para actualizar los porcentajes en el panel auxiliar
     function actualizarPorcentajes(resumenId) {
-        // Mostrar indicador de carga en los porcentajes
         $('.col-md-6:nth-child(2)').html(
             '<div class="card"><div class="card-body text-center">' +
             '<div class="spinner-border spinner-border-sm text-primary"></div> ' +
@@ -473,11 +405,9 @@ $(function() {
             modo: 'resumen',
             tipo: resumenId
         }, function(html) {
-            // Parsear el HTML devuelto para extraer la sección de porcentajes
             const $newPanel = $(html);
             const $newPorcentajes = $newPanel.find('.col-md-6:nth-child(2)').html();
             
-            // Actualizar la columna de porcentajes con los datos nuevos
             if ($newPorcentajes) {
                 $('.col-md-6:nth-child(2)').html($newPorcentajes);
             } else {

@@ -1,6 +1,6 @@
 <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 <div class="modal fade modal-edit" id="editarHidranteModal{{ $hidrante->id }}" tabindex="-1">
-    <div class="modal-dialog modal-xl"> <!-- Cambio de modal-lg a modal-xl -->
+    <div class="modal-dialog modal-xl"> 
         <div class="modal-content">
             <form action="{{ route('hidrantes.update', $hidrante->id) }}" method="POST">
                 @csrf
@@ -10,7 +10,6 @@
                     <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="background-color:rgba(188, 250, 240, 0.54);">
-                    <!-- Primera Sección - Información Básica -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-primary text-white">
@@ -43,7 +42,6 @@
 
                     <hr class="my-4">
 
-                    <!-- Segunda Sección - Ubicación -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-success text-white d-flex justify-content-center align-items-center">
@@ -51,7 +49,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <!-- Calle -->
+                                   
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <span id="edit_iconoExclamacionCalle{{ $hidrante->id }}">
@@ -88,7 +86,6 @@
                                             @endif
                                         </small>
                                     </div>
-                                    <!-- Y Calle -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             Y <span id="edit_y_calle_tipo_display" class="d-none fw-bold text-primary"></span>:
@@ -166,7 +163,6 @@
 
                     <hr class="my-4">
 
-                    <!-- Tercera Sección - Estado y Características -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-primary text-white">
@@ -214,7 +210,6 @@
 
                     <hr class="my-4">
 
-                    <!-- Cuarta Sección - Características Técnicas -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-success text-white">
@@ -292,7 +287,6 @@
 
                     <hr class="my-4">
 
-                    <!-- Quinta Sección - Información Adicional -->
                     <div class="row mb-4">
                         <div class="card text-center p-0">
                             <div class="card-header bg-secondary text-white">
@@ -381,28 +375,24 @@ select2.select2-container {
     display: block;
 }
 
-/* Personaliza el fondo y texto del título del popover */
 .popover-header {
-    background-color: #dc3545 !important; /* Rojo Bootstrap */
-    color: #fff !important;               /* Letras blancas */
+    background-color: #dc3545 !important; 
+    color: #fff !important;              
     font-weight: bold;
     text-align: center;
     border-bottom: 1px solid #fff;
 }
 
-/* Personaliza el contenido del popover */
 .popover-body {
-    color: #212529 !important;            /* Texto oscuro */
+    color: #212529 !important;          
     font-size: 1rem;
     text-align: center;
 }
 
-/* Opcional: cambia el borde del popover */
 .popover {
     border: 2px solid #dc3545;
 }
 
-/* Añadir estos estilos al bloque <style> existente */
 .fade-transition {
     transition: opacity 0.3s ease-in-out;
 }
@@ -415,13 +405,11 @@ select2.select2-container {
     opacity: 1;
 }
 
-/* Estilo para destacar el campo manual */
 input[id^="manual_"] {
     border-left: 3px solid #28a745;
     padding-left: 10px;
 }
 
-/* Badge para indicar entrada manual */
 .manual-badge {
     font-size: 0.7rem;
     padding: 2px 5px;
@@ -433,7 +421,6 @@ input[id^="manual_"] {
     vertical-align: middle;
 }
 
-/* Añadir estos estilos al final del bloque <style> en ambos archivos */
 .input-disabled {
     background-color: #e9ecef !important;
     opacity: 0.7;
@@ -452,7 +439,6 @@ input[id^="manual_"] {
 
 <script>
 $(document).ready(function() {
-    // --- CONFIGURACIÓN CENTRAL ---
     const CONFIG = {
         hidranteId: "{{ $hidrante->id }}",
         modalId: '#editarHidranteModal{{ $hidrante->id }}',
@@ -471,7 +457,6 @@ $(document).ready(function() {
         ]
     };
 
-    // --- FUNCIÓN PARA ICONOS ---
     function toggleExclamationIcon(iconId, value) {
         const icon = $(`${iconId}${CONFIG.hidranteId}`);
         if (value === 'S/I' || value === '0' || value === '' || value === null) {
@@ -481,51 +466,41 @@ $(document).ready(function() {
         }
     }
 
-    // --- FUNCIÓN PARA MANEJAR SELECT2 + INPUT MANUAL EN EDICIÓN ---
     function setupLocationFieldEdit(selectId, manualId, tipoDisplayId, fieldType) {
         const $select = $(selectId);
         const $manual = $(manualId);
         const $tipoDisplay = $(tipoDisplayId);
         
-        // INICIALIZACIÓN: Configurar estado inicial basado en datos existentes
         function initializeField() {
             const selectValue = $select.val();
             const manualValue = $manual.val().trim();
             
             if (selectValue && selectValue !== '0' && selectValue !== '') {
-                // Hay selección válida en Select2
                 $manual.hide().prop('disabled', true).addClass('input-disabled');
                 
-                // Mostrar tipo en label
                 const selectedOption = $select.find('option:selected');
                 const tipo = selectedOption.data('tipo');
                 if (tipo) {
                     $tipoDisplay.text(tipo).removeClass('d-none');
                 } else {
-                    // Valor por defecto si no hay tipo
                     const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
                     $tipoDisplay.text(defaultText).removeClass('d-none');
                 }
             } else if (manualValue) {
-                // Hay entrada manual
                 $select.hide().prop('disabled', true);
                 $manual.show().prop('disabled', false).removeClass('input-disabled');
                 
-                // Mostrar valor por defecto en label
                 const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
                 $tipoDisplay.text(defaultText).removeClass('d-none');
             } else {
-                // No hay ningún valor - mostrar ambos y valor por defecto
                 $select.show().prop('disabled', false);
                 $manual.show().prop('disabled', false).removeClass('input-disabled');
                 
-                // Mostrar valor por defecto en label
                 const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
                 $tipoDisplay.text(defaultText).removeClass('d-none');
             }
         }
         
-        // Al seleccionar en Select2
         $select.on('select2:select', function(e) {
             const data = e.params.data;
             const selectedId = data.id;
@@ -533,13 +508,10 @@ $(document).ready(function() {
             const tipo = $(this).find('option:selected').data('tipo');
             
             if (selectedId && selectedId !== '0') {
-                // Ocultar y deshabilitar input manual
                 $manual.hide().prop('disabled', true).val('').addClass('input-disabled');
                 
-                // Mostrar tipo en el label
                 $tipoDisplay.text(tipo || (fieldType === 'colonia' ? 'Colonia' : 'Calle')).removeClass('d-none');
                 
-                // Manejar contenedores de información
                 if (selectId.includes('edit_')) {
                     const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
                     const tipoId = selectId.replace('#edit_id_', '#edit_') + '_selected_tipo';
@@ -552,16 +524,12 @@ $(document).ready(function() {
             }
         });
         
-        // Al limpiar Select2
         $select.on('select2:clear', function() {
-            // Mostrar y habilitar input manual
             $manual.show().prop('disabled', false).removeClass('input-disabled');
             
-            // Mostrar valor por defecto en label
             const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
             $tipoDisplay.text(defaultText).removeClass('d-none');
             
-            // Manejar contenedores
             if (selectId.includes('edit_')) {
                 const containerId = selectId.replace('#edit_id_', '#edit_') + '_selected_container';
                 const actualContainer = selectId.replace('#edit_id_', '#edit_') + '_actual_container';
@@ -571,28 +539,22 @@ $(document).ready(function() {
             }
         });
         
-        // Al escribir en input manual
         $manual.on('input', function() {
             const value = $(this).val().trim();
             if (value.length > 0) {
-                // Ocultar y deshabilitar Select2
                 $select.hide().prop('disabled', true).val(null).trigger('change');
                 
-                // Mostrar valor por defecto en label
                 const defaultText = fieldType === 'colonia' ? 'Colonia' : 'Calle';
                 $tipoDisplay.text(defaultText).removeClass('d-none');
             } else {
-                // Si se borra todo, mostrar Select2 nuevamente
                 $select.show().prop('disabled', false);
             }
             updateSaveButtonState();
         });
         
-        // Inicializar el campo
         initializeField();
     }
 
-    // --- SELECT2 ---
     function initSelect2() {
         $('.select2-search').select2({
             theme: 'bootstrap-5',
@@ -608,7 +570,6 @@ $(document).ready(function() {
         });
     }
 
-    // --- ICONOS DE ADVERTENCIA ---
     function setupIcons() {
         const estado = $('select[name="estado_hidrante"]').val();
         const esSoloBase = estado === 'SOLO BASE';
@@ -633,9 +594,7 @@ $(document).ready(function() {
         });
     }
 
-    // --- BOTÓN GUARDAR Y POPOVER ---
     function updateSaveButtonState() {
-        // Verifica si el campo calle está cubierto
         let calleOk = false;
         const calleSelectVal = $('#edit_id_calle').val();
         const calleManualVal = $('#edit_calle_manual').val().trim();
@@ -644,7 +603,6 @@ $(document).ready(function() {
             calleOk = true;
         }
 
-        // Verifica si el estado de hidrante está definido (no es 'S/I')
         let estadoOk = false;
         const estadoVal = $(`select[name="estado_hidrante"]`).val();
         if (estadoVal && estadoVal !== 'S/I') {
@@ -668,7 +626,6 @@ $(document).ready(function() {
         }
     }
 
-    // --- POPOVER ---
     function edit_initPopover() {
         const popoverTrigger = document.getElementById('edit_popoverGuardarHidrante' + CONFIG.hidranteId);
         if (popoverTrigger) {
@@ -679,7 +636,6 @@ $(document).ready(function() {
         }
     }
 
-    // --- SOLO BASE: LÓGICA DE BLOQUEO Y LIMPIEZA ---
     function handleSoloBaseState(isSoloBase) {
         const fields = [
             'marca', 'anio',
@@ -723,22 +679,16 @@ $(document).ready(function() {
         });
     }
 
-    // --- EVENTOS ---
     function initEventHandlers() {
-        // Iconos de advertencia
         setupIcons();
 
-        // Select2
         initSelect2();
 
-        // Configurar campos de ubicación
         setupLocationFieldEdit('#edit_id_calle', '#edit_calle_manual', '#edit_calle_tipo_display', 'calle');
         setupLocationFieldEdit('#edit_id_y_calle', '#edit_y_calle_manual', '#edit_y_calle_tipo_display', 'calle');
         setupLocationFieldEdit('#edit_id_colonia', '#edit_colonia_manual', '#edit_colonia_tipo_display', 'colonia');
 
-        // Guardar: validación
         $('form').on('submit', function(e) {
-            // Validar calle (obligatoria)
             const calleSelectVal = $('#edit_id_calle').val();
             const calleManualVal = $('#edit_calle_manual').val().trim();
             
@@ -748,27 +698,22 @@ $(document).ready(function() {
                 return false;
             }
             
-            // NO PROCESAR NADA - Solo enviar tal como está
-            // El servidor decidirá qué usar basándose en qué campo tiene contenido
+           
         });
 
-        // Actualizar botón guardar cuando cambian campos clave
         $('#edit_id_calle, #edit_calle_manual').on('change input', updateSaveButtonState);
     }
 
-    // --- EVENTO DE CAMBIO EN ESTADO HIDRANTE ---
     $(`select[name="estado_hidrante"]`).on('change', function() {
         const isSoloBase = $(this).val() === 'SOLO BASE';
         handleSoloBaseState(isSoloBase);
     });
 
-    // --- Al abrir el modal, aplicar si ya está en SOLO BASE ---
     $(CONFIG.modalId).on('shown.bs.modal', function() {
         const isSoloBase = $(`select[name="estado_hidrante"]`).val() === 'SOLO BASE';
         handleSoloBaseState(isSoloBase);
     });
 
-    // --- INICIALIZACIÓN DEL MODAL ---
     $(CONFIG.modalId)
         .on('shown.bs.modal', function() {
             initEventHandlers();
@@ -780,7 +725,6 @@ $(document).ready(function() {
             recargarSoloTabla();
         });
 
-    // Inicialización directa si el modal ya está abierto
     if ($(CONFIG.modalId).is(':visible')) {
         initEventHandlers();
         updateSaveButtonState();

@@ -309,7 +309,6 @@ $(function() {
         $('body').removeClass('modal-open').removeAttr('style');
     });
 
-    // Variables para almacenar el estado actual
     let columnasVisibles = @json($columnas ?? []);
     let filtrosActivos = @json($filtros_act ?? []);
     
@@ -323,10 +322,8 @@ $(function() {
     console.log("Columnas cargadas:", columnasVisibles);
     console.log("Filtros cargados:", filtrosActivos);
     
-    // Verificar inicialmente si debemos mostrar el botón de limpiar filtros
     actualizarBotonLimpiarFiltros();
 
-    // Manejar cambios en visibilidad de columnas
     $('.column-toggle-view').change(function() {
         const column = $(this).data('column');
         const isChecked = $(this).prop('checked');
@@ -336,7 +333,6 @@ $(function() {
                 columnasVisibles.push(column);
             }
         } else {
-            // No permitir desactivar si es la única columna visible
             if (columnasVisibles.length <= 1 && columnasVisibles.includes(column)) {
                 alert('Debe haber al menos una columna visible en la tabla.');
                 $(this).prop('checked', true);
@@ -347,7 +343,6 @@ $(function() {
         }
     });
     
-    // Manejar cambios en activación de filtros
     $('.column-toggle-filter').change(function() {
         const column = $(this).data('column');
         const isChecked = $(this).prop('checked');
@@ -360,25 +355,19 @@ $(function() {
             filtrosActivos = filtrosActivos.filter(f => f !== column);
         }
         
-        // Actualizar el botón de limpiar filtros
         actualizarBotonLimpiarFiltros();
     });
     
-    // Manejar clic en el botón de limpiar filtros
     $('#limpiarFiltrosSeleccionados').click(function() {
-        // Desactivar todos los switches de filtros
         $('.column-toggle-filter').each(function() {
             $(this).prop('checked', false);
         });
         
-        // Limpiar array de filtros activos
         filtrosActivos = [];
         
-        // Ocultar el botón
         $(this).addClass('d-none');
     });
     
-    // Función para actualizar la visibilidad del botón de limpiar filtros
     function actualizarBotonLimpiarFiltros() {
         const $btn = $('#limpiarFiltrosSeleccionados');
         if (filtrosActivos.length >= 2) {
@@ -388,7 +377,6 @@ $(function() {
         }
     }
 
-    // Guardar configuración
     $('#guardarConfiguracion').click(function() {
         $.ajax({
             url: "{{ route('configuracion.save') }}",

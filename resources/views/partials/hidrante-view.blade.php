@@ -37,7 +37,6 @@
                         </div>
                     </div>
                     <hr>
-                    <!-- Ubicación en horizontal --> <!--  -->
 
                     <div class="card text-center">
                         <div class="card-header">
@@ -58,10 +57,8 @@
 
                                     @if($callePrincipal)
                                         @if($calleSecundaria)
-                                            {{-- Caso: Ambas calles (pueden ser mixtas) --}}
                                             Entre {{ $callePrincipal }} y {{ $calleSecundaria }}.
                                         @else
-                                            {{-- Caso: Solo calle principal --}}
                                             Sobre {{ $callePrincipal }}.
                                         @endif
                                     @endif
@@ -70,10 +67,8 @@
                             <div class="row mb-2">
                                 <div class="col-12">
                                     @if($hidrante->coloniaLocacion)
-                                        {{-- Caso 1: Colonia con relación --}}
                                         En {{ $hidrante->coloniaLocacion->TIPO }} {{ $hidrante->coloniaLocacion->NOMBRE }}.
                                     @elseif($hidrante->colonia && $hidrante->colonia !== NULL)
-                                        {{-- Caso 2: Solo campo colonia sin relación --}}
                                         En {{ $hidrante->colonia }}*.
                                     @endif
                                 </div>
@@ -85,7 +80,6 @@
                     </div>
 
                     <hr>
-                    <!-- Llave, presión y color en horizontal -->
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Estado de Hidrante:</label>
@@ -120,7 +114,6 @@
                         </div>
                     </div>
                     <hr>
-                    <!-- Ubicación de fosa y llave de fosa -->
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Llave de Hidrante:</label>
@@ -144,7 +137,6 @@
                         </div>
                     </div>
                     <hr>
-                    <!-- Tubo, año, estado, marca en horizontal -->
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-bold mb-0">Ubicación de Fosa:</label>
@@ -181,7 +173,6 @@
                         </div>
                     </div>
                     <hr>
-                    <!-- Observaciones y oficial -->
                     <div class="row mb-2 align-items-center">
                         <div class="col-md-12">
                             <label class="form-label fw-bold mb-0">Observaciones:</label>

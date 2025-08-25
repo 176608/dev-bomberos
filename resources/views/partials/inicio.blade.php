@@ -15,8 +15,7 @@
     position: relative;
     margin: 0 auto;
     max-width: 200px;
-    /* NUEVO: Altura fija para todos los módulos */
-    height: 180px; /* Altura uniforme para todos */
+    height: 180px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,24 +29,21 @@
     overflow: hidden;
     transition: all 0.4s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    /* CAMBIO: Dimensiones fijas para uniformidad */
     width: 100%;
-    height: 100%; /* Llena el contenedor */
+    height: 100%; 
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .module-image {
-    /* CAMBIO: Auto-dimensionado con límites */
     width: auto;
     height: auto;
     max-width: 100%;
-    max-height: 120px; /* Altura máxima para todas las imágenes */
-    object-fit: contain; /* CAMBIO: contain para no recortar */
+    max-height: 120px; 
+    object-fit: contain; 
     transition: all 0.4s ease;
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
-    /* NUEVO: Centrado perfecto */
     display: block;
 }
 
@@ -82,7 +78,6 @@
     opacity: 0;
     transition: all 0.3s ease;
     border-radius: 15px;
-    /* NUEVO: Asegurar que cubra todo el wrapper */
     width: 100%;
     height: 100%;
 }
@@ -112,7 +107,6 @@
     100% { transform: scale(1); }
 }
 
-/* === EFECTOS ADICIONALES === */
 .module-card .card-header {
     border-bottom: 3px solid rgba(255,255,255,0.2);
     position: relative;
@@ -147,10 +141,9 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* === RESPONSIVE === */
 @media (max-width: 768px) {
     .module-image-container {
-        height: 140px; /* Altura reducida pero uniforme en tablet */
+        height: 140px; /
         max-width: 150px;
     }
     
@@ -161,7 +154,7 @@
 
 @media (max-width: 576px) {
     .module-image-container {
-        height: 120px; /* Altura reducida pero uniforme en móvil */
+        height: 120px; 
         max-width: 120px;
     }
     
@@ -174,7 +167,6 @@
     }
 }
 
-/* === ESTILOS PARA CONSULTA EXPRESS === */
 .consulta-express-container {
     position: relative;
     max-width: 220px;
@@ -264,9 +256,7 @@
             </div>
         </div>
 
-        <!-- MÓDULOS PRINCIPALES CON DISEÑO UNIFORME -->
         <div class="row mb-4">
-            <!-- CATÁLOGO -->
             <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
@@ -275,7 +265,6 @@
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
-                        <!-- Imagen con efecto hover -->
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=catalogo') }}'">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/sige2.png') }}" alt="Catálogo de Cuadros" class="module-image">
@@ -284,11 +273,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Descripción -->
                         <p class="text-muted mb-3">
                             Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva.
                         </p>
-                        <!-- Botón -->
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=catalogo') }}'">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
                         </button>
@@ -296,7 +283,6 @@
                 </div>
             </div>
 
-            <!-- ESTADÍSTICA -->
             <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
@@ -305,7 +291,6 @@
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
-                        <!-- Imagen con efecto hover -->
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=estadistica') }}'">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Módulo Estadística" class="module-image">
@@ -314,11 +299,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Descripción -->
                         <p class="text-muted mb-3">
                             Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
                         </p>
-                        <!-- Botón -->
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=estadistica') }}'">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
                         </button>
@@ -326,7 +309,6 @@
                 </div>
             </div>
 
-            <!-- CARTOGRAFÍA -->
             <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
@@ -335,7 +317,6 @@
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
-                        <!-- Imagen con efecto hover -->
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=cartografia') }}'">
                             <div class="module-image-wrapper">
                                 <img src="{{ asset('imagenes/cartogde.png') }}" alt="Módulo Cartografía" class="module-image">
@@ -344,11 +325,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Descripción -->
                         <p class="text-muted mb-3">
                             Accede a mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
                         </p>
-                        <!-- Botón -->
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=cartografia') }}'">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
                         </button>
