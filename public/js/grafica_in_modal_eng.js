@@ -461,14 +461,14 @@ class GraficaModalEngine {
         // Checkbox seleccionar/deseleccionar todo
         rowsYContainer.innerHTML = `
             <div>
-                <input type="checkbox" class="form-check-input" id="rowy-select-all" checked>
-                <label class="form-check-label fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
+                <input type="checkbox" class="btn-check" id="rowy-select-all" autocomplete="off" checked>
+                <label class="btn btn-outline-success fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
         `;
         rowsYContainer.innerHTML += RowsY.map((row, idx) => `
             <div>
-                <input type="checkbox" class="form-check-input rowy-checkbox" id="rowy-${idx}" value="${idx}" checked>
-                <label class="form-check-label" for="rowy-${idx}">${row}</label>
+                <input type="checkbox" class="btn-check rowy-checkbox"  id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
+                <label class="btn btn-outline-success" for="rowy-${idx}">${row}</label>
             </div>
         `).join('');
 
