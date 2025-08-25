@@ -361,7 +361,6 @@ class GraficaModalEngine {
         // --- Renderizar checkboxes jerárquicos para columnas (Eje Y) ---
         const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
         groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => {
-            // Si el grupo solo tiene un hijo y es igual al grupo, no mostrar el hijo repetido
             const onlyOneAndEqual = group.cols.length === 1 && group.group === group.cols[0];
             return `
                 <div class="mb-2 border rounded p-2">
@@ -371,10 +370,21 @@ class GraficaModalEngine {
                     </div>
                     <div class="ms-3">
                         ${group.cols.map((col, cIdx) => {
-                            if (group.group === col) {
-                                // Si es igual, solo mostrar el checkbox si hay más de un hijo
-                                if (group.cols.length === 1) return '';
-                                // Si hay más de uno, mostrar solo el nombre de la columna
+                            if (onlyOneAndEqual) {
+                                // Renderizar un checkbox hijo aunque el grupo y la columna sean iguales
+                                return `
+                                    <div>
+                                        <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
+                                               id="col-${gIdx}-${cIdx}" 
+                                               value="${col}" 
+                                               data-group="${group.group}"
+                                               data-full-label="${col}"
+                                               checked>
+                                        <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
+                                    </div>
+                                `;
+                            } else if (group.group === col) {
+                                // Si hay más de un hijo y es igual, no mostrar nada (solo encabezado)
                                 return '';
                             } else {
                                 // Si son diferentes, mostrar solo el nombre de la columna
