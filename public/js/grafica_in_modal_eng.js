@@ -299,7 +299,6 @@ class GraficaModalEngine {
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
-                    <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
@@ -307,7 +306,6 @@ class GraficaModalEngine {
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <!-- Igual para columnas -->
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
@@ -421,13 +419,13 @@ class GraficaModalEngine {
         rowsYContainer.innerHTML = `
             <div>
                 <input type="checkbox" class="btn-check" id="rowy-select-all" autocomplete="off" checked>
-                <label class="btn btn-outline-success fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
+                <label class="btn btn-outline-success mb-2 p-2 fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
         `;
         rowsYContainer.innerHTML += RowsY.map((row, idx) => `
             <div>
                 <input type="checkbox" class="btn-check rowy-checkbox"  id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
-                <label class="btn btn-outline-success" for="rowy-${idx}">${row}</label>
+                <label class="btn btn-outline-success mb-2 p-2" for="rowy-${idx}">${row}</label>
             </div>
         `).join('');
 

@@ -278,8 +278,8 @@
 
 .cartografia-intro-image img {
     transition: all 0.3s ease;
-    margin: 0 auto; /* Centra la imagen */
-    display: block; /* Necesario para que el margen automático funcione */
+    margin: 0 auto; 
+    display: block; 
 }
 
 .cartografia-intro-image:hover img {

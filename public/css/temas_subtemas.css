@@ -475,19 +475,20 @@
     font-size: 0.9rem;
 }
 
-/* Mejorar visualización de celdas */
 .excel-table td:empty {
     height: 22px;
     min-width: 40px;
     background-color: #f9f9f9;
 }
 
-/* Estilos adicionales para el modal */
+.data-row {
+    background-color: #ff0000;
+}
+
 .modal-xl {
     max-width: 90%;
 }
 
-/* Media query para pantallas pequeñas */
 @media (max-width: 768px) {
     .modal-xl {
         max-width: 95%;

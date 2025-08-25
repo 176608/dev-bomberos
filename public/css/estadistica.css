@@ -25,7 +25,6 @@
     margin-right: 0.75rem;
 }
 
-/* Estilos para la lista de cuadros */
 .cuadros-lista {
     max-height: 70vh;
     overflow-y: auto;
