@@ -198,6 +198,10 @@ class GraficaModalEngine {
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
+                /* Oculta visualmente el checkbox hijo duplicado cuando es el único y es igual al grupo */
+                .only-child-duplicate {
+                    display: none !important;
+                }
             `;
             document.head.appendChild(style);
         }
@@ -371,9 +375,9 @@ class GraficaModalEngine {
                     <div class="ms-3">
                         ${group.cols.map((col, cIdx) => {
                             if (onlyOneAndEqual) {
-                                // Renderizar un checkbox hijo aunque el grupo y la columna sean iguales
+                                // Renderizar el checkbox hijo pero ocultarlo visualmente
                                 return `
-                                    <div>
+                                    <div class="only-child-duplicate">
                                         <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
                                                id="col-${gIdx}-${cIdx}" 
                                                value="${col}" 
