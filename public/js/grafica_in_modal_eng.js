@@ -299,18 +299,18 @@ class GraficaModalEngine {
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
-                    <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
+                    <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="rowsYCheckboxes" title="Mostrar u ocultar los parámetros de ${CabeceraY}. Haz clic para alternar.">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
-                        <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
+                        <div id="toggleRowsYIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #dedfde2c;"></div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
+                    <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="groupedColumnCheckboxes" title="Mostrar u ocultar las columnas y grupos disponibles. Haz clic para alternar.">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
-                        <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
+                        <div id="toggleColsXIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #dedfde25;"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #c2c2c29f;"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -331,7 +331,7 @@ class GraficaModalEngine {
                 </div>
             </div>
             <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
-                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones
+                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones, y las selecciones se muestran u ocultan al hacer click en el boton pertiente. 
             </div>
             <div id="chartContainer" class="mb-3"></div>
         `;
@@ -358,12 +358,16 @@ class GraficaModalEngine {
                 btnRowsY.setAttribute('aria-expanded', 'false');
                 // visual: not active when collapsed
                 btnRowsY.classList.remove('saved');
+                // mejorar accesibilidad/ayuda: title descriptivo al estar colapsado
+                btnRowsY.title = `Expandir parámetros de ${CabeceraY}. Haz clic para ver las opciones.`;
             } else {
                 rowsYDiv.style.display = '';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
                 btnRowsY.setAttribute('aria-expanded', 'true');
                 // visual: mark as active/saved when expanded
                 btnRowsY.classList.add('saved');
+                // mejorar accesibilidad/ayuda: title descriptivo al estar expandido
+                btnRowsY.title = `Colapsar parámetros de ${CabeceraY}. Haz clic para ocultar las opciones.`;
             }
         }
         // Click toggles collapse and shows a temporary "pressed" (red) state
@@ -391,11 +395,15 @@ class GraficaModalEngine {
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
                 btnColsX.setAttribute('aria-expanded', 'false');
                 btnColsX.classList.remove('saved');
+                // title cuando está colapsado
+                btnColsX.title = 'Expandir columnas y grupos. Haz clic para ver las opciones disponibles.';
             } else {
                 colsXDiv.style.display = '';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
                 btnColsX.setAttribute('aria-expanded', 'true');
                 btnColsX.classList.add('saved');
+                // title cuando está expandido
+                btnColsX.title = 'Colapsar columnas y grupos. Haz clic para ocultar las opciones.';
             }
         }
         btnColsX.addEventListener('click', function() {
