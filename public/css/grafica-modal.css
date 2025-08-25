@@ -83,3 +83,46 @@
 .grafica-modal-checkbox-list .checkbox-group:last-child {
   margin-bottom: 0;
 }
+/*-------------*/
+.grafica-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.grafica-dropdown-toggle {
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  background: #e3eafc;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.grafica-dropdown-toggle:focus,
+.grafica-dropdown-toggle:hover {
+  background: #c7d7f7;
+  outline: 2px solid #1976d2;
+}
+.grafica-dropdown-menu {
+  position: absolute;
+  left: 0; right: 0;
+  top: 110%;
+  z-index: 3000;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border: 1px solid #e0e0e0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.2s, transform 0.2s;
+  max-height: 350px;
+  overflow-y: auto;
+}
+.grafica-dropdown.open .grafica-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}

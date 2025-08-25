@@ -691,3 +691,60 @@ class GraficaModalEngine {
 
 // Instancia global
 window.GraficaModalEngine = new GraficaModalEngine();
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Cierra todos los dropdowns abiertos
+  function closeAllDropdowns(except = null) {
+    document.querySelectorAll('.grafica-dropdown.open').forEach(d => {
+      if (d !== except) {
+        d.classList.remove('open');
+        d.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  document.querySelectorAll('.grafica-dropdown').forEach(drop => {
+    const toggle = drop.querySelector('.grafica-dropdown-toggle');
+    const menu = drop.querySelector('.grafica-dropdown-menu');
+
+    // Abre/cierra al hacer click en cualquier parte del dropdown
+    drop.addEventListener('click', function (e) {
+      // Solo abrir/cerrar si el click es en el dropdown o en el toggle
+      if (e.target === drop || (toggle && toggle.contains(e.target))) {
+        const isOpen = drop.classList.contains('open');
+        closeAllDropdowns(isOpen ? null : drop);
+        drop.classList.toggle('open', !isOpen);
+        drop.setAttribute('aria-expanded', String(!isOpen));
+        if (!isOpen && menu) menu.focus();
+        e.stopPropagation();
+      }
+    });
+
+    // Cierra al hacer click fuera
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) {
+        drop.classList.remove('open');
+        drop.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Cierra con Escape
+    drop.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        drop.classList.remove('open');
+        drop.setAttribute('aria-expanded', 'false');
+        if (toggle) toggle.focus();
+      }
+    });
+
+    // Accesibilidad: abre/cierra con Enter/Espacio en el toggle
+    if (toggle) {
+      toggle.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          drop.click();
+        }
+      });
+    }
+  });
+});
