@@ -204,7 +204,7 @@ class GraficaModalEngine {
                 .grafica-modal-checkbox-list label:hover,
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus + label {
                 color: #1976d2;
-                background: #e3f0fc;
+                background: #74afe0ad;
                 }
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus {
                 outline: 2px solid #1976d2;
@@ -212,7 +212,7 @@ class GraficaModalEngine {
                 .grafica-modal-checkbox-list .sticky-header {
                 position: sticky;
                 top: 0;
-                background: #fff;
+                background: #c9f3f1ff;
                 z-index: 2;
                 padding-bottom: 0.5rem;
                 border-bottom: 1px solid #e0e0e0;
@@ -249,10 +249,9 @@ class GraficaModalEngine {
                 margin-bottom: 0;
                 }
 
-                /* Toggle button visual states */
                 .grafica-toggle-btn {
-                    background: transparent;
-                    border: 0;
+                    background: rgba(148, 148, 148, 1);
+                    border-left: 4px solid #535353ff !important;
                     padding: 0.25rem 0.5rem;
                     width: 100%;
                     text-align: left;
@@ -267,14 +266,13 @@ class GraficaModalEngine {
                     background: rgba(25,118,210,0.06);
                     cursor: pointer;
                     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+                    border-left: 4px solid #0a0909ff !important;
                 }
-                /* Estado "guardado/activo" (verde) */
                 .grafica-toggle-btn.saved {
                     background: #e6f4ea !important;
                     color: #155724 !important;
                     border-left: 4px solid #28a745 !important;
                 }
-                /* Estado pulsado: rojo temporal */
                 .grafica-toggle-btn.pressed {
                     background: #fdecea !important;
                     color: #721c24 !important;
@@ -344,7 +342,7 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
-                        <div class="form-label mb-0"><small><b>${CabeceraY}:</b></small></div>
+                        <div class="form-label mb-0 align-items-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
@@ -352,7 +350,7 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <!-- Igual para columnas -->
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
-                        <div class="form-label mb-0"><small><b>Columnas/grupos:</b></small></div>
+                        <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
                     </button>
                     <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
