@@ -181,7 +181,7 @@ class ExcelModalEngine {
         htmlParts.push('</colgroup>');
 
         // Tabla
-        htmlParts.push('<table class="table excel-table table-bordered">');
+        htmlParts.push('<table class="table excel-table table-bordered table-hover">');
 
         for (let r = range.s.r; r <= range.e.r; r++) {
             htmlParts.push(`<tr class="${this.getRowClasses(r, range.e.r)}">`);
@@ -438,7 +438,7 @@ class ExcelModalEngine {
                     </h5>
                     <div class="btn-group">${buttons}</div>
                 </div>
-                <div class="table-responsive excel-table-wrapper table table-hover">
+                <div class="table-responsive excel-table-wrapper">
                     ${this.getTableStyles()}
                     ${tableHTML}
                 </div>
@@ -486,9 +486,11 @@ class ExcelModalEngine {
         return `<style>
         .text-cell {
             text-align: center !important;
+            background-color: #5dd392de;
         }
         .number-cell {
             text-align: right !important;
+            background-color: #adf1ccde;
         }
         </style>`;
     }
