@@ -203,8 +203,8 @@ class GraficaModalEngine {
 
                 .grafica-modal-checkbox-list label:hover,
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus + label {
-                color: #1976d2;
-                background: #74afe0ad;
+                color: #016cd6ff;
+                background: #90c9f7ad;
                 }
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus {
                 outline: 2px solid #1976d2;
@@ -250,23 +250,22 @@ class GraficaModalEngine {
                 }
 
                 .grafica-toggle-btn {
-                    background: rgba(93, 170, 144, 1)!important;
+                    background: rgba(151, 240, 210, 1)!important;
                     border-left: 4px solid #535353ff !important;
                     padding: 0.25rem 0.5rem;
                     width: 100%;
-                    text-align: left;
                     transition: background-color 0.18s ease, box-shadow 0.12s ease, transform 0.06s ease;
                     border-radius: 6px;
                     display: flex;
-                    align-items: center;
                     gap: 0.5rem;
                 }
                 .grafica-toggle-btn .form-label { flex: 1; }
                 .grafica-toggle-btn:hover {
-                    background: rgba(133, 133, 133, 1)!important;
+                    background: rgba(135, 123, 199, 1)!important;
                     cursor: pointer;
                     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
                     border-left: 4px solid #0a0909ff !important;
+                    transform: translateY(-2px);
                 }
                 .grafica-toggle-btn.saved {
                     background: #abe4bcff !important;
@@ -275,8 +274,8 @@ class GraficaModalEngine {
                 }
                 .grafica-toggle-btn.pressed {
                     background: #53c074ff !important;
-                    color: #062e10ff !important;
-                    border-left: 4px solid #053a11ff !important;
+                    color: #02290cff !important;
+                    border-left: 4px solid #00360dff !important;
                     transform: translateY(2px);
                 }
             `;
@@ -339,7 +338,7 @@ class GraficaModalEngine {
 
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6 draggable-panel" data-panel="rowsY" draggable="true">
                     <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
@@ -347,7 +346,7 @@ class GraficaModalEngine {
                     </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6 draggable-panel" data-panel="colsX" draggable="true">
                     <!-- Igual para columnas -->
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
@@ -379,6 +378,65 @@ class GraficaModalEngine {
             <div id="chartContainer" class="mb-3"></div>
         `;
         container.innerHTML = selectionHTML;
+
+        // --- Drag & drop: permitir reordenar paneles y grupos ---
+        (function enableDragAndDrop() {
+            const panels = Array.from(container.querySelectorAll('.draggable-panel'));
+            let dragSrc = null;
+
+            panels.forEach(panel => {
+                panel.addEventListener('dragstart', (e) => {
+                    dragSrc = panel;
+                    e.dataTransfer.effectAllowed = 'move';
+                    try { e.dataTransfer.setData('text/plain', panel.dataset.panel); } catch (err) {}
+                    panel.classList.add('dragging');
+                });
+                panel.addEventListener('dragend', () => {
+                    panels.forEach(p => p.classList.remove('dragging'));
+                    dragSrc = null;
+                });
+                panel.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                panel.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (!dragSrc || dragSrc === panel) return;
+                    // swap nodes
+                    const parent = panel.parentNode;
+                    const ref = (dragSrc.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING) ? panel : dragSrc;
+                    parent.insertBefore(dragSrc, ref);
+                    parent.insertBefore(panel, ref === panel ? dragSrc : panel);
+                });
+            });
+
+            // Reordenar grupos dentro de groupedColumnCheckboxes
+            const groupsContainer = document.getElementById('groupedColumnCheckboxes');
+            function makeGroupsDraggable() {
+                const groups = Array.from(groupsContainer.children);
+                let src = null;
+                groups.forEach(g => {
+                    g.setAttribute('draggable', 'true');
+                    g.addEventListener('dragstart', (e) => { src = g; g.classList.add('dragging'); try{e.dataTransfer.setData('text/plain','group');}catch(e){} });
+                    g.addEventListener('dragend', () => { src = null; groups.forEach(x=>x.classList.remove('dragging')); });
+                    g.addEventListener('dragover', (e) => { e.preventDefault(); });
+                    g.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        if (!src || src === g) return;
+                        const children = Array.from(groupsContainer.children);
+                        const srcIdx = children.indexOf(src);
+                        const dstIdx = children.indexOf(g);
+                        if (srcIdx < dstIdx) {
+                            groupsContainer.insertBefore(src, g.nextSibling);
+                        } else {
+                            groupsContainer.insertBefore(src, g);
+                        }
+                    });
+                });
+            }
+            // call after groups exist; makeGroupsDraggable called later once groups rendered
+            window.__makeGraficaGroupsDraggable = makeGroupsDraggable;
+        })();
 
         // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
         function getCollapseKey(which) {
@@ -519,6 +577,11 @@ class GraficaModalEngine {
                 </div>
             `;
         }).join('');
+
+        // Make groups draggable (function defined earlier)
+        if (typeof window.__makeGraficaGroupsDraggable === 'function') {
+            window.__makeGraficaGroupsDraggable();
+        }
 
         // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
         const updateChart = () => {
