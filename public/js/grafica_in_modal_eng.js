@@ -198,15 +198,6 @@ class GraficaModalEngine {
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
-                /* Para selects nativos, solo funciona si se usa custom select */
-                select#grafica-modal-select {
-                    position: relative;
-                    z-index: 3000;
-                }
-                /* Para evitar que el modal recorte los menús */
-                .modal, .modal-content {
-                    overflow: visible !important;
-                }
             `;
             document.head.appendChild(style);
         }
