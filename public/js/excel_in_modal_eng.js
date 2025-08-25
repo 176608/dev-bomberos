@@ -492,6 +492,25 @@ class ExcelModalEngine {
             text-align: right !important;
             background-color: #adf1ccde !important;
         }
+
+        .modal .table-responsive,
+        .excel-viewer-container .table-responsive,
+        .excel-table-wrapper .table-responsive {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        .modal .modal-body {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        .excel-table-wrapper {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        .excel-viewer-container { padding-bottom: 12px; }
         </style>`;
     }
 
