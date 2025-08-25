@@ -201,43 +201,6 @@ class GraficaModalEngine {
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
 
-                .grafica-modal-checkbox-list {
-                    border-radius: 12px;
-                    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-                    border: 1px solid #e0e0e0;
-                    background: #fff;
-                    min-width: 260px;
-                    max-width: 350px;
-                    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-                    transition: box-shadow 0.2s, opacity 0.2s, transform 0.2s;
-                    opacity: 1;
-                    z-index: 3000;
-                }
-                .grafica-modal-checkbox-list[aria-hidden="true"] {
-                    opacity: 0;
-                    pointer-events: none;
-                    transform: translateY(-10px);
-                }
-                .grafica-modal-checkbox-list[aria-hidden="false"] {
-                    opacity: 1;
-                    pointer-events: auto;
-                    transform: translateY(0);
-                }
-                .grafica-modal-checkbox-list .mb-2 {
-                    margin-bottom: 1rem;
-                    border-bottom: 1px solid #f0f0f0;
-                    padding-bottom: 0.5rem;
-                }
-                .grafica-modal-checkbox-list .mb-2:last-child {
-                    border-bottom: none;
-                }
-                .grafica-modal-checkbox-list label {
-                    cursor: pointer;
-                    transition: color 0.2s, background 0.2s;
-                    border-radius: 6px;
-                    padding: 2px 4px;
-                    display: inline-block;
-                }
                 .grafica-modal-checkbox-list label:hover,
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus + label {
                 color: #1976d2;
@@ -284,6 +247,39 @@ class GraficaModalEngine {
                 }
                 .grafica-modal-checkbox-list .checkbox-group:last-child {
                 margin-bottom: 0;
+                }
+
+                /* Toggle button visual states */
+                .grafica-toggle-btn {
+                    background: transparent;
+                    border: 0;
+                    padding: 0.25rem 0.5rem;
+                    width: 100%;
+                    text-align: left;
+                    transition: background-color 0.18s ease, box-shadow 0.12s ease, transform 0.06s ease;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                .grafica-toggle-btn .form-label { flex: 1; }
+                .grafica-toggle-btn:hover {
+                    background: rgba(25,118,210,0.06);
+                    cursor: pointer;
+                    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+                }
+                /* Estado "guardado/activo" (verde) */
+                .grafica-toggle-btn.saved {
+                    background: #e6f4ea !important;
+                    color: #155724 !important;
+                    border-left: 4px solid #28a745 !important;
+                }
+                /* Estado pulsado: rojo temporal */
+                .grafica-toggle-btn.pressed {
+                    background: #fdecea !important;
+                    color: #721c24 !important;
+                    border-left: 4px solid #dc3545 !important;
+                    transform: translateY(1px);
                 }
             `;
             document.head.appendChild(style);
@@ -347,7 +343,7 @@ class GraficaModalEngine {
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
                     <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
-                    <button id="toggleRowsY" type="button" class="btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;">
+                    <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
@@ -355,7 +351,7 @@ class GraficaModalEngine {
                 </div>
                 <div class="col-12 col-md-6">
                     <!-- Igual para columnas -->
-                    <button id="toggleColsX" type="button" class="btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;">
+                    <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
                     </button>
@@ -405,15 +401,29 @@ class GraficaModalEngine {
                 rowsYDiv.style.display = 'none';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
                 btnRowsY.setAttribute('aria-expanded', 'false');
+                // visual: not active when collapsed
+                btnRowsY.classList.remove('saved');
             } else {
                 rowsYDiv.style.display = '';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
                 btnRowsY.setAttribute('aria-expanded', 'true');
+                // visual: mark as active/saved when expanded
+                btnRowsY.classList.add('saved');
             }
         }
+        // Click toggles collapse and shows a temporary "pressed" (red) state
         btnRowsY.addEventListener('click', function() {
+            btnRowsY.classList.add('pressed');
+            setTimeout(() => btnRowsY.classList.remove('pressed'), 220);
             setCollapsed('rowsY', !isCollapsed('rowsY'));
             updateRowsYCollapse();
+        });
+        ['mousedown','mouseup','mouseleave','touchstart','touchend'].forEach(ev => {
+            if (ev === 'mousedown' || ev === 'touchstart') {
+                btnRowsY.addEventListener(ev, () => btnRowsY.classList.add('pressed'));
+            } else {
+                btnRowsY.addEventListener(ev, () => btnRowsY.classList.remove('pressed'));
+            }
         });
         updateRowsYCollapse();
         // Eje X
@@ -425,15 +435,26 @@ class GraficaModalEngine {
                 colsXDiv.style.display = 'none';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
                 btnColsX.setAttribute('aria-expanded', 'false');
+                btnColsX.classList.remove('saved');
             } else {
                 colsXDiv.style.display = '';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
                 btnColsX.setAttribute('aria-expanded', 'true');
+                btnColsX.classList.add('saved');
             }
         }
         btnColsX.addEventListener('click', function() {
+            btnColsX.classList.add('pressed');
+            setTimeout(() => btnColsX.classList.remove('pressed'), 220);
             setCollapsed('colsX', !isCollapsed('colsX'));
             updateColsXCollapse();
+        });
+        ['mousedown','mouseup','mouseleave','touchstart','touchend'].forEach(ev => {
+            if (ev === 'mousedown' || ev === 'touchstart') {
+                btnColsX.addEventListener(ev, () => btnColsX.classList.add('pressed'));
+            } else {
+                btnColsX.addEventListener(ev, () => btnColsX.classList.remove('pressed'));
+            }
         });
         updateColsXCollapse();
 
