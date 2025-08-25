@@ -317,10 +317,10 @@ class GraficaModalEngine {
         function updateRowsYCollapse() {
             if (isCollapsed('rowsY')) {
                 rowsYDiv.style.display = 'none';
-                btnRowsY.innerHTML = '►';
+                btnRowsY.innerHTML = '<i class="bi bi-arrow-up-circle-fill"></i>';
             } else {
                 rowsYDiv.style.display = '';
-                btnRowsY.innerHTML = '▼';
+                btnRowsY.innerHTML = '<i class="bi bi-arrow-down-circle-fill"></i>';
             }
         }
         btnRowsY.addEventListener('click', function() {
