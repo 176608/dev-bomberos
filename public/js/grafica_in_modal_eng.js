@@ -186,6 +186,31 @@ class GraficaModalEngine {
      */
     renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
 
+        // INYECTAR CSS PARA Z-INDEX ALTO EN DROPDOWNS Y LISTAS SOBRE EL MODAL
+        if (!document.getElementById('grafica-modal-zindex-style')) {
+            const style = document.createElement('style');
+            style.id = 'grafica-modal-zindex-style';
+            style.innerHTML = `
+                /* Asegura que los dropdowns y listas se muestren sobre el modal */
+                .grafica-modal-dropdown, .grafica-modal-select, .grafica-modal-checkbox-list, .grafica-modal-dropdown-menu {
+                    position: absolute !important;
+                    z-index: 3000 !important;
+                    background: white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                }
+                /* Para selects nativos, solo funciona si se usa custom select */
+                select#grafica-modal-select {
+                    position: relative;
+                    z-index: 3000;
+                }
+                /* Para evitar que el modal recorte los menús */
+                .modal, .modal-content {
+                    overflow: visible !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
         //Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
         setTimeout(() => {
             document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
@@ -247,14 +272,14 @@ class GraficaModalEngine {
                         <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
                         <button id="toggleRowsY" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
                     </div>
-                    <div id="rowsYCheckboxes" class="small"></div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
                         <button id="toggleColsX" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
                     </div>
-                    <div id="groupedColumnCheckboxes" class="small"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
