@@ -250,7 +250,7 @@ class GraficaModalEngine {
                 }
 
                 .grafica-toggle-btn {
-                    background: rgba(148, 148, 148, 1);
+                    background: rgba(145, 144, 144, 1)!important;
                     border-left: 4px solid #535353ff !important;
                     padding: 0.25rem 0.5rem;
                     width: 100%;
@@ -263,18 +263,18 @@ class GraficaModalEngine {
                 }
                 .grafica-toggle-btn .form-label { flex: 1; }
                 .grafica-toggle-btn:hover {
-                    background: rgba(25,118,210,0.06);
+                    background: rgba(25,118,210,0.06)!important;
                     cursor: pointer;
                     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
                     border-left: 4px solid #0a0909ff !important;
                 }
                 .grafica-toggle-btn.saved {
-                    background: #e6f4ea !important;
+                    background: #abe4bcff !important;
                     color: #155724 !important;
                     border-left: 4px solid #28a745 !important;
                 }
                 .grafica-toggle-btn.pressed {
-                    background: #fdecea !important;
+                    background: #e7b4afff !important;
                     color: #721c24 !important;
                     border-left: 4px solid #dc3545 !important;
                     transform: translateY(1px);
@@ -342,7 +342,7 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
-                        <div class="form-label mb-0 align-items-center"><small><b>${CabeceraY}:</b></small></div>
+                        <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
