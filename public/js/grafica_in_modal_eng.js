@@ -334,10 +334,10 @@ class GraficaModalEngine {
         function updateColsXCollapse() {
             if (isCollapsed('colsX')) {
                 colsXDiv.style.display = 'none';
-                btnColsX.innerHTML = '►';
+                btnColsX.innerHTML = '<i class="bi bi-arrows-expand"></i>';
             } else {
                 colsXDiv.style.display = '';
-                btnColsX.innerHTML = '▼';
+                btnColsX.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
             }
         }
         btnColsX.addEventListener('click', function() {
