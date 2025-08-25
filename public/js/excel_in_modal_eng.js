@@ -10,9 +10,6 @@ class ExcelModalEngine {
 
     // === CARGA Y RENDERIZADO ===
 
-    /**
-     * Inicializa SheetJS si no está cargado
-     */
     async init() {
         if (typeof XLSX !== 'undefined') {
             this.sheetJSLoaded = true;
@@ -420,9 +417,6 @@ class ExcelModalEngine {
         };
     }
 
-    /**
-     * Clases para filas
-     */
     getRowClasses(rowIndex, lastRow) {
         if (rowIndex === 0) return 'header-row';
         if (rowIndex === lastRow) return 'footer-row';
@@ -431,9 +425,6 @@ class ExcelModalEngine {
 
     // === RENDERIZADO FINAL ===
 
-    /**
-     * Envuelve tabla en contenedores con botones
-     */
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
         //console.log('BLADE: excelUrl', excelUrl);
         //console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
@@ -447,7 +438,7 @@ class ExcelModalEngine {
                     </h5>
                     <div class="btn-group">${buttons}</div>
                 </div>
-                <div class="table-responsive excel-table-wrapper">
+                <div class="table-responsive excel-table-wrapper table table-hover">
                     ${this.getTableStyles()}
                     ${tableHTML}
                 </div>
