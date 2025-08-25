@@ -265,14 +265,14 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
-                        <button id="toggleRowsY" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
+                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
                     </div>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
-                        <button id="toggleColsX" type="button" class="btn btn-link btn-sm px-2 py-0" style="font-size:1.1em;">▼</button>
+                        <button id="toggleColsX" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
                     </div>
                     <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
@@ -317,10 +317,10 @@ class GraficaModalEngine {
         function updateRowsYCollapse() {
             if (isCollapsed('rowsY')) {
                 rowsYDiv.style.display = 'none';
-                btnRowsY.innerHTML = '<i class="bi bi-arrow-up-circle-fill"></i>';
+                btnRowsY.innerHTML = '<i class="bi bi-arrows-expand"></i>';
             } else {
                 rowsYDiv.style.display = '';
-                btnRowsY.innerHTML = '<i class="bi bi-arrow-down-circle-fill"></i>';
+                btnRowsY.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
             }
         }
         btnRowsY.addEventListener('click', function() {
