@@ -346,17 +346,19 @@ class GraficaModalEngine {
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
-                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
-                    </div>
+                    <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
+                    <button id="toggleRowsY" type="button" class="btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;">
+                        <div class="form-label mb-0"><small><b>${CabeceraY}:</b></small></div>
+                        <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
+                    </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
-                        <button id="toggleColsX" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
-                    </div>
+                    <!-- Igual para columnas -->
+                    <button id="toggleColsX" type="button" class="btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;">
+                        <div class="form-label mb-0"><small><b>Columnas/grupos:</b></small></div>
+                        <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
+                    </button>
                     <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
             </div>
@@ -398,12 +400,15 @@ class GraficaModalEngine {
         const rowsYDiv = document.getElementById('rowsYCheckboxes');
         const btnRowsY = document.getElementById('toggleRowsY');
         function updateRowsYCollapse() {
+            const icon = document.getElementById('toggleRowsYIcon');
             if (isCollapsed('rowsY')) {
                 rowsYDiv.style.display = 'none';
-                btnRowsY.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+                if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+                btnRowsY.setAttribute('aria-expanded', 'false');
             } else {
                 rowsYDiv.style.display = '';
-                btnRowsY.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+                if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+                btnRowsY.setAttribute('aria-expanded', 'true');
             }
         }
         btnRowsY.addEventListener('click', function() {
@@ -415,12 +420,15 @@ class GraficaModalEngine {
         const colsXDiv = document.getElementById('groupedColumnCheckboxes');
         const btnColsX = document.getElementById('toggleColsX');
         function updateColsXCollapse() {
+            const icon = document.getElementById('toggleColsXIcon');
             if (isCollapsed('colsX')) {
                 colsXDiv.style.display = 'none';
-                btnColsX.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+                if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+                btnColsX.setAttribute('aria-expanded', 'false');
             } else {
                 colsXDiv.style.display = '';
-                btnColsX.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+                if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+                btnColsX.setAttribute('aria-expanded', 'true');
             }
         }
         btnColsX.addEventListener('click', function() {
