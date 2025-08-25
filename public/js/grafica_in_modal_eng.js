@@ -264,8 +264,7 @@ class GraficaModalEngine {
             <div class="row g-2 align-items-start mb-2">
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
-                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
+                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"><small><b>${CabeceraY}:</b></small></button>
                     </div>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
