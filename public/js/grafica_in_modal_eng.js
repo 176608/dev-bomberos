@@ -250,7 +250,7 @@ class GraficaModalEngine {
                 }
 
                 .grafica-toggle-btn {
-                    background: rgba(145, 144, 144, 1)!important;
+                    background: rgba(93, 170, 144, 1)!important;
                     border-left: 4px solid #535353ff !important;
                     padding: 0.25rem 0.5rem;
                     width: 100%;
@@ -263,7 +263,7 @@ class GraficaModalEngine {
                 }
                 .grafica-toggle-btn .form-label { flex: 1; }
                 .grafica-toggle-btn:hover {
-                    background: rgba(25,118,210,0.06)!important;
+                    background: rgba(133, 133, 133, 1)!important;
                     cursor: pointer;
                     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
                     border-left: 4px solid #0a0909ff !important;
@@ -274,10 +274,10 @@ class GraficaModalEngine {
                     border-left: 4px solid #28a745 !important;
                 }
                 .grafica-toggle-btn.pressed {
-                    background: #e7b4afff !important;
-                    color: #721c24 !important;
-                    border-left: 4px solid #dc3545 !important;
-                    transform: translateY(1px);
+                    background: #53c074ff !important;
+                    color: #062e10ff !important;
+                    border-left: 4px solid #053a11ff !important;
+                    transform: translateY(2px);
                 }
             `;
             document.head.appendChild(style);
