@@ -493,8 +493,11 @@ class ExcelModalEngine {
      */
     getTableStyles() {
         return `<style>
-        .data-row {
-            background-color: #ff0000;
+        .text-cell {
+            text-align: center !important;
+        }
+        .number-cell {
+            text-align: right !important;
         }
         </style>`;
     }
