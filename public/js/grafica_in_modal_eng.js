@@ -200,48 +200,7 @@ class GraficaModalEngine {
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
-
-                .grafica-modal-checkbox-list label:hover,
-                .grafica-modal-checkbox-list input[type="checkbox"]:focus + label {
-                color: #1976d2;
-                background: #74afe0ad;
-                }
-                .grafica-modal-checkbox-list input[type="checkbox"]:focus {
-                outline: 2px solid #1976d2;
-                }
-                .grafica-modal-checkbox-list .sticky-header {
-                position: sticky;
-                top: 0;
-                background: #c9f3f1ff;
-                z-index: 2;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid #e0e0e0;
-                }
-                .grafica-modal-checkbox-list .sticky-header label {
-                font-weight: bold;
-                }
-                .grafica-modal-checkbox-list .only-child-duplicate {
-                display: none !important;
-                }
-                .grafica-modal-checkbox-list .group-checkbox {
-                margin-right: 4px;
-                }
-                .grafica-modal-checkbox-list .column-checkbox {
-                margin-right: 4px;
-                }
-                .grafica-modal-checkbox-list .form-check-label {
-                font-size: 1rem;
-                }
-                .grafica-modal-checkbox-list .form-check-input {
-                accent-color: #1976d2;
-                }
-                .grafica-modal-checkbox-list .checkbox-group-title {
-                    font-weight: bold;
-                    font-size: 1.08rem;
-                    margin-bottom: 0.2rem;
-                    display: flex;
-                    align-items: center;
-                }
+                    
                 .grafica-modal-checkbox-list .checkbox-group {
                 margin-bottom: 0.7rem;
                 }
