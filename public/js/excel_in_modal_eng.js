@@ -486,11 +486,11 @@ class ExcelModalEngine {
         return `<style>
         .text-cell {
             text-align: center !important;
-            background-color: #5dd392de;
+            background-color: #5dd392de !important;
         }
         .number-cell {
             text-align: right !important;
-            background-color: #adf1ccde;
+            background-color: #adf1ccde !important;
         }
         </style>`;
     }
