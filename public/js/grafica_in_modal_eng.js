@@ -278,6 +278,21 @@ class GraficaModalEngine {
                     border-left: 4px solid #00360dff !important;
                     transform: translateY(2px);
                 }
+                /* Close button for panels */
+                .grafica-close-btn {
+                    background: transparent;
+                    border: 0;
+                    color: #666;
+                    font-size: 1rem;
+                    line-height: 1;
+                    padding: 0.125rem 0.4rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+                .grafica-close-btn:hover { background: rgba(0,0,0,0.04); color: #000; }
+                /* Draggable content hint */
+                .draggable-content { cursor: grab; }
+                .draggable-content.dragging { opacity: 0.6; }
             `;
             document.head.appendChild(style);
         }
@@ -344,7 +359,11 @@ class GraficaModalEngine {
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list draggable-content" draggable="true">
+                        <div style="position:absolute;right:8px;top:6px;z-index:4;">
+                            <button class="grafica-close-btn" data-target="rowsY" title="Cerrar sección">✕</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12 col-md-6 draggable-panel" data-panel="colsX" draggable="true">
                     <!-- Igual para columnas -->
@@ -352,7 +371,11 @@ class GraficaModalEngine {
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list draggable-content" draggable="true">
+                        <div style="position:absolute;right:8px;top:6px;z-index:4;">
+                            <button class="grafica-close-btn" data-target="colsX" title="Cerrar sección">✕</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -378,65 +401,6 @@ class GraficaModalEngine {
             <div id="chartContainer" class="mb-3"></div>
         `;
         container.innerHTML = selectionHTML;
-
-        // --- Drag & drop: permitir reordenar paneles y grupos ---
-        (function enableDragAndDrop() {
-            const panels = Array.from(container.querySelectorAll('.draggable-panel'));
-            let dragSrc = null;
-
-            panels.forEach(panel => {
-                panel.addEventListener('dragstart', (e) => {
-                    dragSrc = panel;
-                    e.dataTransfer.effectAllowed = 'move';
-                    try { e.dataTransfer.setData('text/plain', panel.dataset.panel); } catch (err) {}
-                    panel.classList.add('dragging');
-                });
-                panel.addEventListener('dragend', () => {
-                    panels.forEach(p => p.classList.remove('dragging'));
-                    dragSrc = null;
-                });
-                panel.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                });
-                panel.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (!dragSrc || dragSrc === panel) return;
-                    // swap nodes
-                    const parent = panel.parentNode;
-                    const ref = (dragSrc.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING) ? panel : dragSrc;
-                    parent.insertBefore(dragSrc, ref);
-                    parent.insertBefore(panel, ref === panel ? dragSrc : panel);
-                });
-            });
-
-            // Reordenar grupos dentro de groupedColumnCheckboxes
-            const groupsContainer = document.getElementById('groupedColumnCheckboxes');
-            function makeGroupsDraggable() {
-                const groups = Array.from(groupsContainer.children);
-                let src = null;
-                groups.forEach(g => {
-                    g.setAttribute('draggable', 'true');
-                    g.addEventListener('dragstart', (e) => { src = g; g.classList.add('dragging'); try{e.dataTransfer.setData('text/plain','group');}catch(e){} });
-                    g.addEventListener('dragend', () => { src = null; groups.forEach(x=>x.classList.remove('dragging')); });
-                    g.addEventListener('dragover', (e) => { e.preventDefault(); });
-                    g.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        if (!src || src === g) return;
-                        const children = Array.from(groupsContainer.children);
-                        const srcIdx = children.indexOf(src);
-                        const dstIdx = children.indexOf(g);
-                        if (srcIdx < dstIdx) {
-                            groupsContainer.insertBefore(src, g.nextSibling);
-                        } else {
-                            groupsContainer.insertBefore(src, g);
-                        }
-                    });
-                });
-            }
-            // call after groups exist; makeGroupsDraggable called later once groups rendered
-            window.__makeGraficaGroupsDraggable = makeGroupsDraggable;
-        })();
 
         // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
         function getCollapseKey(which) {
@@ -578,11 +542,6 @@ class GraficaModalEngine {
             `;
         }).join('');
 
-        // Make groups draggable (function defined earlier)
-        if (typeof window.__makeGraficaGroupsDraggable === 'function') {
-            window.__makeGraficaGroupsDraggable();
-        }
-
         // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
         const updateChart = () => {
             // Obtener selecciones actuales
@@ -718,6 +677,95 @@ class GraficaModalEngine {
             const chartContainer = document.getElementById('chartContainer');
             chartContainer.innerHTML = '<div class="alert alert-danger">Error cargando Chart.js. <a href="https://cdn.jsdelivr.net/npm/chart.js" target="_blank">Cargar manualmente</a></div>';
         });
+
+        // --- CLOSE BUTTONS: Simular click en el toggle correspondiente ---
+        document.querySelectorAll('.grafica-close-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                if (target === 'rowsY') {
+                    const t = document.getElementById('toggleRowsY');
+                    if (t) t.click();
+                } else if (target === 'colsX') {
+                    const t = document.getElementById('toggleColsX');
+                    if (t) t.click();
+                }
+            });
+        });
+
+        // --- DRAG & DROP: Panels (swap columns) and inner contents (swap lists) ---
+        (function setupDragAndDrop() {
+            // Panels swap
+            let draggedPanel = null;
+            document.querySelectorAll('.draggable-panel').forEach(panel => {
+                panel.addEventListener('dragstart', (e) => {
+                    draggedPanel = panel;
+                    panel.classList.add('dragging');
+                    try { e.dataTransfer.setData('text/plain', panel.dataset.panel || ''); } catch (err) {}
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                panel.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                panel.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (!draggedPanel || draggedPanel === panel) return;
+                    const parent = panel.parentNode;
+                    // Swap positions: insert dragged before the drop target
+                    parent.insertBefore(draggedPanel, panel);
+                });
+                panel.addEventListener('dragend', () => {
+                    panel.classList.remove('dragging');
+                    draggedPanel = null;
+                });
+            });
+
+            // Inner lists swap (rowsYCheckboxes <-> groupedColumnCheckboxes)
+            let draggedContent = null;
+            document.querySelectorAll('.draggable-content').forEach(content => {
+                content.addEventListener('dragstart', (e) => {
+                    draggedContent = content;
+                    content.classList.add('dragging');
+                    try { e.dataTransfer.setData('text/plain', content.id || ''); } catch (err) {}
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                content.addEventListener('dragover', (e) => { e.preventDefault(); });
+                content.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (!draggedContent || draggedContent === content) return;
+                    // Swap the nodes themselves to preserve inner event listeners
+                    const a = draggedContent;
+                    const b = content;
+                    const aParent = a.parentNode;
+                    const bParent = b.parentNode;
+                    const aNext = a.nextSibling === b ? a : a.nextSibling;
+                    // Perform swap by replacing
+                    aParent.replaceChild(b, a);
+                    bParent.insertBefore(a, aNext);
+
+                    // After swapping, re-attach close button handlers for safety
+                    document.querySelectorAll('.grafica-close-btn').forEach(btn => {
+                        btn.replaceWith(btn.cloneNode(true));
+                    });
+                    document.querySelectorAll('.grafica-close-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const target = btn.getAttribute('data-target');
+                            if (target === 'rowsY') {
+                                const t = document.getElementById('toggleRowsY');
+                                if (t) t.click();
+                            } else if (target === 'colsX') {
+                                const t = document.getElementById('toggleColsX');
+                                if (t) t.click();
+                            }
+                        });
+                    });
+                });
+                content.addEventListener('dragend', () => {
+                    content.classList.remove('dragging');
+                    draggedContent = null;
+                });
+            });
+        })();
     }
 
     /**
