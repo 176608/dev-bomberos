@@ -117,7 +117,7 @@
     display: flex; 
 }
 
-/
+
 .enlace-completo {
     display: flex !important;
     flex-direction: column !important;
