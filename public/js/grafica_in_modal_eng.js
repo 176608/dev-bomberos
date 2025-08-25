@@ -203,8 +203,8 @@ class GraficaModalEngine {
 
                 .grafica-modal-checkbox-list label:hover,
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus + label {
-                color: #016cd6ff;
-                background: #90c9f7ad;
+                color: #1976d2;
+                background: #74afe0ad;
                 }
                 .grafica-modal-checkbox-list input[type="checkbox"]:focus {
                 outline: 2px solid #1976d2;
@@ -250,22 +250,23 @@ class GraficaModalEngine {
                 }
 
                 .grafica-toggle-btn {
-                    background: rgba(151, 240, 210, 1)!important;
+                    background: rgba(93, 170, 144, 1)!important;
                     border-left: 4px solid #535353ff !important;
                     padding: 0.25rem 0.5rem;
                     width: 100%;
+                    text-align: left;
                     transition: background-color 0.18s ease, box-shadow 0.12s ease, transform 0.06s ease;
                     border-radius: 6px;
                     display: flex;
+                    align-items: center;
                     gap: 0.5rem;
                 }
                 .grafica-toggle-btn .form-label { flex: 1; }
                 .grafica-toggle-btn:hover {
-                    background: rgba(135, 123, 199, 1)!important;
+                    background: rgba(133, 133, 133, 1)!important;
                     cursor: pointer;
                     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
                     border-left: 4px solid #0a0909ff !important;
-                    transform: translateY(-2px);
                 }
                 .grafica-toggle-btn.saved {
                     background: #abe4bcff !important;
@@ -274,25 +275,10 @@ class GraficaModalEngine {
                 }
                 .grafica-toggle-btn.pressed {
                     background: #53c074ff !important;
-                    color: #02290cff !important;
-                    border-left: 4px solid #00360dff !important;
+                    color: #062e10ff !important;
+                    border-left: 4px solid #053a11ff !important;
                     transform: translateY(2px);
                 }
-                /* Close button for panels */
-                .grafica-close-btn {
-                    background: transparent;
-                    border: 0;
-                    color: #666;
-                    font-size: 1rem;
-                    line-height: 1;
-                    padding: 0.125rem 0.4rem;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-                .grafica-close-btn:hover { background: rgba(0,0,0,0.04); color: #000; }
-                /* Draggable content hint */
-                .draggable-content { cursor: grab; }
-                .draggable-content.dragging { opacity: 0.6; }
             `;
             document.head.appendChild(style);
         }
@@ -353,29 +339,21 @@ class GraficaModalEngine {
 
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2">
-                <div class="col-12 col-md-6 draggable-panel" data-panel="rowsY" draggable="true">
+                <div class="col-12 col-md-6">
                     <!-- Botón ahora envuelve la etiqueta para ocupar todo el espacio -->
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list draggable-content" draggable="true">
-                        <div style="position:absolute;right:8px;top:6px;z-index:4;">
-                            <button class="grafica-close-btn" data-target="rowsY" title="Cerrar sección">✕</button>
-                        </div>
-                    </div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
-                <div class="col-12 col-md-6 draggable-panel" data-panel="colsX" draggable="true">
+                <div class="col-12 col-md-6">
                     <!-- Igual para columnas -->
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list draggable-content" draggable="true">
-                        <div style="position:absolute;right:8px;top:6px;z-index:4;">
-                            <button class="grafica-close-btn" data-target="colsX" title="Cerrar sección">✕</button>
-                        </div>
-                    </div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -677,95 +655,6 @@ class GraficaModalEngine {
             const chartContainer = document.getElementById('chartContainer');
             chartContainer.innerHTML = '<div class="alert alert-danger">Error cargando Chart.js. <a href="https://cdn.jsdelivr.net/npm/chart.js" target="_blank">Cargar manualmente</a></div>';
         });
-
-        // --- CLOSE BUTTONS: Simular click en el toggle correspondiente ---
-        document.querySelectorAll('.grafica-close-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.getAttribute('data-target');
-                if (target === 'rowsY') {
-                    const t = document.getElementById('toggleRowsY');
-                    if (t) t.click();
-                } else if (target === 'colsX') {
-                    const t = document.getElementById('toggleColsX');
-                    if (t) t.click();
-                }
-            });
-        });
-
-        // --- DRAG & DROP: Panels (swap columns) and inner contents (swap lists) ---
-        (function setupDragAndDrop() {
-            // Panels swap
-            let draggedPanel = null;
-            document.querySelectorAll('.draggable-panel').forEach(panel => {
-                panel.addEventListener('dragstart', (e) => {
-                    draggedPanel = panel;
-                    panel.classList.add('dragging');
-                    try { e.dataTransfer.setData('text/plain', panel.dataset.panel || ''); } catch (err) {}
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                panel.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                });
-                panel.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (!draggedPanel || draggedPanel === panel) return;
-                    const parent = panel.parentNode;
-                    // Swap positions: insert dragged before the drop target
-                    parent.insertBefore(draggedPanel, panel);
-                });
-                panel.addEventListener('dragend', () => {
-                    panel.classList.remove('dragging');
-                    draggedPanel = null;
-                });
-            });
-
-            // Inner lists swap (rowsYCheckboxes <-> groupedColumnCheckboxes)
-            let draggedContent = null;
-            document.querySelectorAll('.draggable-content').forEach(content => {
-                content.addEventListener('dragstart', (e) => {
-                    draggedContent = content;
-                    content.classList.add('dragging');
-                    try { e.dataTransfer.setData('text/plain', content.id || ''); } catch (err) {}
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                content.addEventListener('dragover', (e) => { e.preventDefault(); });
-                content.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (!draggedContent || draggedContent === content) return;
-                    // Swap the nodes themselves to preserve inner event listeners
-                    const a = draggedContent;
-                    const b = content;
-                    const aParent = a.parentNode;
-                    const bParent = b.parentNode;
-                    const aNext = a.nextSibling === b ? a : a.nextSibling;
-                    // Perform swap by replacing
-                    aParent.replaceChild(b, a);
-                    bParent.insertBefore(a, aNext);
-
-                    // After swapping, re-attach close button handlers for safety
-                    document.querySelectorAll('.grafica-close-btn').forEach(btn => {
-                        btn.replaceWith(btn.cloneNode(true));
-                    });
-                    document.querySelectorAll('.grafica-close-btn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const target = btn.getAttribute('data-target');
-                            if (target === 'rowsY') {
-                                const t = document.getElementById('toggleRowsY');
-                                if (t) t.click();
-                            } else if (target === 'colsX') {
-                                const t = document.getElementById('toggleColsX');
-                                if (t) t.click();
-                            }
-                        });
-                    });
-                });
-                content.addEventListener('dragend', () => {
-                    content.classList.remove('dragging');
-                    draggedContent = null;
-                });
-            });
-        })();
     }
 
     /**
@@ -904,7 +793,25 @@ class GraficaModalEngine {
             'rgba(255, 206, 86, 0.7)',
             'rgba(75, 192, 192, 0.7)',
             'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 159, 64, 0.7)'
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(255, 102, 178, 0.7)',
+            'rgba(102, 255, 178, 0.7)',
+            'rgba(255, 178, 102, 0.7)',
+            'rgba(178, 102, 255, 0.7)',
+            'rgba(102, 178, 255, 0.7)',
+            'rgba(255, 102, 102, 0.7)',
+            'rgba(102, 255, 102, 0.7)',
+            'rgba(255, 204, 153, 0.7)',
+            'rgba(204, 255, 153, 0.7)',
+            'rgba(153, 255, 204, 0.7)',
+            'rgba(153, 204, 255, 0.7)',
+            'rgba(255, 153, 204, 0.7)',
+            'rgba(220, 180, 120, 0.7)',
+            'rgba(120, 200, 180, 0.7)',
+            'rgba(180, 120, 200, 0.7)',
+            'rgba(200, 120, 120, 0.7)'
         ];
         return colors[index % colors.length];
     }
