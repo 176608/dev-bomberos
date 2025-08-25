@@ -360,32 +360,41 @@ class GraficaModalEngine {
 
         // --- Renderizar checkboxes jerárquicos para columnas (Eje Y) ---
         const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
-        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => `
-            <div class="mb-2 border rounded p-2">
-                <div>
-                    <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
-                    <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
+        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => {
+            // Si el grupo solo tiene un hijo y es igual al grupo, no mostrar el hijo repetido
+            const onlyOneAndEqual = group.cols.length === 1 && group.group === group.cols[0];
+            return `
+                <div class="mb-2 border rounded p-2">
+                    <div>
+                        <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
+                        <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
+                    </div>
+                    <div class="ms-3">
+                        ${group.cols.map((col, cIdx) => {
+                            if (group.group === col) {
+                                // Si es igual, solo mostrar el checkbox si hay más de un hijo
+                                if (group.cols.length === 1) return '';
+                                // Si hay más de uno, mostrar solo el nombre de la columna
+                                return '';
+                            } else {
+                                // Si son diferentes, mostrar solo el nombre de la columna
+                                return `
+                                    <div>
+                                        <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
+                                               id="col-${gIdx}-${cIdx}" 
+                                               value="${col}" 
+                                               data-group="${group.group}"
+                                               data-full-label="${col}"
+                                               checked>
+                                        <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
+                    </div>
                 </div>
-                <div class="ms-3">
-                    ${group.cols.map((col, cIdx) => {
-                        // Si el grupo y la columna son iguales, solo muestra uno
-                        const showLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
-                        const fullLabel = (group.group === col) ? group.group : `${group.group} - ${col}`;
-                        return `
-                            <div>
-                                <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
-                                       id="col-${gIdx}-${cIdx}" 
-                                       value="${col}" 
-                                       data-group="${group.group}"
-                                       data-full-label="${fullLabel}"
-                                       checked>
-                                <label class="form-check-label" for="col-${gIdx}-${cIdx}">${showLabel}</label>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
         const updateChart = () => {
