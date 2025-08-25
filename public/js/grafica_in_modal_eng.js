@@ -301,16 +301,16 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
-                        <div id="toggleRowsYIcon" style="font-size:1.5em; background-color: #dedfde2c;"></div>
+                        <div id="toggleRowsYIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #dedfde2c;"></div>
                 </div>
                 <div class="col-12 col-md-6">
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
-                        <div id="toggleColsXIcon" style="font-size:1.5em; background-color: #dedfde25;"></div>
+                        <div id="toggleColsXIcon" style="font-size:1.5em;"></div>
                     </button>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #dedfde25;"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
