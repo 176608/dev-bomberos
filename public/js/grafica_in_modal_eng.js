@@ -186,13 +186,24 @@ class GraficaModalEngine {
      */
     renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
 
-        // VINCULAR CSS MODERNO SOLO UNA VEZ
-        if (!document.getElementById('grafica-modal-css-link')) {
-            const link = document.createElement('link');
-            link.id = 'grafica-modal-css-link';
-            link.rel = 'stylesheet';
-            link.href = '/css/grafica-modal.css';
-            document.head.appendChild(link);
+        // INYECTAR CSS PARA Z-INDEX ALTO EN DROPDOWNS Y LISTAS SOBRE EL MODAL
+        if (!document.getElementById('grafica-modal-zindex-style')) {
+            const style = document.createElement('style');
+            style.id = 'grafica-modal-zindex-style';
+            style.innerHTML = `
+                /* Asegura que los dropdowns y listas se muestren sobre el modal */
+                .grafica-modal-dropdown, .grafica-modal-select, .grafica-modal-checkbox-list, .grafica-modal-dropdown-menu {
+                    position: absolute !important;
+                    z-index: 3000 !important;
+                    background: white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                }
+                /* Oculta visualmente el checkbox hijo duplicado cuando es el único y es igual al grupo */
+                .only-child-duplicate {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
         }
 
         //Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
@@ -254,16 +265,16 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label mb-0"><small><b>${CabeceraY}:</b></small></label>
-                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;" aria-label="Expandir/colapsar selección de filas" tabindex="0"></button>
+                        <button id="toggleRowsY" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
                     </div>
-                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list" role="listbox" aria-label="Filas disponibles" aria-hidden="false"></div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label mb-0"><small><b>Columnas/grupos:</b></small></label>
-                        <button id="toggleColsX" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;" aria-label="Expandir/colapsar selección de columnas" tabindex="0"></button>
+                        <button id="toggleColsX" type="button" class="btn btn-link px-2 py-0" style="font-size:1.5em;"></button>
                     </div>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list" role="listbox" aria-label="Columnas y grupos disponibles" aria-hidden="false"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -303,54 +314,50 @@ class GraficaModalEngine {
         // Eje Y
         const rowsYDiv = document.getElementById('rowsYCheckboxes');
         const btnRowsY = document.getElementById('toggleRowsY');
-        function updateRowsYCollapse(animate = true) {
-            const collapsed = isCollapsed('rowsY');
-            rowsYDiv.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
-            btnRowsY.innerHTML = collapsed ? '<i class="bi bi-arrows-expand"></i>' : '<i class="bi bi-arrows-collapse"></i>';
+        function updateRowsYCollapse() {
+            if (isCollapsed('rowsY')) {
+                rowsYDiv.style.display = 'none';
+                btnRowsY.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+            } else {
+                rowsYDiv.style.display = '';
+                btnRowsY.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+            }
         }
         btnRowsY.addEventListener('click', function() {
             setCollapsed('rowsY', !isCollapsed('rowsY'));
             updateRowsYCollapse();
         });
-        btnRowsY.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                setCollapsed('rowsY', !isCollapsed('rowsY'));
-                updateRowsYCollapse();
-            }
-        });
-        updateRowsYCollapse(false);
+        updateRowsYCollapse();
         // Eje X
         const colsXDiv = document.getElementById('groupedColumnCheckboxes');
         const btnColsX = document.getElementById('toggleColsX');
-        function updateColsXCollapse(animate = true) {
-            const collapsed = isCollapsed('colsX');
-            colsXDiv.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
-            btnColsX.innerHTML = collapsed ? '<i class="bi bi-arrows-expand"></i>' : '<i class="bi bi-arrows-collapse"></i>';
+        function updateColsXCollapse() {
+            if (isCollapsed('colsX')) {
+                colsXDiv.style.display = 'none';
+                btnColsX.innerHTML = '<i class="bi bi-arrows-expand"></i>';
+            } else {
+                colsXDiv.style.display = '';
+                btnColsX.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
+            }
         }
         btnColsX.addEventListener('click', function() {
             setCollapsed('colsX', !isCollapsed('colsX'));
             updateColsXCollapse();
         });
-        btnColsX.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                setCollapsed('colsX', !isCollapsed('colsX'));
-                updateColsXCollapse();
-            }
-        });
-        updateColsXCollapse(false);
+        updateColsXCollapse();
 
         // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
         const rowsYContainer = document.getElementById('rowsYCheckboxes');
-        // Sticky header para seleccionar todo
+        // Checkbox seleccionar/deseleccionar todo
         rowsYContainer.innerHTML = `
-            <div class="sticky-header">
+            <div>
                 <input type="checkbox" class="form-check-input" id="rowy-select-all" checked>
                 <label class="form-check-label fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
         `;
         rowsYContainer.innerHTML += RowsY.map((row, idx) => `
             <div>
-                <input type="checkbox" class="form-check-input rowy-checkbox" id="rowy-${idx}" value="${idx}" checked tabindex="0">
+                <input type="checkbox" class="form-check-input rowy-checkbox" id="rowy-${idx}" value="${idx}" checked>
                 <label class="form-check-label" for="rowy-${idx}">${row}</label>
             </div>
         `).join('');
@@ -360,10 +367,10 @@ class GraficaModalEngine {
         groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => {
             const onlyOneAndEqual = group.cols.length === 1 && group.group === group.cols[0];
             return `
-                <div class="mb-2 border rounded p-2 checkbox-group" role="group" aria-labelledby="group-label-${gIdx}">
-                    <div class="checkbox-group-title">
-                        <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}" tabindex="0">
-                        <label class="form-check-label fw-bold" id="group-label-${gIdx}" for="group-${gIdx}">${group.group}</label>
+                <div class="mb-2 border rounded p-2">
+                    <div>
+                        <input type="checkbox" class="form-check-input group-checkbox" id="group-${gIdx}">
+                        <label class="form-check-label fw-bold" for="group-${gIdx}">${group.group}</label>
                     </div>
                     <div class="ms-3">
                         ${group.cols.map((col, cIdx) => {
@@ -376,7 +383,7 @@ class GraficaModalEngine {
                                                value="${col}" 
                                                data-group="${group.group}"
                                                data-full-label="${col}"
-                                               checked tabindex="0">
+                                               checked>
                                         <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
                                     </div>
                                 `;
@@ -392,7 +399,7 @@ class GraficaModalEngine {
                                                value="${col}" 
                                                data-group="${group.group}"
                                                data-full-label="${col}"
-                                               checked tabindex="0">
+                                               checked>
                                         <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
                                     </div>
                                 `;
@@ -404,19 +411,6 @@ class GraficaModalEngine {
         }).join('');
 
         // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
-        // FEEDBACK VISUAL: mostrar cuántos seleccionados en el botón
-        function updateSelectedCount() {
-            // Columnas
-            const totalCols = document.querySelectorAll('.column-checkbox').length;
-            const checkedCols = document.querySelectorAll('.column-checkbox:checked').length;
-            btnColsX.innerHTML = (isCollapsed('colsX') ? '<i class="bi bi-arrows-expand"></i>' : '<i class="bi bi-arrows-collapse"></i>') +
-                ` <span class="badge bg-light text-dark">${checkedCols}/${totalCols}</span>`;
-            // Filas
-            const totalRows = document.querySelectorAll('.rowy-checkbox').length;
-            const checkedRows = document.querySelectorAll('.rowy-checkbox:checked').length;
-            btnRowsY.innerHTML = (isCollapsed('rowsY') ? '<i class="bi bi-arrows-expand"></i>' : '<i class="bi bi-arrows-collapse"></i>') +
-                ` <span class="badge bg-light text-dark">${checkedRows}/${totalRows}</span>`;
-        }
         const updateChart = () => {
             // Obtener selecciones actuales
             const selectedRowIndices = Array.from(document.querySelectorAll('.rowy-checkbox:checked'))
@@ -492,14 +486,8 @@ class GraficaModalEngine {
                 groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => {
                     cb.checked = checked;
                 });
+                // Actualizar gráfica automáticamente
                 updateChart();
-                updateSelectedCount();
-            });
-            groupCb.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    this.checked = !this.checked;
-                    this.dispatchEvent(new Event('change'));
-                }
             });
         });
         groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
@@ -510,14 +498,8 @@ class GraficaModalEngine {
                     );
                     groupedColumnCheckboxes.querySelector(`#group-${gIdx}`).checked = allChecked;
                 });
+                // Actualizar gráfica automáticamente
                 updateChart();
-                updateSelectedCount();
-            });
-            cb.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    this.checked = !this.checked;
-                    this.dispatchEvent(new Event('change'));
-                }
             });
         });
 
@@ -530,48 +512,23 @@ class GraficaModalEngine {
                 cb.checked = checked;
             });
             updateChart();
-            updateSelectedCount();
         });
+        // Listener para cada checkbox individual
         document.querySelectorAll('.rowy-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
+                // Si alguno se desmarca, desmarca el select-all
                 if (!this.checked) {
                     selectAllRowsY.checked = false;
                 } else {
+                    // Si todos están marcados, marca el select-all
                     const allChecked = Array.from(document.querySelectorAll('.rowy-checkbox')).every(cb2 => cb2.checked);
                     selectAllRowsY.checked = allChecked;
                 }
                 updateChart();
-                updateSelectedCount();
-            });
-            cb.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    this.checked = !this.checked;
-                    this.dispatchEvent(new Event('change'));
-                }
             });
         });
-        // Inicializar feedback visual
-        updateSelectedCount();
 
         // --- Agregar listener al selector de tipo de gráfica ---
-        // CIERRE AUTOMÁTICO DE MENÚS AL HACER CLIC FUERA
-        function closeMenusOnClickOutside(e) {
-            if (!rowsYDiv.contains(e.target) && !btnRowsY.contains(e.target)) {
-                if (!isCollapsed('rowsY')) {
-                    setCollapsed('rowsY', true);
-                    updateRowsYCollapse();
-                }
-            }
-            if (!colsXDiv.contains(e.target) && !btnColsX.contains(e.target)) {
-                if (!isCollapsed('colsX')) {
-                    setCollapsed('colsX', true);
-                    updateColsXCollapse();
-                }
-            }
-        }
-        document.addEventListener('mousedown', closeMenusOnClickOutside);
-        // Limpieza al destruir modal (opcional, si tienes hooks de cierre de modal)
-        // document.removeEventListener('mousedown', closeMenusOnClickOutside);
         const chartTypeSelect = document.getElementById('chartType');
         chartTypeSelect.addEventListener('change', updateChart);
 
