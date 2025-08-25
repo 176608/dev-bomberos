@@ -494,7 +494,7 @@ class ExcelModalEngine {
     getTableStyles() {
         return `<style>
         .short-text-cell, .number-cell {
-            background-color: #ff0000;
+            background-color: #ff0000 !important;
         }
         </style>`;
     }
