@@ -610,6 +610,8 @@ class AdminController extends Controller
             $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
             // Si es tipo Mapa PDF, no permitir gráficas
             $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
+            // Persistir flag en la BD (0/1)
+            $datos['tipo_mapa_pdf'] = $isMapaPdf ? 1 : 0;
 
             // Crear directorios si no existen
             $directorioExcel = public_path('u_excel');
@@ -715,6 +717,8 @@ class AdminController extends Controller
             // Manejar checkboxes y tipo_mapa_pdf
             $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
             $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
+            // Persistir flag
+            $datos['tipo_mapa_pdf'] = $isMapaPdf ? 1 : 0;
             // Directorios para archivos
             $directorioExcel = public_path('u_excel');
             $directorioPdf = public_path('u_pdf');
@@ -894,6 +898,7 @@ class AdminController extends Controller
                 'excel_file' => $cuadro->excel_file,
                 'pdf_file' => $cuadro->pdf_file,
                 'excel_formated_file' => $cuadro->excel_formated_file,
+                'tipo_mapa_pdf' => isset($cuadro->tipo_mapa_pdf) ? (int)$cuadro->tipo_mapa_pdf : 0,
                 'permite_grafica' => $cuadro->permite_grafica,
                 'pie_pagina' => $cuadro->pie_pagina,
                 'subtema' => $cuadro->subtema ? [
