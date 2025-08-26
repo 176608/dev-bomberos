@@ -149,40 +149,50 @@
 </style>
 
 <body>
-    <div class="top-bar text-white">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <div class="left-section">
-                    <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
-                       Instituto Municipal de Investigación y Planeación
+
+    <!-- Archivo APP - NO ELIMINAR COMENTARIO -->
+<div class="top-bar text-white">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <!-- SOLO PC -->
+            <div class="left-section d-none d-md-block">
+                <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
+                    Instituto Municipal de Investigación y Planeación
+                </a>
+                <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
+            </div>
+            <!-- SOLO MÓVIL -->
+            <div class="left-section d-block d-md-none w-100 text-center">
+                <span>
+                    Instituto Municipal de Investigación y Planeación
+                    <span class="ms-2">Vista Móvil <i class="bi bi-phone"></i></span>
+                </span>
+            </div>
+            <!-- DERECHO SOLO PC -->
+            <div class="d-flex align-items-center d-none d-md-flex">
+                @guest
+                    <span class="me-3">
+                        <i class="bi bi-person-circle"></i> Invitado
+                    </span>
+                    <a href="{{ route('login') }}" class="text-white text-decoration-none">
+                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                     </a>
-                    <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
-                </div>
-                
-                <div class="d-flex align-items-center">
-                    @guest
-                        <span class="me-3">
-                            <i class="bi bi-person-circle"></i> Invitado
-                        </span>
-                        <a href="{{ route('login') }}" class="text-white text-decoration-none">
-                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                        </a>
-                    @else
-                        <span class="me-3">
-                            <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
-                        </span>
-                        <a type="button" class="text-white text-decoration-none" 
-                                onclick="handleLogout(event)">
-                            <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    @endguest
-                </div>
+                @else
+                    <span class="me-3">
+                        <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
+                    </span>
+                    <a type="button" class="text-white text-decoration-none" 
+                            onclick="handleLogout(event)">
+                        <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                @endguest
             </div>
         </div>
     </div>
+</div>
 
     @auth
         <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(102, 209, 147);">
@@ -302,12 +312,13 @@
             <div class="col-12 col-md-4 mb-2 mb-md-0">
                 <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo IMIP footer" height="80" class="img-fluid mx-auto d-block">
             </div>
-            <div class="col-12 col-md-4 mb-2 mb-md-0">
-                <p class="mb-0">Calle Benjamín Franklin #4185</p>
-                <p class="mb-0">Colonia Progresista</p>
-                <p class="mb-0">C.P. 32310</p>
-                <p class="mb-0">Ciudad Juárez, Chihuahua, México</p>
-            </div>
+            
+<div class="col-12 col-md-4 mb-2 mb-md-0 text-center text-md-start">
+    <p class="mb-0">Calle Benjamín Franklin #4185</p>
+    <p class="mb-0">Colonia Progresista</p>
+    <p class="mb-0">C.P. 32310</p>
+    <p class="mb-0">Ciudad Juárez, Chihuahua, México</p>
+</div>
             <div class="col-12 col-md-4 mb-2 mb-md-0">
                 <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo ciudad juarez, footer" height="80" class="img-fluid mx-auto d-block">
             </div>
