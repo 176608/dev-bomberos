@@ -165,7 +165,7 @@
 <div class="left-section d-block d-md-none w-100 text-center">
     <span class="fw-bold">Instituto Municipal de Investigación y Planeación</span>
     <br>
-    <span class="text-success" style="font-size: 1rem; border-top: 1px solid #7dd1a1ff; display: inline-block; margin-top: 2px; padding-top: 2px;">
+    <span class="text-white" style="font-size: 1rem; border-top: 1px solid #7dd1a1ff; display: inline-block; margin-top: 2px; padding-top: 2px;">
         <i class="bi bi-phone"></i> Vista Móvil
     </span>
 </div>
