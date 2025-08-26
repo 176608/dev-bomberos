@@ -219,14 +219,14 @@ class GraficaModalEngine {
                     }
                 }
 
-                /* Make checkbox lists inline inside parent and scrollable if taller than 10vh */
                 .grafica-modal-checkbox-list {
-                    position: static !important; /* override previous absolute so it flows inline */
+                    position: static !important;
                     display: inline-flex;
                     flex-direction: column;
+                    background: rgba(161, 230, 207, 1)!important;
                     gap: 0.4rem;
                     width: 100%;
-                    max-height: 10vh; /* 10% del viewport */
+                    max-height: 20vh;
                     overflow: auto;
                     padding: 0.5rem;
                     border-radius: 6px;
@@ -361,7 +361,7 @@ class GraficaModalEngine {
                     <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
                 </div>
             </div>
-            <div class="alert alert-danger mt-2 mb-0 py-1 px-2">
+            <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
                 <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. Nota: No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés. 
             </div>
             <div id="chartContainer" class="mb-3"></div>
@@ -460,10 +460,35 @@ class GraficaModalEngine {
                 <label class="btn btn-outline-success mb-2 p-2 fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
         `;
-        rowsYContainer.innerHTML += RowsY.map((row, idx) => `
-            <div class="d-grid gap-2 col-6 mx-auto">
-                <input type="checkbox" class="btn-check rowy-checkbox"  id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
-                <label class="btn btn-outline-success mb-2 p-2" for="rowy-${idx}">${row}</label>
+
+        // Determinar si hay textos largos
+        const isLongText = (txt) => (txt && txt.length > 18);
+
+        // Agrupar RowsY en filas de 4 (o 2 si es texto largo)
+        let rowBlocks = [];
+        let tempBlock = [];
+        let blockSize = 4;
+        for (let i = 0; i < RowsY.length; i++) {
+            const txt = RowsY[i] || '';
+            // Si hay algún texto largo en el bloque, usar 2 por fila
+            if (isLongText(txt)) blockSize = 2;
+            else blockSize = 4;
+            tempBlock.push({ txt, idx: i });
+            // Si se llena el bloque o es el último elemento, empuja el bloque
+            if (tempBlock.length === blockSize || i === RowsY.length - 1) {
+                rowBlocks.push({ block: [...tempBlock], blockSize });
+                tempBlock = [];
+            }
+        }
+
+        rowsYContainer.innerHTML += rowBlocks.map(({ block, blockSize }) => `
+            <div class="row">
+                ${block.map(({ txt, idx }) => `
+                    <div class="${blockSize === 2 ? 'col-6' : 'col-3'} px-1">
+                        <input type="checkbox" class="btn-check rowy-checkbox" id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
+                        <label class="btn btn-outline-success mb-2 p-2 w-100 text-truncate" style="white-space:normal;" for="rowy-${idx}" title="${txt}">${txt}</label>
+                    </div>
+                `).join('')}
             </div>
         `).join('');
 
