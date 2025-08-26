@@ -337,15 +337,14 @@ class GraficaModalEngine {
         `;
         container.innerHTML = selectionHTML;
 
-        // --- UX: Colapsar/expandir Eje Y y Eje X, guardar estado en localStorage ---
-        function getCollapseKey(which) {
-            return 'grafica_colapso_' + which;
-        }
+        const collapseState = { rowsY: true, colsX: true };
+
         function setCollapsed(which, collapsed) {
-            localStorage.setItem(getCollapseKey(which), collapsed ? '1' : '0');
+            collapseState[which] = !!collapsed;
         }
+
         function isCollapsed(which) {
-            return localStorage.getItem(getCollapseKey(which)) === '1';
+            return collapseState[which] === true;
         }
         // Eje Y
         const rowsYDiv = document.getElementById('rowsYCheckboxes');

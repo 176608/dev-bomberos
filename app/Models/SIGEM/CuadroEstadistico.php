@@ -31,7 +31,7 @@ class CuadroEstadistico extends Model
         'cuadro_estadistico_subtitulo',
         'excel_file',
         'pdf_file',
-        'excel_formated_file', /* Nuevo campo ya en base de datos */
+        'excel_formated_file',
         'permite_grafica',
         'pie_pagina'
     ];
@@ -156,7 +156,7 @@ class CuadroEstadistico extends Model
         
         return $nombreArchivo; // Fallback al nombre completo
     }
-
+/*
 public function getTipoGraficaPermitidaAttribute($value)
 {
     // Si ya es array (por el cast), devuélvelo
@@ -187,6 +187,6 @@ public function getTipoGraficaPermitidaAttribute($value)
 
     // Fallback
     return [];
-}
+}*/
 
 }
