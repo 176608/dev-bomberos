@@ -426,15 +426,14 @@ class ExcelModalEngine {
     // === RENDERIZADO FINAL ===
 
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
-        //console.log('BLADE: excelUrl', excelUrl);
-        //console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
+        //${fileName || ''}
         const buttons = this.buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl);
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
-                        <i class="bi bi-file-excel text-primary me-2"></i>
-                        Archivo Excel: ${fileName || ''}
+                        <i class="bi bi-table text-primary me-2"></i>
+                        Dataset: 
                     </h5>
                     <div class="btn-group">${buttons}</div>
                 </div>
