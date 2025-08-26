@@ -253,12 +253,20 @@
                         </div>
 
                         <div class="col-md-4 d-flex justify-content-center align-items-center" style="min-height: 56px;">
-                            <div class="form-check mb-0">
+                            <div class="form-check mb-0 me-3">
                                 <input class="form-check-input" type="checkbox" 
                                        id="permite_grafica" name="permite_grafica" value="1"
                                        {{ old('permite_grafica') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="permite_grafica">
                                    <i class="bi bi-graph-up"></i> Permite gráficas
+                                </label>
+                            </div>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="tipo_mapa_pdf" name="tipo_mapa_pdf" value="1"
+                                       {{ old('tipo_mapa_pdf') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="tipo_mapa_pdf">
+                                   <i class="bi bi-file-earmark-pdf"></i> Es tipo Mapa PDF
                                 </label>
                             </div>
                         </div>
@@ -413,12 +421,20 @@
                             <label for="edit_cuadro_estadistico_subtitulo" class="form-label">Subtítulo del Cuadro</label>
                             <input type="text" class="form-control" id="edit_cuadro_estadistico_subtitulo" name="cuadro_estadistico_subtitulo">
                         </div>
-                        <div class="col-md-4 d-flex justify-content-center align-items-center" style="min-height: 56px;">
-                            <div class="form-check mb-0">
+                                <div class="col-md-4 d-flex justify-content-center align-items-center" style="min-height: 56px;">
+                            <div class="form-check mb-0 me-3">
                                 <input class="form-check-input" type="checkbox" 
                                        id="edit_permite_grafica" name="permite_grafica" value="1">
                                 <label class="form-check-label" for="edit_permite_grafica">
                                     <i class="bi bi-graph-up"></i> Permite gráficas
+                                </label>
+                            </div>
+                            <!-- Checkbox para "Es tipo Mapa PDF" -->
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="edit_tipo_mapa_pdf" name="tipo_mapa_pdf" value="1">
+                                <label class="form-check-label" for="edit_tipo_mapa_pdf">
+                                    <i class="bi bi-file-earmark-pdf"></i> Es tipo Mapa PDF
                                 </label>
                             </div>
                         </div>
@@ -770,7 +786,7 @@ function updateEditHiddenField() {
     const editor = document.getElementById('edit_pie_pagina');
     const hiddenField = document.getElementById('edit_pie_pagina_hidden');
     hiddenField.value = editor.innerHTML;
-}
+}   
 
 function editarCuadro(id) {
     fetch(routesCuadros.obtenerCuadro.replace(':id', id))
@@ -786,10 +802,12 @@ function editarCuadro(id) {
             
             // Configurar gráficas CON DATOS REALES
             const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-            //const tiposContainer = document.getElementById('edit_tipos_grafica_container');
-            
+            //NUEVO CAMPO Que afecta contenido de excel_file
+            const esTipoMapaPDF = document.getElementById('edit_tipo_mapa_pdf');
+
             permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
-            
+            esTipoMapaPDF.checked = cuadroData.excel_file == 'TipoMapaPDF';
+
             // Configurar pie de página CON DATOS REALES
             const piePaginaEditor = document.getElementById('edit_pie_pagina');
             const piePaginaHidden = document.getElementById('edit_pie_pagina_hidden');
@@ -923,4 +941,38 @@ document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal'
     document.getElementById('edit_pie_pagina').innerHTML = '';
     document.getElementById('edit_pie_pagina_hidden').value = '';
 });
+
+// --- JS: controlar inputs cuando 'Es tipo Mapa PDF' está activo ---
+(function() {
+    function toggleMapaPdfControls(prefix = '') {
+        const tipoMapa = document.getElementById(prefix + 'tipo_mapa_pdf');
+        const permiteGraf = document.getElementById(prefix + 'permite_grafica');
+        const excelInput = document.getElementById(prefix + 'excel_file');
+        const excelFormated = document.getElementById(prefix + 'excel_formated_file');
+
+        if (!tipoMapa) return;
+
+        const setDisabled = () => {
+            const checked = tipoMapa.checked;
+            if (permiteGraf) permiteGraf.disabled = checked;
+            if (excelInput) {
+                excelInput.disabled = checked;
+                if (checked) excelInput.value = null;
+            }
+            if (excelFormated) {
+                excelFormated.disabled = checked;
+                if (checked) excelFormated.value = null;
+            }
+        };
+
+        tipoMapa.addEventListener('change', setDisabled);
+        // Inicializar estado
+        setDisabled();
+    }
+
+    // Crear para formulario de creación
+    toggleMapaPdfControls('');
+    // Crear para formulario de edición (prefijo 'edit_')
+    toggleMapaPdfControls('edit_');
+})();
 </script>

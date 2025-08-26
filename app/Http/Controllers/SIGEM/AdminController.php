@@ -589,10 +589,12 @@ class AdminController extends Controller
                 'cuadro_estadistico_titulo' => 'required|string|max:255',
                 'cuadro_estadistico_subtitulo' => 'nullable|string|max:500',
                 'subtema_id' => 'required|integer|exists:subtema,subtema_id',
-                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120', // 5MB max
+                // Si tipo_mapa_pdf = 1, los excel están prohibidos
+                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120|prohibited_if:tipo_mapa_pdf,1', // 5MB max
                 'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
-                'excel_formated_file' => 'nullable|file|mimes:xlsx,xls|max:5120',
-                'permite_grafica' => 'nullable|boolean',
+                'excel_formated_file' => 'nullable|file|mimes:xlsx,xls|max:5120|prohibited_if:tipo_mapa_pdf,1',
+                'permite_grafica' => 'nullable|boolean|prohibited_if:tipo_mapa_pdf,1',
+                'tipo_mapa_pdf' => 'nullable|boolean', // Checkbox para indicar si es tipo Mapa PDF existe en bd
                 'pie_pagina' => 'nullable|string|max:50000'
             ]);
 
@@ -605,7 +607,9 @@ class AdminController extends Controller
             ]);
 
             // Manejar checkboxes
-            $datos['permite_grafica'] = $request->has('permite_grafica');
+            $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
+            // Si es tipo Mapa PDF, no permitir gráficas
+            $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
 
             // Crear directorios si no existen
             $directorioExcel = public_path('u_excel');
@@ -624,8 +628,8 @@ class AdminController extends Controller
             }
 
             $fecha = date('d_m_Y');
-            // Manejar upload de archivo Excel
-            if ($request->hasFile('excel_file')) {
+            // Manejar upload de archivo Excel (solo si NO es tipo Mapa PDF)
+            if (! $isMapaPdf && $request->hasFile('excel_file')) {
                 $archivo = $request->file('excel_file');
                 $nombreOriginal = $archivo->getClientOriginalName();
                 $extension = $archivo->getClientOriginalExtension();
@@ -648,7 +652,8 @@ class AdminController extends Controller
                 $datos['pdf_file'] = $nombreArchivo;
             }
 
-            if ($request->hasFile('excel_formated_file')) {
+            // Manejar upload de excel formateado (solo si NO es tipo Mapa PDF)
+            if (! $isMapaPdf && $request->hasFile('excel_formated_file')) {
                 $codigo = $datos['codigo_cuadro'];
                 $nombreArchivo = $codigo . '_' . $fecha . '.xlsx';
                 $archivo = $request->file('excel_formated_file');
@@ -707,36 +712,50 @@ class AdminController extends Controller
                 'pie_pagina'
             ]);
 
-            // Manejar checkboxes
-            $datos['permite_grafica'] = $request->has('permite_grafica');
+            // Manejar checkboxes y tipo_mapa_pdf
+            $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
+            $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
             // Directorios para archivos
             $directorioExcel = public_path('u_excel');
             $directorioPdf = public_path('u_pdf');
             $directorioFormated = public_path('u_xlsx_formated');
             $fecha = date('d_m_Y');
 
-            // Manejar eliminación específica de archivo Excel
-            if ($request->has('remove_excel') && $request->remove_excel == '1') {
+            // Manejar eliminación específica de archivo Excel o prohibir si es tipo Mapa PDF
+            if ($isMapaPdf) {
+                // Si el cuadro ya tenía archivos excel asociados, eliminarlos (el mapa PDF no debe tener dataset)
                 if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
                     unlink($directorioExcel . '/' . $cuadro->excel_file);
+                }
+                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
+                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
                 }
                 $datos['excel_file'] = null;
-            }
-            // Manejar upload de nuevo archivo Excel
-            elseif ($request->hasFile('excel_file')) {
-                // Eliminar archivo anterior si existe
-                if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
-                    unlink($directorioExcel . '/' . $cuadro->excel_file);
+                $datos['excel_formated_file'] = null;
+            } else {
+                // Manejar eliminación específica de archivo Excel
+                if ($request->has('remove_excel') && $request->remove_excel == '1') {
+                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
+                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    }
+                    $datos['excel_file'] = null;
                 }
+                // Manejar upload de nuevo archivo Excel
+                elseif ($request->hasFile('excel_file')) {
+                    // Eliminar archivo anterior si existe
+                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
+                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    }
 
-                $archivo = $request->file('excel_file');
-                $nombreOriginal = $archivo->getClientOriginalName();
-                $extension = $archivo->getClientOriginalExtension();
-                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
-                
-                $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
-                $archivo->move($directorioExcel, $nombreArchivo);
-                $datos['excel_file'] = $nombreArchivo;
+                    $archivo = $request->file('excel_file');
+                    $nombreOriginal = $archivo->getClientOriginalName();
+                    $extension = $archivo->getClientOriginalExtension();
+                    $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+                    
+                    $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
+                    $archivo->move($directorioExcel, $nombreArchivo);
+                    $datos['excel_file'] = $nombreArchivo;
+                }
             }
 
             // Manejar eliminación específica de archivo PDF
@@ -748,9 +767,23 @@ class AdminController extends Controller
             }
             // Manejar upload de nuevo archivo PDF
             elseif ($request->hasFile('pdf_file')) {
-                // Eliminar archivo anterior si existe
-                if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
-                    unlink($directorioPdf . '/' . $cuadro->pdf_file);
+                // Si es tipo Mapa PDF: guardar en u_pdf y asegurarse de limpiar excel-related fields
+                if ($isMapaPdf) {
+                    // Eliminar posibles excel previos
+                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
+                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    }
+                    if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
+                        unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                    }
+                    $datos['excel_file'] = null;
+                    $datos['excel_formated_file'] = null;
+                    $datos['permite_grafica'] = false;
+                } else {
+                    // Eliminar archivo anterior si existe
+                    if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
+                        unlink($directorioPdf . '/' . $cuadro->pdf_file);
+                    }
                 }
 
                 $archivo = $request->file('pdf_file');
@@ -770,8 +803,8 @@ class AdminController extends Controller
                 }
                 $datos['excel_formated_file'] = null;
             }
-            // Subir nuevo archivo
-            elseif ($request->hasFile('excel_formated_file')) {
+            // Subir nuevo archivo (solo si NO es tipo Mapa PDF)
+            elseif (! $isMapaPdf && $request->hasFile('excel_formated_file')) {
                 // Eliminar anterior si existe
                 if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
                     unlink($directorioFormated . '/' . $cuadro->excel_formated_file);

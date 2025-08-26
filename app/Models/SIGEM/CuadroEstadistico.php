@@ -29,7 +29,7 @@ class CuadroEstadistico extends Model
         'codigo_cuadro',
         'cuadro_estadistico_titulo',
         'cuadro_estadistico_subtitulo',
-        'excel_file',
+        'excel_file', /* O contiene el dataset O Contiene si es MAPA PDF cuando este campo = TipoMapaPDF */
         'pdf_file',
         'excel_formated_file',
         'permite_grafica',
