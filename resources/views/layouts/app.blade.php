@@ -162,12 +162,13 @@
                 <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
             </div>
             <!-- SOLO MÓVIL -->
-            <div class="left-section d-block d-md-none w-100 text-center">
-                <span>
-                    Instituto Municipal de Investigación y Planeación
-                    <span class="ms-2">Vista Móvil <i class="bi bi-phone"></i></span>
-                </span>
-            </div>
+<div class="left-section d-block d-md-none w-100 text-center">
+    <span class="fw-bold">Instituto Municipal de Investigación y Planeación</span>
+    <br>
+    <span class="text-success" style="font-size: 1rem; border-top: 1px solid #7dd1a1ff; display: inline-block; margin-top: 2px; padding-top: 2px;">
+        <i class="bi bi-phone"></i> Vista Móvil
+    </span>
+</div>
             <!-- DERECHO SOLO PC -->
             <div class="d-flex align-items-center d-none d-md-flex">
                 @guest
