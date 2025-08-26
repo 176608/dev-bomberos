@@ -313,12 +313,13 @@
                 <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo IMIP footer" height="80" class="img-fluid mx-auto d-block">
             </div>
             
-<div class="col-12 col-md-4 mb-2 mb-md-0 text-center text-md-start">
-    <p class="mb-0">Calle Benjamín Franklin #4185</p>
-    <p class="mb-0">Colonia Progresista</p>
-    <p class="mb-0">C.P. 32310</p>
-    <p class="mb-0">Ciudad Juárez, Chihuahua, México</p>
-</div>
+            <div class="col-12 col-md-4 mb-2 mb-md-0 text-center">
+                <p class="mb-0">Calle Benjamín Franklin #4185</p>
+                <p class="mb-0">Colonia Progresista</p>
+                <p class="mb-0">C.P. 32310</p>
+                <p class="mb-0">Ciudad Juárez, Chihuahua, México</p>
+            </div>
+
             <div class="col-12 col-md-4 mb-2 mb-md-0">
                 <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo ciudad juarez, footer" height="80" class="img-fluid mx-auto d-block">
             </div>
