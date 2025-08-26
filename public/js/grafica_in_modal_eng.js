@@ -331,7 +331,7 @@ class GraficaModalEngine {
                 </div>
             </div>
             <div class="alert alert-info mt-2 mb-0 py-1 px-2 small">
-                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar las selecciones, y las selecciones se muestran u ocultan al hacer click en el boton pertiente. 
+                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. Nota: No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés. 
             </div>
             <div id="chartContainer" class="mb-3"></div>
         `;
