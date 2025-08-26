@@ -200,12 +200,43 @@ class GraficaModalEngine {
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
-                    
+
+                /* NUEVAS REGLAS: forzar comportamiento inline y scroll cuando exceda 10% del viewport */
+                .grafica-control-row {
+                    display: flex;
+                    gap: 0.75rem;
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                }
+                .grafica-control-row .col-12.col-md-6 {
+                    flex: 1 1 48%;
+                    max-width: 48%;
+                }
+                @media (max-width: 767.98px) {
+                    .grafica-control-row .col-12.col-md-6 {
+                        flex-basis: 100%;
+                        max-width: 100%;
+                    }
+                }
+
+                /* Make checkbox lists inline inside parent and scrollable if taller than 10vh */
+                .grafica-modal-checkbox-list {
+                    position: static !important; /* override previous absolute so it flows inline */
+                    display: inline-flex;
+                    flex-direction: column;
+                    gap: 0.4rem;
+                    width: 100%;
+                    max-height: 10vh; /* 10% del viewport */
+                    overflow: auto;
+                    padding: 0.5rem;
+                    border-radius: 6px;
+                }
+
                 .grafica-modal-checkbox-list .checkbox-group {
-                margin-bottom: 0.7rem;
+                    margin-bottom: 0.7rem;
                 }
                 .grafica-modal-checkbox-list .checkbox-group:last-child {
-                margin-bottom: 0;
+                    margin-bottom: 0;
                 }
 
                 .grafica-toggle-btn {
@@ -297,7 +328,7 @@ class GraficaModalEngine {
         }
 
         const selectionHTML = `
-            <div class="row g-2 align-items-start mb-2">
+            <div class="row g-2 align-items-start mb-2 grafica-control-row">
                 <div class="col-12 col-md-6">
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="rowsYCheckboxes" title="Mostrar u ocultar los parámetros de ${CabeceraY}. Haz clic para alternar.">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
@@ -330,7 +361,7 @@ class GraficaModalEngine {
                     <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
                 </div>
             </div>
-            <div class="alert alert-danger mt-2 mb-0 py-1 px-2 small">
+            <div class="alert alert-danger mt-2 mb-0 py-1 px-2">
                 <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. Nota: No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés. 
             </div>
             <div id="chartContainer" class="mb-3"></div>
