@@ -88,9 +88,9 @@
                         </div>
                         
                         <!-- Enlace para volver a la vista de temas -->
-                        <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Volver a temas
-                        </a>
+                        <a href="{{ url('/sigem?section=estadistica') }}" class="btn btn-sm btn-outline-secondary d-none d-md-inline">
+    <i class="bi bi-arrow-left me-1"></i>Volver a temas
+</a>
                     </div>
 
                     <!-- Encabezado de subtema seleccionado -->
