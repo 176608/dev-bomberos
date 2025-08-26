@@ -103,20 +103,29 @@
                                         @endif
                                     </td>
                                     <td data-order="{{ ($cuadro->excel_file ? 1 : 0) + ($cuadro->pdf_file ? 1 : 0) }}">
-                                        <div class="d-flex gap-1">
-                                            @if($cuadro->excel_file)
-                                                <span class="badge bg-primary" title="Dataset disponible">
-                                                    <i class="bi bi-table"></i>
+                                        <div class="d-flex gap-1 align-items-center">
+                                            {{-- Si es tipo Mapa PDF mostrar icono de mapa y no mostrar dataset --}}
+                                            @if(!empty($cuadro->tipo_mapa_pdf) && $cuadro->tipo_mapa_pdf)
+                                                <span class="badge bg-secondary" title="Mapa PDF">
+                                                    <i class="bi bi-map-fill"></i>
                                                 </span>
+                                            @else
+                                                @if($cuadro->excel_file)
+                                                    <span class="badge bg-primary" title="Dataset disponible">
+                                                        <i class="bi bi-table"></i>
+                                                    </span>
+                                                @endif
                                             @endif
+
                                             @if($cuadro->pdf_file)
                                                 <span class="badge bg-danger" title="PDF disponible">
                                                     <i class="bi bi-file-earmark-pdf"></i>
                                                 </span>
                                             @endif
-                                            @if($cuadro->excel_formated_file)
+
+                                            @if($cuadro->excel_formated_file && empty($cuadro->tipo_mapa_pdf))
                                                 <span class="badge bg-success" title="Excel formateado disponible">
-                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    <i class="bi bi-file-earmark-excel"></i>
                                                 </span>
                                             @endif
                                         </div>
@@ -276,7 +285,7 @@
                     <!-- Archivos -->
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="bi bi-files"></i> Archivos Asociados</h6>
+                            <h6 class="mb-0"><i class="bi bi-files"></i> Gestión de Archivos</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -951,25 +960,66 @@ document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal'
         const permiteGraf = document.getElementById(prefix + 'permite_grafica');
         const excelInput = document.getElementById(prefix + 'excel_file');
         const excelFormated = document.getElementById(prefix + 'excel_formated_file');
+        const pdfInput = document.getElementById(prefix + 'pdf_file');
 
         if (!tipoMapa) return;
 
-        const setDisabled = () => {
-            const checked = tipoMapa.checked;
-            if (permiteGraf) permiteGraf.disabled = checked;
+        function containerOf(el) {
+            if (!el) return null;
+            return el.closest('.col-md-4') || el.closest('.mb-3') || el.parentElement;
+        }
+
+        const setState = () => {
+            const checked = !!tipoMapa.checked;
+
+            // Permite gráficas: desmarcar y deshabilitar si es Mapa PDF
+            if (permiteGraf) {
+                if (checked) {
+                    permiteGraf.checked = false;
+                    permiteGraf.disabled = true;
+                } else {
+                    permiteGraf.disabled = false;
+                }
+            }
+
+            // Excel dataset
             if (excelInput) {
+                const c = containerOf(excelInput);
+                if (c) c.style.display = checked ? 'none' : '';
+                try { excelInput.value = checked ? '' : excelInput.value; } catch(e) {}
                 excelInput.disabled = checked;
-                if (checked) excelInput.value = null;
             }
+
+            // Excel formateado
             if (excelFormated) {
+                const c = containerOf(excelFormated);
+                if (c) c.style.display = checked ? 'none' : '';
+                try { excelFormated.value = checked ? '' : excelFormated.value; } catch(e) {}
                 excelFormated.disabled = checked;
-                if (checked) excelFormated.value = null;
             }
+
+            // PDF input should always be visible and enabled (user can upload PDF)
+            if (pdfInput) {
+                const c = containerOf(pdfInput);
+                if (c) c.style.display = '';
+                pdfInput.disabled = false;
+            }
+
+            // In edit modal there are label spans for Nuevo/Reemplazar — ensure labels for excel are hidden when mapa PDF
+            const labelExcelNuevo = document.getElementById(prefix + 'label_excel_nuevo');
+            const labelExcelReemplazar = document.getElementById(prefix + 'label_excel_reemplazar');
+            const labelExcelFormatedNuevo = document.getElementById(prefix + 'label_excel_formated_nuevo');
+            const labelExcelFormatedReemplazar = document.getElementById(prefix + 'label_excel_formated_reemplazar');
+
+            if (labelExcelNuevo) labelExcelNuevo.style.display = checked ? 'none' : '';
+            if (labelExcelReemplazar) labelExcelReemplazar.style.display = 'none';
+            if (labelExcelFormatedNuevo) labelExcelFormatedNuevo.style.display = checked ? 'none' : '';
+            if (labelExcelFormatedReemplazar) labelExcelFormatedReemplazar.style.display = 'none';
         };
 
-        tipoMapa.addEventListener('change', setDisabled);
+        tipoMapa.addEventListener('change', setState);
         // Inicializar estado
-        setDisabled();
+        setState();
     }
 
     // Crear para formulario de creación
