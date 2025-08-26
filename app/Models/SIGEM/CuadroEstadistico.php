@@ -29,9 +29,10 @@ class CuadroEstadistico extends Model
         'codigo_cuadro',
         'cuadro_estadistico_titulo',
         'cuadro_estadistico_subtitulo',
-        'excel_file', /* O contiene el dataset O Contiene si es MAPA PDF cuando este campo = TipoMapaPDF */
+        'excel_file',
         'pdf_file',
         'excel_formated_file',
+        'tipo_mapa_pdf',
         'permite_grafica',
         'pie_pagina'
     ];
@@ -42,7 +43,8 @@ class CuadroEstadistico extends Model
     protected $casts = [
         'cuadro_estadistico_id' => 'integer',
         'subtema_id' => 'integer',
-        'permite_grafica' => 'boolean'
+        'permite_grafica' => 'boolean',
+        'tipo_mapa_pdf' => 'boolean'
     ];
     
     /**

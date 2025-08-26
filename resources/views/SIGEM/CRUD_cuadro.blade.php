@@ -802,11 +802,13 @@ function editarCuadro(id) {
             
             // Configurar gráficas CON DATOS REALES
             const permiteGraficaCheck = document.getElementById('edit_permite_grafica');
-            //NUEVO CAMPO Que afecta contenido de excel_file
+            // NUEVO CAMPO: tipo_mapa_pdf
             const esTipoMapaPDF = document.getElementById('edit_tipo_mapa_pdf');
 
             permiteGraficaCheck.checked = cuadroData.permite_grafica == 1;
-            esTipoMapaPDF.checked = cuadroData.excel_file == 'TipoMapaPDF';
+            esTipoMapaPDF.checked = (cuadroData.tipo_mapa_pdf == 1 || cuadroData.tipo_mapa_pdf === true);
+            // Trigger change to apply UI toggles
+            esTipoMapaPDF.dispatchEvent(new Event('change'));
 
             // Configurar pie de página CON DATOS REALES
             const piePaginaEditor = document.getElementById('edit_pie_pagina');
