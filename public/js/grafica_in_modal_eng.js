@@ -348,7 +348,7 @@ class GraficaModalEngine {
                 <div class="col-12 col-md-6">
                     <label class="form-label mb-1"><small><b>Tipo de gráfica:</b></small></label>
                     <select id="chartType" class="form-select form-select-sm">
-                        <option value="bar">Barra vertical</option>
+                        <option value="bar">Barra</option>
                         <option value="line">Línea</option>
                         <option value="area">Área</option>
                         <option value="radar">Radar</option>
@@ -363,7 +363,7 @@ class GraficaModalEngine {
             </div>
             <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
                 <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. <br>
-                <b><i class="bi bi-info-circle me-1"></i> Nota:</b> No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés.
+                <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica Barra es adecuada universalmente.
             </div>
             <div id="chartContainer" class="mb-3"></div>
         `;
