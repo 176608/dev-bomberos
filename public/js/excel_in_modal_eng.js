@@ -462,8 +462,8 @@ class ExcelModalEngine {
         
         if (excelUrl) {
             buttons += `
-                <a href="${excelUrl}" class="btn btn-sm btn-outline-primary rounded-4 me-2" download>
-                    <i class="bi bi-table"></i> * Descargar dataset *
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-primary rounded-4 me-2 d-none" download>
+                    <i class="bi bi-table"></i> Descargar dataset
                 </a>
             `;
         }

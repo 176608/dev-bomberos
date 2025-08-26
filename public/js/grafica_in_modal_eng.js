@@ -226,7 +226,7 @@ class GraficaModalEngine {
                     background: rgba(161, 230, 207, 1)!important;
                     gap: 0.4rem;
                     width: 100%;
-                    max-height: 20vh;
+                    max-height: 25vh;
                     overflow: auto;
                     padding: 0.5rem;
                     border-radius: 6px;
@@ -362,7 +362,8 @@ class GraficaModalEngine {
                 </div>
             </div>
             <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
-                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. Nota: No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés. 
+                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. <br>
+                <b><i class="bi bi-info-circle me-1"></i> Nota:</b> No todas las gráficas son viables para la visualización de cada tema, seleccione la gráficas mas adecuada a su interés.
             </div>
             <div id="chartContainer" class="mb-3"></div>
         `;
