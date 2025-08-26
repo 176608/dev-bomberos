@@ -322,6 +322,7 @@ class PublicController extends Controller
                         'pdf_file' => $cuadro->pdf_file,
                         'excel_formated_file' => $cuadro->excel_formated_file,
                         'permite_grafica' => $cuadro->permite_grafica,
+                        'tipo_mapa_pdf' => $cuadro->tipo_mapa_pdf,
                         'codigo_cuadro' => $cuadro->codigo_cuadro,
                         'cuadro_estadistico_titulo' => $cuadro->cuadro_estadistico_titulo,
                         'cuadro_estadistico_subtitulo' => $cuadro->cuadro_estadistico_subtitulo
