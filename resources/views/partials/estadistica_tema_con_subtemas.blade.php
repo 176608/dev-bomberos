@@ -513,7 +513,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
 
                             <div class="modal-footer">
                                 <div class="d-flex justify-content-center w-100">
-                                    ${tieneExcel ? `
+                                    ${cuadro.permite_grafica ? `
                                         <button type="button" class="btn btn-outline-primary me-2" id="btn-toggle-grafica-${modalId}">
                                             <i class="bi bi-graph-up-arrow"></i> Vista gráfica
                                         </button>

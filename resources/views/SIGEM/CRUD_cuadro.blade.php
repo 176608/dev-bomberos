@@ -274,7 +274,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="excel_file" class="form-label">Archivo Excel Dataset*</label>
+                                        <label for="excel_file" class="form-label">Archivo Dataset</label>
                                         <input type="file" class="form-control @error('excel_file') is-invalid @enderror" 
                                                id="excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -488,8 +488,8 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_excel_file" class="form-label">
-                                            <span id="label_excel_nuevo">Nuevo Archivo Excel</span>
-                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Excel</span>
+                                            <span id="label_excel_nuevo">Nuevo Archivo Dataset</span>
+                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Dataset</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -675,7 +675,7 @@ function verificarArchivosRestantes() {
 }
 
 function eliminarArchivoExcel() {
-    if (confirm('¿Está seguro de eliminar el archivo Excel? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Está seguro de eliminar el archivo Dataset? Esta acción no se puede deshacer.')) {
         document.getElementById('remove_excel_hidden').value = '1';
         document.getElementById('archivo_excel_actual').classList.add('d-none');
         document.getElementById('label_excel_nuevo').classList.remove('d-none');
@@ -771,23 +771,6 @@ function updateEditHiddenField() {
     const hiddenField = document.getElementById('edit_pie_pagina_hidden');
     hiddenField.value = editor.innerHTML;
 }
-
-// Control de campos de gráfica
-/*
-document.getElementById('permite_grafica')?.addEventListener('change', function() {
-    const container = document.getElementById('tipos_grafica_container');
-    const checks = document.querySelectorAll('.tipo-grafica-check');
-    
-    
-});
-
-document.getElementById('edit_permite_grafica')?.addEventListener('change', function() {
-    const container = document.getElementById('edit_tipos_grafica_container');
-    const checks = document.querySelectorAll('.edit-tipo-grafica-check');
-    
-    
-});
-*/
 
 function editarCuadro(id) {
     fetch(routesCuadros.obtenerCuadro.replace(':id', id))
