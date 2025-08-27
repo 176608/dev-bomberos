@@ -194,6 +194,10 @@ class GraficaModalEngine {
                     display: none !important;
                 }
 
+                .modal-body {
+                    overflow: hidden;
+                }
+
                 .grafica-modal-checkbox-list {
                     position: static !important;
                     display: flex;
