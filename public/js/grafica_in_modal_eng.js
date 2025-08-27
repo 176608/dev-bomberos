@@ -194,7 +194,11 @@ class GraficaModalEngine {
                     display: none !important;
                 }
 
-                .modal-dialog.modal-xl {
+                .modal-dialog {
+                    overflow: hidden;
+                }
+
+                .modal-xl {
                     overflow: hidden;
                 }
 
