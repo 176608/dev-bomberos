@@ -482,14 +482,15 @@ class ExcelModalEngine {
      * Estilos CSS globales para tabla
      */
     getTableStyles() {
+
         return `<style>
         .text-cell {
             text-align: center !important;
-            background-color: #5dd392de !important;
+            background-color: #50dd90de !important;
         }
         .number-cell {
             text-align: right !important;
-            background-color: #adf1ccde !important;
+            background-color: #9df0f0de !important;
         }
 
         .modal .table-responsive,
