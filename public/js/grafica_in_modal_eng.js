@@ -194,14 +194,6 @@ class GraficaModalEngine {
                     display: none !important;
                 }
 
-                .modal-dialog {
-                    overflow: hidden;
-                }
-
-                .modal-xl {
-                    overflow: hidden;
-                }
-
                 .grafica-modal-checkbox-list {
                     position: static !important;
                     display: flex;
@@ -210,7 +202,7 @@ class GraficaModalEngine {
                     gap: 0.4rem;
                     width: 100%;
                     max-height: 20vh;
-                    overflow-y: auto;
+                    overflow-y: hidden;/*auto*/
                     overflow-x: hidden;
                     padding: 0.5rem;
                     border-radius: 6px;
