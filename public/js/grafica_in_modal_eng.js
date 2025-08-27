@@ -25,91 +25,26 @@ class GraficaModalEngine {
         `;
 
         try {
-            // Cargar SheetJS si no está presente
             await this.loadSheetJS();
-
-            // Obtener datos del Excel
             const arrayBuffer = await this.fetchExcelFile(excelUrl);
             const workbook = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true });
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-
-            // Extraer y limpiar la matriz
             const dataMatrix = this.extractAndCleanData(worksheet, range);
 
             console.log('📊 Matriz limpia:', dataMatrix);
 
-            // 1) Detectar tipo de gráfica y CabeceraY
-            let tipoGrafica = null;
-            let CabeceraY = null;
+            // Extraer tipo de gráfica y datos estructurados
+            const { tipoGrafica, CabeceraY, RowsY, GroupColsX, ColsX } = this.parseDataStructure(dataMatrix);
 
-            if (!dataMatrix[0][0] || dataMatrix[0][0].trim() === "") {
-                // Gráfica Tipo A
-                tipoGrafica = "A";
-                CabeceraY = dataMatrix[1][0];
-            } else {
-                // Gráfica Tipo B
-                tipoGrafica = "B";
-                CabeceraY = dataMatrix[0][0];
-            }
-
-            // 2) RowsY
-            let RowsY = [];
-            if (tipoGrafica === "A") {
-                // Desde dataMatrix[2] en adelante, columna 0
-                RowsY = dataMatrix.slice(2).map(row => row[0]);
-            } else {
-                // Desde dataMatrix[1] en adelante, columna 0
-                RowsY = dataMatrix.slice(1).map(row => row[0]);
-            }
-
-            // 3) GroupColsX y ColsX
-            let GroupColsX = [];
-            let ColsX = [];
-
-            if (tipoGrafica === "A") {
-                // GroupColsX: Agrupar por dataMatrix[0], ignorando el primer elemento (col 0)
-                const groupRow = dataMatrix[0].slice(1);
-                const colHeaders = dataMatrix[1].slice(1);
-
-                let currentGroup = null;
-                let currentCols = [];
-                for (let i = 0; i < groupRow.length; i++) {
-                    if (groupRow[i] && groupRow[i].trim() !== "") {
-                        // Nuevo grupo
-                        if (currentGroup) {
-                            GroupColsX.push({ group: currentGroup, cols: currentCols });
-                        }
-                        currentGroup = groupRow[i];
-                        currentCols = [colHeaders[i]];
-                    } else if (currentGroup) {
-                        // Columna vacía, pertenece al grupo actual
-                        currentCols.push(colHeaders[i]);
-                    }
-                }
-                // Push último grupo
-                if (currentGroup) {
-                    GroupColsX.push({ group: currentGroup, cols: currentCols });
-                }
-
-                // ColsX: todos los headers de la fila 1, excepto el primero
-                ColsX = colHeaders;
-            } else {
-                // Tipo B: ColsX = todos los elementos de dataMatrix[0] excepto el primero
-                ColsX = dataMatrix[0].slice(1);
-                // GroupColsX no aplica o es igual a ColsX
-                GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
-            }
-
-            // Ejemplo de salida:
-            console.log("Tipo de gráfica:", tipoGrafica);
-            console.log("CabeceraY:", CabeceraY);
-            console.log("RowsY:", RowsY);
-            console.log("GroupColsX:", GroupColsX);
-            console.log("ColsX:", ColsX);
-
-            // Mostrar interfaz de selección
-            this.renderSelectionInterface(container, dataMatrix, fileName, excelUrl);
+            // Renderizar interfaz de selección
+            this.renderSelectionInterface(container, dataMatrix, fileName, excelUrl, {
+                tipoGrafica,
+                CabeceraY,
+                RowsY,
+                GroupColsX,
+                ColsX
+            });
 
         } catch (error) {
             console.error('Error al cargar gráfica:', error);
@@ -123,11 +58,64 @@ class GraficaModalEngine {
     }
 
     /**
+     * Analiza la estructura de datos para determinar tipo de gráfica y extraer componentes
+     */
+    parseDataStructure(dataMatrix) {
+        let tipoGrafica = null;
+        let CabeceraY = null;
+
+        if (!dataMatrix[0][0] || dataMatrix[0][0].trim() === "") {
+            tipoGrafica = "A";
+            CabeceraY = dataMatrix[1][0];
+        } else {
+            tipoGrafica = "B";
+            CabeceraY = dataMatrix[0][0];
+        }
+
+        let RowsY = [];
+        if (tipoGrafica === "A") {
+            RowsY = dataMatrix.slice(2).map(row => row[0]);
+        } else {
+            RowsY = dataMatrix.slice(1).map(row => row[0]);
+        }
+
+        let GroupColsX = [];
+        let ColsX = [];
+
+        if (tipoGrafica === "A") {
+            const groupRow = dataMatrix[0].slice(1);
+            const colHeaders = dataMatrix[1].slice(1);
+
+            let currentGroup = null;
+            let currentCols = [];
+            for (let i = 0; i < groupRow.length; i++) {
+                if (groupRow[i] && groupRow[i].trim() !== "") {
+                    if (currentGroup) {
+                        GroupColsX.push({ group: currentGroup, cols: currentCols });
+                    }
+                    currentGroup = groupRow[i];
+                    currentCols = [colHeaders[i]];
+                } else if (currentGroup) {
+                    currentCols.push(colHeaders[i]);
+                }
+            }
+            if (currentGroup) {
+                GroupColsX.push({ group: currentGroup, cols: currentCols });
+            }
+            ColsX = colHeaders;
+        } else {
+            ColsX = dataMatrix[0].slice(1);
+            GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
+        }
+
+        return { tipoGrafica, CabeceraY, RowsY, GroupColsX, ColsX };
+    }
+
+    /**
      * Carga SheetJS dinámicamente
      */
     async loadSheetJS() {
         if (typeof XLSX !== 'undefined') return;
-        
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
@@ -153,60 +141,38 @@ class GraficaModalEngine {
         const dataMatrix = [];
         const headerRow = [];
 
-        // Recorrer todas las celdas
         for (let r = range.s.r; r <= range.e.r; r++) {
             const row = [];
             for (let c = range.s.c; c <= range.e.c; c++) {
                 const ref = XLSX.utils.encode_cell({ r, c });
                 const cell = worksheet[ref];
-
-                let value = '';
-                if (cell && cell.v !== undefined && cell.v !== null) {
-                    value = cell.v.toString();
-                }
-
-                if (r === range.s.r) {
-                    headerRow.push(value);
-                }
+                let value = cell?.v !== undefined && cell.v !== null ? cell.v.toString() : '';
+                if (r === range.s.r) headerRow.push(value);
                 row.push(value);
             }
             dataMatrix.push(row);
         }
 
-        // Purgar filas vacías
-        const cleanedMatrix = dataMatrix.filter(row => {
-            return row.some(cell => cell && cell.trim().length > 0);
-        });
-
-        return cleanedMatrix;
+        return dataMatrix.filter(row => row.some(cell => cell && cell.trim().length > 0));
     }
 
     /**
      * Renderiza la interfaz de selección de parámetros
      */
-    renderSelectionInterface(container, dataMatrix, fileName, excelUrl) {
-
+    renderSelectionInterface(container, dataMatrix, fileName, excelUrl, { tipoGrafica, CabeceraY, RowsY, GroupColsX, ColsX }) {
         if (!document.getElementById('grafica-modal-zindex-style')) {
             const style = document.createElement('style');
             style.id = 'grafica-modal-zindex-style';
             style.innerHTML = `
-                .only-child-duplicate {
-                    display: none !important;
-                }
-
-                .modal-body {
-                    overflow: hidden;
-                }
-
                 .grafica-modal-checkbox-list {
-                    position: static !important;
+                    position: relative;
                     display: flex;
                     flex-direction: column;
                     background: rgba(161, 230, 207, 1)!important;
                     gap: 0.4rem;
                     width: 100%;
                     max-height: 20vh;
-                    overflow-y: hidden;/*auto*/
+                    overflow-y: auto;
                     overflow-x: hidden;
                     padding: 0.5rem;
                     border-radius: 6px;
@@ -229,28 +195,6 @@ class GraficaModalEngine {
                         flex-basis: 100%;
                         max-width: 100%;
                     }
-                }
-
-                .grafica-modal-checkbox-list {
-                    position: static !important;
-                    display: flex;
-                    flex-direction: column;
-                    background: rgba(161, 230, 207, 1)!important;
-                    gap: 0.4rem;
-                    width: 100%;
-                    max-height: 20vh; /* o 25vh si prefieres más alto */
-                    overflow-y: auto;
-                    overflow-x: hidden;
-                    padding: 0.5rem;
-                    border-radius: 6px;
-                    box-sizing: border-box;
-                }
-
-                .grafica-modal-checkbox-list .checkbox-group {
-                    margin-bottom: 0.7rem;
-                }
-                .grafica-modal-checkbox-list .checkbox-group:last-child {
-                    margin-bottom: 0;
                 }
 
                 .grafica-toggle-btn {
@@ -287,75 +231,21 @@ class GraficaModalEngine {
             document.head.appendChild(style);
         }
 
-        //Marcar los checkboxes de grupo si todos sus hijos están marcados al inicio
-        setTimeout(() => {
-            document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
-                const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb => cb.checked);
-                groupCb.checked = allChecked;
-            });
-        }, 0);
-        // --- NUEVA LÓGICA DE ARREGLOS ---
-        let tipoGrafica = null;
-        let CabeceraY = null;
-
-        if (!dataMatrix[0][0] || dataMatrix[0][0].trim() === "") {
-            tipoGrafica = "A";
-            CabeceraY = dataMatrix[1][0];
-        } else {
-            tipoGrafica = "B";
-            CabeceraY = dataMatrix[0][0];
-        }
-
-        let RowsY = [];
-        if (tipoGrafica === "A") {
-            RowsY = dataMatrix.slice(2).map(row => row[0]);
-        } else {
-            RowsY = dataMatrix.slice(1).map(row => row[0]);
-        }
-
-        let GroupColsX = [];
-        let ColsX = [];
-        if (tipoGrafica === "A") {
-            const groupRow = dataMatrix[0].slice(1);
-            const colHeaders = dataMatrix[1].slice(1);
-
-            let currentGroup = null;
-            let currentCols = [];
-            for (let i = 0; i < groupRow.length; i++) {
-                if (groupRow[i] && groupRow[i].trim() !== "") {
-                    if (currentGroup) {
-                        GroupColsX.push({ group: currentGroup, cols: currentCols });
-                    }
-                    currentGroup = groupRow[i];
-                    currentCols = [colHeaders[i]];
-                } else if (currentGroup) {
-                    currentCols.push(colHeaders[i]);
-                }
-            }
-            if (currentGroup) {
-                GroupColsX.push({ group: currentGroup, cols: currentCols });
-            }
-            ColsX = colHeaders;
-        } else {
-            ColsX = dataMatrix[0].slice(1);
-            GroupColsX = ColsX.map(col => ({ group: col, cols: [col] }));
-        }
-
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2 grafica-control-row">
                 <div class="col-12 col-md-6">
-                    <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="rowsYCheckboxes" title="Mostrar u ocultar los parámetros de ${CabeceraY}. Haz clic para alternar.">
+                    <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="rowsYCheckboxes">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
-                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #dedfde2c;"></div>
+                    <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="groupedColumnCheckboxes" title="Mostrar u ocultar las columnas y grupos disponibles. Haz clic para alternar.">
+                    <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="groupedColumnCheckboxes">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
-                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list" style="background-color: #c2c2c29f;"></div>
+                    <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
             </div>
             <div class="row g-2 mt-2 mb-2">
@@ -376,7 +266,7 @@ class GraficaModalEngine {
                 </div>
             </div>
             <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
-                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertiente. <br>
+                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertinente. <br>
                 <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica Barra es adecuada universalmente.
             </div>
             <div id="chartContainer" class="mb-3"></div>
@@ -392,124 +282,214 @@ class GraficaModalEngine {
         function isCollapsed(which) {
             return collapseState[which] === true;
         }
-        // Eje Y
-        const rowsYDiv = document.getElementById('rowsYCheckboxes');
-        const btnRowsY = document.getElementById('toggleRowsY');
-        function updateRowsYCollapse() {
-            const icon = document.getElementById('toggleRowsYIcon');
-            if (isCollapsed('rowsY')) {
-                rowsYDiv.style.display = 'none';
+
+        // Función para actualizar el estado visual del botón
+        function updateToggle(buttonId, iconId, targetDiv, collapsed) {
+            const btn = document.getElementById(buttonId);
+            const icon = document.getElementById(iconId);
+            const div = document.getElementById(targetDiv);
+
+            if (collapsed) {
+                div.style.display = 'none';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
-                btnRowsY.setAttribute('aria-expanded', 'false');
-                // visual: not active when collapsed
-                btnRowsY.classList.remove('saved');
-                // mejorar accesibilidad/ayuda: title descriptivo al estar colapsado
-                btnRowsY.title = `Expandir parámetros de ${CabeceraY}. Haz clic para ver las opciones.`;
+                btn.setAttribute('aria-expanded', 'false');
+                btn.classList.remove('saved');
+                btn.title = `Expandir ${targetDiv === 'rowsYCheckboxes' ? CabeceraY : 'columnas y grupos'}. Haz clic para ver las opciones.`;
             } else {
-                rowsYDiv.style.display = '';
+                div.style.display = '';
                 if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
-                btnRowsY.setAttribute('aria-expanded', 'true');
-                // visual: mark as active/saved when expanded
-                btnRowsY.classList.add('saved');
-                // mejorar accesibilidad/ayuda: title descriptivo al estar expandido
-                btnRowsY.title = `Colapsar parámetros de ${CabeceraY}. Haz clic para ocultar las opciones.`;
+                btn.setAttribute('aria-expanded', 'true');
+                btn.classList.add('saved');
+                btn.title = `Colapsar ${targetDiv === 'rowsYCheckboxes' ? CabeceraY : 'columnas y grupos'}. Haz clic para ocultar las opciones.`;
             }
         }
-        // Click toggles collapse and shows a temporary "pressed" (red) state
-        btnRowsY.addEventListener('click', function() {
+
+        // Toggle para RowsY
+        const btnRowsY = document.getElementById('toggleRowsY');
+        btnRowsY.addEventListener('click', () => {
             btnRowsY.classList.add('pressed');
             setTimeout(() => btnRowsY.classList.remove('pressed'), 220);
             setCollapsed('rowsY', !isCollapsed('rowsY'));
-            updateRowsYCollapse();
+            updateToggle('toggleRowsY', 'toggleRowsYIcon', 'rowsYCheckboxes', isCollapsed('rowsY'));
         });
-        ['mousedown','mouseup','mouseleave','touchstart','touchend'].forEach(ev => {
-            if (ev === 'mousedown' || ev === 'touchstart') {
-                btnRowsY.addEventListener(ev, () => btnRowsY.classList.add('pressed'));
-            } else {
-                btnRowsY.addEventListener(ev, () => btnRowsY.classList.remove('pressed'));
-            }
-        });
-        updateRowsYCollapse();
-        // Eje X
-        const colsXDiv = document.getElementById('groupedColumnCheckboxes');
+
+        // Toggle para ColsX
         const btnColsX = document.getElementById('toggleColsX');
-        function updateColsXCollapse() {
-            const icon = document.getElementById('toggleColsXIcon');
-            if (isCollapsed('colsX')) {
-                colsXDiv.style.display = 'none';
-                if (icon) icon.innerHTML = '<i class="bi bi-arrows-expand"></i>';
-                btnColsX.setAttribute('aria-expanded', 'false');
-                btnColsX.classList.remove('saved');
-                // title cuando está colapsado
-                btnColsX.title = 'Expandir columnas y grupos. Haz clic para ver las opciones disponibles.';
-            } else {
-                colsXDiv.style.display = '';
-                if (icon) icon.innerHTML = '<i class="bi bi-arrows-collapse"></i>';
-                btnColsX.setAttribute('aria-expanded', 'true');
-                btnColsX.classList.add('saved');
-                // title cuando está expandido
-                btnColsX.title = 'Colapsar columnas y grupos. Haz clic para ocultar las opciones.';
-            }
-        }
-        btnColsX.addEventListener('click', function() {
+        btnColsX.addEventListener('click', () => {
             btnColsX.classList.add('pressed');
             setTimeout(() => btnColsX.classList.remove('pressed'), 220);
             setCollapsed('colsX', !isCollapsed('colsX'));
-            updateColsXCollapse();
+            updateToggle('toggleColsX', 'toggleColsXIcon', 'groupedColumnCheckboxes', isCollapsed('colsX'));
         });
+
+        // Eventos para el estado 'pressed'
         ['mousedown','mouseup','mouseleave','touchstart','touchend'].forEach(ev => {
             if (ev === 'mousedown' || ev === 'touchstart') {
+                btnRowsY.addEventListener(ev, () => btnRowsY.classList.add('pressed'));
                 btnColsX.addEventListener(ev, () => btnColsX.classList.add('pressed'));
             } else {
+                btnRowsY.addEventListener(ev, () => btnRowsY.classList.remove('pressed'));
                 btnColsX.addEventListener(ev, () => btnColsX.classList.remove('pressed'));
             }
         });
-        updateColsXCollapse();
 
-        // --- Renderizar checkboxes para RowsY (selección múltiple de filas) ---
-        const rowsYContainer = document.getElementById('rowsYCheckboxes');
-        // Checkbox seleccionar/deseleccionar todo
-        rowsYContainer.innerHTML = `
-            <div class="d-grid gap-2 col-12 mx-auto">
-                <input type="checkbox" class="btn-check" id="rowy-select-all" autocomplete="off" checked>
-                <label class="btn btn-outline-success mb-2 p-2 fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
-            </div>
-        `;
+        // Inicializar estados
+        updateToggle('toggleRowsY', 'toggleRowsYIcon', 'rowsYCheckboxes', isCollapsed('rowsY'));
+        updateToggle('toggleColsX', 'toggleColsXIcon', 'groupedColumnCheckboxes', isCollapsed('colsX'));
 
-        // Determinar si hay textos largos
-        const isLongText = (txt) => (txt && txt.length > 18);
+        // Renderizar checkboxes para RowsY
+        this.renderRowsYCheckboxes(document.getElementById('rowsYCheckboxes'), RowsY);
 
-        // Agrupar RowsY en filas de 4 (o 2 si es texto largo)
-        let rowBlocks = [];
+        // Renderizar checkboxes jerárquicos para columnas
+        this.renderGroupedColumnCheckboxes(document.getElementById('groupedColumnCheckboxes'), GroupColsX);
+
+        // Lógica de actualización de gráfica
+        const updateChart = () => {
+            const selectedRowIndices = Array.from(document.querySelectorAll('.rowy-checkbox:checked'))
+                .map(cb => parseInt(cb.value, 10));
+
+            const selectedColumnCheckboxes = Array.from(document.querySelectorAll('.column-checkbox:checked'));
+            const selectedColNames = selectedColumnCheckboxes.map(cb => cb.value);
+            const selectedColLabels = selectedColumnCheckboxes.map(cb => cb.getAttribute('data-full-label') || cb.value);
+
+            if (selectedRowIndices.length === 0 || selectedColNames.length === 0) {
+                const chartContainer = document.getElementById('chartContainer');
+                if (this.chartInstance) {
+                    this.chartInstance.destroy();
+                    this.chartInstance = null;
+                }
+                chartContainer.innerHTML = '<div class="alert alert-info text-center"><i class="bi bi-info-circle me-1"></i>Selecciona filas y columnas para ver la gráfica</div>';
+                return;
+            }
+
+            let colIndices = [];
+            if (tipoGrafica === "A") {
+                let lastPos = 0;
+                selectedColNames.forEach(colName => {
+                    const headers = dataMatrix[1];
+                    let found = -1;
+                    for (let i = lastPos; i < headers.length; i++) {
+                        if (headers[i] === colName) {
+                            found = i;
+                            lastPos = i + 1;
+                            break;
+                        }
+                    }
+                    if (found !== -1) colIndices.push(found);
+                });
+            } else {
+                let lastPos = 0;
+                selectedColNames.forEach(colName => {
+                    const headers = dataMatrix[0];
+                    let found = -1;
+                    for (let i = lastPos; i < headers.length; i++) {
+                        if (headers[i] === colName) {
+                            found = i;
+                            lastPos = i + 1;
+                            break;
+                        }
+                    }
+                    if (found !== -1) colIndices.push(found);
+                });
+            }
+
+            const chartTypeSelect = document.getElementById('chartType');
+            const type = chartTypeSelect ? chartTypeSelect.value : 'bar';
+
+            const chartContainer = document.getElementById('chartContainer');
+            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, colIndices, type, tipoGrafica, selectedColLabels);
+        };
+
+        // Event listeners
+        document.getElementById('rowy-select-all').addEventListener('change', e => {
+            const checked = e.target.checked;
+            document.querySelectorAll('.rowy-checkbox').forEach(cb => cb.checked = checked);
+            updateChart();
+        });
+
+        document.querySelectorAll('.rowy-checkbox').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const allChecked = Array.from(document.querySelectorAll('.rowy-checkbox')).every(cb2 => cb2.checked);
+                document.getElementById('rowy-select-all').checked = allChecked;
+                updateChart();
+            });
+        });
+
+        document.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
+            groupCb.addEventListener('change', () => {
+                const checked = groupCb.checked;
+                document.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => cb.checked = checked);
+                updateChart();
+            });
+        });
+
+        document.querySelectorAll('.column-checkbox').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const gIdx = cb.classList[cb.classList.length - 1].split('-')[1];
+                const allChecked = Array.from(document.querySelectorAll(`.column-checkbox.group-${gIdx}`)).every(cb2 => cb2.checked);
+                document.getElementById(`group-${gIdx}`).checked = allChecked;
+                updateChart();
+            });
+        });
+
+        document.getElementById('chartType').addEventListener('change', updateChart);
+        document.getElementById('renderChartBtn').addEventListener('click', updateChart);
+
+        // Cargar Chart.js
+        this.loadChartJS().then(() => {
+            setTimeout(updateChart, 200);
+        }).catch(error => {
+            console.error('Error cargando Chart.js:', error);
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.innerHTML = '<div class="alert alert-danger">Error cargando Chart.js. <a href="https://cdn.jsdelivr.net/npm/chart.js" target="_blank">Cargar manualmente</a></div>';
+        });
+    }
+
+    /**
+     * Renderiza los checkboxes para RowsY
+     */
+    renderRowsYCheckboxes(container, RowsY) {
+        const isLongText = (txt) => txt && txt.length > 18;
+        const rowBlocks = [];
         let tempBlock = [];
         let blockSize = 4;
+
         for (let i = 0; i < RowsY.length; i++) {
             const txt = RowsY[i] || '';
-            // Si hay algún texto largo en el bloque, usar 2 por fila
-            if (isLongText(txt)) blockSize = 2;
-            else blockSize = 4;
+            blockSize = isLongText(txt) ? 2 : 4;
             tempBlock.push({ txt, idx: i });
-            // Si se llena el bloque o es el último elemento, empuja el bloque
             if (tempBlock.length === blockSize || i === RowsY.length - 1) {
                 rowBlocks.push({ block: [...tempBlock], blockSize });
                 tempBlock = [];
             }
         }
 
-        rowsYContainer.innerHTML += rowBlocks.map(({ block, blockSize }) => `
-            <div class="row">
-                ${block.map(({ txt, idx }) => `
-                    <div class="${blockSize === 2 ? 'col-6' : 'col-3'} px-1">
-                        <input type="checkbox" class="btn-check rowy-checkbox" id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
-                        <label class="btn btn-outline-success mb-2 p-2 w-100 text-truncate" style="white-space:normal;" for="rowy-${idx}" title="${txt}">${txt}</label>
-                    </div>
-                `).join('')}
+        container.innerHTML = `
+            <div class="d-grid gap-2 col-12 mx-auto">
+                <input type="checkbox" class="btn-check" id="rowy-select-all" autocomplete="off" checked>
+                <label class="btn btn-outline-success mb-2 p-2 fw-bold" for="rowy-select-all">(Seleccionar/Deseleccionar todo)</label>
             </div>
-        `).join('');
+        `;
 
-        // --- Renderizar checkboxes jerárquicos para columnas (Eje Y) ---
-        const groupedColumnCheckboxes = document.getElementById('groupedColumnCheckboxes');
-        groupedColumnCheckboxes.innerHTML = GroupColsX.map((group, gIdx) => {
+        rowBlocks.forEach(({ block, blockSize }) => {
+            container.innerHTML += `
+                <div class="row">
+                    ${block.map(({ txt, idx }) => `
+                        <div class="${blockSize === 2 ? 'col-6' : 'col-3'} px-1">
+                            <input type="checkbox" class="btn-check rowy-checkbox" id="rowy-${idx}" value="${idx}" autocomplete="off" checked>
+                            <label class="btn btn-outline-success mb-2 p-2 w-100 text-truncate" style="white-space:normal;" for="rowy-${idx}" title="${txt}">${txt}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        });
+    }
+
+    /**
+     * Renderiza los checkboxes jerárquicos para columnas
+     */
+    renderGroupedColumnCheckboxes(container, GroupColsX) {
+        container.innerHTML = GroupColsX.map((group, gIdx) => {
             const onlyOneAndEqual = group.cols.length === 1 && group.group === group.cols[0];
             return `
                 <div class="mb-2 border rounded p-2">
@@ -520,7 +500,6 @@ class GraficaModalEngine {
                     <div class="ms-3">
                         ${group.cols.map((col, cIdx) => {
                             if (onlyOneAndEqual) {
-                                // Renderizar el checkbox hijo pero ocultarlo visualmente
                                 return `
                                     <div class="only-child-duplicate">
                                         <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
@@ -533,10 +512,8 @@ class GraficaModalEngine {
                                     </div>
                                 `;
                             } else if (group.group === col) {
-                                // Si hay más de un hijo y es igual, no mostrar nada (solo encabezado)
                                 return '';
                             } else {
-                                // Si son diferentes, mostrar solo el nombre de la columna
                                 return `
                                     <div>
                                         <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
@@ -554,150 +531,13 @@ class GraficaModalEngine {
                 </div>
             `;
         }).join('');
-
-        // --- FUNCIÓN PARA ACTUALIZAR GRÁFICA EN TIEMPO REAL ---
-        const updateChart = () => {
-            // Obtener selecciones actuales
-            const selectedRowIndices = Array.from(document.querySelectorAll('.rowy-checkbox:checked'))
-                .map(cb => parseInt(cb.value, 10));
-            
-            // Obtener checkboxes de columnas seleccionadas
-            const selectedColumnCheckboxes = Array.from(document.querySelectorAll('.column-checkbox:checked'));
-            const selectedColNames = selectedColumnCheckboxes.map(cb => cb.value);
-            const selectedColLabels = selectedColumnCheckboxes.map(cb => cb.getAttribute('data-full-label') || cb.value);
-
-            if (selectedRowIndices.length === 0 || selectedColNames.length === 0) {
-                // Limpiar gráfica si no hay selección
-                const chartContainer = document.getElementById('chartContainer');
-                if (this.chartInstance) {
-                    this.chartInstance.destroy();
-                    this.chartInstance = null;
-                }
-                chartContainer.innerHTML = '<div class="alert alert-info text-center"><i class="bi bi-info-circle me-1"></i>Selecciona filas y columnas para ver la gráfica</div>';
-                return;
-            }
-
-            // Mapear nombres de columnas a índices (soportando nombres repetidos)
-            let colIndices = [];
-            if (tipoGrafica === "A") {
-                // Buscar cada colName desde la última posición encontrada
-                let lastPos = 0;
-                selectedColNames.forEach((colName) => {
-                    // Buscar desde lastPos en adelante
-                    const headers = dataMatrix[1];
-                    let found = -1;
-                    for (let i = lastPos; i < headers.length; i++) {
-                        if (headers[i] === colName) {
-                            found = i;
-                            lastPos = i + 1;
-                            break;
-                        }
-                    }
-                    if (found !== -1) {
-                        colIndices.push(found);
-                    }
-                });
-            } else {
-                let lastPos = 0;
-                selectedColNames.forEach((colName) => {
-                    const headers = dataMatrix[0];
-                    let found = -1;
-                    for (let i = lastPos; i < headers.length; i++) {
-                        if (headers[i] === colName) {
-                            found = i;
-                            lastPos = i + 1;
-                            break;
-                        }
-                    }
-                    if (found !== -1) {
-                        colIndices.push(found);
-                    }
-                });
-            }
-
-            // Obtener tipo de gráfica seleccionado
-            const chartTypeSelect = document.getElementById('chartType');
-            const type = chartTypeSelect ? chartTypeSelect.value : 'bar';
-
-            // Regenerar gráfica pasando también los labels descriptivos
-            const chartContainer = document.getElementById('chartContainer');
-            this.renderChartHierarchical(chartContainer, dataMatrix, selectedRowIndices, colIndices, type, tipoGrafica, selectedColLabels);
-        };
-
-        // --- Lógica de selección jerárquica de columnas ---
-        groupedColumnCheckboxes.querySelectorAll('.group-checkbox').forEach((groupCb, gIdx) => {
-            groupCb.addEventListener('change', function() {
-                const checked = this.checked;
-                groupedColumnCheckboxes.querySelectorAll(`.column-checkbox.group-${gIdx}`).forEach(cb => {
-                    cb.checked = checked;
-                });
-                // Actualizar gráfica automáticamente
-                updateChart();
-            });
-        });
-        groupedColumnCheckboxes.querySelectorAll('.column-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-                GroupColsX.forEach((group, gIdx) => {
-                    const allChecked = group.cols.every((col, cIdx) =>
-                        groupedColumnCheckboxes.querySelector(`#col-${gIdx}-${cIdx}`).checked
-                    );
-                    groupedColumnCheckboxes.querySelector(`#group-${gIdx}`).checked = allChecked;
-                });
-                // Actualizar gráfica automáticamente
-                updateChart();
-            });
-        });
-
-        // --- Agregar listeners a checkboxes de filas (RowsY) ---
-        // Listener para seleccionar/deseleccionar todo
-        const selectAllRowsY = document.getElementById('rowy-select-all');
-        selectAllRowsY.addEventListener('change', function() {
-            const checked = this.checked;
-            document.querySelectorAll('.rowy-checkbox').forEach(cb => {
-                cb.checked = checked;
-            });
-            updateChart();
-        });
-        // Listener para cada checkbox individual
-        document.querySelectorAll('.rowy-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-                // Si alguno se desmarca, desmarca el select-all
-                if (!this.checked) {
-                    selectAllRowsY.checked = false;
-                } else {
-                    // Si todos están marcados, marca el select-all
-                    const allChecked = Array.from(document.querySelectorAll('.rowy-checkbox')).every(cb2 => cb2.checked);
-                    selectAllRowsY.checked = allChecked;
-                }
-                updateChart();
-            });
-        });
-
-        // --- Agregar listener al selector de tipo de gráfica ---
-        const chartTypeSelect = document.getElementById('chartType');
-        chartTypeSelect.addEventListener('change', updateChart);
-
-        // --- Botón de renderización manual (opcional) ---
-        const renderBtn = document.getElementById('renderChartBtn');
-        renderBtn.addEventListener('click', updateChart);
-
-        // --- CARGAR CHART.JS SI NO ESTÁ PRESENTE ---
-        this.loadChartJS().then(() => {
-            // Generar gráfica inicial automáticamente después de un pequeño delay
-            setTimeout(updateChart, 200);
-        }).catch(error => {
-            console.error('Error cargando Chart.js:', error);
-            const chartContainer = document.getElementById('chartContainer');
-            chartContainer.innerHTML = '<div class="alert alert-danger">Error cargando Chart.js. <a href="https://cdn.jsdelivr.net/npm/chart.js" target="_blank">Cargar manualmente</a></div>';
-        });
     }
 
     /**
-     * Carga Chart.js dinámicamente si no está presente
+     * Carga Chart.js dinámicamente
      */
     async loadChartJS() {
         if (typeof Chart !== 'undefined') return Promise.resolve();
-        
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
@@ -711,19 +551,16 @@ class GraficaModalEngine {
      * Genera la gráfica con Chart.js usando selección múltiple de filas y columnas
      */
     renderChartHierarchical(container, dataMatrix, selectedRowIndices, yColIndices, type, tipoGrafica, colLabels = null) {
-        // Destruir gráfica anterior si existe
         if (this.chartInstance) {
             this.chartInstance.destroy();
             this.chartInstance = null;
         }
 
-        // Validaciones
         if (!selectedRowIndices || selectedRowIndices.length === 0 || !yColIndices || yColIndices.length === 0) {
             container.innerHTML = '<div class="alert alert-warning text-center">No hay datos suficientes para mostrar la gráfica</div>';
             return;
         }
 
-        // Etiquetas eje X: los valores seleccionados de RowsY
         let labels = [];
         if (tipoGrafica === "A") {
             labels = selectedRowIndices.map(idx => dataMatrix[idx + 2] ? dataMatrix[idx + 2][0] : '');
@@ -731,7 +568,6 @@ class GraficaModalEngine {
             labels = selectedRowIndices.map(idx => dataMatrix[idx + 1] ? dataMatrix[idx + 1][0] : '');
         }
 
-        // Datasets para cada columna seleccionada (Eje Y)
         const datasets = yColIndices.map((colIdx, i) => {
             const label = colLabels && colLabels[i] ? colLabels[i] : (tipoGrafica === "A" ? dataMatrix[1][colIdx] : dataMatrix[0][colIdx]);
             let data = selectedRowIndices.map(rowIdx => {
@@ -748,12 +584,10 @@ class GraficaModalEngine {
                 return value;
             });
 
-            // Para scatter, transformar a [{x, y}] (x=label, y=valor)
             if (type === 'scatter') {
                 data = data.map((y, idx) => ({ x: labels[idx], y }));
             }
 
-            // Para área, usar tipo 'line' y fill: true
             let fill = false;
             if (type === 'area') fill = true;
 
@@ -767,7 +601,6 @@ class GraficaModalEngine {
             };
         });
 
-        // Crear canvas
         const canvas = document.createElement('canvas');
         canvas.id = 'dynamicChart';
         canvas.height = 400;
@@ -776,32 +609,24 @@ class GraficaModalEngine {
 
         const ctx = canvas.getContext('2d');
 
-        // Ajustar tipo real de Chart.js
         let chartType = type;
         if (type === 'area') chartType = 'line';
-        if (type === 'horizontalBar') chartType = 'bar'; // Chart.js v3+ usa bar con indexAxis
+        if (type === 'horizontalBar') chartType = 'bar';
 
         const chartData = { labels, datasets };
         const options = {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { 
-                    display: true,
-                    position: 'top'
-                },
-                tooltip: { 
-                    enabled: true,
-                    intersect: false,
-                    mode: 'index'
-                }
+                legend: { display: true, position: 'top' },
+                tooltip: { enabled: true, intersect: false, mode: 'index' }
             },
             scales: (['bar','line','area','horizontalBar','scatter'].includes(type)) ? {
                 x: type === 'horizontalBar' ? { beginAtZero: true, type: 'category' } : {},
                 y: { beginAtZero: true }
             } : {}
         };
-        // Para barra horizontal, cambiar orientación
+
         if (type === 'horizontalBar') {
             options.indexAxis = 'y';
         }
