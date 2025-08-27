@@ -200,8 +200,7 @@ class GraficaModalEngine {
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
-
-                /* NUEVAS REGLAS: forzar comportamiento inline y scroll cuando exceda 10% del viewport */
+                    
                 .grafica-control-row {
                     display: flex;
                     gap: 0.75rem;
@@ -211,6 +210,7 @@ class GraficaModalEngine {
                 .grafica-control-row .col-12.col-md-6 {
                     flex: 1 1 48%;
                     max-width: 48%;
+                    min-width: 0;
                 }
                 @media (max-width: 767.98px) {
                     .grafica-control-row .col-12.col-md-6 {
@@ -221,15 +221,17 @@ class GraficaModalEngine {
 
                 .grafica-modal-checkbox-list {
                     position: static !important;
-                    display: inline-flex;
+                    display: flex;
                     flex-direction: column;
                     background: rgba(161, 230, 207, 1)!important;
                     gap: 0.4rem;
                     width: 100%;
-                    max-height: 25vh;
-                    overflow: auto;
+                    max-height: 20vh; /* o 25vh si prefieres más alto */
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     padding: 0.5rem;
                     border-radius: 6px;
+                    box-sizing: border-box;
                 }
 
                 .grafica-modal-checkbox-list .checkbox-group {
