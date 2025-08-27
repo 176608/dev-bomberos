@@ -513,8 +513,8 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_excel_file" class="form-label">
-                                            <span id="edit_label_excel_nuevo">Nuevo Archivo Dataset</span>
-                                            <span id="edit_label_excel_reemplazar" class="d-none">Reemplazar Archivo Dataset</span>
+                                            <span id="label_excel_nuevo">Nuevo Archivo Dataset</span>
+                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Dataset</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -524,8 +524,8 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_pdf_file" class="form-label">
-                                            <span id="edit_label_pdf_nuevo">Nuevo Archivo PDF</span>
-                                            <span id="edit_label_pdf_reemplazar" class="d-none">Reemplazar Archivo PDF</span>
+                                            <span id="label_pdf_nuevo">Nuevo Archivo PDF</span>
+                                            <span id="label_pdf_reemplazar" class="d-none">Reemplazar Archivo PDF</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_pdf_file" name="pdf_file" accept=".pdf">
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
@@ -535,8 +535,8 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_excel_formated_file" class="form-label">
-                                            <span id="edit_label_excel_formated_nuevo">Nuevo Archivo Excel Formateado</span>
-                                            <span id="edit_label_excel_formated_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
+                                            <span id="label_excel_formated_nuevo">Nuevo Archivo Excel Formateado</span>
+                                            <span id="label_excel_formated_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_formated_file" name="excel_formated_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -705,8 +705,8 @@ function eliminarArchivoExcel() {
     if (confirm('¿Está seguro de eliminar el archivo Dataset? Esta acción no se puede deshacer.')) {
         document.getElementById('remove_excel_hidden').value = '1';
         document.getElementById('archivo_excel_actual').classList.add('d-none');
-        document.getElementById('edit_label_excel_nuevo').classList.remove('d-none');  // Cambiado
-        document.getElementById('edit_label_excel_reemplazar').classList.add('d-none');  // Cambiado
+        document.getElementById('label_excel_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_reemplazar').classList.add('d-none');
         
         // Verificar si quedan archivos
         verificarArchivosRestantes();
@@ -717,8 +717,8 @@ function eliminarArchivoPdf() {
     if (confirm('¿Está seguro de eliminar el archivo PDF? Esta acción no se puede deshacer.')) {
         document.getElementById('remove_pdf_hidden').value = '1';
         document.getElementById('archivo_pdf_actual').classList.add('d-none');
-        document.getElementById('edit_label_pdf_nuevo').classList.remove('d-none');  // Cambiado
-        document.getElementById('edit_label_pdf_reemplazar').classList.add('d-none');  // Cambiado
+        document.getElementById('label_pdf_nuevo').classList.remove('d-none');
+        document.getElementById('label_pdf_reemplazar').classList.add('d-none');
         
         // Verificar si quedan archivos
         verificarArchivosRestantes();
@@ -729,8 +729,8 @@ function eliminarArchivoExcelFormated() {
     if (confirm('¿Está seguro de eliminar el archivo Excel formateado? Esta acción no se puede deshacer.')) {
         document.getElementById('remove_excel_formated_hidden').value = '1';
         document.getElementById('archivo_excel_formated_actual').classList.add('d-none');
-        document.getElementById('edit_label_excel_formated_nuevo').classList.remove('d-none');  // Cambiado
-        document.getElementById('edit_label_excel_formated_reemplazar').classList.add('d-none');  // Cambiado
+        document.getElementById('label_excel_formated_nuevo').classList.remove('d-none');
+        document.getElementById('label_excel_formated_reemplazar').classList.add('d-none');
         
         // Verificar si quedan archivos
         verificarArchivosRestantes();
@@ -854,24 +854,24 @@ function editarCuadro(id) {
                 document.getElementById('archivo_excel_actual').classList.remove('d-none');
                 document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
                 document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file;
-                document.getElementById('edit_label_excel_reemplazar').classList.remove('d-none');
-                document.getElementById('edit_label_excel_nuevo').classList.add('d-none');
+                document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+                document.getElementById('label_excel_nuevo').classList.add('d-none');
             }
             
             if (cuadroData.pdf_file) {
                 document.getElementById('archivo_pdf_actual').classList.remove('d-none');
                 document.getElementById('nombre_pdf_actual').textContent = 'Archivo PDF disponible';
                 document.getElementById('archivo_pdf_sistema').textContent = cuadroData.pdf_file;
-                document.getElementById('edit_label_pdf_reemplazar').classList.remove('d-none');
-                document.getElementById('edit_label_pdf_nuevo').classList.add('d-none');
+                document.getElementById('label_pdf_reemplazar').classList.remove('d-none');
+                document.getElementById('label_pdf_nuevo').classList.add('d-none');
             }
             
             if (cuadroData.excel_formated_file) {
                 document.getElementById('archivo_excel_formated_actual').classList.remove('d-none');
                 document.getElementById('nombre_excel_formated_actual').textContent = 'Archivo Excel Formateado disponible';
                 document.getElementById('archivo_excel_formated_sistema').textContent = cuadroData.excel_formated_file;
-                document.getElementById('edit_label_excel_formated_reemplazar').classList.remove('d-none');
-                document.getElementById('edit_label_excel_formated_nuevo').classList.add('d-none');
+                document.getElementById('label_excel_formated_reemplazar').classList.remove('d-none');
+                document.getElementById('label_excel_formated_nuevo').classList.add('d-none');
             }
             
             verificarArchivosRestantes();
