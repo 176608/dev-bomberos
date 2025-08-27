@@ -265,7 +265,8 @@ class GraficaModalEngine {
                     <button id="renderChartBtn" class="btn btn-outline-primary btn-sm w-100">Actualizar Gráfica</button>
                 </div>
             </div>
-            <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
+            <div class="alert alert-danger mt-3 mb-1 py-3 px-2 position-relative" id="grafica-modal-alert-info">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Cerrar" style="z-index:2;"></button>
                 <i class="bi bi-info-circle me-1"></i>El motor que genera la gráfica automáticamente activa todas las opciones, para ajustar la visualización de los datos disponibles:<br>
                 <i class="bi bi-info-circle me-1"></i>Hay botones en la parte superior de la vista que logran que la gráfica se actualice automáticamente al cambiar las selecciones y se ocultan al hacer click en el boton pertinente. <br>
                 <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica de Barra es adecuada universalmente.
@@ -273,6 +274,17 @@ class GraficaModalEngine {
             <div id="chartContainer" class="mb-3"></div>
         `;
         container.innerHTML = selectionHTML;
+
+        // Habilitar cierre del alert informativo
+        const alertInfo = document.getElementById('grafica-modal-alert-info');
+        if (alertInfo) {
+            const closeBtn = alertInfo.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    alertInfo.style.display = 'none';
+                });
+            }
+        }
 
         const collapseState = { rowsY: true, colsX: true };
 
