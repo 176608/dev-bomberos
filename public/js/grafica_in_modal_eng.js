@@ -194,13 +194,28 @@ class GraficaModalEngine {
                     display: none !important;
                 }
 
-                .grafica-modal-dropdown, .grafica-modal-select, .grafica-modal-checkbox-list, .grafica-modal-dropdown-menu {
+                .grafica-modal-dropdown, .grafica-modal-select, .grafica-modal-dropdown-menu {
                     position: absolute !important;
                     z-index: 3000 !important;
                     background: white;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 }
-                    
+                /* SOLO .grafica-modal-checkbox-list debe ser estático y expandirse dentro de su contenedor */
+                .grafica-modal-checkbox-list {
+                    position: static !important;
+                    display: flex;
+                    flex-direction: column;
+                    background: rgba(161, 230, 207, 1)!important;
+                    gap: 0.4rem;
+                    width: 100%;
+                    max-height: 20vh;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    padding: 0.5rem;
+                    border-radius: 6px;
+                    box-sizing: border-box;
+                }
+
                 .grafica-control-row {
                     display: flex;
                     gap: 0.75rem;
