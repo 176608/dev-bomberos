@@ -268,7 +268,7 @@ class GraficaModalEngine {
             <div class="alert alert-danger mt-3 mb-1 py-3 px-2 position-relative" id="grafica-modal-alert-info">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Cerrar" style="z-index:2;"></button>
                 <i class="bi bi-info-circle me-1"></i>El motor que genera la gráfica automáticamente activa todas las opciones, para ajustar la visualización de los datos disponibles: Hay botones en la parte superior de la vista que logran que la gráfica se actualice automáticamente al cambiar las selecciones y se ocultan al hacer click en el boton pertinente. <br>
-                <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica de Barra es adecuada universalmente.
+                <br> <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica de Barra es adecuada universalmente.
             </div>
             <div id="chartContainer" class="mb-3 mt-3"></div>
         `;
