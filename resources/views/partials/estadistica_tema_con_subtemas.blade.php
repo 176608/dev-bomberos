@@ -520,7 +520,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
                 modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
+                        <div class="modal-content" style="overflow: hidden;">
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title">
                                     <span class="fw-bold">${cuadro.codigo}:</span>

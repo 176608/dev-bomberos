@@ -194,13 +194,6 @@ class GraficaModalEngine {
                     display: none !important;
                 }
 
-                /*.grafica-modal-dropdown, .grafica-modal-select, .grafica-modal-dropdown-menu {
-                    position: absolute !important;
-                    z-index: 3000 !important;
-                    background: white;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                }*/
-               
                 .grafica-modal-checkbox-list {
                     position: static !important;
                     display: flex;
