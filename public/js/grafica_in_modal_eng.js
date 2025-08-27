@@ -32,7 +32,7 @@ class GraficaModalEngine {
             const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
             const dataMatrix = this.extractAndCleanData(worksheet, range);
 
-            console.log('📊 Matriz limpia:', dataMatrix);
+            //console.log('📊 Matriz limpia:', dataMatrix);
 
             // Extraer tipo de gráfica y datos estructurados
             const { tipoGrafica, CabeceraY, RowsY, GroupColsX, ColsX } = this.parseDataStructure(dataMatrix);
@@ -266,8 +266,9 @@ class GraficaModalEngine {
                 </div>
             </div>
             <div class="alert alert-danger mt-3 mb-1 py-3 px-2">
-                <i class="bi bi-info-circle me-1"></i>La gráfica se actualiza automáticamente al cambiar de sección y las selecciones se muestran u ocultan al hacer click en el boton pertinente. <br>
-                <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica Barra es adecuada universalmente.
+                <i class="bi bi-info-circle me-1"></i>El motor que genera la gráfica automáticamente activa todas las opciones, para ajustar la visualización de los datos disponibles:<br>
+                <i class="bi bi-info-circle me-1"></i>Hay botones en la parte superior de la vista que logran que la gráfica se actualice automáticamente al cambiar las selecciones y se ocultan al hacer click en el boton pertinente. <br>
+                <b><i class="bi bi-info-circle me-1"></i>Nota:</b> No todas las gráficas son viables para la visualización de cada estadística, seleccione el tipo de gráfica más adecuada. El tipo de gráfica de Barra es adecuada universalmente.
             </div>
             <div id="chartContainer" class="mb-3"></div>
         `;
@@ -491,6 +492,25 @@ class GraficaModalEngine {
     renderGroupedColumnCheckboxes(container, GroupColsX) {
         container.innerHTML = GroupColsX.map((group, gIdx) => {
             const onlyOneAndEqual = group.cols.length === 1 && group.group === group.cols[0];
+            if (onlyOneAndEqual) {
+                // Solo imprime el hijo (columna), no el grupo padre
+                return `
+                    <div class="mb-2 border rounded p-2">
+                        <div class="ms-3">
+                            <div>
+                                <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
+                                       id="col-${gIdx}-0" 
+                                       value="${group.cols[0]}" 
+                                       data-group="${group.group}"
+                                       data-full-label="${group.cols[0]}"
+                                       checked>
+                                <label class="form-check-label" for="col-${gIdx}-0">${group.cols[0]}</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            // Caso normal: imprime grupo padre y sus hijos (excepto cuando hijo == padre)
             return `
                 <div class="mb-2 border rounded p-2">
                     <div>
@@ -499,19 +519,7 @@ class GraficaModalEngine {
                     </div>
                     <div class="ms-3">
                         ${group.cols.map((col, cIdx) => {
-                            if (onlyOneAndEqual) {
-                                return `
-                                    <div class="only-child-duplicate">
-                                        <input type="checkbox" class="form-check-input column-checkbox group-${gIdx}" 
-                                               id="col-${gIdx}-${cIdx}" 
-                                               value="${col}" 
-                                               data-group="${group.group}"
-                                               data-full-label="${col}"
-                                               checked>
-                                        <label class="form-check-label" for="col-${gIdx}-${cIdx}">${col}</label>
-                                    </div>
-                                `;
-                            } else if (group.group === col) {
+                            if (group.group === col) {
                                 return '';
                             } else {
                                 return `
