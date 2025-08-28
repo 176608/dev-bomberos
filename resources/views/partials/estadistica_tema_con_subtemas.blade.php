@@ -152,20 +152,14 @@
                                                         <span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>
                                                     @endif
                                                     @if(!empty($cuadro['excel_formated_file']))
-                                                        <span class="text-success me-2" title="Excel formateado asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
+                                                        <span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
                                                     @endif
                                                 @endif
 
                                                 @if(!empty($cuadro['pdf_file']))
                                                     <span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>
                                                 @endif
-<<<<<<< HEAD
-                                                @if(!empty($cuadro['excel_formated_file']))
-                                                    <span class="text-success me-2" title="Excel  asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
-                                                @endif
-=======
 
->>>>>>> a55dace24f4edb39ad6b1aeddb56f95bcaf141de
                                                 @if(!empty($cuadro['permite_grafica']))
                                                     <span class="badge bg-info" title="Permite gráficas">
                                                         <i class="bi bi-graph-up"></i>
@@ -426,11 +420,7 @@ function renderizarCuadros(cuadros) {
                     <div class="col-2 mb-2 mb-md-0">
                         ${cuadro.tipo_mapa_pdf ? `<span class="text-secondary me-2" title="Mapa Asignado a cuadro"><i class="bi bi-map-fill"></i> &nbsp; Mapa PDF</span>` : (cuadro.excel_file && cuadro.excel_file !== '' ? `<span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>` : '')}
                         ${cuadro.pdf_file && cuadro.pdf_file !== '' ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
-<<<<<<< HEAD
-                        ${cuadro.excel_formated_file && cuadro.excel_formated_file !== '' ? `<span class="text-success me-2" title="Excel  asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
-=======
-                        ${(!cuadro.tipo_mapa_pdf && cuadro.excel_formated_file && cuadro.excel_formated_file !== '') ? `<span class="text-success me-2" title="Excel formateado asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
->>>>>>> a55dace24f4edb39ad6b1aeddb56f95bcaf141de
+                        ${(!cuadro.tipo_mapa_pdf && cuadro.excel_formated_file && cuadro.excel_formated_file !== '') ? `<span class="text-success me-2" title="Excel asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
                         ${cuadro.permite_grafica ? `<span class="badge bg-info" title="Permite gráficas"><i class="bi bi-graph-up"></i></span>` : ''}
                     </div>
                     <div class="col-10">
