@@ -520,6 +520,7 @@
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_pdf_file" class="form-label">
@@ -530,6 +531,7 @@
                                         <small class="form-text text-muted">Formato: .pdf (Max: 5MB)</small>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="edit_excel_formated_file" class="form-label">
@@ -938,7 +940,6 @@ document.getElementById('edit_pie_pagina')?.addEventListener('input', updateEdit
 // Limpiar modales al cerrar
 document.getElementById('modalAgregarCuadro')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('tipos_grafica_container').style.display = 'none';
     document.getElementById('subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
     document.getElementById('pie_pagina').innerHTML = '';
     document.getElementById('pie_pagina_hidden').value = '';

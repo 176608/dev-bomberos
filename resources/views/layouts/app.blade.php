@@ -162,23 +162,23 @@
                 <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
             </div>
             <!-- SOLO MÓVIL -->
-<div class="left-section d-block d-md-none w-100 text-center">
-    <span class="fw-bold">Instituto Municipal de Investigación y Planeación</span>
-    <br>
-    <span class="text-success" style="font-size: 1rem; border-top: 1px solid #7dd1a1ff; display: inline-block; margin-top: 2px; padding-top: 2px;">
-        <i class="bi bi-phone"></i> Vista Móvil
-    </span>
-</div>
+            <div class="left-section d-block d-md-none w-100 text-center">
+                <span class="fw-bold">Instituto Municipal de Investigación y Planeación</span>
+                <br>
+                <span class="text-white" style="font-size: 1rem; border-top: 1px solid #7dd1a1ff; display: inline-block; margin-top: 2px; padding-top: 2px;">
+                    <i class="bi bi-phone"></i> Vista Móvil
+                </span>
+            </div>
             <!-- DERECHO SOLO PC -->
             <div class="d-flex align-items-center d-none d-md-flex">
                 @guest
                     <span class="me-3">
                         <i class="bi bi-person-circle"></i> Invitado
                     </span>
-                    <a href="{{ route('login') }}" class="text-white text-decoration-none">
-                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                    </a>
                 @else
+                <!-- <a href="{{ route('login') }}" class="text-white text-decoration-none">
+                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                    </a>-->
                     <span class="me-3">
                         <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
                     </span>

@@ -426,15 +426,14 @@ class ExcelModalEngine {
     // === RENDERIZADO FINAL ===
 
     wrapInContainer(tableHTML, fileName, excelUrl, pdfUrl, excelFormatedUrl) {
-        //console.log('BLADE: excelUrl', excelUrl);
-        //console.log('BLADE: excelFormatedUrl', excelFormatedUrl);
+        //${fileName || ''}
         const buttons = this.buildDownloadButtons(excelUrl, pdfUrl, excelFormatedUrl);
         return `
             <div class="excel-viewer-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
-                        <i class="bi bi-file-excel text-primary me-2"></i>
-                        Archivo Excel: ${fileName || ''}
+                        <i class="bi bi-table text-primary me-2"></i>
+                        Dataset: 
                     </h5>
                     <div class="btn-group">${buttons}</div>
                 </div>
@@ -462,8 +461,8 @@ class ExcelModalEngine {
         
         if (excelUrl) {
             buttons += `
-                <a href="${excelUrl}" class="btn btn-sm btn-outline-primary rounded-4 me-2" download>
-                    <i class="bi bi-table"></i> * Descargar dataset *
+                <a href="${excelUrl}" class="btn btn-sm btn-outline-primary rounded-4 me-2 d-none" download>
+                    <i class="bi bi-table"></i> Descargar dataset
                 </a>
             `;
         }
@@ -483,14 +482,15 @@ class ExcelModalEngine {
      * Estilos CSS globales para tabla
      */
     getTableStyles() {
+
         return `<style>
         .text-cell {
             text-align: center !important;
-            background-color: #5dd392de !important;
+            background-color: #50dd90de !important;
         }
         .number-cell {
             text-align: right !important;
-            background-color: #adf1ccde !important;
+            background-color: #9df0f0de !important;
         }
 
         .modal .table-responsive,

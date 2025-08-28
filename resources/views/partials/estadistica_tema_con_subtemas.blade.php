@@ -145,15 +145,27 @@
                                         <div class="row align-items-center">
                                             <!-- Columna 1: Iconos y datos rápidos -->
                                             <div class="col-2 mb-2 mb-md-0">
-                                                @if(!empty($cuadro['excel_file']))
-                                                    <span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>
+                                                @if(!empty($cuadro['tipo_mapa_pdf']) && $cuadro['tipo_mapa_pdf'])
+                                                    <span class="text-secondary me-2" title="Mapa Asignado a cuadro"><i class="bi bi-map-fill"></i> &nbsp; Mapa PDF</span>
+                                                @else
+                                                    @if(!empty($cuadro['excel_file']))
+                                                        <span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>
+                                                    @endif
+                                                    @if(!empty($cuadro['excel_formated_file']))
+                                                        <span class="text-success me-2" title="Excel formateado asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
+                                                    @endif
                                                 @endif
+
                                                 @if(!empty($cuadro['pdf_file']))
                                                     <span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>
                                                 @endif
+<<<<<<< HEAD
                                                 @if(!empty($cuadro['excel_formated_file']))
                                                     <span class="text-success me-2" title="Excel  asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>
                                                 @endif
+=======
+
+>>>>>>> a55dace24f4edb39ad6b1aeddb56f95bcaf141de
                                                 @if(!empty($cuadro['permite_grafica']))
                                                     <span class="badge bg-info" title="Permite gráficas">
                                                         <i class="bi bi-graph-up"></i>
@@ -412,9 +424,13 @@ function renderizarCuadros(cuadros) {
                class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
                 <div class="row align-items-center">
                     <div class="col-2 mb-2 mb-md-0">
-                        ${cuadro.excel_file && cuadro.excel_file !== '' ? `<span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>` : ''}
+                        ${cuadro.tipo_mapa_pdf ? `<span class="text-secondary me-2" title="Mapa Asignado a cuadro"><i class="bi bi-map-fill"></i> &nbsp; Mapa PDF</span>` : (cuadro.excel_file && cuadro.excel_file !== '' ? `<span class="text-primary me-2" title="Dataset asignado a cuadro"><i class="bi bi-table"></i></span>` : '')}
                         ${cuadro.pdf_file && cuadro.pdf_file !== '' ? `<span class="text-danger me-2" title="PDF asignado a cuadro"><i class="bi bi-file-earmark-pdf"></i></span>` : ''}
+<<<<<<< HEAD
                         ${cuadro.excel_formated_file && cuadro.excel_formated_file !== '' ? `<span class="text-success me-2" title="Excel  asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
+=======
+                        ${(!cuadro.tipo_mapa_pdf && cuadro.excel_formated_file && cuadro.excel_formated_file !== '') ? `<span class="text-success me-2" title="Excel formateado asignado a cuadro"><i class="bi bi-file-earmark-excel"></i></span>` : ''}
+>>>>>>> a55dace24f4edb39ad6b1aeddb56f95bcaf141de
                         ${cuadro.permite_grafica ? `<span class="badge bg-info" title="Permite gráficas"><i class="bi bi-graph-up"></i></span>` : ''}
                     </div>
                     <div class="col-10">
@@ -443,7 +459,14 @@ document.addEventListener('verCuadroEstadistico', function(event) {
     mostrarModalCuadro(cuadroId, codigo);
 });
 
+let isModalOpen = false;
+
 function mostrarModalCuadro(cuadroId, codigo) {
+if (isModalOpen) {
+        return;
+    }
+    isModalOpen = true;
+
     fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
             if (!response.ok) {
@@ -458,7 +481,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
             }
             
             const cuadro = data.cuadro;
-            console.log('BLADE: Información del cuadro:', cuadro);
+            //console.log('BLADE: Información del cuadro:', cuadro);
             
             const tieneExcel = data.excel.tiene_archivo && data.excel.archivo_existe;
             const excelUrl = data.excel.url;
@@ -468,7 +491,50 @@ function mostrarModalCuadro(cuadroId, codigo) {
             const formatedExcelUrl = data.excel_formated.url;
 
             const modalId = `modal_excel_${Date.now()}`;
-            const modalHTML = `
+            const isMapaPdf = (cuadro.tipo_mapa_pdf == 1 || cuadro.tipo_mapa_pdf === true);
+
+            let modalHTML = '';
+            if (isMapaPdf) {
+                // Modal simplificado para mostrar solo el PDF asociado
+                modalHTML = `
+                <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <span class="fw-bold">${cuadro.codigo}:</span>
+                                    <span class="fw-light">${cuadro.titulo || ''}</span>
+                                    ${cuadro.subtitulo ? `<small class="text-white fst-italic ms-2">${cuadro.subtitulo}</small>` : ''}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div class="p-3">
+                                    ${ pdfUrl ? `
+                                        <object data="${pdfUrl}" type="application/pdf" width="100%" height="680px">
+                                            <p class="text-center">Su navegador no puede mostrar PDFs inline. <a href="${pdfUrl}" target="_blank">Abrir en nueva pestaña</a></p>
+                                        </object>
+                                    ` : `
+                                        <div class="alert alert-warning text-center">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            No hay PDF asociado a este cuadro.
+                                        </div>
+                                    ` }
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="d-flex justify-content-center w-100">
+                                    ${ pdfUrl ? `<a href="${pdfUrl}" class="btn btn-outline-success me-2" download><i class="bi bi-download"></i> Descargar PDF</a>` : '' }
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            } else {
+                // Modal original: Excel + gráfica
+                modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
@@ -527,64 +593,69 @@ function mostrarModalCuadro(cuadroId, codigo) {
                         </div>
                     </div>
                 </div>
-            `;
-            
+                `;
+            }
+
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-            
+
             document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
                 document.getElementById(modalId).remove();
+                isModalOpen = false;
             });
-            
+
             const modal = new bootstrap.Modal(document.getElementById(modalId));
             modal.show();
 
-            const btnGrafica = document.getElementById(`btn-toggle-grafica-${modalId}`);
-            const btnExcel = document.getElementById(`btn-toggle-excel-${modalId}`);
-            const excelView = document.getElementById(`excel-view-${modalId}`);
-            const graficaView = document.getElementById(`grafica-view-${modalId}`);
-            
-            if (btnGrafica) {
-                btnGrafica.addEventListener('click', function() {
-                    excelView.style.display = 'none';
-                    graficaView.style.display = '';
-                    btnGrafica.classList.add('d-none');
-                    btnExcel.classList.remove('d-none');
-                    if (!graficaView.dataset.loaded) {
-                        if (window.GraficaModalEngine && typeof window.GraficaModalEngine.renderGraficaInContainer === 'function') {
-                            window.GraficaModalEngine.renderGraficaInContainer(
-                                `grafica-container-${modalId}`,
-                                excelUrl,
-                                data.excel.nombre_archivo
-                            );
-                            graficaView.dataset.loaded = "1";
-                        } else {
-                            document.getElementById(`grafica-container-${modalId}`).innerHTML = `
-                                <div class="alert alert-danger">No se encontró el motor de gráficas.</div>
-                            `;
+            // Si no es Mapa PDF, mantener la lógica de gráficos/excel existente
+            if (!isMapaPdf) {
+                const btnGrafica = document.getElementById(`btn-toggle-grafica-${modalId}`);
+                const btnExcel = document.getElementById(`btn-toggle-excel-${modalId}`);
+                const excelView = document.getElementById(`excel-view-${modalId}`);
+                const graficaView = document.getElementById(`grafica-view-${modalId}`);
+
+                if (btnGrafica) {
+                    btnGrafica.addEventListener('click', function() {
+                        excelView.style.display = 'none';
+                        graficaView.style.display = '';
+                        btnGrafica.classList.add('d-none');
+                        btnExcel.classList.remove('d-none');
+                        if (!graficaView.dataset.loaded) {
+                            if (window.GraficaModalEngine && typeof window.GraficaModalEngine.renderGraficaInContainer === 'function') {
+                                window.GraficaModalEngine.renderGraficaInContainer(
+                                    `grafica-container-${modalId}`,
+                                    excelUrl,
+                                    data.excel.nombre_archivo
+                                );
+                                graficaView.dataset.loaded = "1";
+                            } else {
+                                document.getElementById(`grafica-container-${modalId}`).innerHTML = `
+                                    <div class="alert alert-danger">No se encontró el motor de gráficas.</div>
+                                `;
+                            }
                         }
-                    }
-                });
-            }
-            if (btnExcel) {
-                btnExcel.addEventListener('click', function() {
-                    graficaView.style.display = 'none';
-                    excelView.style.display = '';
-                    btnExcel.classList.add('d-none');
-                    btnGrafica.classList.remove('d-none');
-                });
-            }
-            
-            if (tieneExcel) {
-                cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null, formatedExcelUrl);
-            } else {
-                document.getElementById(`excel-container-${modalId}`).innerHTML = `
-                    <div class="alert alert-warning text-center">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        ${data.excel.tiene_archivo && !data.excel.archivo_existe ? 
-                          'El archivo Excel asociado no se encuentra en el servidor.' : 
-                          'Este cuadro no tiene un archivo Excel asociado.'}
-                    </div>
-                `;
+                    });
+                }
+                if (btnExcel) {
+                    btnExcel.addEventListener('click', function() {
+                        graficaView.style.display = 'none';
+                        excelView.style.display = '';
+                        btnExcel.classList.add('d-none');
+                        btnGrafica.classList.remove('d-none');
+                    });
+                }
+
+                if (tieneExcel) {
+                    cargarExcelEnModal(modalId, excelUrl, data.excel.nombre_archivo, pdfUrl ? pdfUrl : null, formatedExcelUrl);
+                } else {
+                    document.getElementById(`excel-container-${modalId}`).innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            ${data.excel.tiene_archivo && !data.excel.archivo_existe ? 
+                              'El archivo Excel asociado no se encuentra en el servidor.' : 
+                              'Este cuadro no tiene un archivo Excel asociado.'}
+                        </div>
+                    `;
+                }
             }
         })
         .catch(error => {
