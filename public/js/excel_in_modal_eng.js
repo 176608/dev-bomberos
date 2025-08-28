@@ -471,7 +471,7 @@ class ExcelModalEngine {
         if (excelFormatedUrl) {
             buttons += `
                 <a href="${excelFormatedUrl}" class="btn btn-sm btn-outline-success rounded-4" download>
-                    <i class="bi bi-file-earmark-excel"></i> Descargar Excel Formateado
+                    <i class="bi bi-file-earmark-excel"></i> Descargar Excel 
                 </a>
             `;
         }
