@@ -450,13 +450,14 @@ document.addEventListener('verCuadroEstadistico', function(event) {
 });
 
 function mostrarModalCuadro(cuadroId, codigo) {
-    // Verificar si ya hay un modal abierto para este cuadro
-    if (window.modalesAbiertos[cuadroId]) {
-        return; // No hacer nada si ya está abierto
+    // Verificar si ya existe un modal para este cuadro
+    const existingModal = document.querySelector(`#modal_excel_${cuadroId}`);
+    if (existingModal) {
+        return; // Detener ejecución si el modal ya está abierto
     }
 
-    window.modalesAbiertos[cuadroId] = true;
-
+    // Crear el modal
+    const modalId = `modal_excel_${cuadroId}`;
     fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
             if (!response.ok) {
@@ -649,7 +650,6 @@ function mostrarModalCuadro(cuadroId, codigo) {
         })
         .catch(error => {
             console.error('Error:', error);
-            delete window.modalesAbiertos[cuadroId]; 
             alert(`Error: ${error.message}`);
         });
 }
