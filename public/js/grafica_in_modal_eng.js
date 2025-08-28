@@ -233,20 +233,20 @@ class GraficaModalEngine {
 
         const selectionHTML = `
             <div class="row g-2 align-items-start mb-2 grafica-control-row">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-12">
                     <button id="toggleRowsY" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="rowsYCheckboxes">
                         <div class="form-label mb-0 text-center"><small><b>${CabeceraY}:</b></small></div>
                         <div id="toggleRowsYIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
                     <div id="rowsYCheckboxes" class="grafica-modal-checkbox-list"></div>
                 </div>
-                <div class="col-12 col-md-6">
+                <!--<div class="col-12 col-md-6">
                     <button id="toggleColsX" type="button" class="grafica-toggle-btn btn p-0 d-flex justify-content-between align-items-center mb-1 w-100 text-start" style="background:none;border:0;" aria-expanded="true" aria-controls="groupedColumnCheckboxes">
                         <div class="form-label mb-0 text-center"><small><b>Columnas/grupos:</b></small></div>
                         <div id="toggleColsXIcon" style="font-size:1.5em;" aria-hidden="true"></div>
                     </button>
                     <div id="groupedColumnCheckboxes" class="grafica-modal-checkbox-list"></div>
-                </div>
+                </div>-->
             </div>
             <div class="row g-2 mt-2 mb-2">
                 <div class="col-12 col-md-6">
