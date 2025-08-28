@@ -450,6 +450,13 @@ document.addEventListener('verCuadroEstadistico', function(event) {
 });
 
 function mostrarModalCuadro(cuadroId, codigo) {
+    // Verificar si ya hay un modal abierto para este cuadro
+    if (window.modalesAbiertos[cuadroId]) {
+        return; // No hacer nada si ya está abierto
+    }
+
+    window.modalesAbiertos[cuadroId] = true;
+
     fetch(`{{ url('/sigem/obtener-archivos-cuadro') }}/${cuadroId}`)
         .then(response => {
             if (!response.ok) {
@@ -642,6 +649,7 @@ function mostrarModalCuadro(cuadroId, codigo) {
         })
         .catch(error => {
             console.error('Error:', error);
+            delete window.modalesAbiertos[cuadroId]; 
             alert(`Error: ${error.message}`);
         });
 }
