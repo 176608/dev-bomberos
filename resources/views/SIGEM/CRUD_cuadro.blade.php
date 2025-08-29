@@ -1012,10 +1012,10 @@ document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal'
             const labelExcelFormatedNuevo = document.getElementById(prefix + 'label_excel_formated_nuevo');
             const labelExcelFormatedReemplazar = document.getElementById(prefix + 'label_excel_formated_reemplazar');
 
-            if (labelExcelNuevo) labelExcelNuevo.style.display = checked ? 'none' : '';
-            if (labelExcelReemplazar) labelExcelReemplazar.style.display = 'none';
-            if (labelExcelFormatedNuevo) labelExcelFormatedNuevo.style.display = checked ? 'none' : '';
-            if (labelExcelFormatedReemplazar) labelExcelFormatedReemplazar.style.display = 'none';
+            if (labelExcelNuevo) labelExcelNuevo.style.display = checked ? 'd-none' : '';
+            if (labelExcelReemplazar) labelExcelReemplazar.style.display = 'd-none';
+            if (labelExcelFormatedNuevo) labelExcelFormatedNuevo.style.display = checked ? 'd-none' : '';
+            if (labelExcelFormatedReemplazar) labelExcelFormatedReemplazar.style.display = 'd-none';
         };
 
         tipoMapa.addEventListener('change', setState);
