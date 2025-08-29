@@ -13,7 +13,6 @@
 
     // === OBJETO PRINCIPAL DE LA APLICACIÓN ===
     const SIGEMApp = {
-        // Elementos del DOM cacheados
         elements: {
             navLinks: null,
             contentContainer: null,
@@ -21,18 +20,10 @@
 
         // Inicialización de la aplicación
         init: function () {
-            console.log('Inicializando SIGEMApp ...');
-            
-            // Configurar URLs
+            //console.log('Inicializando SIGEMApp ...');
             this.configureUrls();
-            
-            // Cachear elementos del DOM
             this.cacheElements();
-            
-            // Si hay alguna otra inicialización, la mantenemos
             this.setupOtherEvents();
-            
-            // Cargar contenido inicial
             this.loadInitialContent();
         },
 
@@ -42,34 +33,14 @@
                 (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
             CONFIG.PARTIALS_URL = `${CONFIG.BASE_URL}/partial`;
             CONFIG.API_URL = CONFIG.BASE_URL; // Asumiendo que las rutas API están bajo la base
-            console.log('URLs configuradas:', { base: CONFIG.BASE_URL, partials: CONFIG.PARTIALS_URL, api: CONFIG.API_URL });
         },
 
-        // Cachear elementos del DOM
         cacheElements: function () {
             this.elements.navLinks = document.querySelectorAll('.sigem-nav-link');
             this.elements.contentContainer = document.getElementById('sigem-content');
         },
 
-        /* Enlazar eventos
-        bindEvents: function () {
-            this.elements.navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    // Verificar si estamos en una ruta especial y el href no es '#'
-                    const isDirectLink = link.getAttribute('href') !== '#';
-                    if (isDirectLink) {
-                        // No prevenir el comportamiento por defecto, permitir la navegación normal
-                        return true;
-                    }
-                    
-                    // Para rutas normales, usar el comportamiento AJAX existente
-                    e.preventDefault();
-                    const section = link.getAttribute('data-section');
-                    this.loadContent(section);
-                });
-            });*/
-
-            // Otros eventos que sean necesarios
+        // Otros eventos que sean necesarios
         setupOtherEvents: function () {
         },
         
@@ -96,7 +67,6 @@
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('section', section);
             window.history.replaceState({}, '', newUrl);
-            console.log(`Sección actualizada a: ${section}`);
         },
 
         updateActiveMenu: function (activeSection) {
@@ -118,16 +88,13 @@
         },
 
         loadContent: function (section) {
-            console.log(`Cargando sección: ${section}`);
             
-            // Funciones importantes para la navegación
             this.saveCurrentSection(section); // PRIMERO actualizar la sección
             this.cleanUrlParameters(section); // DESPUÉS limpiar parámetros extra
             this.updateActiveMenu(section);
             this.showLoading(section);
 
             const url = `${CONFIG.PARTIALS_URL}/${section}`;
-            console.log(`URL completa: ${url}`);
 
             fetch(url)
                 .then(response => {
@@ -157,22 +124,17 @@
                 });
         },
 
-        // NUEVA FUNCIÓN: Limpiar parámetros de URL según la sección
         cleanUrlParameters: function(section) {
             const currentUrl = new URL(window.location);
             let urlChanged = false;
             
-            // Si NO es estadística, remover cuadro_id
             if (section !== 'estadistica' && currentUrl.searchParams.has('cuadro_id')) {
                 currentUrl.searchParams.delete('cuadro_id');
                 urlChanged = true;
-                console.log(`Removiendo cuadro_id de URL - sección cambiada a: ${section}`);
             }
             
-            // Remover otros parámetros específicos que no corresponden a la sección actual
             switch (section) {
                 case 'estadistica':
-                    // Mantener cuadro_id si existe, remover otros parámetros específicos si los hubiera
                     if (currentUrl.searchParams.has('tema_id')) {
                         currentUrl.searchParams.delete('tema_id');
                         urlChanged = true;
@@ -187,7 +149,6 @@
                 case 'cartografia':
                 case 'inicio':
                 case 'productos':
-                    // Estas secciones no necesitan parámetros específicos
                     if (currentUrl.searchParams.has('tema_id')) {
                         currentUrl.searchParams.delete('tema_id');
                         urlChanged = true;
@@ -199,10 +160,8 @@
                     break;
             }
             
-            // Actualizar URL solo si hubo cambios en parámetros extra
             if (urlChanged) {
                 window.history.replaceState({}, '', currentUrl);
-                console.log(`Parámetros limpiados para sección ${section}:`, currentUrl.toString());
             }
         },
 
@@ -229,11 +188,10 @@
         },
 
         // === FUNCIONES GLOBALES EXPUESTAS ===
-        // (Necesarias para ser llamadas desde HTML generado dinámicamente)
 
         // === FUNCION usada en la vista de catálogo.blade ===
         focusEnTema: function (numeroTema) {
-            console.log(`Focus en tema: ${numeroTema}`);
+            //console.log(`Focus en tema: ${numeroTema}`);
             const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
             const cuadrosContainer = document.getElementById('cuadros-container');
             if (temaElement && cuadrosContainer) {
@@ -251,7 +209,6 @@
 
         // === FUNCION usada en la vista de catálogo.blade ===
         focusEnSubtema: function (numeroTema, ordenSubtema) {
-            console.log(`Focus en subtema: Tema ${numeroTema}, Subtema ${ordenSubtema}`);
             const subtemaElement = document.getElementById(`subtema-cuadros-${numeroTema}-${ordenSubtema}`);
             const cuadrosContainer = document.getElementById('cuadros-container');
             if (subtemaElement && cuadrosContainer) {
@@ -269,9 +226,8 @@
 
         // === FUNCION usada en la vista de estadistica_temas_con_subtemas.blade ===
         verCuadro: function (cuadroId, codigo) {
-            console.log(`sigemjs: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
-            
-            // Disparar un evento personalizado que será capturado en el blade
+            //console.log(`sigemjs: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+
             const evento = new CustomEvent('verCuadroEstadistico', {
                 detail: {
                     cuadroId: cuadroId,
@@ -282,7 +238,6 @@
         },
 
         openConsultaExpress: function() {            
-            // Verificar si ya existe una instancia del modal
             const consultaExpressModal = document.getElementById('consultaExpressModal');
             
             if (!consultaExpressModal) {
@@ -291,7 +246,6 @@
                 return;
             }
             
-            // Abrir modal usando Bootstrap
             try {
                 if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                     const modal = new bootstrap.Modal(consultaExpressModal);
@@ -303,7 +257,6 @@
                     }
                 } else {
                     console.error('Bootstrap no está disponible');
-                    // Intentar con jQuery si está disponible
                     if (typeof $ !== 'undefined' && $.fn.modal) {
                         $(consultaExpressModal).modal('show');
                         
@@ -320,12 +273,9 @@
             }
         },
 
-        // Función para inicializar los eventos del modal
         initConsultaExpress: function() {            
-            // Marcar como inicializado para no repetir
             this.consultaExpressInitialized = true;
             
-            // Elementos DOM
             const temaSelect = document.getElementById('ce_tema_select_modal');
             const subtemaSelect = document.getElementById('ce_subtema_select_modal');
             const contenidoContainer = document.getElementById('ce_contenido_container_modal');
@@ -335,7 +285,6 @@
                 return;
             }
             
-            // Función para mostrar loader
             function showLoader() {
                 contenidoContainer.innerHTML = `
                     <div class="text-center py-4">
@@ -347,17 +296,13 @@
                 `;
             }
             
-            // Cargar subtemas cuando cambia el tema
             temaSelect.addEventListener('change', function() {
                 const temaId = this.value;
                 
                 if (temaId) {
-                    // Deshabilitar el selector de subtemas mientras se cargan
                     subtemaSelect.disabled = true;
                     subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
-                    //consultarBtn.disabled = true;
                     
-                    // Realizar petición fetch
                     fetch(`${CONFIG.BASE_URL}/consulta-express/subtemas/${temaId}`)
                         .then(response => {
                             if (!response.ok) {
@@ -366,11 +311,9 @@
                             return response.json();
                         })
                         .then(data => {
-                            // Limpiar selector de subtemas
                             subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
                             
                             if (data.success && data.subtemas && data.subtemas.length > 0) {
-                                // Añadir opciones de subtemas
                                 data.subtemas.forEach(function(subtema) {
                                     const option = document.createElement('option');
                                     option.value = subtema.ce_subtema_id;
@@ -378,10 +321,8 @@
                                     subtemaSelect.appendChild(option);
                                 });
                                 
-                                // Habilitar selector y botón
                                 subtemaSelect.disabled = false;
                                 
-                                // Limpiar contenido si había algo mostrado
                                 contenidoContainer.innerHTML = `
                                     <div class="text-center text-muted py-5">
                                         <i class="bi bi-info-circle fs-2"></i>
@@ -390,7 +331,6 @@
                                 `;
                             } else {
                                 subtemaSelect.innerHTML = '<option value="">No hay subtemas disponibles</option>';
-                                //consultarBtn.disabled = true;
                                 
                                 contenidoContainer.innerHTML = `
                                     <div class="alert alert-warning">No se encontraron subtemas para este tema.</div>
@@ -401,10 +341,8 @@
                             console.error('Error al cargar subtemas:', error);
                             subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
                             subtemaSelect.disabled = true;
-                            //consultarBtn.disabled = true;
                         });
                 } else {
-                    // Resetear subtemas y contenido
                     subtemaSelect.innerHTML = '<option value="">Primero seleccione un tema</option>';
                     subtemaSelect.disabled = true;
                     
@@ -417,7 +355,6 @@
                 }
             });
             
-            // Cuando cambia el subtema - REEMPLAZAR ESTA SECCIÓN COMPLETA
             subtemaSelect.addEventListener('change', function() {
                 const subtemaId = subtemaSelect.value;
                 
@@ -432,13 +369,10 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log('✅ Datos recibidos en sigem.js:', data); // Debug
                             
                             if (data.success && data.contenido) {
-                                // NUEVA FUNCIÓN: Renderizar la tabla desde sigem.js
                                 mostrarContenidoCESigem(data.contenido, data.actualizado, contenidoContainer);
                                 
-                                // Metadata
                                 const metadataDiv = document.getElementById('ce_metadata_modal');
                                 const fechaActualizacion = document.getElementById('ce_fecha_actualizacion_modal');
                                 
@@ -465,14 +399,11 @@
 
         // Función para cargar el modal dinámicamente si no está presente
         loadModalConsultaExpress: function() {
-            console.log('Intentando cargar modal de Consulta Express');
-            
-            // Crear un contenedor temporal donde cargar el partial
+
             const tempContainer = document.createElement('div');
             tempContainer.style.display = 'none';
             document.body.appendChild(tempContainer);
             
-            // Cargar el partial via fetch
             fetch(`${CONFIG.BASE_URL}/partial/consulta-express`)
                 .then(response => {
                     if (!response.ok) {
@@ -483,17 +414,14 @@
                 .then(html => {
                     tempContainer.innerHTML = html;
                     
-                    // Mover el modal al body
                     const modalElement = tempContainer.querySelector('#consultaExpressModal');
                     if (modalElement) {
                         document.body.appendChild(modalElement);                        
-                        // Abrir el modal
                         this.openConsultaExpress();
                     } else {
                         console.error('Modal no encontrado en el partial cargado');
                     }
                     
-                    // Eliminar el contenedor temporal
                     document.body.removeChild(tempContainer);
                 })
                 .catch(error => {
@@ -642,7 +570,6 @@
         fetch(`${CONFIG.API_URL}/catalogo`)
             .then(response => response.json())
             .then(data => {
-                console.log('Response completa:', data); // Log solicitado
                 if (data.success) {
                     if (indiceContainer && data.temas_detalle) {
                         indiceContainer.innerHTML = generateEstructuraIndice(data.temas_detalle);
@@ -670,7 +597,6 @@
         fetch(`${CONFIG.API_URL}/datos-inicio`)
             .then(response => response.json())
             .then(data => {
-                console.log('Datos de inicio cargados:', data);
                 if (data.success && data.estadisticas) {
                     const statTemas = document.getElementById('stat-temas');
                     const statSubtemas = document.getElementById('stat-subtemas');
@@ -689,7 +615,6 @@
     SIGEMApp.loadEstadisticaData = function () {
         const urlParams = new URLSearchParams(window.location.search);
         const cuadroId = urlParams.get('cuadro_id');
-        console.log('loadEstadisticaData - cuadroId:', cuadroId);
         const cuadroInfoContainer = document.getElementById('cuadro-info-container');
 
         if (cuadroId && cuadroInfoContainer) {
@@ -731,7 +656,6 @@
         fetch(`${CONFIG.API_URL}/cuadro-data/${cuadroId}`)
             .then(response => response.json())
             .then(data => {
-                console.log('Datos del cuadro cargados:', data);
                 if (data.success && data.cuadro) {
                     cuadroInfoContainer.innerHTML = generateCuadroInfoHtml(data.cuadro, data.tema_info, data.subtema_info);
                     // En la función loadCuadroEspecifico o donde se cargan los datos
@@ -893,14 +817,12 @@
                 const subtemaData = temaData.subtemas[subtemaKey];
                 const ordenSubtema = subtemaData.subtema_info.orden_indice || subtemaIndex;
                 
-                // Header del subtema con ID para focus
                 html += `
                     <div class="px-1 py-1 bg-light border-bottom fw-bold" style="font-size: 14px;" id="subtema-cuadros-${temaData.tema_info.tema_id}-${ordenSubtema}">
                         ${subtemaData.subtema_info.subtema_titulo}
                     </div>
                 `;
 
-                // Cuadros del subtema
                 if (subtemaData.cuadros && subtemaData.cuadros.length > 0) {
                     subtemaData.cuadros.forEach((cuadro, cuadroIndex) => {
                         const bgColor = cuadroIndex % 2 === 0 ? 'background-color: #f8f9fa;' : 'background-color: white;';
@@ -1072,9 +994,7 @@
 
 // Función principal para renderizar contenido CE desde sigem.js
 function mostrarContenidoCESigem(contenido, actualizado, container) {
-    console.log('sigem.js:', contenido);
     
-    // Verificar que tenemos tabla_datos
     if (!contenido.tabla_datos || !Array.isArray(contenido.tabla_datos) || contenido.tabla_datos.length === 0) {
         container.innerHTML = `
             <div class="alert alert-warning text-center">
@@ -1088,7 +1008,6 @@ function mostrarContenidoCESigem(contenido, actualizado, container) {
     // Renderizar tabla HTML
     const tablaHtml = renderizarTablaCESigem(contenido.tabla_datos);
     
-    // Construir HTML completo con título centrado
     const contenidoCompleto = `
         <div class="consulta-express-modal-content">
             <!-- Título centrado -->
@@ -1124,7 +1043,6 @@ function renderizarTablaCESigem(tablaDatos) {
     html += '<div class="table-responsive">';
     html += '<table class="table table-striped table-bordered table-hover">';
     
-    // Procesar cada fila
     tablaDatos.forEach((fila, filaIndex) => {
         html += '<tr>';
         
