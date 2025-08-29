@@ -338,7 +338,10 @@ class ExcelModalEngine {
 
         // Fuente
         if (style.font) {
-            if (style.font.bold) css.push('font-weight: bold');
+            if (style.font.bold) {
+                    console.log(`Celda con negrita detectada en ${ref}:`, style);
+                    css.push('font-weight: bold');
+                }            
             if (style.font.italic) css.push('font-style: italic');
             if (style.font.underline) css.push('text-decoration: underline');
             if (style.font.sz) css.push(`font-size: ${style.font.sz}px`);
