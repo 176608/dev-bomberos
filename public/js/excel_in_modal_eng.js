@@ -339,14 +339,14 @@ class ExcelModalEngine {
         // Fuente
         if (style.font) {
             if (style.font.bold) {
-                    console.log(`Celda con negrita detectada en ${ref}:`, style);
+                console.log("Echo this");
                     css.push('font-weight: bold');
                 }            
-            if (style.font.italic) css.push('font-style: italic');
-            if (style.font.underline) css.push('text-decoration: underline');
-            if (style.font.sz) css.push(`font-size: ${style.font.sz}px`);
-            if (style.font.color?.rgb) css.push(`color: #${style.font.color.rgb}`);
-            if (style.font.name) css.push(`font-family: '${style.font.name}', sans-serif`);
+            //if (style.font.italic) css.push('font-style: italic');
+            //if (style.font.underline) css.push('text-decoration: underline');
+            //if (style.font.sz) css.push(`font-size: ${style.font.sz}px`);
+            //if (style.font.color?.rgb) css.push(`color: #${style.font.color.rgb}`);
+            //if (style.font.name) css.push(`font-family: '${style.font.name}', sans-serif`);
         }
 
         // Alineación
