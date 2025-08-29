@@ -514,7 +514,7 @@
                                     <div class="mb-3">
                                         <label for="edit_excel_file" class="form-label">
                                             <span id="label_excel_nuevo">Nuevo Archivo Dataset</span>
-                                            <span id="label_excel_reemplazar" class="d-none">Reemplazar Archivo Dataset</span>
+                                            <span id="label_excel_reemplazar" class="">Reemplazar Archivo Dataset</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_file" name="excel_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
@@ -536,7 +536,7 @@
                                     <div class="mb-3">
                                         <label for="edit_excel_formated_file" class="form-label">
                                             <span id="label_excel_formated_nuevo">Nuevo Archivo Excel Formateado</span>
-                                            <span id="label_excel_formated_reemplazar" class="d-none">Reemplazar Archivo Excel Formateado</span>
+                                            <span id="label_excel_formated_reemplazar" class="">Reemplazar Archivo Excel Formateado</span>
                                         </label>
                                         <input type="file" class="form-control" id="edit_excel_formated_file" name="excel_formated_file" accept=".xlsx,.xls">
                                         <small class="form-text text-muted">Formato: .xlsx o .xls (Max: 5MB)</small>
