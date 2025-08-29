@@ -705,7 +705,7 @@ function eliminarArchivoExcel() {
         document.getElementById('remove_excel_hidden').value = '1';
         document.getElementById('archivo_excel_actual').classList.add('d-none');
         document.getElementById('label_excel_nuevo').classList.remove('d-none');
-        document.getElementById('label_excel_reemplazar').classList.add('d-none');
+        //document.getElementById('label_excel_reemplazar').classList.add('d-none');
         
         // Verificar si quedan archivos
         verificarArchivosRestantes();
@@ -853,7 +853,7 @@ function editarCuadro(id) {
                 document.getElementById('archivo_excel_actual').classList.remove('d-none');
                 document.getElementById('nombre_excel_actual').textContent = 'Archivo Excel disponible';
                 document.getElementById('archivo_excel_sistema').textContent = cuadroData.excel_file;
-                document.getElementById('label_excel_reemplazar').classList.remove('d-none');
+                //document.getElementById('label_excel_reemplazar').classList.remove('d-none');
                 document.getElementById('label_excel_nuevo').classList.add('d-none');
             }
             
@@ -1007,7 +1007,7 @@ document.getElementById('modalEditarCuadro')?.addEventListener('hidden.bs.modal'
 
             // In edit modal there are label spans for Nuevo/Reemplazar — ensure labels for excel are hidden when mapa PDF
             const labelExcelNuevo = document.getElementById(prefix + 'label_excel_nuevo');
-            const labelExcelReemplazar = document.getElementById(prefix + 'label_excel_reemplazar');
+            //const labelExcelReemplazar = document.getElementById(prefix + 'label_excel_reemplazar');
             const labelExcelFormatedNuevo = document.getElementById(prefix + 'label_excel_formated_nuevo');
             const labelExcelFormatedReemplazar = document.getElementById(prefix + 'label_excel_formated_reemplazar');
 
