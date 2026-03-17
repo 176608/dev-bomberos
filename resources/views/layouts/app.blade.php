@@ -1,4 +1,4 @@
-<!-- Archivo APP - NO ELIMINAR COMENTARIO -->
+<!-- APP  -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -150,7 +150,7 @@
 
 <body>
 
-    <!-- Archivo APP - NO ELIMINAR COMENTARIO -->
+    <!-- APP -->
 <div class="top-bar text-white">
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center w-100">
