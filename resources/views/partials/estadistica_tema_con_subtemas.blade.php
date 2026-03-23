@@ -498,7 +498,7 @@ if (isModalOpen) {
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
-                            <div class="modal-body p-0">
+                            <div class="modal-body p-0" style="background-color: #cfcfcf;">
                                 <div class="p-3">
                                     ${ pdfUrl ? `
                                         <object data="${pdfUrl}" type="application/pdf" width="100%" height="680px">
@@ -537,10 +537,10 @@ if (isModalOpen) {
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
 
-                            <div class="modal-body p-0">
+                            <div class="modal-body p-0" style="background-color: #cfcfcf;">
 
                                 <div id="excel-view-${modalId}">
-                                    <div id="excel-container-${modalId}" class="p-3" style="background-color: #cfcfcf;">
+                                    <div id="excel-container-${modalId}" class="p-3">
                                         <div class="text-center py-5">
                                             <div class="spinner-border text-success" role="status">
                                                 <span class="visually-hidden">Cargando...</span>
