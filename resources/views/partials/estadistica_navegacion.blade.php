@@ -6,11 +6,11 @@
             <h2 class="text-success mb-2">
                 Sección Estadística
             </h2>
-            <p class="text-muted mb-0">Consultas de información estadística relevante y precisa</p>
+            <p class="text-muted mb-0">Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes Municipales, Estatales, Federales, entre otros. Los cuadros estadísticos están categorizados en las siguientes temas:</p>
         </div>
     </div>
     <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-        <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
+        <img src="{{ asset('imagenes/estadgde.png') }}" alt="Icono Estadística" class="img-fluid" style="max-height: 80px;" 
              onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
     </div>
 </div>

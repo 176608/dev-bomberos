@@ -229,7 +229,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-house-fill me-2"></i>Bienvenido a SIGEM
+            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Express
         </h2>
         
         <div class="row mb-4">
@@ -249,7 +249,7 @@
                     <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
                     <div class="consulta-express-overlay">
                         <span class="consulta-express-text">
-                            <i class="bi bi-lightning-fill me-2"></i>Consultar Información
+                            Consultar Información
                         </span>
                     </div>
                 </div>
@@ -293,7 +293,7 @@
                     <div class="card-body text-center p-4">
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=estadistica') }}'">
                             <div class="module-image-wrapper">
-                                <img src="{{ asset('imagenes/iconoesta2.png') }}" alt="Módulo Estadística" class="module-image">
+                                <img src="{{ asset('imagenes/estadgde.png') }}" alt="Módulo Estadística" class="module-image">
                                 <div class="module-overlay">
                                     <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
                                 </div>
