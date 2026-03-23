@@ -483,11 +483,11 @@ class ExcelModalEngine {
         return `<style>
         .text-cell {
             text-align: center !important;
-            background-color: #50dd90de !important;
+            background-color: #ffffffde !important;
         }
         .number-cell {
             text-align: right !important;
-            background-color: #9df0f0de !important;
+            background-color: #ffffffde !important;
         }
 
         .modal .table-responsive,

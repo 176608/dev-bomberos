@@ -540,7 +540,7 @@ if (isModalOpen) {
                             <div class="modal-body p-0">
 
                                 <div id="excel-view-${modalId}">
-                                    <div id="excel-container-${modalId}" class="p-3">
+                                    <div id="excel-container-${modalId}" class="p-3" style="background-color: #cfcfcf;">
                                         <div class="text-center py-5">
                                             <div class="spinner-border text-success" role="status">
                                                 <span class="visually-hidden">Cargando...</span>
