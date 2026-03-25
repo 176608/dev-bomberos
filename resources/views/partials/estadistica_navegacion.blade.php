@@ -1,5 +1,5 @@
 <div class="card shadow-sm">
-    <div class="card-body p-0">
+    <div class="card-body">
         <div class="row mb-4 align-items-center">
 
             <div class="col-lg-8 col-md-7">
