@@ -1,15 +1,21 @@
 <div class="card shadow-sm">
     <div class="card-body p-0">
-<div class="row g-0 border-bottom">
-    <div class="col-8">
-        <div class="p-4">
-            <p class="text-muted mb-0">Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes Municipales, Estatales, Federales, entre otros. Los cuadros estadísticos están categorizados en las siguientes temas:</p>
-        </div>
-    </div>
-    <div class="col-4 d-flex align-items-center justify-content-center bg-light">
-        <div class="estadistica-intro-image mx-auto" style="max-width: 80%;">
-            <img src="{{ asset('imagenes/estadgde.png') }}" alt="Icono Estadística" class="img-fluid rounded shadow-sm"
-                 onerror="this.src='{{ asset('img/icons/chart-icon.png') }}'; this.onerror=null;">
+        <div class="row mb-4 align-items-center">
+
+            <div class="col-lg-8 col-md-7">
+                <div class="estadistica-intro-text">
+                    <p class="lead">
+                        Consultas de información estadística relevante y precisa en cuadros estadísticos, obtenidos de diferentes fuentes Municipales, Estatales, Federales, entre otros. Los cuadros estadísticos están categorizados en las siguientes temas:
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-5 mb-3 mb-md-0 text-center">
+                <div class="estadistica-intro-image mx-auto" style="max-width: 80%;">
+                    <img src="{{ asset('imagenes/estadgde.png') }}" alt="Estadística" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -113,6 +119,11 @@
 .estadistica-intro-image:hover img {
     transform: scale(1.05);
 }
+
+.estadistica-intro-text {
+        padding-left: 20px;
+        margin-top: 20px;
+    }
 
 .temas-grid-container {
     display: grid;

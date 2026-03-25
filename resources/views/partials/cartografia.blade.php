@@ -277,10 +277,6 @@
     transform: scale(1.05);
 }
 
-.cartografia-intro-text {
-    padding-left: 20px;
-}
-
 .cartografia-intro-text .lead {
     color: #2a6e48;
     font-weight: 600;
@@ -394,7 +390,7 @@
     }
     
     .cartografia-intro-text {
-        padding-left: 0;
+        padding-left: 20px;
         margin-top: 20px;
     }
     
