@@ -1,4 +1,4 @@
-<!-- Archivo Bomberos -index- NO ELIMINAR COMENTARIO -->
+<!-- Consultor de Hidrantes -->
 @extends('layouts.app')
 
 @section('title', 'Consultor de Hidrantes')

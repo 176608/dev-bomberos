@@ -249,7 +249,7 @@
         
         <div class="location-box">
             <div class="location-title">Ubicación del Hidrante</div>
-            
+            <!-- Ubicación basada en calles principales/secundarias o descripción de ubicación -->
             <div class="text-center mb-2">
                 @php
                     $callePrincipal = $hidrante->callePrincipal 

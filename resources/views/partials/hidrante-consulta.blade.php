@@ -32,6 +32,7 @@
                 </div>
             </div>
             <hr>
+
             <div class="card text-center">
                 <div class="card-header">
                     Ubicación del Hidrante
@@ -51,8 +52,9 @@
 
                             @if($callePrincipal)
                                 @if($calleSecundaria)
+                                    Entre {{ $callePrincipal }} y {{ $calleSecundaria }}.
                                 @else
-                                  Sobre {{ $callePrincipal }}.
+                                    Sobre {{ $callePrincipal }}.
                                 @endif
                             @else
                                 Ubicación no registrada.
@@ -62,13 +64,16 @@
                     <div class="row mb-2">
                         <div class="col-12">
                             @if($hidrante->coloniaLocacion)
+                                En {{ $hidrante->coloniaLocacion->TIPO }} {{ $hidrante->coloniaLocacion->NOMBRE }}.
                             @elseif($hidrante->colonia && $hidrante->colonia !== NULL)
+                                En {{ $hidrante->colonia }}*.
                             @else
                                 Colonia no registrada.
                             @endif
                         </div>
                     </div>
                 </div>
+                
                 <div class="card-footer text-body-secondary">
                     Última actualización realizada: {{ $hidrante->updated_at ? \Carbon\Carbon::parse($hidrante->updated_at)->format('d/m/Y H:i') : 'N/A' }}
                 </div>

@@ -32,7 +32,7 @@ class DashboardController extends Controller
         }
         
         // Buscar el hidrante
-        $hidrante = Hidrante::find($hidranteId);
+        $hidrante = Hidrante::findOrFail($hidranteId);
         
         if (!$hidrante) {
             return view('dashboard', [

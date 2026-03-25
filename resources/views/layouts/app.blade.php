@@ -206,7 +206,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('consultor.dashboard') ? 'active' : '' }}" 
+                            <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'consultor.') ? 'active' : '' }}" 
                                href="{{ route('consultor.dashboard') }}" title="Panel de Consulta de hidrantes">
                                 <i class="bi bi-binoculars-fill"></i> Consultor
                             </a>
@@ -258,12 +258,12 @@
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
-                                <li class="nav-item">
+                                <!--<li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
                                         <i class="bi bi-gear"></i> Usuarios
                                     </a>
-                                </li>
+                                </li>-->
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
