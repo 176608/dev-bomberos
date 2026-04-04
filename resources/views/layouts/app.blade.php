@@ -216,7 +216,7 @@
                             <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'sigem.') && 
                                                    !str_starts_with(request()->route()->getName(), 'sigem.admin.') ? 'active' : '' }}" 
                                href="{{ route('sigem.index') }}" title="Propuesta de consulta pública de SIGEM">
-                                <i class="bi bi-binoculars-fill"></i>Propuesta SIGEM
+                                <i class="bi bi-binoculars-fill"></i> Propuesta SIGEM
                             </a>
                         </li>
                         
