@@ -267,7 +267,7 @@
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM>
+                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM">
                                         <i class="bi bi-gear"></i> Prototipo de Gestor de SIGEM
                                     </a>
                                 </li>
