@@ -207,7 +207,7 @@
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'consultor.') ? 'active' : '' }}" 
-                               href="{{ route('consultor.dashboard') }}" title="Panel de Consulta de hidrantes">
+                               href="{{ route('consultor.dashboard') }}" title="Panel de Consulta pública de hidrantes">
                                 <i class="bi bi-binoculars-fill"></i> Consultor
                             </a>
                         </li>
@@ -215,8 +215,8 @@
                         <li class="nav-item">
                             <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'sigem.') && 
                                                    !str_starts_with(request()->route()->getName(), 'sigem.admin.') ? 'active' : '' }}" 
-                               href="{{ route('sigem.index') }}" title="Panel de consulta público de SIGEM">
-                                <i class="bi bi-binoculars-fill"></i> SIGEM
+                               href="{{ route('sigem.index') }}" title="Propuesta de consulta pública de SIGEM">
+                                <i class="bi bi-binoculars-fill"></i>Propuesta SIGEM
                             </a>
                         </li>
                         
@@ -231,29 +231,29 @@
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
-                                       href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
-                                        <i class="bi bi-gear"></i> Usuarios
+                                       href="{{ route('admin.panel') }}" title="Módulo de gestión de Usuarios">
+                                        <i class="bi bi-gear"></i> Prototipo de Gestor de Usuarios
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
-                                        <i class="bi bi-gear"></i> SIGEM ADMIN
+                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM">
+                                        <i class="bi bi-gear"></i> Prototipo de Gestor de SIGEM
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
                                        href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
-                                        <i class="bi bi-droplet-fill"></i> Hidrantes
+                                        <i class="bi bi-droplet-fill"></i> Gestor de Hidrantes
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
                                        href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
-                                        <i class="bi bi-journal-text"></i> Vias y Colonias
+                                        <i class="bi bi-journal-text"></i> Gestor de Vias y Colonias
                                     </a>
                                 </li>
                                 
@@ -267,8 +267,8 @@
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Panel de Administración de SIGEM">
-                                        <i class="bi bi-gear"></i> SIGEM ADMIN
+                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM>
+                                        <i class="bi bi-gear"></i> Prototipo de Gestor de SIGEM
                                     </a>
                                 </li>
                                 
@@ -276,7 +276,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
                                        href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
-                                        <i class="bi bi-droplet-fill"></i> Hidrantes
+                                        <i class="bi bi-droplet-fill"></i> Gestor de Hidrantes
                                     </a>
                                 </li>
 
@@ -284,7 +284,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
                                        href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
-                                        <i class="bi bi-journal-text"></i> Vias y Colonias
+                                        <i class="bi bi-journal-text"></i> Gestor de Vias y Colonias
                                     </a>
                                 </li>
                             @endif
@@ -293,7 +293,7 @@
 
                     @if(auth()->user()->role === 'Desarrollador')
                         <span class="navbar-text text-danger">
-                            <i class="bi bi-tools"></i> MODO DESARROLLADOR
+                            <i class="bi bi-tools"></i> Modo Desarrollador Activo
                         </span>
                     @endif
                 </div>
