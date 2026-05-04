@@ -172,13 +172,10 @@
             <!-- DERECHO SOLO PC -->
             <div class="d-flex align-items-center d-none d-md-flex">
                 @guest
-                    <span class="me-3">
-                        <i class="bi bi-person-circle"></i> Invitado
-                    </span>
+                    <!--<span class="me-3">
+                        <i class="bi bi-person-circle"></i> Consultor Público
+                    </span>-->
                 @else
-                <!-- <a href="{{ route('login') }}" class="text-white text-decoration-none">
-                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                    </a>-->
                     <span class="me-3">
                         <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
                     </span>
@@ -216,7 +213,7 @@
                             <a class="nav-link {{ str_starts_with(request()->route()->getName(), 'sigem.') && 
                                                    !str_starts_with(request()->route()->getName(), 'sigem.admin.') ? 'active' : '' }}" 
                                href="{{ route('sigem.index') }}" title="Propuesta de consulta pública de SIGEM">
-                                <i class="bi bi-binoculars-fill"></i> Propuesta SIGEM
+                                <i class="bi bi-binoculars-fill"></i> SIGEM
                             </a>
                         </li>
                         
@@ -231,60 +228,52 @@
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
-                                       href="{{ route('admin.panel') }}" title="Módulo de gestión de Usuarios">
-                                        <i class="bi bi-gear"></i> Prototipo de Gestor de Usuarios
+                                       href="{{ route('admin.panel') }}" title="Sistema de Gestión de Usuarios">
+                                        <i class="bi bi-gear"></i> SGU
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM">
-                                        <i class="bi bi-gear"></i> Prototipo de Gestor de SIGEM
+                                       href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
+                                        <i class="bi bi-gear"></i> SGIGEM
                                     </a>
                                 </li>
                                 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
-                                       href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
-                                        <i class="bi bi-droplet-fill"></i> Gestor de Hidrantes
+                                       href="{{ route('capturista.panel') }}" title="Sistema de Gestión de Hidrantes">
+                                        <i class="bi bi-droplet-fill"></i> SGH
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
-                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
-                                        <i class="bi bi-journal-text"></i> Gestor de Vias y Colonias
+                                       href="{{ route('registrador.panel') }}" title="Sistema de Gestión de Vias y Colonias">
+                                        <i class="bi bi-journal-text"></i> SGVC
                                     </a>
                                 </li>
                                 
                             @elseif(auth()->user()->role === 'Administrador')
-                                <!--<li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
-                                       href="{{ route('admin.panel') }}" title="Panel de Administración de Bomberos">
-                                        <i class="bi bi-gear"></i> Usuarios
-                                    </a>
-                                </li>-->
-                                
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Módulo de gestión de contenidos del SIGEM">
-                                        <i class="bi bi-gear"></i> Prototipo de Gestor de SIGEM
+                                       href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
+                                        <i class="bi bi-gear"></i> SGIGEM
                                     </a>
                                 </li>
-                                
                             @elseif(auth()->user()->role === 'Capturista') 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
-                                       href="{{ route('capturista.panel') }}" title="Panel de Captura de Hidrantes">
-                                        <i class="bi bi-droplet-fill"></i> Gestor de Hidrantes
+                                       href="{{ route('capturista.panel') }}" title="Sistema de Gestión de Hidrantes">
+                                        <i class="bi bi-droplet-fill"></i> SGH
                                     </a>
                                 </li>
 
                             @elseif(auth()->user()->role === 'Registrador')
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('registrador.panel') ? 'active' : '' }}" 
-                                       href="{{ route('registrador.panel') }}" title="Panel de registro de Vias y Colonias">
-                                        <i class="bi bi-journal-text"></i> Gestor de Vias y Colonias
+                                       href="{{ route('registrador.panel') }}" title="Sistema de Gestión de Vias y Colonias">
+                                        <i class="bi bi-journal-text"></i> SGVC
                                     </a>
                                 </li>
                             @endif
