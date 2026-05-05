@@ -1,0 +1,410 @@
+@extends('layouts.app')
+
+@section('title', 'Dictámenes - IMIP Ciudad Juárez')
+
+@push('styles')
+<style>
+    :root {
+        --imip-blue: #2f7064;
+        --imip-purple: #8a2be2;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        text-align: center;
+        padding: 20px 10px;
+    }
+    .stat-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--imip-blue);
+        margin: 10px 0;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    .chart-container-sm {
+        height: 240px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    .chart-container-sm canvas {
+        width: 100% !important;
+        max-height: 220px !important;
+        display: block;
+    }
+    table {
+        font-size: 0.85rem;
+    }
+    th {
+        background: #f1f3f5;
+        font-weight: 600;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    tr:hover td {
+        background-color: #f8fafd;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        border-radius: 4px;
+    }
+    .badge-enviado { background: #28a745; color: white; }
+    .badge-regreso { background: #dc3545; color: white; }
+    .badge-no-aplica { background: #6c757d; color: white; }
+    .badge-borrador { background: #ffc107; color: white; }
+</style>
+@endpush
+
+@section('content')
+
+
+<div class="container mt-4">
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ $nuevo ?? 0 }}</div>
+                <div class="stat-label">Dictámenes Enviados</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ $total ?? 0 }}</div>
+                <div class="stat-label">Total de dictámenes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfica -->
+    <div class="chart-container-sm">
+        <h5 class="mb-3">Número de dictámenes recibidos por mes</h5>
+        <canvas id="chartMeses"></canvas>
+    </div>
+
+    <!-- Botón Agregar (solo Administrador Dictamenes) -->
+    @if(auth()->check() && auth()->user()->hasRole('Administrador Dictamenes'))
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
+    </button>
+    
+    <!-- NUEVO: Botón para ver eliminados -->
+    <a href="{{ route('sg-dictamen.deleted') }}" class="btn btn-outline-danger mb-3">
+        <i class="bi bi-trash"></i> Ver Eliminados
+    </a>
+@endif
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table id="dictamenes-table" class="table table-hover nowrap">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th># Oficio</th>
+                    <th>Dependencia</th>
+                    <th>Asunto</th>
+                    <th>Estatus</th>
+                    @if(auth()->check())
+                        <th>Nombre / Puesto</th>
+                        <th>Revisado por</th>
+                        <th>Núm. Oficio</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($dictamenes as $d)
+                <tr>
+                    <td>{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
+                    <td>{{ $d->oficio ?? '—' }}</td>
+                    <td>{{ $d->dependencia_empres ?? '—' }}</td>
+                    <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
+                    <td>
+                        @php
+                            $s = $d->estatus ?? '';
+                            $s_lower = strtolower($s);
+                            $badgeClass = 'badge-no-aplica';
+                            if (str_contains($s_lower, 'enviado')) {
+                                $badgeClass = 'badge-enviado';
+                            } elseif (str_contains($s_lower, 'regreso') || str_contains($s_lower, 'detenido')) {
+                                $badgeClass = 'badge-regreso';
+                            } elseif (str_contains($s_lower, 'borrador') || str_contains($s_lower, 'informativo')) {
+                                $badgeClass = 'badge-borrador';
+                            }
+                        @endphp
+                        <span class="badge {{ $badgeClass }}" title="{{ $d->estatus }}">
+                            {{ strlen($s) > 25 ? substr($s, 0, 22).'...' : $s }}
+                        </span>
+                    </td>
+
+                    @if(auth()->check())
+                        <td>{{ $d->nombre_puesto ?? '—' }}</td>
+                        <td>{{ $d->revisado_por ?? '—' }}</td>
+                        <td>{{ $d->numero_oficio ?? '—' }}</td>
+                        <td>{{ $d->observaciones ?? '—' }}</td>
+                        <td>
+                            <!-- Editar: Admin Dictamenes y Editor Dictamenes -->
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes']))
+                                <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                            @endif
+
+                            <!-- Eliminar: solo Administrador Dictamenes -->
+                            @if(auth()->user()->hasRole('Administrador Dictamenes'))
+                                <form id="delete-form-{{ $d->id }}" action="{{ route('sg-dictamen.destroy', $d->id) }}" method="POST" style="display: none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                <button class="btn btn-sm btn-danger delete-btn"
+                                        onclick="if(confirm('¿Estás seguro que deseas eliminar este dictamen?')) document.getElementById('delete-form-{{ $d->id }}').submit();">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            @endif
+                        </td>
+                    @endif
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modals (Crear) -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Nuevo Dictamen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createForm" method="POST" action="{{ route('sg-dictamen.store') }}">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Fecha</label>
+                        <input type="date" class="form-control" name="fecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label># Oficio</label>
+                        <input type="text" class="form-control" name="oficio">
+                    </div>
+                    <div class="mb-3">
+                        <label>Nombre / Puesto</label>
+                        <input type="text" class="form-control" name="nombre_puesto">
+                    </div>
+                    <div class="mb-3">
+                        <label>Dependencia</label>
+                        <input type="text" class="form-control" name="dependencia_empres">
+                    </div>
+                    <div class="mb-3">
+                        <label>Asunto</label>
+                        <textarea class="form-control" name="asunto"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label>Núm. Oficio</label>
+                        <input type="text" class="form-control" name="numero_oficio">
+                    </div>
+                    <div class="mb-3">
+                        <label>Revisado por</label>
+                        <input type="text" class="form-control" name="revisado_por">
+                    </div>
+                    <div class="mb-3">
+                        <label>Estatus</label>
+                        <select class="form-control" name="estatus" required>
+                            <option value="">Seleccione un estatus...</option>
+                            <option value="ENVIADO">ENVIADO</option>
+                            <option value="BORRADOR">BORRADOR</option>
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN PROCESO">EN PROCESO</option>
+                              <option value="EN REVISION">EN REVISION</option>
+                            <option value="DETENIDO">DETENIDO</option>
+                            <option value="SE REGRESO">SE REGRESO</option>
+                            <option value="INFORMATIVO">INFORMATIVO</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observaciones</label>
+                        <textarea class="form-control" name="observaciones"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modals (Editar) -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Dictamen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="POST" onsubmit="return confirm('¿Seguro que deseas editar este dictamen?');">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Fecha</label>
+                        <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label># Oficio</label>
+                        <input type="text" class="form-control" id="oficio_edit" name="oficio">
+                    </div>
+                    <div class="mb-3">
+                        <label>Nombre / Puesto</label>
+                        <input type="text" class="form-control" id="nombre_puesto_edit" name="nombre_puesto">
+                    </div>
+                    <div class="mb-3">
+                        <label>Dependencia</label>
+                        <input type="text" class="form-control" id="dependencia_empres_edit" name="dependencia_empres">
+                    </div>
+                    <div class="mb-3">
+                        <label>Asunto</label>
+                        <textarea class="form-control" id="asunto_edit" name="asunto"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label>Núm. Oficio</label>
+                        <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio">
+                    </div>
+                    <div class="mb-3">
+                        <label>Revisado por</label>
+                        <input type="text" class="form-control" id="revisado_por_edit" name="revisado_por">
+                    </div>
+                   <div class="mb-3">
+    <label>Estatus</label>
+    <select class="form-control" id="estatus_edit" name="estatus" required>
+        <option value="">Seleccione un estatus...</option>
+        <option value="ENVIADO">ENVIADO</option>
+        <option value="BORRADOR">BORRADOR</option>
+        <option value="PENDIENTE">PENDIENTE</option>
+        <option value="EN PROCESO">EN PROCESO</option>
+        <option value="EN REVISION">EN REVISION</option>
+        <option value="DETENIDO">DETENIDO</option>
+        <option value="SE REGRESO">SE REGRESO</option>
+        <option value="INFORMATIVO">INFORMATIVO</option>
+    </select>
+</div>
+                    <div class="mb-3">
+                        <label>Observaciones</label>
+                        <textarea class="form-control" id="observaciones_edit" name="observaciones"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+@parent
+
+<!--ÚNICO CAMBIO: Agregar librería Chart.js que no viene en el layout de bombers -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+$(document).ready(function() {
+   $('#dictamenes-table').DataTable({
+    "paging": true,
+    "lengthMenu": [
+        [5, 10,15,20,50,100, 150, 10000],
+        ['5','10','15','20','50','100', '150', 'Todas']
+    ],
+    "pageLength": 0,
+    "searching": true,
+    "info": false,
+    "ordering": true,
+    "order": [],
+    "scrollX": true,
+    "autoWidth": false,
+    "language": {
+        "search": "Buscar:",
+        "paginate": { "previous": "‹", "next": "›" },
+        "emptyTable": "No hay dictámenes",
+        "zeroRecords": "No se encontró nada"
+    }
+    });
+
+    // Editar
+    $('#dictamenes-table').on('click', '.edit-btn', function() {
+        const id = $(this).data('id');
+        if (!id) return;
+        $.get(`/admin/dictamenes/${id}/edit`, function(data) {
+            $('#fecha_edit').val(data.fecha || '');
+            $('#oficio_edit').val(data.oficio || '');
+            $('#nombre_puesto_edit').val(data.nombre_puesto || '');
+            $('#dependencia_empres_edit').val(data.dependencia_empres || '');
+            $('#asunto_edit').val(data.asunto || '');
+            $('#numero_oficio_edit').val(data.numero_oficio || '');
+            $('#revisado_por_edit').val(data.revisado_por || '');
+            $('#estatus_edit').val(data.estatus || '');
+            $('#observaciones_edit').val(data.observaciones || '');
+            $('#editForm').attr('action', `/admin/dictamenes/${id}`);
+            $('#editModal').modal('show');
+        });
+    });
+});
+</script>
+
+<script>
+// Gráfica de Chart.js
+const ctx = document.getElementById('chartMeses');
+if (ctx) {
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
+            datasets: [
+                {
+                    label: 'Solicitudes',
+                    data: {!! json_encode($solicitudes ?? []) !!},
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Días hábiles',
+                    data: {!! json_encode($diasHabiles ?? []) !!},
+                    type: 'line',
+                    borderColor: 'rgb(28, 32, 34)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+</script>
+@endsection

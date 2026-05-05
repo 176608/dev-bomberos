@@ -110,6 +110,8 @@
                             <option value="Registrador">Registrador</option>
                             <option value="Desarrollador">Desarrollador</option>
                             <option value="Administrador">Administrador</option>
+                            <option value="Administrador Dictamenes">Administrador Dictamenes</option>
+                            <option value="Editor Dictamenes">Editor Dictamenes</option>
                         </select>
                     </div>
                 </div>

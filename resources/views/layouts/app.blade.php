@@ -276,6 +276,14 @@
                                         <i class="bi bi-journal-text"></i> SGVC
                                     </a>
                                 </li>
+                            @elseif(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes']))
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
+                                       href="{{ route('sg-dictamen.index') }}" 
+                                       title="Módulo de Gestión de Dictámenes">
+                                        <i class="bi bi-file-earmark-text-fill"></i> Dictámenes
+                                    </a>
+                                </li>
                             @endif
                         @endif
                     </ul>

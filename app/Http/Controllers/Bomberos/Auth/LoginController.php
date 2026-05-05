@@ -108,6 +108,12 @@ class LoginController extends Controller
         } elseif ($user->role === 'Registrador') {
             return redirect()->route('registrador.panel');
         }
+        //  Redirección para roles de Dictamenes
+        elseif ($user->role === 'Administrador Dictamenes') {
+            return redirect()->route('sg-dictamen.index');
+        } elseif ($user->role === 'Editor Dictamenes') {
+            return redirect()->route('sg-dictamen.index');
+        }
 
         return redirect()->route('dashboard');
     }

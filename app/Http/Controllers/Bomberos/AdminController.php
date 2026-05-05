@@ -36,11 +36,11 @@ class AdminController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador'])],
+            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
         ]);
 
         // Contraseña temporal por defecto
-        $defaultPassword = 'CambiaMe123!';
+        //$defaultPassword = 'CambiaMe123!';
 
         User::create([
             'name' => $request->name,
@@ -60,7 +60,7 @@ class AdminController extends Controller
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador'])],
+                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
                 'status' => ['required', 'boolean'],
             ]);
 
