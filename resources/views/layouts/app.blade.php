@@ -276,7 +276,7 @@
                                         <i class="bi bi-journal-text"></i> SGVC
                                     </a>
                                 </li>
-                            @elseif(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes']))
+                            @elseif(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
                                        href="{{ route('sg-dictamen.index') }}" 
