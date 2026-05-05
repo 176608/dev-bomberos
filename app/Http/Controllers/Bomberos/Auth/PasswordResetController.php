@@ -25,9 +25,22 @@ class PasswordResetController extends Controller
 
     public function update(Request $request)
     {
+        // ISO 25000: Validación de contraseña robusta
         $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'min:12',
+                'confirmed',
+                'regex:/[A-Z]/',      // Mayúscula
+                'regex:/[a-z]/',      // Minúscula
+                'regex:/[0-9]/',      // Número
+                'regex:/[^A-Za-z0-9]/', // Carácter especial
+            ],
+        ], [
+            'password.min' => 'La contraseña debe tener mínimo 12 caracteres.',
+            'password.regex' => 'La contraseña debe incluir mayúsculas, minúsculas, números y caracteres especiales.',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -42,7 +55,7 @@ class PasswordResetController extends Controller
             ]);
             $user->name = $request->name;
         }
-
+    // ISO 25000: Cifra la contraseña utilizando bcrypt (Hash::make) y no almacena contraseñas temporales
         $user->password = \Hash::make($request->password);
         $user->log_in_status = 0;
         $user->save();

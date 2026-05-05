@@ -26,6 +26,19 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
+        // ISO 25000: Permitir primer acceso sin contraseña válida si log_in_status > 0
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if ($user && $user->log_in_status > 0) {
+            // Usuario en estado inicial - redirigir directamente a establecimiento de contraseña
+            session(['email_for_reset' => $credentials['email']]);
+            return redirect()->route('password.reset.form')
+                ->with('email', $credentials['email'])
+                ->with('message', $user->log_in_status === 1 ? 
+                    'Por favor, establece tu contraseña para continuar.' : 
+                    'Por favor, cambia tu contraseña para continuar.');
+        }
+
         if (!Auth::attempt($credentials)) {
             // Redirige de vuelta con error y email
             return back()
@@ -40,14 +53,6 @@ class LoginController extends Controller
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Tu cuenta está desactivada.']);
-        }
-
-        // Check if user needs to reset password
-        if ($user->log_in_status > 0) {
-            return redirect()->route('password.reset.form')
-                ->with('message', $user->log_in_status === 1 ? 
-                    'Por favor, establece tu contraseña para continuar.' : 
-                    'Por favor, cambia tu contraseña para continuar.');
         }
 
         $request->session()->regenerate();

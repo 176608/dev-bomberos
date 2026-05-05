@@ -39,19 +39,18 @@ class AdminController extends Controller
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
         ]);
 
-        // Contraseña temporal por defecto
-        //$defaultPassword = 'CambiaMe123!';
-
+        // ISO 25000: No generar contraseña por defecto. El usuario establecerá su propia contraseña
+        // en el primer acceso. log_in_status=1 indica que debe completar la configuración inicial.
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($defaultPassword),
+            'password' => null,  // Sin contraseña temporal
             'role' => $request->role,
             'status' => 1,
-            'log_in_status' => 1,
+            'log_in_status' => 1,  // Requiere establecimiento de contraseña
         ]);
 
-        return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente');
+        return redirect()->route('admin.panel')->with('success', 'Usuario creado exitosamente. Debe completar su contraseña en el primer acceso.');
     }
 
     public function update(Request $request, User $user)
