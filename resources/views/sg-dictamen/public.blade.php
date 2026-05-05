@@ -161,7 +161,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-$(document).ready(function() {
+/*$(document).ready(function() {
     // Inicializar DataTables solo si no existe
     if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
         $('#dictamenes-table').DataTable().destroy();
@@ -222,6 +222,6 @@ $(document).ready(function() {
             }
         });
     }
-});
+});*/
 </script>
 @endsection
