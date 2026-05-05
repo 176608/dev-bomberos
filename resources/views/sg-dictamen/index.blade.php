@@ -139,7 +139,17 @@
             </thead>
             <tbody>
                 @foreach($dictamenes as $d)
-                <tr>
+                <tr 
+                    data-fecha="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '' }}"
+                    data-oficio="{{ $d->oficio ?? '' }}"
+                    data-nombre-puesto="{{ $d->nombre_puesto ?? '' }}"
+                    data-dependencia="{{ $d->dependencia_empres ?? '' }}"
+                    data-asunto="{{ $d->asunto ?? '' }}"
+                    data-numero-oficio="{{ $d->numero_oficio ?? '' }}"
+                    data-revisado-por="{{ $d->revisado_por ?? '' }}"
+                    data-estatus="{{ $d->estatus ?? '' }}"
+                    data-observaciones="{{ $d->observaciones ?? '' }}"
+                >
                     <td>{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
                     <td>{{ $d->oficio ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
@@ -358,41 +368,32 @@ $(document).ready(function() {
         }
     });
 
-    // EDITAR - Cargar datos via AJAX desde el backend
+    // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
     $('#dictamenes-table').on('click', '.edit-btn', function() {
+        const $row = $(this).closest('tr');
         const id = $(this).data('id');
+        
         if (!id) {
             alert('Error: No se encontró el ID del dictamen');
             return;
         }
         
-        $.ajax({
-            url: `/admin/dictamenes/${id}/edit`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // Cargar los campos con los datos del backend
-                $('#fecha_edit').val(data.fecha || '');
-                $('#oficio_edit').val(data.oficio || '');
-                $('#nombre_puesto_edit').val(data.nombre_puesto || '');
-                $('#dependencia_empres_edit').val(data.dependencia_empres || '');
-                $('#asunto_edit').val(data.asunto || '');
-                $('#numero_oficio_edit').val(data.numero_oficio || '');
-                $('#revisado_por_edit').val(data.revisado_por || '');
-                $('#estatus_edit').val(data.estatus || '');
-                $('#observaciones_edit').val(data.observaciones || '');
-                
-                // Configurar la acción del formulario
-                $('#editForm').attr('action', `/admin/dictamenes/${id}`);
-                
-                // Mostrar modal
-                $('#editModal').modal('show');
-            },
-            error: function(err) {
-                console.error('Error cargando dictamen:', err);
-                alert('Error al cargar los datos del dictamen. Por favor, intenta de nuevo.');
-            }
-        });
+        // Cargar datos directamente desde data-* attributes
+        $('#fecha_edit').val($row.data('fecha') || '');
+        $('#oficio_edit').val($row.data('oficio') || '');
+        $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
+        $('#dependencia_empres_edit').val($row.data('dependencia') || '');
+        $('#asunto_edit').val($row.data('asunto') || '');
+        $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
+        $('#revisado_por_edit').val($row.data('revisado-por') || '');
+        $('#estatus_edit').val($row.data('estatus') || '');
+        $('#observaciones_edit').val($row.data('observaciones') || '');
+        
+        // Configurar action del formulario usando Blade para generar URL segura
+        $('#editForm').attr('action', "{{ route('sg-dictamen.update', '') }}" + id);
+        
+        // Mostrar modal
+        $('#editModal').modal('show');
     });
 
     // Gráfica
