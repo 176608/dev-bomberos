@@ -339,85 +339,91 @@
 
 <script>
 $(document).ready(function() {
-   $('#dictamenes-table').DataTable({
-    "paging": true,
-    "lengthMenu": [
-        [5, 10,15,20,50,100, 150, 10000],
-        ['5','10','15','20','50','100', '150', 'Todas']
-    ],
-    "pageLength": 0,
-    "searching": true,
-    "info": false,
-    "ordering": true,
-    "order": [],
-    "scrollX": true,
-    "autoWidth": false,
-    "language": {
-        "search": "Buscar:",
-        "paginate": { "previous": "‹", "next": "›" },
-        "emptyTable": "No hay dictámenes",
-        "zeroRecords": "No se encontró nada"
-    }
-    });
-
-    // Editar
-    $('#dictamenes-table').on('click', '.edit-btn', function() {
-        const id = $(this).data('id');
-        if (!id) return;
-        $.get(`/admin/dictamenes/${id}/edit`, function(data) {
-            $('#fecha_edit').val(data.fecha || '');
-            $('#oficio_edit').val(data.oficio || '');
-            $('#nombre_puesto_edit').val(data.nombre_puesto || '');
-            $('#dependencia_empres_edit').val(data.dependencia_empres || '');
-            $('#asunto_edit').val(data.asunto || '');
-            $('#numero_oficio_edit').val(data.numero_oficio || '');
-            $('#revisado_por_edit').val(data.revisado_por || '');
-            $('#estatus_edit').val(data.estatus || '');
-            $('#observaciones_edit').val(data.observaciones || '');
-            $('#editForm').attr('action', `/admin/dictamenes/${id}`);
-            $('#editModal').modal('show');
-        });
-    });
-});
-</script>
-
-<script>
-// Gráfica de Chart.js
-//const ctx = document.getElementById('chartMeses');
-if (ctx) {
-    new Chart(ctx.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
-            datasets: [
-                {
-                    label: 'Solicitudes',
-                    data: {!! json_encode($solicitudes ?? []) !!},
-                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Días hábiles',
-                    data: {!! json_encode($diasHabiles ?? []) !!},
-                    type: 'line',
-                    borderColor: 'rgb(28, 32, 34)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+    // DataTable
+    $('#dictamenes-table').DataTable({
+        "paging": true,
+        "lengthMenu": [[5, 10, 15, 20, 50, 100], ['5', '10', '15', '20', '50', '100']],
+        "pageLength": 10,
+        "searching": true,
+        "info": false,
+        "ordering": true,
+        "order": [[0, 'desc']],
+        "scrollX": true,
+        "autoWidth": false,
+        "language": {
+            "search": "Buscar:",
+            "paginate": { "previous": "‹", "next": "›" },
+            "emptyTable": "No hay dictámenes",
+            "zeroRecords": "No se encontró nada"
         }
     });
-}
+
+    // EDITAR - Cargar datos desde data attributes
+    $('#dictamenes-table').on('click', '.edit-btn', function() {
+        const $row = $(this).closest('tr');
+        const id = $(this).data('id');
+        
+        // Cargar datos desde atributos data-* de la fila
+        $('#fecha_edit').val($row.data('fecha') || '');
+        $('#oficio_edit').val($row.data('oficio') || '');
+        $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
+        $('#dependencia_empres_edit').val($row.data('dependencia') || '');
+        $('#asunto_edit').val($row.data('asunto') || '');
+        $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
+        $('#revisado_por_edit').val($row.data('revisado-por') || '');
+        $('#estatus_edit').val($row.data('estatus') || '');
+        $('#observaciones_edit').val($row.data('observaciones') || '');
+        
+        // Configurar action del formulario
+        $('#editForm').attr('action', `/admin/dictamenes/${id}`);
+        
+        // Mostrar modal
+        $('#editModal').modal('show');
+    });
+
+    // Gráfica
+    const ctx = document.getElementById('chartMeses');
+    if (ctx && ctx.getContext) {
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
+                datasets: [
+                    {
+                        label: 'Solicitudes recibidas',
+                        data: {!! json_encode($solicitudes ?? []) !!},
+                        backgroundColor: 'rgba(47, 112, 100, 0.7)',
+                        borderColor: 'rgba(47, 112, 100, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Días hábiles promedio',
+                        data: {!! json_encode($diasHabiles ?? []) !!},
+                        type: 'line',
+                        borderColor: 'rgb(220, 53, 69)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: true, position: 'top', labels: { padding: 15, font: { size: 12 } } }
+                },
+                scales: {
+                    y: { type: 'linear', display: true, position: 'left', beginAtZero: true, max: 50 },
+                    y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, max: 30, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+});
 </script>
 @endsection
