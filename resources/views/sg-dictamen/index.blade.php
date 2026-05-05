@@ -30,15 +30,21 @@
         font-size: 0.9rem;
         color: #666;
     }
+    /* Contenedor de gráfica - FIJO para evitar expansión infinita */
     .chart-container-sm {
-        height: 240px;
-        margin-bottom: 20px;
+        height: 280px;
+        max-height: 280px;
+        margin-bottom: 30px;
         position: relative;
+        overflow: hidden;
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .chart-container-sm canvas {
         width: 100% !important;
-        max-height: 220px !important;
-        display: block;
+        height: 100% !important;
     }
     table {
         font-size: 0.85rem;
@@ -55,14 +61,15 @@
     }
     .badge {
         font-weight: 500;
-        padding: 4px 8px;
+        padding: 6px 10px;
         font-size: 0.75rem;
         border-radius: 4px;
+        display: inline-block;
     }
     .badge-enviado { background: #28a745; color: white; }
     .badge-regreso { background: #dc3545; color: white; }
     .badge-no-aplica { background: #6c757d; color: white; }
-    .badge-borrador { background: #ffc107; color: white; }
+    .badge-borrador { background: #ffc107; color: #000; }
 </style>
 @endpush
 
@@ -87,9 +94,11 @@
     </div>
 
     <!-- Gráfica -->
-    <div class="chart-container-sm">
-        <h5 class="mb-3">Número de dictámenes recibidos por mes</h5>
-        <canvas id="chartMeses"></canvas>
+    <div class="mb-4">
+        <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Estadísticas por mes</h5>
+        <div class="chart-container-sm">
+            <canvas id="chartMeses"></canvas>
+        </div>
     </div>
 
     <!-- Botón Agregar (solo Administrador Dictamenes) -->
@@ -321,30 +330,27 @@
 @section('scripts')
 @parent
 
-<!--ÚNICO CAMBIO: Agregar librería Chart.js que no viene en el layout de bombers -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 $(document).ready(function() {
-   $('#dictamenes-table').DataTable({
-    "paging": true,
-    "lengthMenu": [
-        [5, 10,15,20,50,100, 150, 10000],
-        ['5','10','15','20','50','100', '150', 'Todas']
-    ],
-    "pageLength": 0,
-    "searching": true,
-    "info": false,
-    "ordering": true,
-    "order": [],
-    "scrollX": true,
-    "autoWidth": false,
-    "language": {
-        "search": "Buscar:",
-        "paginate": { "previous": "‹", "next": "›" },
-        "emptyTable": "No hay dictámenes",
-        "zeroRecords": "No se encontró nada"
-    }
+    // DataTable
+    $('#dictamenes-table').DataTable({
+        "paging": true,
+        "lengthMenu": [[5, 10, 15, 20, 50, 100], ['5', '10', '15', '20', '50', '100']],
+        "pageLength": 10,
+        "searching": true,
+        "info": false,
+        "ordering": true,
+        "order": [[0, 'desc']],
+        "scrollX": true,
+        "autoWidth": false,
+        "language": {
+            "search": "Buscar:",
+            "paginate": { "previous": "‹", "next": "›" },
+            "emptyTable": "No hay dictámenes",
+            "zeroRecords": "No se encontró nada"
+        }
     });
 
     // Editar
@@ -365,46 +371,70 @@ $(document).ready(function() {
             $('#editModal').modal('show');
         });
     });
-});
-</script>
 
-<script>
-// Gráfica de Chart.js
-/*const ctx = document.getElementById('chartMeses');
-if (ctx) {
-    new Chart(ctx.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
-            datasets: [
-                {
-                    label: 'Solicitudes',
-                    data: {!! json_encode($solicitudes ?? []) !!},
-                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 1
+    // Gráfica de Chart.js - Correctamente configurada
+    const ctx = document.getElementById('chartMeses');
+    if (ctx && ctx.getContext) {
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
+                datasets: [
+                    {
+                        label: 'Solicitudes recibidas',
+                        data: {!! json_encode($solicitudes ?? []) !!},
+                        backgroundColor: 'rgba(47, 112, 100, 0.7)',
+                        borderColor: 'rgba(47, 112, 100, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Días hábiles promedio',
+                        data: {!! json_encode($diasHabiles ?? []) !!},
+                        type: 'line',
+                        borderColor: 'rgb(220, 53, 69)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { padding: 15, font: { size: 12 } }
+                    }
                 },
-                {
-                    label: 'Días hábiles',
-                    data: {!! json_encode($diasHabiles ?? []) !!},
-                    type: 'line',
-                    borderColor: 'rgb(28, 32, 34)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        beginAtZero: true,
+                        max: 50,
+                        title: { display: true, text: 'Cantidad' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        max: 30,
+                        title: { display: true, text: 'Días' },
+                        grid: { drawOnChartArea: false }
+                    }
                 }
             }
-        }
-    });
-}*/
+        });
+    }
+});
 </script>
 @endsection
