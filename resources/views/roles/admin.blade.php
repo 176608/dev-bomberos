@@ -154,6 +154,8 @@
                                 <option value="Registrador" {{ $user->role === 'Registrador' ? 'selected' : '' }}>Registrador</option>
                                 <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                <option value="Administrador Dictamenes" {{ $user->role === 'Administrador Dictamenes' ? 'selected' : '' }}>Administrador Dictamenes</option>
+                                <option value="Editor Dictamenes" {{ $user->role === 'Editor Dictamenes' ? 'selected' : '' }}>Editor Dictamenes</option>
                             </select>
                         </div>
                         <div class="mb-3">
