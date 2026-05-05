@@ -21,21 +21,47 @@
         font-size: 0.9rem;
         color: #666;
     }
-    /* Contenedor de gráfica - FIJO para evitar expansión infinita */
     .chart-container-sm {
-        height: 280px;
-        max-height: 280px;
+        height: 300px;
         margin-bottom: 30px;
         position: relative;
-        overflow: hidden;
+    }
+    /* Espacio entre la gráfica y la tabla */
+    #dictamenes-table_wrapper {
+        margin-top: 20px;
+    }
+    /* Evitar que los controles se encimen */
+    #dictamenes-table_wrapper .row:first-child {
+        margin-bottom: 10px;
+    }
+
+    .stat-card {
         background: white;
         border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        text-align: center;
+        padding: 20px 10px;
     }
-    .chart-container-sm canvas {
-        width: 100% !important;
-        height: 100% !important;
+    .stat-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #2f7064;
+        margin: 10px 0;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    .chart-container-sm {
+        height: 300px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    #dictamenes-table_wrapper {
+        margin-top: 20px;
+    }
+    #dictamenes-table_wrapper .row:first-child {
+        margin-bottom: 10px;
     }
     
     /* Estilos para badges de colores */
@@ -76,11 +102,9 @@
     </div>
 
     <!-- Gráfica -->
-    <div class="mb-4">
-        <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Estadísticas por mes</h5>
-        <div class="chart-container-sm">
-            <canvas id="chartMeses"></canvas>
-        </div>
+    <div class="chart-container-sm">
+        <h5 class="mb-3">Número de dictámenes recibidos por mes</h5>
+        <canvas id="chartMeses"></canvas>
     </div>
 
     <!-- Tabla -->
@@ -138,7 +162,7 @@
 
 <script>
 $(document).ready(function() {
-    // DataTable
+    // Inicializar DataTables solo si no existe
     if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
         $('#dictamenes-table').DataTable().destroy();
     }
@@ -160,39 +184,39 @@ $(document).ready(function() {
             "zeroRecords": "No se encontró nada"
         }
     });
-
-    // Gráfica de Chart.js - Correctamente configurada
-    const ctx = document.getElementById('chartMeses');
-    if (ctx && ctx.getContext) {
-        const chart = new Chart(ctx, {
+    
+    // Gráfica de Chart.js
+    //const ctx = document.getElementById('chartMeses');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
                 datasets: [
                     {
-                        label: 'Solicitudes recibidas',
+                        label: 'Solicitudes',
                         data: {!! json_encode($solicitudes ?? []) !!},
-                        backgroundColor: 'rgba(47, 112, 100, 0.7)',
-                        borderColor: 'rgba(47, 112, 100, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Días hábiles',
+                        data: {!! json_encode($diasHabiles ?? []) !!},
+                        type: 'line',
+                        borderColor: 'rgb(28, 32, 34)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: { padding: 15, font: { size: 12 } }
-                    }
-                },
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        max: 50
+                        beginAtZero: true
                     }
                 }
             }

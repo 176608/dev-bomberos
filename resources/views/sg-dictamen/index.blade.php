@@ -30,11 +30,16 @@
         font-size: 0.9rem;
         color: #666;
     }
-    /* Contenedor de gráfica - FIJO para evitar expansión infinita */
-    .chart-container-sm {
-        height: 280px;
-        max-height: 280px;
+    /* Contenedor de gráfica - FIJO con límite de viewport */
+    .chart-wrapper {
+        display: flex;
+        justify-content: center;
         margin-bottom: 30px;
+    }
+    .chart-container-sm {
+        width: 100%;
+        max-width: 1000px;
+        height: 280px;
         position: relative;
         overflow: hidden;
         background: white;
@@ -61,7 +66,7 @@
     }
     .badge {
         font-weight: 500;
-        padding: 6px 10px;
+        padding: 4px 8px;
         font-size: 0.75rem;
         border-radius: 4px;
         display: inline-block;
@@ -69,7 +74,7 @@
     .badge-enviado { background: #28a745; color: white; }
     .badge-regreso { background: #dc3545; color: white; }
     .badge-no-aplica { background: #6c757d; color: white; }
-    .badge-borrador { background: #ffc107; color: #000; }
+    .badge-borrador { background: #ffc107; color: white; }
 </style>
 @endpush
 
@@ -93,21 +98,21 @@
         </div>
     </div>
 
-    <!-- Gráfica -->
-    <div class="mb-4">
-        <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Estadísticas por mes</h5>
+    <!-- Gráfica con límite de viewport -->
+    <div class="chart-wrapper">
         <div class="chart-container-sm">
+            <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
             <canvas id="chartMeses"></canvas>
         </div>
     </div>
 
-    <!-- Botón Agregar (solo Administrador Dictamenes) -->
-    @if(auth()->check() && auth()->user()->hasRole('Administrador Dictamenes'))
+    <!-- Botón Agregar (solo Administrador Dictamenes y Desarrollador) -->
+    @if(auth()->check() && auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
     <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
         <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
     </button>
     
-    <!-- NUEVO: Botón para ver eliminados -->
+    <!-- Ver eliminados (solo Administrador Dictamenes y Desarrollador) -->
     <a href="{{ route('sg-dictamen.deleted') }}" class="btn btn-outline-danger mb-3">
         <i class="bi bi-trash"></i> Ver Eliminados
     </a>
@@ -163,15 +168,15 @@
                         <td>{{ $d->numero_oficio ?? '—' }}</td>
                         <td>{{ $d->observaciones ?? '—' }}</td>
                         <td>
-                            <!-- Editar: Admin Dictamenes y Editor Dictamenes -->
-                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes']))
+                            <!-- Editar: Admin Dictamenes, Editor Dictamenes y Desarrollador -->
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
                                 <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#editModal">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
                             @endif
 
-                            <!-- Eliminar: solo Administrador Dictamenes -->
-                            @if(auth()->user()->hasRole('Administrador Dictamenes'))
+                            <!-- Eliminar: solo Administrador Dictamenes y Desarrollador -->
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
                                 <form id="delete-form-{{ $d->id }}" action="{{ route('sg-dictamen.destroy', $d->id) }}" method="POST" style="display: none;">
                                     @csrf
                                     @method('DELETE')
@@ -334,23 +339,25 @@
 
 <script>
 $(document).ready(function() {
-    // DataTable
-    $('#dictamenes-table').DataTable({
-        "paging": true,
-        "lengthMenu": [[5, 10, 15, 20, 50, 100], ['5', '10', '15', '20', '50', '100']],
-        "pageLength": 10,
-        "searching": true,
-        "info": false,
-        "ordering": true,
-        "order": [[0, 'desc']],
-        "scrollX": true,
-        "autoWidth": false,
-        "language": {
-            "search": "Buscar:",
-            "paginate": { "previous": "‹", "next": "›" },
-            "emptyTable": "No hay dictámenes",
-            "zeroRecords": "No se encontró nada"
-        }
+   $('#dictamenes-table').DataTable({
+    "paging": true,
+    "lengthMenu": [
+        [5, 10,15,20,50,100, 150, 10000],
+        ['5','10','15','20','50','100', '150', 'Todas']
+    ],
+    "pageLength": 0,
+    "searching": true,
+    "info": false,
+    "ordering": true,
+    "order": [],
+    "scrollX": true,
+    "autoWidth": false,
+    "language": {
+        "search": "Buscar:",
+        "paginate": { "previous": "‹", "next": "›" },
+        "emptyTable": "No hay dictámenes",
+        "zeroRecords": "No se encontró nada"
+    }
     });
 
     // Editar
@@ -371,70 +378,46 @@ $(document).ready(function() {
             $('#editModal').modal('show');
         });
     });
+});
+</script>
 
-    // Gráfica de Chart.js - Correctamente configurada
-    const ctx = document.getElementById('chartMeses');
-    if (ctx && ctx.getContext) {
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
-                datasets: [
-                    {
-                        label: 'Solicitudes recibidas',
-                        data: {!! json_encode($solicitudes ?? []) !!},
-                        backgroundColor: 'rgba(47, 112, 100, 0.7)',
-                        borderColor: 'rgba(47, 112, 100, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Días hábiles promedio',
-                        data: {!! json_encode($diasHabiles ?? []) !!},
-                        type: 'line',
-                        borderColor: 'rgb(220, 53, 69)',
-                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: { padding: 15, font: { size: 12 } }
-                    }
+<script>
+// Gráfica de Chart.js
+const ctx = document.getElementById('chartMeses');
+if (ctx) {
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
+            datasets: [
+                {
+                    label: 'Solicitudes',
+                    data: {!! json_encode($solicitudes ?? []) !!},
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
                 },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        beginAtZero: true,
-                        max: 50,
-                        title: { display: true, text: 'Cantidad' }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        beginAtZero: true,
-                        max: 30,
-                        title: { display: true, text: 'Días' },
-                        grid: { drawOnChartArea: false }
-                    }
+                {
+                    label: 'Días hábiles',
+                    data: {!! json_encode($diasHabiles ?? []) !!},
+                    type: 'line',
+                    borderColor: 'rgb(28, 32, 34)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    }
-});
+        }
+    });
+}
 </script>
 @endsection
