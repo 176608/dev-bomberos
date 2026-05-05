@@ -383,7 +383,7 @@ $(document).ready(function() {
 
 <script>
 // Gráfica de Chart.js
-const ctx = document.getElementById('chartMeses');
+//const ctx = document.getElementById('chartMeses');
 if (ctx) {
     new Chart(ctx.getContext('2d'), {
         type: 'bar',
