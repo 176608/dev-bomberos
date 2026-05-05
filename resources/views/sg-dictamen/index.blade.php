@@ -390,55 +390,50 @@ $(document).ready(function() {
         $('#observaciones_edit').val($row.data('observaciones') || '');
         
         // Configurar action del formulario usando Blade para generar URL segura
-        $('#editForm').attr('action', "{{ route('sg-dictamen.update', '') }}" + id);
+        $('#editForm').attr('action', `/admin/dictamenes/${id}`);
         
         // Mostrar modal
         $('#editModal').modal('show');
     });
 
-    // Gráfica
+    // Gráfica de Chart.js
     const ctx = document.getElementById('chartMeses');
-    if (ctx && ctx.getContext) {
-        const chart = new Chart(ctx, {
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: {!! json_encode($meses ?? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']) !!},
                 datasets: [
                     {
-                        label: 'Solicitudes recibidas',
+                        label: 'Solicitudes',
                         data: {!! json_encode($solicitudes ?? []) !!},
-                        backgroundColor: 'rgba(47, 112, 100, 0.7)',
-                        borderColor: 'rgba(47, 112, 100, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
                     },
                     {
-                        label: 'Días hábiles promedio',
+                        label: 'Días hábiles',
                         data: {!! json_encode($diasHabiles ?? []) !!},
                         type: 'line',
-                        borderColor: 'rgb(220, 53, 69)',
-                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderColor: 'rgb(28, 32, 34)',
                         borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y1'
+                        fill: false,
+                        tension: 0.4
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { display: true, position: 'top', labels: { padding: 15, font: { size: 12 } } }
-                },
                 scales: {
-                    y: { type: 'linear', display: true, position: 'left', beginAtZero: true, max: 50 },
-                    y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, max: 30, grid: { drawOnChartArea: false } }
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
         });
     }
+
 });
 </script>
 @endsection
