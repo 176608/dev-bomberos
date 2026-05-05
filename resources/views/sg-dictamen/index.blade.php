@@ -358,27 +358,41 @@ $(document).ready(function() {
         }
     });
 
-    // EDITAR - Cargar datos desde data attributes
+    // EDITAR - Cargar datos via AJAX desde el backend
     $('#dictamenes-table').on('click', '.edit-btn', function() {
-        const $row = $(this).closest('tr');
         const id = $(this).data('id');
+        if (!id) {
+            alert('Error: No se encontró el ID del dictamen');
+            return;
+        }
         
-        // Cargar datos desde atributos data-* de la fila
-        $('#fecha_edit').val($row.data('fecha') || '');
-        $('#oficio_edit').val($row.data('oficio') || '');
-        $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
-        $('#dependencia_empres_edit').val($row.data('dependencia') || '');
-        $('#asunto_edit').val($row.data('asunto') || '');
-        $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
-        $('#revisado_por_edit').val($row.data('revisado-por') || '');
-        $('#estatus_edit').val($row.data('estatus') || '');
-        $('#observaciones_edit').val($row.data('observaciones') || '');
-        
-        // Configurar action del formulario
-        $('#editForm').attr('action', `/admin/dictamenes/${id}`);
-        
-        // Mostrar modal
-        $('#editModal').modal('show');
+        $.ajax({
+            url: `/admin/dictamenes/${id}/edit`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Cargar los campos con los datos del backend
+                $('#fecha_edit').val(data.fecha || '');
+                $('#oficio_edit').val(data.oficio || '');
+                $('#nombre_puesto_edit').val(data.nombre_puesto || '');
+                $('#dependencia_empres_edit').val(data.dependencia_empres || '');
+                $('#asunto_edit').val(data.asunto || '');
+                $('#numero_oficio_edit').val(data.numero_oficio || '');
+                $('#revisado_por_edit').val(data.revisado_por || '');
+                $('#estatus_edit').val(data.estatus || '');
+                $('#observaciones_edit').val(data.observaciones || '');
+                
+                // Configurar la acción del formulario
+                $('#editForm').attr('action', `/admin/dictamenes/${id}`);
+                
+                // Mostrar modal
+                $('#editModal').modal('show');
+            },
+            error: function(err) {
+                console.error('Error cargando dictamen:', err);
+                alert('Error al cargar los datos del dictamen. Por favor, intenta de nuevo.');
+            }
+        });
     });
 
     // Gráfica
