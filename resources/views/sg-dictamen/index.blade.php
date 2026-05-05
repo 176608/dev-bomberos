@@ -325,7 +325,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-$(document).ready(function() {
+/*$(document).ready(function() {
    $('#dictamenes-table').DataTable({
     "paging": true,
     "lengthMenu": [
@@ -365,12 +365,12 @@ $(document).ready(function() {
             $('#editModal').modal('show');
         });
     });
-});
+});*/
 </script>
 
 <script>
 // Gráfica de Chart.js
-const ctx = document.getElementById('chartMeses');
+/*const ctx = document.getElementById('chartMeses');
 if (ctx) {
     new Chart(ctx.getContext('2d'), {
         type: 'bar',
@@ -405,6 +405,6 @@ if (ctx) {
             }
         }
     });
-}
+}*/
 </script>
 @endsection
