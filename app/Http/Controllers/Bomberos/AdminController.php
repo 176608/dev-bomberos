@@ -39,12 +39,15 @@ class AdminController extends Controller
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
         ]);
 
-        // ISO 25000: No generar contraseña por defecto. El usuario establecerá su propia contraseña
-        // en el primer acceso. log_in_status=1 indica que debe completar la configuración inicial.
+        // ISO 25000: Generar contraseña aleatoria fuerte (inaccesible para el usuario)
+        // Esta contraseña NO se usa en login - el LoginController redirige antes.
+        // El usuario establece su propia contraseña en el primer acceso.
+        $randomPassword = bin2hex(random_bytes(16));  // 32 caracteres aleatorios seguros
+        
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => null,  // Sin contraseña temporal
+            'password' => Hash::make($randomPassword),  // Cifrada pero no usable
             'role' => $request->role,
             'status' => 1,
             'log_in_status' => 1,  // Requiere establecimiento de contraseña
