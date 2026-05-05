@@ -161,7 +161,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-/*$(document).ready(function() {
+$(document).ready(function() {
     // Inicializar DataTables solo si no existe
     if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
         $('#dictamenes-table').DataTable().destroy();
@@ -186,7 +186,7 @@
     });
     
     // Gráfica de Chart.js
-    const ctx = document.getElementById('chartMeses');
+    /*const ctx = document.getElementById('chartMeses');
     if (ctx) {
         new Chart(ctx.getContext('2d'), {
             type: 'bar',
@@ -221,7 +221,7 @@
                 }
             }
         });
-    }
-});*/
+    }*/
+});
 </script>
 @endsection

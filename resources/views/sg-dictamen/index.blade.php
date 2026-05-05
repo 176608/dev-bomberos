@@ -325,7 +325,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-/*$(document).ready(function() {
+$(document).ready(function() {
    $('#dictamenes-table').DataTable({
     "paging": true,
     "lengthMenu": [
@@ -365,7 +365,7 @@
             $('#editModal').modal('show');
         });
     });
-});*/
+});
 </script>
 
 <script>
