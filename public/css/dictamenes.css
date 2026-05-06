@@ -84,11 +84,11 @@ tr:hover td {
 
 /* Badges */
 .badge {
-    font-weight: 500;
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    display: inline-block;
+    font-weight: 500 !important;
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
 }
 
 .badge.badge-enviado    { background: #28a745 !important; color: white; }
