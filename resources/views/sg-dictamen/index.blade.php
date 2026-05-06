@@ -212,6 +212,7 @@
             </div>
             <form id="editForm" method="POST" onsubmit="return confirm('¿Seguro que deseas editar este dictamen?');">
                 @csrf
+                @method('PUT')
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Fecha</label>
