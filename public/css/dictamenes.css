@@ -72,33 +72,3 @@ th {
 tr:hover td {
     background-color: #f8fafd;
 }
-
-/* DataTables wrapper spacing */
-#dictamenes-table_wrapper {
-    margin-top: 20px;
-}
-
-#dictamenes-table_wrapper .row:first-child {
-    margin-bottom: 10px;
-}
-
-#dictamenes-table_length {
-    margin-bottom: 20px;
-}
-
-/* Badges */
-.badge {
-    font-weight: 500 !important;
-    padding: 4px 8px !important;
-    font-size: 0.75rem !important;
-    border-radius: 4px !important;
-    display: inline-block !important;
-}
-
-.badge.badge-enviado    { background-color: #28a745 !important; color: white; }
-.badge.badge-regreso    { background-color: #dc3545 !important; color: white; }
-.badge.badge-no-aplica  { background-color: #6c757d !important; color: white; }
-.badge.badge-borrador   { background-color: #ffc107 !important; color: white; }
-.badge.badge-aprobado   { background-color: #17a2b8 !important; color: white; }
-.badge.badge-publicado  { background-color: #6f42c1 !important; color: white; }
-.badge.badge-revision   { background-color: #6c757d !important; color: white; }

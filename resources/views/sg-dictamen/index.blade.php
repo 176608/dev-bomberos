@@ -300,6 +300,8 @@ $(document).ready(function() {
     }
     });
 
+    $('#dictamenes-table_length').addClass('mb-3');
+
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
     $('#dictamenes-table').on('click', '.edit-btn', function() {
         const $row = $(this).closest('tr');
