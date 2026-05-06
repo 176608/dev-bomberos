@@ -74,9 +74,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/dictamenes') }}">
                 <div class="card-body text-center">
-                    <i class="bi bi-map-fill display-4 text-success mb-3"></i>
+                    <i class="bi bi-file-earmark-text-fill display-4 text-success mb-3"></i>
                     <h5 class="card-title">Acceso a Dictámenes</h5>
-                    <p class="card-text">Visualiza la información de dictámenes sin necesidad de iniciar sesión.</p>
+                    <p class="card-text">Consulta los dictámenes emitidos por el IMIP sin necesidad de iniciar sesión.</p>
                     <button class="btn btn-outline-success mt-2">
                         <i class="bi bi-arrow-right-circle"></i> Ir a Dictámenes
                     </button>
