@@ -24,8 +24,9 @@ Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
     // Editar + Actualizar - Admin Dictamenes, Editores y Desarrollador
     Route::middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador')->group(function () {
         Route::get('/{dictamen}/edit', [DictamenController::class, 'edit'])->name('edit');
-        Route::put('/{dictamen}', [DictamenController::class, 'update'])->name('update');
-    });
+        //Route::put('/{dictamen}', [DictamenController::class, 'update'])->name('update');
+        Route::post('/{dictamen}', [DictamenController::class, 'update'])->name('update');
+        });
     
     // Crear + Eliminar + Ver Eliminados - Admin Dictamenes y Desarrollador
 Route::middleware('role:Administrador Dictamenes,Desarrollador')->group(function () {
