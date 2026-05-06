@@ -32,7 +32,7 @@ class DashboardController extends Controller
         }
         
         // Buscar el hidrante
-        $hidrante = Hidrante::findOrFail($hidranteId);
+        $hidrante = Hidrante::find($hidranteId);
         
         if (!$hidrante) {
             return view('dashboard', [
@@ -42,7 +42,7 @@ class DashboardController extends Controller
         }
         
         // Si el hidrante está desactivado, solo mostrar si es administrador
-        if ($hidrante->stat === '000' && (!auth()->check() || !in_array(auth()->user()->role, ['Administrador', 'Desarrollador']))) {
+        if ($hidrante->stat === '000' && (!auth()->check() || !in_array(auth()->user()->role, ['Capturista','Administrador', 'Desarrollador']))) {
             return view('dashboard', [
                 'error' => 'El hidrante solicitado está desactivado.',
                 'totalHidrantes' => $totalHidrantes
