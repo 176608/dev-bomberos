@@ -110,7 +110,7 @@
                         <td>
                             <!-- Editar: Admin Dictamenes, Editor Dictamenes y Desarrollador -->
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
-                                <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                                <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-route="{{ route('sg-dictamen.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
                             @endif
@@ -304,6 +304,7 @@ $(document).ready(function() {
     $('#dictamenes-table').on('click', '.edit-btn', function() {
         const $row = $(this).closest('tr');
         const id = $(this).data('id');
+        const route = $(this).data('route');
         
         if (!id) {
             alert('Error: No se encontró el ID del dictamen');
@@ -322,7 +323,7 @@ $(document).ready(function() {
         $('#observaciones_edit').val($row.data('observaciones') || '');
         
         // Configurar action del formulario usando Blade para generar URL segura
-        $('#editForm').attr('action', `/admin/dictamenes/${id}`);
+        $('#editForm').attr('action', route);
         
         // Mostrar modal
         $('#editModal').modal('show');
