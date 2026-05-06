@@ -4,6 +4,19 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/dictamenes.css') }}">
+<style>
+        .badge {
+        font-weight: 500;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .badge-enviado { background: #28a745!important; color: white; }
+    .badge-regreso { background: #dc3545!important; color: white; }
+    .badge-no-aplica { background: #6c757d!important; color: white; }
+    .badge-borrador { background: #ffc107!important; color: white; }
+</style>
 @endpush
 
 @section('content')
