@@ -82,6 +82,10 @@ tr:hover td {
     margin-bottom: 10px;
 }
 
+#dictamenes-table_length {
+    margin-bottom: 20px;
+}
+
 /* Badges */
 .badge {
     font-weight: 500 !important;

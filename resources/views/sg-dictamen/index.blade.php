@@ -49,7 +49,7 @@
     <!-- Tabla -->
     <div class="table-responsive">
         <table id="dictamenes-table" class="table table-hover nowrap">
-            <thead class="table-dark mt-3">
+            <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
                     <th># Oficio</th>
