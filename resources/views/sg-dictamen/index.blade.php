@@ -26,11 +26,15 @@
         </div>
     </div>
 
-    <!-- Gráfica con límite de viewport -->
-    <div class="chart-wrapper">
-        <div class="chart-container-sm">
-            <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
-            <!-- Gráfica con límite de viewport <canvas id="chartMeses"></canvas>-->
+    <!-- Gráfica -->
+    <div class="mb-4">
+        <div class="chart-wrapper">
+            <div class="chart-container-sm">
+                <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
+                <div style="height: 250px; position: relative; overflow: hidden;">
+                    <canvas id="chartMeses"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
