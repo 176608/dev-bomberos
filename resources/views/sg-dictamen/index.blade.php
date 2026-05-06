@@ -243,19 +243,19 @@
                         <input type="text" class="form-control" id="revisado_por_edit" name="revisado_por">
                     </div>
                    <div class="mb-3">
-    <label>Estatus</label>
-    <select class="form-control" id="estatus_edit" name="estatus" required>
-        <option value="">Seleccione un estatus...</option>
-        <option value="ENVIADO">ENVIADO</option>
-        <option value="BORRADOR">BORRADOR</option>
-        <option value="PENDIENTE">PENDIENTE</option>
-        <option value="EN PROCESO">EN PROCESO</option>
-        <option value="EN REVISION">EN REVISION</option>
-        <option value="DETENIDO">DETENIDO</option>
-        <option value="SE REGRESO">SE REGRESO</option>
-        <option value="INFORMATIVO">INFORMATIVO</option>
-    </select>
-</div>
+                        <label>Estatus</label>
+                        <select class="form-control" id="estatus_edit" name="estatus" required>
+                            <option value="">Seleccione un estatus...</option>
+                            <option value="ENVIADO">ENVIADO</option>
+                            <option value="BORRADOR">BORRADOR</option>
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN PROCESO">EN PROCESO</option>
+                            <option value="EN REVISION">EN REVISION</option>
+                            <option value="DETENIDO">DETENIDO</option>
+                            <option value="SE REGRESO">SE REGRESO</option>
+                            <option value="INFORMATIVO">INFORMATIVO</option>
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <label>Observaciones</label>
                         <textarea class="form-control" id="observaciones_edit" name="observaciones"></textarea>
@@ -282,8 +282,8 @@ $(document).ready(function() {
    $('#dictamenes-table').DataTable({
     "paging": true,
     "lengthMenu": [
-        [5, 10,15,20,50,100, 150, 10000],
-        ['5','10','15','20','50','100', '150', 'Todas']
+        [25 , 50, 100, 150, -1],
+        ['25','50','100', '150', 'Todas']
     ],
     "pageLength": 0,
     "searching": true,
