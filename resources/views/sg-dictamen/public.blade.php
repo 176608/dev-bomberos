@@ -53,19 +53,21 @@
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
                     <td>
-                        @php
+                            @php
                             $s = $d->estatus ?? '';
                             $s_lower = strtolower($s);
-                            $badgeClass = 'badge-no-aplica';
+                            
+                            // Determinar color exacto según estatus
+                            $badgeColor = '#6c757d'; // default: no-aplica
                             if (str_contains($s_lower, 'enviado')) {
-                                $badgeClass = 'badge-enviado';
+                                $badgeColor = '#28a745'; // enviado - verde
                             } elseif (str_contains($s_lower, 'aprobado')) {
-                                $badgeClass = 'badge-aprobado';
+                                $badgeColor = '#17a2b8'; // aprobado - azul
                             } elseif (str_contains($s_lower, 'publicado')) {
-                                $badgeClass = 'badge-publicado';
+                                $badgeColor = '#6f42c1'; // publicado - púrpura
                             }
                         @endphp
-                        <span class="badge {{ $badgeClass }}" title="{{ $d->estatus }}">
+                        <span class="badge" title="{{ $d->estatus }}" style="background-color: {{ $badgeColor }}; color: white; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ strlen($s) > 25 ? substr($s, 0, 22).'...' : $s }}
                         </span>
                     </td>

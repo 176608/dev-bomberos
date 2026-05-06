@@ -86,16 +86,18 @@
                         @php
                             $s = $d->estatus ?? '';
                             $s_lower = strtolower($s);
-                            $badgeClass = 'badge-no-aplica';
+                            
+                            // Determinar color exacto según estatus
+                            $badgeColor = '#6c757d'; // default: no-aplica
                             if (str_contains($s_lower, 'enviado')) {
-                                $badgeClass = 'badge-enviado';
+                                $badgeColor = '#28a745'; // enviado - verde
                             } elseif (str_contains($s_lower, 'regreso') || str_contains($s_lower, 'detenido')) {
-                                $badgeClass = 'badge-regreso';
+                                $badgeColor = '#dc3545'; // regreso - rojo
                             } elseif (str_contains($s_lower, 'borrador') || str_contains($s_lower, 'informativo')) {
-                                $badgeClass = 'badge-borrador';
+                                $badgeColor = '#ffc107'; // borrador - amarillo
                             }
                         @endphp
-                        <span class="badge {{ $badgeClass }}" title="{{ $d->estatus }}">
+                        <span class="badge" title="{{ $d->estatus }}" style="background-color: {{ $badgeColor }}; color: white; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ strlen($s) > 25 ? substr($s, 0, 22).'...' : $s }}
                         </span>
                     </td>
