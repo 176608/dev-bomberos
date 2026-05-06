@@ -3,7 +3,82 @@
 @section('title', 'Dictámenes - IMIP Ciudad Juárez')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dictamenes.css') }}">
+<style>
+:root {
+    --imip-blue: #2f7064;
+    --imip-purple: #8a2be2;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Stat cards */
+.stat-card {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    text-align: center !important;
+    padding: 20px 10px !important;
+}
+
+.stat-number {
+    font-size: 2.8rem !important;
+    font-weight: 700 !important;
+    color: var(--imip-blue) !important;
+    margin: 10px 0 !important;
+}
+
+.stat-label {
+    font-size: 0.9rem !important;
+    color: #666 !important;
+}
+
+
+/* Chart wrapper and container */
+.chart-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.chart-container-sm {
+    width: 100%;
+    max-width: 1000px;
+    height: 300px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.chart-container-sm canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Table styles */
+table {
+    font-size: 0.85rem;
+}
+
+th {
+    /*background: #f1f3f5;*/
+    font-weight: 600;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+tr:hover td {
+    background-color: #f8fafd;
+}
+</style>
 @endpush
 
 @section('content')
