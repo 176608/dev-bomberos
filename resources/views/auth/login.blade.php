@@ -57,7 +57,7 @@
             </div>
         </div>
         
-        <!-- Panel derecho: Acceso a SIGEM -->
+        <!-- Panel derecho: Acceso a SIGEM 
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/sigem') }}">
                 <div class="card-body text-center">
@@ -66,6 +66,19 @@
                     <p class="card-text">Sistema de Información Geográfica y Estadística Municipal.</p>
                     <button class="btn btn-outline-success mt-2">
                         <i class="bi bi-arrow-right-circle"></i> Ir a SIGEM
+                    </button>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/dictamenes') }}">
+                <div class="card-body text-center">
+                    <i class="bi bi-map-fill display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Acceso a Dictámenes</h5>
+                    <p class="card-text">Visualiza la información de dictámenes sin necesidad de iniciar sesión.</p>
+                    <button class="btn btn-outline-success mt-2">
+                        <i class="bi bi-arrow-right-circle"></i> Ir a Dictámenes
                     </button>
                 </div>
             </div>
