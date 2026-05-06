@@ -2,7 +2,7 @@
 
 @section('title', 'Dictámenes - IMIP Ciudad Juárez')
 
-@push('scripts')
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/dictamenes.css') }}">
 @endpush
 
