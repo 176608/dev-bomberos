@@ -322,7 +322,7 @@ $(document).ready(function() {
         $('#observaciones_edit').val($row.data('observaciones') || '');
         
         // Configurar action del formulario usando Blade para generar URL segura
-        $('#editForm').attr('action', `m_aux/public/admin/dictamenes/${id}`);
+        $('#editForm').attr('action', `/admin/dictamenes/${id}`);
         
         // Mostrar modal
         $('#editModal').modal('show');
