@@ -277,23 +277,25 @@
 
 <script>
 $(document).ready(function() {
-    // DataTable
-    $('#dictamenes-table').DataTable({
-        "paging": true,
-        "lengthMenu": [[5, 10, 15, 20, 50, 100], ['5', '10', '15', '20', '50', '100']],
-        "pageLength": 10,
-        "searching": true,
-        "info": false,
-        "ordering": true,
-        "order": [[0, 'desc']],
-        "scrollX": true,
-        "autoWidth": false,
-        "language": {
-            "search": "Buscar:",
-            "paginate": { "previous": "‹", "next": "›" },
-            "emptyTable": "No hay dictámenes",
-            "zeroRecords": "No se encontró nada"
-        }
+   $('#dictamenes-table').DataTable({
+    "paging": true,
+    "lengthMenu": [
+        [5, 10,15,20,50,100, 150, 10000],
+        ['5','10','15','20','50','100', '150', 'Todas']
+    ],
+    "pageLength": 0,
+    "searching": true,
+    "info": false,
+    "ordering": true,
+    "order": [],
+    "scrollX": true,
+    "autoWidth": false,
+    "language": {
+        "search": "Buscar:",
+        "paginate": { "previous": "‹", "next": "›" },
+        "emptyTable": "No hay dictámenes",
+        "zeroRecords": "No se encontró nada"
+    }
     });
 
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
