@@ -257,8 +257,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
                                        href="{{ route('sg-dictamen.index') }}" 
-                                       title="Módulo de Gestión de Dictámenes">
-                                        <i class="bi bi-file-earmark-text-fill"></i> Dictámenes
+                                       title="Módulo de Gestión y Consulta de Dictámenes">
+                                        <i class="bi bi-file-earmark-text-fill"></i> SGD
                                     </a>
                                 </li>
                                 
@@ -288,8 +288,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
                                        href="{{ route('sg-dictamen.index') }}" 
-                                       title="Módulo de Gestión de Dictámenes">
-                                        <i class="bi bi-file-earmark-text-fill"></i> Dictámenes
+                                       title="Módulo de Gestión y Consulta de Dictámenes">
+                                        <i class="bi bi-file-earmark-text-fill"></i> SGD
                                     </a>
                                 </li>
                             @endif
