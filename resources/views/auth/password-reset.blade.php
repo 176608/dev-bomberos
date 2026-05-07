@@ -1,4 +1,4 @@
-<!-- Archivo: password-reset.blade.php -->
+<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
 @section('content')
@@ -23,7 +23,6 @@
                         @csrf
 
                         @if($user->log_in_status === 1)
-                            {{-- Campos nombre y correo (sin cambios) --}}
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" placeholder="Nombre" required
@@ -45,39 +44,19 @@
                             </div>
                         @endif
 
-                        {{-- Nueva Contraseña --}}
                         <div class="form-floating mb-3">
-                            <div class="input-group">
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                    id="password" name="password" placeholder="Nueva Contraseña" required 
-                                    minlength="12" title="La contraseña debe tener al menos 12 caracteres"
-                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" 
-                                    data-target="password"
-                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <i class="bi bi-eye-slash"></i>
-                                </button>
-                            </div>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                id="password" name="password" placeholder="Nueva Contraseña" required minlength="12" title="La contraseña debe tener al menos 12 caracteres">
                             <label for="password">Nueva Contraseña</label>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        {{-- Confirmar Contraseña --}}
                         <div class="form-floating mb-3">
-                            <div class="input-group">
-                                <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
-                                    id="password_confirmation" name="password_confirmation" 
-                                    placeholder="Confirmar Contraseña" required minlength="12"
-                                    title="La contraseña debe tener al menos 12 caracteres"
-                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" 
-                                    data-target="password_confirmation"
-                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <i class="bi bi-eye-slash"></i>
-                                </button>
-                            </div>
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                id="password_confirmation" name="password_confirmation" title="La contraseña debe tener al menos 12 caracteres"
+                                placeholder="Confirmar Contraseña" required minlength="12">
                             <label for="password_confirmation">Confirmar Contraseña</label>
                         </div>
 
@@ -93,55 +72,4 @@
         </div>
     </div>
 </div>
-
-{{-- Script para mostrar/ocultar contraseñas solo mientras se presiona el botón --}}
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Para cada botón con clase .toggle-password
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            const targetId = button.getAttribute('data-target');
-            const input = document.getElementById(targetId);
-            if (!input) return;
-
-            const icon = button.querySelector('i');
-
-            const showPassword = () => {
-                input.type = 'text';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            };
-
-            const hidePassword = () => {
-                input.type = 'password';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            };
-
-            // Mientras se presiona el botón
-            button.addEventListener('mousedown', showPassword);
-            // Al soltar
-            window.addEventListener('mouseup', (e) => {
-                // Solo ocultamos si el mouseup no es sobre el mismo botón
-                if (e.target !== button && !button.contains(e.target)) {
-                    hidePassword();
-                } else {
-                    // Si soltó sobre el botón, también ocultamos
-                    hidePassword();
-                }
-            });
-            // Si el cursor sale del botón mientras está presionado
-            button.addEventListener('mouseleave', hidePassword);
-
-            // Soporte táctil (para móviles)
-            button.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // evita el zoom o comportamientos no deseados
-                showPassword();
-            });
-            button.addEventListener('touchend', hidePassword);
-            button.addEventListener('touchcancel', hidePassword);
-        });
-    });
-</script>
-@endpush
 @endsection
