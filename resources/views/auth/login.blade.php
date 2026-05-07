@@ -47,7 +47,7 @@
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password"
                                     placeholder="Contraseña" required>
-                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Mostrar u ocultar contraseña">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -163,20 +163,8 @@ $(function() {
     $('#password').on('input', function() {
         $('#login-error2').addClass('d-none').text('');
     });
-
-    $(document).on('click', '.toggle-password', function(e) {
-        e.preventDefault();
-        const button = $(this);
-        const input = button.closest('.input-group').find('input[type=password], input[type=text]').first();
-        if (!input.length) {
-            return;
-        }
-
-        const type = input.attr('type') === 'password' ? 'text' : 'password';
-        input.attr('type', type);
-        button.find('i').toggleClass('bi-eye bi-eye-slash');
-    });
 });
+
 </script>
 @endsection
 
