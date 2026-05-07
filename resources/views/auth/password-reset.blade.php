@@ -45,8 +45,13 @@
                         @endif
 
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                id="password" name="password" placeholder="Nueva Contraseña" required minlength="8" title="La contraseña debe tener al menos 8 caracteres">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                    id="password" name="password" placeholder="Nueva Contraseña" required minlength="8" title="La contraseña debe tener al menos 8 caracteres">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Mostrar u ocultar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             <label for="password">Nueva Contraseña</label>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -54,9 +59,14 @@
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
-                                id="password_confirmation" name="password_confirmation" title="La contraseña debe tener al menos 8 caracteres"
-                                placeholder="Confirmar Contraseña" required minlength="8">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                    id="password_confirmation" name="password_confirmation" title="La contraseña debe tener al menos 8 caracteres"
+                                    placeholder="Confirmar Contraseña" required minlength="8">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Mostrar u ocultar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             <label for="password_confirmation">Confirmar Contraseña</label>
                         </div>
 

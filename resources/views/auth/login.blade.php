@@ -47,7 +47,7 @@
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password"
                                     placeholder="Contraseña" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Mostrar u ocultar contraseña">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -163,22 +163,19 @@ $(function() {
     $('#password').on('input', function() {
         $('#login-error2').addClass('d-none').text('');
     });
-});
 
-document.getElementById('togglePassword').addEventListener('click', function(e) {
-    e.preventDefault();
-    const passwordInput = document.getElementById('password');
-    const toggleIcon = this.querySelector('i');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('bi-eye');
-        toggleIcon.classList.add('bi-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('bi-eye-slash');
-        toggleIcon.classList.add('bi-eye');
-    }
+    $(document).on('click', '.toggle-password', function(e) {
+        e.preventDefault();
+        const button = $(this);
+        const input = button.closest('.input-group').find('input[type=password], input[type=text]').first();
+        if (!input.length) {
+            return;
+        }
+
+        const type = input.attr('type') === 'password' ? 'text' : 'password';
+        input.attr('type', type);
+        button.find('i').toggleClass('bi-eye bi-eye-slash');
+    });
 });
 </script>
 @endsection
