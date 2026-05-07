@@ -44,14 +44,9 @@
                         @csrf
                         <input type="hidden" name="email" id="email-hidden">
                         <div class="form-floating mb-3">
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password"
-                                    placeholder="Contraseña" required>
-                                <button class="btn btn-outline-secondary d-none" type="button" id="togglePassword">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                            <label for="password" style="margin-left: 0;">Contraseña:</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Contraseña" required>
+                            <label for="password">Contraseña:</label>
                         </div>
                         <button type="submit" class="btn btn-success w-100 py-2 mb-3">
                             <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
