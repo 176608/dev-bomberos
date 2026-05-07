@@ -46,7 +46,7 @@
 
                         {{-- Nueva Contraseña con botón ojo --}}
                         <div class="mb-3">
-                            <label for="password" class="form-label">Nueva Contraseña</label>
+                            <label for="password" class="form-label">Nueva Contraseña:</label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                     id="password" name="password" placeholder="Nueva Contraseña" required 
@@ -63,7 +63,7 @@
 
                         {{-- Confirmar Contraseña con botón ojo --}}
                         <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
+                            <label for="password_confirmation" class="form-label">Confirmar Contraseña:</label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
                                     id="password_confirmation" name="password_confirmation" 
