@@ -43,16 +43,26 @@
                     <form id="login-step2" method="POST" action="{{ route('login') }}" class="needs-validation d-none" novalidate>
                         @csrf
                         <input type="hidden" name="email" id="email-hidden">
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Contraseña" required>
-                            <label for="password">Contraseña:</label>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Contraseña" required minlength="12" 
+                                    title="La contraseña debe tener al menos 12 caracteres">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" 
+                                        data-target="password">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </div>
                         </div>
+
                         <button type="submit" class="btn btn-success w-100 py-2 mb-3">
                             <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                         </button>
                         <div id="login-error2" class="alert alert-danger d-none mt-2"></div>
-                    </form>
+                    </form>                    
+
                 </div>
             </div>
         </div>
@@ -159,6 +169,44 @@ $(function() {
         $('#login-error2').addClass('d-none').text('');
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+        // Mismo comportamiento para todos los botones .toggle-password
+        document.querySelectorAll('.toggle-password').forEach(function (button) {
+            const targetId = button.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            const icon = button.querySelector('i');
+
+            const showPassword = function () {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            };
+
+            const hidePassword = function () {
+                input.type = 'password';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            };
+
+            // Ratón: presionar = mostrar, soltar (en cualquier parte) = ocultar
+            button.addEventListener('mousedown', showPassword);
+            window.addEventListener('mouseup', function () {
+                hidePassword();
+            });
+            button.addEventListener('mouseleave', hidePassword);
+
+            // Táctil: tocar = mostrar, soltar = ocultar
+            button.addEventListener('touchstart', function (e) {
+                e.preventDefault();
+                showPassword();
+            });
+            button.addEventListener('touchend', hidePassword);
+            button.addEventListener('touchcancel', hidePassword);
+        });
+    });
 
 </script>
 @endsection
