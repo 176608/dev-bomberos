@@ -44,11 +44,23 @@
                             </div>
                         @endif
 
-                        {{-- Nueva Contraseña con botón ojo --}}
+                        @if($requirePin || $user->initial_token)
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control @error('pin') is-invalid @enderror"
+                                    id="pin" name="pin" placeholder="PIN de Acceso" required
+                                    maxlength="10" pattern="\d{10}" inputmode="numeric">
+                                <label for="pin">PIN de Acceso (10 dígitos)</label>
+                                @error('pin')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">El PIN fue proporcionado por el administrador</small>
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="password" class="form-label">Nueva Contraseña:</label>
                             <div class="input-group">
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                <input type="password" class="form-control @error('password') is-invalid @endif" 
                                     id="password" name="password" placeholder="Nueva Contraseña" required 
                                     minlength="12" title="La contraseña debe tener al menos 12 caracteres">
                                 <button class="btn btn-outline-secondary toggle-password" type="button" 
@@ -57,15 +69,14 @@
                                 </button>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @endif
                             </div>
                         </div>
 
-                        {{-- Confirmar Contraseña con botón ojo --}}
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Confirmar Contraseña:</label>
                             <div class="input-group">
-                                <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                <input type="password" class="form-control @error('password_confirmation') is-invalid @endif" 
                                     id="password_confirmation" name="password_confirmation" 
                                     placeholder="Confirmar Contraseña" required minlength="12"
                                     title="La contraseña debe tener al menos 12 caracteres">
@@ -89,7 +100,6 @@
     </div>
 </div>
 
-{{-- Script para mostrar contraseña solo mientras se mantiene presionado el botón --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.toggle-password').forEach(function (button) {
@@ -111,25 +121,26 @@
                 icon.classList.add('bi-eye-slash');
             };
 
-            // Mientras se presiona el botón (ratón)
             button.addEventListener('mousedown', showPassword);
-
-            // Al soltar en cualquier parte de la ventana (se oculta la contraseña)
             window.addEventListener('mouseup', function () {
                 hidePassword();
             });
-
-            // Si el cursor sale del botón mientras está presionado
             button.addEventListener('mouseleave', hidePassword);
 
-            // Soporte para dispositivos táctiles (móviles)
             button.addEventListener('touchstart', function (e) {
-                e.preventDefault(); // evita zoom o comportamientos extraños
+                e.preventDefault();
                 showPassword();
             });
             button.addEventListener('touchend', hidePassword);
             button.addEventListener('touchcancel', hidePassword);
         });
+
+        const pinInput = document.getElementById('pin');
+        if (pinInput) {
+            pinInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '').slice(0, 10);
+            });
+        }
     });
 </script>
 @endsection

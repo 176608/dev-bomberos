@@ -39,6 +39,7 @@
                         <th>Rol</th>
                         <th>Estado</th>
                         <th>Acceso</th>
+                        <th>PIN</th>
                         <th>Fecha Registro</th>
                         <th>Última Edición</th>
                         <th>Acciones</th>
@@ -68,6 +69,17 @@
                                         <span class="badge bg-info">Cambio</span>
                                         @break
                                 @endswitch
+                            </td>
+                            <td>
+                                @if(in_array($user->log_in_status, [1, 2]))
+                                    @if($user->initial_token)
+                                        <span class="badge bg-success">Activo</span>
+                                    @else
+                                        <span class="badge bg-danger">Sin PIN</span>
+                                    @endif
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
@@ -174,6 +186,26 @@
                                 </label>
                             </div>
                         </div>
+                        @if(in_array($user->log_in_status, [1, 2]))
+                        <div class="mb-3">
+                            <label class="form-label">PIN de Acceso</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="pinDisplay{{ $user->id }}" 
+                                       value="{{ $user->initial_token ? '**********' : 'Sin PIN generado' }}" 
+                                       readonly>
+                                <button type="button" class="btn btn-warning" onclick="generarPin({{ $user->id }})">
+                                    <i class="bi bi-key"></i> {{ $user->initial_token ? 'Regenerar' : 'Generar' }}
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                @if($user->initial_token)
+                                    El PIN está activo. El usuario puede usarlo para acceder.
+                                @else
+                                    Genera un PIN para que el usuario pueda acceder por primera vez.
+                                @endif
+                            </small>
+                        </div>
+                        @endif
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -189,6 +221,37 @@
 
 @section('scripts')
 <script>
+function generarPin(userId) {
+    if (!confirm('¿Generar un nuevo PIN de acceso? El PIN anterior quedará invalido.')) {
+        return;
+    }
+    
+    $.ajax({
+        url: '/admin/users/' + userId + '/generar-pin',
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                alert('PIN generado: ' + response.pin + '\n\nEste PIN es de un solo uso. Proporcionarlo al usuario.');
+                $('#pinDisplay' + userId).val('**********');
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Error al generar PIN';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            alert(errorMessage);
+        }
+    });
+}
+
 $(document).ready(function() {
     // Initialize DataTable
     const table = $('#usersTable').DataTable({
@@ -205,8 +268,34 @@ $(document).ready(function() {
         ]
     });
 
-    // Handle form submission
-    $('form[action*="/admin/users/"]').on('submit', function(e) {
+    // Handle create user form submission
+    $('form[action="{{ route('admin.users.store') }}"]').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const modal = form.closest('.modal');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                modal.modal('hide');
+                alert(response.success);
+                window.location.reload();
+            },
+            error: function(xhr) {
+                let errorMessage = 'Error al crear usuario';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                alert(errorMessage);
+            }
+        });
+    });
+
+    // Handle edit user form submission
+    $('form[action*="/admin/users/"]').not('[action$="/store"]').on('submit', function(e) {
         e.preventDefault();
         const form = $(this);
         const modal = form.closest('.modal');
@@ -218,9 +307,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // Hide modal
                     modal.modal('hide');
-                    
                     alert(response.message);
                     window.location.reload();
                 }
@@ -230,16 +317,13 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
-                
                 alert(errorMessage);
             }
         });
     });
 
-    // Remove DataTable warnings from console
     $.fn.dataTable.ext.errMode = 'none';
     
-    // Handle DataTable errors more gracefully
     table.on('error.dt', function(e, settings, techNote, message) {
         console.error('DataTables error:', message);
     });

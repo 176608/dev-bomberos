@@ -1,18 +1,18 @@
 <?php
-/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
+
 namespace App\Http\Controllers\Bomberos\Auth;
 
 use App\Http\Controllers\Bomberos\Controller;
-use App\Providers\RouteServiceProvider;
 use App\Models\Bomberos\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
     protected $redirectTo = '/dashboard';
-
 
     public function showLoginForm()
     {
@@ -26,25 +26,54 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // ISO 25000: Permitir primer acceso sin contraseña válida si log_in_status > 0
+        $key = 'login:' . $request->ip();
+        
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['password' => 'Demasiados intentos. Intenta de nuevo en ' . ceil($seconds / 60) . ' minuto(s).']);
+        }
+
         $user = User::where('email', $credentials['email'])->first();
         
-        if ($user && $user->log_in_status > 0) {
-            // Usuario en estado inicial - redirigir directamente a establecimiento de contraseña
-            session(['email_for_reset' => $credentials['email']]);
+        if ($user && in_array($user->log_in_status, [1, 2])) {
+            if (!Hash::check($credentials['password'], $user->password)) {
+                RateLimiter::hit($key, 300);
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['password' => 'Credenciales incorrectas.']);
+            }
+
+            if (!$user->initial_token) {
+                RateLimiter::clear($key);
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['password' => 'Tu cuenta requiere configuración. Contacta al administrador para generar un PIN de acceso.']);
+            }
+
+            RateLimiter::clear($key);
+            
+            session([
+                'email_for_reset' => $credentials['email'],
+                'pin_verified_for_reset' => true,
+                'pin_verified_user_id' => $user->id
+            ]);
+            
             return redirect()->route('password.reset.form')
                 ->with('email', $credentials['email'])
-                ->with('message', $user->log_in_status === 1 ? 
-                    'Por favor, establece tu contraseña para continuar.' : 
-                    'Por favor, cambia tu contraseña para continuar.');
+                ->with('require_pin', true)
+                ->with('message', 'Ingresa el PIN proporcionado por el administrador.');
         }
 
         if (!Auth::attempt($credentials)) {
-            // Redirige de vuelta con error y email
+            RateLimiter::hit($key, 300);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['password' => 'Contraseña incorrecta.']);
         }
+
+        RateLimiter::clear($key);
 
         $user = Auth::user();
 
@@ -59,9 +88,6 @@ class LoginController extends Controller
         return $this->redirectBasedOnRole();
     }
 
-    /**
-     * Logout del usuario
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -69,7 +95,8 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        // Redirigir al login con encabezados anti-caché
+        RateLimiter::clear('login:' . $request->ip());
+        
         return redirect()->route('login')
             ->with('success', 'Sesión cerrada exitosamente')
             ->withHeaders([
@@ -85,26 +112,39 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
         ]);
 
+        $key = 'check-email:' . $request->ip();
+        
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            return response()->json([
+                'message' => 'Demasiadas solicitudes. Intenta de nuevo más tarde.'
+            ], 429);
+        }
+        
+        RateLimiter::hit($key, 60);
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['exists' => false], 200);
+            return response()->json([
+                'exists' => false,
+                'log_in_status' => null,
+            ]);
         }
+
+        $requiresPin = in_array($user->log_in_status, [1, 2]) && $user->initial_token;
 
         return response()->json([
             'exists' => true,
             'log_in_status' => $user->log_in_status,
-            'name' => $user->name,
-            'email' => $user->email,
+            'requires_pin' => $requiresPin
         ]);
     }
 
-    //funcion redirije basado en Rol
     protected function redirectBasedOnRole()
     {
         $user = Auth::user();
         
-          if ($user->role === 'Administrador') {
+        if ($user->role === 'Administrador') {
             return redirect()->route('sigem.admin.index');
         } elseif ($user->role === 'Desarrollador') {
             return redirect()->route('admin.panel');
@@ -113,7 +153,6 @@ class LoginController extends Controller
         } elseif ($user->role === 'Registrador') {
             return redirect()->route('registrador.panel');
         }
-        //  Redirección para roles de Dictamenes
         elseif ($user->role === 'Administrador Dictamenes') {
             return redirect()->route('sg-dictamen.index');
         } elseif ($user->role === 'Editor Dictamenes') {

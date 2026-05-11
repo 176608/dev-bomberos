@@ -119,16 +119,10 @@ $(function() {
                 $('#login-error').removeClass('d-none').text('Correo no registrado.');
                 return;
             }
-            if (response.log_in_status == 0) {
-                // Mostrar campo de contraseña
-                $('#login-step1').addClass('d-none');
-                $('#login-step2').removeClass('d-none');
-                $('#email-hidden').val(email);
-                $('#password').focus();
-            } else if (response.log_in_status == 1 || response.log_in_status == 2) {
-                // Redirigir a password reset
-                window.location.href = "{{ route('password.reset.form') }}?email=" + encodeURIComponent(email);
-            }
+            $('#login-step1').addClass('d-none');
+            $('#login-step2').removeClass('d-none');
+            $('#email-hidden').val(email);
+            $('#password').focus();
         }).fail(function(xhr) {
             $('#login-error').removeClass('d-none').text('Error al verificar el correo.');
         });
