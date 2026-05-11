@@ -45,42 +45,11 @@ class LoginController extends Controller
         }
 
         // USUARIOS CON log_in_status = 1 o 2 (Nuevos o Cambio forzado)
-        // NO necesitan contraseña, solo el PIN
+        // Redirigir directo a password-reset donde se validará el PIN
         if (in_array($user->log_in_status, [1, 2])) {
-            if (!$user->initial_token) {
-                RateLimiter::clear($key);
-                return back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['password' => 'Tu cuenta requiere configuración. Contacta al administrador para generar un PIN de acceso.']);
-            }
-
-            // El step2 del login ahora debe validar el PIN
-            // El campo "password" en el form será usado para el PIN
-            $pin = $request->input('password');
-            
-            if (!$pin) {
-                return back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['password' => 'Ingresa el PIN proporcionado por el administrador.']);
-            }
-
-            if (!Hash::check($pin, $user->initial_token)) {
-                RateLimiter::hit($key, 300);
-                return back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['password' => 'PIN incorrecto.']);
-            }
-
-            // PIN válido - redirigir a password-reset
             RateLimiter::clear($key);
-            
-            session([
-                'email_for_reset' => $email,
-            ]);
-            
-            return redirect()->route('password.reset.form')
-                ->with('email', $email)
-                ->with('require_pin', true)
+
+            return redirect()->route('password.reset.form', ['email' => $email])
                 ->with('message', 'Crea tu contraseña segura.');
         }
 

@@ -16,18 +16,31 @@ class PasswordResetController extends Controller
     {
         $email = $request->input('email');
 
+        \Log::info('PasswordReset showResetForm', [
+            'email' => $email,
+            'session_email' => $request->session()->get('email_for_reset'),
+            'log_in_status' => $email ? User::where('email', $email)->first()?->log_in_status : null
+        ]);
+
         if (!$email) {
             return redirect()->route('login')->with('error', 'Enlace inválido.');
         }
 
         $user = User::where('email', $email)->first();
 
-        if (!$user || !in_array($user->log_in_status, [1,2])) {
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Usuario no encontrado.');
+        }
+
+        if (!in_array($user->log_in_status, [1,2])) {
+            \Log::warning('Usuario no autorizado para reset', [
+                'user_id' => $user->id,
+                'log_in_status' => $user->log_in_status
+            ]);
             return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
         }
 
-        $requirePin = $request->session()->get('pin_verified_for_reset') && 
-                      $request->session()->get('pin_verified_user_id') == $user->id;
+        $requirePin = $user->initial_token ? true : false;
 
         return view('auth.password-reset', compact('user', 'requirePin'));
     }
@@ -58,10 +71,7 @@ class PasswordResetController extends Controller
             return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
         }
 
-        $pinVerified = $request->session()->get('pin_verified_for_reset') && 
-                       $request->session()->get('pin_verified_user_id') == $user->id;
-
-        if ($user->initial_token && !$pinVerified) {
+        if ($user->initial_token) {
             if (!$request->filled('pin')) {
                 return back()->withInput()->withErrors(['pin' => 'Ingresa el PIN proporcionado por el administrador.']);
             }
@@ -84,9 +94,6 @@ class PasswordResetController extends Controller
         $user->log_in_status = 0;
         $user->initial_token = null;
         $user->save();
-
-        $request->session()->forget('pin_verified_for_reset');
-        $request->session()->forget('pin_verified_user_id');
         
         return redirect()->route('login')->with('success', 'Contraseña actualizada exitosamente. Inicia sesión.');
     }
