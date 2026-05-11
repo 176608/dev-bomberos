@@ -21,9 +21,8 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required'],
         ]);
 
         $key = 'login:' . $request->ip();
@@ -35,16 +34,19 @@ class LoginController extends Controller
                 ->withErrors(['password' => 'Demasiados intentos. Intenta de nuevo en ' . ceil($seconds / 60) . ' minuto(s).']);
         }
 
-        $user = User::where('email', $credentials['email'])->first();
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
         
-        if ($user && in_array($user->log_in_status, [1, 2])) {
-            if (!Hash::check($credentials['password'], $user->password)) {
-                RateLimiter::hit($key, 300);
-                return back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['password' => 'Credenciales incorrectas.']);
-            }
+        if (!$user) {
+            RateLimiter::hit($key, 300);
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'Usuario no encontrado.']);
+        }
 
+        // USUARIOS CON log_in_status = 1 o 2 (Nuevos o Cambio forzado)
+        // NO necesitan contraseña, solo el PIN
+        if (in_array($user->log_in_status, [1, 2])) {
             if (!$user->initial_token) {
                 RateLimiter::clear($key);
                 return back()
@@ -52,17 +54,46 @@ class LoginController extends Controller
                     ->withErrors(['password' => 'Tu cuenta requiere configuración. Contacta al administrador para generar un PIN de acceso.']);
             }
 
+            // El step2 del login ahora debe validar el PIN
+            // El campo "password" en el form será usado para el PIN
+            $pin = $request->input('password');
+            
+            if (!$pin) {
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['password' => 'Ingresa el PIN proporcionado por el administrador.']);
+            }
+
+            if (!Hash::check($pin, $user->initial_token)) {
+                RateLimiter::hit($key, 300);
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['password' => 'PIN incorrecto.']);
+            }
+
+            // PIN válido - redirigir a password-reset
             RateLimiter::clear($key);
             
             session([
-                'email_for_reset' => $credentials['email'],
+                'email_for_reset' => $email,
             ]);
             
             return redirect()->route('password.reset.form')
-                ->with('email', $credentials['email'])
+                ->with('email', $email)
                 ->with('require_pin', true)
-                ->with('message', 'Ingresa el PIN proporcionado por el administrador para continuar.');
+                ->with('message', 'Crea tu contraseña segura.');
         }
+
+        // USUARIOS CON log_in_status = 0 (Normal)
+        // Necesitan contraseña normal
+        $request->validate([
+            'password' => ['required'],
+        ]);
+
+        $credentials = [
+            'email' => $email,
+            'password' => $request->input('password'),
+        ];
 
         if (!Auth::attempt($credentials)) {
             RateLimiter::hit($key, 300);
@@ -129,12 +160,14 @@ class LoginController extends Controller
             ]);
         }
 
-        $requiresPin = in_array($user->log_in_status, [1, 2]) && $user->initial_token;
+        $requiresPin = in_array($user->log_in_status, [1, 2]);
+        $requiresPassword = $user->log_in_status === 0;
 
         return response()->json([
             'exists' => true,
             'log_in_status' => $user->log_in_status,
-            'requires_pin' => $requiresPin
+            'requires_pin' => $requiresPin,
+            'requires_password' => $requiresPassword
         ]);
     }
 

@@ -45,7 +45,7 @@
                         <input type="hidden" name="email" id="email-hidden">
                         
                         <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña:</label>
+                            <label for="password" class="form-label" id="password-label">Contraseña:</label>
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password"
                                     placeholder="Contraseña" required minlength="12" 
@@ -119,9 +119,26 @@ $(function() {
                 $('#login-error').removeClass('d-none').text('Correo no registrado.');
                 return;
             }
+            
             $('#login-step1').addClass('d-none');
             $('#login-step2').removeClass('d-none');
             $('#email-hidden').val(email);
+            
+            // Ajustar label según el tipo de autenticación requerida
+            if (response.requires_pin) {
+                $('#password-label').text('PIN de Acceso (10 dígitos):');
+                $('#password').attr('placeholder', 'Ingresa el PIN');
+                $('#password').attr('maxlength', '10');
+                $('#password').attr('inputmode', 'numeric');
+                $('#password').removeAttr('minlength');
+            } else {
+                $('#password-label').text('Contraseña:');
+                $('#password').attr('placeholder', 'Contraseña');
+                $('#password').removeAttr('maxlength');
+                $('#password').removeAttr('inputmode');
+                $('#password').attr('minlength', '12');
+            }
+            
             $('#password').focus();
         }).fail(function(xhr) {
             $('#login-error').removeClass('d-none').text('Error al verificar el correo.');
@@ -161,6 +178,12 @@ $(function() {
 
     $('#password').on('input', function() {
         $('#login-error2').addClass('d-none').text('');
+        
+        // Si el modo es PIN, permitir solo números
+        const maxLength = $(this).attr('maxlength');
+        if (maxLength == 10) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        }
     });
 });
 
