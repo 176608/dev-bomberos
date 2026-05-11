@@ -1,7 +1,7 @@
-<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
+<!-- Archivo de SGU - NO ELIMINAR COMENTARIO -->
 @extends('layouts.app')
 
-@section('title', 'Usuarios de modulo auxiliar')
+@section('title', 'Usuarios del sistema auxiliar')
 
 @section('content')
 <div class="card py-4">

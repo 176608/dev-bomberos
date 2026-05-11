@@ -2,9 +2,9 @@
 /* <!-- -RECIEN AGREGADO 25/07/2025- Archivo SIGEM - NO ELIMINAR COMENTARIO --> */
 namespace App\Http\Controllers\SIGEM;
 
-use App\Http\Controllers\SIGEM\Controller; // NOTA: Controller siempre debe ser esta dirección
+use App\Http\Controllers\SIGEM\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // AGREGAR: Para funciones de string
+use Illuminate\Support\Str;
 use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
@@ -12,9 +12,20 @@ use App\Models\SIGEM\CuadroEstadistico;
 use App\Models\SIGEM\ce_tema;
 use App\Models\SIGEM\ce_subtema;
 use App\Models\SIGEM\ce_contenido;
+use App\Services\FileContentValidator;
+use App\Services\SecureFileUpload;
 
 class AdminController extends Controller
 {
+    protected SecureFileUpload $fileUploader;
+    protected FileContentValidator $fileValidator;
+
+    public function __construct()
+    {
+        $this->fileUploader = new SecureFileUpload();
+        $this->fileValidator = $this->fileUploader->getValidator();
+    }
+
     public function index()
     {
         // Verificar permisos de administrador
@@ -94,14 +105,13 @@ class AdminController extends Controller
     public function crearMapa(Request $request)
     {
         try {
-            // Validar datos
             $request->validate([
                 'nombre_mapa' => 'required|string|max:255',
                 'nombre_seccion' => 'nullable|string|max:255',
                 'descripcion' => 'nullable|string',
                 'enlace' => 'nullable|url',
                 'codigo_mapa' => 'nullable|string|max:50',
-                'icono' => 'nullable|file|mimes:png|max:2048' // 2MB max
+                'icono' => 'nullable|file|mimes:png|max:2048'
             ]);
 
             $datos = $request->only([
@@ -112,17 +122,17 @@ class AdminController extends Controller
                 'codigo_mapa'
             ]);
 
-            // Manejar upload de icono
             if ($request->hasFile('icono')) {
-                $archivo = $request->file('icono');
-                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-                
-                // Mover archivo a la carpeta img/SIGEM_mapas/
-                $archivo->move(public_path('img/SIGEM_mapas'), $nombreArchivo);
-                $datos['icono'] = $nombreArchivo;
+                try {
+                    $datos['icono'] = $this->fileUploader->uploadIcon($request->file('icono'));
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.mapas')
+                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
+                        ->withInput();
+                }
             }
 
-            // Crear mapa usando el método del modelo
             $mapa = Mapa::crear($datos);
 
             return redirect()
@@ -150,7 +160,6 @@ class AdminController extends Controller
                     ->with('error', 'Mapa no encontrado');
             }
 
-            // Validar datos
             $request->validate([
                 'nombre_mapa' => 'required|string|max:255',
                 'nombre_seccion' => 'nullable|string|max:255',
@@ -168,29 +177,26 @@ class AdminController extends Controller
                 'codigo_mapa'
             ]);
 
-            // Manejar eliminación de icono si se solicita
             if ($request->has('remove_icon') && $request->remove_icon == '1') {
-                // El usuario quiere eliminar el icono actual
-                if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
-                    unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+                if ($mapa->icono) {
+                    $this->fileUploader->deleteFile($mapa->icono, 'img/SIGEM_mapas');
                 }
                 $datos['icono'] = null;
             }
-            // Manejar upload de nuevo icono
             elseif ($request->hasFile('icono')) {
-                // Eliminar icono anterior si existe
-                if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
-                    unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+                try {
+                    $datos['icono'] = $this->fileUploader->uploadIcon(
+                        $request->file('icono'),
+                        $mapa->icono
+                    );
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.mapas')
+                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
+                        ->withInput();
                 }
-
-                $archivo = $request->file('icono');
-                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-                $archivo->move(public_path('img/SIGEM_mapas'), $nombreArchivo);
-                $datos['icono'] = $nombreArchivo;
             }
-            // Si no hay remove_icon ni nuevo archivo, mantener el icono actual (no hacer nada)
 
-            // Actualizar mapa
             $mapa->actualizar($datos);
 
             return redirect()
@@ -218,15 +224,12 @@ class AdminController extends Controller
                     ->with('error', 'Mapa no encontrado');
             }
 
-            // Eliminar archivo de icono si existe
-            if ($mapa->icono && file_exists(public_path('img/SIGEM_mapas/' . $mapa->icono))) {
-                unlink(public_path('img/SIGEM_mapas/' . $mapa->icono));
+            if ($mapa->icono) {
+                $this->fileUploader->deleteFile($mapa->icono, 'img/SIGEM_mapas');
             }
 
-            // Guardar nombre para el mensaje
             $nombreMapa = $mapa->nombre_mapa;
 
-            // Eliminar mapa
             $mapa->eliminar();
 
             return redirect()
@@ -366,7 +369,6 @@ class AdminController extends Controller
     public function crearSubtema(Request $request)
     {
         try {
-            // Validar datos
             $request->validate([
                 'subtema_titulo' => 'required|string|max:255',
                 'tema_id' => 'required|integer|exists:tema,tema_id',
@@ -381,29 +383,23 @@ class AdminController extends Controller
                 'clave_subtema'
             ]);
 
-            // Si no se proporciona orden, obtener el siguiente disponible para el tema específico
             if ($request->filled('orden_indice')) {
                 $datos['orden_indice'] = $request->orden_indice;
             } else {
                 $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
             }
 
-            // Manejar upload de imagen
             if ($request->hasFile('imagen')) {
-                $archivo = $request->file('imagen');
-                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-                
-                // Crear directorio si no existe
-                $directorioImagenes = public_path('imagenes/subtemas_u');
-                if (!file_exists($directorioImagenes)) {
-                    mkdir($directorioImagenes, 0755, true);
+                try {
+                    $datos['imagen'] = $this->fileUploader->uploadImage($request->file('imagen'));
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.subtemas')
+                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
+                        ->withInput();
                 }
-                
-                $archivo->move($directorioImagenes, $nombreArchivo);
-                $datos['imagen'] = $nombreArchivo;
             }
 
-            // Crear subtema
             $subtema = Subtema::crear($datos);
 
             return redirect()
@@ -433,7 +429,6 @@ class AdminController extends Controller
                     ->with('error', 'Subtema no encontrado');
             }
 
-            // Validar datos
             $request->validate([
                 'subtema_titulo' => 'required|string|max:255',
                 'tema_id' => 'required|integer|exists:tema,tema_id',
@@ -448,46 +443,34 @@ class AdminController extends Controller
                 'clave_subtema'
             ]);
 
-            // Si cambió el tema, recalcular el orden
             if ($request->tema_id != $subtema->tema_id) {
-                // Cambió de tema, asignar siguiente orden del nuevo tema
                 $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
             } else {
-                // Mismo tema, conservar orden o usar el proporcionado
                 $datos['orden_indice'] = $request->filled('orden_indice') 
                     ? $request->orden_indice 
                     : $subtema->orden_indice;
             }
 
-            // Manejar eliminación de imagen si se solicita
             if ($request->has('remove_imagen') && $request->remove_imagen == '1') {
-                // El usuario quiere eliminar la imagen actual
-                if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
-                    unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+                if ($subtema->imagen) {
+                    $this->fileUploader->deleteFile($subtema->imagen, 'imagenes/subtemas_u');
                 }
                 $datos['imagen'] = null;
             }
-            // Manejar upload de nueva imagen
             elseif ($request->hasFile('imagen')) {
-                // Eliminar imagen anterior si existe
-                if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
-                    unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+                try {
+                    $datos['imagen'] = $this->fileUploader->uploadImage(
+                        $request->file('imagen'),
+                        $subtema->imagen
+                    );
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.subtemas')
+                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
+                        ->withInput();
                 }
-
-                $archivo = $request->file('imagen');
-                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-                
-                $directorioImagenes = public_path('imagenes/subtemas_u');
-                if (!file_exists($directorioImagenes)) {
-                    mkdir($directorioImagenes, 0755, true);
-                }
-                
-                $archivo->move($directorioImagenes, $nombreArchivo);
-                $datos['imagen'] = $nombreArchivo;
             }
-            // Si no hay remove_imagen ni nuevo archivo, mantener la imagen actual (no hacer nada)
 
-            // Actualizar subtema
             $subtema->actualizar($datos);
 
             return redirect()
@@ -517,7 +500,6 @@ class AdminController extends Controller
                     ->with('error', 'Subtema no encontrado');
             }
 
-            // Verificar si hay cuadros estadísticos asociados
             $cuadrosCount = CuadroEstadistico::where('subtema_id', $id)->count();
             
             if ($cuadrosCount > 0) {
@@ -526,16 +508,13 @@ class AdminController extends Controller
                     ->with('error', "No se puede eliminar el subtema '{$subtema->subtema_titulo}' porque tiene {$cuadrosCount} cuadro(s) estadístico(s) asociado(s). Elimine o reasigne los cuadros primero.");
             }
 
-            // Eliminar archivo de imagen si existe
-            if ($subtema->imagen && file_exists(public_path('imagenes/subtemas_u/' . $subtema->imagen))) {
-                unlink(public_path('imagenes/subtemas_u/' . $subtema->imagen));
+            if ($subtema->imagen) {
+                $this->fileUploader->deleteFile($subtema->imagen, 'imagenes/subtemas_u');
             }
 
-            // Guardar datos para el mensaje
             $nombreSubtema = $subtema->subtema_titulo;
             $nombreTema = $subtema->tema ? $subtema->tema->tema_titulo : 'Sin tema';
 
-            // Eliminar subtema
             $subtema->eliminar();
 
             return redirect()
@@ -583,18 +562,16 @@ class AdminController extends Controller
     public function crearCuadro(Request $request)
     {
         try {
-            // Validar datos
             $request->validate([
                 'codigo_cuadro' => 'required|string|max:50|unique:cuadro_estadistico,codigo_cuadro',
                 'cuadro_estadistico_titulo' => 'required|string|max:255',
                 'cuadro_estadistico_subtitulo' => 'nullable|string|max:500',
                 'subtema_id' => 'required|integer|exists:subtema,subtema_id',
-                // Si tipo_mapa_pdf = 1, los excel están prohibidos
-                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120|prohibited_if:tipo_mapa_pdf,1', // 5MB max
-                'pdf_file' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
+                'excel_file' => 'nullable|file|mimes:xlsx,xls|max:5120|prohibited_if:tipo_mapa_pdf,1',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:5120',
                 'excel_formated_file' => 'nullable|file|mimes:xlsx,xls|max:5120|prohibited_if:tipo_mapa_pdf,1',
                 'permite_grafica' => 'nullable|boolean|prohibited_if:tipo_mapa_pdf,1',
-                'tipo_mapa_pdf' => 'nullable|boolean', // Checkbox para indicar si es tipo Mapa PDF existe en bd
+                'tipo_mapa_pdf' => 'nullable|boolean',
                 'pie_pagina' => 'nullable|string|max:50000'
             ]);
 
@@ -606,64 +583,45 @@ class AdminController extends Controller
                 'pie_pagina'
             ]);
 
-            // Manejar checkboxes
             $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
-            // Si es tipo Mapa PDF, no permitir gráficas
             $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
-            // Persistir flag en la BD (0/1)
             $datos['tipo_mapa_pdf'] = $isMapaPdf ? 1 : 0;
 
-            // Crear directorios si no existen
-            $directorioExcel = public_path('u_excel');
-            $directorioPdf = public_path('u_pdf');
-            $directorioFormated = public_path('u_xlsx_formated');
-
-            
-            if (!file_exists($directorioExcel)) {
-                mkdir($directorioExcel, 0755, true);
-            }
-            if (!file_exists($directorioPdf)) {
-                mkdir($directorioPdf, 0755, true);
-            }
-            if (!file_exists($directorioFormated)) {
-                mkdir($directorioFormated, 0755, true);
-            }
-
             $fecha = date('d_m_Y');
-            // Manejar upload de archivo Excel (solo si NO es tipo Mapa PDF)
-            if (! $isMapaPdf && $request->hasFile('excel_file')) {
-                $archivo = $request->file('excel_file');
-                $nombreOriginal = $archivo->getClientOriginalName();
-                $extension = $archivo->getClientOriginalExtension();
-                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
 
-                $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
-                $archivo->move($directorioExcel, $nombreArchivo);
-                $datos['excel_file'] = $nombreArchivo;
+            if (!$isMapaPdf && $request->hasFile('excel_file')) {
+                try {
+                    $datos['excel_file'] = $this->fileUploader->uploadExcel($request->file('excel_file'));
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.cuadros')
+                        ->with('error', 'Error de seguridad en archivo Excel: ' . $e->getMessage())
+                        ->withInput();
+                }
             }
 
-            // Manejar upload de archivo PDF
             if ($request->hasFile('pdf_file')) {
-                $archivo = $request->file('pdf_file');
-                $nombreOriginal = $archivo->getClientOriginalName();
-                $extension = $archivo->getClientOriginalExtension();
-                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
-                
-                $nombreArchivo = 'vista' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
-                $archivo->move($directorioPdf, $nombreArchivo);
-                $datos['pdf_file'] = $nombreArchivo;
+                try {
+                    $datos['pdf_file'] = $this->fileUploader->uploadPDF($request->file('pdf_file'));
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.cuadros')
+                        ->with('error', 'Error de seguridad en archivo PDF: ' . $e->getMessage())
+                        ->withInput();
+                }
             }
 
-            // Manejar upload de excel formateado (solo si NO es tipo Mapa PDF)
-            if (! $isMapaPdf && $request->hasFile('excel_formated_file')) {
-                $codigo = $datos['codigo_cuadro'];
-                $nombreArchivo = $codigo . '_' . $fecha . '.xlsx';
-                $archivo = $request->file('excel_formated_file');
-                $archivo->move($directorioFormated, $nombreArchivo);
-                $datos['excel_formated_file'] = $nombreArchivo;
+            if (!$isMapaPdf && $request->hasFile('excel_formated_file')) {
+                try {
+                    $datos['excel_formated_file'] = $this->fileUploader->uploadExcelFormated($request->file('excel_formated_file'));
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.cuadros')
+                        ->with('error', 'Error de seguridad en archivo Excel: ' . $e->getMessage())
+                        ->withInput();
+                }
             }
 
-            // Crear cuadro
             $cuadro = CuadroEstadistico::crear($datos);
 
             return redirect()
@@ -693,7 +651,6 @@ class AdminController extends Controller
                     ->with('error', 'Cuadro estadístico no encontrado');
             }
 
-            // Validar datos (excluir el ID actual de la validación de código único)
             $request->validate([
                 'codigo_cuadro' => 'required|string|max:50|unique:cuadro_estadistico,codigo_cuadro,' . $id . ',cuadro_estadistico_id',
                 'cuadro_estadistico_titulo' => 'required|string|max:255',
@@ -714,113 +671,92 @@ class AdminController extends Controller
                 'pie_pagina'
             ]);
 
-            // Manejar checkboxes y tipo_mapa_pdf
             $isMapaPdf = $request->has('tipo_mapa_pdf') && $request->tipo_mapa_pdf == '1';
             $datos['permite_grafica'] = $isMapaPdf ? false : $request->has('permite_grafica');
-            // Persistir flag
             $datos['tipo_mapa_pdf'] = $isMapaPdf ? 1 : 0;
-            // Directorios para archivos
-            $directorioExcel = public_path('u_excel');
-            $directorioPdf = public_path('u_pdf');
-            $directorioFormated = public_path('u_xlsx_formated');
-            $fecha = date('d_m_Y');
 
-            // Manejar eliminación específica de archivo Excel o prohibir si es tipo Mapa PDF
             if ($isMapaPdf) {
-                // Si el cuadro ya tenía archivos excel asociados, eliminarlos (el mapa PDF no debe tener dataset)
-                if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
-                    unlink($directorioExcel . '/' . $cuadro->excel_file);
+                if ($cuadro->excel_file) {
+                    $this->fileUploader->deleteFile($cuadro->excel_file, 'u_excel');
                 }
-                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
-                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                if ($cuadro->excel_formated_file) {
+                    $this->fileUploader->deleteFile($cuadro->excel_formated_file, 'u_xlsx_formated');
                 }
                 $datos['excel_file'] = null;
                 $datos['excel_formated_file'] = null;
             } else {
-                // Manejar eliminación específica de archivo Excel
                 if ($request->has('remove_excel') && $request->remove_excel == '1') {
-                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
-                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    if ($cuadro->excel_file) {
+                        $this->fileUploader->deleteFile($cuadro->excel_file, 'u_excel');
                     }
                     $datos['excel_file'] = null;
                 }
-                // Manejar upload de nuevo archivo Excel
                 elseif ($request->hasFile('excel_file')) {
-                    // Eliminar archivo anterior si existe
-                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
-                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    try {
+                        $datos['excel_file'] = $this->fileUploader->uploadExcel(
+                            $request->file('excel_file'),
+                            $cuadro->excel_file
+                        );
+                    } catch (\InvalidArgumentException $e) {
+                        return redirect()
+                            ->route('sigem.admin.cuadros')
+                            ->with('error', 'Error de seguridad en archivo Excel: ' . $e->getMessage())
+                            ->withInput();
                     }
-
-                    $archivo = $request->file('excel_file');
-                    $nombreOriginal = $archivo->getClientOriginalName();
-                    $extension = $archivo->getClientOriginalExtension();
-                    $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
-                    
-                    $nombreArchivo = 'ds' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
-                    $archivo->move($directorioExcel, $nombreArchivo);
-                    $datos['excel_file'] = $nombreArchivo;
                 }
             }
 
-            // Manejar eliminación específica de archivo PDF
             if ($request->has('remove_pdf') && $request->remove_pdf == '1') {
-                if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
-                    unlink($directorioPdf . '/' . $cuadro->pdf_file);
+                if ($cuadro->pdf_file) {
+                    $this->fileUploader->deleteFile($cuadro->pdf_file, 'u_pdf');
                 }
                 $datos['pdf_file'] = null;
             }
-            // Manejar upload de nuevo archivo PDF
             elseif ($request->hasFile('pdf_file')) {
-                // Si es tipo Mapa PDF: guardar en u_pdf y asegurarse de limpiar excel-related fields
                 if ($isMapaPdf) {
-                    // Eliminar posibles excel previos
-                    if ($cuadro->excel_file && file_exists($directorioExcel . '/' . $cuadro->excel_file)) {
-                        unlink($directorioExcel . '/' . $cuadro->excel_file);
+                    if ($cuadro->excel_file) {
+                        $this->fileUploader->deleteFile($cuadro->excel_file, 'u_excel');
                     }
-                    if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
-                        unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                    if ($cuadro->excel_formated_file) {
+                        $this->fileUploader->deleteFile($cuadro->excel_formated_file, 'u_xlsx_formated');
                     }
                     $datos['excel_file'] = null;
                     $datos['excel_formated_file'] = null;
                     $datos['permite_grafica'] = false;
-                } else {
-                    // Eliminar archivo anterior si existe
-                    if ($cuadro->pdf_file && file_exists($directorioPdf . '/' . $cuadro->pdf_file)) {
-                        unlink($directorioPdf . '/' . $cuadro->pdf_file);
-                    }
                 }
-
-                $archivo = $request->file('pdf_file');
-                $nombreOriginal = $archivo->getClientOriginalName();
-                $extension = $archivo->getClientOriginalExtension();
-                $nombreSinExtension = pathinfo($nombreOriginal, PATHINFO_FILENAME);
-                
-                $nombreArchivo = 'vista' . '_' . $nombreSinExtension . '_' . $fecha . '.' . $extension;
-                $archivo->move($directorioPdf, $nombreArchivo);
-                $datos['pdf_file'] = $nombreArchivo;
+                try {
+                    $datos['pdf_file'] = $this->fileUploader->uploadPDF(
+                        $request->file('pdf_file'),
+                        $cuadro->pdf_file
+                    );
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.cuadros')
+                        ->with('error', 'Error de seguridad en archivo PDF: ' . $e->getMessage())
+                        ->withInput();
+                }
             }
 
-            // Eliminar archivo si el usuario lo solicita
             if ($request->has('remove_excel_formated') && $request->remove_excel_formated == '1') {
-                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
-                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+                if ($cuadro->excel_formated_file) {
+                    $this->fileUploader->deleteFile($cuadro->excel_formated_file, 'u_xlsx_formated');
                 }
                 $datos['excel_formated_file'] = null;
             }
-            // Subir nuevo archivo (solo si NO es tipo Mapa PDF)
-            elseif (! $isMapaPdf && $request->hasFile('excel_formated_file')) {
-                // Eliminar anterior si existe
-                if ($cuadro->excel_formated_file && file_exists($directorioFormated . '/' . $cuadro->excel_formated_file)) {
-                    unlink($directorioFormated . '/' . $cuadro->excel_formated_file);
+            elseif (!$isMapaPdf && $request->hasFile('excel_formated_file')) {
+                try {
+                    $datos['excel_formated_file'] = $this->fileUploader->uploadExcelFormated(
+                        $request->file('excel_formated_file'),
+                        $cuadro->excel_formated_file
+                    );
+                } catch (\InvalidArgumentException $e) {
+                    return redirect()
+                        ->route('sigem.admin.cuadros')
+                        ->with('error', 'Error de seguridad en archivo Excel: ' . $e->getMessage())
+                        ->withInput();
                 }
-                $codigo = $datos['codigo_cuadro'];
-                $nombreArchivo = $codigo . '_' . $fecha . '.xlsx';
-                $archivo = $request->file('excel_formated_file');
-                $archivo->move($directorioFormated, $nombreArchivo);
-                $datos['excel_formated_file'] = $nombreArchivo;
             }
 
-            // Actualizar cuadro
             $cuadro->actualizar($datos);
 
             return redirect()
@@ -850,24 +786,21 @@ class AdminController extends Controller
                     ->with('error', 'Cuadro estadístico no encontrado');
             }
 
-            // Eliminar archivos físicos si existen
-            if ($cuadro->excel_file && file_exists(public_path('u_excel/' . $cuadro->excel_file))) {
-                unlink(public_path('u_excel/' . $cuadro->excel_file));
+            if ($cuadro->excel_file) {
+                $this->fileUploader->deleteFile($cuadro->excel_file, 'u_excel');
             }
 
-            if ($cuadro->pdf_file && file_exists(public_path('u_pdf/' . $cuadro->pdf_file))) {
-                unlink(public_path('u_pdf/' . $cuadro->pdf_file));
+            if ($cuadro->pdf_file) {
+                $this->fileUploader->deleteFile($cuadro->pdf_file, 'u_pdf');
             }
 
-            if ($cuadro->excel_formated_file && file_exists(public_path('u_xlsx_formated/' . $cuadro->excel_formated_file))) {
-                unlink(public_path('u_xlsx_formated/' . $cuadro->excel_formated_file));
+            if ($cuadro->excel_formated_file) {
+                $this->fileUploader->deleteFile($cuadro->excel_formated_file, 'u_xlsx_formated');
             }
 
-            // Guardar datos para el mensaje
             $nombreCuadro = $cuadro->cuadro_estadistico_titulo;
             $codigoCuadro = $cuadro->codigo_cuadro;
 
-            // Eliminar cuadro
             $cuadro->eliminar();
 
             return redirect()
