@@ -56,14 +56,12 @@ class LoginController extends Controller
             
             session([
                 'email_for_reset' => $credentials['email'],
-                'pin_verified_for_reset' => true,
-                'pin_verified_user_id' => $user->id
             ]);
             
             return redirect()->route('password.reset.form')
                 ->with('email', $credentials['email'])
                 ->with('require_pin', true)
-                ->with('message', 'Ingresa el PIN proporcionado por el administrador.');
+                ->with('message', 'Ingresa el PIN proporcionado por el administrador para continuar.');
         }
 
         if (!Auth::attempt($credentials)) {

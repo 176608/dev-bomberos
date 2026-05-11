@@ -23,7 +23,8 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
-        'log_in_status', // Añadir el nuevo campo
+        'log_in_status',
+        'initial_token',
     ];
 
     /**
