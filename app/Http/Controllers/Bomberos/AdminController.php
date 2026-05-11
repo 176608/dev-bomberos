@@ -31,7 +31,9 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        \Log::info('Admin store llamado', $request->all());
+
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
@@ -40,15 +42,25 @@ class AdminController extends Controller
         $randomPassword = bin2hex(random_bytes(16));
         $initialToken = $this->generateInitialToken();
         
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($randomPassword),
-            'role' => $request->role,
+            'role' => $validated['role'],
             'status' => 1,
             'log_in_status' => 1,
             'initial_token' => Hash::make($initialToken),
         ]);
+
+        \Log::info('Usuario creado', ['user_id' => $user->id, 'email' => $user->email]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Usuario creado exitosamente. PIN de acceso: {$initialToken}",
+                'pin' => $initialToken
+            ]);
+        }
 
         return redirect()->route('admin.panel')->with('success', "Usuario creado exitosamente. PIN de acceso: {$initialToken}");
     }
@@ -56,7 +68,7 @@ class AdminController extends Controller
     public function update(Request $request, User $user)
     {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
                 'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes'])],
@@ -64,10 +76,10 @@ class AdminController extends Controller
             ]);
 
             $updateData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'role' => $request->role,
-                'status' => $request->status,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
+                'status' => $validated['status'],
             ];
 
             if ($request->has('reset_password')) {
@@ -77,10 +89,14 @@ class AdminController extends Controller
 
             $user->update($updateData);
 
+            \Log::info('Usuario actualizado', ['user_id' => $user->id]);
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Usuario actualizado exitosamente',
+                    'message' => $request->has('reset_password') 
+                        ? 'Usuario actualizado y contraseña reseteada. Se generó un nuevo PIN.' 
+                        : 'Usuario actualizado exitosamente',
                     'data' => $user
                 ]);
             }
@@ -88,6 +104,8 @@ class AdminController extends Controller
             return redirect()->route('admin.panel')
                 ->with('success', 'Usuario actualizado exitosamente');
         } catch (\Exception $e) {
+            \Log::error('Error actualizando usuario', ['error' => $e->getMessage()]);
+            
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -102,6 +120,14 @@ class AdminController extends Controller
 
     public function generarPin(Request $request, User $user)
     {
+        \Log::info('generarPin llamado', [
+            'user_id' => $user->id,
+            'log_in_status' => $user->log_in_status,
+            'ajax' => $request->ajax(),
+            'auth' => auth()->check(),
+            'user_role' => auth()->check() ? auth()->user()->role : null
+        ]);
+
         if (!$request->ajax()) {
             return response()->json(['error' => 'Solicitud inválida'], 400);
         }
@@ -109,7 +135,7 @@ class AdminController extends Controller
         if (!in_array($user->log_in_status, [1, 2])) {
             return response()->json([
                 'success' => false,
-                'message' => 'El usuario no requiere PIN de acceso.'
+                'message' => 'El usuario no requiere PIN de acceso. Estado actual: ' . $user->log_in_status
             ], 422);
         }
 
@@ -118,6 +144,8 @@ class AdminController extends Controller
         $user->update([
             'initial_token' => Hash::make($newPin)
         ]);
+
+        \Log::info('PIN generado para usuario', ['user_id' => $user->id]);
 
         return response()->json([
             'success' => true,

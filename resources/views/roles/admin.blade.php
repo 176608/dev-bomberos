@@ -226,8 +226,11 @@ function generarPin(userId) {
         return;
     }
     
+    const url = "{{ route('admin.users.generar-pin', ['user' => ':userId']) }}".replace(':userId', userId);
+    console.log('URL:', url);
+    
     $.ajax({
-        url: '/admin/users/' + userId + '/generar-pin',
+        url: url,
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}'
@@ -239,13 +242,20 @@ function generarPin(userId) {
                 $('#pinDisplay' + userId).val('**********');
                 window.location.reload();
             } else {
-                alert(response.message);
+                alert(response.message || 'Error al generar PIN');
             }
         },
         error: function(xhr) {
+            console.error('Error AJAX:', xhr);
             let errorMessage = 'Error al generar PIN';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
+            if (xhr.status === 401) {
+                errorMessage = 'Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente.';
+            } else if (xhr.status === 422) {
+                errorMessage = 'El usuario no requiere PIN de acceso.';
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
+            } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMessage = xhr.responseJSON.error;
             }
             alert(errorMessage);
         }
@@ -273,6 +283,8 @@ $(document).ready(function() {
         e.preventDefault();
         const form = $(this);
         const modal = form.closest('.modal');
+        
+        console.log('Submitting to:', form.attr('action'));
 
         $.ajax({
             url: form.attr('action'),
@@ -281,12 +293,18 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 modal.modal('hide');
-                alert(response.success);
+                alert(response.success || 'Usuario creado exitosamente');
                 window.location.reload();
             },
             error: function(xhr) {
+                console.error('Error create:', xhr);
                 let errorMessage = 'Error al crear usuario';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
+                if (xhr.status === 401) {
+                    errorMessage = 'Sesión expirada. Por favor, recarga la página.';
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors);
+                    errorMessage = errors.flat().join('\n');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
                 alert(errorMessage);
@@ -313,8 +331,14 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
+                console.error('Error update:', xhr);
                 let errorMessage = 'Error al actualizar usuario';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
+                if (xhr.status === 401) {
+                    errorMessage = 'Sesión expirada. Por favor, recarga la página.';
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors);
+                    errorMessage = errors.flat().join('\n');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
                 alert(errorMessage);
