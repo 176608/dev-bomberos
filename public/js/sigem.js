@@ -28,6 +28,36 @@
         }
     };
 
+    // === UTILIDADES DE SEGURIDAD ===
+    const SECURITY = {
+        
+        isValidUrl: function(url) {
+            if (!url || typeof url !== 'string') return false;
+            try {
+                const parsed = new URL(url);
+                return ['http:', 'https:'].includes(parsed.protocol);
+            } catch (e) {
+                return false;
+            }
+        },
+        
+        safeUrl: function(url) {
+            return this.isValidUrl(url) ? url : null;
+        },
+        
+        escapeHtml: function(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text.toString();
+            return div.innerHTML;
+        },
+        
+        escapeAttr: function(text) {
+            if (!text) return '';
+            return this.escapeHtml(text).replace(/"/g, '&quot;');
+        }
+    };
+
     // === OBJETO PRINCIPAL DE LA APLICACIÓN ===
     const SIGEMApp = {
         elements: {
@@ -49,7 +79,7 @@
             CONFIG.BASE_URL = window.SIGEM_BASE_URL ||
                 (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
             CONFIG.PARTIALS_URL = `${CONFIG.BASE_URL}/partial`;
-            CONFIG.API_URL = CONFIG.BASE_URL; // Asumiendo que las rutas API están bajo la base
+            CONFIG.API_URL = CONFIG.BASE_URL; 
         },
 
         cacheElements: function () {
@@ -129,12 +159,12 @@
                 .catch(error => {
                     DEBUG.error('Error al cargar contenido:', error);
                     if (this.elements.contentContainer) {
-                        const urlInfo = DEBUG.isDeveloper() ? `<br><small>URL intentada: ${url}</small>` : '';
+                        const urlInfo = DEBUG.isDeveloper() ? `<br><small>URL intentada: ${SECURITY.escapeAttr(url)}</small>` : '';
                         this.elements.contentContainer.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="bi bi-exclamation-triangle"></i>
-                                Error al cargar contenido de <strong>${section}</strong>
-                                <br><small>Error: ${error.message}</small>
+                                Error al cargar contenido de <strong>${SECURITY.escapeHtml(section)}</strong>
+                                <br><small>Error: ${SECURITY.escapeHtml(error.message)}</small>
                                 ${urlInfo}
                             </div>
                         `;
@@ -899,16 +929,16 @@ DEBUG.error('Error al cargar contenido:', error);
                                         <div class="col-10">
                                             <h4 class="mapa-title mb-1">
                                                 <i class="bi bi-geo-alt-fill me-2"></i>
-                                                ${mapa.nombre_mapa || 'Mapa sin nombre'}
+                                                ${SECURITY.escapeHtml(mapa.nombre_mapa) || 'Mapa sin nombre'}
                                             </h4>
                                             <p class="mapa-seccion mb-0">
                                                 <i class="bi bi-folder-fill me-1"></i>
-                                                Sección: ${mapa.nombre_seccion || 'No especificada'}
+                                                Sección: ${SECURITY.escapeHtml(mapa.nombre_seccion) || 'No especificada'}
                                             </p>
                                         </div>
                                         <div class="col-2 text-end">
-                                            ${mapa.enlace ? 
-                                                `<a href="${mapa.enlace}" target="_blank" class="mapa-btn">
+                                            ${SECURITY.safeUrl(mapa.enlace) ? 
+                                                `<a href="${SECURITY.escapeAttr(mapa.enlace)}" target="_blank" rel="noopener noreferrer" class="mapa-btn">
                                                     <i class="bi bi-box-arrow-up-right"></i>
                                                     Ver Mapa
                                                 </a>` 
@@ -925,14 +955,14 @@ DEBUG.error('Error al cargar contenido:', error);
                                 <!-- CONTENIDO: Imagen (izquierda) + Descripción (derecha) -->
                                 <div class="mapa-content">
                                     <!-- IMAGEN (50% izquierda) - CLICKEABLE -->
-                                    <div class="mapa-image-container" ${mapa.enlace ? `onclick="window.open('${mapa.enlace}', '_blank')" style="cursor: pointer;"` : ''}>
+                                    <div class="mapa-image-container" ${SECURITY.safeUrl(mapa.enlace) ? `onclick="window.open('${SECURITY.escapeAttr(mapa.enlace)}', '_blank')" style="cursor: pointer;"` : ''}>
                                         ${mapa.tiene_imagen ? 
-                                            `<img src="${mapa.imagen_url}" 
-                                                  alt="${mapa.nombre_mapa}" 
+                                            `<img src="${SECURITY.escapeAttr(mapa.imagen_url)}" 
+                                                  alt="${SECURITY.escapeHtml(mapa.nombre_mapa)}" 
                                                   class="mapa-image"
-                                                  onerror="DEBUG.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
+                                                  onerror="DEBUG.error('Error cargando imagen: ${SECURITY.escapeAttr(mapa.icono)}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
                                              >
-                                             ${mapa.enlace ? 
+                                             ${SECURITY.safeUrl(mapa.enlace) ? 
                                                 `<div class="mapa-image-overlay">
                                                     <i class="bi bi-zoom-in me-2"></i>
                                                     Ver Mapa Completo
@@ -942,9 +972,9 @@ DEBUG.error('Error al cargar contenido:', error);
                                              <div class="image-error-placeholder" style="display: none;">
                                                 <div class="mapa-image-placeholder">
                                                     <i class="bi bi-image"></i>
-                                                    <h5>${mapa.nombre_mapa || 'Mapa'}</h5>
+                                                    <h5>${SECURITY.escapeHtml(mapa.nombre_mapa) || 'Mapa'}</h5>
                                                     <p>Error al cargar imagen</p>
-                                                    <small class="text-danger">Revisa la imagen: ${mapa.icono || 'N/A'}</small>
+                                                    <small class="text-danger">Revisa la imagen: ${SECURITY.escapeHtml(mapa.icono) || 'N/A'}</small>
                                                 </div>
                                              </div>` 
                                             : 
