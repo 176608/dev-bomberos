@@ -159,7 +159,7 @@
                 <a href="https://www.imip.org.mx/" class="text-white text-decoration-none">
                     Instituto Municipal de Investigación y Planeación
                 </a>
-                <span class="ms-2">| Ciudad Juárez, Chihuahua</span>
+                <!-- <span class="ms-2">| Ciudad Juárez, Chihuahua</span>-->
             </div>
             <!-- SOLO MÓVIL -->
             <div class="left-section d-block d-md-none w-100 text-center">
@@ -175,6 +175,7 @@
                     <!--<span class="me-3">
                         <i class="bi bi-person-circle"></i> Consultor Público
                     </span>-->
+                    <span class="ms-2"> Ciudad Juárez, Chihuahua</span>
                 @else
                     <span class="me-3">
                         <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
