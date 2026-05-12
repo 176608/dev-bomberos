@@ -2,6 +2,24 @@
  * GraficaModalEngine - Motor para visualizar gráficas en modales desde Excel
  * @class
  */
+
+// === UTILITARIO DE DEBUG POR ROL ===
+const GRAFICA_DEBUG = {
+    isDeveloper: function() {
+        return window.GRAFICA_USER_ROLE === 'Desarrollador';
+    },
+    log: function() {
+        if (this.isDeveloper()) {
+            console.log.apply(console, arguments);
+        }
+    },
+    error: function() {
+        if (this.isDeveloper()) {
+            console.error.apply(console, arguments);
+        }
+    }
+};
+
 class GraficaModalEngine {
     constructor() {
         this.chart = null;

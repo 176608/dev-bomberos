@@ -11,6 +11,23 @@
         PARTIALS_URL: null // Se determinará dinámicamente
     };
 
+    // === UTILITARIO DE DEBUG POR ROL ===
+    const DEBUG = {
+        isDeveloper: function() {
+            return window.SIGEM_USER_ROLE === 'Desarrollador';
+        },
+        log: function() {
+            if (this.isDeveloper()) {
+                console.log.apply(console, arguments);
+            }
+        },
+        error: function() {
+            if (this.isDeveloper()) {
+                console.error.apply(console, arguments);
+            }
+        }
+    };
+
     // === OBJETO PRINCIPAL DE LA APLICACIÓN ===
     const SIGEMApp = {
         elements: {
@@ -20,7 +37,7 @@
 
         // Inicialización de la aplicación
         init: function () {
-            //console.log('Inicializando SIGEMApp ...');
+            //DEBUG.log('Inicializando SIGEMApp ...');
             this.configureUrls();
             this.cacheElements();
             this.setupOtherEvents();
@@ -110,14 +127,15 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error al cargar contenido:', error);
+                    DEBUG.error('Error al cargar contenido:', error);
                     if (this.elements.contentContainer) {
+                        const urlInfo = DEBUG.isDeveloper() ? `<br><small>URL intentada: ${url}</small>` : '';
                         this.elements.contentContainer.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="bi bi-exclamation-triangle"></i>
                                 Error al cargar contenido de <strong>${section}</strong>
                                 <br><small>Error: ${error.message}</small>
-                                <br><small>URL intentada: ${url}</small>
+                                ${urlInfo}
                             </div>
                         `;
                     }
@@ -191,7 +209,7 @@
 
         // === FUNCION usada en la vista de catálogo.blade ===
         focusEnTema: function (numeroTema) {
-            //console.log(`Focus en tema: ${numeroTema}`);
+            //DEBUG.log(`Focus en tema: ${numeroTema}`);
             const temaElement = document.getElementById(`tema-cuadros-${numeroTema}`);
             const cuadrosContainer = document.getElementById('cuadros-container');
             if (temaElement && cuadrosContainer) {
@@ -226,7 +244,7 @@
 
         // === FUNCION usada en la vista de estadistica_temas_con_subtemas.blade ===
         verCuadro: function (cuadroId, codigo) {
-            //console.log(`sigemjs: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
+            //DEBUG.log(`sigemjs: Inicializando modal de cuadro: ID=${cuadroId}, Código=${codigo}`);
 
             const evento = new CustomEvent('verCuadroEstadistico', {
                 detail: {
@@ -241,7 +259,7 @@
             const consultaExpressModal = document.getElementById('consultaExpressModal');
             
             if (!consultaExpressModal) {
-                console.error('Modal no encontrado en el DOM');
+                DEBUG.error('Modal no encontrado en el DOM');
                 alert('No se pudo encontrar el modal de Consulta Express.');
                 return;
             }
@@ -256,7 +274,7 @@
                         this.initConsultaExpress();
                     }
                 } else {
-                    console.error('Bootstrap no está disponible');
+                    DEBUG.error('Bootstrap no está disponible');
                     if (typeof $ !== 'undefined' && $.fn.modal) {
                         $(consultaExpressModal).modal('show');
                         
@@ -268,7 +286,7 @@
                     }
                 }
             } catch (error) {
-                console.error('Error al abrir el modal:', error);
+                DEBUG.error('Error al abrir el modal:', error);
                 alert('Error al abrir el modal: ' + error.message);
             }
         },
@@ -281,7 +299,7 @@
             const contenidoContainer = document.getElementById('ce_contenido_container_modal');
             
             if (!temaSelect || !subtemaSelect || !contenidoContainer) {
-                console.error('Faltan elementos DOM necesarios para Consulta Express');
+                DEBUG.error('Faltan elementos DOM necesarios para Consulta Express');
                 return;
             }
             
@@ -338,7 +356,7 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Error al cargar subtemas:', error);
+                            DEBUG.error('Error al cargar subtemas:', error);
                             subtemaSelect.innerHTML = '<option value="">Error al cargar subtemas</option>';
                             subtemaSelect.disabled = true;
                         });
@@ -385,7 +403,7 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Error al cargar contenido:', error);
+DEBUG.error('Error al cargar contenido:', error);
                             contenidoContainer.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -419,13 +437,13 @@
                         document.body.appendChild(modalElement);                        
                         this.openConsultaExpress();
                     } else {
-                        console.error('Modal no encontrado en el partial cargado');
+                        DEBUG.error('Modal no encontrado en el partial cargado');
                     }
                     
                     document.body.removeChild(tempContainer);
                 })
                 .catch(error => {
-                    console.error('Error al cargar el modal:', error);
+                    DEBUG.error('Error al cargar el modal:', error);
                     alert('No se pudo cargar la consulta express. Por favor, intente nuevamente.');
                 });
         },
@@ -552,7 +570,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error cargando mapas:', error);
+                DEBUG.error('Error cargando mapas:', error);
                 if (mapasContainer) {
                     mapasContainer.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i>Error al cargar mapas: ${error.message}</div>`;
                 }
@@ -585,7 +603,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error cargando catálogo:', error);
+                DEBUG.error('Error cargando catálogo:', error);
                 const errorMsg = `<div class="alert alert-danger"><i class="bi bi-exclamation-circle"></i> Error de conexión al cargar catálogo</div>`;
                 if (indiceContainer) indiceContainer.innerHTML = errorMsg;
                 if (cuadrosContainer) cuadrosContainer.innerHTML = errorMsg;
@@ -607,7 +625,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error cargando datos de inicio:', error);
+                DEBUG.error('Error cargando datos de inicio:', error);
             });
     };
 
@@ -639,7 +657,7 @@
     function loadCuadroEspecifico(cuadroId) {
         const cuadroInfoContainer = document.getElementById('cuadro-info-container');
         if (!cuadroInfoContainer) {
-            console.error('No se encontró el contenedor cuadro-info-container');
+            DEBUG.error('No se encontró el contenedor cuadro-info-container');
             return;
         }
 
@@ -683,7 +701,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error cargando cuadro específico:', error);
+                DEBUG.error('Error cargando cuadro específico:', error);
                 cuadroInfoContainer.innerHTML = `
                     <div class="alert alert-danger text-center">
                         <i class="bi bi-exclamation-circle fs-1"></i>
@@ -912,7 +930,7 @@
                                             `<img src="${mapa.imagen_url}" 
                                                   alt="${mapa.nombre_mapa}" 
                                                   class="mapa-image"
-                                                  onerror="console.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
+                                                  onerror="DEBUG.error('Error cargando imagen: ${mapa.icono}'); this.style.display='none'; this.parentNode.classList.add('image-error');"
                                              >
                                              ${mapa.enlace ? 
                                                 `<div class="mapa-image-overlay">

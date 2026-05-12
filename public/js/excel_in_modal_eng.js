@@ -2,6 +2,19 @@
  * ExcelModalEngine - Motor para visualizar archivos Excel en modales
  * @class
  */
+
+// === UTILITARIO DE DEBUG POR ROL ===
+const EXCEL_DEBUG = {
+    isDeveloper: function() {
+        return window.EXCEL_USER_ROLE === 'Desarrollador';
+    },
+    error: function() {
+        if (this.isDeveloper()) {
+            console.error.apply(console, arguments);
+        }
+    }
+};
+
 class ExcelModalEngine {
     constructor() {
         this.sheetJSLoaded = false;
@@ -48,7 +61,7 @@ class ExcelModalEngine {
             const html = await this.processExcelFile(arrayBuffer, fileName, excelUrl, pdfUrl, excelFormatedUrl);
             container.innerHTML = html;
         } catch (error) {
-            console.error('Error:', error);
+            EXCEL_DEBUG.error('Error:', error);
             this.showErrorState(container, error.message, excelUrl);
         }
     }
