@@ -84,10 +84,8 @@ class PasswordResetController extends Controller
         if ($user->log_in_status == 1) {
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             ]);
             $user->name = $request->name;
-            $user->email = $request->email;
         }
 
         $user->password = Hash::make($request->password);

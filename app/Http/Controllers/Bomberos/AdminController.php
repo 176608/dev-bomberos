@@ -82,14 +82,18 @@ class AdminController extends Controller
                 'status' => $validated['status'],
             ];
 
+            $newPin = null;
             if ($request->has('reset_password')) {
+                $newPin = $this->generateInitialToken();
                 $updateData['log_in_status'] = 2;
-                $updateData['initial_token'] = Hash::make($this->generateInitialToken());
+                $updateData['initial_token'] = Hash::make($newPin);
             }
 
             $user->update($updateData);
 
             \Log::info('Usuario actualizado', ['user_id' => $user->id]);
+
+            $pinGenerado = $newPin;
 
             if ($request->ajax()) {
                 return response()->json([
@@ -97,8 +101,14 @@ class AdminController extends Controller
                     'message' => $request->has('reset_password') 
                         ? 'Usuario actualizado y contraseña reseteada. Se generó un nuevo PIN.' 
                         : 'Usuario actualizado exitosamente',
+                    'pin' => $pinGenerado,
                     'data' => $user
                 ]);
+            }
+
+            if ($pinGenerado) {
+                return redirect()->route('admin.panel')
+                    ->with('success', "Usuario actualizado. PIN de acceso: {$pinGenerado}");
             }
 
             return redirect()->route('admin.panel')

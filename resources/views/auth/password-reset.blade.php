@@ -33,14 +33,10 @@
                                 @enderror
                             </div>
 
-                            <div class="form-floating mb-3">
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" placeholder="Email" required
-                                    value="{{ old('email', $user->email) }}">
-                                <label for="email">Correo</label>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="mb-3">
+                                <label class="form-label">Correo:</label>
+                                <input type="text" class="form-control" value="{{ $user->email }}" readonly>
+                                <small class="text-muted">El correo no puede ser modificado. Contacta al administrador para cambios.</small>
                             </div>
                         @endif
 

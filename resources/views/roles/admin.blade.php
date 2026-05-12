@@ -293,7 +293,11 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 modal.modal('hide');
-                alert(response.success || 'Usuario creado exitosamente');
+                if (response.pin) {
+                    alert(response.message + '\n\nPIN: ' + response.pin);
+                } else {
+                    alert(response.message || 'Usuario creado exitosamente');
+                }
                 window.location.reload();
             },
             error: function(xhr) {
@@ -326,7 +330,11 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     modal.modal('hide');
-                    alert(response.message);
+                    if (response.pin) {
+                        alert(response.message + '\n\nPIN: ' + response.pin);
+                    } else {
+                        alert(response.message);
+                    }
                     window.location.reload();
                 }
             },
