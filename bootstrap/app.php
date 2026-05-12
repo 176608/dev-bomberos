@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar el middleware de roles
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'debug.role' => \App\Http\Middleware\DebugByRole::class,
+        ]);
+        
+        // Middleware global para debug por rol (se ejecuta en todas las rutas)
+        $middleware->web(prepend: [
+            \App\Http\Middleware\DebugByRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
