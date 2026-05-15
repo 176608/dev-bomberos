@@ -10,6 +10,9 @@ require __DIR__.'/SIGEM/laravel.php';
 // Incluir rutas SGDictamen (Dictámenes)
 require __DIR__.'/SGDictamen/web.php';
 
+// Incluir rutas Biblioteca (Catalogo)
+require __DIR__.'/Biblioteca/web.php';
+
 //  Ruta pública para dictamenes (SIN autenticación)
 Route::get('/dictamenes', [\App\Http\Controllers\SGDictamen\DictamenController::class, 'publicIndex'])
     ->name('dictamenes.public');
