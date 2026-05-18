@@ -358,20 +358,137 @@
         .upload-portada {
             display: none;
         }
+        /* Detalle de ficha */
+        .detail-card {
+            padding: 20px;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+        }
+        .detail-card h3 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        .detail-portada {
+            width: 200px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .detail-portada img {
+            width: 100%;
+            max-height: 160px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .detail-no-portada {
+            width: 100%;
+            height: 140px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: #adb5bd;
+            font-size: 2rem;
+        }
+        .detail-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 6px 12px;
+            font-size: 0.9rem;
+            background: var(--gray-200);
+            padding: 16px;
+            border-radius: 10px;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+        .detail-value {
+            color: #333;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            min-width: 0;
+        }
+        @media (max-width: 768px) {
+            .detail-card {
+                flex-direction: column;
+                padding: 12px;
+                gap: 10px;
+            }
+            .detail-portada {
+                width: 100%;
+                max-width: 120px;
+                margin: 0 auto;
+            }
+            .detail-portada img {
+                max-height: 100px;
+            }
+            .detail-no-portada {
+                height: 100px;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 3px;
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+            .detail-label {
+                white-space: normal;
+                font-size: 0.75rem;
+                color: #666;
+                margin-top: 4px;
+            }
+            .detail-label:first-child {
+                margin-top: 0;
+            }
+            .detail-card h3 {
+                font-size: 0.9rem;
+            }
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 70px;
+                width: 60px;
                 padding: 10px 0;
             }
             .sidebar-logo, .sidebar-title {
                 display: none;
             }
+            .sidebar-nav {
+                padding: 0 5px;
+            }
+            .sidebar-nav a {
+                padding: 12px 0;
+                text-align: center;
+                font-size: 0;
+            }
+            .sidebar-nav a i {
+                font-size: 1.3rem;
+            }
             .main-content {
-                margin-left: 70px;
+                margin-left: 60px;
+                padding: 12px;
             }
             .header {
-                left: 70px;
+                left: 60px;
+                padding: 10px 12px;
+            }
+            .header-title {
+                font-size: 0.95rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .form-grid {
                 grid-template-columns: 1fr;
@@ -383,6 +500,138 @@
             }
             .book-actions {
                 justify-content: center;
+            }
+            .search-section {
+                padding: 12px;
+            }
+            .details-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+            .details-label {
+                min-width: auto;
+            }
+            /* Stats cards */
+            .stats .stat-card {
+                min-width: 100% !important;
+                flex-basis: auto !important;
+            }
+            /* Material stats */
+            .material-stats-section {
+                padding: 12px !important;
+            }
+            .material-stats-section > div[style*="min-width"] {
+                min-width: 100% !important;
+                flex: none !important;
+                width: 100% !important;
+            }
+            .material-stats-section .btn {
+                font-size: 0.8rem !important;
+                padding: 8px 8px !important;
+            }
+            .material-stats-section h3 {
+                font-size: 1rem !important;
+            }
+            .material-stats-section > div[style*="flex: 1"] > div[style*="grid"] {
+                grid-template-columns: 1fr !important;
+            }
+            .material-stats-section > div[style*="flex: 1"]:last-child {
+                padding: 10px !important;
+            }
+            /* Busqueda simple */
+            #searchForm > div:first-child,
+            #advancedSearchForm > div > div:first-child > div:first-child {
+                flex-wrap: wrap !important;
+            }
+            #searchForm > div:first-child > div:first-child,
+            #advancedSearchForm > div > div:first-child > div:first-child > div:first-child {
+                flex: none !important;
+                width: 100% !important;
+            }
+            #searchForm button[type="submit"],
+            #advancedSearchForm button[type="submit"] {
+                width: 100% !important;
+                justify-content: center;
+            }
+            #searchForm input,
+            #advancedSearchForm input {
+                font-size: 16px !important;
+            }
+            /* Override inline grid de búsqueda avanzada */
+            .search-section .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .search-section .form-grid > div[style*="grid-column"] {
+                grid-column: 1 !important;
+            }
+            .search-section .form-grid > div[style*="grid-column"] select {
+                width: 100% !important;
+            }
+            /* Tabla completa con scroll horizontal */
+            .table-responsive {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+            }
+            #booksTable {
+                table-layout: auto !important;
+                width: auto !important;
+                min-width: 100%;
+            }
+            #booksTable th,
+            #booksTable td {
+                padding: 6px 5px !important;
+                font-size: 0.75rem !important;
+                white-space: nowrap;
+            }
+            #booksTable td:nth-child(2) {
+                white-space: normal;
+                max-width: 110px;
+            }
+            #booksTable td:nth-child(1) img,
+            #booksTable td:nth-child(1) div {
+                width: 28px !important;
+                height: 38px !important;
+            }
+            #booksTable .btn-sm {
+                padding: 3px 5px !important;
+                font-size: 0.7rem !important;
+            }
+            #booksTable .badge {
+                font-size: 0.65rem !important;
+                padding: 2px 4px !important;
+            }
+            /* Forzar que DataTables no limite el ancho */
+            #booksTable_wrapper {
+                overflow: visible !important;
+            }
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                float: none;
+                text-align: left;
+                margin-bottom: 6px;
+            }
+            .dataTables_wrapper .dataTables_filter input {
+                max-width: 100%;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            div.dataTables_wrapper div.dataTables_paginate {
+                float: none;
+                text-align: center;
+                margin-top: 12px;
+            }
+            .dataTables_wrapper .dataTables_info {
+                font-size: 0.75rem;
+            }
+            /* Indicador sutil de scroll */
+            .table-responsive::after {
+                content: '⇄ Desliza para ver más columnas';
+                display: block;
+                text-align: center;
+                font-size: 0.75rem;
+                color: #999;
+                padding: 4px;
             }
         }
         .fade-in {

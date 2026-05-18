@@ -2,284 +2,255 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sobre la Biblioteca | Catálogo IMIP</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
+        /* === RESET CRÍTICO === */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; }
+        
         :root {
-            --primary: #1e7390;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --gray-200: #e9ecef;
-            --gray-300: #dee2e6;
+            --primary: #1e7390; --success: #28a745; --danger: #dc3545;
+            --warning: #ffc107; --light: #f8f9fa; --dark: #343a40;
+            --gray-200: #e9ecef; --gray-300: #dee2e6;
             --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --transition: all 0.3s ease;
         }
+        
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('{{ asset('img/biblioteca/fondo.png') }}') center/cover no-repeat fixed;
             color: #333;
-            padding-top: 60px;
+            /* Sin padding-top para evitar espacio vacío */
         }
-        /* Sidebar izquierdo con logo */
+        
+        /* Sidebar */
         .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 260px;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            border-right: 1px solid var(--gray-300);
+            position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+            background: rgba(255, 255, 255, 0.98); box-shadow: var(--shadow);
+            z-index: 1000; display: flex; flex-direction: column;
+            padding: 20px 0; border-right: 1px solid var(--gray-300);
             overflow-y: auto;
         }
-        .sidebar-logo {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 0 20px;
-        }
-        .sidebar-logo img {
-            max-height: 80px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto 12px;
-        }
-        .sidebar-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-align: center;
-            margin: 0;
-            line-height: 1.3;
-            display: block;
-            white-space: normal;
-            word-break: break-word;
-        }
-        .sidebar-nav {
-            flex: 1;
-            padding: 0 15px;
-        }
+        .sidebar-logo { text-align: center; margin-bottom: 20px; padding: 0 15px; }
+        .sidebar-logo img { max-height: 70px; width: auto; object-fit: contain; display: block; margin: 0 auto; }
+        .sidebar-title { font-size: 1.3rem; font-weight: 700; color: var(--primary); text-align: center; margin: 10px 0 0; line-height: 1.2; display: block; }
+        .sidebar-nav { flex: 1; padding: 0 10px; }
         .sidebar-nav a {
-            display: block;
-            padding: 12px 20px;
-            color: #495057;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            transition: var(--transition);
+            display: block; padding: 12px 15px; color: #495057; text-decoration: none;
+            border-radius: 6px; margin-bottom: 5px; transition: all 0.2s; font-size: 0.95rem;
         }
-        .sidebar-nav a:hover {
-            background: var(--gray-200);
-            color: var(--primary);
-        }
-        .sidebar-nav a.active {
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-        }
+        .sidebar-nav a:hover { background: var(--gray-200); color: var(--primary); }
+        .sidebar-nav a.active { background: var(--primary); color: white; font-weight: 600; }
+
         /* Header */
         .header {
             background: linear-gradient(135deg, #3a7d7c, #2c5f5e);
-            color: white;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 260px;
-            z-index: 90;
-            box-shadow: var(--shadow);
-            background-color: #3a7d7c;
+            color: white; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; left: 260px; right: 0; z-index: 999;
+            box-shadow: var(--shadow); height: 60px;
         }
-        .header-title {
-            font-weight: 600;
-            font-size: 1.3rem;
-        }
-        /* Contenido principal */
+        .header-title { font-weight: 600; font-size: 1.2rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Main Content */
         .main-content {
             margin-left: 260px;
-            padding: 24px;
-            min-height: calc(100vh - 60px);
-            background: transparent;
+            padding: 75px 20px 20px 20px;
+            min-height: 100vh;
+            width: calc(100% - 260px);
         }
-        /* Tarjeta de información */
+
+        /* Tarjeta principal */
         .about-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
+            background: white; border-radius: 10px; overflow: hidden;
+            box-shadow: var(--shadow); width: 100%; max-width: 100%;
         }
         .about-header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
+            background: var(--primary); color: white; padding: 20px;
             text-align: center;
         }
         .about-header h2 {
-            margin: 0;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin: 0; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            flex-wrap: wrap;
         }
-        .about-body {
-            padding: 30px;
-        }
-        .about-section {
-            margin-bottom: 30px;
-        }
+        .about-body { padding: 30px; }
+        .about-section { margin-bottom: 30px; }
         .about-section h3 {
-            color: var(--primary);
-            font-size: 1.4rem;
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--primary); font-size: 1.3rem; margin-top: 0;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
         }
-        .about-section p {
-            line-height: 1.6;
-            color: #555;
-        }
-        .about-list {
-            padding-left: 20px;
-        }
+        .about-section p { line-height: 1.6; color: #555; margin-bottom: 15px; }
+        .about-list { padding-left: 20px; }
         .about-list li {
-            margin-bottom: 12px;
-            list-style-type: none;
-            position: relative;
+            margin-bottom: 12px; list-style-type: none;
+            position: relative; line-height: 1.5;
         }
         .about-list li::before {
-            content: "✓";
-            color: var(--success);
-            font-weight: bold;
-            position: absolute;
-            left: -20px;
+            content: "✓"; color: var(--success); font-weight: bold;
+            position: absolute; left: -20px;
         }
         .contact-info {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
+            background: var(--light); padding: 20px;
+            border-radius: 8px; margin-top: 20px;
         }
         .contact-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 16px;
+            display: flex; gap: 20px; margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         .contact-icon {
-            font-size: 1.4rem;
-            color: var(--primary);
-            min-width: 32px;
-            text-align: center;
+            font-size: 1.4rem; color: var(--primary);
+            min-width: 32px; text-align: center;
         }
         .contact-text strong {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 4px;
+            display: block; font-weight: 600; margin-bottom: 4px;
         }
+        .contact-text p { margin: 0; line-height: 1.5; }
+        
+        /* Grid de valores */
         .values-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-top: 30px;
         }
         .value-card {
-            background: white;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
+            background: white; border: 1px solid var(--gray-300);
+            border-radius: 8px; padding: 20px; text-align: center;
             transition: transform 0.3s;
         }
-        .value-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-        .value-icon {
-            font-size: 2.2rem;
-            color: var(--primary);
-            margin-bottom: 16px;
-        }
-        .value-title {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 0.9rem;
-            background: rgba(255,255,255,0.8);
-            margin-top: 40px;
-            position: relative;
-        }
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 10px 0; }
-            .sidebar-logo, .sidebar-title { display: none; }
-            .main-content { margin-left: 70px; }
-            .contact-row { flex-direction: column; }
-        }
-        /* Estilos específicos para el grid de imágenes */
+        .value-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+        .value-icon { font-size: 2.2rem; color: var(--primary); margin-bottom: 16px; }
+        .value-title { font-weight: 600; color: var(--dark); margin-bottom: 10px; }
+        .value-card p { font-size: 0.9rem; line-height: 1.5; margin: 0; }
+
+        /* Grid de imágenes */
         .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 24px;
-            justify-content: center;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px; margin-top: 24px; justify-content: center;
         }
         .image-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
+            background: white; border-radius: 8px; overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            height: auto;
-            display: flex;
-            flex-direction: column;
+            height: auto; display: flex; flex-direction: column;
             transition: transform 0.3s ease;
         }
-        .image-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-        }
+        .image-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
         .image-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #f8f9fa; min-height: 150px;
         }
         .image-container img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: cover;
-            border-radius: 6px 6px 0 0;
+            max-width: 100%; max-height: 100%; object-fit: cover;
+            border-radius: 6px 6px 0 0; width: 100%;
         }
         .placeholder {
-            font-size: 2.5rem;
-            color: #adb5bd;
-            text-align: center;
+            font-size: 2.5rem; color: #adb5bd; text-align: center;
         }
         .image-caption {
-            padding: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #495057;
-            background: #f8f9fa;
+            padding: 12px; text-align: center; font-size: 0.85rem;
+            color: #495057; background: #f8f9fa;
             border-top: 1px solid #e9ecef;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 20px; color: #666;
+            font-size: 0.85rem; background: rgba(255,255,255,0.95);
+            margin-top: 40px;
+        }
+
+        /* === 📱 RESPONSIVE COMPLETO === */
+        @media (max-width: 768px) {
+            /* Sidebar compacto */
+            .sidebar { width: 60px !important; padding: 10px 0 !important; }
+            .sidebar-logo, .sidebar-title { display: none !important; }
+            .sidebar-nav a {
+                padding: 15px 0 !important; text-align: center;
+                font-size: 0 !important; margin-bottom: 5px !important;
+            }
+            .sidebar-nav a i { font-size: 1.2rem !important; margin: 0 !important; display: block !important; }
+            
+            /* Header ajustado */
+            .header {
+                left: 60px !important; right: 0 !important;
+                width: calc(100% - 60px) !important; height: 50px !important;
+                padding: 0 10px !important;
+            }
+            .header-title { font-size: 1rem !important; }
+            
+            /* Contenido principal */
+            .main-content {
+                margin-left: 60px !important;
+                width: calc(100% - 60px) !important;
+                padding: 60px 10px 10px 10px !important;
+            }
+            
+            /* Tarjetas y secciones sin desborde */
+            .about-card, .about-body, .about-section, .value-card, .contact-info {
+                width: 100% !important; max-width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            .about-body { padding: 20px 15px !important; }
+            .about-section h3 { font-size: 1.1rem !important; }
+            .about-section p { font-size: 0.9rem !important; }
+            
+            /* Grid de imágenes: 2 columnas en móvil */
+            .image-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            .image-container { min-height: 120px !important; }
+            .image-caption { font-size: 0.75rem !important; padding: 8px !important; }
+            
+            /* Grid de valores: 1 columna */
+            .values-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            .value-card { padding: 15px !important; }
+            .value-icon { font-size: 1.8rem !important; }
+            .value-title { font-size: 1rem !important; }
+            
+            /* Contacto: apilar verticalmente */
+            .contact-row {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            .contact-icon { font-size: 1.2rem !important; }
+            
+            /* Listas */
+            .about-list { padding-left: 25px !important; }
+            .about-list li { font-size: 0.9rem !important; }
+            
+            /* Footer alineado */
+            .footer {
+                margin-left: 60px !important;
+                width: calc(100% - 60px) !important;
+                font-size: 0.75rem !important;
+                padding: 15px 10px !important;
+            }
+        }
+
+        /* iPhone SE / Móviles muy pequeños */
+        @media (max-width: 480px) {
+            /* Mostrar logo pequeño */
+            .sidebar-logo { display: block !important; margin-bottom: 10px !important; padding: 0 5px !important; }
+            .sidebar-logo img { max-height: 30px !important; }
+            
+            .header-title { font-size: 0.9rem !important; max-width: 70%; }
+            
+            /* Imágenes: 1 columna en pantallas muy pequeñas */
+            .image-grid { grid-template-columns: 1fr !important; }
+            .image-container { min-height: 180px !important; }
+            
+            /* Texto más pequeño */
+            .about-section h3 { font-size: 1.05rem !important; }
+            .about-section p, .about-list li { font-size: 0.85rem !important; }
+            .value-card p { font-size: 0.8rem !important; }
+            
+            .main-content { padding: 60px 5px 5px 5px !important; }
         }
     </style>
 </head>
@@ -289,26 +260,19 @@
 <div class="sidebar">
     <div class="sidebar-logo">
         <a href="https://www.imip.org.mx/imip/" target="_blank" style="text-decoration: none; display: block;">
-            <img src="{{ asset('img/logo/IMIP_logo01.png') }}"
-                 alt="Logo IMIP" 
-                 style="max-height: 80px; width: auto; object-fit: contain; display: block; margin: 0 auto 12px;"
-                 onerror="this.style.display='none'; console.warn('Logo no encontrado');">
+            <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo IMIP" onerror="this.style.display='none';">
         </a>
     </div>
     <nav class="sidebar-nav">
         <a href="{{ route('home') }}"><i class="fas fa-home"></i> Inicio</a>
         <a href="{{ route('search.advanced') }}"><i class="fas fa-search"></i> Búsqueda Avanzada</a>
         <a href="{{ route('about.library') }}" class="active"><i class="fas fa-info-circle"></i> Sobre la biblioteca</a>
-        <!-- Solo vista pública -->
     </nav>
 </div>
 
 <!-- Header superior -->
 <div class="header">
-    <div class="header-title">
-        📚 Catálogo General Biblioteca IMIP
-    </div>
-    <!-- SIN user-menu ni logout - Solo vista pública -->
+    <div class="header-title">📚 Catálogo General Biblioteca IMIP</div>
 </div>
 
 <!-- Contenido principal -->
@@ -318,7 +282,7 @@
             <h2><i class="fas fa-info-circle"></i> MPDU Abigail García Espinosa</h2>
         </div>
         <div class="about-body">
-            <!-- Sección: Identidad -->
+            <!-- Sección: Institución -->
             <div class="about-section">
                 <h3><i class="fas fa-building"></i> Institución</h3>
                 <p>
@@ -335,14 +299,10 @@
                     ] as $item)         
                     <div class="image-card">
                         <div class="image-container">
-                            <img src="{{ asset('img/biblioteca/' . $item['file']) }}"
-                                 alt="{{ $item['title'] }}"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <img src="{{ asset('img/biblioteca/' . $item['file']) }}" alt="{{ $item['title'] }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div class="placeholder" style="display:none;">⚠️</div>
                         </div>
-                        <div class="image-caption">
-                            {{ $item['title'] }}
-                        </div>
+                        <div class="image-caption">{{ $item['title'] }}</div>
                     </div>
                     @endforeach
                 </div>
@@ -366,34 +326,26 @@
                 </ul>
             </div>
 
-            <!-- Sección: Ubicación y Contacto -->
+            <!-- Sección: Ubicación -->
             <div class="about-section">
                 <h3><i class="fas fa-map-marker-alt"></i> Ubicación y Contacto</h3>
                 <div class="contact-info">
                     <div class="contact-row">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
+                        <div class="contact-icon"><i class="fas fa-envelope"></i></div>
                         <div class="contact-text">
                             <strong>Dirección</strong>
-                            <p>C. Benjamín Franklin No. 4185<br>
-                            Colonia Progresista, C.P. 32310<br>
-                            Ciudad Juárez, Chih.</p>
+                            <p>C. Benjamín Franklin No. 4185<br>Colonia Progresista, C.P. 32310<br>Ciudad Juárez, Chih.</p>
                         </div>
                     </div>
                     <div class="contact-row">
-                        <div class="contact-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
+                        <div class="contact-icon"><i class="fas fa-phone"></i></div>
                         <div class="contact-text">
                             <strong>Teléfono</strong>
                             <p>(656) 613 6520</p>
                         </div>
                     </div>
                     <div class="contact-row">
-                        <div class="contact-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
+                        <div class="contact-icon"><i class="fas fa-clock"></i></div>
                         <div class="contact-text">
                             <strong>Horario</strong>
                             <p>Lunes a Viernes<br>8:00 a 15:00 horas</p>
@@ -431,11 +383,17 @@
 
             <!-- Cierre -->
             <div style="text-align:center; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
-                <p>© {{ date('Y') }} Instituto Municipal de Investigación y Planeación<br>
-                Derechos reservados. Todos los derechos protegidos.</p>
+                <p>© {{ date('Y') }} Instituto Municipal de Investigación y Planeación<br>Derechos reservados. Todos los derechos protegidos.</p>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    Instituto Municipal de Investigación y Planeación<br>
+    C. Benjamín Franklin No. 4185 Colonia Progresista C.P. 32310 Ciudad Juárez, Chih.<br>
+    Tel. (656) 6136520 &nbsp;|&nbsp; © Derechos reservados 2026
 </div>
 
 </body>
