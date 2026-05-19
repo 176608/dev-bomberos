@@ -707,7 +707,7 @@
 
     </div>
 
-    <!-- Mapa del IMIP - CORREGIDO -->
+    <!-- Mapa del IMIP -->
     <div style="margin-top: 30px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: #f0f0f0; width: 100%;">
         <iframe 
             src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6786.047836879144!2d-106.4475039!3d31.7425481!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86e759594d53cc09%3A0x6e1b88e088b82e12!2sInstituto%20Municipal%20de%20Investigaci%C3%B3n%20y%20Planeaci%C3%B3n!5e0!3m2!1ses-419!2smx!4v1779210311729!5m2!1ses-419!2smx" 
