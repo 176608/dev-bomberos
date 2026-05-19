@@ -641,11 +641,11 @@
             </div>
 
 
-                                           <!-- Sec    ción: Colección -->
+                                           <!-- Sección: Colección -->
 
-                                           <div class="about-section">
+              <div class="about-section">
 
-                                               <h3><i class="fas fa-book-open"></i> Nuestra Colección</h3>
+                <h3><i class="fas fa-book-open"></i> Nuestra Colección</h3>
                     <ul class="about-list">
                     <li>Más de <strong>3,000 títulos registrados</strong> (libros, boletines, revistas, periódicos, videocassettes, CD/DVD, informes, mapas).</li>
                         <li>Foco en temas clave: desarrollo urbano, estadística, cartografía, arquitectura, transporte y planeación urbana.</li>
