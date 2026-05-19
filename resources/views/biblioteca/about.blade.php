@@ -8,7 +8,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* === RESET CRÍTICO === */
         *,
         *::before,
         *::after {
@@ -592,7 +591,7 @@
 
     <!-- Header superior -->
     <div class="header">
-        <div class="header-title">📚 Catálogo General Biblioteca IMIP</div>
+        <div class="header-title">Catálogo General Biblioteca</div>
     </div>
 
     <!-- Contenido principal -->
