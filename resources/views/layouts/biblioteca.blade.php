@@ -759,7 +759,7 @@
     <!-- Header superior -->
     <div class="header">
         <div class="header-title">
-            📚 Catálogo General Biblioteca IMIP
+            Catálogo General Biblioteca
         </div>
     </div>
 
