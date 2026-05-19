@@ -1,9 +1,8 @@
 <!-- resources/views/books/partials/scripts.blade.php -->
 
+<!-- Variable para rutas de imágenes -->
 <script>
-    //  Variables globales (agregadas aquí, al inicio)
-    window.isUserLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
-    window.userRole = "{{ auth()->check() ? auth()->user()->role : '' }}";
+    window.storageUrl = "{{ asset('storage') }}";
 </script>
 
 <!-- FUNCIONES JAVASCRIPT GLOBALES -->
@@ -12,8 +11,68 @@
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
+    document.getElementById("clearSearchBtnAdvanced")?.addEventListener("click", function () {
+        window.location.href = "{{ route('home') }}";
+    });
+
     let currentOpenRow = null;
     let currentMode = null;
+
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+
+        if (form.classList.contains('book-form')) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const bookId = formData.get('id');
+
+            // URL por defecto para envío de formularios (el backend valida permisos)
+            const apiUrl = bookId ? `/books/${bookId}` : '/books';
+
+            if (bookId) {
+                formData.append('_method', 'PUT'); // Simular PUT si es edición
+            }
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+                .then(async res => {
+                    if (!res.ok) {
+                        let errorData;
+                        try {
+                            errorData = await res.json();
+                        } catch (e) {
+                            errorData = {
+                                message: await res.text()
+                            };
+                        }
+                        throw errorData;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    alert(data.message || 'Guardado correctamente');
+                    location.reload();
+                })
+                .catch(err => {
+                    if (err.errors) {
+                        alert(Object.values(err.errors).join('\n'));
+                    } else if (err.message) {
+                        alert(err.message);
+                    } else {
+                        alert("Error desconocido:\n" + JSON.stringify(err, null, 2));
+                    }
+                });
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         //Limpiar input de la busqueda
@@ -23,6 +82,53 @@
         if (clearBtn && searchInput) {
             clearBtn.addEventListener('click', () => {
                 window.location.href = "{{ route('home') }}";
+            });
+        }
+
+        const mainForm = document.getElementById('formSection');
+        if (mainForm) {
+            const uploadBtn = mainForm.querySelector('.btn-upload-portada');
+            const inputFile = mainForm.querySelector('input[name="portada"]');
+            const preview = mainForm.querySelector('#previewPortada');
+
+            if (uploadBtn && inputFile) {
+                uploadBtn.addEventListener('click', () => {
+                    inputFile.click();
+                });
+
+                inputFile.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.innerHTML =
+                            `<img src="${e.target.result}" style="max-width:100%; max-height:100%;">`;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        const btnAdd = document.getElementById('btnAddBook');
+        if (btnAdd) {
+            btnAdd.addEventListener('click', () => {
+                closeAllRows();
+                currentOpenRow = null;
+                currentMode = null;
+
+                const formSection = document.getElementById('formSection');
+                const form = document.getElementById('bookForm');
+
+                if (formSection.style.display === 'block') {
+                    formSection.style.display = 'none';
+                    return;
+                }
+
+                formSection.style.display = 'block';
+                form.reset();
+                document.getElementById('formTitle').textContent = 'Agregar nuevo material';
+                document.getElementById('bookId').value = '';
             });
         }
 
@@ -57,36 +163,25 @@
 
     function formatDetails(book) {
         return `
-            <div style="
-                padding:20px;
-                margin:10px 0;
-                background:white;
-                border-radius:10px;
-                box-shadow:0 4px 12px rgba(0,0,0,0.1);
-                display:flex;
-                gap:20px;
-            ">
-                <div style="width:250px; flex-shrink:0;">
-                    <div style="display:flex; justify-content:center; margin: 15px 0"><strong>No. Ficha ${book.ficha_no ?? '-'}</strong></div>
+            <div style="display:flex; flex-wrap: wrap; gap:20px;">
+                <div style="width:100%; max-width: 200px; margin: 0 auto; flex-shrink:0; text-align: center;">
                     ${book.portada
-                ? `<img src="/storage/portadas/${book.portada}" 
-                                style="width:100%; height:170px; object-fit:contain; border-radius:6px;">`
-                : `<div style="width:100%; height:170px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:6px;">
-                            <i class="fas fa-book"></i>
+                ? `<img src="${window.storageUrl}/portadas/${book.portada}"  style="width:100%; max-height:250px; object-fit:contain; border-radius:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`
+                : `<div style="width:100%; height:200px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:6px;">
+                            <i class="fas fa-book" style="font-size: 4rem; color: #ccc;"></i>
                            </div>`
             }
                 </div>
-                <div style="flex:1; display:flex; flex-direction:column; gap:15px;">
-                    <div style="display: flex; justify-content:center"> <h3>Informacion de la Ficha</h3> </div>
-                    <div style="display:grid; grid-template-columns: 180px 1fr; row-gap:8px; column-gap:10px; font-size:0.95rem; background: var(--gray-200); padding: 20px; border-radius: 10px">
+                <div style="flex:1; min-width: 250px; display:flex; flex-direction:column; gap:10px;">
+                    <div class="modal-details-grid" style="display:grid; grid-template-columns: 140px 1fr; row-gap:10px; column-gap:10px; font-size:0.95rem; background: #f8f9fa; padding: 15px; border-radius: 8px;">
                         <div><strong>Título:</strong></div> <div>${book.titulo}</div>
-                        <div><strong>Autor:</strong></div> <div>${book.autor}</div>
-                        <div><strong>Editorial:</strong></div> <div>${book.editorial ?? '-'}</div>
-                        <div><strong>ISBN:</strong></div> <div>${book.isbn ?? '-'}</div>
-                        <div><strong>Clasificación:</strong></div> <div>${book.clasificacion ?? '-'}</div>
-                        <div><strong>ID Biblioteca:</strong></div> <div>${book.idbiblioteca ?? '-'}</div>
-                        <div><strong>Adquisición:</strong></div> <div>${book.numadqui ?? '-'}</div>
-                        <div><strong>Fecha:</strong></div> <div>${book.fechaingreso ?? '-'}</div>
+                        <div><strong>Autor:</strong></div> <div>${book.autor || 'N/A'}</div>
+                        <div><strong>Editorial:</strong></div> <div>${book.editorial || 'N/A'}</div>
+                        <div><strong>ISBN:</strong></div> <div>${book.isbn || 'N/A'}</div>
+                        <div><strong>Clasificación:</strong></div> <div>${book.clasificacion || 'N/A'}</div>
+                        <div><strong>ID Biblioteca:</strong></div> <div>${book.idbiblioteca || 'N/A'}</div>
+                        <div><strong>Adquisición:</strong></div> <div>${book.numadqui || 'N/A'}</div>
+                        <div><strong>Fecha:</strong></div> <div>${book.fechaingreso || 'N/A'}</div>
                     </div>
                 </div>
             </div>
@@ -94,26 +189,35 @@
     }
 
     function toggleDetails(btn) {
-        closeMainForm();
-        const table = $('#booksTable').DataTable();
-        const tr = $(btn).closest('tr');
-        const row = table.row(tr);
         const book = JSON.parse(btn.dataset.book);
 
-        if (currentOpenRow === tr[0] && currentMode === 'view') {
-            row.child.hide();
-            tr.removeClass('shown');
-            currentOpenRow = null;
-            currentMode = null;
-            return;
+        // Cargar datos en el modal
+        const modalBody = document.getElementById('bookDetailsModalBody');
+        if (modalBody) {
+            modalBody.innerHTML = formatDetails(book);
         }
 
-        closeAllRows();
-        row.child(formatDetails(book)).show();
-        tr.addClass('shown');
-        currentOpenRow = tr[0];
-        currentMode = 'view';
+        // Mostrar modal
+        const modal = document.getElementById('bookDetailsModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
     }
+
+    function closeBookDetailsModal() {
+        const modal = document.getElementById('bookDetailsModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById('bookDetailsModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    });
 
     function closeAllRows() {
         const table = $('#booksTable').DataTable();

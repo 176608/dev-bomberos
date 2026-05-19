@@ -9,7 +9,7 @@
             </div>
 
             <!-- GRID -->
-            <div class="form-grid" style="display:grid; grid-template-columns: 160px 1fr 220px; gap:12px 16px; align-items:center;">                
+            <div class="form-grid adv-grid" style="display:grid; grid-template-columns: 160px 1fr 220px; gap:12px 16px; align-items:center;">
                 <!-- FILA 1 -->
                 <div class="form-group">
                     <label>Palabra a Buscar:</label>
@@ -79,22 +79,22 @@
                 </div>
 
                 <!-- FILTROS ADICIONALES -->
-                <div class="form-group">
+                <div class="form-group adv-label-col">
                     <label>Biblioteca:</label>
                 </div>
 
-                <div class="form-group" style="grid-column: 2 / span 2;">
+                <div class="form-group adv-span-col" style="grid-column: 2 / span 2;">
                    <select name="library" style="width:100%; padding:8px; border:1px solid var(--gray-300); border-radius:4px;">
     <option value="">Todas las bibliotecas</option> 
     <option value="IMIP" {{ ($library ?? '') == 'IMIP' ? 'selected' : '' }}>IMIP</option>
 </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group adv-label-col">
                     <label>Materiales:</label>
                 </div>
 
-                <div class="form-group" style="grid-column: 2 / span 2;">
+                <div class="form-group adv-span-col" style="grid-column: 2 / span 2;">
                     <select name="material" style="width:100%; padding:8px; border:1px solid var(--gray-300); border-radius:4px;">
                         <option value="">Todos los materiales</option>
                         <option value="Libro" {{ ($material ?? '') == 'Libro' ? 'selected' : '' }}>Libro</option>
@@ -111,7 +111,7 @@
                 </div>
 
                 <!-- BOTONES DE ACCIÓN -->
-                <div style="grid-column: 1 / span 3; display: flex; justify-content: center; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--gray-100);">
+                <div class="adv-btn-row" style="grid-column: 1 / span 3; display: flex; justify-content: center; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--gray-100);">
                     <button type="submit" class="btn btn-primary" style="padding: 12px 40px; font-weight: bold; cursor: pointer;">
                         <i class="fas fa-search"></i> Buscar ahora
                     </button>
@@ -123,3 +123,24 @@
         </div>
     </form>
 </div>
+
+<style>
+@media (max-width: 767.98px) {
+    .adv-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .adv-grid .adv-span-col {
+        grid-column: 1 !important;
+    }
+    .adv-grid .adv-btn-row {
+        grid-column: 1 !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .adv-grid .adv-btn-row button {
+        width: 100% !important;
+        padding: 12px !important;
+    }
+}
+</style>

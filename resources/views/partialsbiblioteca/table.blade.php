@@ -5,15 +5,15 @@
 <div class="book-list" style="margin-top: 20px;">
     @if($books->isNotEmpty())
         <div class="table-responsive">
-            <table id="booksTable" class="table table-striped table-hover align-middle" style="background:white; border-radius:8px; overflow:hidden; table-layout: fixed; width: 100%;">
+            <table id="booksTable" class="table table-striped table-hover align-middle" style="background:white; border-radius:8px; overflow:hidden; width: 100%;">
                 <thead class="table-light">
                     <tr>
                         <th style="width: 80px; text-align: center; padding: 16px 12px;">Portada</th>
-                        <th style="width: 30%; text-align: center; padding: 16px 12px;">Título</th>
-                        <th style="width: 20%; text-align: center; padding: 16px 12px;">Autor</th>
-                        <th style="width: 15%; text-align: center; padding: 16px 12px;">Editorial</th>
-                        <th style="width: 12%; text-align: center; padding: 16px 12px;">ISBN</th>
-                        <th style="width: 10%; text-align: center; padding: 16px 12px;">Tipo</th>
+                        <th style="text-align: center; padding: 16px 12px;">Título</th>
+                        <th class="col-movil-ocultar" style="width: 20%; text-align: center; padding: 16px 12px;">Autor</th>
+                        <th class="col-movil-ocultar" style="width: 15%; text-align: center; padding: 16px 12px;">Editorial</th>
+                        <th class="col-movil-ocultar" style="width: 12%; text-align: center; padding: 16px 12px;">ISBN</th>
+                        <th class="col-movil-ocultar" style="width: 10%; text-align: center; padding: 16px 12px;">Tipo</th>
                         <th style="width: 80px; text-align: center; padding: 16px 12px;">Acciones</th>
                     </tr>
                 </thead>
@@ -36,10 +36,10 @@
                                 @endif
                             </td>
                             <td style="padding: 12px; vertical-align: middle; font-size:0.95rem;">{{ Str::limit($book->titulo, 60) }}</td>
-                            <td style="padding: 12px; vertical-align: middle; font-size:0.9rem; color:#555;">{{ $book->autor ?? 'N/A' }}</td>
-                            <td style="padding: 12px; vertical-align: middle; font-size:0.9rem; color:#555;">{{ $book->editorial ?? 'N/A' }}</td>
-                            <td style="padding: 12px; text-align: center; vertical-align: middle; font-size:0.85rem; color:#666;">{{ $book->isbn ?? 'N/A' }}</td>
-                            <td style="padding: 12px; text-align: center; vertical-align: middle;">
+                            <td class="col-movil-ocultar" style="padding: 12px; vertical-align: middle; font-size:0.9rem; color:#555;">{{ $book->autor ?? 'N/A' }}</td>
+                            <td class="col-movil-ocultar" style="padding: 12px; vertical-align: middle; font-size:0.9rem; color:#555;">{{ $book->editorial ?? 'N/A' }}</td>
+                            <td class="col-movil-ocultar" style="padding: 12px; text-align: center; vertical-align: middle; font-size:0.85rem; color:#666;">{{ $book->isbn ?? 'N/A' }}</td>
+                            <td class="col-movil-ocultar" style="padding: 12px; text-align: center; vertical-align: middle;">
                                 <span class="badge" style="background: #e9ecef; color: #495057; font-size:0.8rem; padding:4px 8px; border-radius:4px;">{{ $book->tipo_material ?? 'Libro' }}</span>
                             </td>
                             <td style="padding: 12px; text-align: center; vertical-align: middle;">
@@ -60,3 +60,48 @@
         </div>
     @endif
 </div>
+
+<!-- Modal de Detalles -->
+<div id="bookDetailsModal" style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: #fefefe; margin: auto; padding: 0; border: 1px solid #888; width: 95%; max-width: 700px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: animatetop 0.3s; display: flex; flex-direction: column; max-height: 90vh;">
+        <div style="padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1e7390 0%, #2c5f5e 100%); color: white; border-radius: 12px 12px 0 0;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.2rem;"><i class="fas fa-info-circle"></i> Detalles del Material</h5>
+            <span onclick="closeBookDetailsModal()" style="color: white; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+        </div>
+        <div id="bookDetailsModalBody" style="padding: 20px; overflow-y: auto; flex: 1;">
+            <!-- Contenido dinámico -->
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #e9ecef; text-align: right; background: #f8f9fa; border-radius: 0 0 12px 12px;">
+            <button onclick="closeBookDetailsModal()" class="btn btn-secondary" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes animatetop {
+    from {top: -50px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+/* Ocultar columnas en móvil (< 768px) */
+@media (max-width: 767.98px) {
+    table#booksTable th.col-movil-ocultar,
+    table#booksTable td.col-movil-ocultar {
+        display: none !important;
+    }
+}
+@media (max-width: 576px) {
+    .modal-details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 5px !important;
+    }
+    .modal-details-grid > div:nth-child(odd) {
+        font-weight: 600;
+        margin-top: 8px;
+    }
+    .modal-details-grid > div:nth-child(even) {
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+    }
+}
+</style>
