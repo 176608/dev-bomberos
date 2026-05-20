@@ -698,8 +698,7 @@
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-users"></i></div>
                             <div class="value-title">Colaboración</div>
-                            <p>Elaborar, en coordinación con las instancias del ámbito federal y estatal competentes, e
-       s                        tudios de factibilidad que permitan la protección y acrecentamiento del patrimonio arquitectónico de carácter histórico y cultural del Municipio de Juárez.</p>
+                            <p>Elaborar, en coordinación con las instancias del ámbito federal y estatal competentes, estudios de factibilidad que permitan la protección y acrecentamiento del patrimonio arquitectónico de carácter histórico y cultural del Municipio de Juárez.</p>
                         </div>
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-search"></i></div>
