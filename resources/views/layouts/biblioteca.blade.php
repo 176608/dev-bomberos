@@ -6,8 +6,6 @@
     <title>@yield('title', 'Catálogo Biblioteca IMIP')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
@@ -22,6 +20,11 @@
             --shadow: 0 4px 12px rgba(0,0,0,0.08);
             --transition: all 0.3s ease;
         }
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -29,7 +32,6 @@
             color: #333;
             padding-top: 60px;
         }
-        /* Sidebar izquierdo con logo */
         .sidebar {
             position: fixed;
             top: 0;
@@ -90,7 +92,6 @@
             color: white;
             font-weight: 600;
         }
-        /* Header */
         .header {
             background: linear-gradient(135deg, #3a7d7c #2c5f5e);
             color: white;
@@ -131,14 +132,12 @@
         .logout-btn:hover {
             background: rgba(255,255,255,0.2);
         }
-        /* Contenido principal */
         .main-content {
             margin-left: 260px;
             padding: 24px;
             min-height: calc(100vh - 60px);
             background: transparent;
         }
-        /* Botón Agregar */
         .add-book-btn {
             background: var(--success);
             color: white;
@@ -157,7 +156,6 @@
             background: #218838;
             transform: translateY(-2px);
         }
-        /* Formulario */
         .form-section {
             background: white;
             border-radius: 8px;
@@ -247,7 +245,6 @@
         .btn-cancel:hover {
             background: #5a6268;
         }
-        /* Lista de libros */
         .book-list {
             margin-top: 20px;
         }
@@ -358,7 +355,6 @@
         .upload-portada {
             display: none;
         }
-        /* Detalle de ficha */
         .detail-card {
             padding: 20px;
             margin: 10px 0;
@@ -456,32 +452,73 @@
                 font-size: 0.9rem;
             }
         }
-        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                padding: 10px 0;
+            body {
+                padding-bottom: 70px;
+                padding-top: 56px;
             }
-            .sidebar-logo, .sidebar-title {
+            .sidebar {
+                width: 100%;
+                height: 65px;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                padding: 0;
+                flex-direction: row;
+                border-right: none;
+                border-top: 1px solid var(--gray-300);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.98);
+            }
+            .sidebar-logo,
+            .sidebar-title {
                 display: none;
             }
             .sidebar-nav {
-                padding: 0 5px;
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+                align-items: center;
+                padding: 0;
             }
             .sidebar-nav a {
-                padding: 12px 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex: 1;
+                margin: 4px;
+                padding: 6px 2px;
+                font-size: 0.65rem;
                 text-align: center;
-                font-size: 0;
+                height: calc(100% - 8px);
+                gap: 4px;
+                background: transparent !important;
+                color: #495057 !important;
+                border-radius: 8px;
+                line-height: 1.1;
+                font-weight: normal !important;
             }
             .sidebar-nav a i {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
+                margin-bottom: 2px;
+            }
+            .sidebar-nav a.active {
+                background: var(--light) !important;
+                color: var(--primary) !important;
+                font-weight: 600 !important;
+                box-shadow: inset 0 -3px 0 var(--primary);
+                border-radius: 8px 8px 0 0;
             }
             .main-content {
-                margin-left: 60px;
+                margin-left: 0;
                 padding: 12px;
             }
             .header {
-                left: 60px;
+                left: 0;
+                width: 100%;
                 padding: 10px 12px;
             }
             .header-title {
@@ -511,12 +548,10 @@
             .details-label {
                 min-width: auto;
             }
-            /* Stats cards */
             .stats .stat-card {
                 min-width: 100% !important;
                 flex-basis: auto !important;
             }
-            /* Material stats */
             .material-stats-section {
                 padding: 12px !important;
             }
@@ -538,26 +573,20 @@
             .material-stats-section > div[style*="flex: 1"]:last-child {
                 padding: 10px !important;
             }
-            /* Busqueda simple */
-            #searchForm > div:first-child,
-            #advancedSearchForm > div > div:first-child > div:first-child {
+            #searchForm > div:first-child {
                 flex-wrap: wrap !important;
             }
-            #searchForm > div:first-child > div:first-child,
-            #advancedSearchForm > div > div:first-child > div:first-child > div:first-child {
+            #searchForm > div:first-child > div:first-child {
                 flex: none !important;
                 width: 100% !important;
             }
-            #searchForm button[type="submit"],
-            #advancedSearchForm button[type="submit"] {
+            #searchForm button[type="submit"] {
                 width: 100% !important;
                 justify-content: center;
             }
-            #searchForm input,
-            #advancedSearchForm input {
+            #searchForm input {
                 font-size: 16px !important;
             }
-            /* Override inline grid de búsqueda avanzada */
             .search-section .form-grid {
                 grid-template-columns: 1fr !important;
             }
@@ -567,7 +596,14 @@
             .search-section .form-grid > div[style*="grid-column"] select {
                 width: 100% !important;
             }
-            /* Tabla completa con scroll horizontal */
+            #advancedSearchForm .form-grid > div[style*="grid-column: 1 / span 3"] {
+                grid-column: 1 !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            #advancedSearchForm .form-grid > div[style*="grid-column: 1 / span 3"] button {
+                width: 100% !important;
+            }
             .table-responsive {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch;
@@ -601,7 +637,6 @@
                 font-size: 0.65rem !important;
                 padding: 2px 4px !important;
             }
-            /* Forzar que DataTables no limite el ancho */
             #booksTable_wrapper {
                 overflow: visible !important;
             }
@@ -624,7 +659,6 @@
             .dataTables_wrapper .dataTables_info {
                 font-size: 0.75rem;
             }
-            /* Indicador sutil de scroll */
             .table-responsive::after {
                 content: '⇄ Desliza para ver más columnas';
                 display: block;
@@ -632,6 +666,183 @@
                 font-size: 0.75rem;
                 color: #999;
                 padding: 4px;
+            }
+            #formSection {
+                padding: 15px !important;
+            }
+            #formSection .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            #formSection .form-actions {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            #formSection .form-actions button {
+                width: 100% !important;
+            }
+            .stats {
+                gap: 12px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .sidebar {
+                height: 75px !important;
+            }
+            .sidebar-logo {
+                display: block !important;
+                margin-bottom: 5px !important;
+                padding: 0 5px !important;
+                text-align: center;
+            }
+            .sidebar-logo img {
+                max-height: 30px !important;
+                width: auto !important;
+            }
+            .sidebar-nav {
+                padding: 0 !important;
+            }
+            .sidebar-nav a {
+                padding: 4px 0 !important;
+                font-size: 0.6rem !important;
+            }
+            .sidebar-nav a i {
+                font-size: 1.2rem !important;
+            }
+            .header {
+                height: 44px !important;
+                padding: 0 8px !important;
+            }
+            .header-title {
+                font-size: 0.85rem !important;
+            }
+            .main-content {
+                padding: 56px 8px 8px !important;
+            }
+            .stats {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .stats .stat-card {
+                min-width: auto !important;
+                padding: 12px !important;
+            }
+            .stats .stat-value {
+                font-size: 24px !important;
+            }
+            .material-stats-section > div[style*="flex: 1"] > div[style*="grid"] {
+                grid-template-columns: 1fr !important;
+            }
+            .material-stats-section .btn {
+                font-size: 0.75rem !important;
+                padding: 6px 8px !important;
+            }
+            #booksTable th,
+            #booksTable td {
+                padding: 4px 3px !important;
+                font-size: 0.65rem !important;
+            }
+            #booksTable td:nth-child(2) {
+                max-width: 80px;
+                font-size: 0.7rem !important;
+            }
+            #booksTable td:nth-child(1) img,
+            #booksTable td:nth-child(1) div {
+                width: 22px !important;
+                height: 32px !important;
+            }
+            #booksTable .btn-sm {
+                padding: 2px 4px !important;
+                font-size: 0.6rem !important;
+            }
+            #booksTable .badge {
+                font-size: 0.55rem !important;
+                padding: 1px 3px !important;
+            }
+            .table-responsive::after {
+                font-size: 0.65rem !important;
+                padding: 2px !important;
+            }
+            #searchForm > div:first-child {
+                gap: 6px !important;
+            }
+            #searchForm input {
+                padding: 10px 40px 10px 10px !important;
+                font-size: 14px !important;
+            }
+            #searchForm button[type="submit"] {
+                padding: 10px 16px !important;
+                font-size: 0.85rem !important;
+            }
+            #clearSearchBtn {
+                font-size: 1rem !important;
+                right: 8px !important;
+            }
+            .search-section .form-grid {
+                gap: 8px !important;
+            }
+            .search-section .form-grid .form-group label {
+                font-size: 0.8rem !important;
+            }
+            .search-section .form-grid input,
+            .search-section .form-grid select {
+                padding: 6px !important;
+                font-size: 0.8rem !important;
+            }
+            #advancedSearchForm .form-grid > div[style*="grid-column: 1 / span 3"] {
+                margin-top: 15px !important;
+                padding-top: 15px !important;
+            }
+            #advancedSearchForm .form-grid > div[style*="grid-column: 1 / span 3"] button {
+                padding: 10px 20px !important;
+                font-size: 0.85rem !important;
+            }
+            .material-stats-section {
+                padding: 10px !important;
+                gap: 12px !important;
+            }
+            .material-stats-section h3 {
+                font-size: 0.9rem !important;
+                padding-bottom: 6px !important;
+            }
+            .material-stats-section p {
+                font-size: 0.8rem !important;
+            }
+            .material-stats-section > div[style*="flex: 1"]:last-child {
+                padding: 8px !important;
+            }
+            .material-stats-section > div[style*="flex: 1"]:last-child > div[style*="color"] {
+                font-size: 0.8rem !important;
+            }
+            .dataTables_wrapper .dataTables_info {
+                font-size: 0.65rem !important;
+            }
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 4px 7px !important;
+                font-size: 0.75rem !important;
+                min-width: 26px !important;
+                height: 26px !important;
+            }
+            .dataTables_wrapper .dataTables_length label,
+            .dataTables_wrapper .dataTables_filter label {
+                font-size: 0.75rem !important;
+            }
+            #formSection {
+                padding: 10px !important;
+            }
+            #formSection h3 {
+                font-size: 1rem !important;
+            }
+            #formSection .form-group input,
+            #formSection .form-group select,
+            #formSection .form-group textarea {
+                padding: 7px 8px !important;
+                font-size: 0.85rem !important;
+            }
+            .add-book-btn {
+                padding: 10px 18px !important;
+                font-size: 0.85rem !important;
+                width: 100% !important;
+                justify-content: center !important;
             }
         }
         .fade-in {
@@ -678,8 +889,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Estilos para DataTables (personalizados) */
         .dataTables_wrapper .dataTables_paginate {
             margin-top: 16px;
             display: flex;
@@ -734,7 +943,6 @@
     @stack('styles')
 </head>
 <body>
-    <!-- Sidebar izquierdo -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <a href="https://www.imip.org.mx/imip/" target="_blank" style="text-decoration: none; display: block;">
@@ -742,12 +950,10 @@
             </a>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ route('home') }}" 
-               class="{{ request()->routeIs('home') || request()->routeIs('search.simple') ? 'active' : '' }}">
+            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') || request()->routeIs('search.simple') ? 'active' : '' }}">
                <i class="fas fa-home"></i> Inicio
             </a>
-            <a href="{{ route('search.advanced') }}" 
-               class="{{ request()->routeIs('search.advanced') ? 'active' : '' }}">
+            <a href="{{ route('search.advanced') }}" class="{{ request()->routeIs('search.advanced') ? 'active' : '' }}">
                <i class="fas fa-search"></i> Búsqueda Avanzada
             </a>
             <a href="{{ route('about.library') }}" class="{{ request()->is('sobre-la-biblioteca') ? 'active' : '' }}">
@@ -756,19 +962,15 @@
         </nav>
     </div>
 
-    <!-- Header superior -->
     <div class="header">
-        <div class="header-title">
-            Catálogo General Biblioteca
-        </div>
+        <div class="header-title">Catálogo General Biblioteca IMIP</div>
     </div>
 
-    <!-- Contenido principal -->
     <div class="main-content">
         @yield('content')
     </div>
 
-    <div style="text-align:center; padding:20px; color:#666; font-size:0.9rem; margin-top:40px; background:rgba(255,255,255,0.8); position:relative;">
+    <div style="text-align:center; padding:20px; color:#666; font-size:0.9rem; background:rgba(255,255,255,0.8);">
         Instituto Municipal de Investigación y Planeación<br>
         C. Benjamín Franklin No. 4185 Colonia Progresista C.P. 32310 Ciudad Juárez, Chih.<br>
         Tel. (656) 6136520 &nbsp;|&nbsp; © Derechos reservados 2026
