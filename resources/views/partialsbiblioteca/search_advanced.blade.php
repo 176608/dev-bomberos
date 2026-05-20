@@ -105,7 +105,7 @@
                         <option value="Boletin" {{ ($material ?? '') == 'Boletin' ? 'selected' : '' }}>Boletin</option>
                         <option value="Informe" {{ ($material ?? '') == 'Informe' ? 'selected' : '' }}>Informe</option>
                         <option value="Mapa" {{ ($material ?? '') == 'Mapa' ? 'selected' : '' }}>Mapa</option>
-
+                        <option value="Folleto" {{ ($material ?? '') == 'Folleto' ? 'selected' : '' }}>Folleto</option>
 
                     </select>
                 </div>

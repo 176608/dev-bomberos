@@ -8,6 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
+        /* === RESET CRÍTICO === */
         *,
         *::before,
         *::after {
@@ -591,7 +592,7 @@
 
     <!-- Header superior -->
     <div class="header">
-        <div class="header-title">Catálogo General Biblioteca</div>
+        <div class="header-title">📚 Catálogo General Biblioteca IMIP</div>
     </div>
 
     <!-- Contenido principal -->
@@ -651,76 +652,37 @@
                         <li>Foco en temas clave: desarrollo urbano, estadística, cartografía, arquitectura, transporte y planeación urbana.</li>
                         <li>Acceso abierto a recursos digitales y materiales físicos para investigadores, funcionarios y ciudadanía.</li>
                     </ul>
-              </div>
- <!-- Sección: Ubicación y Contacto -->
-<div class="about-section">
-    <h3><i class="fas fa-map-marker-alt"></i> Ubicación y Contacto</h3>
-    
-    <!-- Tarjetas de contacto -->
-    <div class="contact-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
-        
-       <!-- Dirección -->
-<div style="background: linear-gradient(135deg, #3a7d7c 0%, #2c5f5e 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-    <div style="font-size: 2.5rem; margin-bottom: 15px; text-align: center; color: white;">
-        <i class="fas fa-map-marked-alt"></i>
-    </div>
-    <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 600; text-align: center; color: white;">Dirección</h4>
-    <p style="margin: 0; line-height: 1.6; text-align: center; font-size: 0.95rem; color: white;">
-        C. Benjamín Franklin No. 4185<br>
-        Colonia Progresista, C.P. 32310<br>
-        Ciudad Juárez, Chih.
-    </p>
-    <a href="https://www.google.com/maps/place/Instituto+Municipal+de+Investigaci%C3%B3n+y+Planeaci%C3%B3n/@31.7425481,-106.4475039,17z/data=!3m1!4b1!4m6!3m5!1s0x86e759594d53cc09:0x6e1b88e088b82e12!8m2!3d31.7425481!4d-106.4475039!16s%2Fg%2F11c5o8q8q8?entry=ttu" 
-       target="_blank" 
-       style="display: inline-block; margin-top: 15px; padding: 8px 20px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; font-size: 0.85rem; font-weight: 600; transition: background 0.3s;"
-       onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-       onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-        <i class="fas fa-directions"></i> Cómo llegar
-    </a>
-</div>
+              </di  v>
+  
+                <!-- Sección  : Ubicación -->
+              <div class="  about-section">
+                  <h3><i class  ="fas fa-map-marker-alt"></i> Ubicación y Contacto</h3>
+                  <div class="  contact-info">
 
-        <!-- Teléfono -->
-        <div style="background: linear-gradient(135deg, #1e7390 0%, #1a5d73 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="font-size: 2.5rem; margin-bottom: 15px; text-align: center; color: white;">
-                <i class="fas fa-phone-alt"></i>
-            </div>
-            <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 600; text-align: center; color: white;">Teléfono</h4>
-            <p style="margin: 0 0 10px 0; text-align: center; font-size: 1.3rem; font-weight: 700;">
-                <a href="tel:+526566136520" style="color: white; text-decoration: none;">(656) 613 6520</a>
-            </p>
-            <p style="margin: 0; text-align: center; font-size: 0.85rem; opacity: 0.9; color: white;">
-                Llámanos para más información
-            </p>
-        </div>
+                                                       <div     class="contact-row">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="contact-text">
+                                <strong>Dirección</strong>
+                                <p>C. Benjamín Franklin No. 4185<br>Colonia Progresista, C.P. 32310<br>Ciudad Juárez, Chih.</p>
+                            </div>
+                    </div>
+                            <div class="contact-row">
+                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                            <div class="contact-text">
+                                <strong>Teléfono</strong>
+                                <p>(656) 613 6520</p>
+                        </di    v>
+                        </div>
+                    <div     class="contact-row">
+                            <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                            <div class="contact-text">
+                                <strong>Horario</strong>
+                            <p>Lunes a Viernes<br>8:00 a 15:00 horas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Horario -->
-        <div style="background: linear-gradient(135deg, #4a9b9a 0%, #2d8b8a 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="font-size: 2.5rem; margin-bottom: 15px; text-align: center; color: white;">
-                <i class="fas fa-clock"></i>
-            </div>
-            <h4 style="margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 600; text-align: center; color: white;">Horario de Atención</h4>
-            <p style="margin: 0; text-align: center; font-size: 0.95rem; line-height: 1.6; color: white;">
-                <strong>Lunes a Viernes</strong><br>
-                8:00 a 15:00 horas
-            </p>
-        </div>
-
-    </div>
-
-    <!-- Mapa del IMIP - CORREGIDO -->
-    <div style="margin-top: 30px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: #f0f0f0; width: 100%;">
-        <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6786.047836879144!2d-106.4475039!3d31.7425481!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86e759594d53cc09%3A0x6e1b88e088b82e12!2sInstituto%20Municipal%20de%20Investigaci%C3%B3n%20y%20Planeaci%C3%B3n!5e0!3m2!1ses-419!2smx!4v1779210311729!5m2!1ses-419!2smx" 
-            width="100%" 
-            height="450" 
-            style="border:0; display: block;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade"
-            title="Ubicación del IMIP">
-        </iframe>
-    </div>
-</div>
                    <!-- Sección : Valores -->
             <div class="about-section">
                 <h3><i class="fas fa-heart"></i> Valores Institucionales</h3>
@@ -730,17 +692,20 @@
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-balance-scale"></i></div>
                             <div class="value-title">Compromiso</div>
-                            <p>Proveer los planes y proyectos urbanos que Juárez requiere para su desarrollo sustentable y el fortalecimiento de su identidad, con bases científicas y de participación ciudadana.</p>
+                            <p>Proveer los planes y proyectos urbanos que Juárez requiere para su desarrollo sustenta
+                             ble y el fortalecimiento de su identidad, con bases científicas y de participación ciudadana.</p>
                         </div>
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-users"></i></div>
                             <div class="value-title">Colaboración</div>
-                            <p>Elaborar, en coordinación con las instancias del ámbito federal y estatal competentes, estudios de factibilidad que permitan la protección y acrecentamiento del patrimonio arquitectónico de carácter histórico y cultural del Municipio de Juárez.</p>
+                            <p>Elaborar, en coordinación con las instancias del ámbito federal y estatal competentes, e
+       s                        tudios de factibilidad que permitan la protección y acrecentamiento del patrimonio arquitectónico de carácter histórico y cultural del Municipio de Juárez.</p>
                         </div>
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-search"></i></div>
                             <div class="value-title">Rigor técnico</div>
-                            <p>Generar los instrumentos de investigación estadística y de actualización cartográfica y administrar el sistema de información geográfica municipal.</p>
+                            <p>Generar los instrumentos de investigación estadística y de actualización cartográfica, 
+                 y            administrar el sistema de información geográfica municipal.</p>
                         </div>
                         <div class="value-card">
                             <div class="value-icon"><i class="fas fa-globe-americas"></i></div>

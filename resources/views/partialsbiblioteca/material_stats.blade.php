@@ -13,6 +13,7 @@
         'Boletin' => '📋',
         'Informe' => '📑',
         'Mapa' => '🗺️',
+        'Folleto' => '📄',
     ];
 @endphp
     <!-- Contenedor Izquierdo: Botones -->
