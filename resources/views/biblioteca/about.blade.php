@@ -628,7 +628,7 @@
                                 </div>
                         @endforeach
                     </div>
-              </di  v>
+              </div>
 
     
                        
@@ -646,7 +646,7 @@
     <div class="about-section">
 
 <h3><i class="fas fa-book-open"></i> Nuestra Colección</h3>
-                ul class="about-list">
+                <ul class="about-list">
                 <li>Más de <strong>3,000 títulos registrados</strong> (libros, boletines, revistas, periódicos, videocassettes, CD/DVD, informes, mapas).</li>
                         <li>Foco en temas clave: desarrollo urbano, estadística, cartografía, arquitectura, transporte y planeación urbana.</li>
                         <li>Acceso abierto a recursos digitales y materiales físicos para investigadores, funcionarios y ciudadanía.</li>
