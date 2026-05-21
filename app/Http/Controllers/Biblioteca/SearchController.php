@@ -13,7 +13,7 @@ class SearchController extends Controller
     private $allowedFields = ['titulo', 'autor', 'isbn', 'clasificacion', 'idbiblioteca', ''];
     
     // Materiales permitidos (evita filtros maliciosos)
-    private $allowedMaterials = ['Libro', 'Revista', 'Periodico', 'Cd_dvd', 'Videocassette', 'Boletin', 'Informe', 'Mapa','Folleto', ''];
+    private $allowedMaterials = ['Libro', 'Revista', 'Periodico', 'Cd_dvd', 'VideoCassette', 'Boletin', 'Informe', 'Mapa','Folleto', ''];
 
     public function index()
     {

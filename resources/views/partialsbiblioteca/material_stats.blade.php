@@ -6,10 +6,10 @@
     $baseRoute = 'search.simple';
         $iconos = [
         'Libro' => '📚',
-        'Revista' => '📰',
-        'Periodico' => '📄',
+        'Revista' => '📄',
+        'Periodico' => '📰',
         'Cd_dvd' => '💿',
-        'Videocassette' => '📼',
+        'VideoCassette' => '📼',
         'Boletin' => '📋',
         'Informe' => '📑',
         'Mapa' => '🗺️',
