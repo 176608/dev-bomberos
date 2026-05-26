@@ -1,18 +1,9 @@
-<!-- Estadísticas (visible para todos) -->
-<div class="stats" style="display:flex; gap:20px; margin-bottom:24px; flex-wrap:wrap;">
-    <div class="stat-card"
-        style="background:white; padding:16px; border-radius:8px; box-shadow:var(--shadow); min-width:180px; text-align:center; flex:1;">
-        <div class="stat-value" style="font-size:28px; font-weight:bold; color:var(--primary);">
-            {{ $totalBooks ?? 0 }}
-        </div>
-        <div class="stat-label" style="color:#666;">Materiales registrados</div>
+<!-- Estadísticas -->
+<div style="background: white; padding: 25px; border-radius: 10px; box-shadow: var(--shadow); text-align: center; max-width: 100%;">
+    <div style="font-size: 2.8rem; font-weight: 800; color: var(--primary); line-height: 1;">
+        {{ $totalBooks ?? 0 }}
     </div>
-    <div class="stat-card"
-        style="background:white; padding:16px; border-radius:8px; box-shadow:var(--shadow); min-width:180px; text-align:center; flex:1;">
-        <div class="stat-value" style="font-size:28px; font-weight:bold; color:var(--primary);">
-            {{ $totalBibliotecas ?? 0 }}
-        </div>
-        <div class="stat-label" style="color:#666;">Biblioteca MPDU Abigail García Espinosa
-</div>
+    <div style="color: #666; font-size: 1rem; margin-top: 8px; font-weight: 500;">
+        Materiales registrados
     </div>
 </div>

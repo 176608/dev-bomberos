@@ -963,7 +963,7 @@
     </div>
 
     <div class="header">
-        <div class="header-title">Catálogo General Biblioteca IMIP</div>
+        <div class="header-title">Biblioteca MPDU Abigail García Espinosa</div>
     </div>
 
     <div class="main-content">

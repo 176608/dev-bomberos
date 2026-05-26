@@ -592,7 +592,7 @@
 
     <!-- Header superior -->
     <div class="header">
-        <div class="header-title">Catálogo General Biblioteca</div>
+        <div class="header-title">Biblioteca MPDU Abigail García Espinosa</div>
     </div>
 
     <!-- Contenido principal -->
