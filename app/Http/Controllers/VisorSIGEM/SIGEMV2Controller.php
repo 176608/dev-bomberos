@@ -19,7 +19,8 @@ class SIGEMV2Controller extends Controller
     public function catalogo()
     {
         $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
-        return view('VisorSIGEM.catalogo', compact('estructura'));
+        $indicadores = \App\Models\SIGEM\CuadroEstadistico::obtenerTodos();
+        return view('VisorSIGEM.catalogo', compact('estructura', 'indicadores'));
     }
 
     public function estadistica()
