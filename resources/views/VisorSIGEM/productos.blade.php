@@ -1,3 +1,38 @@
+@extends('VisorSIGEM.layouts.visor')
+
+@section('visor_title', 'SIGEM v2 — Productos')
+
+@section('visor_content')
+<style>
+.product-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.product-section img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-text {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .product-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    .product-section img {
+        max-width: 100%;
+    }
+}
+</style>
+
 <div class="card shadow-sm">
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
@@ -95,3 +130,4 @@
         </div>
     </div>
 </div>
+@endsection
