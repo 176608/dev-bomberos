@@ -216,7 +216,7 @@
                                     $color = $coloresTema[$temaIdx % count($coloresTema)];
                                 @endphp
                                 <div id="tema-indicadores-{{ $temaId }}" style="margin-bottom: 20px;">
-                                    <div class="d-flex align-items-center p-3 text-white fw-bold" style="background: linear-gradient(135deg, {{ $color }} 0%, #2a6e48 100%);">
+                                    <div class="d-flex align-items-center p-3 text-black fw-bold" style="background: linear-gradient(135deg, {{ $color }} 0%, #2a6e48 100%);">
                                         <span class="fs-5">{{ $temaIdx + 1 }}. {{ mb_strtoupper($temaTitulo) }}</span>
                                     </div>
 
