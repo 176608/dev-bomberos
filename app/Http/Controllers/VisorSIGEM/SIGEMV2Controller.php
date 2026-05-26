@@ -5,7 +5,6 @@ namespace App\Http\Controllers\VisorSIGEM;
 use Illuminate\Http\Request;
 use App\Models\SIGEM\Tema;
 use App\Models\SIGEM\Subtema;
-use App\Models\SIGEM\Mapa;
 use App\Models\SIGEM\Catalogo;
 use App\Models\SIGEM\ce_tema;
 use App\Models\SIGEM\ce_subtema;
@@ -77,8 +76,7 @@ class SIGEMV2Controller extends Controller
 
     public function cartografia()
     {
-        $mapas = Mapa::obtenerParaCartografia();
-        return view('VisorSIGEM.cartografia', compact('mapas'));
+        return view('VisorSIGEM.cartografia');
     }
 
     public function productos()
