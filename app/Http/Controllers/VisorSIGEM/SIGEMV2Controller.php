@@ -33,20 +33,14 @@ class SIGEMV2Controller extends Controller
 
     public function index()
     {
-        $totalTemas = Tema::count();
-        $totalSubtemas = Subtema::count();
-        $temas = Tema::orderBy('orden_indice')->get();
-
-        return view('VisorSIGEM.index', compact(
-            'totalTemas', 'totalSubtemas', 'temas'
-        ));
+        return view('VisorSIGEM.inicio');
     }
 
-    /*public function catalogo()
+    public function catalogo()
     {
         $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
         return view('VisorSIGEM.catalogo', compact('estructura'));
-    }*/
+    }
 
     public function estadistica()
     {
