@@ -171,7 +171,7 @@
                                     $temaTitulo = $tema['titulo'] ?? key($estructura['estructura'] ?? []);
                                 @endphp
                                 <div class="indice-tema-container">
-                                    <div class="indice-tema-header" style="background: linear-gradient(135deg, #2a6e48 0%, {{ $color }} 100%); color: white;" onclick="document.getElementById('tema-indicadores-{{ $temaId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
+                                    <div class="indice-tema-header" style="background-color: {{ $color }};" onclick="document.getElementById('tema-indicadores-{{ $temaId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                         {{ $temaIdx + 1 }}. {{ $temaTitulo }}
                                     </div>
                                     @php $subtemas = $tema['subtemas'] ?? []; @endphp
@@ -216,7 +216,7 @@
                                     $color = $coloresTema[$temaIdx % count($coloresTema)];
                                 @endphp
                                 <div id="tema-indicadores-{{ $temaId }}" style="margin-bottom: 20px;">
-                                    <div class="d-flex align-items-center p-3 fw-bold" style="background-color: {{ $color }}; color: #3b3b3bff;">
+                                    <div class="d-flex align-items-center p-3 text-white fw-bold" style="background: linear-gradient(135deg, #2a6e48 0%, {{ $color }} 100%);">
                                         <span class="fs-5">{{ $temaIdx + 1 }}. {{ mb_strtoupper($temaTitulo) }}</span>
                                     </div>
 
