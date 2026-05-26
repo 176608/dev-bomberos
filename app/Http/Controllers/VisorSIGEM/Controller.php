@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\VisorSIGEM;
 
-abstract class Controller
+abstract class Controller extends \Illuminate\Routing\Controller
 {
     //
 }
