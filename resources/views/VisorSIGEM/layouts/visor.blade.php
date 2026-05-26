@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', @yield('visor_title', 'SIGEM v2 — Visor Estadístico Municipal'))
+@section('title')@yield('visor_title', 'SIGEM v2 — Visor Estadístico Municipal')@endsection
 
 @section('content')
 <style>
