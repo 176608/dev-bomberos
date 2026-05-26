@@ -1,3 +1,8 @@
+@extends('VisorSIGEM.layouts.visor')
+
+@section('visor_title', 'SIGEM v2 — Inicio')
+
+@section('visor_content')
 <style>
 .module-card {
     transition: all 0.3s ease;
@@ -335,3 +340,4 @@
 </div>
 
 @include('VisorSIGEM.inicio_consulta_express')
+@endsection
