@@ -257,9 +257,17 @@
 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
-                                       href="{{ route('sg-dictamen.index') }}" 
-                                       title="Módulo de Gestión y Consulta de Dictámenes">
+                                        href="{{ route('sg-dictamen.index') }}" 
+                                        title="Módulo de Gestión y Consulta de Dictámenes">
                                         <i class="bi bi-file-earmark-text-fill"></i> SGD
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sigem.v2.*') ? 'active' : '' }}" 
+                                        href="{{ route('sigem.v2.index') }}" 
+                                        title="Visor SIGEM v2 — Nueva versión con Blade">
+                                        <i class="bi bi-binoculars-fill"></i> SIGEM V2
                                     </a>
                                 </li>
                                 
