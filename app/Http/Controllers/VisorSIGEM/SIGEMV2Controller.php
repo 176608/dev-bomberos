@@ -38,9 +38,20 @@ class SIGEMV2Controller extends Controller
             $q->orderBy('orden_indice');
         }])->findOrFail($tema_id);
 
+        $tema_subtemas = $tema->subtemas;
         $temas = Tema::orderBy('orden_indice')->get();
 
-        return view('VisorSIGEM.estadistica_tema', compact('tema', 'temas'));
+        $indicadores = collect([]);
+        $subtema_seleccionado = null;
+
+        if ($tema_subtemas && $tema_subtemas->count() > 0) {
+            $subtema_seleccionado = $tema_subtemas->first();
+            $indicadores = \App\Models\SIGEM\CuadroEstadistico::where('subtema_id', $subtema_seleccionado->subtema_id)
+                ->orderBy('codigo_cuadro')
+                ->get();
+        }
+
+        return view('VisorSIGEM.estadistica_tema', compact('tema', 'temas', 'tema_subtemas', 'subtema_seleccionado', 'indicadores'));
     }
 
     public function verIndicador($id)
