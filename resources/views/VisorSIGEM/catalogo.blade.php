@@ -100,6 +100,11 @@
 .indicador-row:last-child {
     border-bottom: none;
 }
+.indicador-row:hover {
+    background-color: #d0d0d0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 .indicador-codigo {
     min-width: 80px;
     font-weight: 600;
@@ -110,6 +115,10 @@
 }
 .indicador-btn {
     white-space: nowrap;
+}
+.indicador-row:hover .indicador-btn .btn {
+    background-color: #2a6e48;
+    color: white;
 }
 @media (max-width: 768px) {
     #indice-container > div,
@@ -162,7 +171,7 @@
                                     $temaTitulo = $tema['titulo'] ?? key($estructura['estructura'] ?? []);
                                 @endphp
                                 <div class="indice-tema-container">
-                                    <div class="indice-tema-header" style="background-color: {{ $color }};" onclick="document.getElementById('tema-indicadores-{{ $temaId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
+                                    <div class="indice-tema-header" style="background: linear-gradient(135deg, #2a6e48 0%, {{ $color }} 100%); color: white;" onclick="document.getElementById('tema-indicadores-{{ $temaId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                         {{ $temaIdx + 1 }}. {{ $temaTitulo }}
                                     </div>
                                     @php $subtemas = $tema['subtemas'] ?? []; @endphp
@@ -207,7 +216,7 @@
                                     $color = $coloresTema[$temaIdx % count($coloresTema)];
                                 @endphp
                                 <div id="tema-indicadores-{{ $temaId }}" style="margin-bottom: 20px;">
-                                    <div class="d-flex align-items-center p-3 text-white fw-bold" style="background: linear-gradient(135deg, #2a6e48 0%, {{ $color }} 100%);">
+                                    <div class="d-flex align-items-center p-3 fw-bold" style="background-color: {{ $color }}; color: #3b3b3bff;">
                                         <span class="fs-5">{{ $temaIdx + 1 }}. {{ mb_strtoupper($temaTitulo) }}</span>
                                     </div>
 
