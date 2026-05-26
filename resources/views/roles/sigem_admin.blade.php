@@ -52,6 +52,18 @@
                     <div class="card-body">
                         <p>Bienvenido al panel de administración del Sistema de Información Geográfica y Estadística Municipal.</p>
                         <p>Selecciona una opción del menú superior para administrar los diferentes módulos.</p>
+                        @if(auth()->check() && auth()->user()->hasRole('Desarrollador'))
+                            <hr>
+                            <div class="d-flex align-items-center gap-3">
+                                <a href="{{ route('sigem.v2.index') }}" target="_blank" class="btn btn-outline-success btn-lg">
+                                    <i class="bi bi-eye"></i> Visor SIGEM v2 — Vista Previa
+                                </a>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    Nuevo visor público en construcción. Solo visible para Desarrollador.
+                                </small>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

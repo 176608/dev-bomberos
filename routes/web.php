@@ -7,6 +7,9 @@ require __DIR__.'/Bomberos/web.php';
 // Incluir rutas SIGEM
 require __DIR__.'/SIGEM/laravel.php';
 
+// Incluir rutas VisorSIGEM v2
+require __DIR__.'/VisorSIGEM/laravel_v2.php';
+
 // Incluir rutas SGDictamen (Dictámenes)
 require __DIR__.'/SGDictamen/web.php';
 
