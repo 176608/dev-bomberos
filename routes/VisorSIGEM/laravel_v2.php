@@ -13,6 +13,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {
         Route::get('/', [SIGEMV2Controller::class, 'consultaExpress'])->name('index');
-        Route::get('/contenido/{subtema_id}', [SIGEMV2Controller::class, 'consultaExpressContenido'])->name('contenido');
+        Route::get('/subtemas/{tema_id}', [SIGEMV2Controller::class, 'ajaxSubtemas'])->name('subtemas');
+        Route::get('/contenido/{subtema_id}', [SIGEMV2Controller::class, 'ajaxContenido'])->name('contenido');
     });
 });

@@ -94,6 +94,9 @@
 @push('visor_scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const SUBTEMAS_URL = '{{ route('sigem.v2.consulta-express.subtemas', ['tema_id' => '__TEMA_ID__']) }}';
+    const CONTENIDO_URL = '{{ route('sigem.v2.consulta-express.contenido', ['subtema_id' => '__SUBTEMA_ID__']) }}';
+
     const temaSelect = document.getElementById('ce_tema_select_modal');
     const subtemaSelect = document.getElementById('ce_subtema_select_modal');
     const contenidoContainer = document.getElementById('ce_contenido_container_modal');
@@ -153,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (temaId) {
             subtemaSelect.disabled = true;
             subtemaSelect.innerHTML = '<option value="">Cargando subtemas...</option>';
-            fetch('/sigem/consulta-express/subtemas/' + temaId)
+            fetch(SUBTEMAS_URL.replace('__TEMA_ID__', temaId))
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     subtemaSelect.innerHTML = '<option value="">Seleccione un subtema...</option>';
@@ -182,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var subtemaId = this.value;
         if (subtemaId) {
             contenidoContainer.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando...</p></div>';
-            fetch('/sigem/consulta-express/contenido/' + subtemaId)
+            fetch(CONTENIDO_URL.replace('__SUBTEMA_ID__', subtemaId))
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     if (data.success && data.contenido) {
