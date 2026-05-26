@@ -82,7 +82,6 @@
     </div>
 </div>
 
-@push('styles')
 <style>
     .consulta-express-modal-content { animation: fadeInUp 0.4s ease-out; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -91,9 +90,8 @@
     #ce_contenido_container_modal::-webkit-scrollbar-thumb { background: #198754; border-radius: 3px; }
     #ce_contenido_container_modal::-webkit-scrollbar-thumb:hover { background: #146c43; }
 </style>
-@endpush
 
-@push('scripts')
+@push('visor_scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const temaSelect = document.getElementById('ce_tema_select_modal');
