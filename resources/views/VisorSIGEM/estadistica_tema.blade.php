@@ -5,99 +5,239 @@
 @section('visor_content')
 <style>
 .subtema-nav-item {
-    display: block;
-    padding: 10px 15px;
     border-bottom: 1px solid #e9ecef;
-    transition: all 0.3s ease;
     cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px;
 }
-.subtema-nav-item:hover {
-    background-color: #e8f4f8;
-    transform: translateX(3px);
+
+.subtema-image-container {
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #f8f9fa;
 }
-.subtema-nav-item.active {
-    background-color: #d4edda;
-    border-left: 4px solid #28a745;
+
+.subtema-image {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    display: block;
 }
-.subtema-nav-item .subtema-image {
+
+.sidebar-mini .subtema-image {
     width: 40px;
     height: 40px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 50%;
+    position: relative;
+    left: 0;
+    top: 0;
+    object-position: right center;
 }
-.subtema-nav-item .subtema-texto h6 {
-    font-size: 0.85rem;
-    margin-bottom: 0;
-    line-height: 1.2;
+
+.sidebar-mini .subtema-image-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    display: block;
+    padding-left: 0;
 }
-.sidebar-content {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-}
-.btn-toggle-sidebar-fixed {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
+
+.subtema-texto {
+    padding: 0.75rem 0.5rem;
     transition: all 0.3s ease;
-    z-index: 10;
 }
-.btn-toggle-sidebar-fixed:hover {
-    background: rgba(255,255,255,0.3);
+
+.subtema-texto h6 {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 0;
+    color: #212529;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }
+
+.subtema-nav-item:hover {
+    background-color: rgba(77, 150, 80, 0.1);
+}
+
+.subtema-nav-item:hover .subtema-image {
+    transform: scale(0.80);
+}
+
+.subtema-nav-item.active {
+    background-color: rgba(77, 150, 80, 0.1);
+    border-left: 4px solid #0b584fff;
+}
+
+.subtema-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #0c7912;
+    opacity: 1;
+    z-index: 3;
+}
+
+.sidebar-mini .subtema-nav-item {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+    position: relative;
+}
+
+.sidebar-mini .subtema-nav-item .row {
+    flex-direction: column;
+}
+
+.sidebar-mini .subtema-texto {
+    display: none;
+}
+
+.sidebar-mini .subtema-nav-item.active::before {
+    width: 100%;
+    height: 4px;
+    top: 0;
+    left: 0;
+    background-color: #0c7912;
+    opacity: 0.4;
+}
+
+.sidebar-mini .no-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.sidebar-mini .sidebar-title {
+    display: none;
+}
+
+.sidebar-mini .sidebar-content {
+    overflow: hidden;
+}
+
+#sidebar-subtemas {
+    position: relative;
+    overflow: visible !important;
+}
+
+#sidebar-subtemas.sidebar-mini {
+    flex: 0 0 auto;
+    width: 60px;
+    overflow: hidden;
+}
+
+#contenido-principal.content-expanded {
+    flex: 0 0 auto;
+    width: calc(100% - 60px);
+}
+
 .transition-width {
     transition: all 0.3s ease;
 }
-.sidebar-mini {
-    width: 60px !important;
-    min-width: 60px !important;
-    flex: 0 0 60px !important;
-}
-.sidebar-mini .sidebar-title,
-.sidebar-mini .subtema-texto,
-.sidebar-mini .subtema-image-container {
-    display: none;
-}
-.sidebar-mini .subtema-nav-item {
-    padding: 10px 8px;
-    text-align: center;
-}
-.sidebar-mini .subtema-nav-item .subtema-image {
-    width: 35px;
-    height: 35px;
-}
-.content-expanded {
-    flex: 0 0 calc(100% - 60px) !important;
-    max-width: calc(100% - 60px) !important;
-}
-.cuadro-item {
-    transition: all 0.2s ease;
+
+.btn-toggle-sidebar-fixed {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #0c5716ff;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     cursor: pointer;
+    transition: all 0.3s ease;
+    right: -18px;
+    top: 15px;
+    z-index: 50;
 }
-.cuadro-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-color: #28a745 !important;
-    background-color: #f0fff0;
+
+.btn-toggle-sidebar-fixed:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(40, 182, 123, 0.5);
 }
+
+.sidebar-mini .btn-toggle-sidebar-fixed i {
+    transform: rotate(180deg);
+}
+
 .cuadros-lista {
     max-height: 70vh;
     overflow-y: auto;
 }
-@media (max-width: 768px) {
-    .sidebar-mini {
-        display: none;
-    }
-    .content-expanded {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
+
+.cuadro-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    background-color: #e9e9e9;
+}
+
+.cuadro-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: #80daa3;
+}
+
+.subtema-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.subtema-nav-item:hover::before {
+    opacity: 1;
+}
+
+.subtema-nav-item.active::before {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(84, 151, 99, 0.72), transparent);
+}
+
+.indicadores-lista {
+    max-height: 70vh;
+    overflow-y: auto;
 }
 </style>
 
@@ -112,11 +252,9 @@
                                 <i class="bi bi-list-ul me-2"></i>Subtemas de {{ $tema->tema_titulo }}
                             </h6>
                         </div>
-                        <div class="toggle-button-container">
-                            <button class="btn-toggle-sidebar-fixed" id="toggle-sidebar" title="Expandir/Colapsar panel">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
-                        </div>
+                        <button class="btn-toggle-sidebar-fixed" id="toggle-sidebar" title="Colapsar panel">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
                     </div>
 
                     <div class="flex-fill overflow-auto sidebar-content" id="subtemas-navegacion">
@@ -248,31 +386,41 @@
 @push('visor_scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    initSidebarToggle();
+    var sidebar = document.getElementById('sidebar-subtemas');
+    var content = document.getElementById('contenido-principal');
+    var toggleBtn = document.getElementById('toggle-sidebar');
 
-    document.getElementById('toggle-sidebar')?.addEventListener('click', function (e) {
+    var sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed');
+    if (sidebarCollapsed === null || sidebarCollapsed === 'true') {
+        sidebar.classList.add('sidebar-mini');
+        content.classList.add('content-expanded');
+        toggleBtn.setAttribute('title', 'Expandir panel');
+    } else {
+        toggleBtn.setAttribute('title', 'Colapsar panel');
+    }
+
+    toggleBtn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var sidebar = document.getElementById('sidebar-subtemas');
-        var content = document.getElementById('contenido-principal');
         if (sidebar.classList.contains('sidebar-mini')) {
             sidebar.classList.remove('sidebar-mini');
             content.classList.remove('content-expanded');
             localStorage.setItem('subtemas-sidebar-collapsed', 'false');
-            this.setAttribute('title', 'Colapsar panel');
+            toggleBtn.setAttribute('title', 'Colapsar panel');
         } else {
             sidebar.classList.add('sidebar-mini');
             content.classList.add('content-expanded');
             localStorage.setItem('subtemas-sidebar-collapsed', 'true');
-            this.setAttribute('title', 'Expandir panel');
+            toggleBtn.setAttribute('title', 'Expandir panel');
         }
     });
 
-    var sidebarCollapsed = localStorage.getItem('subtemas-sidebar-collapsed');
-    if (sidebarCollapsed === null || sidebarCollapsed === 'true') {
-        document.getElementById('sidebar-subtemas')?.classList.add('sidebar-mini');
-        document.getElementById('contenido-principal')?.classList.add('content-expanded');
-    }
+    document.getElementById('show-sidebar')?.addEventListener('click', function () {
+        sidebar.classList.remove('sidebar-mini');
+        content.classList.remove('content-expanded');
+        localStorage.setItem('subtemas-sidebar-collapsed', 'false');
+        toggleBtn.setAttribute('title', 'Colapsar panel');
+    });
 });
 
 function cambiarTema(tema_id) {
@@ -291,7 +439,7 @@ function cargarIndicadores(subtema_id) {
     var subtemaTitle = event.currentTarget.querySelector('.subtema-texto h6')?.innerText || 'Subtema';
     document.getElementById('subtema-header').innerHTML = '<h5 class="mb-0">' + subtemaTitle + '</h5>';
 
-    fetch('/sigem/obtener-cuadros-estadistica/' + subtema_id)
+    fetch('{{ url("/sigem/obtener-cuadros-estadistica") }}/' + subtema_id)
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success) {
@@ -307,7 +455,7 @@ function cargarIndicadores(subtema_id) {
 }
 
 function actualizarInfoSubtema(subtema_id) {
-    fetch('/sigem/obtener-info-subtema/' + subtema_id)
+    fetch('{{ url("/sigem/obtener-info-subtema") }}/' + subtema_id)
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success) {
