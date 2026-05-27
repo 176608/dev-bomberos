@@ -11,6 +11,18 @@ use App\Models\SIGEM\ce_contenido;
 
 class SIGEMV2Controller extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!$user->hasRole('Desarrollador') && !$user->hasRole('Administrador')) {
+                return redirect('/sigem');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         return view('VisorSIGEM.inicio');

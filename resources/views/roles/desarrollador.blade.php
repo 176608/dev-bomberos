@@ -1,4 +1,4 @@
-<!-- Archivo Bomberos - NO ELIMINAR COMENTARIO -->
+<!-- Archivo sin uso, se puede eliminar -->
 @extends('layouts.app')
 
 @section('title', 'Panel Desarrollador')

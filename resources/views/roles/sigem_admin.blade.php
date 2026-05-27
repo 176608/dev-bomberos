@@ -15,10 +15,10 @@
                    href="{{ route('sigem.admin.index') }}">
                     <i class="bi bi-house"></i> Inicio
                 </a>
-                <a class="nav-link {{ request()->is('sigem/admin/mapas') ? 'active' : '' }}" 
+                <!-- <a class="nav-link {{ request()->is('sigem/admin/mapas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.mapas') }}">
                     <i class="bi bi-map"></i> Mapas
-                </a>
+                </a> -->
                 <a class="nav-link {{ request()->is('sigem/admin/temas') ? 'active' : '' }}" 
                    href="{{ route('sigem.admin.temas') }}">
                     <i class="bi bi-bookmark"></i> Temas
@@ -72,7 +72,6 @@
 </div>
 
 <style>
-    /* ===== ESPACIADO MEJORADO PARA DATATABLES ===== */
 
 /* Padding superior e inferior para el row que contiene search y length */
 .dataTables_wrapper .row:first-child {
