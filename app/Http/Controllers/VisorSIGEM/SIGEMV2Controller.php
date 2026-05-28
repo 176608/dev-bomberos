@@ -32,6 +32,19 @@ class SIGEMV2Controller extends Controller
     {
         $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
         $indicadores = \App\Models\SIGEM\CuadroEstadistico::obtenerTodos();
+
+        $indicadores = $indicadores->sort(function ($a, $b) {
+            $aParts = explode('.', $a->codigo_cuadro);
+            $bParts = explode('.', $b->codigo_cuadro);
+            $len = max(count($aParts), count($bParts));
+            for ($i = 0; $i < $len; $i++) {
+                $aVal = (int)($aParts[$i] ?? 0);
+                $bVal = (int)($bParts[$i] ?? 0);
+                if ($aVal !== $bVal) return $aVal <=> $bVal;
+            }
+            return 0;
+        });
+
         return view('VisorSIGEM.catalogo', compact('estructura', 'indicadores'));
     }
 

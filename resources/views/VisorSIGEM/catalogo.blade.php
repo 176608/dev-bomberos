@@ -93,17 +93,15 @@
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f0;
     transition: all 0.2s ease;
-}
-.indicador-row:hover {
-    background-color: #f8f9fa;
-}
-.indicador-row:last-child {
-    border-bottom: none;
+    cursor: pointer;
 }
 .indicador-row:hover {
     background-color: #d0d0d0;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.indicador-row:last-child {
+    border-bottom: none;
 }
 .indicador-codigo {
     min-width: 80px;
@@ -112,9 +110,15 @@
 }
 .indicador-titulo {
     flex: 1;
+    min-width: 0;
+}
+.indicador-titulo .fw-semibold {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .indicador-btn {
     white-space: nowrap;
+    margin-left: 8px;
 }
 .indicador-row:hover .indicador-btn .btn {
     background-color: #2a6e48;
@@ -124,6 +128,19 @@
     #indice-container > div,
     #cuadros-container > div {
         max-height: 400px !important;
+    }
+    .indicador-row {
+        padding: 10px 8px;
+    }
+    .indicador-codigo {
+        display: none;
+    }
+    .indicador-btn {
+        display: none;
+    }
+    .indicador-titulo .fw-semibold {
+        white-space: normal;
+        text-overflow: clip;
     }
 }
 @media (max-width: 576px) {
@@ -233,7 +250,7 @@
                                             </div>
 
                                             @forelse($indicadoresSubtema as $indicador)
-                                                <div class="indicador-row">
+                                                <div class="indicador-row" onclick="alert('ID del Indicador: {{ $indicador->cuadro_estadistico_id }}')">
                                                     <div class="indicador-codigo">{{ $indicador->codigo_cuadro }}</div>
                                                     <div class="indicador-titulo">
                                                         <div class="fw-semibold">{{ $indicador->cuadro_estadistico_titulo }}</div>
