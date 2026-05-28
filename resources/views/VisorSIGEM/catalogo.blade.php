@@ -89,7 +89,8 @@
 }
 .indicador-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 8px;
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f0;
     transition: all 0.2s ease;
@@ -104,21 +105,26 @@
     border-bottom: none;
 }
 .indicador-codigo {
-    min-width: 80px;
+    flex-shrink: 0;
+    min-width: 72px;
     font-weight: 600;
     color: #2a6e48;
+    font-size: 0.85rem;
+    padding-top: 2px;
+    line-height: 1.4;
 }
 .indicador-titulo {
     flex: 1;
     min-width: 0;
-}
-.indicador-titulo .fw-semibold {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.4;
 }
 .indicador-btn {
-    white-space: nowrap;
-    margin-left: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-top: 1px;
 }
 .indicador-row:hover .indicador-btn .btn {
     background-color: #2a6e48;
@@ -129,24 +135,33 @@
     #cuadros-container > div {
         max-height: 400px !important;
     }
-    .indicador-row {
-        padding: 10px 8px;
-    }
     .indicador-codigo {
-        display: none;
-    }
-    .indicador-btn {
-        display: none;
-    }
-    .indicador-titulo .fw-semibold {
-        white-space: normal;
-        text-overflow: clip;
+        min-width: 60px;
+        font-size: 0.8rem;
     }
 }
 @media (max-width: 576px) {
     #indice-container > div,
     #cuadros-container > div {
         max-height: 300px !important;
+    }
+    .indicador-row {
+        flex-wrap: wrap;
+        padding: 6px 8px;
+    }
+    .indicador-codigo {
+        min-width: auto;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        background: #e8f5e9;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .indicador-btn {
+        display: none;
+    }
+    .indicador-titulo {
+        width: 100%;
     }
 }
 </style>
