@@ -13,8 +13,8 @@
 .catalogo-row { align-items: stretch; }
 .catalogo-row .card { height: 100%; }
 .catalogo-row .card-body { display: flex; flex-direction: column; height: 100%; }
-#indice-container > div, #indicadores-container > div {
-    max-height: 600px; overflow-y: auto;
+#indice-container, #indicadores-container {
+    flex: 1; min-height: 0; overflow-y: auto;
 }
 
 .indice-tema-container {
@@ -83,10 +83,11 @@
 }
 
 @media (max-width: 768px) {
-    #indice-container > div, #indicadores-container > div { max-height: 400px !important; }
+    .catalogo-row .card-body { display: block; }
+    #indice-container, #indicadores-container { height: 400px; }
 }
 @media (max-width: 576px) {
-    #indice-container > div, #indicadores-container > div { max-height: 300px !important; }
+    #indice-container, #indicadores-container { height: 300px; }
     .indicador-fila { padding: 6px 8px; gap: 6px; }
     .indicador-fila .codigo { min-width: 54px; font-size: 0.75rem; }
     .indicador-fila .titulo { font-size: 0.84rem; }
@@ -167,7 +168,7 @@
                                     $color = $coloresTema[$temaIdx % count($coloresTema)];
                                 @endphp
                                 <div id="tema-{{ $temaId }}" style="margin-bottom:16px;">
-                                    <div class="p-2 text-white fw-bold" style="background:linear-gradient(135deg, #2a6e48 0%, {{ $color }} 100%);">
+                                    <div class="p-2 fw-bold" style="background-color: {{ $color }};">
                                         {{ $temaIdx + 1 }}. {{ mb_strtoupper($temaTitulo) }}
                                     </div>
 
