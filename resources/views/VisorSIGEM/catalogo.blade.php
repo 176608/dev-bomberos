@@ -81,11 +81,11 @@
 }
 
 @media (max-width: 768px) {
-    #indice-container, #indicadores-container { height: 400px; }
+    #indice-container, #indicadores-container { height: 500px; }
     #indice-container { margin-bottom: 16px; }
 }
 @media (max-width: 576px) {
-    #indice-container, #indicadores-container { height: 300px; }
+    #indice-container, #indicadores-container { height: 400px; }
     .indicador-fila { padding: 6px 8px; gap: 6px; }
     .indicador-fila .codigo { min-width: 54px; font-size: 0.75rem; }
     .indicador-fila .titulo { font-size: 0.84rem; }
