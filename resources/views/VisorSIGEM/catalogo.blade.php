@@ -12,7 +12,7 @@
 <style>
 .catalogo-row .card-body { padding: 0 !important; }
 #indice-container, #indicadores-container {
-    height: 600px; overflow-y: auto;
+    height: 800px; overflow-y: auto;
 }
 
 .indice-tema-container {
