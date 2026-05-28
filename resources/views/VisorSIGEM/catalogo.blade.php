@@ -89,55 +89,54 @@
 }
 .indicador-row {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 12px;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 12px;
     border-bottom: 1px solid #f0f0f0;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     cursor: pointer;
 }
 .indicador-row:hover {
-    background-color: #d0d0d0;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background-color: #e8f4f8;
 }
 .indicador-row:last-child {
     border-bottom: none;
 }
 .indicador-codigo {
     flex-shrink: 0;
-    min-width: 72px;
-    font-weight: 600;
-    color: #2a6e48;
-    font-size: 0.85rem;
-    padding-top: 2px;
-    line-height: 1.4;
+    min-width: 65px;
+    font-weight: 700;
+    color: #1e6b3b;
+    font-size: 0.82rem;
+    font-family: Consolas, "Courier New", monospace;
+    text-align: right;
 }
 .indicador-titulo {
     flex: 1;
     min-width: 0;
     overflow-wrap: break-word;
-    word-wrap: break-word;
     word-break: break-word;
-    line-height: 1.4;
+    line-height: 1.35;
+    font-size: 0.9rem;
 }
-.indicador-btn {
-    flex-shrink: 0;
-    margin-left: auto;
-    padding-top: 1px;
-}
-.indicador-row:hover .indicador-btn .btn {
-    background-color: #2a6e48;
-    color: white;
+.indicador-titulo .text-muted {
+    font-size: 0.8rem;
 }
 @media (max-width: 768px) {
     #indice-container > div,
     #cuadros-container > div {
         max-height: 400px !important;
     }
+    .indicador-row {
+        padding: 6px 8px;
+        gap: 6px;
+    }
     .indicador-codigo {
-        min-width: 60px;
-        font-size: 0.8rem;
+        min-width: 50px;
+        font-size: 0.75rem;
+    }
+    .indicador-titulo {
+        font-size: 0.85rem;
     }
 }
 @media (max-width: 576px) {
@@ -145,23 +144,12 @@
     #cuadros-container > div {
         max-height: 300px !important;
     }
-    .indicador-row {
-        flex-wrap: wrap;
-        padding: 6px 8px;
-    }
     .indicador-codigo {
-        min-width: auto;
-        font-size: 0.75rem;
-        padding: 2px 6px;
-        background: #e8f5e9;
-        border-radius: 4px;
-        display: inline-block;
-    }
-    .indicador-btn {
-        display: none;
+        min-width: 44px;
+        font-size: 0.7rem;
     }
     .indicador-titulo {
-        width: 100%;
+        font-size: 0.82rem;
     }
 }
 </style>
@@ -268,15 +256,10 @@
                                                 <div class="indicador-row" onclick="alert('ID del Indicador: {{ $indicador->cuadro_estadistico_id }}')">
                                                     <div class="indicador-codigo">{{ $indicador->codigo_cuadro }}</div>
                                                     <div class="indicador-titulo">
-                                                        <div class="fw-semibold">{{ $indicador->cuadro_estadistico_titulo }}</div>
+                                                        <strong>{{ $indicador->cuadro_estadistico_titulo }}</strong>
                                                         @if($indicador->cuadro_estadistico_subtitulo)
-                                                            <div class="text-muted small">{{ $indicador->cuadro_estadistico_subtitulo }}</div>
+                                                            <div class="text-muted">{{ $indicador->cuadro_estadistico_subtitulo }}</div>
                                                         @endif
-                                                    </div>
-                                                    <div class="indicador-btn">
-                                                        <button class="btn btn-outline-success btn-sm" onclick="event.stopPropagation(); alert('ID del Indicador: {{ $indicador->cuadro_estadistico_id }}'); return false;">
-                                                            <i class="bi bi-eye"></i>
-                                                        </button>
                                                     </div>
                                                 </div>
                                             @empty
