@@ -10,11 +10,9 @@
 @endphp
 
 <style>
-.catalogo-row { align-items: stretch; }
-.catalogo-row .card { height: 100%; }
-.catalogo-row .card-body { display: flex; flex-direction: column; height: 100%; }
+.catalogo-row .card-body { padding: 0 !important; }
 #indice-container, #indicadores-container {
-    flex: 1; min-height: 0; overflow-y: auto;
+    height: 600px; overflow-y: auto;
 }
 
 .indice-tema-container {
@@ -83,8 +81,8 @@
 }
 
 @media (max-width: 768px) {
-    .catalogo-row .card-body { display: block; }
     #indice-container, #indicadores-container { height: 400px; }
+    #indice-container { margin-bottom: 16px; }
 }
 @media (max-width: 576px) {
     #indice-container, #indicadores-container { height: 300px; }
