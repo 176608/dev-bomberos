@@ -88,6 +88,21 @@
         height: 3px;
         background-color: #ffd700;
     }
+
+    @media (max-width: 768px) {
+        .header-logos {
+            flex-direction: column;
+            min-height: auto;
+        }
+        .main-menu .nav-container {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .main-menu a {
+            padding: 10px 15px;
+            font-size: 13px;
+        }
+    }
 </style>
 
 @php
