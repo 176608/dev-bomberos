@@ -145,7 +145,7 @@
             <div class="col-lg-8 col-md-7">
                 <div class="cartografia-intro-text">
                     <p class="lead">
-                        Cambio para esta vista
+                        Cambio para esta vista.
                     </p>
                 </div>
             </div>
