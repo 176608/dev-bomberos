@@ -145,7 +145,7 @@
             <div class="col-lg-8 col-md-7">
                 <div class="cartografia-intro-text">
                     <p class="lead">
-                        En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
+                        Cambio para esta vista
                     </p>
                 </div>
             </div>
