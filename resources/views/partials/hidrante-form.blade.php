@@ -30,7 +30,7 @@
                                             <span id="edit_iconoExclamacionNumero_estacion{{ $hidrante->id }}"><i class="bi bi-exclamation-triangle-fill text-warning"></i></span>
                                         </label>
                                         <select class="form-select" name="numero_estacion">
-                                            @foreach(['S/I', '01', '02', '03', '04', '05', '06', '07', '08', '09'] as $num)
+                                            @foreach(['S/I', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10'] as $num)
                                                 <option value="{{ $num }}" {{ $hidrante->numero_estacion == $num ? 'selected' : '' }}>{{ $num }}</option>
                                             @endforeach
                                         </select>
