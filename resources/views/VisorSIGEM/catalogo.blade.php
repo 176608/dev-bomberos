@@ -174,12 +174,12 @@
                                             </div>
 
                                             @forelse($indicadoresSubtema as $indIdx => $indicador)
-                                                <div class="indicador-fila" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="alert('ID del Indicador: {{ $indicador->cuadro_estadistico_id }}')">
+                                                <div class="indicador-fila" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="alert('ID del Indicador: {{ $indicador->cuadro_id }}')">
                                                     <span class="codigo">{{ $indicador->codigo_cuadro }}</span>
                                                     <span class="titulo">
-                                                        <strong>{{ $indicador->cuadro_estadistico_titulo }}</strong>
-                                                        @if($indicador->cuadro_estadistico_subtitulo)
-                                                            <div class="subtitulo">{{ $indicador->cuadro_estadistico_subtitulo }}</div>
+                                                        <strong>{{ $indicador->c_titulo }}</strong>
+                                                        @if($indicador->c_subtitulo)
+                                                            <div class="subtitulo">{{ $indicador->c_subtitulo }}</div>
                                                         @endif
                                                     </span>
                                                 </div>

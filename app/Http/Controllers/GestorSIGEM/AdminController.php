@@ -5,9 +5,8 @@ namespace App\Http\Controllers\GestorSIGEM;
 use App\Http\Controllers\GestorSIGEM\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Models\SIGEM\Mapa;
-use App\Models\SIGEM\Tema;
-use App\Models\SIGEM\Subtema;
+use App\Models\SIGEM\TemaV2;
+use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\CuadroEstadistico;
 use App\Models\SIGEM\ce_tema;
 use App\Models\SIGEM\ce_subtema;
@@ -43,16 +42,13 @@ class AdminController extends Controller
 
     public function mapas()
     {
-        $mapas = Mapa::obtenerTodos();
-        return view('GestorSIGEM.layout')->with([
-            'crud_view' => 'GestorSIGEM.admin.CRUD_mapa',
-            'mapas' => $mapas
-        ]);
+        return redirect()->route('sgiem.admin.index')
+            ->with('error', 'Mapas no disponibles en SGIEM.');
     }
 
     public function temas()
     {
-        $temas = Tema::orderBy('tema_titulo', 'asc')->get(); // Corregido: tema_titulo en lugar de nombre_tema
+        $temas = TemaV2::orderBy('tema_titulo', 'asc')->get(); // Corregido: tema_titulo en lugar de nombre_tema
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.CRUD_tema',
             'temas' => $temas
@@ -61,8 +57,8 @@ class AdminController extends Controller
 
     public function subtemas()
     {
-        $subtemas = Subtema::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Corregido: subtema_titulo
-        $temas = Tema::orderBy('tema_titulo', 'asc')->get(); // Para el select de agregar/editar
+        $subtemas = SubtemaV2::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Corregido: subtema_titulo
+        $temas = TemaV2::orderBy('tema_titulo', 'asc')->get(); // Para el select de agregar/editar
         
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.CRUD_subtema',
@@ -74,8 +70,8 @@ class AdminController extends Controller
     public function cuadros()
     {
         $cuadros = CuadroEstadistico::with(['subtema.tema'])->orderBy('cuadro_estadistico_titulo', 'asc')->get();
-        $temas = Tema::orderBy('orden_indice', 'asc')->get(); // Para el select de agregar/editar
-        $subtemas = Subtema::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Para el select de agregar/editar
+        $temas = TemaV2::orderBy('orden_indice', 'asc')->get(); // Para el select de agregar/editar
+        $subtemas = SubtemaV2::with('tema')->orderBy('subtema_titulo', 'asc')->get(); // Para el select de agregar/editar
         
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.CRUD_cuadro',
@@ -99,149 +95,7 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Crear nuevo mapa
-     */
-    public function crearMapa(Request $request)
-    {
-        try {
-            $request->validate([
-                'nombre_mapa' => 'required|string|max:255',
-                'nombre_seccion' => 'nullable|string|max:255',
-                'descripcion' => 'nullable|string',
-                'enlace' => 'nullable|url',
-                'codigo_mapa' => 'nullable|string|max:50',
-                'icono' => 'nullable|file|mimes:png|max:2048'
-            ]);
-
-            $datos = $request->only([
-                'nombre_mapa', 
-                'nombre_seccion', 
-                'descripcion', 
-                'enlace', 
-                'codigo_mapa'
-            ]);
-
-            if ($request->hasFile('icono')) {
-                try {
-                    $datos['icono'] = $this->fileUploader->uploadIcon($request->file('icono'));
-                } catch (\InvalidArgumentException $e) {
-                    return redirect()
-                        ->route('sgiem.admin.mapas')
-                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
-                        ->withInput();
-                }
-            }
-
-            $mapa = Mapa::crear($datos);
-
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('success', 'Mapa creado exitosamente');
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('error', 'Error al crear el mapa: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Actualizar mapa existente
-     */
-    public function actualizarMapa(Request $request, $id)
-    {
-        try {
-            $mapa = Mapa::obtenerPorId($id);
-            
-            if (!$mapa) {
-                return redirect()
-                    ->route('sgiem.admin.mapas')
-                    ->with('error', 'Mapa no encontrado');
-            }
-
-            $request->validate([
-                'nombre_mapa' => 'required|string|max:255',
-                'nombre_seccion' => 'nullable|string|max:255',
-                'descripcion' => 'nullable|string',
-                'enlace' => 'nullable|url',
-                'codigo_mapa' => 'nullable|string|max:50',
-                'icono' => 'nullable|file|mimes:png|max:2048'
-            ]);
-
-            $datos = $request->only([
-                'nombre_mapa', 
-                'nombre_seccion', 
-                'descripcion', 
-                'enlace', 
-                'codigo_mapa'
-            ]);
-
-            if ($request->has('remove_icon') && $request->remove_icon == '1') {
-                if ($mapa->icono) {
-                    $this->fileUploader->deleteFile($mapa->icono, 'img/SIGEM_mapas');
-                }
-                $datos['icono'] = null;
-            }
-            elseif ($request->hasFile('icono')) {
-                try {
-                    $datos['icono'] = $this->fileUploader->uploadIcon(
-                        $request->file('icono'),
-                        $mapa->icono
-                    );
-                } catch (\InvalidArgumentException $e) {
-                    return redirect()
-                        ->route('sgiem.admin.mapas')
-                        ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
-                        ->withInput();
-                }
-            }
-
-            $mapa->actualizar($datos);
-
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('success', 'Mapa actualizado exitosamente');
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('error', 'Error al actualizar el mapa: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Eliminar mapa
-     */
-    public function eliminarMapa($id)
-    {
-        try {
-            $mapa = Mapa::obtenerPorId($id);
-            
-            if (!$mapa) {
-                return redirect()
-                    ->route('sgiem.admin.mapas')
-                    ->with('error', 'Mapa no encontrado');
-            }
-
-            if ($mapa->icono) {
-                $this->fileUploader->deleteFile($mapa->icono, 'img/SIGEM_mapas');
-            }
-
-            $nombreMapa = $mapa->nombre_mapa;
-
-            $mapa->eliminar();
-
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('success', "Mapa '{$nombreMapa}' eliminado exitosamente");
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.mapas')
-                ->with('error', 'Error al eliminar el mapa: ' . $e->getMessage());
-        }
-    }
+    // Mapas eliminado de SGIEM (disponible solo en SIGEM legacy)
 
     // ============ MÉTODOS CRUD PARA TEMAS ============
     public function crearTema(Request $request)
@@ -262,12 +116,12 @@ class AdminController extends Controller
 
             // Si no se proporciona orden, usar el siguiente disponible
             if (!$datos['orden_indice']) {
-                $maxOrden = Tema::max('orden_indice') ?? 0;
+                $maxOrden = TemaV2::max('orden_indice') ?? 0;
                 $datos['orden_indice'] = $maxOrden + 1;
             }
 
             // Crear tema
-            $tema = Tema::crear($datos);
+            $tema = TemaV2::crear($datos);
 
             return redirect()
                 ->route('sgiem.admin.temas')
@@ -288,7 +142,7 @@ class AdminController extends Controller
     public function actualizarTema(Request $request, $id)
     {
         try {
-            $tema = Tema::obtenerPorId($id);
+            $tema = TemaV2::obtenerPorId($id);
             
             if (!$tema) {
                 return redirect()
@@ -331,7 +185,7 @@ class AdminController extends Controller
     public function eliminarTema($id)
     {
         try {
-            $tema = Tema::obtenerPorId($id);
+            $tema = TemaV2::obtenerPorId($id);
             
             if (!$tema) {
                 return redirect()
@@ -386,7 +240,7 @@ class AdminController extends Controller
             if ($request->filled('orden_indice')) {
                 $datos['orden_indice'] = $request->orden_indice;
             } else {
-                $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
+                $datos['orden_indice'] = SubtemaV2::siguienteOrden($request->tema_id);
             }
 
             if ($request->hasFile('imagen')) {
@@ -400,7 +254,7 @@ class AdminController extends Controller
                 }
             }
 
-            $subtema = Subtema::crear($datos);
+            $subtema = SubtemaV2::crear($datos);
 
             return redirect()
                 ->route('sgiem.admin.subtemas')
@@ -421,7 +275,7 @@ class AdminController extends Controller
     public function actualizarSubtema(Request $request, $id)
     {
         try {
-            $subtema = Subtema::obtenerPorId($id);
+            $subtema = SubtemaV2::obtenerPorId($id);
             
             if (!$subtema) {
                 return redirect()
@@ -444,7 +298,7 @@ class AdminController extends Controller
             ]);
 
             if ($request->tema_id != $subtema->tema_id) {
-                $datos['orden_indice'] = Subtema::siguienteOrden($request->tema_id);
+                $datos['orden_indice'] = SubtemaV2::siguienteOrden($request->tema_id);
             } else {
                 $datos['orden_indice'] = $request->filled('orden_indice') 
                     ? $request->orden_indice 
@@ -492,7 +346,7 @@ class AdminController extends Controller
     public function eliminarSubtema($id)
     {
         try {
-            $subtema = Subtema::obtenerPorId($id);
+            $subtema = SubtemaV2::obtenerPorId($id);
             
             if (!$subtema) {
                 return redirect()
@@ -534,7 +388,7 @@ class AdminController extends Controller
     public function obtenerSiguienteOrdenTema($tema_id)
     {
         try {
-            $siguienteOrden = Subtema::siguienteOrden($tema_id);
+            $siguienteOrden = SubtemaV2::siguienteOrden($tema_id);
             return response()->json(['siguiente_orden' => $siguienteOrden]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener el orden'], 500);
@@ -547,7 +401,7 @@ class AdminController extends Controller
     public function obtenerSubtemasPorTema($tema_id)
     {
         try {
-            $subtemas = Subtema::where('tema_id', $tema_id)
+            $subtemas = SubtemaV2::where('tema_id', $tema_id)
                               ->orderBy('orden_indice', 'asc')
                               ->orderBy('subtema_titulo', 'asc')
                               ->get(['subtema_id', 'subtema_titulo']);

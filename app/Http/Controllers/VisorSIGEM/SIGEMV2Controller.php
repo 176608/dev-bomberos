@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\VisorSIGEM;
 
-use App\Models\SIGEM\Tema;
-use App\Models\SIGEM\Subtema;
+use App\Models\SIGEM\TemaV2;
+use App\Models\SIGEM\SubtemaV2;
+use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\Catalogo;
 use App\Models\SIGEM\ce_tema;
 use App\Models\SIGEM\ce_subtema;
@@ -31,7 +32,7 @@ class SIGEMV2Controller extends Controller
     public function catalogo()
     {
         $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
-        $indicadores = \App\Models\SIGEM\CuadroEstadistico::obtenerTodos();
+        $indicadores = Cuadro::obtenerTodos();
 
         $indicadores = $indicadores->sort(function ($a, $b) {
             $aParts = explode('.', $a->codigo_cuadro);
@@ -50,7 +51,7 @@ class SIGEMV2Controller extends Controller
 
     public function estadistica()
     {
-        $temas = Tema::withCount('subtemas')
+        $temas = TemaV2::withCount('subtemas')
             ->orderBy('orden_indice')
             ->get();
 
@@ -59,19 +60,19 @@ class SIGEMV2Controller extends Controller
 
     public function estadisticaTema($tema_id)
     {
-        $tema = Tema::with(['subtemas' => function ($q) {
+        $tema = TemaV2::with(['subtemas' => function ($q) {
             $q->orderBy('orden_indice');
         }])->findOrFail($tema_id);
 
         $tema_subtemas = $tema->subtemas;
-        $temas = Tema::orderBy('orden_indice')->get();
+        $temas = TemaV2::orderBy('orden_indice')->get();
 
         $indicadores = collect([]);
         $subtema_seleccionado = null;
 
         if ($tema_subtemas && $tema_subtemas->count() > 0) {
             $subtema_seleccionado = $tema_subtemas->first();
-            $indicadores = \App\Models\SIGEM\CuadroEstadistico::where('subtema_id', $subtema_seleccionado->subtema_id)
+            $indicadores = Cuadro::where('subtema_id', $subtema_seleccionado->subtema_id)
                 ->orderBy('codigo_cuadro')
                 ->get();
         }

@@ -21,13 +21,17 @@
                    href="{{ route('sgiem.admin.subtemas') }}">
                     <i class="bi bi-bookmarks"></i> Subtemas
                 </a>
+                <a class="nav-link {{ request()->is('sgiem/admin/cuadros-v2*') ? 'active' : '' }}"
+                   href="{{ route('sgiem.admin.cuadros-v2.index') }}">
+                    <i class="bi bi-table"></i> Cuadros V2
+                </a>
                 <a class="nav-link {{ request()->is('sgiem/admin/cuadros') ? 'active' : '' }}"
                    href="{{ route('sgiem.admin.cuadros') }}">
                     <i class="bi bi-table"></i> Cuadros
                 </a>
                 <a class="nav-link {{ request()->is('sgiem/admin/consultas') ? 'active' : '' }}"
                    href="{{ route('sgiem.admin.consultas') }}">
-                    <i class="bi bi-search"></i> Consultas Express
+                    <i class="bi bi-search"></i> Consultas Exprés
                 </a>
             </div>
         </div>

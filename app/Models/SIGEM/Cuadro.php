@@ -35,7 +35,7 @@ class Cuadro extends Model
 
     public function subtema()
     {
-        return $this->belongsTo(Subtema::class, 'subtema_id', 'subtema_id');
+        return $this->belongsTo(SubtemaV2::class, 'subtema_id', 'subtema_id');
     }
 
     public function getTemaAttribute()

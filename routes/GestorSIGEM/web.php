@@ -11,11 +11,6 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
     Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
 
-        Route::get('/mapas', [AdminController::class, 'mapas'])->name('mapas');
-        Route::post('/mapas/crear', [AdminController::class, 'crearMapa'])->name('mapas.crear');
-        Route::put('/mapas/{id}/actualizar', [AdminController::class, 'actualizarMapa'])->name('mapas.actualizar');
-        Route::delete('/mapas/{id}/eliminar', [AdminController::class, 'eliminarMapa'])->name('mapas.eliminar');
-
         Route::get('/temas', [AdminController::class, 'temas'])->name('temas');
         Route::post('/temas/crear', [AdminController::class, 'crearTema'])->name('temas.crear');
         Route::put('/temas/{id}/actualizar', [AdminController::class, 'actualizarTema'])->name('temas.actualizar');
