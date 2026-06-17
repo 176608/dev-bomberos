@@ -98,6 +98,39 @@ class SIGEMV2Controller extends Controller
         return view('VisorSIGEM.cartografia');
     }
 
+    public function ajaxCuadrosV2($subtema_id)
+    {
+        try {
+            $cuadros = Cuadro::where('subtema_id', $subtema_id)
+                ->where('publicado', true)
+                ->orderBy('codigo_cuadro')
+                ->get()
+                ->map(function($cuadro) {
+                    return [
+                        'cuadro_id' => $cuadro->cuadro_id,
+                        'codigo_cuadro' => $cuadro->codigo_cuadro,
+                        'c_titulo' => $cuadro->c_titulo,
+                        'c_subtitulo' => $cuadro->c_subtitulo,
+                        'tipo_mapa_pdf' => $cuadro->tipo_mapa_pdf,
+                        'permite_grafica' => $cuadro->permite_grafica,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'cuadros' => $cuadros,
+                'total_cuadros' => $cuadros->count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar cuadros: ' . $e->getMessage(),
+                'cuadros' => []
+            ]);
+        }
+    }
+
     public function productos()
     {
         return view('VisorSIGEM.productos');
