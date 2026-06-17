@@ -275,7 +275,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva.
+                            Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva y reactiva.
                         </p>
                         <a href="{{ route('sigem.v2.catalogo') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
@@ -314,13 +314,13 @@
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-map-fill me-2"></i> Cartografía
+                            <i class="bi bi-map-fill me-2"></i> SIGMUN
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ route('sigem.v2.cartografia') }}'">
                             <div class="module-image-wrapper">
-                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Módulo Cartografía" class="module-image">
+                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Sistema de Información Geográfica Municipal" class="module-image">
                                 <div class="module-overlay">
                                     <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
                                 </div>

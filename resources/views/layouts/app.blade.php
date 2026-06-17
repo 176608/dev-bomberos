@@ -271,7 +271,15 @@
                                         <i class="bi bi-binoculars-fill"></i> SIGEM V2
                                     </a>
                                 </li>
-                                
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sgiem.*') ? 'active' : '' }}"
+                                        href="{{ route('sgiem.admin.index') }}"
+                                        title="Sistema de Gestión de Información Estadística Municipal">
+                                        <i class="bi bi-gear-wide-connected"></i> SGIEM
+                                    </a>
+                                </li>
+
                             @elseif(auth()->user()->role === 'Administrador')
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
