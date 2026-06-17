@@ -493,13 +493,13 @@ function renderizarIndicadores(indicadores) {
     ordenados.forEach(function (ind) {
         html += '<a href="javascript:void(0)" onclick="alert(\'ID del Indicador: ' + ind.cuadro_id + '\')" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">';
         html += '<div class="row align-items-center"><div class="col-12">';
-        html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + (ind.codigo_cuadro || 'N/A') + '</span> ' + (ind.c_titulo || 'Sin título');
+        html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + (ind.codigo_cuadro || 'N/A') + '</span> ' + (ind.cuadro_estadistico_titulo || ind.c_titulo || 'Sin título');
         if (ind.tipo_mapa_pdf) {
             html += ' <span class="badge bg-warning text-dark ms-2"><i class="bi bi-map-fill me-1"></i>Mapa PDF</span>';
         }
         html += '</span>';
-        if (ind.c_subtitulo) {
-            html += '<small class="text-muted d-block">' + ind.c_subtitulo + '</small>';
+        if (ind.cuadro_estadistico_subtitulo || ind.c_subtitulo) {
+            html += '<small class="text-muted d-block">' + (ind.cuadro_estadistico_subtitulo || ind.c_subtitulo) + '</small>';
         }
         html += '</div></div></a>';
     });

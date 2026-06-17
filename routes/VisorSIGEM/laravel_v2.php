@@ -9,9 +9,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/estadistica/tema/{tema_id}', [SIGEMV2Controller::class, 'estadisticaTema'])->name('estadistica.tema');
     Route::get('/indicador/{id}', [SIGEMV2Controller::class, 'verIndicador'])->name('indicador');
     Route::get('/api/indicador/{id}/datos', [SIGEMV2Controller::class, 'datosIndicadorJson'])->name('api.indicador.datos');
-    Route::get('/cartografia', function () {
-        return redirect()->route('sigem.v2.estadistica');
-    })->name('cartografia');
+    Route::get('/cartografia', [SIGEMV2Controller::class, 'cartografia'])->name('cartografia');
 
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {

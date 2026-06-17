@@ -75,4 +75,72 @@ class SubtemaV2 extends Model
 
         return $ultimo ? $ultimo->orden_indice + 1 : 1;
     }
+
+    public function obtenerClaveEfectiva()
+    {
+        if (!empty($this->clave_subtema)) {
+            $duplicados = self::where('clave_subtema', $this->clave_subtema)
+                ->where('subtema_id', '!=', $this->subtema_id)
+                ->orderBy('orden_indice', 'asc')
+                ->get();
+
+            if ($duplicados->count() > 0) {
+                $menorOrden = self::where('clave_subtema', $this->clave_subtema)
+                    ->min('orden_indice');
+
+                if ($this->orden_indice == $menorOrden) {
+                    return $this->clave_subtema;
+                } else {
+                    return $this->tema ? $this->tema->clave_tema : null;
+                }
+            } else {
+                return $this->clave_subtema;
+            }
+        }
+
+        if ($this->tema && !empty($this->tema->clave_tema)) {
+            return $this->tema->clave_tema;
+        }
+
+        return null;
+    }
+
+    public function obtenerInfoClave()
+    {
+        $claveEfectiva = $this->obtenerClaveEfectiva();
+        $origen = 'null';
+
+        if (!empty($this->clave_subtema)) {
+            $duplicados = self::where('clave_subtema', $this->clave_subtema)->count();
+
+            if ($duplicados > 1) {
+                $menorOrden = self::where('clave_subtema', $this->clave_subtema)->min('orden_indice');
+                if ($this->orden_indice == $menorOrden) {
+                    $origen = 'propia (menor orden)';
+                } else {
+                    $origen = 'heredada del tema (por duplicado)';
+                }
+            } else {
+                $origen = 'propia';
+            }
+        } elseif ($this->tema && !empty($this->tema->clave_tema)) {
+            $origen = 'heredada del tema';
+        }
+
+        return [
+            'clave_efectiva' => $claveEfectiva,
+            'clave_original' => $this->clave_subtema,
+            'clave_tema' => $this->tema ? $this->tema->clave_tema : null,
+            'origen' => $origen,
+            'orden_indice' => $this->orden_indice
+        ];
+    }
+
+    public static function obtenerTodosConClaves()
+    {
+        return self::with('tema')->orderBy('orden_indice', 'asc')->get()->map(function($subtema) {
+            $subtema->info_clave = $subtema->obtenerInfoClave();
+            return $subtema;
+        });
+    }
 }

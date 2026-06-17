@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
-use App\Models\SIGEM\Subtema;
+use App\Models\SIGEM\SubtemaV2;
 
 class CuadroController extends Controller
 {
@@ -19,13 +19,19 @@ class CuadroController extends Controller
     public function index()
     {
         $cuadros = Cuadro::obtenerTodos();
-        return view('GestorSIGEM.admin.cuadros', compact('cuadros'));
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.cuadros',
+            'cuadros' => $cuadros
+        ]);
     }
 
     public function create()
     {
-        $subtemas = Subtema::obtenerTodos();
-        return view('GestorSIGEM.admin.cuadro_form', compact('subtemas'));
+        $subtemas = SubtemaV2::obtenerTodos();
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.cuadro_form',
+            'subtemas' => $subtemas
+        ]);
     }
 
     public function store(Request $request)
@@ -58,7 +64,10 @@ class CuadroController extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
-        return view('GestorSIGEM.admin.cuadro_show', compact('cuadro'));
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.cuadro_show',
+            'cuadro' => $cuadro
+        ]);
     }
 
     public function edit($id)
@@ -70,8 +79,12 @@ class CuadroController extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
-        $subtemas = Subtema::obtenerTodos();
-        return view('GestorSIGEM.admin.cuadro_form', compact('cuadro', 'subtemas'));
+        $subtemas = SubtemaV2::obtenerTodos();
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.cuadro_form',
+            'cuadro' => $cuadro,
+            'subtemas' => $subtemas
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -148,7 +161,10 @@ class CuadroController extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
-        return view('GestorSIGEM.admin.interpretacion', compact('cuadro'));
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.interpretacion',
+            'cuadro' => $cuadro
+        ]);
     }
 
     public function actualizarCategorias(Request $request, $id)
