@@ -15,8 +15,8 @@
 
         @if(isset($cuadros) && $cuadros->count() > 0)
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="tablaCuadrosV2">
-                    <thead>
+                <table id="tablaCuadrosV2" class="table table-striped table-hover table-sm">
+                    <thead class="table-dark">
                         <tr>
                             <th>ID</th>
                             <th>Código</th>
@@ -31,25 +31,31 @@
                     <tbody>
                         @foreach($cuadros as $cuadro)
                         <tr>
-                            <td>{{ $cuadro->cuadro_id }}</td>
-                            <td>{{ $cuadro->codigo_cuadro }}</td>
-                            <td>{{ $cuadro->c_titulo }}</td>
-                            <td>{{ $cuadro->subtema->subtema_titulo ?? 'N/A' }}</td>
-                            <td class="text-center">
+                            <td><span class="badge bg-secondary">{{ $cuadro->cuadro_id }}</span></td>
+                            <td class="text-center"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
+                            <td><strong>{{ $cuadro->c_titulo }}</strong></td>
+                            <td>
+                                @if($cuadro->subtema)
+                                    <span class="badge bg-warning text-dark">{{ $cuadro->subtema->subtema_titulo }}</span>
+                                @else
+                                    <span class="text-danger">N/A</span>
+                                @endif
+                            </td>
+                            <td class="text-center" data-order="{{ $cuadro->publicado ? 1 : 0 }}">
                                 @if($cuadro->publicado)
                                     <span class="badge bg-success"><i class="bi bi-check-circle"></i></span>
                                 @else
                                     <span class="badge bg-secondary"><i class="bi bi-x-circle"></i></span>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" data-order="{{ $cuadro->tipo_mapa_pdf ? 1 : 0 }}">
                                 @if($cuadro->tipo_mapa_pdf)
                                     <span class="badge bg-warning text-dark"><i class="bi bi-map"></i></span>
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" data-order="{{ $cuadro->permite_grafica ? 1 : 0 }}">
                                 @if($cuadro->permite_grafica)
                                     <span class="badge bg-info"><i class="bi bi-bar-chart"></i></span>
                                 @else
@@ -101,12 +107,20 @@ $(document).ready(function() {
             "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
             "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
             "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
             "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
             "oPaginate": {
                 "sFirst": "Primero",
                 "sLast": "Último",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
         },
         columnDefs: [
@@ -114,9 +128,9 @@ $(document).ready(function() {
             { targets: 1, width: "10%", className: "text-center" },
             { targets: 2, width: "25%" },
             { targets: 3, width: "15%" },
-            { targets: 4, width: "8%", className: "text-center", orderable: false },
-            { targets: 5, width: "8%", className: "text-center", orderable: false },
-            { targets: 6, width: "8%", className: "text-center", orderable: false },
+            { targets: 4, width: "8%", className: "text-center", type: "num" },
+            { targets: 5, width: "8%", className: "text-center", type: "num" },
+            { targets: 6, width: "8%", className: "text-center", type: "num" },
             { targets: 7, width: "160px", className: "text-center", orderable: false, searchable: false }
         ],
         order: [[1, 'asc']],
