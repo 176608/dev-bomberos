@@ -229,7 +229,7 @@
                             <div class="form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="publicado" name="publicado" value="1" checked>
                                 <label class="form-check-label" for="publicado">Publicado</label>
-                                <small class="form-text text-muted d-block">Visible en SIGEM V2</small>
+                                <small class="form-text text-muted d-block">Visible en SIGEM</small>
                             </div>
                         </div>
                     </div>
@@ -345,7 +345,7 @@
                             <div class="form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="edit_publicado" name="publicado" value="1">
                                 <label class="form-check-label" for="edit_publicado">Publicado</label>
-                                <small class="form-text text-muted d-block">Visible en SIGEM V2</small>
+                                <small class="form-text text-muted d-block">Visible en SIGEM</small>
                             </div>
                         </div>
                     </div>
