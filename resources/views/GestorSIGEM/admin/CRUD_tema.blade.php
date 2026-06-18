@@ -1,3 +1,6 @@
+@php
+    $coloresPredefinidos = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98', '#FFB347', '#77DD77', '#AEC6CF', '#E6A8D7', '#B19CD9', '#FFD1DC'];
+@endphp
 <div class="row justify-content-center">
 <div class="col-6">
 <div class="card bg-dark bg-opacity-10 border-0">
@@ -279,9 +282,6 @@
                                     <input type="text" class="form-control form-control-sm w-auto" id="color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
-                                    @php
-                                        $coloresPredefinidos = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98', '#FFB347', '#77DD77', '#AEC6CF', '#E6A8D7', '#B19CD9', '#FFD1DC'];
-                                    @endphp
                                     @foreach($coloresPredefinidos as $hex)
                                         <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
                                     @endforeach
