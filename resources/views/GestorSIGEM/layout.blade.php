@@ -72,7 +72,7 @@
 }
 </style>
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>
+<div class="toast-container position-fixed bottom-0 start-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

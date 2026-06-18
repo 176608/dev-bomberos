@@ -1,66 +1,28 @@
-<!-- Header del CRUD -->
-<div class="row pb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0"><i class="bi bi-search"></i> Panel CRUD de Consultas Express</h5>
-            </div>
-            <div class="card-body">
-                <!-- Mensajes de éxito, error y validación -->
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if($errors->any())
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle"></i> 
-                        <strong>Errores de validación:</strong>
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-search"></i> Consultas Express</h5>
+        <span class="badge bg-light text-dark">Total: <strong>{{ (count($ce_temas ?? []) + count($ce_subtemas ?? []) + count($ce_contenidos ?? [])) }}</strong> registros</span>
     </div>
-</div>
-
-<!-- Navegación entre secciones -->
-<div class="row mb-3">
-    <div class="col-12">
+    <div class="card-header bg-white border-bottom-0 pb-0">
         <nav>
-            <div class="nav nav-pills nav-fill" id="nav-tab" role="tablist">
+            <div class="nav nav-tabs card-header-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-contenidos-tab" data-bs-toggle="tab" data-bs-target="#nav-contenidos" 
                         type="button" role="tab" aria-controls="nav-contenidos" aria-selected="true">
-                    <i class="bi bi-file-earmark-text-fill"></i> Contenidos CE <span class="badge bg-warning ms-2">{{ count($ce_contenidos ?? []) }}</span>
+                    <i class="bi bi-file-earmark-text-fill"></i> Contenidos <span class="badge bg-warning ms-1">{{ count($ce_contenidos ?? []) }}</span>
                 </button>
                 <button class="nav-link" id="nav-subtemas-tab" data-bs-toggle="tab" data-bs-target="#nav-subtemas" 
                         type="button" role="tab" aria-controls="nav-subtemas" aria-selected="false">
-                    <i class="bi bi-bookmarks-fill"></i> Subtemas CE <span class="badge bg-success ms-2">{{ count($ce_subtemas ?? []) }}</span>
+                    <i class="bi bi-bookmarks-fill"></i> Subtemas <span class="badge bg-success ms-1">{{ count($ce_subtemas ?? []) }}</span>
                 </button>
                 <button class="nav-link" id="nav-temas-tab" data-bs-toggle="tab" data-bs-target="#nav-temas" 
                         type="button" role="tab" aria-controls="nav-temas" aria-selected="false">
-                    <i class="bi bi-bookmark-fill"></i> Temas CE <span class="badge bg-info ms-2">{{ count($ce_temas ?? []) }}</span>
+                    <i class="bi bi-bookmark-fill"></i> Temas <span class="badge bg-info ms-1">{{ count($ce_temas ?? []) }}</span>
                 </button>
             </div>
         </nav>
     </div>
-</div>
-
-<div class="tab-content" id="nav-tabContent">
+    <div class="card-body">
+    <div class="tab-content" id="nav-tabContent">
     
     <!-- ========================================== CONTENIDOS CE ========================================== -->
     <div class="tab-pane fade show active pb-5" id="nav-contenidos" role="tabpanel" aria-labelledby="nav-contenidos-tab">
@@ -317,6 +279,8 @@
             </div>
         </div>
     </div>
+</div>
+</div>
 </div>
 
 <!-- ========================================== MODALES ========================================== -->
