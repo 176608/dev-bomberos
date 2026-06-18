@@ -23,7 +23,6 @@
                             <th>Orden Índice</th>
                             <th>Clave Tema</th>
                             <th>Color / Icono</th>
-                            <th>Subtemas</th>
                             <th>Publicado</th>
                             <th>Acciones</th>
                         </tr>
@@ -36,6 +35,8 @@
                                 @if($tema->clave_tema)
                                     <br><small class="text-muted">Clave: {{ $tema->clave_tema }}</small>
                                 @endif
+                                @php $subtemas_count = $tema->subtemas()->count() ?? 0; @endphp
+                                <br><small class="text-muted">Subtemas: {{ $subtemas_count }} asignados</small>
                             </td>
                             <td data-order="{{ $tema->orden_indice ?? 0 }}">
                                 <span class="badge bg-info">{{ $tema->orden_indice ?? 0 }}</span>
@@ -56,16 +57,6 @@
                                         <span class="text-muted small">—</span>
                                     @endif
                                 </div>
-                            </td>
-                            <td data-order="{{ $tema->subtemas()->count() ?? 0 }}">
-                                @php
-                                    $subtemas_count = $tema->subtemas()->count() ?? 0;
-                                @endphp
-                                @if($subtemas_count > 0)
-                                    <span class="badge bg-warning">{{ $subtemas_count }} subtemas</span>
-                                @else
-                                    <span class="text-muted">Sin subtemas</span>
-                                @endif
                             </td>
                             <td class="text-center" data-order="{{ $tema->publicado ? 1 : 0 }}">
                                 @if($tema->publicado)
@@ -400,40 +391,34 @@ $(document).ready(function() {
         columnDefs: [
             {
                 targets: 0, // Columna Título
-                width: "25%"
+                width: "30%"
             },
             {
                 targets: 1, // Columna Orden
-                width: "10%",
+                width: "12%",
                 className: "text-center",
                 type: "num"
             },
             {
                 targets: 2, // Columna Clave
-                width: "12%",
+                width: "15%",
                 className: "text-center"
             },
             {
                 targets: 3, // Columna Color/Icono
-                width: "10%",
+                width: "12%",
                 className: "text-center",
                 orderable: false,
                 searchable: false
             },
             {
-                targets: 4, // Columna Subtemas
-                width: "12%",
+                targets: 4, // Columna Publicado
+                width: "10%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 5, // Columna Publicado
-                width: "8%",
-                className: "text-center",
-                type: "num"
-            },
-            {
-                targets: 6, // Columna Acciones
+                targets: 5, // Columna Acciones
                 width: "100px",
                 className: "text-center",
                 orderable: false,
@@ -470,7 +455,7 @@ function editarTema(id) {
     const iconElem = colorIconoCell.querySelector('i');
     const color = colorSwatch ? colorSwatch.style.backgroundColor : '#8FBC8F';
     const icono = iconElem ? iconElem.className : 'bi-globe';
-    const publicado = fila.cells[5].querySelector('.badge.bg-success') !== null;
+    const publicado = fila.cells[4].querySelector('.badge.bg-success') !== null;
     
     document.getElementById('edit_tema_id').value = id;
     document.getElementById('edit_tema_titulo').value = tema_titulo;
@@ -490,30 +475,12 @@ function editarTema(id) {
 }
 
 function eliminarTema(id, titulo) {
-    const fila = event.target.closest('tr');
-    const subtemasCell = fila.cells[4];
-    const subtemaBadge = subtemasCell.querySelector('.badge');
-    const tieneSubtemas = subtemaBadge && !subtemaBadge.classList.contains('text-muted');
-    
-    let mensaje = `¿Estás seguro de eliminar el tema "${titulo}"?`;
-    
-    if (tieneSubtemas) {
-        const numSubtemas = subtemaBadge.textContent.split(' ')[0];
-        mensaje += `\n\n ADVERTENCIA: Este tema tiene ${numSubtemas} subtema(s) asociado(s).`;
-        mensaje += `\nPara eliminarlo, primero debes eliminar o reasignar todos los subtemas.`;
-        mensaje += `\n\n¿Deseas continuar de todas formas?`;
-    } else {
-        mensaje += `\n\nEsta acción no se puede deshacer.`;
-    }
-    
-    if (confirm(mensaje)) {
-        // Crear formulario temporal para envío DELETE
+    if (confirm(`¿Estás seguro de eliminar el tema "${titulo}"?\n\nEsta acción no se puede deshacer.`)) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = routesTemas.delete.replace(':id', id);
         form.style.display = 'none';
         
-        // Token CSRF
         const csrfToken = document.createElement('input');
         csrfToken.type = 'hidden';
         csrfToken.name = '_token';
@@ -526,7 +493,6 @@ function eliminarTema(id, titulo) {
         methodField.value = 'DELETE';
         form.appendChild(methodField);
         
-        // Enviar formulario
         document.body.appendChild(form);
         form.submit();
     }
