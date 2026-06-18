@@ -12,8 +12,14 @@ use App\Models\SIGEM\ce_contenido;
 
 class SIGEMV2Controller extends Controller
 {
+    private function esDesarrollador(): bool
+    {
+        return auth()->check() && auth()->user()->hasRole('Desarrollador');
+    }
+
     public function __construct()
     {
+        // No se bloquea a usuarios no autenticados; el filtro de publicado se aplica por query
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
@@ -32,7 +38,11 @@ class SIGEMV2Controller extends Controller
     public function catalogo()
     {
         $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
-        $indicadores = Cuadro::obtenerTodos();
+        $query = Cuadro::query();
+        if (!$this->esDesarrollador()) {
+            $query->where('publicado', true);
+        }
+        $indicadores = $query->get();
 
         $indicadores = $indicadores->sort(function ($a, $b) {
             $aParts = explode('.', $a->codigo_cuadro);
@@ -51,18 +61,33 @@ class SIGEMV2Controller extends Controller
 
     public function estadistica()
     {
-        $temas = TemaV2::withCount('subtemas')
-            ->orderBy('orden_indice')
-            ->get();
+        $query = TemaV2::withCount('subtemas')
+            ->orderBy('orden_indice');
 
-        return view('VisorSIGEM.estadistica', compact('temas'));
+        if (!$this->esDesarrollador()) {
+            $query->where('publicado', true);
+        }
+
+        $temas = $query->get();
+        $esDesarrollador = $this->esDesarrollador();
+
+        return view('VisorSIGEM.estadistica', compact('temas', 'esDesarrollador'));
     }
 
     public function estadisticaTema($tema_id)
     {
-        $tema = TemaV2::with(['subtemas' => function ($q) {
+        $esDesarrollador = $this->esDesarrollador();
+
+        $tema = TemaV2::with(['subtemas' => function ($q) use ($esDesarrollador) {
             $q->orderBy('orden_indice');
+            if (!$esDesarrollador) {
+                $q->where('publicado', true);
+            }
         }])->findOrFail($tema_id);
+
+        if (!$esDesarrollador && !$tema->publicado) {
+            abort(404);
+        }
 
         $tema_subtemas = $tema->subtemas;
         $temas = TemaV2::orderBy('orden_indice')->get();
@@ -72,12 +97,15 @@ class SIGEMV2Controller extends Controller
 
         if ($tema_subtemas && $tema_subtemas->count() > 0) {
             $subtema_seleccionado = $tema_subtemas->first();
-            $indicadores = Cuadro::where('subtema_id', $subtema_seleccionado->subtema_id)
-                ->orderBy('codigo_cuadro')
-                ->get();
+            $query = Cuadro::where('subtema_id', $subtema_seleccionado->subtema_id)
+                ->orderBy('codigo_cuadro');
+            if (!$esDesarrollador) {
+                $query->where('publicado', true);
+            }
+            $indicadores = $query->get();
         }
 
-        return view('VisorSIGEM.estadistica_tema', compact('tema', 'temas', 'tema_subtemas', 'subtema_seleccionado', 'indicadores'));
+        return view('VisorSIGEM.estadistica_tema', compact('tema', 'temas', 'tema_subtemas', 'subtema_seleccionado', 'indicadores', 'esDesarrollador'));
     }
 
     public function verIndicador($id)
@@ -101,10 +129,14 @@ class SIGEMV2Controller extends Controller
     public function ajaxCuadrosV2($subtema_id)
     {
         try {
-            $cuadros = Cuadro::where('subtema_id', $subtema_id)
-                ->where('publicado', true)
-                ->orderBy('codigo_cuadro')
-                ->get()
+            $query = Cuadro::where('subtema_id', $subtema_id)
+                ->orderBy('codigo_cuadro');
+
+            if (!$this->esDesarrollador()) {
+                $query->where('publicado', true);
+            }
+
+            $cuadros = $query->get()
                 ->map(function($cuadro) {
                     return [
                         'cuadro_id' => $cuadro->cuadro_id,
@@ -113,6 +145,7 @@ class SIGEMV2Controller extends Controller
                         'c_subtitulo' => $cuadro->c_subtitulo,
                         'tipo_mapa_pdf' => $cuadro->tipo_mapa_pdf,
                         'permite_grafica' => $cuadro->permite_grafica,
+                        'publicado' => $cuadro->publicado,
                     ];
                 });
 

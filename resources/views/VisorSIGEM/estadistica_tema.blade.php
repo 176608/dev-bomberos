@@ -262,7 +262,13 @@
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="javascript:void(0)"
                                    onclick="cargarIndicadores({{ $tema_subtema->subtema_id }}); return false;"
-                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}">
+                                   class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}
+                                          {{ !$tema_subtema->publicado && $esDesarrollador ? 'opacity-50' : '' }}">
+                                    @if(!$tema_subtema->publicado && $esDesarrollador)
+                                        <span class="position-absolute top-0 end-0 badge bg-warning text-dark m-1 small" style="z-index: 10; font-size: 0.6rem;">
+                                            <i class="bi bi-eye-slash"></i>
+                                        </span>
+                                    @endif
                                     <div class="row g-0 w-100 align-items-center">
                                         <div class="col-3 subtema-image-container">
                                             @if($tema_subtema->imagen)
@@ -352,7 +358,13 @@
                                 @foreach($indicadores as $indicador)
                                     <a href="javascript:void(0)"
                                        onclick="alert('ID del Indicador: {{ $indicador['cuadro_id'] }}')"
-                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">
+                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$indicador['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
+                                       @if(!$indicador['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
+                                        @if(!$indicador['publicado'] && $esDesarrollador)
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span>
+                                            </div>
+                                        @endif
                                         <div class="row align-items-center">
                                             <div class="col-12">
                                                 <span class="mb-1 d-block text-dark">
@@ -490,7 +502,13 @@ function renderizarIndicadores(indicadores) {
 
     var html = '<div class="indicadores-lista">';
     ordenados.forEach(function (ind) {
-        html += '<a href="javascript:void(0)" onclick="alert(\'ID del Indicador: ' + ind.cuadro_id + '\')" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block">';
+        var noPublicado = ind.publicado === false || ind.publicado === 0 || ind.publicado === undefined;
+        var claseOpacidad = noPublicado ? 'opacity-50' : '';
+        var estiloBorde = noPublicado ? ' border-warning' : '';
+        html += '<a href="javascript:void(0)" onclick="alert(\'ID del Indicador: ' + ind.cuadro_id + '\')" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
+        if (noPublicado) {
+            html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
+        }
         html += '<div class="row align-items-center"><div class="col-12">';
         html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + (ind.codigo_cuadro || 'N/A') + '</span> ' + (ind.c_titulo || 'Sin título');
         if (ind.tipo_mapa_pdf) {

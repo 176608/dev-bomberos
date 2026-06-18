@@ -217,8 +217,16 @@
             @else
                 <div class="temas-grid-container">
                     @foreach($temas as $index => $tema)
-                        @php $colorTema = $coloresEstilo[$index % count($coloresEstilo)]; @endphp
-                        <div class="tema-card" style="{{ $colorTema }}">
+                        @php
+                            $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
+                            $claseNoPublicado = (!$tema->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                        @endphp
+                        <div class="tema-card {{ $claseNoPublicado }}" style="{{ $colorTema }}">
+                            @if(!$tema->publicado && $esDesarrollador)
+                                <span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2" style="z-index: 10;">
+                                    <i class="bi bi-eye-slash"></i> No publicado
+                                </span>
+                            @endif
                             <a href="{{ route('sigem.v2.estadistica.tema', ['tema_id' => $tema->tema_id]) }}"
                                class="enlace-completo">
                                 <div class="row-icono">
