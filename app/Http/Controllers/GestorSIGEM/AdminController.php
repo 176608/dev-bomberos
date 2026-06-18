@@ -105,14 +105,17 @@ class AdminController extends Controller
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema',
-                'orden_indice' => 'nullable|integer|min:0|max:999'
+                'orden_indice' => 'nullable|integer|min:0|max:999',
+                'publicado' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema', 
-                'orden_indice'
+                'orden_indice',
+                'publicado'
             ]);
+            $datos['publicado'] = $request->boolean('publicado');
 
             // Si no se proporciona orden, usar el siguiente disponible
             if (!$datos['orden_indice']) {
@@ -154,14 +157,17 @@ class AdminController extends Controller
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema,' . $id . ',tema_id',
-                'orden_indice' => 'nullable|integer|min:0|max:999'
+                'orden_indice' => 'nullable|integer|min:0|max:999',
+                'publicado' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema',
-                'orden_indice'
+                'orden_indice',
+                'publicado'
             ]);
+            $datos['publicado'] = $request->boolean('publicado');
 
             // Actualizar tema
             $tema->actualizar($datos);
@@ -228,14 +234,17 @@ class AdminController extends Controller
                 'tema_id' => 'required|integer|exists:tema,tema_id',
                 'clave_subtema' => 'nullable|string|max:15',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
-                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048'
+                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048',
+                'publicado' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
                 'subtema_titulo',
                 'tema_id',
-                'clave_subtema'
+                'clave_subtema',
+                'publicado'
             ]);
+            $datos['publicado'] = $request->boolean('publicado');
 
             if ($request->filled('orden_indice')) {
                 $datos['orden_indice'] = $request->orden_indice;
@@ -288,14 +297,17 @@ class AdminController extends Controller
                 'tema_id' => 'required|integer|exists:tema,tema_id',
                 'clave_subtema' => 'nullable|string|max:15',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
-                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048'
+                'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048',
+                'publicado' => 'nullable|boolean'
             ]);
 
             $datos = $request->only([
                 'subtema_titulo',
                 'tema_id',
-                'clave_subtema'
+                'clave_subtema',
+                'publicado'
             ]);
+            $datos['publicado'] = $request->boolean('publicado');
 
             if ($request->tema_id != $subtema->tema_id) {
                 $datos['orden_indice'] = SubtemaV2::siguienteOrden($request->tema_id);

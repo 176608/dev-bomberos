@@ -1,156 +1,114 @@
-<!-- Header del CRUD -->
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-bookmarks"></i> Panel CRUD de Subtemas</h5>
-            </div>
-            <div class="card-body">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if($errors->any())
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle"></i> 
-                        <strong>Errores de validación:</strong>
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-            </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-bookmarks"></i> Panel CRUD de Subtemas</h5>
+        <div>
+            <span class="badge bg-secondary me-2">Total: <strong>{{ count($subtemas ?? []) }}</strong></span>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                <i class="bi bi-plus-circle"></i> Nuevo Subtema
+            </button>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Subtema
+    <div class="card-body">
+        @if(isset($subtemas) && count($subtemas) > 0)
+            <div class="table-responsive">
+                <table id="tablaSubtemas" class="table table-striped table-hover table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Título del Subtema</th>
+                            <th>Tema Padre</th>
+                            <th>Imagen</th>
+                            <th>Orden</th>
+                            <th>Clave Subtema</th>
+                            <th>Clave Efectiva</th>
+                            <th>Publicado</th>
+                            <th width="120">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($subtemas as $subtema)
+                        @php
+                            $infoClave = $subtema->obtenerInfoClave();
+                        @endphp
+                        <tr>
+                            <td>
+                                <strong>{{ $subtema->subtema_titulo }}</strong>
+                            </td>
+                            <td>
+                                @if($subtema->tema)
+                                    <span class="badge bg-success">{{ $subtema->tema->tema_titulo }}</span>
+                                @else
+                                    <span class="text-danger">Sin tema asignado</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($subtema->imagen)
+                                    <img src="{{ asset('imagenes/subtemas_u/' . $subtema->imagen) }}" alt="Imagen" 
+                                         class="img-thumbnail" style="max-width: 40px; max-height: 40px;">
+                                @else
+                                    <i class="bi bi-image text-muted"></i>
+                                @endif
+                            </td>
+                            <td data-order="{{ $subtema->orden_indice ?? 0 }}">
+                                <span class="badge bg-info">{{ $subtema->orden_indice ?? 0 }}</span>
+                            </td>
+                            <td>
+                                @if($subtema->clave_subtema)
+                                    <code>{{ $subtema->clave_subtema }}</code>
+                                @else
+                                    <span class="text-muted">Sin clave</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($infoClave['clave_efectiva'])
+                                    <span class="badge 
+                                        @if($infoClave['origen'] == 'propia') bg-primary
+                                        @elseif($infoClave['origen'] == 'heredada del tema') bg-secondary
+                                        @elseif($infoClave['origen'] == 'propia (menor orden)') bg-success
+                                        @else bg-warning text-dark
+                                        @endif
+                                    " title="Origen: {{ $infoClave['origen'] }}">
+                                        {{ $infoClave['clave_efectiva'] }}
+                                    </span>
+                                @else
+                                    <span class="text-muted">Sin clave</span>
+                                @endif
+                            </td>
+                            <td class="text-center" data-order="{{ $subtema->publicado ? 1 : 0 }}">
+                                @if($subtema->publicado)
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i></span>
+                                @else
+                                    <span class="badge bg-secondary"><i class="bi bi-x-circle"></i></span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-warning" 
+                                            title="Editar" 
+                                            onclick="editarSubtema({{ $subtema->subtema_id }})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" 
+                                            title="Eliminar" 
+                                            onclick="eliminarSubtema({{ $subtema->subtema_id }}, '{{ addslashes($subtema->subtema_titulo) }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="text-center py-4">
+                <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
+                <p class="text-muted">Comienza agregando tu primer subtema haciendo clic en el botón "Nuevo Subtema".</p>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
+                    <i class="bi bi-plus-circle"></i> Agregar Primer Subtema
                 </button>
-                <small class="text-muted d-block mt-2">Total de registros: <strong>{{ count($subtemas ?? []) }}</strong></small>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Tabla de datos -->
-<div class="row pb-5">
-    <div class="col-10 offset-1">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-table"></i> Listado de Subtemas</h6>
-            </div>
-            <div class="card-body">
-                @if(isset($subtemas) && count($subtemas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaSubtemas" class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Título del Subtema</th>
-                                    <th>Tema Padre</th>
-                                    <th>Imagen</th>
-                                    <th>Orden</th>
-                                    <th>Clave Subtema</th>
-                                    <th>Clave Efectiva</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($subtemas as $subtema)
-                                @php
-                                    $infoClave = $subtema->obtenerInfoClave();
-                                @endphp
-                                <tr>
-                                    <td><span class="badge bg-secondary">{{ $subtema->subtema_id }}</span></td>
-                                    <td>
-                                        <strong>{{ $subtema->subtema_titulo }}</strong>
-                                    </td>
-                                    <td>
-                                        @if($subtema->tema)
-                                            <span class="badge bg-success">{{ $subtema->tema->tema_titulo }}</span>
-                                        @else
-                                            <span class="text-danger">Sin tema asignado</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($subtema->imagen)
-                                            <img src="{{ asset('imagenes/subtemas_u/' . $subtema->imagen) }}" alt="Imagen" 
-                                                 class="img-thumbnail" style="max-width: 40px; max-height: 40px;">
-                                        @else
-                                            <i class="bi bi-image text-muted"></i>
-                                        @endif
-                                    </td>
-                                    <td data-order="{{ $subtema->orden_indice ?? 0 }}">
-                                        <span class="badge bg-info">{{ $subtema->orden_indice ?? 0 }}</span>
-                                    </td>
-                                    <td>
-                                        @if($subtema->clave_subtema)
-                                            <code>{{ $subtema->clave_subtema }}</code>
-                                        @else
-                                            <span class="text-muted">Sin clave</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($infoClave['clave_efectiva'])
-                                            <span class="badge 
-                                                @if($infoClave['origen'] == 'propia') bg-primary
-                                                @elseif($infoClave['origen'] == 'heredada del tema') bg-secondary
-                                                @elseif($infoClave['origen'] == 'propia (menor orden)') bg-success
-                                                @else bg-warning text-dark
-                                                @endif
-                                            " title="Origen: {{ $infoClave['origen'] }}">
-                                                {{ $infoClave['clave_efectiva'] }}
-                                            </span>
-                                        @else
-                                            <span class="text-muted">Sin clave</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-warning" 
-                                                    title="Editar" 
-                                                    onclick="editarSubtema({{ $subtema->subtema_id }})">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" 
-                                                    title="Eliminar" 
-                                                    onclick="eliminarSubtema({{ $subtema->subtema_id }}, '{{ addslashes($subtema->subtema_titulo) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
-                        <p class="text-muted">Comienza agregando tu primer subtema haciendo clic en el botón "Nuevo Subtema".</p>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Subtema
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
+        @endif
     </div>
 </div>
 
@@ -265,6 +223,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="publicado" name="publicado" value="1" checked>
+                                <label class="form-check-label" for="publicado">Publicado</label>
+                                <small class="form-text text-muted d-block">Visible en SIGEM V2</small>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="alert alert-info">
                         <h6><i class="bi bi-info-circle"></i> Información sobre Orden:</h6>
@@ -371,6 +339,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="edit_publicado" name="publicado" value="1">
+                                <label class="form-check-label" for="edit_publicado">Publicado</label>
+                                <small class="form-text text-muted d-block">Visible en SIGEM V2</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -416,40 +394,41 @@ $(document).ready(function() {
         },
         columnDefs: [
             {
-                targets: 0, // Columna ID
-                width: "6%",
-                className: "text-center"
-            },
-            {
-                targets: 1, // Columna Título Subtema
+                targets: 0, // Columna Título Subtema
                 width: "25%"
             },
             {
-                targets: 2, // Columna Tema Padre
+                targets: 1, // Columna Tema Padre
                 width: "15%"
             },
             {
-                targets: 3, // Columna Imagen
+                targets: 2, // Columna Imagen
                 width: "8%",
                 className: "text-center",
                 orderable: false,
                 searchable: false
             },
             {
-                targets: 4, // Columna Orden
+                targets: 3, // Columna Orden
                 width: "8%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 5, // Columna Clave Subtema
+                targets: 4, // Columna Clave Subtema
                 width: "12%",
                 className: "text-center"
             },
             {
-                targets: 6, // Columna Clave Efectiva
+                targets: 5, // Columna Clave Efectiva
                 width: "12%",
                 className: "text-center"
+            },
+            {
+                targets: 6, // Columna Publicado
+                width: "8%",
+                className: "text-center",
+                type: "num"
             },
             {
                 targets: 7, // Columna Acciones
@@ -459,7 +438,7 @@ $(document).ready(function() {
                 searchable: false
             }
         ],
-        order: [[2, 'asc'], [4, 'asc']], // Ordenar por tema padre y luego por orden
+        order: [[1, 'asc'], [3, 'asc']], // Ordenar por tema padre y luego por orden
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
         dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
@@ -597,18 +576,18 @@ const routesSubtemas = {
 };
 
 function editarSubtema(id) {
-    // Buscar los datos del subtema en la tabla
     const fila = event.target.closest('tr');
-    const subtema_titulo = fila.cells[1].querySelector('strong').textContent;
-    const tema_badge = fila.cells[2].querySelector('.badge');
-    const orden_indice = fila.cells[4].querySelector('.badge').textContent;
-    const clave_code = fila.cells[5].querySelector('code');
+    const subtema_titulo = fila.cells[0].querySelector('strong').textContent;
+    const tema_badge = fila.cells[1].querySelector('.badge');
+    const orden_indice = fila.cells[3].querySelector('.badge').textContent;
+    const clave_code = fila.cells[4].querySelector('code');
+    const publicado = fila.cells[6].querySelector('.badge.bg-success') !== null;
     
-    // Llenar el modal de edición
     document.getElementById('edit_subtema_id').value = id;
     document.getElementById('edit_subtema_titulo').value = subtema_titulo;
     document.getElementById('edit_orden_indice').value = orden_indice;
     document.getElementById('edit_clave_subtema').value = clave_code ? clave_code.textContent : '';
+    document.getElementById('edit_publicado').checked = publicado;
     
     // Limpiar campo de eliminación de imagen si existe
     const form = document.getElementById('formEditarSubtema');
@@ -630,7 +609,7 @@ function editarSubtema(id) {
     }
     
     // Configurar vista previa de la imagen
-    const imagenCell = fila.cells[3];
+    const imagenCell = fila.cells[2];
     const imagenImg = imagenCell.querySelector('img');
     const imagenActualContainer = document.getElementById('imagen_actual_container');
     const btnAgregar = document.getElementById('btn_agregar_imagen_edit');
@@ -669,9 +648,8 @@ function editarSubtema(id) {
 }
 
 function eliminarSubtema(id, titulo) {
-    // Obtener información del tema
     const fila = event.target.closest('tr');
-    const temaBadge = fila.cells[2].querySelector('.badge');
+    const temaBadge = fila.cells[1].querySelector('.badge');
     const temaNombre = temaBadge ? temaBadge.textContent : 'tema desconocido';
     
     const mensaje = `¿Estás seguro de eliminar el subtema "${titulo}" del tema "${temaNombre}"?\n\n⚠️ Esta acción también eliminará:\n- La imagen asociada (si existe)\n- NO se puede deshacer\n\nNOTA: Si tiene cuadros estadísticos asociados, no se podrá eliminar.`;

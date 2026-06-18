@@ -71,4 +71,57 @@
     margin-bottom: 0.5rem;
 }
 </style>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('success'))
+        mostrarToast('success', '{{ session('success') }}');
+    @endif
+    @if(session('error'))
+        mostrarToast('danger', '{{ session('error') }}');
+    @endif
+    @if($errors->any())
+        mostrarToast('warning', 'Errores de validación: Corrige los campos marcados.');
+    @endif
+});
+
+function mostrarToast(type, message) {
+    const container = document.getElementById('sgiemToastContainer');
+    const icons = {
+        success: 'bi-check-circle-fill',
+        danger: 'bi-exclamation-circle-fill',
+        warning: 'bi-exclamation-triangle-fill',
+        info: 'bi-info-circle-fill'
+    };
+    const titleText = {
+        success: 'Éxito',
+        danger: 'Error',
+        warning: 'Advertencia',
+        info: 'Información'
+    };
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = 'toast';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.setAttribute('data-bs-delay', '60000');
+    toast.innerHTML = `
+        <div class="toast-header text-white bg-${type}">
+            <i class="bi ${icons[type] || icons.info} me-2"></i>
+            <strong class="me-auto">${titleText[type] || 'Mensaje'}</strong>
+            <small>ahora</small>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+    container.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 60000 });
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', function() { this.remove(); });
+}
+</script>
 @endsection

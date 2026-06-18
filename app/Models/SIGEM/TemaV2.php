@@ -13,14 +13,16 @@ class TemaV2 extends Model
     protected $fillable = [
         'tema_titulo',
         'orden_indice',
-        'clave_tema'
+        'clave_tema',
+        'publicado'
     ];
 
     protected $casts = [
         'tema_id' => 'integer',
         'tema_titulo' => 'string',
         'orden_indice' => 'integer',
-        'clave_tema' => 'string'
+        'clave_tema' => 'string',
+        'publicado' => 'boolean'
     ];
 
     public function subtemas()

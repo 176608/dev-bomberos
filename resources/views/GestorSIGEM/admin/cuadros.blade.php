@@ -1,9 +1,12 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos V2</h4>
-        <a href="{{ route('sgiem.admin.cuadros-v2.create') }}" class="btn btn-success">
-            <i class="bi bi-plus-lg"></i> Nuevo Cuadro V2
-        </a>
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos V2</h5>
+        <div>
+            <span class="badge bg-secondary me-2">Total: <strong>{{ $total_cuadros ?? $cuadros->count() ?? 0 }}</strong></span>
+            <a href="{{ route('sgiem.admin.cuadros-v2.create') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-lg"></i> Nuevo Cuadro V2
+            </a>
+        </div>
     </div>
     <div class="card-body">
         @if(session('success'))

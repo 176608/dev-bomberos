@@ -15,7 +15,8 @@ class SubtemaV2 extends Model
         'imagen',
         'orden_indice',
         'tema_id',
-        'clave_subtema'
+        'clave_subtema',
+        'publicado'
     ];
 
     protected $casts = [
@@ -24,7 +25,8 @@ class SubtemaV2 extends Model
         'subtema_titulo' => 'string',
         'imagen' => 'string',
         'orden_indice' => 'integer',
-        'clave_subtema' => 'string'
+        'clave_subtema' => 'string',
+        'publicado' => 'boolean'
     ];
 
     public function tema()
