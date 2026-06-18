@@ -73,6 +73,23 @@
 .dataTables_wrapper input[type="search"] {
     background-color: #fff !important;
 }
+.dataTables_wrapper select {
+    background-color: #fff !important;
+}
+.dataTables_wrapper .paginate_button {
+    background-color: #fff !important;
+}
+.dataTables_wrapper .paginate_button.current {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+}
+.dataTables_wrapper .paginate_button:hover {
+    background-color: #e9ecef !important;
+}
+.dataTables_wrapper .paginate_button.current:hover {
+    background-color: #0b5ed7 !important;
+    color: #fff !important;
+}
 </style>
 
 <div class="toast-container position-fixed bottom-0 start-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>
