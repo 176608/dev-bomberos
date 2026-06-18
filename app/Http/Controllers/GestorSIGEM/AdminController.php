@@ -106,14 +106,18 @@ class AdminController extends Controller
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
-                'publicado' => 'nullable|boolean'
+                'publicado' => 'nullable|boolean',
+                'color' => 'nullable|string|max:7',
+                'icono' => 'nullable|string|max:50'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema', 
                 'orden_indice',
-                'publicado'
+                'publicado',
+                'color',
+                'icono'
             ]);
             $datos['publicado'] = $request->boolean('publicado');
 
@@ -158,14 +162,18 @@ class AdminController extends Controller
                 'tema_titulo' => 'required|string|max:255',
                 'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema,' . $id . ',tema_id',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
-                'publicado' => 'nullable|boolean'
+                'publicado' => 'nullable|boolean',
+                'color' => 'nullable|string|max:7',
+                'icono' => 'nullable|string|max:50'
             ]);
 
             $datos = $request->only([
                 'tema_titulo',
                 'clave_tema',
                 'orden_indice',
-                'publicado'
+                'publicado',
+                'color',
+                'icono'
             ]);
             $datos['publicado'] = $request->boolean('publicado');
 
@@ -231,7 +239,7 @@ class AdminController extends Controller
         try {
             $request->validate([
                 'subtema_titulo' => 'required|string|max:255',
-                'tema_id' => 'required|integer|exists:tema,tema_id',
+                'tema_id' => 'required|integer|exists:tema_v2,tema_id',
                 'clave_subtema' => 'nullable|string|max:15',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
                 'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048',
@@ -294,7 +302,7 @@ class AdminController extends Controller
 
             $request->validate([
                 'subtema_titulo' => 'required|string|max:255',
-                'tema_id' => 'required|integer|exists:tema,tema_id',
+                'tema_id' => 'required|integer|exists:tema_v2,tema_id',
                 'clave_subtema' => 'nullable|string|max:15',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
                 'imagen' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048',

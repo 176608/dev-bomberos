@@ -14,7 +14,9 @@ class TemaV2 extends Model
         'tema_titulo',
         'orden_indice',
         'clave_tema',
-        'publicado'
+        'publicado',
+        'color',
+        'icono'
     ];
 
     protected $casts = [
@@ -22,7 +24,9 @@ class TemaV2 extends Model
         'tema_titulo' => 'string',
         'orden_indice' => 'integer',
         'clave_tema' => 'string',
-        'publicado' => 'boolean'
+        'publicado' => 'boolean',
+        'color' => 'string',
+        'icono' => 'string'
     ];
 
     public function subtemas()

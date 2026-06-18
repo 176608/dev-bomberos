@@ -4,9 +4,7 @@
 
 @section('visor_content')
 @php
-    $coloresTema = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98'];
-    $temasDetalle = $estructura['temas_detalle'] ?? [];
-    $totalTemas = $estructura['total_temas'] ?? count($temasDetalle);
+    $totalTemas = $temas->count();
 @endphp
 
 <style>
@@ -28,6 +26,11 @@
     cursor: pointer; transition: all 0.3s ease;
 }
 .indice-tema-header:hover { transform: translateY(-1px); }
+
+.indice-tema-header.opacity-50 {
+    opacity: 0.5;
+}
+
 .indice-subtema-row {
     display: flex; border-bottom: 1px solid #eee;
     cursor: pointer; transition: all 0.3s ease; align-items: center;
@@ -94,13 +97,6 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <div class="row">
-            
-        </div>
-        <div class="row">
-            
-        </div>
-
         <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los indicadores estadísticos.</p>
 
         <div class="row mt-4 catalogo-row">
@@ -111,25 +107,29 @@
                     </div>
                     <div class="card-body p-0">
                         <div id="indice-container">
-                            @forelse($temasDetalle as $temaIdx => $tema)
+                            @forelse($temas as $temaIdx => $tema)
                                 @php
-                                    $color = $coloresTema[$temaIdx % count($coloresTema)];
-                                    $temaId = $tema['tema_id'] ?? $temaIdx;
-                                    $temaTitulo = $tema['titulo'] ?? key($estructura['estructura'] ?? []);
+                                    $bgColor = $tema->color ?? '#8FBC8F';
+                                    $claseNoPublicado = (!$tema->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                 @endphp
                                 <div class="indice-tema-container">
-                                    <div class="indice-tema-header" style="background-color: {{ $color }};" onclick="document.getElementById('tema-{{ $temaId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
-                                        {{ $temaIdx + 1 }}. {{ $temaTitulo }}
+                                    <div class="indice-tema-header {{ $claseNoPublicado }}" style="background-color: {{ $bgColor }};" onclick="document.getElementById('tema-{{ $tema->tema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
+                                        {{ $temaIdx + 1 }}. {{ $tema->tema_titulo }}
+                                        @if(!$tema->publicado && $esDesarrollador)
+                                            <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i></span>
+                                        @endif
                                     </div>
-                                    @php $subtemas = $tema['subtemas'] ?? []; @endphp
-                                    @forelse($subtemas as $stIdx => $subtema)
+                                    @forelse($tema->subtemas as $stIdx => $subtema)
                                         @php
-                                            $stId = $subtema['subtema_id'] ?? $stIdx;
-                                            $claveEfectiva = $subtema['clave_efectiva'] ?? ($tema['clave_tema'] ?? 'N/A');
+                                            $claveEfectiva = $subtema->obtenerClaveEfectiva() ?? ($tema->clave_tema ?? 'N/A');
+                                            $stClaseNoPublicado = (!$subtema->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                         @endphp
-                                        <div class="indice-subtema-row" style="background-color: {{ $stIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="document.getElementById('subtema-{{ $temaId }}-{{ $stId }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
+                                        <div class="indice-subtema-row {{ $stClaseNoPublicado }}" style="background-color: {{ $stIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="document.getElementById('subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                             <div style="min-width:40px;text-align:center;font-weight:600;color:#2a6e48;padding:8px;">{{ $claveEfectiva }}</div>
-                                            <div style="flex:1;padding:8px 8px 8px 0;">{{ $subtema['titulo'] ?? $subtema['nombre'] ?? '' }}</div>
+                                            <div style="flex:1;padding:8px 8px 8px 0;">{{ $subtema->subtema_titulo }}</div>
+                                            @if(!$subtema->publicado && $esDesarrollador)
+                                                <div style="padding:8px;"><span class="badge bg-warning text-dark" style="font-size:0.6rem;"><i class="bi bi-eye-slash"></i></span></div>
+                                            @endif
                                         </div>
                                     @empty
                                         <div class="text-center text-muted p-3">Sin subtemas</div>
@@ -150,31 +150,36 @@
                     </div>
                     <div class="card-body p-0">
                         <div id="indicadores-container">
-                            @forelse($temasDetalle as $temaIdx => $tema)
+                            @forelse($temas as $temaIdx => $tema)
                                 @php
-                                    $temaId = $tema['tema_id'] ?? $temaIdx;
-                                    $temaTitulo = $tema['titulo'] ?? '';
-                                    $color = $coloresTema[$temaIdx % count($coloresTema)];
+                                    $bgColor = $tema->color ?? '#8FBC8F';
                                 @endphp
-                                <div id="tema-{{ $temaId }}" style="margin-bottom:16px;">
-                                    <div class="p-2 fw-bold" style="background-color: {{ $color }};">
-                                        {{ $temaIdx + 1 }}. {{ mb_strtoupper($temaTitulo) }}
+                                <div id="tema-{{ $tema->tema_id }}" style="margin-bottom:16px;">
+                                    <div class="p-2 fw-bold" style="background-color: {{ $bgColor }};">
+                                        {{ $temaIdx + 1 }}. {{ mb_strtoupper($tema->tema_titulo) }}
+                                        @if(!$tema->publicado && $esDesarrollador)
+                                            <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i> No publicado</span>
+                                        @endif
                                     </div>
 
-                                    @php $subtemas = $tema['subtemas'] ?? []; @endphp
-                                    @forelse($subtemas as $stIdx => $subtema)
+                                    @forelse($tema->subtemas as $stIdx => $subtema)
                                         @php
-                                            $stId = $subtema['subtema_id'] ?? $stIdx;
-                                            $subtemaTitulo = $subtema['titulo'] ?? $subtema['nombre'] ?? '';
-                                            $indicadoresSubtema = $indicadores->where('subtema_id', $stId);
+                                            $indicadoresSubtema = $indicadores->where('subtema_id', $subtema->subtema_id);
                                         @endphp
-                                        <div id="subtema-{{ $temaId }}-{{ $stId }}">
-                                            <div class="fw-bold px-2 py-1" style="background:#e8f5e9;border-left:4px solid #2a6e48;font-size:0.9rem;">
-                                                <i class="bi bi-bookmark-fill me-1 text-success"></i>{{ $subtemaTitulo }}
+                                        <div id="subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}">
+                                            <div class="fw-bold px-2 py-1" style="background:#e8f5e9;border-left:4px solid #2a6e48;font-size:0.9rem;{{ !$subtema->publicado && $esDesarrollador ? 'opacity:0.5;' : '' }}">
+                                                <i class="bi bi-bookmark-fill me-1 text-success"></i>{{ $subtema->subtema_titulo }}
+                                                @if(!$subtema->publicado && $esDesarrollador)
+                                                    <span class="badge bg-warning text-dark ms-1"><i class="bi bi-eye-slash"></i></span>
+                                                @endif
                                             </div>
 
                                             @forelse($indicadoresSubtema as $indIdx => $indicador)
-                                                <div class="indicador-fila" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="alert('ID del Indicador: {{ $indicador->cuadro_id }}')">
+                                                @php
+                                                    $indClase = (!$indicador->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                                                    $indBorde = (!$indicador->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
+                                                @endphp
+                                                <div class="indicador-fila {{ $indClase }}" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $indBorde }}" onclick="alert('ID del Indicador: {{ $indicador->cuadro_id }}')">
                                                     <span class="codigo">{{ $indicador->codigo_cuadro }}</span>
                                                     <span class="titulo">
                                                         <strong>{{ $indicador->c_titulo }}</strong>
@@ -182,6 +187,9 @@
                                                             <div class="subtitulo">{{ $indicador->c_subtitulo }}</div>
                                                         @endif
                                                     </span>
+                                                    @if(!$indicador->publicado && $esDesarrollador)
+                                                        <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;"><i class="bi bi-eye-slash"></i></span>
+                                                    @endif
                                                 </div>
                                             @empty
                                                 <div class="text-center text-muted small p-2">Sin indicadores en este subtema</div>

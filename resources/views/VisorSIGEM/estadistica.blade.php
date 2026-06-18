@@ -3,17 +3,6 @@
 @section('visor_title', 'SIGEM v2 — Estadística')
 
 @section('visor_content')
-@php
-    $coloresEstilo = [
-        'background-color: #8FBC8F; color: #3b3b3bff;',
-        'background-color: #87CEEB; color: #3b3b3bff;',
-        'background-color: #DDA0DD; color: #3b3b3bff;',
-        'background-color: #F0E68C; color: #3b3b3bff;',
-        'background-color: #FFA07A; color: #3b3b3bff;',
-        'background-color: #98FB98; color: #3b3b3bff;'
-    ];
-@endphp
-
 <style>
 .estadistica-intro-image {
     position: relative;
@@ -218,10 +207,11 @@
                 <div class="temas-grid-container">
                     @foreach($temas as $index => $tema)
                         @php
-                            $colorTema = $coloresEstilo[$index % count($coloresEstilo)];
+                            $bgColor = $tema->color ?? '#8FBC8F';
+                            $icono = $tema->icono ?? 'bi-file-earmark-text';
                             $claseNoPublicado = (!$tema->publicado && $esDesarrollador) ? 'opacity-50' : '';
                         @endphp
-                        <div class="tema-card {{ $claseNoPublicado }}" style="{{ $colorTema }}">
+                        <div class="tema-card {{ $claseNoPublicado }}" style="background-color: {{ $bgColor }}; color: #3b3b3bff;">
                             @if(!$tema->publicado && $esDesarrollador)
                                 <span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2" style="z-index: 10;">
                                     <i class="bi bi-eye-slash"></i> No publicado
@@ -230,21 +220,7 @@
                             <a href="{{ route('sigem.v2.estadistica.tema', ['tema_id' => $tema->tema_id]) }}"
                                class="enlace-completo">
                                 <div class="row-icono">
-                                    @if($tema->orden_indice == 1)
-                                        <i class="bi bi-globe"></i>
-                                    @elseif($tema->orden_indice == 2)
-                                        <i class="bi bi-leaf"></i>
-                                    @elseif($tema->orden_indice == 3)
-                                        <i class="bi bi-person-bounding-box"></i>
-                                    @elseif($tema->orden_indice == 4)
-                                        <i class="bi bi-archive-fill"></i>
-                                    @elseif($tema->orden_indice == 5)
-                                        <i class="bi bi-cash-coin"></i>
-                                    @elseif($tema->orden_indice == 6)
-                                        <i class="bi bi-bank2"></i>
-                                    @else
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    @endif
+                                    <i class="{{ $icono }}"></i>
                                 </div>
                                 <div class="row-titulo">
                                     <h5 class="titulo-tema mb-3">

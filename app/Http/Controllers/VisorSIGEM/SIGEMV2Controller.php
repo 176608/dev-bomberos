@@ -5,7 +5,6 @@ namespace App\Http\Controllers\VisorSIGEM;
 use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\Cuadro;
-use App\Models\SIGEM\Catalogo;
 use App\Models\SIGEM\ce_tema;
 use App\Models\SIGEM\ce_subtema;
 use App\Models\SIGEM\ce_contenido;
@@ -19,7 +18,7 @@ class SIGEMV2Controller extends Controller
 
     public function __construct()
     {
-        // No se bloquea a usuarios no autenticados; el filtro de publicado se aplica por query
+        // Por ahora vamos a seguirlo bloqueando, pero se puede quitar esta línea si se quiere permitir acceso público
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
@@ -37,9 +36,23 @@ class SIGEMV2Controller extends Controller
 
     public function catalogo()
     {
-        $estructura = Catalogo::obtenerEstructuraCatalogoConClaves();
+        $esDesarrollador = $this->esDesarrollador();
+
+        $temasQuery = TemaV2::with(['subtemas' => function ($q) use ($esDesarrollador) {
+            $q->orderBy('orden_indice');
+            if (!$esDesarrollador) {
+                $q->where('publicado', true);
+            }
+        }])->orderBy('orden_indice');
+
+        if (!$esDesarrollador) {
+            $temasQuery->where('publicado', true);
+        }
+
+        $temas = $temasQuery->get();
+
         $query = Cuadro::query();
-        if (!$this->esDesarrollador()) {
+        if (!$esDesarrollador) {
             $query->where('publicado', true);
         }
         $indicadores = $query->get();
@@ -56,7 +69,7 @@ class SIGEMV2Controller extends Controller
             return 0;
         });
 
-        return view('VisorSIGEM.catalogo', compact('estructura', 'indicadores'));
+        return view('VisorSIGEM.catalogo', compact('temas', 'indicadores', 'esDesarrollador'));
     }
 
     public function estadistica()
@@ -90,7 +103,11 @@ class SIGEMV2Controller extends Controller
         }
 
         $tema_subtemas = $tema->subtemas;
-        $temas = TemaV2::orderBy('orden_indice')->get();
+        $temas = TemaV2::orderBy('orden_indice');
+        if (!$esDesarrollador) {
+            $temas->where('publicado', true);
+        }
+        $temas = $temas->get();
 
         $indicadores = collect([]);
         $subtema_seleccionado = null;

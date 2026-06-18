@@ -19,6 +19,7 @@
                             <th>Título del Tema</th>    
                             <th>Orden Índice</th>
                             <th>Clave Tema</th>
+                            <th>Color / Icono</th>
                             <th>Subtemas</th>
                             <th>Publicado</th>
                             <th>Acciones</th>
@@ -42,6 +43,16 @@
                                 @else
                                     <span class="text-muted">Sin clave</span>
                                 @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <span style="display: inline-block; width: 24px; height: 24px; border-radius: 4px; background-color: {{ $tema->color ?? '#8FBC8F' }}; border: 1px solid #ddd;"></span>
+                                    @if($tema->icono)
+                                        <i class="{{ $tema->icono }}" style="font-size: 1.1rem;"></i>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </div>
                             </td>
                             <td data-order="{{ $tema->subtemas()->count() ?? 0 }}">
                                 @php
@@ -124,15 +135,58 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="clave_tema" class="form-label">Clave del Tema</label>
-                                <input type="text" class="form-control @error('clave_tema') is-invalid @enderror" 
-                                       id="clave_tema" name="clave_tema" 
-                                       placeholder="Ej: ECO" maxlength="10"
-                                       value="{{ old('clave_tema') }}">
-                                @error('clave_tema')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
+                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
+                                       min="0" max="999">
                             </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Color del Tema</label>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <input type="color" class="form-control form-control-color w-auto" id="edit_color" name="color" value="#8FBC8F" title="Elige un color">
+                                    <input type="text" class="form-control form-control-sm w-auto" id="edit_color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
+                                </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($coloresPredefinidos as $hex)
+                                        <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_icono" class="form-label">Ícono Bootstrap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="edit-icono-preview"><i class="bi bi-globe"></i></span>
+                                    <input type="text" class="form-control icon-input" id="edit_icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="edit-icono-preview">
+                                    <a href="https://icons.getbootstrap.com/" target="_blank" class="btn btn-outline-primary" title="Buscar íconos en Bootstrap Icons">
+                                        <i class="bi bi-search"></i> Buscar ícono
+                                    </a>
+                                </div>
+                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo (<code>&lt;i class="bi bi-globe"&gt;&lt;/i&gt;</code>)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Vista previa</label>
+                                <div id="edit-preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+                                        <i id="edit-preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
+                                        <span id="edit-preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                         </div>
                         
                         <div class="col-md-6">
@@ -201,12 +255,74 @@
                     </div>
                     
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="orden_indice" class="form-label">Orden en Índice</label>
+                                <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
+                                       id="orden_indice" name="orden_indice" 
+                                       placeholder="1" min="0" max="999" 
+                                       value="{{ old('orden_indice', 1) }}">
+                                <small class="form-text text-muted">Orden de aparición en listados</small>
+                                @error('orden_indice')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Color del Tema <span class="text-danger">*</span></label>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <input type="color" class="form-control form-control-color w-auto" id="color" name="color" value="#8FBC8F" title="Elige un color">
+                                    <input type="text" class="form-control form-control-sm w-auto" id="color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
+                                </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @php
+                                        $coloresPredefinidos = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98', '#FFB347', '#77DD77', '#AEC6CF', '#E6A8D7', '#B19CD9', '#FFD1DC'];
+                                    @endphp
+                                    @foreach($coloresPredefinidos as $hex)
+                                        <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edit_clave_tema" class="form-label">Clave del Tema</label>
-                                <input type="text" class="form-control" id="edit_clave_tema" name="clave_tema" maxlength="10">
+                                <label for="icono" class="form-label">Ícono Bootstrap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="icono-preview-create"><i class="bi bi-globe"></i></span>
+                                    <input type="text" class="form-control icon-input" id="icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="icono-preview-create">
+                                    <a href="https://icons.getbootstrap.com/" target="_blank" class="btn btn-outline-primary" title="Buscar íconos en Bootstrap Icons">
+                                        <i class="bi bi-search"></i> Buscar ícono
+                                    </a>
+                                </div>
+                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo (<code>&lt;i class="bi bi-globe"&gt;&lt;/i&gt;</code>)</small>
                             </div>
+                        </div>
+                                <small class="form-text text-muted">Selecciona un ícono de Bootstrap Icons para representar el tema</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Vista previa en el menú de Estadística</label>
+                                <div id="preview-card-container">
+                                    <div id="preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+                                            <i id="preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
+                                            <span id="preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Así se verá en el módulo Estadística de SIGEM V2</small>
+                            </div>
+                        </div>
+                    </div>
                         </div>
 
                         <div class="col-md-6">
@@ -284,34 +400,41 @@ $(document).ready(function() {
         columnDefs: [
             {
                 targets: 0, // Columna Título
-                width: "30%"
+                width: "25%"
             },
             {
                 targets: 1, // Columna Orden
-                width: "12%",
-                className: "text-center",
-                type: "num"
-            },
-            {
-                targets: 2, // Columna Clave
-                width: "15%",
-                className: "text-center"
-            },
-            {
-                targets: 3, // Columna Subtemas
-                width: "15%",
-                className: "text-center",
-                type: "num"
-            },
-            {
-                targets: 4, // Columna Publicado
                 width: "10%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 5, // Columna Acciones
-                width: "120px",
+                targets: 2, // Columna Clave
+                width: "12%",
+                className: "text-center"
+            },
+            {
+                targets: 3, // Columna Color/Icono
+                width: "10%",
+                className: "text-center",
+                orderable: false,
+                searchable: false
+            },
+            {
+                targets: 4, // Columna Subtemas
+                width: "12%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 5, // Columna Publicado
+                width: "8%",
+                className: "text-center",
+                type: "num"
+            },
+            {
+                targets: 6, // Columna Acciones
+                width: "100px",
                 className: "text-center",
                 orderable: false,
                 searchable: false
@@ -342,13 +465,23 @@ function editarTema(id) {
     const orden_indice = fila.cells[1].getAttribute('data-order') || fila.cells[1].querySelector('.badge').textContent;
     const clave_tema_cell = fila.cells[2];
     const clave_tema = clave_tema_cell.querySelector('.badge')?.textContent || '';
-    const publicado = fila.cells[4].querySelector('.badge.bg-success') !== null;
+    const colorIconoCell = fila.cells[3];
+    const colorSwatch = colorIconoCell.querySelector('span');
+    const iconElem = colorIconoCell.querySelector('i');
+    const color = colorSwatch ? colorSwatch.style.backgroundColor : '#8FBC8F';
+    const icono = iconElem ? iconElem.className : 'bi-globe';
+    const publicado = fila.cells[5].querySelector('.badge.bg-success') !== null;
     
     document.getElementById('edit_tema_id').value = id;
     document.getElementById('edit_tema_titulo').value = tema_titulo;
     document.getElementById('edit_orden_indice').value = orden_indice;
     document.getElementById('edit_clave_tema').value = clave_tema;
+    document.getElementById('edit_color').value = rgbToHex(color);
+    document.getElementById('edit_color_hex').value = rgbToHex(color);
+    document.getElementById('edit_icono').value = icono;
     document.getElementById('edit_publicado').checked = publicado;
+    
+    actualizarPreview('edit');
     
     const form = document.getElementById('formEditarTema');
     form.action = routesTemas.update.replace(':id', id);
@@ -358,7 +491,7 @@ function editarTema(id) {
 
 function eliminarTema(id, titulo) {
     const fila = event.target.closest('tr');
-    const subtemasCell = fila.cells[3];
+    const subtemasCell = fila.cells[4];
     const subtemaBadge = subtemasCell.querySelector('.badge');
     const tieneSubtemas = subtemaBadge && !subtemaBadge.classList.contains('text-muted');
     
@@ -399,20 +532,125 @@ function eliminarTema(id, titulo) {
     }
 }
 
-// Auto-generar clave basada en el título
-document.getElementById('tema_titulo')?.addEventListener('input', function() {
-    const titulo = this.value;
-    if (titulo.length > 2) {
-        const clave = titulo.toUpperCase()
-                          .replace(/[ÁÉÍÓÚÑÜ]/g, function(match) {
-                              const replacements = {'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
-                              return replacements[match];
-                          })
-                          .replace(/[^A-Z0-9]/g, '')
-                          .substring(0, 6) + '01';
-        
-        document.getElementById('clave_tema').value = clave;
+// ============ PREVIEW EN VIVO ============
+function rgbToHex(rgb) {
+    if (!rgb || rgb === '') return '#8FBC8F';
+    if (rgb.startsWith('#')) return rgb;
+    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (!match) return '#8FBC8F';
+    const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
+    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+function extraerClaseIcono(valor) {
+    if (!valor || valor.trim() === '') return 'bi bi-file-earmark-text';
+    // Si es HTML completo: <i class="bi bi-globe"></i>
+    const matchHtml = valor.match(/class=["']([^"']+)["']/);
+    if (matchHtml) return matchHtml[1];
+    // Si ya es clase directa con prefijo bi (con o sin "bi " al inicio)
+    let limpio = valor.trim().replace(/^bi\s+/, '');
+    if (!limpio.startsWith('bi-')) limpio = 'bi-' + limpio.replace(/^bi-?/, '');
+    return limpio;
+}
+
+function actualizarPreview(prefix) {
+    const colorInput = document.getElementById(prefix === 'edit' ? 'edit_color' : 'color');
+    const colorHexInput = document.getElementById(prefix === 'edit' ? 'edit_color_hex' : 'color_hex');
+    const iconInput = document.getElementById(prefix === 'edit' ? 'edit_icono' : 'icono');
+    const previewCard = document.getElementById(prefix + '-preview-card');
+    const previewIcon = document.getElementById(prefix + '-preview-icon');
+    const previewTitulo = document.getElementById(prefix + '-preview-titulo');
+    const ordenInput = document.getElementById(prefix === 'edit' ? 'edit_orden_indice' : 'orden_indice');
+    const tituloInput = document.getElementById(prefix === 'edit' ? 'edit_tema_titulo' : 'tema_titulo');
+    
+    const color = colorInput ? colorInput.value : '#8FBC8F';
+    const iconClass = iconInput ? extraerClaseIcono(iconInput.value) : 'bi-file-earmark-text';
+    const orden = ordenInput ? ordenInput.value || '?' : '?';
+    const titulo = tituloInput ? tituloInput.value || 'Vista previa' : 'Vista previa';
+    
+    if (previewCard) {
+        previewCard.style.backgroundColor = color;
     }
+    if (previewIcon) {
+        previewIcon.className = iconClass;
+    }
+    if (previewTitulo) {
+        previewTitulo.textContent = orden + '. ' + titulo;
+    }
+    if (colorHexInput) {
+        colorHexInput.value = color;
+    }
+    
+    // Actualizar preview del icono en el input-group
+    const previewSpanId = iconInput ? iconInput.getAttribute('data-preview') : null;
+    if (previewSpanId) {
+        const previewSpan = document.getElementById(previewSpanId);
+        if (previewSpan) {
+            previewSpan.innerHTML = '<i class="' + iconClass + '"></i>';
+        }
+    }
+}
+
+// Sincronizar color picker con hex input y preview
+document.addEventListener('DOMContentLoaded', function() {
+    // Color picker changes
+    document.querySelectorAll('input[type="color"]').forEach(function(picker) {
+        picker.addEventListener('input', function() {
+            const prefix = this.id.startsWith('edit_') ? 'edit' : '';
+            const hexInput = document.getElementById(this.id.replace('color', 'color_hex'));
+            if (hexInput) hexInput.value = this.value;
+            actualizarPreview(prefix);
+        });
+    });
+    
+    // Hex input changes
+    document.querySelectorAll('[id$="color_hex"]').forEach(function(hexInput) {
+        hexInput.addEventListener('input', function() {
+            const prefix = this.id.startsWith('edit_') ? 'edit' : '';
+            const colorPicker = document.getElementById(this.id.replace('color_hex', 'color'));
+            if (colorPicker && /^#[0-9a-fA-F]{6}$/.test(this.value)) {
+                colorPicker.value = this.value;
+                actualizarPreview(prefix);
+            }
+        });
+    });
+    
+    // Color swatch clicks
+    document.querySelectorAll('.color-swatch').forEach(function(swatch) {
+        swatch.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            const modal = this.closest('.modal');
+            const isEdit = modal && modal.id === 'modalEditarTema';
+            const prefix = isEdit ? 'edit' : '';
+            const colorPicker = document.getElementById(prefix + 'color');
+            const hexInput = document.getElementById(prefix + 'color_hex');
+            if (colorPicker) colorPicker.value = color;
+            if (hexInput) hexInput.value = color;
+            actualizarPreview(prefix);
+        });
+    });
+    
+    // Icon input changes
+    document.querySelectorAll('.icon-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const modal = this.closest('.modal');
+            const isEdit = modal && modal.id === 'modalEditarTema';
+            const prefix = isEdit ? 'edit' : '';
+            actualizarPreview(prefix);
+        });
+    });
+    
+    // Título y orden changes (for preview)
+    document.querySelectorAll('#tema_titulo, #edit_tema_titulo, #orden_indice, #edit_orden_indice').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const prefix = this.id.startsWith('edit_') ? 'edit' : '';
+            actualizarPreview(prefix);
+        });
+    });
+    
+    // Inicializar previews
+    actualizarPreview('');
+    actualizarPreview('edit');
 });
 
 // Limpiar modales al cerrar
