@@ -1,14 +1,14 @@
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+<div class="card bg-dark bg-opacity-10 border-0">
+    <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
         <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos V2</h5>
         <div>
-            <span class="badge bg-secondary me-2">Total: <strong>{{ $total_cuadros ?? $cuadros->count() ?? 0 }}</strong></span>
+            <span class="badge bg-light text-dark me-2">Total: <strong>{{ $total_cuadros ?? $cuadros->count() ?? 0 }}</strong></span>
             <a href="{{ route('sgiem.admin.cuadros-v2.create') }}" class="btn btn-success btn-sm">
                 <i class="bi bi-plus-lg"></i> Nuevo Cuadro V2
             </a>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body bg-transparent">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif

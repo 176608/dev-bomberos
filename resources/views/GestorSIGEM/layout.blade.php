@@ -70,6 +70,9 @@
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
+.dataTables_wrapper input[type="search"] {
+    background-color: #fff !important;
+}
 </style>
 
 <div class="toast-container position-fixed bottom-0 start-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>
