@@ -1,5 +1,5 @@
 <div class="row justify-content-center">
-<div class="col-10">
+<div class="col-6">
 <div class="card bg-dark bg-opacity-10 border-0">
     <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
         <h5 class="mb-0"><i class="bi bi-bookmark"></i> Panel CRUD de Temas</h5>
