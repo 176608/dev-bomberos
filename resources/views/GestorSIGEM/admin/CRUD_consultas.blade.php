@@ -28,8 +28,8 @@
     <div class="tab-pane fade pb-5" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
         <div class="row pb-2">
             <div class="col-md-8">
-                <h6 class="text-white"><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
-                <small class="text-white-50">Gestiona los temas principales para las consultas express</small>
+                <h6 class=""><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
+                <small class="">Gestiona los temas principales para las consultas express</small>
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
@@ -98,8 +98,8 @@
     <div class="tab-pane fade pb-5" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
         <div class="row pb-2">
             <div class="col-md-8">
-                <h6 class="text-white"><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
-                <small class="text-white-50">Gestiona los subtemas asociados a cada tema principal</small>
+                <h6 class=""><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
+                <small class="">Gestiona los subtemas asociados a cada tema principal</small>
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">

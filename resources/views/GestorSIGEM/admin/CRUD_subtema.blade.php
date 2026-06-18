@@ -1,14 +1,16 @@
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+<div class="row justify-content-center">
+<div class="col-10">
+<div class="card bg-dark bg-opacity-10 border-0">
+    <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
         <h5 class="mb-0"><i class="bi bi-bookmarks"></i> Panel CRUD de Subtemas</h5>
         <div>
-            <span class="badge bg-secondary me-2">Total: <strong>{{ count($subtemas ?? []) }}</strong></span>
+            <span class="badge bg-light text-dark me-2">Total: <strong>{{ count($subtemas ?? []) }}</strong></span>
             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
                 <i class="bi bi-plus-circle"></i> Nuevo Subtema
             </button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body bg-transparent">
         @if(isset($subtemas) && count($subtemas) > 0)
             <div class="table-responsive">
                 <table id="tablaSubtemas" class="table table-striped table-hover table-sm">
@@ -18,7 +20,6 @@
                             <th>Tema Padre</th>
                             <th>Imagen</th>
                             <th>Orden</th>
-                            <th>Clave Subtema</th>
                             <th>Clave Efectiva</th>
                             <th>Publicado</th>
                             <th width="120">Acciones</th>
@@ -50,13 +51,6 @@
                             </td>
                             <td data-order="{{ $subtema->orden_indice ?? 0 }}">
                                 <span class="badge bg-info">{{ $subtema->orden_indice ?? 0 }}</span>
-                            </td>
-                            <td>
-                                @if($subtema->clave_subtema)
-                                    <code>{{ $subtema->clave_subtema }}</code>
-                                @else
-                                    <span class="text-muted">Sin clave</span>
-                                @endif
                             </td>
                             <td>
                                 @if($infoClave['clave_efectiva'])
@@ -110,6 +104,8 @@
             </div>
         @endif
     </div>
+</div>
+</div>
 </div>
 
 <!-- Modal para agregar nuevo subtema -->
@@ -415,23 +411,18 @@ $(document).ready(function() {
                 type: "num"
             },
             {
-                targets: 4, // Columna Clave Subtema
-                width: "12%",
+                targets: 4, // Columna Clave Efectiva
+                width: "15%",
                 className: "text-center"
             },
             {
-                targets: 5, // Columna Clave Efectiva
-                width: "12%",
-                className: "text-center"
-            },
-            {
-                targets: 6, // Columna Publicado
+                targets: 5, // Columna Publicado
                 width: "8%",
                 className: "text-center",
                 type: "num"
             },
             {
-                targets: 7, // Columna Acciones
+                targets: 6, // Columna Acciones
                 width: "120px",
                 className: "text-center",
                 orderable: false,
@@ -580,13 +571,12 @@ function editarSubtema(id) {
     const subtema_titulo = fila.cells[0].querySelector('strong').textContent;
     const tema_badge = fila.cells[1].querySelector('.badge');
     const orden_indice = fila.cells[3].querySelector('.badge').textContent;
-    const clave_code = fila.cells[4].querySelector('code');
-    const publicado = fila.cells[6].querySelector('.badge.bg-success') !== null;
+    const publicado = fila.cells[5].querySelector('.badge.bg-success') !== null;
     
     document.getElementById('edit_subtema_id').value = id;
     document.getElementById('edit_subtema_titulo').value = subtema_titulo;
     document.getElementById('edit_orden_indice').value = orden_indice;
-    document.getElementById('edit_clave_subtema').value = clave_code ? clave_code.textContent : '';
+    document.getElementById('edit_clave_subtema').value = '';
     document.getElementById('edit_publicado').checked = publicado;
     
     // Limpiar campo de eliminación de imagen si existe

@@ -1,14 +1,16 @@
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+<div class="row justify-content-center">
+<div class="col-10">
+<div class="card bg-dark bg-opacity-10 border-0">
+    <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
         <h5 class="mb-0"><i class="bi bi-bookmark"></i> Panel CRUD de Temas</h5>
         <div>
-            <span class="badge bg-secondary me-2">Total: <strong>{{ count($temas ?? []) }}</strong></span>
+            <span class="badge bg-light text-dark me-2">Total: <strong>{{ count($temas ?? []) }}</strong></span>
             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
                 <i class="bi bi-plus-circle"></i> Nuevo Tema
             </button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body bg-transparent">
         @if(isset($temas) && count($temas) > 0)
             <div class="table-responsive">
                 <table id="tablaTemas" class="table table-striped table-hover table-sm">
@@ -88,6 +90,8 @@
             </div>
         @endif
     </div>
+</div>
+</div>
 </div>
 
 <!-- Modal para agregar nuevo tema -->
