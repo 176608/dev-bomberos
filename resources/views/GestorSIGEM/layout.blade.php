@@ -80,7 +80,7 @@
     background-color: #fff !important;
 }
 .dataTables_wrapper .paginate_button.current {
-    background-color: #0d6efd !important;
+    background-color: #198754 !important;
     color: #fff !important;
 }
 .dataTables_wrapper .paginate_button:hover {
