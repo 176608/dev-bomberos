@@ -49,9 +49,11 @@ class AdminController extends Controller
     public function temas()
     {
         $temas = TemaV2::orderBy('tema_titulo', 'asc')->get(); // Corregido: tema_titulo en lugar de nombre_tema
+        $siguienteOrden = (TemaV2::max('orden_indice') ?? 0) + 1;
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.CRUD_tema',
-            'temas' => $temas
+            'temas' => $temas,
+            'siguienteOrden' => $siguienteOrden
         ]);
     }
 
@@ -104,7 +106,7 @@ class AdminController extends Controller
             // Validar datos
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
-                'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema',
+                'clave_tema' => 'nullable|string|max:10|unique:tema_v2,clave_tema',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
                 'publicado' => 'nullable|boolean',
                 'color' => 'nullable|string|max:7',
@@ -160,7 +162,7 @@ class AdminController extends Controller
             // Validar datos (excluir el ID actual de la validación de clave única)
             $request->validate([
                 'tema_titulo' => 'required|string|max:255',
-                'clave_tema' => 'nullable|string|max:10|unique:tema,clave_tema,' . $id . ',tema_id',
+                'clave_tema' => 'nullable|string|max:10|unique:tema_v2,clave_tema,' . $id . ',tema_id',
                 'orden_indice' => 'nullable|integer|min:0|max:999',
                 'publicado' => 'nullable|boolean',
                 'color' => 'nullable|string|max:7',
