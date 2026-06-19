@@ -310,6 +310,29 @@
                                         <i class="bi bi-file-earmark-text-fill"></i> SGD
                                     </a>
                                 </li>
+                            @elseif(auth()->user()->role === 'Estadistico')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
+                                       href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
+                                        <i class="bi bi-gear"></i> SGIGEM
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sigem.v2.*') ? 'active' : '' }}" 
+                                        href="{{ route('sigem.v2.index') }}" 
+                                        title="Visor SIGEM v2 — Nueva versión con Blade">
+                                        <i class="bi bi-binoculars-fill"></i> SIGEM V2
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sgiem.*') ? 'active' : '' }}"
+                                        href="{{ route('sgiem.admin.index') }}"
+                                        title="Sistema de Gestión de Información Estadística Municipal">
+                                        <i class="bi bi-gear-wide-connected"></i> SGIEM
+                                    </a>
+                                </li>
                             @endif
                         @endif
                     </ul>
