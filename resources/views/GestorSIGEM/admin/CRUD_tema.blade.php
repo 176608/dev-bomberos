@@ -124,65 +124,21 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row">
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
-                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
-                                       min="0" max="999">
-                            </div>
-                        </div>
-
-                    </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Color del Tema</label>
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <input type="color" class="form-control form-control-color w-auto" id="edit_color" name="color" value="#8FBC8F" title="Elige un color">
-                                    <input type="text" class="form-control form-control-sm w-auto" id="edit_color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
-                                </div>
-                                <div class="d-flex flex-wrap gap-1">
-                                    @foreach($coloresPredefinidos as $hex)
-                                        <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
-                                    @endforeach
-                                </div>
+                                <label for="clave_tema" class="form-label">Clave del Tema</label>
+                                <input type="text" class="form-control @error('clave_tema') is-invalid @enderror" 
+                                       id="clave_tema" name="clave_tema" 
+                                       placeholder="Ej: ECO" maxlength="10"
+                                       value="{{ old('clave_tema') }}">
+                                @error('clave_tema')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_icono" class="form-label">Ícono Bootstrap</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" id="edit-icono-preview"><i class="bi bi-globe"></i></span>
-                                    <input type="text" class="form-control icon-input" id="edit_icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="edit-icono-preview">
-                                    <a href="https://icons.getbootstrap.com/" target="_blank" class="btn btn-outline-primary" title="Buscar íconos en Bootstrap Icons">
-                                        <i class="bi bi-search"></i> Buscar ícono
-                                    </a>
-                                </div>
-                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo (<code>&lt;i class="bi bi-globe"&gt;&lt;/i&gt;</code>)</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label">Vista previa</label>
-                                <div id="edit-preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
-                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
-                                        <i id="edit-preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
-                                        <span id="edit-preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                        
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="orden_indice" class="form-label">Orden en Índice</label>
@@ -197,10 +153,55 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3 form-check form-switch mt-4">
+                            <div class="mb-3">
+                                <label class="form-label">Color del Tema</label>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <input type="color" class="form-control form-control-color w-auto" id="color" name="color" value="#8FBC8F" title="Elige un color">
+                                    <input type="text" class="form-control form-control-sm w-auto" id="color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
+                                </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($coloresPredefinidos as $hex)
+                                        <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="icono" class="form-label">Ícono Bootstrap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="icono-preview-create"><i class="bi bi-globe"></i></span>
+                                    <input type="text" class="form-control icon-input" id="icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="icono-preview-create">
+                                    <a href="https://icons.getbootstrap.com/" target="_blank" class="btn btn-outline-primary" title="Buscar íconos en Bootstrap Icons">
+                                        <i class="bi bi-search"></i> Buscar ícono
+                                    </a>
+                                </div>
+                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Vista previa</label>
+                                <div id="preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+                                        <i id="preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
+                                        <span id="preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check form-switch mt-2">
                                 <input type="checkbox" class="form-check-input" id="publicado" name="publicado" value="1" checked>
                                 <label class="form-check-label" for="publicado">Publicado</label>
                                 <small class="form-text text-muted d-block">Visible en SIGEM</small>
@@ -208,7 +209,7 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-info">
+                    <div class="alert alert-info mt-2">
                         <i class="bi bi-info-circle"></i>
                         <strong>Información:</strong> Una vez creado el tema, podrás agregar subtemas asociados desde el panel de Subtemas.
                     </div>
@@ -238,22 +239,28 @@
                 @method('PUT')
                 <input type="hidden" id="edit_tema_id" name="tema_id">
                 <div class="modal-body bg-fonde">
-                    
+
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label for="edit_tema_titulo" class="form-label">Título del Tema <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_tema_titulo" name="tema_titulo" required>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
+                                <label for="edit_clave_tema" class="form-label">Clave del Tema</label>
+                                <input type="text" class="form-control" id="edit_clave_tema" name="clave_tema" maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
                                 <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
-                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
-                                       min="0" max="999">
+                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" min="0" max="999">
                             </div>
                         </div>
                     </div>
@@ -284,7 +291,7 @@
                                         <i class="bi bi-search"></i> Buscar ícono
                                     </a>
                                 </div>
-                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo (<code>&lt;i class="bi bi-globe"&gt;&lt;/i&gt;</code>)</small>
+                                <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo</small>
                             </div>
                         </div>
                     </div>
@@ -302,17 +309,6 @@
                             </div>
                         </div>
                     </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
-                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
-                                       min="0" max="999">
-                            </div>
-                        </div>
-
-                    </div>
 
                     <div class="row">
                         <div class="col-md-6">
@@ -323,6 +319,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

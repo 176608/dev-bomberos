@@ -30,7 +30,7 @@
                         @php
                             $infoClave = $subtema->obtenerInfoClave();
                         @endphp
-                        <tr>
+                        <tr data-clave-subtema="{{ $subtema->clave_subtema }}">
                             <td>
                                 <strong>{{ $subtema->subtema_titulo }}</strong>
                             </td>
@@ -576,7 +576,7 @@ function editarSubtema(id) {
     document.getElementById('edit_subtema_id').value = id;
     document.getElementById('edit_subtema_titulo').value = subtema_titulo;
     document.getElementById('edit_orden_indice').value = orden_indice;
-    document.getElementById('edit_clave_subtema').value = '';
+    document.getElementById('edit_clave_subtema').value = fila.getAttribute('data-clave-subtema') || '';
     document.getElementById('edit_publicado').checked = publicado;
     
     // Limpiar campo de eliminación de imagen si existe
