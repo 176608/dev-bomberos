@@ -124,6 +124,7 @@
                             <option value="Administrador">Administrador</option>
                             <option value="Administrador Dictamenes">Administrador Dictamenes</option>
                             <option value="Editor Dictamenes">Editor Dictamenes</option>
+                            <option value="Estadistico">Estadístico</option>
                         </select>
                     </div>
                 </div>
@@ -168,6 +169,7 @@
                                 <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
                                 <option value="Administrador Dictamenes" {{ $user->role === 'Administrador Dictamenes' ? 'selected' : '' }}>Administrador Dictamenes</option>
                                 <option value="Editor Dictamenes" {{ $user->role === 'Editor Dictamenes' ? 'selected' : '' }}>Editor Dictamenes</option>
+                                <option value="Estadistico" {{ $user->role === 'Estadistico' ? 'selected' : '' }}>Estadístico</option>
                             </select>
                         </div>
                         <div class="mb-3">

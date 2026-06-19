@@ -157,6 +157,8 @@ class LoginController extends Controller
             return redirect()->route('sg-dictamen.index');
         } elseif ($user->role === 'Editor Dictamenes') {
             return redirect()->route('sg-dictamen.index');
+        } elseif ($user->role === 'Estadistico') {
+            return redirect()->route('sgiem.admin.index');
         }
 
         return redirect()->route('dashboard');

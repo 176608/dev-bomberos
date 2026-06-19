@@ -1,11 +1,11 @@
 @extends('layouts.app')
-<title>@yield('title', 'Módulo Administración SGIEM')</title>
+<title>@yield('title', 'SGIEM')</title>
 @section('content')
 <div class="container-fluid bg-fonde pb-4">
     <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('sgiem.admin.index') }}">
-                <i class="bi bi-gear"></i> Panel SGIEM
+                <i class="bi bi-gear"></i> Panel de Navegación del SGIEM
             </a>
 
             <div class="navbar-nav">

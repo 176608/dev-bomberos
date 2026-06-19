@@ -43,13 +43,15 @@ class CheckRole
         }
 
         // Si llegamos aquí, no tiene permisos
-        Log::info('Access denied, redirecting based on role');
+        //Log::info('Access denied, redirecting based on role');
 
         // Redirigir según su rol actual
         if ($user->hasRole('Administrador')) {
             return redirect()->route('admin.panel');
         } elseif ($user->hasRole('Capturista')) {
             return redirect()->route('capturista.panel');
+        } elseif ($user->hasRole('Estadistico')) {
+            return redirect()->route('sgiem.admin.index');
         } elseif ($user->hasRole('Desarrollador')) {
             return redirect()->route('dev.panel');
         }

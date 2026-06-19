@@ -13,7 +13,7 @@ class SIGEMV2Controller extends Controller
 {
     private function esDesarrollador(): bool
     {
-        return auth()->check() && auth()->user()->hasRole('Desarrollador');
+        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
     }
 
     public function __construct()
@@ -22,7 +22,7 @@ class SIGEMV2Controller extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
-            if (!$user->hasRole('Desarrollador') && !$user->hasRole('Administrador')) {
+            if (!$user->hasRole('Desarrollador') && !$user->hasRole('Administrador') && !$user->hasRole('Estadistico')) {
                 return redirect('/sigem');
             }
             return $next($request);

@@ -106,7 +106,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los indicadores estadísticos.</p>
+        <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
 
         <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
@@ -158,7 +158,7 @@
             <div class="col-lg-8">
                 <div class="card bg-light h-100">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Indicadores Estadísticos</h5>
+                        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos</h5>
                     </div>
                     <div class="card-body p-0">
                         <div id="indicadores-container">

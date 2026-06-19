@@ -33,7 +33,7 @@ class AdminController extends Controller
         }
 
         $user = auth()->user();
-        if (!$user->hasRole('Administrador') && !$user->hasRole('Desarrollador')) {
+        if (!$user->hasRole('Administrador') && !$user->hasRole('Desarrollador') && !$user->hasRole('Estadistico')) {
             return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 

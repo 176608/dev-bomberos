@@ -178,7 +178,7 @@
             <div class="col-lg-8 col-md-7">
                 <div class="estadistica-intro-text">
                     <p class="lead">
-                        Consultas de información estadística relevante y precisa en indicadores estadísticos, obtenidos de diferentes fuentes Municipales, Estatales, Federales, entre otros. Los indicadores estadísticos están categorizados en los siguientes temas:
+                        Consultas de información estadística relevante y precisa en cuadros de datos estadísticos, obtenidos de diferentes fuentes Municipales, Estatales, Federales, entre otros. Los cuadros estadísticos están categorizados en los siguientes temas:
                     </p>
                 </div>
             </div>
