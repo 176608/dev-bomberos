@@ -186,7 +186,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Vista previa</label>
                                 <div id="preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
@@ -197,15 +197,15 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3 form-check form-switch mt-2">
                                 <input type="checkbox" class="form-check-input" id="publicado" name="publicado" value="1" checked>
                                 <label class="form-check-label" for="publicado">Publicado</label>
                                 <small class="form-text text-muted d-block">Visible en SIGEM</small>
                             </div>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="actualizarPreview('')">
+                                <i class="bi bi-arrow-repeat"></i> Actualizar vista previa
+                            </button>
                         </div>
                     </div>
 
@@ -297,7 +297,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Vista previa</label>
                                 <div id="edit-preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
@@ -308,15 +308,15 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3 form-check form-switch mt-2">
                                 <input type="checkbox" class="form-check-input" id="edit_publicado" name="publicado" value="1">
                                 <label class="form-check-label" for="edit_publicado">Publicado</label>
                                 <small class="form-text text-muted d-block">Visible en SIGEM</small>
                             </div>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="actualizarPreview('edit')">
+                                <i class="bi bi-arrow-repeat"></i> Actualizar vista previa
+                            </button>
                         </div>
                     </div>
 

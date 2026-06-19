@@ -54,13 +54,7 @@
                             </td>
                             <td>
                                 @if($infoClave['clave_efectiva'])
-                                    <span class="badge 
-                                        @if($infoClave['origen'] == 'propia') bg-primary
-                                        @elseif($infoClave['origen'] == 'heredada del tema') bg-secondary
-                                        @elseif($infoClave['origen'] == 'propia (menor orden)') bg-success
-                                        @else bg-warning text-dark
-                                        @endif
-                                    " title="Origen: {{ $infoClave['origen'] }}">
+                                    <span class="badge {{ $infoClave['origen'] == 'propia' || $infoClave['origen'] == 'propia (menor orden)' ? 'bg-primary' : 'bg-secondary' }}" title="Origen: {{ $infoClave['origen'] }}">
                                         {{ $infoClave['clave_efectiva'] }}
                                     </span>
                                 @else
