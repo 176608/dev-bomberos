@@ -1,6 +1,3 @@
-@php
-    $coloresPredefinidos = ['#8FBC8F', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A', '#98FB98', '#FFB347', '#77DD77', '#AEC6CF', '#E6A8D7', '#B19CD9', '#FFD1DC'];
-@endphp
 <div class="row justify-content-center">
 <div class="col-6">
 <div class="card bg-dark bg-opacity-10 border-0">
@@ -32,9 +29,6 @@
                         <tr>
                             <td>
                                 <strong>{{ $tema->tema_titulo }}</strong>
-                                @if($tema->clave_tema)
-                                    <br><small class="text-muted">Clave: {{ $tema->clave_tema }}</small>
-                                @endif
                                 @php $subtemas_count = $tema->subtemas()->count() ?? 0; @endphp
                                 <br><small class="text-muted">Subtemas: {{ $subtemas_count }} asignados</small>
                             </td>
@@ -214,14 +208,13 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Color del Tema</label>
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <input type="color" class="form-control form-control-color w-auto" id="edit_color" name="color" value="#8FBC8F" title="Elige un color">
-                                    <input type="text" class="form-control form-control-sm w-auto" id="edit_color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
-                                </div>
-                                <div class="d-flex flex-wrap gap-1">
-                                    @foreach($coloresPredefinidos as $hex)
-                                        <button type="button" class="btn btn-sm p-0 border rounded color-swatch" style="width: 28px; height: 28px; background-color: {{ $hex }}; cursor: pointer;" data-color="{{ $hex }}" title="{{ $hex }}"></button>
-                                    @endforeach
+                                <div class="d-flex align-items-center gap-2">
+                                    <div id="edit_color_btn" style="width: 48px; height: 48px; border-radius: 8px; background-color: #8FBC8F; border: 2px solid #dee2e6; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s;" title="Haz clic para cambiar color">
+                                        <i class="bi bi-palette" style="font-size: 1.3rem; color: rgba(0,0,0,0.4);"></i>
+                                    </div>
+                                    <input type="color" class="d-none" id="edit_color" name="color" value="#8FBC8F">
+                                    <input type="text" class="form-control form-control-sm w-auto" id="edit_color_hex" value="#8FBC8F" maxlength="7" style="width: 100px; font-family: monospace; font-size: 0.9rem;">
+                                    <span class="text-muted small">Haz clic en el cuadrado o escribe el hex</span>
                                 </div>
                             </div>
                         </div>
@@ -393,6 +386,7 @@ function editarTema(id) {
     document.getElementById('edit_clave_tema').value = clave_tema;
     document.getElementById('edit_color').value = rgbToHex(color);
     document.getElementById('edit_color_hex').value = rgbToHex(color);
+    document.getElementById('edit_color_btn').style.backgroundColor = rgbToHex(color);
     document.getElementById('edit_icono').value = icono;
     document.getElementById('edit_publicado').checked = publicado;
     
@@ -495,6 +489,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const prefix = this.id.startsWith('edit_') ? 'edit' : '';
             const hexInput = document.getElementById(this.id.replace('color', 'color_hex'));
             if (hexInput) hexInput.value = this.value;
+            // Sync the color button background
+            const btn = document.getElementById(this.id + '_btn');
+            if (btn) btn.style.backgroundColor = this.value;
             actualizarPreview(prefix);
         });
     });
@@ -506,23 +503,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const colorPicker = document.getElementById(this.id.replace('color_hex', 'color'));
             if (colorPicker && /^#[0-9a-fA-F]{6}$/.test(this.value)) {
                 colorPicker.value = this.value;
+                const btn = document.getElementById(colorPicker.id + '_btn');
+                if (btn) btn.style.backgroundColor = this.value;
                 actualizarPreview(prefix);
             }
         });
     });
     
-    // Color swatch clicks
-    document.querySelectorAll('.color-swatch').forEach(function(swatch) {
-        swatch.addEventListener('click', function() {
-            const color = this.getAttribute('data-color');
-            const modal = this.closest('.modal');
-            const isEdit = modal && modal.id === 'modalEditarTema';
-            const prefix = isEdit ? 'edit' : '';
-            const colorPicker = document.getElementById(prefix + 'color');
-            const hexInput = document.getElementById(prefix + 'color_hex');
-            if (colorPicker) colorPicker.value = color;
-            if (hexInput) hexInput.value = color;
-            actualizarPreview(prefix);
+    // Click on color button triggers hidden color input
+    document.querySelectorAll('[id$="color_btn"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const colorPicker = document.getElementById(this.id.replace('_btn', ''));
+            if (colorPicker) colorPicker.click();
+        });
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
         });
     });
     
