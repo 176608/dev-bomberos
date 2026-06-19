@@ -182,7 +182,7 @@
                                             $indicadoresSubtema = $indicadores->where('subtema_id', $subtema->subtema_id);
                                         @endphp
                                         <div id="subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}">
-                                            <div class="fw-bold px-2 py-1" style="background:#e8f5e9;border-left:4px solid #2a6e48;font-size:0.9rem;{{ !$subtema->publicado && $esDesarrollador ? 'opacity:0.5;' : '' }}">
+                                            <div class="fw-bold px-2 py-1" style="background:{{ hexToRgba($tema->color ?? '#8FBC8F', 0.12) }};border-left:4px solid {{ $tema->color ?? '#8FBC8F' }};font-size:0.9rem;{{ !$subtema->publicado && $esDesarrollador ? 'opacity:0.5;' : '' }}">
                                                 <i class="bi bi-bookmark-fill me-1 text-success"></i>{{ $subtema->subtema_titulo }}
                                                 @if(!$subtema->publicado && $esDesarrollador)
                                                     <span class="badge bg-warning text-dark ms-1"><i class="bi bi-eye-slash"></i></span>
