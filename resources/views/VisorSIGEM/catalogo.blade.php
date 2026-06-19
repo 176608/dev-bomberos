@@ -115,6 +115,9 @@
                                 <div class="indice-tema-container">
                                     <div class="indice-tema-header {{ $claseNoPublicado }}" style="background-color: {{ $bgColor }};" onclick="document.getElementById('tema-{{ $tema->tema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                         {{ $temaIdx + 1 }}. {{ $tema->tema_titulo }}
+                                        @if($tema->icono)
+                                            <i class="{{ $tema->icono }} ms-2"></i>
+                                        @endif
                                         @if(!$tema->publicado && $esDesarrollador)
                                             <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i></span>
                                         @endif
@@ -157,6 +160,9 @@
                                 <div id="tema-{{ $tema->tema_id }}" style="margin-bottom:16px;">
                                     <div class="p-2 fw-bold" style="background-color: {{ $bgColor }};">
                                         {{ $temaIdx + 1 }}. {{ mb_strtoupper($tema->tema_titulo) }}
+                                        @if($tema->icono)
+                                            <i class="{{ $tema->icono }} ms-2"></i>
+                                        @endif
                                         @if(!$tema->publicado && $esDesarrollador)
                                             <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i> No publicado</span>
                                         @endif

@@ -103,7 +103,7 @@
 </div>
 
 <!-- Modal para agregar nuevo subtema -->
-<div class="modal fade" id="modalAgregarSubtema" tabindex="-1">
+<div class="modal fade" id="modalAgregarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -245,7 +245,7 @@
 </div>
 
 <!-- Modal para editar subtema -->
-<div class="modal fade" id="modalEditarSubtema" tabindex="-1">
+<div class="modal fade" id="modalEditarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

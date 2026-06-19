@@ -433,7 +433,7 @@
 <!-- ========================================== MODALES ========================================== -->
 
 <!-- Modal Agregar Tema CE -->
-<div class="modal fade" id="modalAgregarTema" tabindex="-1">
+<div class="modal fade" id="modalAgregarTema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -471,7 +471,7 @@
 </div>
 
 <!-- Modal Editar Tema CE -->
-<div class="modal fade" id="modalEditarTema" tabindex="-1">
+<div class="modal fade" id="modalEditarTema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -500,7 +500,7 @@
 </div>
 
 <!-- Modal Agregar Subtema CE -->
-<div class="modal fade" id="modalAgregarSubtema" tabindex="-1">
+<div class="modal fade" id="modalAgregarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -551,7 +551,7 @@
 </div>
 
 <!-- Modal Editar Subtema CE -->
-<div class="modal fade" id="modalEditarSubtema" tabindex="-1">
+<div class="modal fade" id="modalEditarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -591,7 +591,7 @@
 </div>
 
 <!-- Modal Agregar Contenido CE -->
-<div class="modal fade" id="modalAgregarContenido" tabindex="-1">
+<div class="modal fade" id="modalAgregarContenido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -713,7 +713,7 @@
 </div>
 
 <!-- Modal Ver Tabla Completa -->
-<div class="modal fade" id="modalVerTabla" tabindex="-1">
+<div class="modal fade" id="modalVerTabla" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -733,7 +733,7 @@
 </div>
 
 <!-- Modal Editar Contenido CE -->
-<div class="modal fade" id="modalEditarContenido" tabindex="-1">
+<div class="modal fade" id="modalEditarContenido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">

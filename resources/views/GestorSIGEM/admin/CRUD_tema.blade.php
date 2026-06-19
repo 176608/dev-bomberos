@@ -94,7 +94,7 @@
 </div>
 
 <!-- Modal para agregar nuevo tema -->
-<div class="modal fade" id="modalAgregarTema" tabindex="-1">
+<div class="modal fade" id="modalAgregarTema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -166,7 +166,7 @@
 </div>
 
 <!-- Modal para editar tema -->
-<div class="modal fade" id="modalEditarTema" tabindex="-1">
+<div class="modal fade" id="modalEditarTema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
