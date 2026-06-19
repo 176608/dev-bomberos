@@ -5,6 +5,15 @@
 @section('visor_content')
 @php
     $totalTemas = $temas->count();
+
+    function hexToRgba($hex, $alpha) {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        return "rgba($r, $g, $b, $alpha)";
+    }
 @endphp
 
 <style>
@@ -127,7 +136,7 @@
                                             $claveEfectiva = $subtema->obtenerClaveEfectiva() ?? ($tema->clave_tema ?? 'N/A');
                                             $stClaseNoPublicado = (!$subtema->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                         @endphp
-                                        <div class="indice-subtema-row {{ $stClaseNoPublicado }}" style="background-color: {{ $stIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};" onclick="document.getElementById('subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
+                                        <div class="indice-subtema-row {{ $stClaseNoPublicado }}" style="background-color: {{ $stIdx % 2 === 0 ? hexToRgba($tema->color ?? '#8FBC8F', 0.12) : hexToRgba($tema->color ?? '#8FBC8F', 0.06) }};" onclick="document.getElementById('subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                             <div style="min-width:40px;text-align:center;font-weight:600;color:#2a6e48;padding:8px;">{{ $claveEfectiva }}</div>
                                             <div style="flex:1;padding:8px 8px 8px 0;">{{ $subtema->subtema_titulo }}</div>
                                             @if(!$subtema->publicado && $esDesarrollador)
