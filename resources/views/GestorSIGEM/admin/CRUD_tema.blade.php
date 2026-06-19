@@ -251,15 +251,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="orden_indice" class="form-label">Orden en Índice</label>
-                                <input type="number" class="form-control @error('orden_indice') is-invalid @enderror" 
-                                       id="orden_indice" name="orden_indice" 
-                                       placeholder="1" min="0" max="999" 
-                                       value="{{ old('orden_indice', 1) }}">
-                                <small class="form-text text-muted">Orden de aparición en listados</small>
-                                @error('orden_indice')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="edit_orden_indice" class="form-label">Orden en Índice</label>
+                                <input type="number" class="form-control" id="edit_orden_indice" name="orden_indice" 
+                                       min="0" max="999">
                             </div>
                         </div>
                     </div>
@@ -267,10 +261,10 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Color del Tema <span class="text-danger">*</span></label>
+                                <label class="form-label">Color del Tema</label>
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <input type="color" class="form-control form-control-color w-auto" id="color" name="color" value="#8FBC8F" title="Elige un color">
-                                    <input type="text" class="form-control form-control-sm w-auto" id="color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
+                                    <input type="color" class="form-control form-control-color w-auto" id="edit_color" name="color" value="#8FBC8F" title="Elige un color">
+                                    <input type="text" class="form-control form-control-sm w-auto" id="edit_color_hex" value="#8FBC8F" maxlength="7" style="width: 90px; font-family: monospace;">
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
                                     @foreach($coloresPredefinidos as $hex)
@@ -282,10 +276,10 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="icono" class="form-label">Ícono Bootstrap</label>
+                                <label for="edit_icono" class="form-label">Ícono Bootstrap</label>
                                 <div class="input-group">
-                                    <span class="input-group-text" id="icono-preview-create"><i class="bi bi-globe"></i></span>
-                                    <input type="text" class="form-control icon-input" id="icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="icono-preview-create">
+                                    <span class="input-group-text" id="edit-icono-preview"><i class="bi bi-globe"></i></span>
+                                    <input type="text" class="form-control icon-input" id="edit_icono" name="icono" value="bi-globe" placeholder="Ej: bi-globe" data-preview="edit-icono-preview">
                                     <a href="https://icons.getbootstrap.com/" target="_blank" class="btn btn-outline-primary" title="Buscar íconos en Bootstrap Icons">
                                         <i class="bi bi-search"></i> Buscar ícono
                                     </a>
@@ -293,24 +287,18 @@
                                 <small class="form-text text-muted">Pega la clase del ícono (ej: <code>bi-globe</code>) o el HTML completo (<code>&lt;i class="bi bi-globe"&gt;&lt;/i&gt;</code>)</small>
                             </div>
                         </div>
-                                <small class="form-text text-muted">Selecciona un ícono de Bootstrap Icons para representar el tema</small>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
-                                <label class="form-label">Vista previa en el menú de Estadística</label>
-                                <div id="preview-card-container">
-                                    <div id="preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
-                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
-                                            <i id="preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
-                                            <span id="preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
-                                        </div>
+                                <label class="form-label">Vista previa</label>
+                                <div id="edit-preview-card" style="background-color: #8FBC8F; color: #3b3b3bff; border-radius: 16px; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.75rem; max-width: 280px; transition: all 0.1s ease;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+                                        <i id="edit-preview-icon" class="bi bi-globe" style="font-size: 1.6rem; color: #3b3b3bff;"></i>
+                                        <span id="edit-preview-titulo" style="font-size: 0.85rem; font-weight: 700; text-align: center; color: #3b3b3bff;">1. Vista previa del tema</span>
                                     </div>
                                 </div>
-                                <small class="form-text text-muted">Así se verá en el módulo Estadística de SIGEM V2</small>
                             </div>
                         </div>
                     </div>
