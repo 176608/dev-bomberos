@@ -182,11 +182,6 @@ class FileContentValidator
             return false;
         }
 
-        if ($this->containsExecutableContent($file)) {
-            $this->addError('El archivo PDF contiene contenido potencialmente peligroso');
-            return false;
-        }
-
         return true;
     }
 
@@ -202,34 +197,10 @@ class FileContentValidator
             return false;
         }
 
-        $requiredFiles = [
-            '[Content_Types].xml',
-            'xl/workbook.xml'
-        ];
-
-        $hasRequiredFiles = true;
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $name = $zip->getNameIndex($i);
-            if (in_array($name, $requiredFiles)) {
-                $hasRequiredFiles = true;
-                break;
-            }
-        }
-
         $zip->close();
-
-        if (!$hasRequiredFiles) {
-            $this->addError('El archivo ZIP no contiene la estructura válida de Excel');
-            return false;
-        }
 
         if (!$this->isSafeFileSize($file, 10240)) {
             $this->addError('El archivo excede el tamaño máximo permitido');
-            return false;
-        }
-
-        if ($this->containsExecutableContent($file)) {
-            $this->addError('El archivo contiene contenido potencialmente peligroso');
             return false;
         }
 
