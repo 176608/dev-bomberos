@@ -145,86 +145,12 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-.module-card-disabled {
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
-    opacity: 0.85;
-}
-
-.module-card-disabled:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-}
-
-.module-image-container-disabled {
-    position: relative;
-    margin: 0 auto;
-    max-width: 200px;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.module-image-wrapper-disabled {
-    position: relative;
-    background: #6c757d40;
-    border-radius: 15px;
-    padding: 20px;
-    overflow: hidden;
-    transition: all 0.4s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.module-image-disabled {
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 120px;
-    object-fit: contain;
-    transition: all 0.4s ease;
-    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)) grayscale(0.5);
-    display: block;
-    opacity: 0.7;
-}
-
-.module-overlay-disabled {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 15px;
-    width: 100%;
-    height: 100%;
-}
-
-.module-card-disabled .card-header {
-    border-bottom: 3px solid rgba(255,255,255,0.2);
-}
-
 @media (max-width: 768px) {
     .module-image-container {
         height: 140px;
         max-width: 150px;
     }
     .module-image {
-        max-height: 80px;
-    }
-    .module-image-container-disabled {
-        height: 140px;
-        max-width: 150px;
-    }
-    .module-image-disabled {
         max-height: 80px;
     }
 }
@@ -332,7 +258,7 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-lg-3 mb-3">
+            <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
@@ -358,7 +284,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 mb-3">
+            <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
@@ -384,7 +310,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 mb-3">
+            <div class="col-lg-4 mb-3">
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
@@ -406,32 +332,6 @@
                         <a href="{{ route('sigem.v2.cartografia') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
                         </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-3 mb-3">
-                <div class="card h-100 shadow-sm module-card-disabled">
-                    <div class="card-header bg-secondary text-white text-center">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-map-fill me-2"></i> Cartografía
-                        </h5>
-                    </div>
-                    <div class="card-body text-center p-4">
-                        <div class="module-image-container-disabled mb-3">
-                            <div class="module-image-wrapper-disabled">
-                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="module-image-disabled">
-                                <div class="module-overlay-disabled">
-                                    <i class="bi bi-exclamation-diamond-fill fs-1 text-warning"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
-                        </p>
-                        <div class="btn btn-secondary btn-sm disabled w-100">
-                            <i class="bi bi-exclamation-diamond-fill me-1"></i>En mantenimiento
-                        </div>
                     </div>
                 </div>
             </div>

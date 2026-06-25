@@ -53,7 +53,8 @@
         padding: 0;
     }
 
-    .main-menu a {
+    .main-menu a,
+    .main-menu .nav-link-disabled {
         color: white;
         text-decoration: none;
         padding: 12px 20px;
@@ -89,6 +90,31 @@
         background-color: #ffd700;
     }
 
+    .main-menu .nav-link-disabled {
+        color: rgba(255,255,255,0.5);
+        cursor: default;
+        font-weight: 600;
+        border-left: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .main-menu .nav-link-disabled:hover {
+        background-color: transparent;
+        color: rgba(255,255,255,0.5);
+        transform: none;
+    }
+
+    .main-menu .nav-link-disabled .maintenance-text {
+        font-size: 8px;
+        font-weight: 400;
+        opacity: 0.6;
+        line-height: 1;
+        letter-spacing: 0.3px;
+    }
+
+    .main-menu .nav-link-disabled i {
+        font-size: 16px;
+    }
+
     @media (max-width: 768px) {
         .header-logos {
             flex-direction: column;
@@ -98,7 +124,8 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        .main-menu a {
+        .main-menu a,
+        .main-menu .nav-link-disabled {
             padding: 10px 15px;
             font-size: 13px;
         }
@@ -137,6 +164,13 @@
                class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.cartografia') ? 'active' : '' }}">
                 <i class="bi bi-map-fill"></i> CARTOGRAFÍA
             </a>
+            <span class="nav-link-disabled">
+                <i class="bi bi-exclamation-diamond-fill text-warning"></i>
+                <span>
+                    CARTOGRAFÍA
+                    <span class="maintenance-text">En mantenimiento</span>
+                </span>
+            </span>
             <a href="{{ route('sigem.v2.productos') }}"
                class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.productos') ? 'active' : '' }}">
                 <i class="bi bi-box-seam"></i> PRODUCTOS
