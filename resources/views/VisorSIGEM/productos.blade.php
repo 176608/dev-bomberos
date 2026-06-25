@@ -191,7 +191,7 @@
                             <div class="product-text">
                                 <h5>
                                     <a href="https://www.imip.org.mx/imip/node/41" target="_blank" class="text-decoration-none">
-                                        <i class="bi bi-folder2"></i>
+                                        <i class="bi bi-folder2 me-2"></i>
                                         Repositorio de Radiografías Socioeconómicas del Municipio de Juárez
                                         <i class="bi bi-box-arrow-up-right ms-1"></i>
                                     </a>
@@ -244,7 +244,7 @@
                             <div class="product-text">
                                 <h5>
                                     <a href="https://www.imip.org.mx/imip/node/360" target="_blank" class="text-decoration-none">
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-clipboard-data me-2"></i>
                                         Resultados de Encuesta: “Juárez en el camino de la amigabilidad hacia las personas mayores”
                                         <i class="bi bi-box-arrow-up-right ms-1"></i>
                                     </a>
