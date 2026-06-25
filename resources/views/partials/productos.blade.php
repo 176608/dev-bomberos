@@ -192,7 +192,7 @@
                                         <i class="bi bi-box-arrow-up-right ms-1"></i>
                                     </a>
                                 </h5>
-                                <p>Este documento se ha convertido en una herramienta de referencia y consulta en cuanto a las diversas características socioeconómicas del municipio. Ofrece datos sobre los principales temas de interés para la toma de decisiones del sector público como privado de la región, así como de apoyo a los estudiantes y población en general.</p>
+                                <p>Recopilación de radiografías socioeconómicas, un documento que se ha convertido en una herramienta de referencia y consulta en cuanto a las diversas características socioeconómicas del municipio. Ofrece datos sobre los principales temas de interés para la toma de decisiones del sector público como privado de la región, así como de apoyo a los estudiantes y población en general.</p>
                             </div>
                         </div>
                     </div>
