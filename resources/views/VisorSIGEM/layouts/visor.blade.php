@@ -139,10 +139,14 @@
 <div class="container-fluid pb-5 bg-fonde img-fluid">
     <div class="header-logos container-fluid">
         <div class="logo-section">
-            <img src="{{ asset('imagenes/IMIP_icon_text.png') }}" alt="IMIP Logo">
+            <a href="https://www.imip.org.mx" target="_blank">
+                <img src="{{ asset('imagenes/IMIP_icon_text.png') }}" alt="IMIP Logo">
+            </a>
         </div>
         <div class="logo-section">
-            <img src="{{ asset('imagenes/sige2.png') }}" alt="SIGEM Logo">
+            <a href="https://www.imip.org.mx" target="_blank">
+                <img src="{{ asset('imagenes/sige2.png') }}" alt="SIGEM Logo">
+            </a>
         </div>
     </div>
 

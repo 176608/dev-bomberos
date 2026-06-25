@@ -255,7 +255,7 @@ animation: fadeInUp 0.4s ease-out;
     
 
     @php
-        $img1 = asset('imagenes/logoadmin.png');
+        $img1 = asset('imagenes/IMIP_icon_text.png');
         $img2 = asset('imagenes/sige2.png');
     @endphp
 
@@ -263,10 +263,14 @@ animation: fadeInUp 0.4s ease-out;
 
         <div class="header-logos container-fluid">
             <div class="logo-section">
-                <img src="{{ $img1 }}" alt="JRZ Logo">
+                <a href="https://www.imip.org.mx" target="_blank">
+                    <img src="{{ $img1 }}" alt="IMIP Logo">
+                </a>
             </div>
             <div class="logo-section">
-                <img src="{{ $img2 }}" alt="SIGEM Logo">
+                <a href="https://www.imip.org.mx" target="_blank">
+                    <img src="{{ $img2 }}" alt="SIGEM Logo">
+                </a>
             </div>
         </div>
         @php
