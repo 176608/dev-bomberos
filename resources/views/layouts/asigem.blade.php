@@ -53,7 +53,8 @@
             padding: 0;
         }
 
-        .main-menu a {
+        .main-menu a,
+        .main-menu .nav-link-disabled {
             color: white;
             text-decoration: none;
             padding: 12px 20px;
@@ -87,6 +88,31 @@
             width: 100%;
             height: 3px;
             background-color: #ffd700;
+        }
+
+        .main-menu .nav-link-disabled {
+            color: rgba(255,255,255,0.5);
+            cursor: default;
+            font-weight: 600;
+            border-left: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .main-menu .nav-link-disabled:hover {
+            background-color: transparent;
+            color: rgba(255,255,255,0.5);
+            transform: none;
+        }
+
+        .main-menu .nav-link-disabled .maintenance-text {
+            font-size: 8px;
+            font-weight: 400;
+            opacity: 0.6;
+            line-height: 1;
+            letter-spacing: 0.3px;
+        }
+
+        .main-menu .nav-link-disabled i {
+            font-size: 16px;
         }
 
         .Cargando {
@@ -160,7 +186,8 @@
                 justify-content: center;
             }
             
-            .main-menu a {
+            .main-menu a,
+            .main-menu .nav-link-disabled {
                 padding: 10px 15px;
                 font-size: 13px;
             }
@@ -267,8 +294,6 @@ animation: fadeInUp 0.4s ease-out;
                     // Detección robusta para rutas especiales
                     if (Str::contains($currentPath, 'estadistica-por-tema')) {
                         $currentSection = 'estadistica';
-                    } elseif (Str::contains($currentPath, '/cartografia')) {
-                        $currentSection = 'cartografia';
                     } elseif (Str::contains($currentPath, '/productos')) {
                         $currentSection = 'productos';
                     } elseif (Str::contains($currentPath, '/catalogo')) {
@@ -276,7 +301,7 @@ animation: fadeInUp 0.4s ease-out;
                     }
                     
                     // Si estamos en una URL que termina con alguna de estas secciones, también la marcamos como activa
-                    foreach (['inicio', 'catalogo', 'estadistica', 'cartografia', 'productos'] as $section) {
+                    foreach (['inicio', 'catalogo', 'estadistica', 'productos'] as $section) {
                         if (Str::endsWith($currentPath, $section)) {
                             $currentSection = $section;
                             break;
@@ -299,10 +324,13 @@ animation: fadeInUp 0.4s ease-out;
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
 
-                <a href="{{ url('/sigem?section=cartografia') }}" 
-                   class="sigem-nav-link {{ $currentSection === 'cartografia' ? 'active' : '' }}">
-                    <i class="bi bi-map-fill"></i> CARTOGRAFÍA
-                </a>
+                <span class="nav-link-disabled" title="Se está trabajando en el módulo">
+                    <i class="bi bi-exclamation-diamond-fill text-warning"></i>
+                    <span>
+                        CARTOGRAFÍA
+                        <span class="maintenance-text">En mantenimiento</span>
+                    </span>
+                </span>
 
                 <a href="{{ url('/sigem?section=productos') }}" 
                    class="sigem-nav-link {{ $currentSection === 'productos' ? 'active' : '' }}">
