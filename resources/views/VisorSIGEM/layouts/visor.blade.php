@@ -168,7 +168,6 @@
                 <i class="bi bi-exclamation-diamond-fill text-warning"></i>
                 <span>
                     CARTOGRAFÍA
-                    <span class="maintenance-text">En mantenimiento</span>
                 </span>
             </span>
             <a href="{{ route('sigem.v2.productos') }}"
