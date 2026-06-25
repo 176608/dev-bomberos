@@ -24,7 +24,13 @@
         transition: all 0.3s ease;
     }
 
-    .logo-section:hover {
+    .header-logos > a {
+        flex: 1;
+        display: flex;
+        text-decoration: none;
+    }
+
+    .header-logos > a:hover .logo-section {
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
