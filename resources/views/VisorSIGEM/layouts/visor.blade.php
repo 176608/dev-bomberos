@@ -138,16 +138,16 @@
 
 <div class="container-fluid pb-5 bg-fonde img-fluid">
     <div class="header-logos container-fluid">
-        <div class="logo-section">
-            <a href="https://www.imip.org.mx" target="_blank">
+        <a href="https://www.imip.org.mx" target="_blank" class="text-decoration-none">
+            <div class="logo-section">
                 <img src="{{ asset('imagenes/IMIP_icon_text.png') }}" alt="IMIP Logo">
-            </a>
-        </div>
-        <div class="logo-section">
-            <a href="https://www.imip.org.mx" target="_blank">
+            </div>
+        </a>
+        <a href="https://www.imip.org.mx" target="_blank" class="text-decoration-none">
+            <div class="logo-section">
                 <img src="{{ asset('imagenes/sige2.png') }}" alt="SIGEM Logo">
-            </a>
-        </div>
+            </div>
+        </a>
     </div>
 
     <div class="main-menu container-fluid p-0">

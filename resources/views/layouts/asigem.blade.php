@@ -262,16 +262,16 @@ animation: fadeInUp 0.4s ease-out;
     <div class="container-fluid pb-5 bg-fonde img-fluid" >
 
         <div class="header-logos container-fluid">
-            <div class="logo-section">
-                <a href="https://www.imip.org.mx" target="_blank">
+            <a href="https://www.imip.org.mx" target="_blank" class="text-decoration-none">
+                <div class="logo-section">
                     <img src="{{ $img1 }}" alt="IMIP Logo">
-                </a>
-            </div>
-            <div class="logo-section">
-                <a href="https://www.imip.org.mx" target="_blank">
+                </div>
+            </a>
+            <a href="https://www.imip.org.mx" target="_blank" class="text-decoration-none">
+                <div class="logo-section">
                     <img src="{{ $img2 }}" alt="SIGEM Logo">
-                </a>
-            </div>
+                </div>
+            </a>
         </div>
         @php
             // Detectar si estamos en una ruta especial de estadística tema o subtema
