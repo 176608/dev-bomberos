@@ -203,6 +203,32 @@
                 <div class="card h-100 product-card">
                     <div class="card-body">
                         <div class="product-section">
+                            <div class="product-image-container-static">
+                                <img src="{{ asset('imagenes/PoratadaCARTO.png') }}" alt="Cartografía 2019" class="img-fluid">
+                            </div>
+                            <div class="product-text product-text-muted">
+                                <h5 class="text-secondary">
+                                    <i class="bi bi-map me-2"></i>
+                                    Cuaderno de Información Cartográfica
+                                    <span class="product-unavailable-badge">
+                                        <i class="bi bi-lock me-1"></i>Solo impreso
+                                    </span>
+                                </h5>
+                                <p class="mb-2">Es una guía de información confiable y actualizada, compuesta por mapas con índice de calles, colonias y capas temáticas como escuelas, hospitales, estaciones, museos, teatros, unidades deportivas, hoteles, cines, entre otros. Disponible unicamente en formato impreso.</p>
+                                <small class="text-muted fst-italic">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Este producto no está disponible en formato digital. Consulte la versión impresa en las oficinas del IMIP.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card h-100 product-card">
+                    <div class="card-body">
+                        <div class="product-section">
                             <a href="https://www.imip.org.mx/imip/node/360" target="_blank" class="product-image-link">
                                 <div class="product-image-container">
                                     <img src="{{ asset('imagenes/Encuesta_Amigabilidad_0.jpg') }}" alt="Encuesta" class="img-fluid">
@@ -226,7 +252,7 @@
                 </div>
             </div>
             
-            <div class="col-12">
+<!--<div class="col-12">
                 <div class="card h-100 product-card">
                     <div class="card-body">
                         <div class="product-section">
@@ -251,33 +277,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card h-100 product-card">
-                    <div class="card-body">
-                        <div class="product-section">
-                            <div class="product-image-container-static">
-                                <img src="{{ asset('imagenes/PoratadaCARTO.png') }}" alt="Cartografía 2019" class="img-fluid">
-                            </div>
-                            <div class="product-text product-text-muted">
-                                <h5 class="text-secondary">
-                                    <i class="bi bi-map me-2"></i>
-                                    Cuaderno de Información Cartográfica
-                                    <span class="product-unavailable-badge">
-                                        <i class="bi bi-lock me-1"></i>Solo impreso
-                                    </span>
-                                </h5>
-                                <p class="mb-2">Es una guía de información confiable y actualizada, compuesta por mapas con índice de calles, colonias y capas temáticas como escuelas, hospitales, estaciones, museos, teatros, unidades deportivas, hoteles, cines, entre otros. Disponible unicamente en formato impreso.</p>
-                                <small class="text-muted fst-italic">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Este producto no está disponible en formato digital. Consulte la versión impresa en las oficinas del IMIP.
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div>-->
 
             <div class="col-12">
                 <div class="card h-100 product-card">
