@@ -338,7 +338,6 @@ animation: fadeInUp 0.4s ease-out;
                     <i class="bi bi-exclamation-diamond-fill text-warning"></i>
                     <span>
                         CARTOGRAFÍA
-                        <span class="maintenance-text">En mantenimiento</span>
                     </span>
                 </span>
 
