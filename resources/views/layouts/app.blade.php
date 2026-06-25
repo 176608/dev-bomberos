@@ -357,7 +357,7 @@
     <div class="container">
         <div class="row text-center text-md-start align-items-center">
             <div class="col-12 col-md-4 mb-2 mb-md-0">
-                <img src="{{ asset('img/logo/IMIP_logo01.png') }}" alt="Logo IMIP footer" height="80" class="img-fluid mx-auto d-block">
+                <img src="{{ asset('img/logo/IMIP_01.png') }}" alt="Logo IMIP footer" height="60" class="img-fluid mx-auto d-block">
             </div>
             
             <div class="col-12 col-md-4 mb-2 mb-md-0 text-center">
@@ -368,7 +368,7 @@
             </div>
 
             <div class="col-12 col-md-4 mb-2 mb-md-0">
-                <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo ciudad juarez, footer" height="80" class="img-fluid mx-auto d-block">
+                <img src="{{ asset('img/logo/HCJ_logo00.png') }}" alt="Logo ciudad juarez, footer" height="60" class="img-fluid mx-auto d-block">
             </div>
         </div>
     </div>

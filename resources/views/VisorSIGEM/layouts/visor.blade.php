@@ -139,7 +139,7 @@
 <div class="container-fluid pb-5 bg-fonde img-fluid">
     <div class="header-logos container-fluid">
         <div class="logo-section">
-            <img src="{{ asset('imagenes/logoadmin.png') }}" alt="JRZ Logo">
+            <img src="{{ asset('imagenes/IMIP_icon_text.png') }}" alt="IMIP Logo">
         </div>
         <div class="logo-section">
             <img src="{{ asset('imagenes/sige2.png') }}" alt="SIGEM Logo">
