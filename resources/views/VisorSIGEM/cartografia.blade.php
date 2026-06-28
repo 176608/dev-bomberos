@@ -44,92 +44,94 @@
     font-weight: 600;
 }
 
-.cartografia-footer {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 30px;
-}
-
-.external-map-card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.external-map-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.external-map-image-container {
+.info-section-image-link {
+    display: block;
     position: relative;
-    height: 120px;
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     overflow: hidden;
-    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-decoration: none;
 }
 
-.external-map-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.info-section-image-link img {
     transition: all 0.3s ease;
-    opacity: 0.8;
+    display: block;
+    width: 100%;
 }
 
-.external-map-card:hover .external-map-image {
-    transform: scale(1.1);
-    opacity: 1;
+.info-section-image-link:hover img {
+    transform: scale(1.05);
 }
 
-.external-map-overlay {
+.info-section-image-link::after {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: rgba(0,0,0,0.4);
     opacity: 0;
     transition: all 0.3s ease;
-    color: white;
+    border-radius: 10px;
 }
 
-.external-map-card:hover .external-map-overlay {
+.info-section-image-link:hover::after {
     opacity: 1;
 }
 
-.external-map-image-container:hover {
-    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+.info-section-image-link .image-overlay-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    color: white;
+    font-size: 2.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-.external-map-image-container:hover .external-map-overlay i {
-    animation: bounce 0.6s ease infinite alternate;
+.info-section-image-link:hover .image-overlay-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
 }
 
-@keyframes bounce {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+.info-title {
+    color: #2a6e48;
+    font-weight: 700;
+    font-size: 1.4rem;
+    border-left: 4px solid #2a6e48;
+    padding-left: 15px;
+}
+
+.info-text {
+    color: #4a4a4a;
+    line-height: 1.7;
+    text-align: justify;
+}
+
+.btn-sigmun {
+    background-color: #2a6e48;
+    border-color: #2a6e48;
+    color: white;
+    font-weight: 600;
+    padding: 10px 30px;
+    transition: all 0.3s ease;
+}
+
+.btn-sigmun:hover {
+    background-color: #1e5235;
+    border-color: #1e5235;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(42, 110, 72, 0.3);
 }
 
 @media (max-width: 768px) {
-    .external-map-image-container {
-        height: 100px;
-    }
-    .external-map-content {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 576px) {
-    .external-map-image-container {
-        height: 80px;
+    .info-title {
+        font-size: 1.2rem;
     }
 }
 </style>
@@ -145,57 +147,47 @@
             <div class="col-lg-8 col-md-7">
                 <div class="cartografia-intro-text">
                     <p class="lead">
-                        Cambio para esta vista.
+                        El Sistema de Información Geográfica Municipal (SIGMUN) es la plataforma institucional de mapas interactivos del municipio de Juárez.
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5 cartografia-footer">
-            <div class="col-12">
-                <hr class="my-4">
-                <h5 class="text-center mb-4 text-muted">
-                    <i class="bi bi-globe me-2"></i>Para ver mapas visita:
-                </h5>
-            </div>
+        <hr class="my-5">
 
-            <div class="col-md-6 mb-3">
-                <div class="external-map-card h-100">
-                    <div class="external-map-image-container" onclick="window.open('https://www.imip.org.mx/imip/node/53', '_blank')">
-                        <img src="{{ asset('imagenes/imip_mapas.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
-                        <div class="external-map-overlay">
-                            <i class="bi bi-box-arrow-up-right fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="external-map-content p-3">
-                        <h6 class="fw-bold text-success mb-2">IMIP Mapas Digitales Interactivos</h6>
-                        <p class="text-muted small mb-3">
-                            Accede a la plataforma especializada de mapas interactivos del Instituto Municipal de Investigación y Planeación.
-                        </p>
-                        <a href="https://www.imip.org.mx/imip/node/53" class="btn btn-success btn-sm w-100" target="_blank">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar IMIP Mapas
-                        </a>
-                    </div>
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+                <h4 class="info-title mb-3">Antecedentes Históricos</h4>
+                <p class="info-text">
+                    El departamento de Cartografía es el encargado de llevar a cabo la administración y actualización del Sistema de Información Geográfica Municipal (SIGMUN), contiene información geográfica de infraestructura, equipamiento municipal, crecimiento histórico, entre otros. Asimismo sirve como herramienta e insumo para los diferentes órdenes de gobierno, el Instituto y público en general, a partir de la cual se generan mapas temáticos. El sistema contiene elementos urbanos en capas de información geográfica.
+                </p>
+                <p class="info-text">
+                    Este esfuerzo comenzó en 1993 y una parte primordial para lograr lo que hoy tenemos, fue la creación de un Sistema Municipal de Información Documental (SIMID) cuyo objetivo fue documentar el manejo de la información para proveer una herramienta confiable en la toma de decisiones a directores de dependencias municipales y ser la base para el actual Sistema de Información Geográfica Municipal (SIGMUN).
+                </p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="info-section-image-link mx-auto" style="max-width: 90%;">
+                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Antecedentes Cartografía" class="img-fluid rounded shadow-sm">
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-6 mb-3">
-                <div class="external-map-card h-100">
-                    <div class="external-map-image-container" onclick="window.open('https://sigimip.org.mx/', '_blank')">
-                        <img src="{{ asset('imagenes/sigimip_mapas.png') }}" alt="SIGIMIP" class="external-map-image">
-                        <div class="external-map-overlay">
-                            <i class="bi bi-box-arrow-up-right fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="external-map-content p-3">
-                        <h6 class="fw-bold text-primary mb-2">SIGIMIP</h6>
-                        <p class="text-muted small mb-3">
-                            Sistema de Información Geográfica del Instituto Municipal de Investigación y Planeación con herramientas avanzadas.
-                        </p>
-                        <a href="https://sigimip.org.mx/" class="btn btn-primary btn-sm w-100" target="_blank">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar SIGIMIP
-                        </a>
-                    </div>
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-4 text-center mb-3 mb-lg-0">
+                <a href="https://sigimip.org.mx/" target="_blank" class="info-section-image-link mx-auto" style="max-width: 90%;">
+                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="SIGMUN" class="img-fluid rounded shadow-sm">
+                    <i class="bi bi-box-arrow-up-right image-overlay-icon"></i>
+                </a>
+            </div>
+            <div class="col-lg-8">
+                <h4 class="info-title mb-3">¿Qué puedes hacer en SIGMUN?</h4>
+                <p class="info-text">
+                    SIGMUN pone a su disposición mapas interactivos con filtros por categorías y periodos, un módulo de inicio que funciona como repositorio de distintos mapas interactivos temáticos, y un módulo de descargas que permite obtener información vectorial de los mapas para su uso en herramientas SIG especializadas.
+                </p>
+                <div class="mt-4">
+                    <a href="https://sigimip.org.mx/" target="_blank" class="btn btn-sigmun">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Ir al sitio
+                    </a>
                 </div>
             </div>
         </div>
