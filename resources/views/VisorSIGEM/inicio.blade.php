@@ -268,14 +268,14 @@
                     <div class="card-body text-center p-4">
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ route('sigem.v2.catalogo') }}'">
                             <div class="module-image-wrapper">
-                                <img src="{{ asset('imagenes/sige2.png') }}" alt="Catálogo de Cuadros" class="module-image">
+                                <img src="{{ asset('imagenes/catalogo.png') }}" alt="Catálogo de Cuadros" class="module-image">
                                 <div class="module-overlay">
                                     <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva y reactiva.
+                            Revisa nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva y reactiva.
                         </p>
                         <a href="{{ route('sigem.v2.catalogo') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
@@ -301,7 +301,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
+                            Explora el menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
                         </p>
                         <a href="{{ route('sigem.v2.estadistica') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
@@ -314,7 +314,7 @@
                 <div class="card h-100 shadow-sm module-card">
                     <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-map-fill me-2"></i> SIGMUN
+                            <i class="bi bi-map-fill me-2"></i> Cartografía
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
@@ -327,7 +327,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Accede a mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
+                            Conoce más sobre nuestro Sistema de Información Geográfica Municipal (SIGMUN) con datos sobre el municipio de Juárez.
                         </p>
                         <a href="{{ route('sigem.v2.cartografia') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
