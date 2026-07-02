@@ -167,7 +167,7 @@
             </div>
             <div class="col-lg-4 text-center">
                 <div class="info-section-image-link mx-auto" style="max-width: 90%;">
-                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Antecedentes Cartografía" class="img-fluid rounded shadow-sm">
+                    <img src="{{ asset('imagenes/cartografia_crec_urbano.jpg') }}" alt="Antecedentes Cartografía" class="img-fluid rounded shadow-sm">
                 </div>
             </div>
         </div>
