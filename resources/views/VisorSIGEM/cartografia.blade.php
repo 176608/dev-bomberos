@@ -147,7 +147,7 @@
             <div class="col-lg-8 col-md-7">
                 <div class="cartografia-intro-text">
                     <p class="lead">
-                        El Sistema de Información Geográfica Municipal (SIGMUN) es la plataforma institucional de mapas interactivos del municipio de Juárez.
+                        Centro de Información Geoespacial
                     </p>
                 </div>
             </div>
@@ -182,7 +182,7 @@
             <div class="col-lg-8">
                 <h4 class="info-title mb-3">¿Qué puedes hacer en SIGMUN?</h4>
                 <p class="info-text">
-                    SIGMUN pone a su disposición mapas interactivos con filtros por categorías y periodos, un módulo de inicio que funciona como repositorio de distintos mapas interactivos temáticos, y un módulo de descargas que permite obtener información vectorial de los mapas para su uso en herramientas SIG especializadas.
+                    SIGMUN es una plataforma de información geográfica que permite la consulta, análisis y visualización de datos espaciales mediante mapas interactivos. Los usuarios pueden explorar información temática a través de filtros espaciales y temporales, acceder a un repositorio centralizado de aplicaciones y mapas especializados, así como descargar información geoespacial en formato vectorial para su integración y análisis en software SIG especializado.
                 </p>
                 <div class="mt-4">
                     <a href="https://sigimip.org.mx/" target="_blank" class="btn btn-sigmun">
