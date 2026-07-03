@@ -159,7 +159,7 @@
         <div class="row mb-5 align-items-center">
             <div class="col-lg-4 text-center mb-3 mb-lg-0">
                 <a href="https://sigimip.org.mx/" target="_blank" class="info-section-image-link mx-auto" style="max-width: 90%;">
-                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="SIGMUN" class="img-fluid rounded shadow-sm">
+                    <img src="{{ asset('imagenes/sigmun_carto.png') }}" alt="SIGMUN" class="img-fluid rounded shadow-sm">
                     <i class="bi bi-box-arrow-up-right image-overlay-icon"></i>
                 </a>
             </div>
