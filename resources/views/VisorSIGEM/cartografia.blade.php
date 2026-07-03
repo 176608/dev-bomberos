@@ -168,7 +168,7 @@
                 <p class="info-text">
                     SIGMUN es una plataforma de información geográfica que permite la consulta, análisis y visualización de datos espaciales mediante mapas interactivos. Los usuarios pueden explorar información temática a través de filtros espaciales y temporales, acceder a un repositorio centralizado de aplicaciones y mapas especializados, así como descargar información geoespacial en formato vectorial para su integración y análisis en software SIG especializado.
                 </p>
-                <div class="mt-4">
+                <div class="mt-4 mx-auto" style="max-width: 200px;">
                     <a href="https://sigimip.org.mx/" target="_blank" class="btn btn-sigmun">
                         <i class="bi bi-box-arrow-up-right me-2"></i>Ir al sitio
                     </a>
