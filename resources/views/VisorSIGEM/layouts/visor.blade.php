@@ -174,12 +174,6 @@
                class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.cartografia') ? 'active' : '' }}">
                 <i class="bi bi-map-fill"></i> CARTOGRAFÍA
             </a>
-            <span class="nav-link-disabled" title="Se está trabajando en el módulo">
-                <i class="bi bi-exclamation-diamond-fill text-warning"></i>
-                <span>
-                    CARTOGRAFÍA
-                </span>
-            </span>
             <a href="{{ route('sigem.v2.productos') }}"
                class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.productos') ? 'active' : '' }}">
                 <i class="bi bi-box-seam"></i> PRODUCTOS
