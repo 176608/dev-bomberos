@@ -138,22 +138,6 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <div class="row mb-4 align-items-center">
-            <div class="col-lg-4 col-md-5 mb-3 mb-md-0 text-center">
-                <div class="cartografia-intro-image mx-auto" style="max-width: 80%;">
-                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="img-fluid rounded shadow-sm">
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-7">
-                <div class="cartografia-intro-text">
-                    <p class="lead">
-                        Centro de Información Geoespacial
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <hr class="my-5">
 
         <div class="row mb-5 align-items-center">
             <div class="col-lg-8 mb-3 mb-lg-0">
