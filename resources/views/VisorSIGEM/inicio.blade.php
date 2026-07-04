@@ -247,7 +247,7 @@
             </div>
             <div class="col-md-3 text-center mb-3 mb-md-0">
                 <div class="consulta-express-container" data-bs-toggle="modal" data-bs-target="#consultaExpressModal">
-                    <img src="{{ asset('imagenes/CE_btn.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
+                    <img src="{{ asset('imagenes/CE_btn_alt.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
                     <div class="consulta-express-overlay">
                         <span class="consulta-express-text">
                             Consultar Información
