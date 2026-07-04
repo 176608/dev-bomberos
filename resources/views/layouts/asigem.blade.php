@@ -334,12 +334,10 @@ animation: fadeInUp 0.4s ease-out;
                     <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
                 </a>
 
-                <span class="nav-link-disabled" title="Se está trabajando en el módulo">
-                    <i class="bi bi-exclamation-diamond-fill text-warning"></i>
-                    <span>
-                        CARTOGRAFÍA
-                    </span>
-                </span>
+                <a href="{{ url('/sigem?section=cartografia') }}" 
+                   class="sigem-nav-link {{ $currentSection === 'cartografia' ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-fill"></i> CARTOGRAFÍA
+                </a>
 
                 <a href="{{ url('/sigem?section=productos') }}" 
                    class="sigem-nav-link {{ $currentSection === 'productos' ? 'active' : '' }}">
