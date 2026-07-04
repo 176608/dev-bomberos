@@ -230,7 +230,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Express
+            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Exprés
         </h2>
 
         <div class="row mb-4">
@@ -247,7 +247,7 @@
             </div>
             <div class="col-md-3 text-center mb-3 mb-md-0">
                 <div class="consulta-express-container" data-bs-toggle="modal" data-bs-target="#consultaExpressModal">
-                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
+                    <img src="{{ asset('imagenes/CE_btn.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
                     <div class="consulta-express-overlay">
                         <span class="consulta-express-text">
                             Consultar Información
