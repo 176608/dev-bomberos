@@ -1,276 +1,15 @@
-<div class="card shadow-sm">
-    <div class="card-body">
-        
-
-        <div class="row mb-4 align-items-center">
-            <div class="col-lg-4 col-md-5 mb-3 mb-md-0 text-center">
-                <div class="cartografia-intro-image mx-auto" style="max-width: 80%;">
-                    <img src="{{ asset('imagenes/cartogde.png') }}" alt="Cartografía" class="img-fluid rounded shadow-sm">
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-7">
-                <div class="cartografia-intro-text">
-                    <p class="lead">
-                        En este apartado podrás encontrar <strong>mapas temáticos interactivos</strong> del Municipio de Juárez.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        
-        <div id="mapas-container">
-            <div class="text-center py-3">
-                <i class="bi bi-hourglass-split"></i>
-                <p>Cargando mapas...</p>
-            </div>
-        </div>
-
-        <div class="row mt-5 cartografia-footer">
-            <div class="col-12">
-                <hr class="my-4">
-                <h5 class="text-center mb-4 text-muted">
-                    <i class="bi bi-globe me-2"></i>Para ver otros mapas visita:
-                </h5>
-            </div>
-            
-            <div class="col-md-6 mb-3">
-                <div class="external-map-card h-100">
-                    <div class="external-map-image-container" onclick="window.open('https://www.imip.org.mx/imip/node/53', '_blank')">
-                        <img src="{{ asset('imagenes/imip_mapas.png') }}" alt="IMIP Mapas Digitales" class="external-map-image">
-                        <div class="external-map-overlay">
-                            <i class="bi bi-box-arrow-up-right fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="external-map-content">
-                        <h6 class="fw-bold text-success mb-2">IMIP Mapas Digitales Interactivos</h6>
-                        <p class="text-muted small mb-3">
-                            Accede a la plataforma especializada de mapas interactivos del Instituto Municipal de Investigación y Planeación.
-                        </p>
-                        <a href="https://www.imip.org.mx/imip/node/53" class="btn btn-success btn-sm w-100" target="_blank">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar IMIP Mapas
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <div class="external-map-card h-100">
-                    <div class="external-map-image-container" onclick="window.open('https://sigimip.org.mx/', '_blank')">
-                        <img src="{{ asset('imagenes/sigimip_mapas.png') }}" alt="SIGIMIP" class="external-map-image">
-                        <div class="external-map-overlay">
-                            <i class="bi bi-box-arrow-up-right fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="external-map-content">
-                        <h6 class="fw-bold text-primary mb-2">SIGIMIP</h6>
-                        <p class="text-muted small mb-3">
-                            Sistema de Información Geográfica del Instituto Municipal de Investigación y Planeación con herramientas avanzadas.
-                        </p>
-                        <a href="https://sigimip.org.mx/" class="btn btn-primary btn-sm w-100" target="_blank">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Visitar SIGIMIP
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-.mapa-row {
-    margin-bottom: 30px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.mapa-row:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transform: translateY(-2px);
-}
-
-.mapa-header {
-    background: linear-gradient(135deg, #2a6e48 0%, #66d193 100%);
-    padding: 15px 20px;
-}
-
-.mapa-title {
-    color: white;
-    font-weight: bold;
-    font-size: 1.2em;
-    margin: 0;
-}
-
-.mapa-seccion {
-    color: #ffd700;
-    font-size: 0.9em;
-    margin: 0;
-}
-
-.mapa-btn {
-    background-color: #ffd700;
-    color: #2a6e48;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    font-size: 0.9em;
-}
-
-.mapa-btn:hover {
-    background-color: #ffed4e;
-    color: #1e4d35;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    text-decoration: none;
-}
-
-.mapa-btn-disabled {
-    background-color: #6c757d !important;
-    cursor: not-allowed !important;
-    opacity: 0.6;
-}
-
-.mapa-btn-disabled:hover {
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-.mapa-content {
-    display: flex;
-    min-height: 200px;
-    background-color: white;
-}
-
-.mapa-image-container {
-    flex: 0 0 50%;
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.mapa-image-container[style*="cursor: pointer"]:hover {
-    background: linear-gradient(45deg, #e9ecef 0%, #dee2e6 100%);
-}
-
-.mapa-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: all 0.4s ease;
-}
-
-.mapa-image:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1) contrast(1.1);
-}
-
-.mapa-image-placeholder {
-    text-align: center;
-    color: #6c757d;
-    padding: 40px 20px;
-}
-
-.mapa-image-placeholder i {
-    font-size: 3em;
-    margin-bottom: 15px;
-    display: block;
-    color: #2a6e48;
-}
-
-.mapa-image-placeholder h5 {
-    color: #2a6e48;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.mapa-image-placeholder p {
-    margin: 0;
-    font-size: 0.9em;
-}
-
-.mapa-descripcion {
-    flex: 1;
-    padding: 20px;
-    background-color: white;
-    border-left: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.mapa-descripcion h5 {
-    color: #2a6e48;
-    margin-bottom: 15px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.mapa-descripcion p {
-    color: #495057;
-    line-height: 1.6;
-    margin-bottom: 0;
-    text-align: justify;
-}
-
-.mapa-image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(42, 110, 72, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: all 0.3s ease;
-    color: white;
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.mapa-image-container:hover .mapa-image-overlay {
-    opacity: 1;
-}
-
-.mapa-image-container.image-error .mapa-image-overlay {
-    display: none;
-}
-
-.mapa-image-container.image-error .image-error-placeholder {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
 .cartografia-intro-image {
     position: relative;
     overflow: hidden;
     border-radius: 10px;
-    margin: 0 auto; 
+    margin: 0 auto;
 }
 
 .cartografia-intro-image img {
     transition: all 0.3s ease;
-    margin: 0 auto; 
-    display: block; 
+    margin: 0 auto;
+    display: block;
 }
 
 .cartografia-intro-image:hover img {
@@ -282,165 +21,136 @@
     font-weight: 600;
 }
 
-.cartografia-footer {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 30px;
-}
-
-.external-map-card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.external-map-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.external-map-image-container {
+.info-section-image-link {
+    display: block;
     position: relative;
-    height: 120px;
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     overflow: hidden;
-    cursor: pointer; 
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-decoration: none;
 }
 
-.external-map-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.info-section-image-link img {
     transition: all 0.3s ease;
-    opacity: 0.8;
+    display: block;
+    width: 100%;
 }
 
-.external-map-card:hover .external-map-image {
-    transform: scale(1.1);
-    opacity: 1;
+.info-section-image-link:hover img {
+    transform: scale(1.05);
 }
 
-.external-map-overlay {
+.info-section-image-link::after {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: rgba(0,0,0,0.4);
     opacity: 0;
     transition: all 0.3s ease;
-    color: white;
+    border-radius: 10px;
 }
 
-.external-map-card:hover .external-map-overlay {
+.info-section-image-link:hover::after {
     opacity: 1;
 }
 
-.external-map-image-container:hover {
-    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+.info-section-image-link .image-overlay-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    color: white;
+    font-size: 2.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-.external-map-image-container:hover .external-map-overlay i {
-    animation: bounce 0.6s ease infinite alternate;
+.info-section-image-link:hover .image-overlay-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
 }
 
-@keyframes bounce {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+.info-title {
+    color: #2a6e48;
+    font-weight: 700;
+    font-size: 1.4rem;
+    border-left: 4px solid #2a6e48;
+    padding-left: 15px;
+}
+
+.info-text {
+    color: #4a4a4a;
+    line-height: 1.7;
+    text-align: justify;
+}
+
+.btn-sigmun {
+    background-color: #2a6e48;
+    border-color: #2a6e48;
+    color: white;
+    font-weight: 600;
+    padding: 10px 30px;
+    transition: all 0.3s ease;
+}
+
+.btn-sigmun:hover {
+    background-color: #1e5235;
+    border-color: #1e5235;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(42, 110, 72, 0.3);
 }
 
 @media (max-width: 768px) {
-    .mapa-header .row {
-        flex-direction: column;
-        align-items: flex-start !important;
-        gap: 10px;
-    }
-    
-    .mapa-header .col-10,
-    .mapa-header .col-2 {
-        flex: none;
-        width: 100%;
-    }
-    
-    .mapa-header .col-2 {
-        text-align: left !important;
-    }
-    
-    .mapa-content {
-        flex-direction: column;
-        min-height: auto;
-    }
-    
-    .mapa-image-container {
-        flex: none;
-        height: 200px;
-    }
-    
-    .mapa-descripcion {
-        border-left: none;
-        border-top: 1px solid #e0e0e0;
-        padding: 15px;
-    }
-    
-    .cartografia-intro-text {
-        padding-left: 20px;
-        margin-top: 20px;
-    }
-    
-    .external-map-image-container {
-        height: 100px;
-    }
-    
-    .external-map-content {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 576px) {
-    .mapa-image-container {
-        height: 150px;
-    }
-    
-    .mapa-image-placeholder {
-        padding: 20px 15px;
-    }
-    
-    .mapa-image-placeholder i {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-    
-    .mapa-image-placeholder h5 {
-        font-size: 1em;
-        margin-bottom: 5px;
-    }
-    
-    .mapa-image-placeholder p {
-        font-size: 0.8em;
-    }
-    
-    .mapa-title {
-        font-size: 1.1em;
-    }
-    
-    .mapa-seccion {
-        font-size: 0.85em;
-    }
-    
-    .mapa-descripcion {
-        padding: 15px;
-    }
-    
-    .mapa-btn {
-        font-size: 0.8em;
-        padding: 6px 12px;
+    .info-title {
+        font-size: 1.2rem;
     }
 }
 </style>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+                <h4 class="info-title mb-3">Antecedentes Históricos</h4>
+                <p class="info-text">
+                    El departamento de Cartografía es el encargado de llevar a cabo la administración y actualización del Sistema de Información Geográfica Municipal (SIGMUN), contiene información geográfica de infraestructura, equipamiento municipal, crecimiento histórico, entre otros. Asimismo sirve como herramienta e insumo para los diferentes órdenes de gobierno, el Instituto y público en general, a partir de la cual se generan mapas temáticos. El sistema contiene elementos urbanos en capas de información geográfica.
+                </p>
+                <p class="info-text">
+                    Este esfuerzo comenzó en 1993 y una parte primordial para lograr lo que hoy tenemos, fue la creación de un Sistema Municipal de Información Documental (SIMID) cuyo objetivo fue documentar el manejo de la información para proveer una herramienta confiable en la toma de decisiones a directores de dependencias municipales y ser la base para el actual Sistema de Información Geográfica Municipal (SIGMUN).
+                </p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="info-section-image-link mx-auto" style="max-width: 90%;">
+                    <img src="{{ asset('imagenes/cartografia_crec_urbano.jpg') }}" alt="Antecedentes Cartografía" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-4 text-center mb-3 mb-lg-0">
+                <a href="https://sigimip.org.mx/" target="_blank" class="info-section-image-link mx-auto" style="max-width: 90%;">
+                    <img src="{{ asset('imagenes/sigmun_carto.png') }}" alt="SIGMUN" class="img-fluid rounded shadow-sm">
+                    <i class="bi bi-box-arrow-up-right image-overlay-icon"></i>
+                </a>
+            </div>
+            <div class="col-lg-8">
+                <h4 class="info-title mb-3">¿Qué puedes hacer en SIGMUN?</h4>
+                <p class="info-text">
+                    SIGMUN es una plataforma de información geográfica que permite la consulta, análisis y visualización de datos espaciales mediante mapas interactivos. Los usuarios pueden explorar información temática a través de filtros espaciales y temporales, acceder a un repositorio centralizado de aplicaciones y mapas especializados, así como descargar información geoespacial en formato vectorial para su integración y análisis en software SIG especializado.
+                </p>
+                <div class="mt-4 mx-auto" style="max-width: 200px;">
+                    <a href="https://sigimip.org.mx/" target="_blank" class="btn btn-sigmun">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Ir al sitio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@
     position: relative;
     margin: 0 auto;
     max-width: 200px;
-    height: 180px; 
+    height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,7 +30,7 @@
     transition: all 0.4s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     width: 100%;
-    height: 100%; 
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,8 +40,8 @@
     width: auto;
     height: auto;
     max-width: 100%;
-    max-height: 120px; 
-    object-fit: contain; 
+    max-height: 120px;
+    object-fit: contain;
     transition: all 0.4s ease;
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
     display: block;
@@ -87,77 +87,9 @@
     filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4)) brightness(1.1);
 }
 
-        .module-image-wrapper:hover .module-overlay {
-            opacity: 1;
-        }
-
-        .module-card-disabled {
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
-            opacity: 0.85;
-        }
-
-        .module-card-disabled:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-        }
-
-        .module-image-container-disabled {
-            position: relative;
-            margin: 0 auto;
-            max-width: 200px;
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: default;
-        }
-
-        .module-image-wrapper-disabled {
-            position: relative;
-            background: #6c757d40;
-            border-radius: 15px;
-            padding: 20px;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .module-image-disabled {
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            max-height: 120px;
-            object-fit: contain;
-            transition: all 0.4s ease;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)) grayscale(0.5);
-            display: block;
-            opacity: 0.7;
-        }
-
-        .module-overlay-disabled {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            width: 100%;
-            height: 100%;
-        }
-
-        .module-card-disabled .card-header {
-            border-bottom: 3px solid rgba(255,255,255,0.2);
-        }
+.module-image-wrapper:hover .module-overlay {
+    opacity: 1;
+}
 
 .module-overlay i {
     transform: scale(0.8);
@@ -211,27 +143,18 @@
 
 @media (max-width: 768px) {
     .module-image-container {
-        height: 140px; /
+        height: 140px;
         max-width: 150px;
     }
     
     .module-image {
         max-height: 80px;
     }
-
-    .module-image-container-disabled {
-        height: 140px;
-        max-width: 150px;
-    }
-
-    .module-image-disabled {
-        max-height: 80px;
-    }
 }
 
 @media (max-width: 576px) {
     .module-image-container {
-        height: 120px; 
+        height: 120px;
         max-width: 120px;
     }
     
@@ -306,7 +229,7 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Express
+            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Exprés
         </h2>
         
         <div class="row mb-4">
@@ -323,7 +246,7 @@
             </div>
             <div class="col-md-3 text-center mb-3 mb-md-0">
                 <div class="consulta-express-container" onclick="if(typeof SIGEMApp !== 'undefined') SIGEMApp.openConsultaExpress(); else alert('SIGEMApp no está disponible');">
-                    <img src="{{ asset('imagenes/express.png') }}" alt="Consulta Express" class="img-fluid rounded shadow consulta-express-image">
+                    <img src="{{ asset('imagenes/CE_btn.png') }}" alt="Consulta Exprés" class="img-fluid rounded shadow consulta-express-image">
                     <div class="consulta-express-overlay">
                         <span class="consulta-express-text">
                             Consultar Información
@@ -344,14 +267,14 @@
                     <div class="card-body text-center p-4">
                         <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=catalogo') }}'">
                             <div class="module-image-wrapper">
-                                <img src="{{ asset('imagenes/sige2.png') }}" alt="Catálogo de Cuadros" class="module-image">
+                                <img src="{{ asset('imagenes/catalogo.png') }}" alt="Catálogo de Cuadros" class="module-image">
                                 <div class="module-overlay">
                                     <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Explora nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva.
+                            Revisa nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva y reactiva.
                         </p>
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=catalogo') }}'">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
@@ -377,7 +300,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
+                            Explora el menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
                         </p>
                         <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=estadistica') }}'">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
@@ -387,27 +310,27 @@
             </div>
 
             <div class="col-lg-4 mb-3">
-                <div class="card h-100 shadow-sm module-card-disabled">
-                    <div class="card-header bg-secondary text-white text-center">
+                <div class="card h-100 shadow-sm module-card">
+                    <div class="card-header bg-success text-white text-center">
                         <h5 class="mb-0 fw-bold">
                             <i class="bi bi-map-fill me-2"></i> Cartografía
                         </h5>
                     </div>
                     <div class="card-body text-center p-4">
-                        <div class="module-image-container-disabled mb-3" title="Se está trabajando en el módulo">
-                            <div class="module-image-wrapper-disabled">
-                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Módulo Cartografía" class="module-image-disabled">
-                                <div class="module-overlay-disabled">
-                                    <i class="bi bi-exclamation-diamond-fill fs-1 text-warning"></i>
+                        <div class="module-image-container mb-3" onclick="window.location.href='{{ url('/sigem?section=cartografia') }}'">
+                            <div class="module-image-wrapper">
+                                <img src="{{ asset('imagenes/cartogde.png') }}" alt="Sistema de Información Geográfica Municipal" class="module-image">
+                                <div class="module-overlay">
+                                    <i class="bi bi-arrow-right-circle fs-1 text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Mapas temáticos y cartografía digital del municipio de Juárez con herramientas de visualización geográfica.
+                            Conoce más sobre nuestro Sistema de Información Geográfica Municipal (SIGMUN) con datos sobre el municipio de Juárez.
                         </p>
-                        <div class="btn btn-secondary btn-sm disabled w-100">
-                            <i class="bi bi-exclamation-diamond-fill me-1"></i>En mantenimiento
-                        </div>
+                        <button class="btn btn-success btn-sm" onclick="window.location.href='{{ url('/sigem?section=cartografia') }}'">
+                            <i class="bi bi-arrow-right me-1"></i>Ver SIGMUN
+                        </button>
                     </div>
                 </div>
             </div>
