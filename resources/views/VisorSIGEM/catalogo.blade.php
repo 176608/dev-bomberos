@@ -106,7 +106,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos. Documentacion</p>
+        <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos. *Manual de uso para nuevo catalogo*</p>
 
         <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
