@@ -8,6 +8,7 @@ use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use App\Models\SIGEM\SubtemaV2;
+use App\Models\SIGEM\TemaV2;
 
 class CuadroController extends Controller
 {
@@ -19,9 +20,11 @@ class CuadroController extends Controller
     public function index()
     {
         $cuadros = Cuadro::obtenerTodos();
+        $temas = TemaV2::with('subtemas')->orderBy('tema_titulo', 'asc')->get();
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.cuadros',
-            'cuadros' => $cuadros
+            'cuadros' => $cuadros,
+            'temas' => $temas
         ]);
     }
 
@@ -260,6 +263,8 @@ class CuadroController extends Controller
         if (!$cuadro) {
             return response()->json(['error' => 'Cuadro no encontrado.'], 404);
         }
-        return response()->json($cuadro);
+        $data = $cuadro->toArray();
+        $data['tema_id'] = $cuadro->subtema ? $cuadro->subtema->tema_id : null;
+        return response()->json($data);
     }
 }

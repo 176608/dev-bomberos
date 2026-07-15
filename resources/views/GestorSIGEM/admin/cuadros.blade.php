@@ -147,11 +147,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="subtema_id" name="subtema_id" required>
-                                    <option value="">Seleccionar...</option>
-                                    @foreach(\App\Models\SIGEM\SubtemaV2::obtenerTodos() as $sub)
-                                        <option value="{{ $sub->subtema_id }}">{{ $sub->subtema_titulo }}</option>
+                                <label for="crear_tema_id" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="crear_tema_id" required>
+                                    <option value="">Seleccionar tema...</option>
+                                    @foreach($temas as $tema)
+                                        <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -159,7 +159,15 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="subtema_id" name="subtema_id" required disabled>
+                                    <option value="">Primero selecciona un tema...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="c_titulo" class="form-label">Título <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="c_titulo" name="c_titulo" required maxlength="255" placeholder="Ej: Población total por sexo">
@@ -248,13 +256,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edit_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_subtema_id" name="subtema_id" required>
-                                    <option value="">Seleccionar...</option>
-                                    @foreach(\App\Models\SIGEM\SubtemaV2::obtenerTodos() as $sub)
-                                        <option value="{{ $sub->subtema_id }}" data-tema="{{ $sub->tema->tema_titulo ?? '' }}">
-                                            {{ $sub->subtema_titulo }}
-                                        </option>
+                                <label for="edit_tema_id" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_tema_id" required>
+                                    <option value="">Seleccionar tema...</option>
+                                    @foreach($temas as $tema)
+                                        <option value="{{ $tema->tema_id }}">{{ $tema->tema_titulo }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -262,7 +268,15 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_subtema_id" name="subtema_id" required disabled>
+                                    <option value="">Primero selecciona un tema...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="edit_c_titulo" class="form-label">Título <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_c_titulo" name="c_titulo" required maxlength="255">
@@ -342,27 +356,6 @@ const routesCuadros = {
     destroy: '{{ route("sgiem.admin.cuadros-v2.destroy", ":id") }}'
 };
 
-function editarCuadro(id) {
-    const form = document.getElementById('formEditarCuadro');
-    form.action = routesCuadros.update.replace(':id', id);
-
-    $.get(routesCuadros.datos.replace(':id', id), function(data) {
-        document.getElementById('edit_cuadro_id').value = data.cuadro_id;
-        document.getElementById('edit_codigo_cuadro').value = data.codigo_cuadro;
-        document.getElementById('edit_subtema_id').value = data.subtema_id;
-        document.getElementById('edit_c_titulo').value = data.c_titulo;
-        document.getElementById('edit_c_subtitulo').value = data.c_subtitulo || '';
-        document.getElementById('edit_cabecera_gen').value = data.cabecera_gen || '';
-        document.getElementById('edit_piepagina_gen').value = data.piepagina_gen || '';
-        document.getElementById('edit_publicado').checked = data.publicado ? true : false;
-        document.getElementById('edit_tipo_mapa_pdf').checked = data.tipo_mapa_pdf ? true : false;
-        document.getElementById('edit_permite_grafica').checked = data.permite_grafica ? true : false;
-
-        new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
-    }).fail(function() {
-        mostrarToast('danger', 'Error al cargar datos del cuadro.');
-    });
-}
 
 $('#formEditarCuadro').on('submit', function(e) {
     e.preventDefault();
@@ -487,6 +480,72 @@ $(document).ready(function() {
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
     @endif
+
+    // ========== CASCADING TEMA → SUBTEMA ==========
+    const subtemasPorTema = {
+        @foreach($temas as $tema)
+            {{ $tema->tema_id }}: [
+                @foreach($tema->subtemas as $sub)
+                    { id: {{ $sub->subtema_id }}, nombre: '{{ addslashes($sub->subtema_titulo) }}' },
+                @endforeach
+            ],
+        @endforeach
+    };
+
+    function poblarSubtemas(temaId, selectId, valorSeleccionado) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = '';
+        if (!temaId || !subtemasPorTema[temaId]) {
+            select.innerHTML = '<option value="">Primero selecciona un tema...</option>';
+            select.disabled = true;
+            return;
+        }
+        select.disabled = false;
+        select.innerHTML = '<option value="">Seleccionar subtema...</option>';
+        subtemasPorTema[temaId].forEach(function(sub) {
+            const opt = document.createElement('option');
+            opt.value = sub.id;
+            opt.textContent = sub.nombre;
+            if (valorSeleccionado && sub.id == valorSeleccionado) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    // Create modal cascading
+    document.getElementById('crear_tema_id').addEventListener('change', function() {
+        poblarSubtemas(this.value, 'subtema_id', null);
+    });
+
+    // Edit modal cascading
+    document.getElementById('edit_tema_id').addEventListener('change', function() {
+        poblarSubtemas(this.value, 'edit_subtema_id', null);
+    });
+
+    // Override editarCuadro to set tema before subtema
+    window.editarCuadro = function(id) {
+        const form = document.getElementById('formEditarCuadro');
+        form.action = routesCuadros.update.replace(':id', id);
+
+        $.get(routesCuadros.datos.replace(':id', id), function(data) {
+            document.getElementById('edit_cuadro_id').value = data.cuadro_id;
+            document.getElementById('edit_codigo_cuadro').value = data.codigo_cuadro;
+            document.getElementById('edit_c_titulo').value = data.c_titulo;
+            document.getElementById('edit_c_subtitulo').value = data.c_subtitulo || '';
+            document.getElementById('edit_cabecera_gen').value = data.cabecera_gen || '';
+            document.getElementById('edit_piepagina_gen').value = data.piepagina_gen || '';
+            document.getElementById('edit_publicado').checked = data.publicado ? true : false;
+            document.getElementById('edit_tipo_mapa_pdf').checked = data.tipo_mapa_pdf ? true : false;
+            document.getElementById('edit_permite_grafica').checked = data.permite_grafica ? true : false;
+
+            // Cascading: set tema, then load subtemas, then select the right one
+            document.getElementById('edit_tema_id').value = data.tema_id || '';
+            poblarSubtemas(data.tema_id, 'edit_subtema_id', data.subtema_id);
+
+            new bootstrap.Modal(document.getElementById('modalEditarCuadro')).show();
+        }).fail(function() {
+            mostrarToast('danger', 'Error al cargar datos del cuadro.');
+        });
+    };
 
     // Mostrar toasts de sesión
     @if(session('success'))
