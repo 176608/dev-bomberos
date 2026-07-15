@@ -37,19 +37,27 @@ class CuadroController extends Controller
     public function store(Request $request)
     {
         $validados = $request->validate([
-            'subtema_id' => 'required|integer|exists:subtema,subtema_id',
+            'subtema_id' => 'required|integer|exists:subtema_v2,subtema_id',
             'codigo_cuadro' => 'required|string|max:50',
             'c_titulo' => 'required|string|max:255',
             'c_subtitulo' => 'nullable|string|max:255',
-            'publicado' => 'sometimes|boolean',
-            'tipo_mapa_pdf' => 'sometimes|boolean',
-            'permite_grafica' => 'sometimes|boolean',
+            'publicado' => 'nullable|boolean',
+            'tipo_mapa_pdf' => 'nullable|boolean',
+            'permite_grafica' => 'nullable|boolean',
             'tipos_grafica_permitida' => 'nullable|json',
             'cabecera_gen' => 'nullable|string',
             'piepagina_gen' => 'nullable|string',
         ]);
 
+        $validados['publicado'] = $request->boolean('publicado');
+        $validados['tipo_mapa_pdf'] = $request->boolean('tipo_mapa_pdf');
+        $validados['permite_grafica'] = $request->boolean('permite_grafica');
+
         $cuadro = Cuadro::crear($validados);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => "Cuadro {$cuadro->codigo_cuadro} creado correctamente."]);
+        }
 
         return redirect()->route('sgiem.admin.cuadros-v2.index')
             ->with('success', "Cuadro {$cuadro->codigo_cuadro} creado correctamente.");
@@ -92,24 +100,35 @@ class CuadroController extends Controller
         $cuadro = Cuadro::obtenerPorId($id);
 
         if (!$cuadro) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Cuadro no encontrado.'], 404);
+            }
             return redirect()->route('sgiem.admin.cuadros-v2.index')
                 ->with('error', 'Cuadro no encontrado.');
         }
 
         $validados = $request->validate([
-            'subtema_id' => 'sometimes|integer|exists:subtema,subtema_id',
+            'subtema_id' => 'sometimes|integer|exists:subtema_v2,subtema_id',
             'codigo_cuadro' => 'sometimes|string|max:50',
             'c_titulo' => 'sometimes|string|max:255',
             'c_subtitulo' => 'nullable|string|max:255',
-            'publicado' => 'sometimes|boolean',
-            'tipo_mapa_pdf' => 'sometimes|boolean',
-            'permite_grafica' => 'sometimes|boolean',
+            'publicado' => 'nullable|boolean',
+            'tipo_mapa_pdf' => 'nullable|boolean',
+            'permite_grafica' => 'nullable|boolean',
             'tipos_grafica_permitida' => 'nullable|json',
             'cabecera_gen' => 'nullable|string',
             'piepagina_gen' => 'nullable|string',
         ]);
 
+        $validados['publicado'] = $request->boolean('publicado');
+        $validados['tipo_mapa_pdf'] = $request->boolean('tipo_mapa_pdf');
+        $validados['permite_grafica'] = $request->boolean('permite_grafica');
+
         $cuadro->actualizar($validados);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Metadatos actualizados correctamente.']);
+        }
 
         return redirect()->route('sgiem.admin.cuadros-v2.index')
             ->with('success', "Cuadro {$cuadro->codigo_cuadro} actualizado.");
@@ -219,5 +238,28 @@ class CuadroController extends Controller
     {
         $cuadros = Cuadro::publicados()->with(['subtema.tema'])->get();
         return response()->json($cuadros);
+    }
+
+    public function togglePublicado($id)
+    {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if (!$cuadro) {
+            return response()->json(['success' => false, 'error' => 'Cuadro no encontrado.'], 404);
+        }
+        $cuadro->publicado = !$cuadro->publicado;
+        $cuadro->save();
+        return response()->json([
+            'success' => true,
+            'publicado' => $cuadro->publicado
+        ]);
+    }
+
+    public function datosJson($id)
+    {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if (!$cuadro) {
+            return response()->json(['error' => 'Cuadro no encontrado.'], 404);
+        }
+        return response()->json($cuadro);
     }
 }

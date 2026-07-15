@@ -55,6 +55,8 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::put('/{id}/categorias', [CuadroController::class, 'actualizarCategorias'])->name('actualizar-categorias');
             Route::put('/{id}/datos/{dato}', [CuadroController::class, 'actualizarDato'])->name('actualizar-dato');
             Route::post('/{id}/categorias', [CuadroController::class, 'agregarCategoria'])->name('agregar-categoria');
+            Route::put('/{id}/toggle-publicado', [CuadroController::class, 'togglePublicado'])->name('toggle-publicado');
+            Route::get('/{id}/datos', [CuadroController::class, 'datosJson'])->name('datos-json');
         });
     });
 });
