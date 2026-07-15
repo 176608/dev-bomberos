@@ -14,9 +14,9 @@
         <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos V2</h5>
         <div>
             <span class="badge bg-light text-dark me-2">Total: <strong>{{ $total_cuadros ?? $cuadros->count() ?? 0 }}</strong></span>
-            <a href="{{ route('sgiem.admin.cuadros-v2.create') }}" class="btn btn-success btn-sm">
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearCuadro">
                 <i class="bi bi-plus-lg"></i> Nuevo Cuadro V2
-            </a>
+            </button>
         </div>
     </div>
     <div class="card-body bg-transparent">
@@ -52,7 +52,7 @@
                             <td><strong>{{ $cuadro->c_titulo }}</strong></td>
                             <td>
                                 @if($cuadro->subtema && $cuadro->subtema->tema)
-                                    <span class="badge" style="background-color: {{ $colorTema }}; color: white;">
+                                    <span class="badge" style="background-color: {{ $colorTema }}; color: #212529;">
                                         {{ $cuadro->subtema->tema->tema_titulo }}
                                     </span>
                                 @else
@@ -119,11 +119,110 @@
             <div class="text-center py-5">
                 <i class="bi bi-table" style="font-size: 3rem;"></i>
                 <p class="mt-3">No hay cuadros V2 registrados.</p>
-                <a href="{{ route('sgiem.admin.cuadros-v2.create') }}" class="btn btn-success">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearCuadro">
                     <i class="bi bi-plus-lg"></i> Crear primer cuadro
-                </a>
+                </button>
             </div>
         @endif
+    </div>
+</div>
+
+{{-- Modal Crear Cuadro --}}
+<div class="modal fade" id="modalCrearCuadro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Cuadro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formCrearCuadro" method="POST" action="{{ route('sgiem.admin.cuadros-v2.store') }}">
+                @csrf
+                <div class="modal-body bg-fonde">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="codigo_cuadro" class="form-label">Código <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="codigo_cuadro" name="codigo_cuadro" required maxlength="50" placeholder="Ej: 1.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="subtema_id" name="subtema_id" required>
+                                    <option value="">Seleccionar...</option>
+                                    @foreach(\App\Models\SIGEM\SubtemaV2::obtenerTodos() as $sub)
+                                        <option value="{{ $sub->subtema_id }}">{{ $sub->subtema_titulo }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="c_titulo" class="form-label">Título <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_titulo" name="c_titulo" required maxlength="255" placeholder="Ej: Población total por sexo">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="c_subtitulo" class="form-label">Subtítulo</label>
+                                <input type="text" class="form-control" id="c_subtitulo" name="c_subtitulo" maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="cabecera_gen" class="form-label">Cabecera general</label>
+                                <textarea class="form-control" id="cabecera_gen" name="cabecera_gen" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="piepagina_gen" class="form-label">Pie de página</label>
+                                <textarea class="form-control" id="piepagina_gen" name="piepagina_gen" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3 form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="crear_publicado" name="publicado" value="1">
+                                <label class="form-check-label" for="crear_publicado">Publicado</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3 form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="crear_tipo_mapa_pdf" name="tipo_mapa_pdf" value="1">
+                                <label class="form-check-label" for="crear_tipo_mapa_pdf">Es mapa PDF</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3 form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="crear_permite_grafica" name="permite_grafica" value="1">
+                                <label class="form-check-label" for="crear_permite_grafica">Permite gráfica</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Crear Cuadro
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -291,6 +390,32 @@ $('#formEditarCuadro').on('submit', function(e) {
     });
 });
 
+$('#formCrearCuadro').on('submit', function(e) {
+    e.preventDefault();
+    const form = $(this);
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalCrearCuadro'));
+
+    $.ajax({
+        url: form.attr('action'),
+        method: 'POST',
+        data: form.serialize(),
+        dataType: 'json',
+        success: function(response) {
+            modal.hide();
+            mostrarToast('success', response.message || 'Cuadro creado correctamente.');
+            setTimeout(function() { location.reload(); }, 1500);
+        },
+        error: function(xhr) {
+            let msg = 'Error al crear.';
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                msg = Object.values(xhr.responseJSON.errors).flat().join('\n');
+            }
+            mostrarToast('danger', msg);
+        }
+    });
+});
+
 function togglePublicado(id, btn) {
     $.ajax({
         url: routesCuadros.toggle.replace(':id', id),
@@ -370,5 +495,10 @@ $(document).ready(function() {
     @if(session('error'))
         mostrarToast('danger', '{{ session('error') }}');
     @endif
+
+    // Reset modal al cerrar
+    document.getElementById('modalCrearCuadro')?.addEventListener('hidden.bs.modal', function() {
+        this.querySelector('form').reset();
+    });
 });
 </script>
