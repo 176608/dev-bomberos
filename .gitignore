@@ -6,6 +6,7 @@
 /public/u_excel
 /public/u_pdf
 /public/u_xlsx_formated
+/public/imagenes/subtemas_u
 /storage/*.key
 /storage/pail
 /vendor

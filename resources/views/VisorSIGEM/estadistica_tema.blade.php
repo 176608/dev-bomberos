@@ -505,7 +505,7 @@ function renderizarIndicadores(indicadores) {
         var noPublicado = ind.publicado === false || ind.publicado === 0 || ind.publicado === undefined;
         var claseOpacidad = noPublicado ? 'opacity-50' : '';
         var estiloBorde = noPublicado ? ' border-warning' : '';
-        html += '<a href="{{ route('sigem.v2.cuadro.show', '') }}/' + ind.cuadro_id + '" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
+        html += '<a href="{{ url('/sigem-v2/cuadro') }}/' + ind.cuadro_id + '" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
         if (noPublicado) {
             html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
         }
