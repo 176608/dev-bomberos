@@ -388,6 +388,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     
     @yield('scripts')
+    @stack('scripts')
 
     <script>
     function handleLogout(event) {

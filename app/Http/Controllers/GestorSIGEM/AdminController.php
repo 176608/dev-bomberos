@@ -3,28 +3,19 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use App\Http\Controllers\GestorSIGEM\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
-use App\Models\SIGEM\CuadroEstadistico;
 use App\Models\SIGEM\AuditoriaSgiem;
-use App\Models\SIGEM\AuditoriaAcceso;
-use App\Models\SIGEM\ce_tema;
-use App\Models\SIGEM\ce_subtema;
-use App\Models\SIGEM\ce_contenido;
-use App\Services\FileContentValidator;
 use App\Services\SecureFileUpload;
 
 class AdminController extends Controller
 {
     protected SecureFileUpload $fileUploader;
-    protected FileContentValidator $fileValidator;
 
     public function __construct()
     {
         $this->fileUploader = new SecureFileUpload();
-        $this->fileValidator = $this->fileUploader->getValidator();
     }
 
     public function index()
@@ -44,22 +35,16 @@ class AdminController extends Controller
             ->take(100)
             ->get();
 
-        $accesos = AuditoriaAcceso::with('usuario')
-            ->orderBy('created_at', 'desc')
-            ->take(50)
-            ->get();
-
         $resumen = [
             'total_temas' => TemaV2::count(),
             'total_subtemas' => SubtemaV2::count(),
-            'total_cuadros' => \App\Models\SIGEM\Cuadro::count(),
+            'total_cuadros' => Cuadro::count(),
             'total_auditoria' => AuditoriaSgiem::count(),
         ];
 
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.dashboard',
             'auditoria' => $auditoria,
-            'accesos' => $accesos,
             'resumen' => $resumen,
             'esAdmin' => $user->hasRole('Administrador'),
         ]);

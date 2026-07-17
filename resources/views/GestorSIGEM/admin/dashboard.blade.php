@@ -33,109 +33,53 @@
     </div>
 </div>
 
-<ul class="nav nav-tabs mb-3" id="dashboardTabs">
-    <li class="nav-item">
-        <button class="nav-link active" id="tab-auditoria" data-bs-toggle="tab" data-bs-target="#panel-auditoria">
-            <i class="bi bi-journal-text"></i> Historial de Cambios
-        </button>
-    </li>
-    <li class="nav-item">
-        <button class="nav-link" id="tab-accesos" data-bs-toggle="tab" data-bs-target="#panel-accesos">
-            <i class="bi bi-door-open"></i> Accesos al Sistema
-        </button>
-    </li>
-</ul>
-
-<div class="tab-content">
-    <div class="tab-pane fade show active" id="panel-auditoria">
-        <div class="card">
-            <div class="card-body">
-                @if($auditoria->count() > 0)
-                <div class="table-responsive">
-                    <table id="tablaAuditoria" class="table table-striped table-sm">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Usuario</th>
-                                <th>Modelo</th>
-                                <th>ID</th>
-                                <th>Acción</th>
-                                <th>Detalle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($auditoria as $log)
-                            <tr>
-                                <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
-                                <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
-                                <td><code>{{ $log->modelo }}</code></td>
-                                <td><span class="badge bg-secondary">{{ $log->modelo_id }}</span></td>
-                                <td>
-                                    @if($log->accion === 'crear')
-                                        <span class="badge bg-success">Crear</span>
-                                    @elseif($log->accion === 'actualizar')
-                                        <span class="badge bg-warning text-dark">Actualizar</span>
-                                    @else
-                                        <span class="badge bg-danger">Eliminar</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($log->datos_nuevos && $log->accion === 'actualizar')
-                                        <button class="btn btn-sm btn-outline-info" 
-                                                onclick="verDiff({{ $log->auditoria_id }})">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <p class="text-muted text-center mb-0">No hay eventos registrados aún.</p>
-                @endif
-            </div>
+<div class="card">
+    <div class="card-body">
+        @if($auditoria->count() > 0)
+        <div class="table-responsive">
+            <table id="tablaAuditoria" class="table table-striped table-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Modelo</th>
+                        <th>ID</th>
+                        <th>Acción</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($auditoria as $log)
+                    <tr>
+                        <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
+                        <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
+                        <td><code>{{ $log->modelo }}</code></td>
+                        <td><span class="badge bg-secondary">{{ $log->modelo_id }}</span></td>
+                        <td>
+                            @if($log->accion === 'crear')
+                                <span class="badge bg-success">Crear</span>
+                            @elseif($log->accion === 'actualizar')
+                                <span class="badge bg-warning text-dark">Actualizar</span>
+                            @else
+                                <span class="badge bg-danger">Eliminar</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($log->datos_previos || $log->datos_nuevos)
+                                <button class="btn btn-sm btn-outline-info" 
+                                        onclick="verDiff({{ $log->auditoria_id }})">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <div class="tab-pane fade" id="panel-accesos">
-        <div class="card">
-            <div class="card-body">
-                @if(isset($accesos) && $accesos->count() > 0)
-                <div class="table-responsive">
-                    <table id="tablaAccesos" class="table table-striped table-sm">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Usuario</th>
-                                <th>Acción</th>
-                                <th>IP</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($accesos as $log)
-                            <tr>
-                                <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
-                                <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
-                                <td>
-                                    @if($log->accion === 'login')
-                                        <span class="badge bg-success">Login</span>
-                                    @else
-                                        <span class="badge bg-secondary">Logout</span>
-                                    @endif
-                                </td>
-                                <td><code>{{ $log->ip }}</code></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <p class="text-muted text-center mb-0">No hay accesos registrados aún.</p>
-                @endif
-            </div>
-        </div>
+        @else
+        <p class="text-muted text-center mb-0">No hay eventos registrados aún.</p>
+        @endif
     </div>
 </div>
 
@@ -157,13 +101,6 @@
 <script>
 $(document).ready(function() {
     $('#tablaAuditoria').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
-        order: [[0, 'desc']],
-        pageLength: 25,
-        responsive: true,
-    });
-
-    $('#tablaAccesos').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
         order: [[0, 'desc']],
         pageLength: 25,
