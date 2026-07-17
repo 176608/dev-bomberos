@@ -279,9 +279,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select @error('ce_tema_select') is-invalid @enderror" 
-                                        id="ce_tema_select" name="ce_tema_select" required>
+                                <label for="ce_tema_id" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select @error('ce_tema_id') is-invalid @enderror" 
+                                        id="ce_tema_id" name="ce_tema_id" required>
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($ce_temas))
                                         @foreach($ce_temas as $tema)
@@ -422,8 +422,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edit_ce_tema_select" class="form-label">Tema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_ce_tema_select" name="ce_tema_select" required>
+                                <label for="edit_ce_tema_id" class="form-label">Tema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_ce_tema_id" name="ce_tema_id" required>
                                     <option value="">Seleccionar tema...</option>
                                     @if(isset($ce_temas))
                                         @foreach($ce_temas as $tema)
@@ -959,7 +959,7 @@ function editarContenidoCE(id) {
             document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
             
             // Seleccionar tema y establecer subtema
-            const temaSelect = document.getElementById('edit_ce_tema_select');
+            const temaSelect = document.getElementById('edit_ce_tema_id');
             const subtemaInput = document.getElementById('edit_ce_subtema_nombre');
             
             if (contenido.subtema) {
