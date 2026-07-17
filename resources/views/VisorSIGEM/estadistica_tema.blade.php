@@ -357,7 +357,7 @@
                             <div class="indicadores-lista">
                                 @foreach($indicadores as $indicador)
                                     <a href="javascript:void(0)"
-                                       onclick="alert('ID del Indicador: {{ $indicador['cuadro_id'] }}')"
+                                       onclick="window.location.href='{{ route('sigem.v2.cuadro.show', $indicador['cuadro_id']) }}'"
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$indicador['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
                                        @if(!$indicador['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
                                         @if(!$indicador['publicado'] && $esDesarrollador)
@@ -505,7 +505,7 @@ function renderizarIndicadores(indicadores) {
         var noPublicado = ind.publicado === false || ind.publicado === 0 || ind.publicado === undefined;
         var claseOpacidad = noPublicado ? 'opacity-50' : '';
         var estiloBorde = noPublicado ? ' border-warning' : '';
-        html += '<a href="javascript:void(0)" onclick="alert(\'ID del Indicador: ' + ind.cuadro_id + '\')" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
+        html += '<a href="{{ route('sigem.v2.cuadro.show', '') }}/' + ind.cuadro_id + '" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
         if (noPublicado) {
             html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
         }

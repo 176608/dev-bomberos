@@ -194,7 +194,7 @@
                                                     $indClase = (!$indicador->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                                     $indBorde = (!$indicador->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
                                                 @endphp
-                                                <div class="indicador-fila {{ $indClase }}" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $indBorde }}" onclick="alert('ID del Indicador: {{ $indicador->cuadro_id }}')">
+                                                <div class="indicador-fila {{ $indClase }}" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $indBorde }}" onclick="window.location.href='{{ route('sigem.v2.cuadro.show', $indicador->cuadro_id) }}'">
                                                     <span class="codigo">{{ $indicador->codigo_cuadro }}</span>
                                                     <span class="titulo">
                                                         <strong>{{ $indicador->c_titulo }}</strong>

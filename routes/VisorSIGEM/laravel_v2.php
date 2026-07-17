@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\VisorSIGEM\SIGEMV2Controller;
+use App\Http\Controllers\VisorSIGEM\DatasetViewController;
 
 Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/', [SIGEMV2Controller::class, 'index'])->name('index');
@@ -13,6 +14,11 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/cartografia', [SIGEMV2Controller::class, 'cartografia'])->name('cartografia');
 
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
+
+    Route::prefix('cuadro')->name('cuadro.')->group(function () {
+        Route::get('/api/cuadro/{id}', [DatasetViewController::class, 'cuadroApi'])->name('api');
+        Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show');
+    });
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {
         Route::get('/', [SIGEMV2Controller::class, 'consultaExpress'])->name('index');
         Route::get('/subtemas/{tema_id}', [SIGEMV2Controller::class, 'ajaxSubtemas'])->name('subtemas');

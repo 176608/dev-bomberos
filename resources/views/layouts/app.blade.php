@@ -215,7 +215,7 @@
                                                !str_starts_with(request()->route()->getName(), 'sigem.admin.') &&
                                                !str_starts_with(request()->route()->getName(), 'sigem.v2.') ? 'active' : '' }}" 
                                href="{{ route('sigem.index') }}" title="Propuesta de consulta pública de SIGEM">
-                                <i class="bi bi-binoculars-fill"></i> SIGEM
+                                <i class="bi bi-binoculars-fill"></i> SIGEM v1
                             </a>
                         </li>
                         
@@ -238,7 +238,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
                                        href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
-                                        <i class="bi bi-gear"></i> SGIGEM
+                                        <i class="bi bi-gear"></i> SGIEM v1
                                     </a>
                                 </li>
                                 
@@ -276,17 +276,19 @@
                                     <a class="nav-link {{ request()->routeIs('sgiem.*') ? 'active' : '' }}"
                                         href="{{ route('sgiem.admin.index') }}"
                                         title="Sistema de Gestión de Información Estadística Municipal">
-                                        <i class="bi bi-gear-wide-connected"></i> SGIEM
+                                        <i class="bi bi-gear-wide-connected"></i> SGIEM V2
                                     </a>
                                 </li>
 
                             @elseif(auth()->user()->role === 'Administrador')
+                            <!-- Desde este boton podremos acceder al subsistema SGU, con los modulos Dashboard, Auditoria y Gestor de Usuarios. Se va a depreciar la forma actual de funcionamiento, creando el propio ambiente para SGU con services, controllers, formrequest, Store, -->
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
-                                       href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
-                                        <i class="bi bi-gear"></i> SGIGEM
+                                    <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
+                                       href="{{ route('admin.panel') }}" title="Sistema de Gestión de Usuarios">
+                                        <i class="bi bi-gear"></i> SGU
                                     </a>
                                 </li>
+
                             @elseif(auth()->user()->role === 'Capturista') 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
@@ -314,7 +316,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sigem.admin.*') ? 'active' : '' }}" 
                                        href="{{ route('sigem.admin.index') }}" title="Sistema de Gestión de Información Geográfica y Estadística Municipal">
-                                        <i class="bi bi-gear"></i> SGIGEM
+                                        <i class="bi bi-gear"></i> SGIEM v1
                                     </a>
                                 </li>
 
@@ -330,7 +332,7 @@
                                     <a class="nav-link {{ request()->routeIs('sgiem.*') ? 'active' : '' }}"
                                         href="{{ route('sgiem.admin.index') }}"
                                         title="Sistema de Gestión de Información Estadística Municipal">
-                                        <i class="bi bi-gear-wide-connected"></i> SGIEM
+                                        <i class="bi bi-gear-wide-connected"></i> SGIEM V2
                                     </a>
                                 </li>
                             @endif

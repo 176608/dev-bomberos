@@ -79,10 +79,11 @@
 
                                     {{-- Editar Dataset — solo si NO es mapa --}}
                                     @if(!$esMapa)
-                                        <button type="button" class="btn btn-outline-info disabled"
-                                                title="Editar Dataset (próximamente)">
+                                        <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}"
+                                           class="btn btn-outline-info btn-sm"
+                                           title="Editar Dataset">
                                             <i class="bi bi-table"></i> Dataset
-                                        </button>
+                                        </a>
                                     @endif
 
                                     {{-- Configurar Gráfica — solo si NO es mapa y tiene gráfica --}}
