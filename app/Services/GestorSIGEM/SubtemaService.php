@@ -27,7 +27,7 @@ class SubtemaService
 
     public function crear(array $datos, ?UploadedFile $imagen = null): SubtemaV2
     {
-        if (!isset($datos['orden_indice']) || !$datos['orden_indice']) {
+        if (!isset($datos['orden_indice']) || $datos['orden_indice'] === null || $datos['orden_indice'] === '' || $datos['orden_indice'] === false) {
             $datos['orden_indice'] = $this->subtemaV2->siguienteOrden($datos['tema_id']);
         }
 
@@ -56,7 +56,7 @@ class SubtemaService
 
         if (isset($datos['tema_id']) && $datos['tema_id'] != $subtema->tema_id) {
             $datos['orden_indice'] = $this->subtemaV2->siguienteOrden($datos['tema_id']);
-        } elseif (!isset($datos['orden_indice']) || !$datos['orden_indice']) {
+        } elseif (!isset($datos['orden_indice']) || $datos['orden_indice'] === null || $datos['orden_indice'] === '' || $datos['orden_indice'] === false) {
             $datos['orden_indice'] = $subtema->orden_indice;
         }
 

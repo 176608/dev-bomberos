@@ -1,7 +1,7 @@
 <div class="card bg-dark bg-opacity-10 border-0">
     <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
         <h5 class="mb-0"><i class="bi bi-search"></i> Consultas Express</h5>
-        <span class="badge bg-light text-dark">Total: <strong>{{ (count($ce_temas ?? []) + count($ce_subtemas ?? []) + count($ce_contenidos ?? [])) }}</strong> registros</span>
+        <span class="badge bg-light text-dark">Total: <strong>{{ (count($ce_temas ?? []) + count($ce_contenidos ?? [])) }}</strong> registros</span>
     </div>
     <div class="card-header bg-transparent border-bottom-0 pb-0">
         <nav>
@@ -9,10 +9,6 @@
                 <button class="nav-link" id="nav-temas-tab" data-bs-toggle="tab" data-bs-target="#nav-temas" 
                         type="button" role="tab" aria-controls="nav-temas" aria-selected="false">
                     <i class="bi bi-bookmark-fill"></i> Temas <span class="badge bg-info ms-1">{{ count($ce_temas ?? []) }}</span>
-                </button>
-                <button class="nav-link" id="nav-subtemas-tab" data-bs-toggle="tab" data-bs-target="#nav-subtemas" 
-                        type="button" role="tab" aria-controls="nav-subtemas" aria-selected="false">
-                    <i class="bi bi-bookmarks-fill"></i> Subtemas <span class="badge bg-success ms-1">{{ count($ce_subtemas ?? []) }}</span>
                 </button>
                 <button class="nav-link active" id="nav-contenidos-tab" data-bs-toggle="tab" data-bs-target="#nav-contenidos" 
                         type="button" role="tab" aria-controls="nav-contenidos" aria-selected="true">
@@ -87,85 +83,6 @@
                         <h5 class="text-muted mt-3">No hay temas registrados</h5>
                         <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
                             <i class="bi bi-plus-circle"></i> Agregar Primer Tema CE
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================== SUBTEMAS CE ========================================== -->
-    <div class="tab-pane fade pb-5" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
-        <div class="row pb-2">
-            <div class="col-md-8">
-                <h6 class=""><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
-                <small class="">Gestiona los subtemas asociados a cada tema principal</small>
-            </div>
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Subtema CE
-                </button>
-            </div>
-        </div>
-
-        <div class="card tabla-subtemas-ce">
-            <div class="card-body">
-                @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaSubtemasCE" class="table table-striped table-hover table-sm">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>Subtema</th>
-                                    <th>Tema Padre</th>
-                                    <th>Contenido</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ce_subtemas as $subtema)
-                                <tr>
-                                    <td><strong>{{ $subtema->ce_subtema }}</strong></td>
-                                    <td>
-                                        @if($subtema->tema)
-                                            <span class="badge bg-primary">{{ $subtema->tema->tema }}</span>
-                                        @else
-                                            <span class="text-danger">Sin tema padre</span>
-                                        @endif
-                                    </td>
-                                    <td data-order="{{ $subtema->contenidos()->count() > 0 ? 1 : 0 }}">
-                                        @if($subtema->contenidos()->count() > 0)
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle-fill"></i> Con contenido
-                                            </span>
-                                        @else
-                                            <span class="badge bg-light text-dark">
-                                                <i class="bi bi-x-circle"></i> Sin contenido
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarSubtemaCE({{ $subtema->ce_subtema_id }})">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarSubtemaCE({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Subtema CE
                         </button>
                     </div>
                 @endif
@@ -274,158 +191,6 @@
         </div>
     </div>
 
-    <!-- ========================================== SUBTEMAS CE ========================================== -->
-    <div class="tab-pane fade pb-5" id="nav-subtemas" role="tabpanel" aria-labelledby="nav-subtemas-tab">
-        <div class="row pb-2">
-            <div class="col-md-8">
-                <h6><i class="bi bi-bookmarks-fill"></i> Subtemas de Consultas Express</h6>
-                <small class="text-muted">Gestiona los subtemas asociados a cada tema principal</small>
-            </div>
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Subtema CE
-                </button>
-            </div>
-        </div>
-
-        <div class="card tabla-subtemas-ce">
-            <div class="card-body">
-                @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaSubtemasCE" class="table table-striped table-hover">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Subtema</th>
-                                    <th>Tema Padre</th>
-                                    <th>Contenido</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ce_subtemas as $subtema)
-                                <tr>
-                                    <td><span class="badge bg-secondary">{{ $subtema->ce_subtema_id }}</span></td>
-                                    <td><strong>{{ $subtema->ce_subtema }}</strong></td>
-                                    <td>
-                                        @if($subtema->tema)
-                                            <span class="badge bg-primary">{{ $subtema->tema->tema }}</span>
-                                        @else
-                                            <span class="text-danger">Sin tema padre</span>
-                                        @endif
-                                    </td>
-                                    <td data-order="{{ $subtema->contenidos()->count() > 0 ? 1 : 0 }}">
-                                        @if($subtema->contenidos()->count() > 0)
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle-fill"></i> Con contenido
-                                            </span>
-                                        @else
-                                            <span class="badge bg-light text-dark">
-                                                <i class="bi bi-x-circle"></i> Sin contenido
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarSubtemaCE({{ $subtema->ce_subtema_id }})">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarSubtemaCE({{ $subtema->ce_subtema_id }}, '{{ addslashes($subtema->ce_subtema) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay subtemas registrados</h5>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Subtema CE
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================== TEMAS CE ========================================== -->
-    <div class="tab-pane fade pb-5" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
-        <div class="row pb-2">
-            <div class="col-md-8">
-                <h6><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
-                <small class="text-muted">Gestiona los temas principales para las consultas express</small>
-            </div>
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
-                    <i class="bi bi-plus-circle"></i> Nuevo Tema CE
-                </button>
-            </div>
-        </div>
-
-        <div class="card tabla-temas-ce">
-            <div class="card-body">
-                @if(isset($ce_temas) && count($ce_temas) > 0)
-                    <div class="table-responsive">
-                        <table id="tablaTemasCE" class="table table-striped table-hover">
-                            <thead class="table-primary">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tema</th>
-                                    <th>Subtemas</th>
-                                    <th width="120">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ce_temas as $tema)
-                                <tr>
-                                    <td><span class="badge bg-secondary">{{ $tema->ce_tema_id }}</span></td>
-                                    <td><strong>{{ $tema->tema }}</strong></td>
-                                    <td data-order="{{ $tema->subtemas()->count() }}">
-                                        @php
-                                            $subtemas_count = $tema->subtemas()->count();
-                                        @endphp
-                                        @if($subtemas_count > 0)
-                                            <span class="badge bg-success">{{ $subtemas_count }} subtemas</span>
-                                        @else
-                                            <span class="text-muted">Sin subtemas</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-warning" title="Editar" 
-                                                    onclick="editarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Eliminar" 
-                                                    onclick="eliminarTemaCE({{ $tema->ce_tema_id }}, '{{ addslashes($tema->tema) }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted mt-3">No hay temas registrados</h5>
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Tema CE
-                        </button>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
 </div>
 </div>
 </div>
@@ -499,97 +264,6 @@
     </div>
 </div>
 
-<!-- Modal Agregar Subtema CE -->
-<div class="modal fade" id="modalAgregarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Subtema CE</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formAgregarSubtema" method="POST" action="{{ route('sgiem.admin.consultas.subtema.crear') }}">
-                @csrf
-                <div class="modal-body bg-fonde">
-                    <div class="mb-3">
-                        <label for="ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                        <select class="form-select @error('ce_tema_id') is-invalid @enderror" 
-                                id="ce_tema_id" name="ce_tema_id" required>
-                            <option value="">Seleccionar tema...</option>
-                            @if(isset($ce_temas))
-                                @foreach($ce_temas as $tema)
-                                    <option value="{{ $tema->ce_tema_id }}" 
-                                            {{ old('ce_tema_id') == $tema->ce_tema_id ? 'selected' : '' }}>
-                                        {{ $tema->tema }}
-                                    </option>
-                                @endforeach
-                            @endif
-                        </select>
-                        @error('ce_tema_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="ce_subtema" class="form-label">Nombre del Subtema <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ce_subtema') is-invalid @enderror" 
-                               id="ce_subtema" name="ce_subtema" 
-                               placeholder="Ej: Población por Edad" 
-                               value="{{ old('ce_subtema') }}" required>
-                        @error('ce_subtema')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar Subtema
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Editar Subtema CE -->
-<div class="modal fade" id="modalEditarSubtema" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Subtema CE</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formEditarSubtema" method="POST" action="">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="edit_subtema_id" name="ce_subtema_id">
-                <div class="modal-body bg-fonde">
-                    <div class="mb-3">
-                        <label for="edit_ce_tema_id" class="form-label">Tema Padre <span class="text-danger">*</span></label>
-                        <select class="form-select" id="edit_ce_tema_id" name="ce_tema_id" required>
-                            <option value="">Seleccionar tema...</option>
-                            @if(isset($ce_temas))
-                                @foreach($ce_temas as $tema)
-                                    <option value="{{ $tema->ce_tema_id }}">{{ $tema->tema }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_ce_subtema" class="form-label">Nombre del Subtema <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_ce_subtema" name="ce_subtema" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="bi bi-save"></i> Actualizar Subtema
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Agregar Contenido CE -->
 <div class="modal fade" id="modalAgregarContenido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
@@ -619,12 +293,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select @error('ce_subtema_id') is-invalid @enderror" 
-                                        id="ce_subtema_id" name="ce_subtema_id" required>
-                                    <option value="">Seleccionar subtema...</option>
-                                </select>
-                                @error('ce_subtema_id')
+                                <label for="ce_subtema_nombre" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('ce_subtema_nombre') is-invalid @enderror" 
+                                       id="ce_subtema_nombre" name="ce_subtema_nombre" 
+                                       placeholder="Nombre del subtema (se creará automáticamente)" required>
+                                @error('ce_subtema_nombre')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -762,10 +435,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edit_ce_subtema_id" class="form-label">Subtema <span class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_ce_subtema_id" name="ce_subtema_id" required>
-                                    <option value="">Seleccionar subtema...</option>
-                                </select>
+                                <label for="edit_ce_subtema_nombre" class="form-label">Subtema <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_ce_subtema_nombre" name="ce_subtema_nombre" required>
                             </div>
                         </div>
                     </div>
@@ -914,46 +585,6 @@ $(document).ready(function() {
     });
     @endif
 
-    // DataTable para Subtemas CE
-    @if(isset($ce_subtemas) && count($ce_subtemas) > 0)
-    $('#tablaSubtemasCE').DataTable({
-        responsive: true,
-        language: dataTablesLanguage,
-        columnDefs: [
-            {
-                targets: 0, // Subtema
-                width: "35%"
-            },
-            {
-                targets: 1, // Tema Padre
-                width: "25%"
-            },
-            {
-                targets: 2, // Contenidos
-                width: "20%",
-                className: "text-center",
-                type: "num"
-            },
-            {
-                targets: 3, // Acciones
-                width: "20%",
-                className: "text-center",
-                orderable: false,
-                searchable: false
-            }
-        ],
-        order: [[1, 'asc'], [0, 'asc']], // Ordenar por tema padre y luego por subtema
-        pageLength: 10,
-        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-             '<"row"<"col-sm-12"tr>>' +
-             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-        drawCallback: function() {
-            // Ya no necesitamos reinicializar tooltips de Bootstrap
-        }
-    });
-    @endif
-
     // DataTable para Contenidos CE
     @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
     $('#tablaContenidosCE').DataTable({
@@ -1013,18 +644,12 @@ $(document).ready(function() {
     });
 });
 
-// Datos para filtrado
-const ceSubtemasData = @json($ce_subtemas ?? []);
-
 // Rutas para JavaScript
 const routesConsultas = {
     temaUpdate: '{{ route("sgiem.admin.consultas.tema.actualizar", ":id") }}',
     temaDelete: '{{ route("sgiem.admin.consultas.tema.eliminar", ":id") }}',
-    subtemaUpdate: '{{ route("sgiem.admin.consultas.subtema.actualizar", ":id") }}',
-    subtemaDelete: '{{ route("sgiem.admin.consultas.subtema.eliminar", ":id") }}',
     contenidoUpdate: '{{ route("sgiem.admin.consultas.contenido.actualizar", ":id") }}',
-    contenidoDelete: '{{ route("sgiem.admin.consultas.contenido.eliminar", ":id") }}',
-    subtemasAjax: '{{ url("/sgiem/admin/consultas/subtemas-ce") }}'
+    contenidoDelete: '{{ route("sgiem.admin.consultas.contenido.eliminar", ":id") }}'
 };
 
 // ============ FUNCIONES DE TEMAS CE ============
@@ -1070,66 +695,6 @@ function eliminarTemaCE(id, nombre) {
     }
 }
 
-// ============ FUNCIONES DE SUBTEMAS CE ============
-
-function editarSubtemaCE(id) {
-    // Buscar los datos del subtema en la tabla
-    const fila = event.target.closest('tr');
-    const subtema_nombre = fila.cells[0].querySelector('strong').textContent;
-    const tema_badge = fila.cells[1].querySelector('.badge');
-    
-    // Llenar el modal de edición
-    document.getElementById('edit_subtema_id').value = id;
-    document.getElementById('edit_ce_subtema').value = subtema_nombre;
-    
-    // Seleccionar el tema en el select
-    const temaSelect = document.getElementById('edit_ce_tema_id');
-    if (tema_badge) {
-        const temaTexto = tema_badge.textContent;
-        for (let option of temaSelect.options) {
-            if (option.text === temaTexto) {
-                option.selected = true;
-                break;
-            }
-        }
-    }
-    
-    // Actualizar la acción del formulario
-    const form = document.getElementById('formEditarSubtema');
-    form.action = routesConsultas.subtemaUpdate.replace(':id', id);
-    
-    // Mostrar modal
-    new bootstrap.Modal(document.getElementById('modalEditarSubtema')).show();
-}
-
-function eliminarSubtemaCE(id, nombre) {
-    if (confirm('¿Estás seguro de eliminar el subtema CE "' + nombre + '"?\n\n⚠️ ADVERTENCIA: Esto también eliminará todos los contenidos asociados.\n\nEsta acción no se puede deshacer.')) {
-        // Crear formulario temporal para envío DELETE
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = routesConsultas.subtemaDelete.replace(':id', id);
-        form.style.display = 'none';
-        
-        // Token CSRF
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        form.appendChild(csrfToken);
-        
-        // Method spoofing para DELETE
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        form.appendChild(methodField);
-        
-        // Enviar formulario
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
 // ============ FUNCIONES DE CONTENIDOS CE ============
 function verContenidoCE(id) {
     // Buscar el contenido en la tabla y mostrar en modal
@@ -1142,10 +707,12 @@ function verContenidoCE(id) {
 }
 
 function eliminarContenidoCE(id) {
-    // Obtener información de la fila para confirmación más específica
     const fila = event.target.closest('tr');
-    const titulo = fila.cells[1].querySelector('strong').textContent;
-    const dimensiones = fila.cells[2].querySelector('.badge').textContent;
+    if (!fila || !fila.cells || fila.cells.length < 3) return;
+    const tituloEl = fila.cells[0].querySelector('strong');
+    const titulo = tituloEl ? tituloEl.textContent : 'Tabla';
+    const dimsEl = fila.cells[1].querySelector('.badge');
+    const dimensiones = dimsEl ? dimsEl.textContent : '?×?';
     
     if (confirm(`¿Estás seguro de eliminar la tabla "${titulo}" (${dimensiones})?\n\n⚠️ Esta acción no se puede deshacer.`)) {
         // Crear formulario temporal para envío DELETE
@@ -1391,33 +958,15 @@ function editarContenidoCE(id) {
             document.getElementById('edit_tabla_filas').value = contenido.tabla_filas;
             document.getElementById('edit_tabla_columnas').value = contenido.tabla_columnas;
             
-            // Seleccionar tema y cargar subtemas
+            // Seleccionar tema y establecer subtema
             const temaSelect = document.getElementById('edit_ce_tema_select');
-            const subtemaSelect = document.getElementById('edit_ce_subtema_id');
+            const subtemaInput = document.getElementById('edit_ce_subtema_nombre');
             
-            if (contenido.subtema && contenido.subtema.tema) {
-                // Primero seleccionar el tema
-                temaSelect.value = contenido.subtema.tema.ce_tema_id;
-                
-                // Cargar subtemas del tema seleccionado
-                filtrarSubtemasCE(temaSelect, subtemaSelect);
-                
-                // Esperar un poco más para asegurar que los subtemas se carguen
-                setTimeout(() => {
-                    // Verificar si el subtema existe en las opciones
-                    const subtemaOption = subtemaSelect.querySelector(`option[value="${contenido.ce_subtema_id}"]`);
-                    if (subtemaOption) {
-                        subtemaSelect.value = contenido.ce_subtema_id;
-                    } else {
-                        console.warn('Subtema no encontrado en las opciones:', contenido.ce_subtema_id);
-                        // Agregar la opción manualmente si no existe
-                        const option = document.createElement('option');
-                        option.value = contenido.ce_subtema_id;
-                        option.textContent = contenido.subtema.ce_subtema;
-                        option.selected = true;
-                        subtemaSelect.appendChild(option);
-                    }
-                }, 200); // Aumentado el tiempo de espera
+            if (contenido.subtema) {
+                if (contenido.subtema.tema) {
+                    temaSelect.value = contenido.subtema.tema.ce_tema_id;
+                }
+                subtemaInput.value = contenido.subtema.ce_subtema || '';
             }
             
             // Generar tabla con datos existentes
@@ -1502,52 +1051,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ============ FILTRADO DE SUBTEMAS CE ============
-function filtrarSubtemasCE(temaSelect, subtemaSelect) {
-    const temaId = temaSelect.value;
-    subtemaSelect.innerHTML = '<option value="">Seleccionar subtema...</option>';
-    
-    if (temaId) {
-        // Usar datos locales si están disponibles
-        const subtemasDelTema = ceSubtemasData.filter(subtema => subtema.ce_tema_id == temaId);
-        
-        subtemasDelTema.forEach(subtema => {
-            const option = document.createElement('option');
-            option.value = subtema.ce_subtema_id;
-            option.textContent = subtema.ce_subtema;
-            subtemaSelect.appendChild(option);
-        });
-    }
-}
-
-// Event listeners para filtrado de subtemas Y AUTO-COMPLETAR TÍTULO
-document.getElementById('ce_tema_select')?.addEventListener('change', function() {
-    filtrarSubtemasCE(this, document.getElementById('ce_subtema_id'));
-    // Limpiar título cuando cambia tema
-    document.getElementById('titulo_tabla').value = '';
-});
-
-document.getElementById('ce_subtema_id')?.addEventListener('change', function() {
-    // Auto-completar título con el nombre del subtema seleccionado
-    const subtemaSelect = this;
-    const tituloInput = document.getElementById('titulo_tabla');
-    
-    if (subtemaSelect.value && subtemaSelect.selectedOptions.length > 0) {
-        const subtemaTexto = subtemaSelect.selectedOptions[0].textContent;
-        tituloInput.value = subtemaTexto;
-        
-        // Enfocar el campo de título para que el usuario vea el cambio
-        tituloInput.focus();
-        tituloInput.select();
-    } else {
-        tituloInput.value = '';
-    }
-});
-
-document.getElementById('edit_ce_tema_select')?.addEventListener('change', function() {
-    filtrarSubtemasCE(this, document.getElementById('edit_ce_subtema_id'));
-});
-
 // Limpiar modales al cerrar
 document.getElementById('modalAgregarTema')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
@@ -1557,17 +1060,8 @@ document.getElementById('modalEditarTema')?.addEventListener('hidden.bs.modal', 
     this.querySelector('form').reset();
 });
 
-document.getElementById('modalAgregarSubtema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
-
-document.getElementById('modalEditarSubtema')?.addEventListener('hidden.bs.modal', function() {
-    this.querySelector('form').reset();
-});
-
 document.getElementById('modalAgregarContenido')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
     document.getElementById('tabla-editor').style.display = 'none';
     document.getElementById('btn-guardar-tabla').disabled = true;
     document.getElementById('preview-dimensiones').textContent = 'Tabla de 3x3 (9 celdas total)';
@@ -1607,7 +1101,6 @@ function regenerarTablaEdicion() {
 // Limpiar modal de edición al cerrar
 document.getElementById('modalEditarContenido')?.addEventListener('hidden.bs.modal', function() {
     this.querySelector('form').reset();
-    document.getElementById('edit_ce_subtema_id').innerHTML = '<option value="">Seleccionar subtema...</option>';
     document.getElementById('edit_tabla-editor').style.display = 'none';
     document.getElementById('edit_btn-guardar-tabla').disabled = true;
     document.getElementById('edit_preview-dimensiones').textContent = 'Tabla cargada';
@@ -1640,12 +1133,6 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Tabla de Contenidos CE - 100% del viewport */
 .tabla-contenidos-ce {
     width: 100%;
-    margin: 0 auto 20px auto;
-}
-
-/* Tabla de Subtemas CE - 75% del viewport */
-.tabla-subtemas-ce {
-    width: 75%;
     margin: 0 auto 20px auto;
 }
 
@@ -1682,19 +1169,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @media (max-width: 992px) {
     .tabla-contenidos-ce { width: 100%; }
-    .tabla-subtemas-ce { width: 85%; }
     .tabla-temas-ce { width: 70%; }
 }
 
 @media (max-width: 768px) {
     .tabla-contenidos-ce,
-    .tabla-subtemas-ce,
     .tabla-temas-ce { width: 100%; }
 }
 
 @media (max-width: 576px) {
     .tabla-contenidos-ce,
-    .tabla-subtemas-ce,
     .tabla-temas-ce { 
         width: 100%; 
         margin: 0 0 15px 0; 
@@ -1725,18 +1209,6 @@ document.addEventListener('DOMContentLoaded', function() {
 #tablaTemasCE th:nth-child(3), #tablaTemasCE td:nth-child(3) { width: 20%; min-width: 120px; }
 #tablaTemasCE th:nth-child(4), #tablaTemasCE td:nth-child(4) { width: 15%; min-width: 120px; }
 
-/* Tabla de Subtemas CE - Anchos fluidos */
-#tablaSubtemasCE {
-    table-layout: auto;
-    width: 100% !important;
-}
-
-#tablaSubtemasCE th:nth-child(1), #tablaSubtemasCE td:nth-child(1) { width: 10%; min-width: 80px; }
-#tablaSubtemasCE th:nth-child(2), #tablaSubtemasCE td:nth-child(2) { width: 35%; min-width: 150px; }
-#tablaSubtemasCE th:nth-child(3), #tablaSubtemasCE td:nth-child(3) { width: 25%; min-width: 150px; }
-#tablaSubtemasCE th:nth-child(4), #tablaSubtemasCE td:nth-child(4) { width: 15%; min-width: 120px; }
-#tablaSubtemasCE th:nth-child(5), #tablaSubtemasCE td:nth-child(5) { width: 15%; min-width: 120px; }
-
 /* Tabla de Contenidos CE - Anchos fluidos */
 #tablaContenidosCE {
     table-layout: auto;
@@ -1758,11 +1230,6 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 6px;
 }
 
-.tabla-subtemas-ce {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    border-radius: 6px;
-}
-
 .tabla-temas-ce {
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     border-radius: 6px;
@@ -1777,8 +1244,6 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 #tablaTemasCE td:nth-child(2),
-#tablaSubtemasCE td:nth-child(2),
-#tablaSubtemasCE td:nth-child(3),
 #tablaContenidosCE td:nth-child(2) {
     white-space: normal;
     word-wrap: break-word;

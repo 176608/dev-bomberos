@@ -17,12 +17,10 @@ class ConsultaExpressService
     public function listarTemas(): array
     {
         $temas = $this->ceTema->obtenerTodos();
-        $subtemas = $this->ceSubtema->obtenerTodos();
         $contenidos = $this->ceContenido->with(['subtema.tema'])->orderBy('created_at', 'desc')->get();
 
         return [
             'ce_temas' => $temas,
-            'ce_subtemas' => $subtemas,
             'ce_contenidos' => $contenidos,
         ];
     }
@@ -69,54 +67,8 @@ class ConsultaExpressService
         return $nombre;
     }
 
-    // ============ CRUD SUBTEMAS CE ============
 
-    public function crearSubtema(array $datos): ce_subtema
-    {
-        return $this->ceSubtema->crear($datos);
-    }
-
-    public function actualizarSubtema(int $id, array $datos): ce_subtema
-    {
-        $subtema = $this->ceSubtema->obtenerPorId($id);
-
-        if (!$subtema) {
-            throw new \RuntimeException('Subtema CE no encontrado');
-        }
-
-        $subtema->actualizar($datos);
-
-        return $subtema;
-    }
-
-    public function eliminarSubtema(int $id): array
-    {
-        $subtema = $this->ceSubtema->obtenerPorId($id);
-
-        if (!$subtema) {
-            throw new \RuntimeException('Subtema CE no encontrado');
-        }
-
-        $contenidosCount = $subtema->contenidos()->count();
-
-        if ($contenidosCount > 0) {
-            throw new \RuntimeException(
-                "No se puede eliminar el subtema CE '{$subtema->ce_subtema}' porque tiene {$contenidosCount} contenido(s) asociado(s)."
-            );
-        }
-
-        $nombreSubtema = $subtema->ce_subtema;
-        $nombreTema = $subtema->tema ? $subtema->tema->tema : 'Sin tema';
-
-        $subtema->eliminar();
-
-        return [
-            'subtema' => $nombreSubtema,
-            'tema' => $nombreTema,
-        ];
-    }
-
-    // ============ CRUD CONTENIDOS CE ============
+    // ============ CRUD CONTENIDOS CE (incluye subtema) ============
 
     public function crearContenido(array $datos): ce_contenido
     {
@@ -127,8 +79,13 @@ class ConsultaExpressService
 
         $estructura_tabla = $this->ceContenido->crearEstructuraTabla($filas, $columnas, $datos);
 
+        $subtema = $this->ceSubtema->crear([
+            'ce_tema_id' => $datos['ce_tema_id'],
+            'ce_subtema' => $datos['ce_subtema_nombre'],
+        ]);
+
         return $this->ceContenido->create([
-            'ce_subtema_id' => $datos['ce_subtema_id'],
+            'ce_subtema_id' => $subtema->ce_subtema_id,
             'titulo_tabla' => $datos['titulo_tabla'],
             'pie_tabla' => $datos['pie_tabla'] ?? null,
             'tabla_filas' => $filas,
@@ -152,8 +109,15 @@ class ConsultaExpressService
 
         $estructura_tabla = $this->ceContenido->crearEstructuraTabla($filas, $columnas, $datos);
 
+        if ($contenido->subtema) {
+            $contenido->subtema->actualizar([
+                'ce_tema_id' => $datos['ce_tema_id'],
+                'ce_subtema' => $datos['ce_subtema_nombre'],
+            ]);
+        }
+
         $contenido->update([
-            'ce_subtema_id' => $datos['ce_subtema_id'],
+            'ce_subtema_id' => $contenido->ce_subtema_id,
             'titulo_tabla' => $datos['titulo_tabla'],
             'pie_tabla' => $datos['pie_tabla'] ?? null,
             'tabla_filas' => $filas,
@@ -176,7 +140,12 @@ class ConsultaExpressService
         $nombreSubtema = $contenido->subtema ? $contenido->subtema->ce_subtema : 'Sin subtema';
         $dimensiones = "{$contenido->tabla_filas}x{$contenido->tabla_columnas}";
 
+        $subtemaId = $contenido->ce_subtema_id;
         $contenido->delete();
+
+        if ($subtemaId) {
+            $this->ceSubtema->obtenerPorId($subtemaId)?->eliminar();
+        }
 
         return [
             'titulo' => $tituloTabla,
@@ -186,14 +155,6 @@ class ConsultaExpressService
     }
 
     // ============ AJAX HELPERS ============
-
-    public function obtenerSubtemasPorTema(int $tema_id): array
-    {
-        return $this->ceSubtema->where('ce_tema_id', $tema_id)
-            ->orderBy('ce_subtema_id', 'asc')
-            ->get(['ce_subtema_id', 'ce_subtema'])
-            ->toArray();
-    }
 
     public function obtenerContenidoParaVista(int $id): ?ce_contenido
     {

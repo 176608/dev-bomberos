@@ -557,7 +557,7 @@ $(document).ready(function() {
 const routesSubtemas = {
     update: '{{ route("sgiem.admin.subtemas.actualizar", ":id") }}',
     delete: '{{ route("sgiem.admin.subtemas.eliminar", ":id") }}',
-    siguienteOrden: '{{ url("/sgiem/admin/subtemas/siguiente-orden") }}'
+    siguienteOrden: '{{ route("sgiem.admin.subtemas.siguiente-orden", ":tema_id") }}'
 };
 
 function editarSubtema(id) {
@@ -672,13 +672,11 @@ document.getElementById('tema_id')?.addEventListener('change', function() {
     
     if (temaId) {
         // Obtener siguiente orden para el tema seleccionado mediante AJAX
-        fetch(`/sgiem/admin/subtemas/siguiente-orden/${temaId}`)
+        fetch(routesSubtemas.siguienteOrden.replace(':tema_id', temaId))
             .then(response => response.json())
             .then(data => {
-                if (data.siguiente_orden) {
+                if (data.siguiente_orden && typeof data.siguiente_orden === 'number') {
                     ordenInput.placeholder = `Siguiente: ${data.siguiente_orden}`;
-                    
-                    // Si el campo está vacío, sugerir el siguiente orden
                     if (!ordenInput.value) {
                         ordenInput.value = data.siguiente_orden;
                     }

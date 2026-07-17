@@ -24,15 +24,8 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         Route::post('/subtemas/crear', [TemaController::class, 'storeSubtema'])->name('subtemas.crear');
         Route::put('/subtemas/{id}/actualizar', [TemaController::class, 'updateSubtema'])->name('subtemas.actualizar');
         Route::delete('/subtemas/{id}/eliminar', [TemaController::class, 'destroySubtema'])->name('subtemas.eliminar');
-        Route::get('/subtemas/siguiente-orden/{tema_id}', [TemaController::class, 'siguienteOrden']);
+        Route::get('/subtemas/siguiente-orden/{tema_id}', [TemaController::class, 'siguienteOrden'])->name('subtemas.siguiente-orden');
         Route::get('/cuadros/subtemas/{tema_id}', [TemaController::class, 'subtemasPorTema']);
-
-        // ============ CUADROS V1 (LEGACY) ============
-        Route::get('/cuadros', [AdminController::class, 'cuadros'])->name('cuadros');
-        Route::post('/cuadros/crear', [AdminController::class, 'crearCuadro'])->name('cuadros.crear');
-        Route::put('/cuadros/{id}/actualizar', [AdminController::class, 'actualizarCuadro'])->name('cuadros.actualizar');
-        Route::delete('/cuadros/{id}/eliminar', [AdminController::class, 'eliminarCuadro'])->name('cuadros.eliminar');
-        Route::get('/cuadros/{id}/editar', [AdminController::class, 'obtenerCuadroParaEdicion'])->name('cuadros.obtener');
 
         // ============ CUADROS V2 ============
         Route::prefix('cuadros-v2')->name('cuadros-v2.')->group(function () {
@@ -57,13 +50,9 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         Route::post('/consultas/tema/crear', [ConsultaExpressController::class, 'storeTema'])->name('consultas.tema.crear');
         Route::put('/consultas/tema/{id}/actualizar', [ConsultaExpressController::class, 'updateTema'])->name('consultas.tema.actualizar');
         Route::delete('/consultas/tema/{id}/eliminar', [ConsultaExpressController::class, 'destroyTema'])->name('consultas.tema.eliminar');
-        Route::post('/consultas/subtema/crear', [ConsultaExpressController::class, 'storeSubtema'])->name('consultas.subtema.crear');
-        Route::put('/consultas/subtema/{id}/actualizar', [ConsultaExpressController::class, 'updateSubtema'])->name('consultas.subtema.actualizar');
-        Route::delete('/consultas/subtema/{id}/eliminar', [ConsultaExpressController::class, 'destroySubtema'])->name('consultas.subtema.eliminar');
         Route::post('/consultas/contenido/crear', [ConsultaExpressController::class, 'storeContenido'])->name('consultas.contenido.crear');
         Route::put('/consultas/contenido/{id}/actualizar', [ConsultaExpressController::class, 'updateContenido'])->name('consultas.contenido.actualizar');
         Route::delete('/consultas/contenido/{id}/eliminar', [ConsultaExpressController::class, 'destroyContenido'])->name('consultas.contenido.eliminar');
-        Route::get('/consultas/subtemas-ce/{tema_id}', [ConsultaExpressController::class, 'subtemasPorTema']);
         Route::get('/consultas/contenido/{id}', [ConsultaExpressController::class, 'contenido']);
     });
 });

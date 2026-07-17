@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use App\Http\Requests\GestorSIGEM\StoreTemaCERequest;
-use App\Http\Requests\GestorSIGEM\StoreSubtemaCERequest;
 use App\Http\Requests\GestorSIGEM\StoreContenidoCERequest;
 use App\Services\GestorSIGEM\ConsultaExpressService;
 
@@ -19,7 +18,6 @@ class ConsultaExpressController extends Controller
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.CRUD_consultas',
             'ce_temas' => $data['ce_temas'],
-            'ce_subtemas' => $data['ce_subtemas'],
             'ce_contenidos' => $data['ce_contenidos'],
         ]);
     }
@@ -80,62 +78,6 @@ class ConsultaExpressController extends Controller
         }
     }
 
-    public function storeSubtema(StoreSubtemaCERequest $request)
-    {
-        try {
-            $subtemaCE = $this->ceService->crearSubtema($request->validated());
-
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('success', "Subtema CE '{$subtemaCE->ce_subtema}' creado exitosamente");
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al crear el subtema CE: ' . $e->getMessage());
-        }
-    }
-
-    public function updateSubtema(StoreSubtemaCERequest $request, $id)
-    {
-        try {
-            $this->ceService->actualizarSubtema((int) $id, $request->validated());
-
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('success', "Subtema CE actualizado exitosamente");
-
-        } catch (\RuntimeException $e) {
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('error', $e->getMessage());
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al actualizar el subtema CE: ' . $e->getMessage());
-        }
-    }
-
-    public function destroySubtema($id)
-    {
-        try {
-            $info = $this->ceService->eliminarSubtema((int) $id);
-
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('success', "Subtema CE '{$info['subtema']}' del tema '{$info['tema']}' eliminado exitosamente");
-
-        } catch (\RuntimeException $e) {
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('error', $e->getMessage());
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al eliminar el subtema CE: ' . $e->getMessage());
-        }
-    }
-
     public function storeContenido(StoreContenidoCERequest $request)
     {
         try {
@@ -191,16 +133,6 @@ class ConsultaExpressController extends Controller
             return redirect()
                 ->route('sgiem.admin.consultas')
                 ->with('error', 'Error al eliminar el contenido CE: ' . $e->getMessage());
-        }
-    }
-
-    public function subtemasPorTema($tema_id)
-    {
-        try {
-            $subtemas = $this->ceService->obtenerSubtemasPorTema((int) $tema_id);
-            return response()->json(['subtemas' => $subtemas]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener subtemas CE'], 500);
         }
     }
 
