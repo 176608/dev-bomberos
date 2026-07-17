@@ -47,7 +47,7 @@ class CuadroV2Controller extends Controller
             return response()->json(['success' => true, 'message' => "Cuadro {$cuadro->codigo_cuadro} creado correctamente."]);
         }
 
-        return redirect()->route('sgiem.admin.cuadros-v2.index')
+        return redirect()->route('sgiem.admin.cuadros.index')
             ->with('success', "Cuadro {$cuadro->codigo_cuadro} creado correctamente.");
     }
 
@@ -56,7 +56,7 @@ class CuadroV2Controller extends Controller
         $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
 
         if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'Cuadro no encontrado.');
         }
 
@@ -71,7 +71,7 @@ class CuadroV2Controller extends Controller
         $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
 
         if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'Cuadro no encontrado.');
         }
 
@@ -92,14 +92,14 @@ class CuadroV2Controller extends Controller
                 return response()->json(['success' => true, 'message' => 'Metadatos actualizados correctamente.']);
             }
 
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('success', 'Cuadro actualizado.');
 
         } catch (\RuntimeException $e) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
             }
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', $e->getMessage());
         }
     }
@@ -109,11 +109,11 @@ class CuadroV2Controller extends Controller
         try {
             $codigo = $this->cuadroV2Service->eliminar((int) $id);
 
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('success', "Cuadro {$codigo} eliminado.");
 
         } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', $e->getMessage());
         }
     }
@@ -123,11 +123,11 @@ class CuadroV2Controller extends Controller
         try {
             $this->datasetService->procesar((int) $id, $request->file('dataset'));
 
-            return redirect()->route('sgiem.admin.cuadros-v2.interpretacion', $id)
+            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
                 ->with('success', 'Dataset cargado. Revisa la interpretación.');
 
         } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', $e->getMessage());
         }
     }
@@ -137,7 +137,7 @@ class CuadroV2Controller extends Controller
         $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
 
         if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros-v2.index')
+            return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'Cuadro no encontrado.');
         }
 
@@ -150,7 +150,7 @@ class CuadroV2Controller extends Controller
     public function actualizarCategorias(Request $request, $id)
     {
         // TODO: Fase 2 — implementar actualización masiva de categorías
-        return redirect()->route('sgiem.admin.cuadros-v2.interpretacion', $id)
+        return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
             ->with('success', 'Categorías actualizadas.');
     }
 
@@ -175,11 +175,11 @@ class CuadroV2Controller extends Controller
         try {
             $this->categoriaService->agregar((int) $id, $request->validated());
 
-            return redirect()->route('sgiem.admin.cuadros-v2.interpretacion', $id)
+            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
                 ->with('success', 'Categoría agregada.');
 
         } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros-v2.interpretacion', $id)
+            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
                 ->with('error', $e->getMessage());
         }
     }

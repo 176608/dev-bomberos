@@ -7,7 +7,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/catalogo', [SIGEMV2Controller::class, 'catalogo'])->name('catalogo');
     Route::get('/estadistica', [SIGEMV2Controller::class, 'estadistica'])->name('estadistica');
     Route::get('/estadistica/tema/{tema_id}', [SIGEMV2Controller::class, 'estadisticaTema'])->name('estadistica.tema');
-    Route::get('/api/cuadros-v2/{subtema_id}', [SIGEMV2Controller::class, 'ajaxCuadrosV2'])->name('api.cuadros-v2');
+    Route::get('/api/cuadros/{subtema_id}', [SIGEMV2Controller::class, 'ajaxCuadrosV2'])->name('api.cuadros');
     Route::get('/indicador/{id}', [SIGEMV2Controller::class, 'verIndicador'])->name('indicador');
     Route::get('/api/indicador/{id}/datos', [SIGEMV2Controller::class, 'datosIndicadorJson'])->name('api.indicador.datos');
     Route::get('/cartografia', [SIGEMV2Controller::class, 'cartografia'])->name('cartografia');

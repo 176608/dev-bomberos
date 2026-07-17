@@ -27,8 +27,8 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         Route::get('/subtemas/siguiente-orden/{tema_id}', [TemaController::class, 'siguienteOrden'])->name('subtemas.siguiente-orden');
         Route::get('/cuadros/subtemas/{tema_id}', [TemaController::class, 'subtemasPorTema']);
 
-        // ============ CUADROS V2 ============
-        Route::prefix('cuadros-v2')->name('cuadros-v2.')->group(function () {
+        // ============ CUADROS ============
+        Route::prefix('cuadros')->name('cuadros.')->group(function () {
             Route::get('/', [CuadroV2Controller::class, 'index'])->name('index');
             Route::get('/crear', [CuadroV2Controller::class, 'create'])->name('create');
             Route::post('/', [CuadroV2Controller::class, 'store'])->name('store');
@@ -54,5 +54,8 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         Route::put('/consultas/contenido/{id}/actualizar', [ConsultaExpressController::class, 'updateContenido'])->name('consultas.contenido.actualizar');
         Route::delete('/consultas/contenido/{id}/eliminar', [ConsultaExpressController::class, 'destroyContenido'])->name('consultas.contenido.eliminar');
         Route::get('/consultas/contenido/{id}', [ConsultaExpressController::class, 'contenido']);
+
+        // ============ AUDITORÍA ============
+        Route::get('/auditoria/{id}', [AdminController::class, 'detalleAuditoria'])->name('auditoria.detalle');
     });
 });

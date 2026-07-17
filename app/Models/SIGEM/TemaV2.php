@@ -3,9 +3,12 @@
 namespace App\Models\SIGEM;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SIGEM\Traits\AuditableSgiem;
 
 class TemaV2 extends Model
 {
+    use AuditableSgiem;
+
     protected $table = 'tema_v2';
     protected $primaryKey = 'tema_id';
     public $timestamps = false;

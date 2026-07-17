@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bomberos\Auth;
 
 use App\Http\Controllers\Bomberos\Controller;
 use App\Models\Bomberos\User;
+use App\Models\SIGEM\AuditoriaAcceso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -83,11 +84,28 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+
+        AuditoriaAcceso::create([
+            'user_id' => $user->id,
+            'accion' => 'login',
+            'ip' => $request->ip(),
+        ]);
+
         return $this->redirectBasedOnRole();
     }
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user) {
+            AuditoriaAcceso::create([
+                'user_id' => $user->id,
+                'accion' => 'logout',
+                'ip' => $request->ip(),
+            ]);
+        }
+
         Auth::logout();
         
         $request->session()->invalidate();

@@ -11,11 +11,11 @@
 
 <div class="card bg-dark bg-opacity-10 border-0">
     <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
-        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos V2</h5>
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos</h5>
         <div>
             <span class="badge bg-light text-dark me-2">Total: <strong>{{ $total_cuadros ?? $cuadros->count() ?? 0 }}</strong></span>
             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearCuadro">
-                <i class="bi bi-plus-lg"></i> Nuevo Cuadro V2
+                <i class="bi bi-plus-lg"></i> Nuevo Cuadro
             </button>
         </div>
     </div>
@@ -135,7 +135,7 @@
                 <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Cuadro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formCrearCuadro" method="POST" action="{{ route('sgiem.admin.cuadros-v2.store') }}">
+            <form id="formCrearCuadro" method="POST" action="{{ route('sgiem.admin.cuadros.store') }}">
                 @csrf
                 <div class="modal-body bg-fonde">
                     <div class="row">
@@ -350,10 +350,10 @@
 
 <script>
 const routesCuadros = {
-    datos: '{{ route("sgiem.admin.cuadros-v2.datos-json", ":id") }}',
-    update: '{{ route("sgiem.admin.cuadros-v2.update", ":id") }}',
-    toggle: '{{ route("sgiem.admin.cuadros-v2.toggle-publicado", ":id") }}',
-    destroy: '{{ route("sgiem.admin.cuadros-v2.destroy", ":id") }}'
+    datos: '{{ route("sgiem.admin.cuadros.datos-json", ":id") }}',
+    update: '{{ route("sgiem.admin.cuadros.update", ":id") }}',
+    toggle: '{{ route("sgiem.admin.cuadros.toggle-publicado", ":id") }}',
+    destroy: '{{ route("sgiem.admin.cuadros.destroy", ":id") }}'
 };
 
 

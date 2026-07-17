@@ -3,9 +3,11 @@
 namespace App\Models\SIGEM;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SIGEM\Traits\AuditableSgiem;
 
 class CuadroCategoria extends Model
 {
+    use AuditableSgiem;
     protected $table = 'cuadro_categoria';
     protected $primaryKey = 'categoria_id';
 

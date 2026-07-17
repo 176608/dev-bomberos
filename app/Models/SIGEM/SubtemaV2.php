@@ -3,9 +3,11 @@
 namespace App\Models\SIGEM;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SIGEM\Traits\AuditableSgiem;
 
 class SubtemaV2 extends Model
 {
+    use AuditableSgiem;
     protected $table = 'subtema_v2';
     protected $primaryKey = 'subtema_id';
     public $timestamps = false;

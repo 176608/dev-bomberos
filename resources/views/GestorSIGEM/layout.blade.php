@@ -11,7 +11,7 @@
             <div class="navbar-nav">
                 <a class="nav-link {{ request()->is('sgiem/admin') ? 'active' : '' }}"
                    href="{{ route('sgiem.admin.index') }}">
-                    <i class="bi bi-house"></i> Inicio
+                    <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
                 <a class="nav-link {{ request()->is('sgiem/admin/temas') ? 'active' : '' }}"
                    href="{{ route('sgiem.admin.temas') }}">
@@ -21,9 +21,9 @@
                    href="{{ route('sgiem.admin.subtemas') }}">
                     <i class="bi bi-bookmarks"></i> Subtemas
                 </a>
-                <a class="nav-link {{ request()->is('sgiem/admin/cuadros-v2*') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.cuadros-v2.index') }}">
-                    <i class="bi bi-table"></i> Cuadros V2
+                <a class="nav-link {{ request()->is('sgiem/admin/cuadros*') && !request()->is('sgiem/admin/cuadros/subtemas*') ? 'active' : '' }}"
+                   href="{{ route('sgiem.admin.cuadros.index') }}">
+                    <i class="bi bi-table"></i> Cuadros
                 </a>
                 <a class="nav-link {{ request()->is('sgiem/admin/consultas') ? 'active' : '' }}"
                    href="{{ route('sgiem.admin.consultas') }}">

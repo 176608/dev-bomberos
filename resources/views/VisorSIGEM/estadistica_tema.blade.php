@@ -456,7 +456,7 @@ function cargarIndicadores(subtema_id) {
     var subtemaTitle = event.currentTarget.querySelector('.subtema-texto h6')?.innerText || 'Subtema';
     document.getElementById('subtema-header').innerHTML = '<h5 class="mb-0">' + subtemaTitle + '</h5>';
 
-    fetch('{{ url("/sigem-v2/api/cuadros-v2") }}/' + subtema_id)
+    fetch('{{ url("/sigem-v2/api/cuadros") }}/' + subtema_id)
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success) {
