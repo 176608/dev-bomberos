@@ -54,6 +54,8 @@ class DatasetViewService
             'tabla' => $grid,
             'max_filas' => $maxFila,
             'max_columnas' => $maxCol,
+            'subtema' => $cuadro->subtema?->toArray(),
+            'tema' => $cuadro->subtema?->tema?->toArray(),
         ];
     }
 }

@@ -19,21 +19,14 @@ class DatasetViewController extends Controller
         });
     }
 
-    private function detectarOrigen(): string
+    private function esDesarrollador(): bool
     {
-        $referer = request()->headers->get('referer', '');
-        if (str_contains($referer, 'catalogo')) {
-            return 'catalogo';
-        }
-        if (str_contains($referer, 'estadistica')) {
-            return 'estadistica';
-        }
-        return '';
+        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
     }
 
     public function show(int $id)
     {
-        $data = $this->datasetViewService->datosCuadro($id, true);
+        $data = $this->datasetViewService->datosCuadro($id, $this->esDesarrollador());
         if (!$data) {
             abort(404);
         }
@@ -42,13 +35,14 @@ class DatasetViewController extends Controller
             'tabla' => $data['tabla'],
             'verticales' => $data['verticales'],
             'horizontales' => $data['horizontales'],
-            'from' => $this->detectarOrigen(),
+            'tema' => $data['tema'],
+            'subtema' => $data['subtema'],
         ]);
     }
 
     public function cuadroApi(int $id)
     {
-        $data = $this->datasetViewService->datosCuadro($id, true);
+        $data = $this->datasetViewService->datosCuadro($id, $this->esDesarrollador());
         if (!$data) {
             return response()->json(['error' => 'Cuadro no encontrado'], 404);
         }

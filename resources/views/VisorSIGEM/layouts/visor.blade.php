@@ -167,7 +167,7 @@
                 <i class="bi bi-journal-text"></i> CATÁLOGO
             </a>
             <a href="{{ route('sigem.v2.estadistica') }}"
-               class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.estadistica') ? 'active' : '' }}">
+               class="sigem-nav-link {{ str_starts_with($currentRoute, 'sigem.v2.estadistica') || str_starts_with($currentRoute, 'sigem.v2.cuadro') ? 'active' : '' }}">
                 <i class="bi bi-bar-chart-fill"></i> ESTADÍSTICA
             </a>
             <a href="{{ route('sigem.v2.cartografia') }}"

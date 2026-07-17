@@ -7,14 +7,15 @@
      x-data="visor()"
      x-init="init({{ $cuadro['cuadro_id'] }})">
     <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('sigem.v2.index') }}">SIGEM v2</a></li>
-            @if($from === 'catalogo')
-            <li class="breadcrumb-item"><a href="{{ route('sigem.v2.catalogo') }}">Catálogo</a></li>
-            @elseif($from === 'estadistica')
-            <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
+        <ol class="breadcrumb bg-white rounded-3 shadow-sm py-2 px-3 mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('sigem.v2.index') }}" class="text-decoration-none">SIGEM v2</a></li>
+            @if($tema)
+            <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica.tema', $tema['tema_id']) }}" class="text-decoration-none">{{ $tema['tema_titulo'] ?? 'Tema' }}</a></li>
             @endif
-            <li class="breadcrumb-item active">{{ $cuadro['c_titulo'] }}</li>
+            @if($subtema)
+            <li class="breadcrumb-item">{{ $subtema['subtema_titulo'] ?? 'Subtema' }}</li>
+            @endif
+            <li class="breadcrumb-item active fw-semibold">{{ $cuadro['c_titulo'] }}</li>
         </ol>
     </nav>
 
