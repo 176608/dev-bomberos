@@ -80,6 +80,10 @@
                         </button>
                         <input type="file" x-ref="importInput2" accept=".csv,.txt" hidden @change="importFile($event.target)">
                         <div class="vr mx-2"></div>
+                        <button class="btn btn-outline-danger btn-sm" @click="limpiarTodo" :disabled="saving">
+                            <i class="bi bi-trash3"></i> Limpiar todo
+                        </button>
+                        <div class="vr mx-2"></div>
                         <button class="btn btn-sm" :class="showChart ? 'btn-success' : 'btn-outline-success'"
                                 @click="showChart = !showChart; $nextTick(() => showChart && renderChart())">
                             <i class="bi bi-bar-chart"></i> <span x-text="showChart ? 'Ocultar gráfica' : 'Ver gráfica'"></span>
@@ -142,7 +146,9 @@
                         <table class="table table-sm table-bordered mb-0" style="font-size:0.85rem;"
                                @paste.prevent="handlePaste($event)"
                                @keydown.escape="cancelEdit"
-                               @keydown.enter.prevent="saveEdit">
+                               @keydown.enter="onEnter"
+                               @keydown.tab="onTab"
+                               @keydown.shift.tab="onShiftTab">
                             <thead>
                                 <tr>
                                     <template x-for="(cell, ci) in dataset.tabla[0]" :key="'h' + ci">
@@ -207,7 +213,7 @@
                                             <template x-if="ci > 0">
                                                 <td class="align-middle p-1" style="min-width:80px;">
                                                     <template x-if="!isEditing('celda', ri, ci)">
-                                                        <div @dblclick="startEdit(ri + 1, ci, cell.dato_id, cell.valor)"
+                                                        <div @dblclick="startEdit(ri, ci, cell.dato_id, cell.valor)"
                                                              class="px-1 cell-display"
                                                              style="min-height:28px;cursor:pointer;">
                                                             <span x-text="cell.valor ?? ''" class="small"></span>
@@ -363,7 +369,7 @@ function datasetEditor() {
 
         isEditing(tipo, ri, ci) {
             if (!this.editing) return false;
-            if (tipo === 'header_h') return this.editing.tipo === 'header_h' && this.editCol === ci;
+            if (tipo === 'header_h') return this.editing.tipo === 'header_h';
             if (tipo === 'header_v') return this.editing.tipo === 'header_v' && this.editRow === ri;
             if (tipo === 'celda') return this.editing.tipo === 'celda' && this.editRow === ri && this.editCol === ci;
             return false;
@@ -399,8 +405,9 @@ function datasetEditor() {
                 });
                 const json = await r.json();
                 if (json.success) {
-                    if (this.dataset.tabla[row] && this.dataset.tabla[row][col]) {
-                        this.dataset.tabla[row][col].valor = valor;
+                    const tr = row + 1;
+                    if (this.dataset.tabla[tr] && this.dataset.tabla[tr][col]) {
+                        this.dataset.tabla[tr][col].valor = valor;
                     }
                     this.saveStatus = 'Guardado';
                 } else {
@@ -415,6 +422,73 @@ function datasetEditor() {
             this.editRow = -1;
             this.editCol = -1;
             this.editDatoId = null;
+        },
+
+        onEnter(e) {
+            if (!this.editing) return;
+            e.preventDefault();
+            this.saveAndMoveNext();
+        },
+
+        onTab(e) {
+            if (!this.editing) return;
+            e.preventDefault();
+            this.saveAndMoveNext();
+        },
+
+        onShiftTab(e) {
+            if (!this.editing) return;
+            e.preventDefault();
+            this.saveAndMovePrev();
+        },
+
+        async saveAndMoveNext() {
+            if (!this.editing) return;
+            const cr = this.editRow, cc = this.editCol;
+            if (this.editing.tipo === 'celda') await this.saveEdit();
+            else await this.saveHeaderEdit();
+            const maxR = this.dataset.tabla.length - 1;
+            const maxC = this.dataset.tabla[0]?.length - 1 ?? 0;
+            let nr = cr, nc = cc + 1;
+            if (nc > maxC) { nr = cr + 1; nc = 1; }
+            if (nr > maxR) nr = 1;
+            const cell = this.dataset.tabla[nr]?.[nc];
+            if (cell && cell.tipo === 'celda') {
+                this.startEdit(nr - 1, nc, cell.dato_id, cell.valor);
+            }
+        },
+
+        async saveAndMovePrev() {
+            if (!this.editing) return;
+            const cr = this.editRow, cc = this.editCol;
+            if (this.editing.tipo === 'celda') await this.saveEdit();
+            else await this.saveHeaderEdit();
+            const maxC = this.dataset.tabla[0]?.length - 1 ?? 0;
+            let nr = cr, nc = cc - 1;
+            if (nc < 1) { nr = cr - 1; nc = maxC; }
+            if (nr < 1) nr = this.dataset.tabla.length - 1;
+            const cell = this.dataset.tabla[nr]?.[nc];
+            if (cell && cell.tipo === 'celda') {
+                this.startEdit(nr - 1, nc, cell.dato_id, cell.valor);
+            }
+        },
+
+        async limpiarTodo() {
+            if (!confirm('¿Eliminar todo el dataset? Esta acción no se puede deshacer.')) return;
+            this.saving = true;
+            try {
+                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/limpiar', {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                });
+                const json = await r.json();
+                if (json.success) {
+                    this.dataset = json.data;
+                } else {
+                    this.error = json.message;
+                }
+            } catch (e) { this.error = 'Error al limpiar dataset'; }
+            this.saving = false;
         },
 
         // ============ HEADER EDITING ============

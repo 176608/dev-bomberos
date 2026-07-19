@@ -341,6 +341,27 @@ class DatasetService
         return $this->pasteGrid($cuadro_id, $grid);
     }
 
+    public function limpiarDataset(int $cuadro_id): array
+    {
+        $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
+
+        if (!$cuadro) {
+            throw new \RuntimeException('Cuadro no encontrado');
+        }
+
+        $cuadro->datos()->delete();
+        $cuadro->categorias()->delete();
+
+        return [
+            'tiene_dataset' => false,
+            'verticales' => [],
+            'horizontales' => [],
+            'tabla' => [],
+            'max_filas' => 0,
+            'max_columnas' => 0,
+        ];
+    }
+
     private function reordenar(int $cuadro_id, string $eje): void
     {
         $cats = $this->categoria->where('cuadro_id', $cuadro_id)

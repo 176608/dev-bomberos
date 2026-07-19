@@ -110,6 +110,16 @@ class DatasetController extends Controller
         }
     }
 
+    public function limpiar($id)
+    {
+        try {
+            $data = $this->datasetService->limpiarDataset((int) $id);
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
+        }
+    }
+
     public function importar(ProcesarDatasetRequest $request, $id)
     {
         try {
