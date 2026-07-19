@@ -1,6 +1,6 @@
 <div class="container-fluid py-4"
      x-data="datasetEditor()"
-     x-init="init({{ $cuadro->cuadro_id }}, @json($estadoInicial))">
+     x-init="initEditor({{ $cuadro->cuadro_id }}, {{ json_encode($estadoInicial) }})">
 
     <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
         <span>
@@ -141,7 +141,6 @@
                     <div class="table-responsive" style="max-height:70vh; overflow:auto;">
                         <table class="table table-sm table-bordered mb-0" style="font-size:0.85rem;"
                                @paste.prevent="handlePaste($event)"
-                               @dblclick="handleDblClick($event)"
                                @keydown.escape="cancelEdit"
                                @keydown.enter.prevent="saveEdit">
                             <thead>
@@ -163,11 +162,10 @@
                                                         </span>
                                                     </template>
                                                     <template x-if="isEditing('header_h') && editCol === ci">
-                                                        <input type="text" class="form-control form-control-sm text-center"
-                                                               x-model="editValue"
-                                                               @blur="saveHeaderEdit"
-                                                               x-ref="headerInput_h_0_ci"
-                                                               @click.stop>
+                                        <input type="text" class="form-control form-control-sm text-center editing-input"
+                                                                       x-model="editValue"
+                                                                       @blur="saveHeaderEdit"
+                                                                       @click.stop>
                                                     </template>
                                                     <button class="btn btn-sm text-danger p-0 position-absolute top-0 end-0"
                                                             @click="deleteColumn(cell.categoria_id)"
@@ -194,11 +192,10 @@
                                                         </span>
                                                     </template>
                                                     <template x-if="isEditing('header_v', ri)">
-                                                        <input type="text" class="form-control form-control-sm"
-                                                               x-model="editValue"
-                                                               @blur="saveHeaderEdit"
-                                                               x-ref="headerInput_v_ri"
-                                                               @click.stop>
+                                                        <input type="text" class="form-control form-control-sm editing-input"
+                                                                       x-model="editValue"
+                                                                       @blur="saveHeaderEdit"
+                                                                       @click.stop>
                                                     </template>
                                                     <button class="btn btn-sm text-danger p-0 position-absolute top-0 start-100 translate-middle"
                                                             @click="deleteRow(cell.categoria_id)"
@@ -217,11 +214,10 @@
                                                         </div>
                                                     </template>
                                                     <template x-if="isEditing('celda', ri, ci)">
-                                                        <input type="text" class="form-control form-control-sm"
-                                                               x-model="editValue"
-                                                               @blur="saveEdit"
-                                                               @click.stop
-                                                               x-ref="celdaInput_ri_ci">
+                                                        <input type="text" class="form-control form-control-sm editing-input"
+                                                                       x-model="editValue"
+                                                                       @blur="saveEdit"
+                                                                       @click.stop>
                                                     </template>
                                                 </td>
                                             </template>
@@ -266,20 +262,13 @@ function datasetEditor() {
         editRow: -1,
         editCol: -1,
 
-        init(id, estado) {
+        initEditor(id, estado) {
             this.cuadroId = id;
             this.dataset = estado;
             this.chartParams.x = this.getParam('x', '');
             this.chartParams.y = this.getParam('y', '');
             this.chartParams.m = this.getParam('m', 'g');
             this.loading = false;
-        },
-
-        initChartData() {
-            this.showChart = false;
-            this.$nextTick(() => {
-                if (this.showChart) this.renderChart();
-            });
         },
 
         getParam(name, fallback) {
@@ -387,8 +376,7 @@ function datasetEditor() {
             this.editDatoId = datoId;
             this.editValue = valor ?? '';
             this.$nextTick(() => {
-                const key = 'celdaInput_' + ri + '_' + ci;
-                if (this.$refs[key]) this.$refs[key].focus();
+                this.$el.querySelector('.editing-input')?.focus();
             });
         },
 
@@ -396,7 +384,12 @@ function datasetEditor() {
             if (!this.editing || this.editing.tipo !== 'celda') return;
             const datoId = this.editDatoId;
             const valor = this.editValue;
+            const row = this.editRow;
+            const col = this.editCol;
             this.editing = null;
+            this.editRow = -1;
+            this.editCol = -1;
+            this.editDatoId = null;
             this.saveStatus = 'Guardando...';
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/celda/' + datoId, {
@@ -406,15 +399,14 @@ function datasetEditor() {
                 });
                 const json = await r.json();
                 if (json.success) {
-                    this.dataset.tabla[this.editRow][this.editCol].valor = valor;
+                    if (this.dataset.tabla[row] && this.dataset.tabla[row][col]) {
+                        this.dataset.tabla[row][col].valor = valor;
+                    }
                     this.saveStatus = 'Guardado';
                 } else {
                     this.error = json.message;
                 }
             } catch (e) { this.error = 'Error al guardar'; }
-            this.editRow = -1;
-            this.editCol = -1;
-            this.editDatoId = null;
             setTimeout(() => { this.saveStatus = ''; }, 1500);
         },
 
@@ -423,11 +415,6 @@ function datasetEditor() {
             this.editRow = -1;
             this.editCol = -1;
             this.editDatoId = null;
-        },
-
-        handleDblClick(e) {
-            const td = e.target.closest('td');
-            if (!td) return;
         },
 
         // ============ HEADER EDITING ============
@@ -439,8 +426,7 @@ function datasetEditor() {
             this.editCatId = catId;
             this.editValue = valor || '';
             this.$nextTick(() => {
-                const key = 'headerInput_' + eje + '_' + ri + '_' + ci;
-                if (this.$refs[key]) this.$refs[key].focus();
+                this.$el.querySelector('.editing-input')?.focus();
             });
         },
 
@@ -448,7 +434,13 @@ function datasetEditor() {
             if (!this.editing || !['header_h', 'header_v'].includes(this.editing.tipo)) return;
             const catId = this.editCatId;
             const nombre = this.editValue;
+            const tipo = this.editing.tipo;
+            const row = this.editRow;
+            const col = this.editCol;
             this.editing = null;
+            this.editRow = -1;
+            this.editCol = -1;
+            this.editCatId = null;
             this.saveStatus = 'Guardando...';
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/categoria/' + catId, {
@@ -458,20 +450,16 @@ function datasetEditor() {
                 });
                 const json = await r.json();
                 if (json.success) {
-                    const tabla = this.dataset.tabla;
-                    if (this.editing?.tipo === 'header_h') {
-                        tabla[0][this.editCol].valor = nombre;
-                    } else {
-                        tabla[this.editRow + 1][0].valor = nombre;
+                    if (tipo === 'header_h' && this.dataset.tabla[0]?.[col]) {
+                        this.dataset.tabla[0][col].valor = nombre;
+                    } else if (tipo === 'header_v' && this.dataset.tabla[row + 1]?.[0]) {
+                        this.dataset.tabla[row + 1][0].valor = nombre;
                     }
                     this.saveStatus = 'Guardado';
                 } else {
                     this.error = json.message;
                 }
             } catch (e) { this.error = 'Error al guardar'; }
-            this.editRow = -1;
-            this.editCol = -1;
-            this.editCatId = null;
             setTimeout(() => { this.saveStatus = ''; }, 1500);
         },
 
