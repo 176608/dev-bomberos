@@ -4,6 +4,7 @@ use App\Http\Controllers\GestorSIGEM\TemaController;
 use App\Http\Controllers\GestorSIGEM\CuadroV2Controller;
 use App\Http\Controllers\GestorSIGEM\ConsultaExpressController;
 use App\Http\Controllers\GestorSIGEM\AdminController;
+use App\Http\Controllers\GestorSIGEM\DatasetController;
 
 Route::prefix('sgiem')->name('sgiem.')->group(function () {
 
@@ -44,6 +45,17 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::put('/{id}/toggle-publicado', [CuadroV2Controller::class, 'togglePublicado'])->name('toggle-publicado');
             Route::get('/{id}/datos', [CuadroV2Controller::class, 'datosJson'])->name('datos-json');
             Route::get('/{id}/dataset', [CuadroV2Controller::class, 'datasetManage'])->name('dataset');
+            Route::prefix('{id}/dataset')->name('dataset.')->group(function () {
+                Route::post('/generar', [DatasetController::class, 'generar'])->name('generar');
+                Route::post('/fila', [DatasetController::class, 'storeFila'])->name('fila.store');
+                Route::delete('/fila/{categoria}', [DatasetController::class, 'destroyFila'])->name('fila.destroy');
+                Route::post('/columna', [DatasetController::class, 'storeColumna'])->name('columna.store');
+                Route::delete('/columna/{categoria}', [DatasetController::class, 'destroyColumna'])->name('columna.destroy');
+                Route::put('/celda/{dato}', [DatasetController::class, 'updateCelda'])->name('celda.update');
+                Route::put('/categoria/{categoria}', [DatasetController::class, 'updateCategoria'])->name('categoria.update');
+                Route::post('/paste', [DatasetController::class, 'paste'])->name('paste');
+                Route::post('/importar', [DatasetController::class, 'importar'])->name('importar');
+            });
         });
 
         // ============ CONSULTA EXPRESS ============

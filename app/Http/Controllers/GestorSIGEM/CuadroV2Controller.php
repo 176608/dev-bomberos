@@ -9,7 +9,6 @@ use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 use App\Services\GestorSIGEM\CuadroV2Service;
 use App\Services\GestorSIGEM\CategoriaService;
 use App\Services\GestorSIGEM\DatasetService;
-use App\Services\VisorSIGEM\DatasetViewService;
 
 class CuadroV2Controller extends Controller
 {
@@ -17,7 +16,6 @@ class CuadroV2Controller extends Controller
         private CuadroV2Service $cuadroV2Service,
         private CategoriaService $categoriaService,
         private DatasetService $datasetService,
-        private DatasetViewService $datasetViewService,
     ) {
         $this->middleware('auth')->except(['catalogoPublico']);
     }
@@ -77,14 +75,23 @@ class CuadroV2Controller extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
-        $data = $this->datasetViewService->datosCuadro((int) $id, true);
+        try {
+            $estado = $this->datasetService->obtenerEstado((int) $id);
+        } catch (\RuntimeException) {
+            $estado = [
+                'tiene_dataset' => false,
+                'verticales' => [],
+                'horizontales' => [],
+                'tabla' => [],
+                'max_filas' => 0,
+                'max_columnas' => 0,
+            ];
+        }
 
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.dataset_manage',
             'cuadro' => $cuadro,
-            'tabla' => $data['tabla'] ?? [],
-            'verticales' => $data['verticales'] ?? [],
-            'horizontales' => $data['horizontales'] ?? [],
+            'estadoInicial' => $estado,
         ]);
     }
 
