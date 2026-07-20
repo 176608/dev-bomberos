@@ -111,6 +111,17 @@ class DatasetController extends Controller
         }
     }
 
+    public function storeHijo(Request $request, $id)
+    {
+        $request->validate(['padre_id' => 'required|integer']);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->agregarHijo((int) $id, (int) $request->padre_id)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function pasteCategorias(Request $request, $id)
     {
         $request->validate([

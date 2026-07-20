@@ -116,24 +116,39 @@
         document.getElementById('status-text').textContent = msg || '';
     }
 
+    function categoriaLookup() {
+        if (!categoriaLookup.cache) {
+            const c = {};
+            for (const v of estado.verticales) c[v.categoria_id] = { ...v, eje: 'vertical' };
+            for (const h of estado.horizontales) c[h.categoria_id] = { ...h, eje: 'horizontal' };
+            function walk(nodes, eje) {
+                for (const n of nodes) {
+                    c[n.categoria_id] = { categoria_id: n.categoria_id, nombre: n.nombre, eje, tipo: n.tipo };
+                    if (n.hijos) walk(n.hijos, eje);
+                }
+            }
+            walk(estado.vertical_tree || [], 'vertical');
+            walk(estado.horizontal_tree || [], 'horizontal');
+            categoriaLookup.cache = c;
+        }
+        return categoriaLookup.cache;
+    }
+
     function getCellCoords(el) {
         const tag = el.tagName;
         if (tag === 'TH') {
+            const catId = parseInt(el.dataset.categoriaId);
+            if (!catId) return null;
+            const cat = categoriaLookup()[catId];
+            if (!cat) return null;
             const thead = el.closest('thead');
             if (thead) {
-                const tr = el.closest('tr');
-                const ci = Array.from(tr.children).indexOf(el) - 1;
-                if (ci < 0 || ci >= estado.horizontales.length) return null;
-                return { type: 'horizontal', ri: -1, ci, vId: null, hId: estado.horizontales[ci]?.categoria_id };
+                const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
+                return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
             }
-            const tbody = el.closest('tbody');
-            if (tbody) {
-                const tr = el.closest('tr');
-                const ri = Array.from(tbody.children).indexOf(tr);
-                if (ri < 0 || ri >= estado.verticales.length) return null;
-                const ci = Array.from(tr.children).indexOf(el);
-                if (ci !== 0) return null;
-                return { type: 'vertical', ri, ci: -1, vId: estado.verticales[ri]?.categoria_id, hId: null };
+            if (el.closest('tbody')) {
+                const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
+                return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
             }
             return null;
         }
@@ -236,6 +251,7 @@
     }
 
     function renderGrid(d) {
+        delete categoriaLookup.cache;
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
             document.getElementById('empty-state').style.display = '';
@@ -245,7 +261,7 @@
         const empty = document.getElementById('empty-state');
         if (empty) empty.style.display = 'none';
 
-        const { verticales, horizontales, tabla } = d;
+        const { verticales, horizontales, tabla, encabezados, etiquetas } = d;
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
 
@@ -260,40 +276,76 @@
 
         document.getElementById('dimension-badge').textContent = verticales.length + ' × ' + horizontales.length;
 
-        let html = '<tr><th class="text-center" style="width:44px">' +
-            '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
-            '</th>';
-        for (const h of horizontales) {
-            html += '<th class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
-                '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + h.categoria_id + ')" class="fw-normal">' + esc(h.nombre) + '</div>' +
-                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" title="Eliminar columna"><i class="bi bi-x-circle" style="font-size:0.6rem"></i></button>' +
-                '</th>';
-        }
-        html += '<th class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th></tr>';
-        thead.innerHTML = html;
-
-        html = '';
-        for (const v of verticales) {
-            html += '<tr>' +
-                '<th class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
-                '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + v.categoria_id + ')" class="text-truncate">' + esc(v.nombre) + '</div>' +
-                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle" style="font-size:0.6rem"></i></button>' +
-                '</th>';
-            for (const h of horizontales) {
-                const cel = vivos[v.categoria_id + '-' + h.categoria_id] || {};
-                html += '<td class="position-relative"><div contenteditable="true" onblur="window.guardarCelda(this, ' + v.categoria_id + ', ' + h.categoria_id + ')">' + esc(cel.valor || '') + '</div></td>';
+        // === HEADERS (encabezados) ===
+        let theadHtml = '';
+        for (const row of encabezados) {
+            theadHtml += '<tr>';
+            for (const cell of row) {
+                if (cell.tipo === 'corner') {
+                    theadHtml += '<th class="text-center align-middle" style="width:44px" rowspan="' + (cell.rowspan || 1) + '">' +
+                        '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
+                        '</th>';
+                } else if (cell.tipo === 'parent') {
+                    theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px" colspan="' + cell.colspan + '">' +
+                        '<div class="small fw-semibold">' + esc(cell.nombre) + '</div>' +
+                        '<div class="position-absolute top-0 end-0 d-flex" style="gap:2px">' +
+                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
+                        '</div></th>';
+                } else {
+                    theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
+                        '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal">' + esc(cell.nombre) + '</div>' +
+                        '<div class="position-absolute top-0 end-0 d-flex" style="gap:2px">' +
+                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
+                        '<button class="btn btn-sm text-danger p-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" title="Eliminar columna"><i class="bi bi-x-circle" style="font-size:0.65rem"></i></button>' +
+                        '</div></th>';
+                }
             }
-            html += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
+            theadHtml += '<th class="text-center align-middle" style="width:36px;background:#f0f2f5" rowspan="' + encabezados.length + '">' +
+                '<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
+            theadHtml += '</tr>';
+        }
+        thead.innerHTML = theadHtml;
+
+        // === BODY ===
+        let tbodyHtml = '';
+        for (let ri = 0; ri < etiquetas.length; ri++) {
+            const labels = etiquetas[ri];
+            const dataRow = tabla[ri + 1] || [];
+            tbodyHtml += '<tr>';
+            for (const lb of labels) {
+                if (lb.tipo === 'parent') {
+                    tbodyHtml += '<th data-categoria-id="' + lb.categoria_id + '" class="position-relative align-middle text-center" style="background:#e2e6ea;min-width:90px;font-weight:500" rowspan="' + lb.rowspan + '">' +
+                        '<div class="small fw-semibold">' + esc(lb.nombre) + '</div>' +
+                        '<div class="position-absolute top-0 start-100 translate-middle" style="z-index:2">' +
+                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + lb.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
+                        '</div></th>';
+                } else {
+                    tbodyHtml += '<th data-categoria-id="' + lb.categoria_id + '" class="position-relative align-middle" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
+                        '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + lb.categoria_id + ')" class="text-truncate">' + esc(lb.nombre) + '</div>' +
+                        '<div class="position-absolute top-0 start-100 translate-middle d-flex" style="gap:2px;z-index:2">' +
+                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + lb.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
+                        '<button class="btn btn-sm text-danger p-0" onclick="window.eliminarFila(' + lb.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle" style="font-size:0.65rem"></i></button>' +
+                        '</div></th>';
+                }
+            }
+            for (let ci = 1; ci < dataRow.length; ci++) {
+                const cel = dataRow[ci] || {};
+                tbodyHtml += '<td class="position-relative"><div contenteditable="true" onblur="window.guardarCelda(this, ' + (cel.cat_vertical_id || 'null') + ', ' + (cel.cat_horizontal_id || 'null') + ')">' + esc(cel.valor || '') + '</div></td>';
+            }
+            tbodyHtml += '<td class="text-center align-middle" style="width:36px">' +
+                '<button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + (labels.length > 0 ? labels[labels.length - 1].categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td>';
+            tbodyHtml += '</tr>';
         }
 
-        html += '<tr class="table-light"><td><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Fila</button></td>' +
+        // Footer row
+        tbodyHtml += '<tr class="table-light"><td><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Fila</button></td>' +
             '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">' +
             '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>' +
             '<input type="file" id="input-csv" accept=".csv,.txt" style="display:none">' +
             ' <span class="vr mx-2"></span> ' +
             '<span class="small">Ctrl+V para pegar</span></td></tr>';
 
-        tbody.innerHTML = html;
+        tbody.innerHTML = tbodyHtml;
         renderSelection();
     }
 
@@ -496,6 +548,14 @@
 
     window.renombrarHeader = function(el, id) {
         renombrar(el, id);
+    };
+
+    window.agregarHijo = function(padreId) {
+        saveAllBeforeAction();
+        api('/hijo', { method: 'POST', body: { padre_id: padreId } }).then(j => {
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); }
+            else alerta(j.message);
+        }).catch(() => alerta('Error'));
     };
 
     window.agregarFila = function() {

@@ -23,9 +23,15 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
-        $verticales = $cuadro->categoriasVerticales()->orderBy('orden')->get();
-        $horizontales = $cuadro->categoriasHorizontales()->orderBy('orden')->get();
+        $allVertical = $cuadro->categoriasVerticales()->orderBy('orden')->get();
+        $allHorizontal = $cuadro->categoriasHorizontales()->orderBy('orden')->get();
         $datos = $cuadro->datos;
+
+        $vertTree = $this->buildTree($allVertical);
+        $horizTree = $this->buildTree($allHorizontal);
+
+        $verticales = $this->getLeaves($allVertical);
+        $horizontales = $this->getLeaves($allHorizontal);
 
         $tieneDataset = $verticales->count() > 0 || $horizontales->count() > 0;
 
@@ -34,10 +40,8 @@ class DatasetService
             $headerRow = [['tipo' => 'corner', 'valor' => '']];
             foreach ($horizontales as $h) {
                 $headerRow[] = [
-                    'tipo' => 'header',
-                    'eje' => 'horizontal',
-                    'categoria_id' => $h->categoria_id,
-                    'valor' => $h->nombre,
+                    'tipo' => 'header', 'eje' => 'horizontal',
+                    'categoria_id' => $h->categoria_id, 'valor' => $h->nombre,
                 ];
             }
             $tabla[] = $headerRow;
@@ -49,10 +53,8 @@ class DatasetService
 
             foreach ($verticales as $v) {
                 $row = [[
-                    'tipo' => 'header',
-                    'eje' => 'vertical',
-                    'categoria_id' => $v->categoria_id,
-                    'valor' => $v->nombre,
+                    'tipo' => 'header', 'eje' => 'vertical',
+                    'categoria_id' => $v->categoria_id, 'valor' => $v->nombre,
                 ]];
                 foreach ($horizontales as $h) {
                     $dato = $mapa[$v->categoria_id][$h->categoria_id] ?? null;
@@ -68,13 +70,20 @@ class DatasetService
             }
         }
 
+        $vertTreeSerialized = $this->serializeTree($vertTree);
+        $horizTreeSerialized = $this->serializeTree($horizTree);
+
         return [
             'tiene_dataset' => $tieneDataset,
-            'verticales' => $verticales->toArray(),
-            'horizontales' => $horizontales->toArray(),
+            'verticales' => $verticales->values()->toArray(),
+            'horizontales' => $horizontales->values()->toArray(),
             'tabla' => $tabla,
             'max_filas' => $verticales->count(),
             'max_columnas' => $horizontales->count(),
+            'vertical_tree' => $vertTreeSerialized,
+            'horizontal_tree' => $horizTreeSerialized,
+            'encabezados' => $this->buildEncabezados($horizTreeSerialized),
+            'etiquetas' => $this->buildEtiquetas($vertTreeSerialized),
         ];
     }
 
@@ -91,22 +100,16 @@ class DatasetService
         $verticales = [];
         for ($f = 1; $f <= $filas; $f++) {
             $verticales[] = $this->categoria->create([
-                'cuadro_id' => $cuadro_id,
-                'eje' => 'vertical',
-                'nombre' => "Fila $f",
-                'orden' => $f,
-                'tipo' => 'dato',
+                'cuadro_id' => $cuadro_id, 'eje' => 'vertical',
+                'nombre' => "Fila $f", 'orden' => $f, 'tipo' => 'dato',
             ]);
         }
 
         $horizontales = [];
         for ($c = 1; $c <= $columnas; $c++) {
             $horizontales[] = $this->categoria->create([
-                'cuadro_id' => $cuadro_id,
-                'eje' => 'horizontal',
-                'nombre' => "Columna $c",
-                'orden' => $c,
-                'tipo' => 'dato',
+                'cuadro_id' => $cuadro_id, 'eje' => 'horizontal',
+                'nombre' => "Columna $c", 'orden' => $c, 'tipo' => 'dato',
             ]);
         }
 
@@ -116,9 +119,7 @@ class DatasetService
                     'cuadro_id' => $cuadro_id,
                     'cat_horizontal_id' => $hCat->categoria_id,
                     'cat_vertical_id' => $vCat->categoria_id,
-                    'valor' => '',
-                    'fila' => $f + 1,
-                    'columna' => $c + 1,
+                    'valor' => '', 'fila' => $f + 1, 'columna' => $c + 1,
                 ]);
             }
         }
@@ -132,29 +133,23 @@ class DatasetService
             ->where('eje', 'vertical')->max('orden') ?? 0;
 
         $cat = $this->categoria->create([
-            'cuadro_id' => $cuadro_id,
-            'eje' => 'vertical',
+            'cuadro_id' => $cuadro_id, 'eje' => 'vertical',
             'nombre' => 'Fila ' . ($maxOrden + 1),
-            'orden' => $maxOrden + 1,
-            'tipo' => 'dato',
+            'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
-        $horizontales = $this->categoria->where('cuadro_id', $cuadro_id)
-            ->where('eje', 'horizontal')->orderBy('orden')->get();
+        $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
 
         foreach ($horizontales as $c => $hCat) {
             $this->dato->create([
                 'cuadro_id' => $cuadro_id,
                 'cat_horizontal_id' => $hCat->categoria_id,
                 'cat_vertical_id' => $cat->categoria_id,
-                'valor' => '',
-                'fila' => $maxOrden + 1,
-                'columna' => $c + 1,
+                'valor' => '', 'fila' => $maxOrden + 1, 'columna' => $c + 1,
             ]);
         }
 
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar fila']);
-
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -165,13 +160,13 @@ class DatasetService
             throw new \RuntimeException('Fila no encontrada');
         }
 
+        $this->categoria->where('padre_id', $categoria_id)->delete();
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_vertical_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'vertical');
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Eliminar fila']);
-
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -181,29 +176,23 @@ class DatasetService
             ->where('eje', 'horizontal')->max('orden') ?? 0;
 
         $cat = $this->categoria->create([
-            'cuadro_id' => $cuadro_id,
-            'eje' => 'horizontal',
+            'cuadro_id' => $cuadro_id, 'eje' => 'horizontal',
             'nombre' => 'Columna ' . ($maxOrden + 1),
-            'orden' => $maxOrden + 1,
-            'tipo' => 'dato',
+            'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
-        $verticales = $this->categoria->where('cuadro_id', $cuadro_id)
-            ->where('eje', 'vertical')->orderBy('orden')->get();
+        $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
 
         foreach ($verticales as $f => $vCat) {
             $this->dato->create([
                 'cuadro_id' => $cuadro_id,
                 'cat_horizontal_id' => $cat->categoria_id,
                 'cat_vertical_id' => $vCat->categoria_id,
-                'valor' => '',
-                'fila' => $f + 1,
-                'columna' => $maxOrden + 1,
+                'valor' => '', 'fila' => $f + 1, 'columna' => $maxOrden + 1,
             ]);
         }
 
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar columna']);
-
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -214,13 +203,79 @@ class DatasetService
             throw new \RuntimeException('Columna no encontrada');
         }
 
+        $this->categoria->where('padre_id', $categoria_id)->delete();
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_horizontal_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'horizontal');
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Eliminar columna']);
+        return $this->obtenerEstado($cuadro_id);
+    }
 
+    public function agregarHijo(int $cuadro_id, int $padre_id): array
+    {
+        $padre = $this->categoria->find($padre_id);
+        if (!$padre || $padre->cuadro_id != $cuadro_id) {
+            throw new \RuntimeException('Categoría padre no encontrada');
+        }
+
+        $maxOrden = $padre->hijos()->max('orden') ?? 0;
+
+        $esPrimerHijo = $maxOrden === 0;
+
+        $hijo = $this->categoria->create([
+            'cuadro_id' => $cuadro_id,
+            'eje' => $padre->eje,
+            'padre_id' => $padre->categoria_id,
+            'nombre' => 'Hijo ' . ($maxOrden + 1),
+            'orden' => $maxOrden + 1,
+            'tipo' => 'dato',
+        ]);
+
+        if ($padre->eje === 'vertical') {
+            $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
+            $parentData = $esPrimerHijo ? $this->dato->where('cuadro_id', $cuadro_id)
+                ->where('cat_vertical_id', $padre_id)->get()->keyBy('cat_horizontal_id') : collect();
+
+            foreach ($horizontales as $c => $hCat) {
+                $oldVal = $parentData->get($hCat->categoria_id)?->valor ?? '';
+                $this->dato->create([
+                    'cuadro_id' => $cuadro_id,
+                    'cat_horizontal_id' => $hCat->categoria_id,
+                    'cat_vertical_id' => $hijo->categoria_id,
+                    'valor' => $oldVal, 'valor_crudo' => $oldVal,
+                    'fila' => $hijo->orden, 'columna' => $c + 1,
+                ]);
+            }
+
+            if ($esPrimerHijo) {
+                $this->dato->where('cuadro_id', $cuadro_id)
+                    ->where('cat_vertical_id', $padre_id)->delete();
+            }
+        } else {
+            $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
+            $parentData = $esPrimerHijo ? $this->dato->where('cuadro_id', $cuadro_id)
+                ->where('cat_horizontal_id', $padre_id)->get()->keyBy('cat_vertical_id') : collect();
+
+            foreach ($verticales as $f => $vCat) {
+                $oldVal = $parentData->get($vCat->categoria_id)?->valor ?? '';
+                $this->dato->create([
+                    'cuadro_id' => $cuadro_id,
+                    'cat_horizontal_id' => $hijo->categoria_id,
+                    'cat_vertical_id' => $vCat->categoria_id,
+                    'valor' => $oldVal, 'valor_crudo' => $oldVal,
+                    'fila' => $f + 1, 'columna' => $hijo->orden,
+                ]);
+            }
+
+            if ($esPrimerHijo) {
+                $this->dato->where('cuadro_id', $cuadro_id)
+                    ->where('cat_horizontal_id', $padre_id)->delete();
+            }
+        }
+
+        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar hijo', 'padre_id' => $padre_id]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -231,7 +286,6 @@ class DatasetService
 
         $dato->update(['valor' => $valor, 'valor_crudo' => $valor]);
         $this->auditar($dato->cuadro_id, 'actualizar', ['accion' => 'Editar celda', 'dato_id' => $dato_id]);
-
         return $dato;
     }
 
@@ -239,10 +293,8 @@ class DatasetService
     {
         $cat = $this->categoria->find($categoria_id);
         if (!$cat) throw new \RuntimeException('Categoría no encontrada');
-
         $cat->update(['nombre' => $nombre]);
         $this->auditar($cat->cuadro_id, 'actualizar', ['accion' => 'Renombrar', 'categoria_id' => $categoria_id]);
-
         return $cat;
     }
 
@@ -259,7 +311,6 @@ class DatasetService
 
         $cuadro->datos()->delete();
         $cuadro->categorias()->delete();
-
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar grid']);
 
         $headers = $grid[0];
@@ -302,8 +353,8 @@ class DatasetService
 
     private function pastePartial(int $cuadro_id, Cuadro $cuadro, array $grid, int $startVerticalId, int $startHorizontalId): array
     {
-        $verticales = $cuadro->categoriasVerticales()->orderBy('orden')->get();
-        $horizontales = $cuadro->categoriasHorizontales()->orderBy('orden')->get();
+        $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
+        $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
 
         $vIdx = $verticales->search(fn($v) => $v->categoria_id === $startVerticalId);
         $hIdx = $horizontales->search(fn($h) => $h->categoria_id === $startHorizontalId);
@@ -325,11 +376,7 @@ class DatasetService
                 $hCat = $horizontales[$hPos];
 
                 $this->dato->updateOrCreate(
-                    [
-                        'cuadro_id' => $cuadro_id,
-                        'cat_vertical_id' => $vCat->categoria_id,
-                        'cat_horizontal_id' => $hCat->categoria_id,
-                    ],
+                    ['cuadro_id' => $cuadro_id, 'cat_vertical_id' => $vCat->categoria_id, 'cat_horizontal_id' => $hCat->categoria_id],
                     ['valor' => $valor, 'valor_crudo' => $valor]
                 );
             }
@@ -348,7 +395,6 @@ class DatasetService
         fclose($handle);
 
         if (empty($grid)) throw new \InvalidArgumentException('Archivo vacío');
-
         return $this->pasteGrid($cuadro_id, $grid);
     }
 
@@ -361,9 +407,7 @@ class DatasetService
             ->get();
 
         $startIdx = $categorias->search(fn($c) => $c->categoria_id === $startCategoriaId);
-        if ($startIdx === false) {
-            throw new \RuntimeException('Categoría inicial no encontrada');
-        }
+        if ($startIdx === false) throw new \RuntimeException('Categoría inicial no encontrada');
 
         foreach ($valores as $i => $valor) {
             $idx = $startIdx + $i;
@@ -372,7 +416,6 @@ class DatasetService
         }
 
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar en categorías', 'eje' => $eje]);
-
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -385,15 +428,168 @@ class DatasetService
         $cuadro->categorias()->delete();
 
         $this->auditar($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
-
         return [
             'tiene_dataset' => false,
-            'verticales' => [],
-            'horizontales' => [],
-            'tabla' => [],
-            'max_filas' => 0,
-            'max_columnas' => 0,
+            'verticales' => [], 'horizontales' => [], 'tabla' => [],
+            'max_filas' => 0, 'max_columnas' => 0,
+            'vertical_tree' => [], 'horizontal_tree' => [],
+            'encabezados' => [], 'etiquetas' => [],
         ];
+    }
+
+    // ============ TREE HELPERS ============
+
+    private function buildTree($categories): array
+    {
+        $byParent = [];
+        foreach ($categories as $cat) {
+            $byParent[$cat->padre_id ?? 0][] = $cat;
+        }
+
+        $result = [];
+        foreach ($byParent[0] ?? [] as $root) {
+            $this->attachChildren($root, $byParent);
+            $result[] = $root;
+        }
+        return $result;
+    }
+
+    private function attachChildren($node, array &$byParent): void
+    {
+        $children = $byParent[$node->categoria_id] ?? [];
+        foreach ($children as $child) {
+            $this->attachChildren($child, $byParent);
+        }
+        $node->setRelation('hijos', collect($children));
+    }
+
+    private function getLeaves($categories)
+    {
+        $idsWithChildren = $this->categoria
+            ->whereIn('padre_id', $categories->pluck('categoria_id'))
+            ->pluck('padre_id')
+            ->unique();
+        return $categories->reject(fn($c) => $idsWithChildren->contains($c->categoria_id))->values();
+    }
+
+    private function countLeaves(array $node): int
+    {
+        if (empty($node['hijos'])) return 1;
+        $count = 0;
+        foreach ($node['hijos'] as $child) {
+            $count += $this->countLeaves($child);
+        }
+        return $count;
+    }
+
+    private function serializeTree(array $nodes): array
+    {
+        $result = [];
+        foreach ($nodes as $node) {
+            $item = [
+                'categoria_id' => $node->categoria_id,
+                'nombre' => $node->nombre,
+                'tipo' => $node->tipo,
+            ];
+            $hijos = $node->hijos ?? collect();
+            if ($hijos->isNotEmpty()) {
+                $item['hijos'] = $this->serializeTree($hijos->all());
+                $item['span'] = $this->countLeaves($item);
+            } else {
+                $item['span'] = 1;
+            }
+            $result[] = $item;
+        }
+        return $result;
+    }
+
+    private function getLeafCategories(int $cuadro_id, string $eje)
+    {
+        $all = $this->categoria->where('cuadro_id', $cuadro_id)
+            ->where('eje', $eje)->orderBy('orden')->get();
+        return $this->getLeaves($all);
+    }
+
+    // ============ RENDERING HELPERS ============
+
+    private function buildEncabezados(array $horizTree): array
+    {
+        $rows = [];
+        $this->buildEncabezadosRecursive($horizTree, 0, $rows);
+        // Ensure corner has correct rowspan
+        $maxDepth = count($rows);
+        if ($maxDepth > 0 && isset($rows[0][0]) && $rows[0][0]['tipo'] === 'corner') {
+            $rows[0][0]['rowspan'] = $maxDepth;
+        }
+        return $rows;
+    }
+
+    private function buildEncabezadosRecursive(array $nodes, int $depth, array &$rows): void
+    {
+        if (!isset($rows[$depth])) {
+            $rows[$depth] = $depth === 0
+                ? [['tipo' => 'corner', 'valor' => '', 'rowspan' => 1]]
+                : [];
+        }
+
+        foreach ($nodes as $node) {
+            $hasChildren = !empty($node['hijos']);
+            if ($hasChildren) {
+                $rows[$depth][] = [
+                    'tipo' => 'parent',
+                    'categoria_id' => $node['categoria_id'],
+                    'nombre' => $node['nombre'],
+                    'colspan' => $node['span'],
+                    'tiene_hijos' => true,
+                ];
+                $this->buildEncabezadosRecursive($node['hijos'], $depth + 1, $rows);
+            } else {
+                $rows[$depth][] = [
+                    'tipo' => 'leaf',
+                    'categoria_id' => $node['categoria_id'],
+                    'nombre' => $node['nombre'],
+                    'colspan' => 1,
+                    'tiene_hijos' => false,
+                ];
+            }
+        }
+    }
+
+    private function buildEtiquetas(array $vertTree): array
+    {
+        $leafRows = [];
+        $this->buildEtiquetasRecursive($vertTree, $leafRows, []);
+        return $leafRows;
+    }
+
+    private function buildEtiquetasRecursive(array $nodes, array &$leafRows, array $parents): void
+    {
+        foreach ($nodes as $node) {
+            $hasChildren = !empty($node['hijos']);
+            if ($hasChildren) {
+                $newParents = array_merge($parents, [$node]);
+                $this->buildEtiquetasRecursive($node['hijos'], $leafRows, $newParents);
+            } else {
+                $rowLabels = [];
+                foreach ($parents as $pNode) {
+                    $rowLabels[] = [
+                        'tipo' => 'parent',
+                        'categoria_id' => $pNode['categoria_id'],
+                        'nombre' => $pNode['nombre'],
+                        'rowspan' => $pNode['span'],
+                        'tiene_hijos' => true,
+                    ];
+                }
+                $rowLabels[] = [
+                    'tipo' => 'leaf',
+                    'categoria_id' => $node['categoria_id'],
+                    'nombre' => $node['nombre'],
+                    'rowspan' => 1,
+                    'tiene_hijos' => false,
+                ];
+                $leafRows[] = $rowLabels;
+            }
+        }
     }
 
     private function reordenar(int $cuadro_id, string $eje): void
