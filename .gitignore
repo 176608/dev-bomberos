@@ -9,6 +9,7 @@
 /public/imagenes/subtemas_u
 /storage/*.key
 /storage/pail
+/archivoslocales
 /vendor
 .env
 .env.backup
