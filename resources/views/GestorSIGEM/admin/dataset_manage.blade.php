@@ -213,7 +213,7 @@
                                             <template x-if="ci > 0">
                                                 <td class="align-middle p-1" style="min-width:80px;">
                                                     <template x-if="!isEditing('celda', ri, ci)">
-                                                        <div @dblclick="startEdit(ri, ci, cell.dato_id, cell.valor)"
+                                                        <div @click="startEdit(ri, ci, cell.dato_id, cell.valor)"
                                                              class="px-1 cell-display"
                                                              style="min-height:28px;cursor:pointer;">
                                                             <span x-text="cell.valor ?? ''" class="small"></span>

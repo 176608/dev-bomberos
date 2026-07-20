@@ -2,10 +2,12 @@
 
 namespace App\Services\GestorSIGEM;
 
+use App\Models\SIGEM\AuditoriaSgiem;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 
 class DatasetService
 {
@@ -13,6 +15,7 @@ class DatasetService
         private Cuadro $cuadro,
         private CuadroCategoria $categoria,
         private CuadroDato $dato,
+        private AuditoriaSgiem $auditoria,
     ) {}
 
     public function obtenerEstado(int $cuadro_id): array
@@ -87,6 +90,11 @@ class DatasetService
         $cuadro->datos()->delete();
         $cuadro->categorias()->delete();
 
+        $this->registrarAuditoria($cuadro_id, 'crear', [
+            'filas' => $filas,
+            'columnas' => $columnas,
+        ]);
+
         $verticales = [];
         for ($f = 1; $f <= $filas; $f++) {
             $verticales[] = $this->categoria->create([
@@ -157,6 +165,8 @@ class DatasetService
             ]);
         }
 
+        $this->registrarAuditoria($cuadro_id, 'actualizar', ['accion' => 'Agregar fila vertical', 'nombre' => $cat->nombre]);
+
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -168,12 +178,15 @@ class DatasetService
             throw new \RuntimeException('Fila no encontrada');
         }
 
+        $nombreFila = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_vertical_id', $categoria_id)->delete();
 
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'vertical');
+
+        $this->registrarAuditoria($cuadro_id, 'actualizar', ['accion' => 'Eliminar fila vertical', 'nombre' => $nombreFila]);
 
         return $this->obtenerEstado($cuadro_id);
     }
@@ -210,6 +223,8 @@ class DatasetService
             ]);
         }
 
+        $this->registrarAuditoria($cuadro_id, 'actualizar', ['accion' => 'Agregar columna horizontal', 'nombre' => $cat->nombre]);
+
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -221,12 +236,15 @@ class DatasetService
             throw new \RuntimeException('Columna no encontrada');
         }
 
+        $nombreCol = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_horizontal_id', $categoria_id)->delete();
 
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'horizontal');
+
+        $this->registrarAuditoria($cuadro_id, 'actualizar', ['accion' => 'Eliminar columna horizontal', 'nombre' => $nombreCol]);
 
         return $this->obtenerEstado($cuadro_id);
     }
@@ -241,6 +259,8 @@ class DatasetService
 
         $dato->update(['valor' => $valor, 'valor_crudo' => $valor]);
 
+        $this->registrarAuditoria($dato->cuadro_id, 'actualizar', ['accion' => 'Editar celda', 'dato_id' => $dato_id, 'valor' => $valor]);
+
         return $dato;
     }
 
@@ -253,6 +273,8 @@ class DatasetService
         }
 
         $cat->update(['nombre' => $nombre]);
+
+        $this->registrarAuditoria($cat->cuadro_id, 'actualizar', ['accion' => 'Renombrar categoría', 'categoria_id' => $categoria_id, 'nombre' => $nombre]);
 
         return $cat;
     }
@@ -271,6 +293,8 @@ class DatasetService
 
         $cuadro->datos()->delete();
         $cuadro->categorias()->delete();
+
+        $this->registrarAuditoria($cuadro_id, 'actualizar', ['accion' => 'Pegar grid desde portapapeles', 'filas' => count($grid) - 1, 'columnas' => count($grid[0]) - 1]);
 
         $headers = $grid[0];
         $numCols = count($headers);
@@ -352,6 +376,8 @@ class DatasetService
         $cuadro->datos()->delete();
         $cuadro->categorias()->delete();
 
+        $this->registrarAuditoria($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
+
         return [
             'tiene_dataset' => false,
             'verticales' => [],
@@ -360,6 +386,19 @@ class DatasetService
             'max_filas' => 0,
             'max_columnas' => 0,
         ];
+    }
+
+    private function registrarAuditoria(int $cuadro_id, string $accion, array $detalle = []): void
+    {
+        if (!Auth::check()) return;
+
+        $this->auditoria->create([
+            'user_id' => Auth::id(),
+            'modelo' => 'Dataset',
+            'modelo_id' => $cuadro_id,
+            'accion' => $accion,
+            'datos_nuevos' => $detalle,
+        ]);
     }
 
     private function reordenar(int $cuadro_id, string $eje): void
