@@ -169,7 +169,16 @@
                                                  :class="{'bg-light': selectedCat === node.categoria_id}"
                                                  @click="selectCat('vertical', node.categoria_id, node.nombre, node.tipo)">
                                                 <i class="bi bi-folder me-1 text-warning small"></i>
-                                                <span class="small flex-grow-1" x-text="node.nombre"></span>
+                                                <template x-if="isRenaming(node.categoria_id)">
+                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
+                                                           style="height:22px;font-size:0.75rem"
+                                                           x-model="editValue"
+                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                           @click.stop>
+                                                </template>
+                                                <template x-if="!isRenaming(node.categoria_id)">
+                                                    <span class="small flex-grow-1" @click.stop="startRename(node.categoria_id, node.nombre)" x-text="node.nombre"></span>
+                                                </template>
                                                 <span class="badge bg-secondary" x-text="node.tipo" style="font-size:0.6rem"></span>
                                                 <button class="btn btn-sm py-0 px-1" @click.stop="addChild(node.categoria_id)" title="Agregar hijo">
                                                     <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
@@ -187,7 +196,16 @@
                                                                      :class="{'bg-light': selectedCat === child.categoria_id}"
                                                                      @click="selectCat('vertical', child.categoria_id, child.nombre, child.tipo)">
                                                                     <i class="bi bi-folder me-1 text-warning small"></i>
-                                                                    <span class="small flex-grow-1" x-text="child.nombre"></span>
+                                                                    <template x-if="isRenaming(child.categoria_id)">
+                                                                        <input type="text" class="form-control form-control-sm rename-input py-0"
+                                                                               style="height:22px;font-size:0.75rem"
+                                                                               x-model="editValue"
+                                                                               @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                                               @click.stop>
+                                                                    </template>
+                                                                    <template x-if="!isRenaming(child.categoria_id)">
+                                                                        <span class="small flex-grow-1" @click.stop="startRename(child.categoria_id, child.nombre)" x-text="child.nombre"></span>
+                                                                    </template>
                                                                     <button class="btn btn-sm py-0 px-1" @click.stop="addChild(child.categoria_id)">
                                                                         <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
                                                                     </button>
@@ -199,7 +217,16 @@
                                                                  :class="{'bg-light': selectedCat === child.categoria_id, 'text-muted fst-italic': child.tipo === 'pivote'}"
                                                                  @click="selectCat('vertical', child.categoria_id, child.nombre, child.tipo)">
                                                                 <i class="bi" :class="child.tipo === 'pivote' ? 'bi-pin-angle' : 'bi-arrow-right-short' me-1 small"></i>
-                                                                <span class="small flex-grow-1" x-text="child.nombre"></span>
+                                                                <template x-if="isRenaming(child.categoria_id)">
+                                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
+                                                                           style="height:22px;font-size:0.75rem"
+                                                                           x-model="editValue"
+                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                                           @click.stop>
+                                                                </template>
+                                                                <template x-if="!isRenaming(child.categoria_id)">
+                                                                    <span class="small flex-grow-1" @click.stop="startRename(child.categoria_id, child.nombre)" x-text="child.nombre"></span>
+                                                                </template>
                                                                 <span class="badge" :class="child.tipo === 'pivote' ? 'bg-info' : 'bg-secondary'" style="font-size:0.6rem" x-text="child.tipo"></span>
                                                                 <button class="btn btn-sm py-0 px-1" @click.stop="deleteCat(child.categoria_id)" title="Eliminar">
                                                                     <i class="bi bi-x-circle text-danger" style="font-size:0.7rem"></i>
@@ -216,7 +243,16 @@
                                              :class="{'bg-light': selectedCat === node.categoria_id, 'text-muted fst-italic': node.tipo === 'pivote'}"
                                              @click="selectCat('vertical', node.categoria_id, node.nombre, node.tipo)">
                                             <i class="bi bi-arrow-right-short me-1 small"></i>
-                                            <span class="small flex-grow-1" x-text="node.nombre"></span>
+                                            <template x-if="isRenaming(node.categoria_id)">
+                                                <input type="text" class="form-control form-control-sm rename-input py-0"
+                                                       style="height:22px;font-size:0.75rem"
+                                                       x-model="editValue"
+                                                       @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                       @click.stop>
+                                            </template>
+                                            <template x-if="!isRenaming(node.categoria_id)">
+                                                <span class="small flex-grow-1" @click.stop="startRename(node.categoria_id, node.nombre)" x-text="node.nombre"></span>
+                                            </template>
                                             <span class="badge" :class="node.tipo === 'pivote' ? 'bg-info' : 'bg-secondary'" style="font-size:0.6rem" x-text="node.tipo"></span>
                                             <button class="btn btn-sm py-0 px-1" @click.stop="addChild(node.categoria_id)" title="Agregar hijo">
                                                 <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
@@ -257,11 +293,20 @@
                                                         </template>
                                                         <template x-if="cell.tipo === 'header' && ci > 0">
                                                             <div class="position-relative">
-                                                                <span @click="startRename('h', cell.categoria_id, cell.valor)"
-                                                                      class="d-block cursor-pointer" style="cursor:pointer;"
-                                                                      title="Click para renombrar">
-                                                                    <span x-text="cell.valor || 'Sin nombre'"></span>
-                                                                </span>
+                                                                <template x-if="isRenaming(cell.categoria_id)">
+                                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
+                                                                           style="height:22px;font-size:0.75rem"
+                                                                           x-model="editValue"
+                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                                           @click.stop>
+                                                                </template>
+                                                                <template x-if="!isRenaming(cell.categoria_id)">
+                                                                    <span @click.stop="startRename(cell.categoria_id, cell.valor)"
+                                                                          class="d-block cursor-pointer" style="cursor:pointer;"
+                                                                          title="Click para renombrar">
+                                                                        <span x-text="cell.valor || 'Sin nombre'"></span>
+                                                                    </span>
+                                                                </template>
                                                             </div>
                                                         </template>
                                                     </th>
@@ -277,12 +322,21 @@
                                                         <th class="text-nowrap align-middle py-1"
                                                             :style="'background:#f8f9fa;min-width:120px;position:relative;padding-left:' + (12 + (cell.profundidad || 0) * 16) + 'px'">
                                                             <div class="d-flex align-items-center">
-                                                                <i class="bi" :class="{'bi-pin-angle-fill text-info me-1': cell.tipo_cat === 'pivote', 'bi-chevron-right text-muted me-1': cell.profundidad > 0}"></i>
-                                                                <span @click="startRename('v', cell.categoria_id, cell.valor)"
-                                                                      class="d-block cursor-pointer flex-grow-1" style="cursor:pointer;"
-                                                                      title="Click para renombrar">
-                                                                    <span x-text="cell.valor || 'Sin nombre'"></span>
-                                                                </span>
+                                                                 <i class="bi" :class="{'bi-pin-angle-fill text-info me-1': cell.tipo_cat === 'pivote', 'bi-chevron-right text-muted me-1': cell.profundidad > 0}"></i>
+                                                                <template x-if="isRenaming(cell.categoria_id)">
+                                                                    <input type="text" class="form-control form-control-sm rename-input py-0 flex-grow-1"
+                                                                           style="height:22px;font-size:0.75rem"
+                                                                           x-model="editValue"
+                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
+                                                                           @click.stop>
+                                                                </template>
+                                                                <template x-if="!isRenaming(cell.categoria_id)">
+                                                                    <span @click.stop="startRename(cell.categoria_id, cell.valor)"
+                                                                          class="d-block cursor-pointer flex-grow-1" style="cursor:pointer;"
+                                                                          title="Click para renombrar">
+                                                                        <span x-text="cell.valor || 'Sin nombre'"></span>
+                                                                    </span>
+                                                                </template>
                                                                 <button class="btn btn-sm text-danger p-0 ms-1"
                                                                         @click="deleteCat(cell.categoria_id)"
                                                                         title="Eliminar">
@@ -334,22 +388,7 @@
         </div>
     </template>
 
-    <!-- Rename dialog -->
-    <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-         style="z-index:1055;background:rgba(0,0,0,0.4)"
-         x-show="showRename" x-cloak
-         @click.self="cancelRename">
-        <div class="bg-white rounded shadow p-3" style="min-width:300px" @click.stop>
-            <h6 class="mb-2"><i class="bi bi-pencil"></i> Renombrar categoría</h6>
-            <input type="text" class="form-control form-control-sm" x-model="renameValue"
-                   @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                   x-ref="renameInput">
-            <div class="d-flex justify-content-end gap-2 mt-2">
-                <button class="btn btn-sm btn-secondary" @click="cancelRename">Cancelar</button>
-                <button class="btn btn-sm btn-primary" @click="saveRename">Guardar</button>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -390,10 +429,7 @@ function datasetEditor() {
         selectedCatName: '',
         selectedCatTipo: '',
 
-        showRename: false,
-        renameCatId: null,
-        renameEje: null,
-        renameValue: '',
+        editingCatId: null,
 
         // Computed: data rows (exclude header row, include pivot)
         get dataRows() {
@@ -512,28 +548,32 @@ function datasetEditor() {
             }
         },
 
-        // ============ RENAME ============
+        // ============ INLINE RENAME ============
 
-        startRename(eje, catId, currentName) {
-            this.renameEje = eje;
-            this.renameCatId = catId;
-            this.renameValue = currentName || '';
-            this.showRename = true;
+        isRenaming(catId) {
+            return this.editingCatId === catId;
+        },
+
+        startRename(catId, currentName) {
+            this.editingCatId = catId;
+            this.editValue = currentName || '';
             this.$nextTick(() => {
-                if (this.$refs.renameInput) this.$refs.renameInput.focus();
+                const el = this.$el.querySelector('.rename-input');
+                if (el) el.focus();
             });
         },
 
         cancelRename() {
-            this.showRename = false;
-            this.renameCatId = null;
+            this.editingCatId = null;
+            this.editValue = '';
         },
 
         async saveRename() {
-            if (!this.renameCatId || !this.renameValue.trim()) return;
-            const catId = this.renameCatId;
-            const nombre = this.renameValue.trim();
-            this.cancelRename();
+            const catId = this.editingCatId;
+            const nombre = this.editValue.trim();
+            if (!catId || !nombre) { this.cancelRename(); return; }
+            this.editingCatId = null;
+            this.editValue = '';
             this.saveStatus = 'Guardando...';
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/categoria/' + catId, {
