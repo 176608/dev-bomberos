@@ -3,7 +3,7 @@
 </style>
 <div class="container-fluid py-4"
      x-data="datasetEditor()"
-     x-init="initEditor({{ $cuadro->cuadro_id }}, @json($estadoInicial))">
+     x-init="initEditor({{ $cuadro->cuadro_id }}, {{ json_encode($estadoInicial) }})">
 
     <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
         <span>
@@ -337,8 +337,7 @@
     <!-- Rename dialog -->
     <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
          style="z-index:1055;background:rgba(0,0,0,0.4)"
-         x-show="showRename"
-         x-cloak
+         x-show="showRename" x-cloak
          @click.self="cancelRename">
         <div class="bg-white rounded shadow p-3" style="min-width:300px" @click.stop>
             <h6 class="mb-2"><i class="bi bi-pencil"></i> Renombrar categoría</h6>
