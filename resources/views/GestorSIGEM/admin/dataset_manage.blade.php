@@ -1,6 +1,3 @@
-<style>
-    [x-cloak] { display: none !important; }
-</style>
 <div class="container-fluid py-4"
      x-data="datasetEditor()"
      x-init="initEditor({{ $cuadro->cuadro_id }}, {{ json_encode($estadoInicial) }})">
@@ -8,7 +5,7 @@
     <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
         <span>
             <i class="bi bi-pencil-square"></i>
-            <strong>Modo edición</strong> — Gestión del dataset de
+            <strong>Modo edición</strong> — Dataset de
             <code>{{ $cuadro->codigo_cuadro }}</code>
             <strong>{{ $cuadro->c_titulo }}</strong>
             @if(!empty($cuadro->c_subtitulo))
@@ -33,12 +30,13 @@
         <div class="alert alert-danger" x-text="error"></div>
     </template>
 
+    <!-- Empty state -->
     <template x-if="!loading && !dataset.tiene_dataset">
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
                 <i class="bi bi-table" style="font-size: 4rem; color: #dee2e6;"></i>
                 <h5 class="mt-3">Este cuadro no tiene dataset</h5>
-                <p class="text-muted">Genera una grilla inicial para empezar a trabajar. Puedes agregar categorías jerárquicas según sea necesario.</p>
+                <p class="text-muted">Define el tamaño de la grilla para empezar.</p>
 
                 <div class="row justify-content-center mt-4">
                     <div class="col-md-4">
@@ -59,28 +57,24 @@
                 <hr class="my-4">
                 <p class="text-muted small">
                     <i class="bi bi-info-circle"></i>
-                    También puedes <a href="#" @click.prevent="$refs.importInput.click()" class="text-decoration-none">importar un archivo CSV</a> si ya tienes los datos.
+                    También puedes <a href="#" @click.prevent="$refs.importInput.click()" class="text-decoration-none">importar un archivo CSV</a>.
                     <input type="file" x-ref="importInput" accept=".csv,.txt" hidden @change="importFile($event.target)">
                 </p>
             </div>
         </div>
     </template>
 
+    <!-- Grid state -->
     <template x-if="!loading && dataset.tiene_dataset">
         <div>
-            <!-- Toolbar -->
             <div class="card shadow-sm mb-3">
                 <div class="card-body py-2">
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                        <button class="btn btn-outline-success btn-sm" @click="addRoot('vertical')" :disabled="saving">
-                            <i class="bi bi-plus-lg"></i> Raíz V
+                        <button class="btn btn-outline-success btn-sm" @click="addRow" :disabled="saving">
+                            <i class="bi bi-plus-lg"></i> Fila
                         </button>
-                        <button class="btn btn-outline-primary btn-sm" @click="addRoot('horizontal')" :disabled="saving">
-                            <i class="bi bi-plus-lg"></i> Raíz H
-                        </button>
-                        <div class="vr mx-2"></div>
-                        <button class="btn btn-outline-info btn-sm" @click="togglePivotRow" :disabled="saving">
-                            <i class="bi bi-pin"></i> <span x-text="dataset.vertical.pivote ? 'Quitar pivote' : 'Añadir pivote'"></span>
+                        <button class="btn btn-outline-primary btn-sm" @click="addColumn" :disabled="saving">
+                            <i class="bi bi-plus-lg"></i> Columna
                         </button>
                         <div class="vr mx-2"></div>
                         <button class="btn btn-outline-secondary btn-sm" @click="$refs.importInput2.click()">
@@ -109,8 +103,7 @@
                     <div class="card shadow-sm mb-3">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span><i class="bi bi-graph-up"></i> Visualización</span>
-                            <select class="form-select form-select-sm" style="width:auto"
-                                    x-model="chartType" @change="renderChart">
+                            <select class="form-select form-select-sm" style="width:auto" x-model="chartType" @change="renderChart">
                                 <option value="bar">Barras</option>
                                 <option value="line">Líneas</option>
                                 <option value="pie">Pastel</option>
@@ -129,11 +122,11 @@
                         <div class="card-header"><i class="bi bi-sliders"></i> Configuración gráfica</div>
                         <div class="card-body">
                             <div class="mb-2">
-                                <label class="form-label small fw-bold">Columnas X (etiquetas)</label>
+                                <label class="form-label small fw-bold">Columnas X</label>
                                 <input type="text" class="form-control form-control-sm" x-model="chartParams.x" @input.debounce="renderChart" placeholder="ej: 1,3,5">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small fw-bold">Columnas Y (datos)</label>
+                                <label class="form-label small fw-bold">Columnas Y</label>
                                 <input type="text" class="form-control form-control-sm" x-model="chartParams.y" @input.debounce="renderChart" placeholder="ej: 2,4">
                             </div>
                             <div class="mb-2">
@@ -143,252 +136,114 @@
                                     <option value="s">Apilado</option>
                                 </select>
                             </div>
-                            <p class="text-muted small mb-0">Índices empiezan en 0.</p>
+                            <p class="text-muted small mb-0">Índices desde 0 (col 0 = encabezado fila).</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main content: tree sidebar + grid -->
-            <div class="row">
-                <!-- Vertical tree sidebar -->
-                <div class="col-auto" style="min-width:220px;max-width:300px">
-                    <div class="card shadow-sm mb-3">
-                        <div class="card-header py-1 d-flex justify-content-between align-items-center">
-                            <small class="fw-bold"><i class="bi bi-list-ul"></i> Vertical</small>
-                            <button class="btn btn-sm btn-outline-success py-0 px-1" @click="addRoot('vertical')" title="Agregar raíz vertical">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
-                        <div class="card-body p-1" style="max-height:60vh;overflow-y:auto">
-                            <template x-for="node in dataset.vertical.arbol" :key="node.categoria_id">
-                                <div>
-                                    <template x-if="node.hijos && node.hijos.length > 0">
-                                        <div>
-                                            <div class="tree-node tree-parent d-flex align-items-center py-1 px-1 border-bottom"
-                                                 :class="{'bg-light': selectedCat === node.categoria_id}"
-                                                 @click="selectCat('vertical', node.categoria_id, node.nombre, node.tipo)">
-                                                <i class="bi bi-folder me-1 text-warning small"></i>
-                                                <template x-if="isRenaming(node.categoria_id)">
-                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
-                                                           style="height:22px;font-size:0.75rem"
-                                                           x-model="editValue"
-                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                           @click.stop>
-                                                </template>
-                                                <template x-if="!isRenaming(node.categoria_id)">
-                                                    <span class="small flex-grow-1" @click.stop="startRename(node.categoria_id, node.nombre)" x-text="node.nombre"></span>
-                                                </template>
-                                                <span class="badge bg-secondary" x-text="node.tipo" style="font-size:0.6rem"></span>
-                                                <button class="btn btn-sm py-0 px-1" @click.stop="addChild(node.categoria_id)" title="Agregar hijo">
-                                                    <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
-                                                </button>
-                                                <button class="btn btn-sm py-0 px-1" @click.stop="deleteCat(node.categoria_id)" title="Eliminar">
-                                                    <i class="bi bi-x-circle text-danger" style="font-size:0.7rem"></i>
-                                                </button>
-                                            </div>
-                                            <div style="padding-left:1rem">
-                                                <template x-for="child in node.hijos" :key="child.categoria_id">
-                                                    <div>
-                                                        <template x-if="child.hijos && child.hijos.length > 0">
-                                                            <div>
-                                                                <div class="tree-node tree-parent d-flex align-items-center py-1 px-1 border-bottom"
-                                                                     :class="{'bg-light': selectedCat === child.categoria_id}"
-                                                                     @click="selectCat('vertical', child.categoria_id, child.nombre, child.tipo)">
-                                                                    <i class="bi bi-folder me-1 text-warning small"></i>
-                                                                    <template x-if="isRenaming(child.categoria_id)">
-                                                                        <input type="text" class="form-control form-control-sm rename-input py-0"
-                                                                               style="height:22px;font-size:0.75rem"
-                                                                               x-model="editValue"
-                                                                               @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                                               @click.stop>
-                                                                    </template>
-                                                                    <template x-if="!isRenaming(child.categoria_id)">
-                                                                        <span class="small flex-grow-1" @click.stop="startRename(child.categoria_id, child.nombre)" x-text="child.nombre"></span>
-                                                                    </template>
-                                                                    <button class="btn btn-sm py-0 px-1" @click.stop="addChild(child.categoria_id)">
-                                                                        <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </template>
-                                                        <template x-if="!child.hijos || child.hijos.length === 0">
-                                                            <div class="tree-node tree-leaf d-flex align-items-center py-1 px-1 border-bottom"
-                                                                 :class="{'bg-light': selectedCat === child.categoria_id, 'text-muted fst-italic': child.tipo === 'pivote'}"
-                                                                 @click="selectCat('vertical', child.categoria_id, child.nombre, child.tipo)">
-                                                                <i class="bi" :class="child.tipo === 'pivote' ? 'bi-pin-angle' : 'bi-arrow-right-short' me-1 small"></i>
-                                                                <template x-if="isRenaming(child.categoria_id)">
-                                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
-                                                                           style="height:22px;font-size:0.75rem"
-                                                                           x-model="editValue"
-                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                                           @click.stop>
-                                                                </template>
-                                                                <template x-if="!isRenaming(child.categoria_id)">
-                                                                    <span class="small flex-grow-1" @click.stop="startRename(child.categoria_id, child.nombre)" x-text="child.nombre"></span>
-                                                                </template>
-                                                                <span class="badge" :class="child.tipo === 'pivote' ? 'bg-info' : 'bg-secondary'" style="font-size:0.6rem" x-text="child.tipo"></span>
-                                                                <button class="btn btn-sm py-0 px-1" @click.stop="deleteCat(child.categoria_id)" title="Eliminar">
-                                                                    <i class="bi bi-x-circle text-danger" style="font-size:0.7rem"></i>
-                                                                </button>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    <template x-if="!node.hijos || node.hijos.length === 0">
-                                        <div class="tree-node tree-leaf d-flex align-items-center py-1 px-1 border-bottom"
-                                             :class="{'bg-light': selectedCat === node.categoria_id, 'text-muted fst-italic': node.tipo === 'pivote'}"
-                                             @click="selectCat('vertical', node.categoria_id, node.nombre, node.tipo)">
-                                            <i class="bi bi-arrow-right-short me-1 small"></i>
-                                            <template x-if="isRenaming(node.categoria_id)">
-                                                <input type="text" class="form-control form-control-sm rename-input py-0"
-                                                       style="height:22px;font-size:0.75rem"
-                                                       x-model="editValue"
-                                                       @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                       @click.stop>
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height:70vh; overflow:auto;">
+                        <table class="table table-sm table-bordered mb-0" style="font-size:0.85rem;"
+                               @paste.prevent="handlePaste($event)"
+                               @keydown.escape="cancelEdit"
+                               @keydown.enter="onEnter"
+                               @keydown.tab="onTab"
+                               @keydown.shift.tab="onShiftTab">
+                            <thead>
+                                <tr>
+                                    <template x-for="(cell, ci) in dataset.tabla[0]" :key="'h' + ci">
+                                        <th class="text-center align-middle" style="min-width:100px;background:#e9ecef;position:relative;">
+                                            <template x-if="ci === 0">
+                                                <span class="text-muted small">
+                                                    <i class="bi bi-arrow-right"></i>
+                                                </span>
                                             </template>
-                                            <template x-if="!isRenaming(node.categoria_id)">
-                                                <span class="small flex-grow-1" @click.stop="startRename(node.categoria_id, node.nombre)" x-text="node.nombre"></span>
+                                            <template x-if="ci > 0">
+                                                <div>
+                                                    <template x-if="editingHeader === cell.categoria_id">
+                                                        <input type="text" class="form-control form-control-sm text-center"
+                                                               x-model="editValue"
+                                                               @blur="saveHeaderEdit"
+                                                               @keydown.enter="saveHeaderEdit"
+                                                               @keydown.escape="cancelHeaderEdit"
+                                                               @click.stop>
+                                                    </template>
+                                                    <template x-if="editingHeader !== cell.categoria_id">
+                                                        <span @click="startHeaderEdit(cell.categoria_id, cell.valor)"
+                                                              class="d-block cursor-pointer" style="cursor:pointer;"
+                                                              title="Click para renombrar">
+                                                            <span x-text="cell.valor || 'Sin nombre'"></span>
+                                                        </span>
+                                                    </template>
+                                                    <button class="btn btn-sm text-danger p-0 position-absolute top-0 end-0"
+                                                            @click="deleteColumn(cell.categoria_id)"
+                                                            title="Eliminar columna">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </div>
                                             </template>
-                                            <span class="badge" :class="node.tipo === 'pivote' ? 'bg-info' : 'bg-secondary'" style="font-size:0.6rem" x-text="node.tipo"></span>
-                                            <button class="btn btn-sm py-0 px-1" @click.stop="addChild(node.categoria_id)" title="Agregar hijo">
-                                                <i class="bi bi-plus-circle text-success" style="font-size:0.7rem"></i>
-                                            </button>
-                                            <button class="btn btn-sm py-0 px-1" @click.stop="deleteCat(node.categoria_id)" title="Eliminar">
-                                                <i class="bi bi-x-circle text-danger" style="font-size:0.7rem"></i>
-                                            </button>
-                                        </div>
+                                        </th>
                                     </template>
-                                </div>
-                            </template>
-                        </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(row, ri) in dataset.tabla.slice(1)" :key="'r' + ri">
+                                    <tr>
+                                        <template x-for="(cell, ci) in row" :key="'c' + ri + '_' + ci">
+                                            <template x-if="ci === 0">
+                                                <th class="text-nowrap align-middle" style="background:#f8f9fa;min-width:120px;position:relative;">
+                                                    <template x-if="editingHeader === cell.categoria_id">
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               x-model="editValue"
+                                                               @blur="saveHeaderEdit"
+                                                               @keydown.enter="saveHeaderEdit"
+                                                               @keydown.escape="cancelHeaderEdit"
+                                                               @click.stop>
+                                                    </template>
+                                                    <template x-if="editingHeader !== cell.categoria_id">
+                                                        <span @click="startHeaderEdit(cell.categoria_id, cell.valor)"
+                                                              class="d-block cursor-pointer" style="cursor:pointer;"
+                                                              title="Click para renombrar">
+                                                            <span x-text="cell.valor || 'Sin nombre'"></span>
+                                                        </span>
+                                                    </template>
+                                                    <button class="btn btn-sm text-danger p-0 position-absolute top-0 start-100 translate-middle"
+                                                            @click="deleteRow(cell.categoria_id)"
+                                                            title="Eliminar fila">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </th>
+                                            </template>
+                                            <template x-if="ci > 0">
+                                                <td class="align-middle p-1" style="min-width:80px;">
+                                                    <template x-if="!isEditing(ri, ci)">
+                                                        <div @click="startEdit(ri, ci, cell.dato_id, cell.valor)"
+                                                             class="px-1 cell-display"
+                                                             style="min-height:28px;cursor:pointer;">
+                                                            <span x-text="cell.valor ?? ''" class="small"></span>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="isEditing(ri, ci)">
+                                                        <input type="text" class="form-control form-control-sm editing-input"
+                                                               x-model="editValue"
+                                                               @blur="saveEdit"
+                                                               @click.stop>
+                                                    </template>
+                                                </td>
+                                            </template>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <!-- Data grid -->
-                <div class="col">
-                    <div class="card shadow-sm">
-                        <div class="card-body p-0">
-                            <div class="table-responsive" style="max-height:65vh; overflow:auto;">
-                                <table class="table table-sm table-bordered mb-0" style="font-size:0.82rem;"
-                                       @paste.prevent="handlePaste($event)"
-                                       @keydown.escape="cancelEdit"
-                                       @keydown.enter="onEnter"
-                                       @keydown.tab="onTab"
-                                       @keydown.shift.tab="onShiftTab">
-                                    <thead>
-                                        <template x-for="(hrow, hi) in (dataset.tabla_headers && dataset.tabla_headers.length > 0 ? dataset.tabla_headers : [dataset.tabla[0]])" :key="'hr' + hi">
-                                            <tr>
-                                                <template x-for="(cell, ci) in hrow" :key="'hc' + hi + '_' + ci">
-                                                    <th class="text-center align-middle"
-                                                        :class="{'bg-light': cell.tipo === 'corner', 'bg-info bg-opacity-10': cell.tipo_cat === 'pivote'}"
-                                                        :style="cell.colspan ? 'min-width:' + (cell.colspan * 80) + 'px;' : 'min-width:80px;'"
-                                                        :colspan="cell.colspan || 1"
-                                                        :rowspan="cell.rowspan || 1">
-                                                        <template x-if="cell.tipo === 'corner'">
-                                                            <span class="text-muted small"><i class="bi bi-arrow-right"></i></span>
-                                                        </template>
-                                                        <template x-if="cell.tipo === 'header' && ci > 0">
-                                                            <div class="position-relative">
-                                                                <template x-if="isRenaming(cell.categoria_id)">
-                                                                    <input type="text" class="form-control form-control-sm rename-input py-0"
-                                                                           style="height:22px;font-size:0.75rem"
-                                                                           x-model="editValue"
-                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                                           @click.stop>
-                                                                </template>
-                                                                <template x-if="!isRenaming(cell.categoria_id)">
-                                                                    <span @click.stop="startRename(cell.categoria_id, cell.valor)"
-                                                                          class="d-block cursor-pointer" style="cursor:pointer;"
-                                                                          title="Click para renombrar">
-                                                                        <span x-text="cell.valor || 'Sin nombre'"></span>
-                                                                    </span>
-                                                                </template>
-                                                            </div>
-                                                        </template>
-                                                    </th>
-                                                </template>
-                                            </tr>
-                                        </template>
-                                    </thead>
-                                    <tbody>
-                                        <template x-for="(row, ri) in dataRows" :key="'r' + ri">
-                                            <tr :class="{'table-info': isPivotRow(row)}">
-                                                <template x-for="(cell, ci) in row" :key="'c' + ri + '_' + ci">
-                                                    <template x-if="ci === 0">
-                                                        <th class="text-nowrap align-middle py-1"
-                                                            :style="'background:#f8f9fa;min-width:120px;position:relative;padding-left:' + (12 + (cell.profundidad || 0) * 16) + 'px'">
-                                                            <div class="d-flex align-items-center">
-                                                                 <i class="bi" :class="{'bi-pin-angle-fill text-info me-1': cell.tipo_cat === 'pivote', 'bi-chevron-right text-muted me-1': cell.profundidad > 0}"></i>
-                                                                <template x-if="isRenaming(cell.categoria_id)">
-                                                                    <input type="text" class="form-control form-control-sm rename-input py-0 flex-grow-1"
-                                                                           style="height:22px;font-size:0.75rem"
-                                                                           x-model="editValue"
-                                                                           @blur="saveRename" @keydown.enter="saveRename" @keydown.escape="cancelRename"
-                                                                           @click.stop>
-                                                                </template>
-                                                                <template x-if="!isRenaming(cell.categoria_id)">
-                                                                    <span @click.stop="startRename(cell.categoria_id, cell.valor)"
-                                                                          class="d-block cursor-pointer flex-grow-1" style="cursor:pointer;"
-                                                                          title="Click para renombrar">
-                                                                        <span x-text="cell.valor || 'Sin nombre'"></span>
-                                                                    </span>
-                                                                </template>
-                                                                <button class="btn btn-sm text-danger p-0 ms-1"
-                                                                        @click="deleteCat(cell.categoria_id)"
-                                                                        title="Eliminar">
-                                                                    <i class="bi bi-x-circle" style="font-size:0.7rem"></i>
-                                                                </button>
-                                                            </div>
-                                                        </th>
-                                                    </template>
-                                                    <template x-if="ci > 0">
-                                                        <td class="align-middle p-1"
-                                                            :class="{'bg-light': isPivotRow(row), 'bg-warning bg-opacity-10': cell.es_grupo}"
-                                                            style="min-width:70px;">
-                                                            <template x-if="isPivotRow(row)">
-                                                                <span class="small fst-italic" x-text="cell.valor ?? ''"></span>
-                                                            </template>
-                                                            <template x-if="!isPivotRow(row) && !cell.es_grupo">
-                                                                <div>
-                                                                    <template x-if="!isEditing(ri, ci)">
-                                                                        <div @click="startEdit(ri, ci, cell.dato_id, cell.valor, cell.cat_vertical_id, cell.cat_horizontal_id)"
-                                                                             class="px-1 cell-display"
-                                                                             style="min-height:26px;cursor:pointer;">
-                                                                            <span x-text="cell.valor ?? ''" class="small"></span>
-                                                                        </div>
-                                                                    </template>
-                                                                    <template x-if="isEditing(ri, ci)">
-                                                                        <input type="text" class="form-control form-control-sm editing-input"
-                                                                               x-model="editValue"
-                                                                               @blur="saveEdit"
-                                                                               @click.stop>
-                                                                    </template>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="cell.es_grupo">
-                                                                <span class="text-muted small">—</span>
-                                                            </template>
-                                                        </td>
-                                                    </template>
-                                                </template>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="card-footer text-muted small text-end" x-show="saveStatus" x-text="saveStatus"></div>
-                    </div>
-                </div>
+                <div class="card-footer text-muted small text-end" x-show="saveStatus" x-text="saveStatus"></div>
             </div>
         </div>
     </template>
-
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -397,13 +252,7 @@
 function datasetEditor() {
     return {
         cuadroId: null,
-        dataset: {
-            tiene_dataset: false,
-            vertical: { arbol: [], hojas: [], pivote: null },
-            horizontal: { arbol: [], hojas: [], pivote: null },
-            tabla: [],
-            tabla_headers: [],
-        },
+        dataset: { tiene_dataset: false, verticales: [], horizontales: [], tabla: [] },
         loading: true,
         error: null,
         generating: false,
@@ -424,18 +273,8 @@ function datasetEditor() {
         editRow: -1,
         editCol: -1,
 
-        selectedCat: null,
-        selectedEje: null,
-        selectedCatName: '',
-        selectedCatTipo: '',
-
-        editingCatId: null,
-
-        // Computed: data rows (exclude header row, include pivot)
-        get dataRows() {
-            if (!this.dataset.tabla || this.dataset.tabla.length < 2) return [];
-            return this.dataset.tabla.slice(1);
-        },
+        editingHeader: null,
+        editCatId: null,
 
         initEditor(id, estado) {
             this.cuadroId = id;
@@ -444,7 +283,6 @@ function datasetEditor() {
             this.chartParams.y = this.getParam('y', '');
             this.chartParams.m = this.getParam('m', 'g');
             this.loading = false;
-
         },
 
         getParam(name, fallback) {
@@ -452,15 +290,10 @@ function datasetEditor() {
             return p ?? fallback;
         },
 
-        isPivotRow(row) {
-            return row && row[0] && row[0].tipo_cat === 'pivote';
-        },
-
         // ============ GENERATE ============
 
         async generarGrilla() {
-            this.generating = true;
-            this.error = null;
+            this.generating = true; this.error = null;
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/generar', {
                     method: 'POST',
@@ -468,112 +301,86 @@ function datasetEditor() {
                     body: JSON.stringify({ filas: this.generateFilas, columnas: this.generateColumnas }),
                 });
                 const json = await r.json();
-                if (json.success) this.dataset = json.data;
-                else this.error = json.message;
-            } catch (e) { this.error = 'Error al generar la grilla'; }
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error al generar'; }
             this.generating = false;
         },
 
-        // ============ TREE MANAGEMENT ============
+        // ============ ROW / COLUMN ============
 
-        selectCat(eje, catId, nombre, tipo) {
-            this.selectedCat = catId;
-            this.selectedEje = eje;
-            this.selectedCatName = nombre;
-            this.selectedCatTipo = tipo;
-        },
-
-        async addRoot(eje) {
+        async addRow() {
             this.saving = true;
             try {
-                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/raiz', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify({ eje: eje, nombre: '', tipo: 'dato' }),
+                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/fila', {
+                    method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 });
                 const json = await r.json();
-                if (json.success) this.dataset = json.data;
-                else this.error = json.message;
-            } catch (e) { this.error = 'Error al agregar raíz'; }
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
         },
 
-        async addChild(padreId) {
+        async addColumn() {
             this.saving = true;
             try {
-                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/' + padreId + '/hijo', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/columna', {
+                    method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 });
                 const json = await r.json();
-                if (json.success) this.dataset = json.data;
-                else this.error = json.message;
-            } catch (e) { this.error = 'Error al agregar hijo'; }
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
         },
 
-        async deleteCat(catId) {
-            if (!confirm('¿Eliminar esta categoría y todos sus datos?')) return;
+        async deleteRow(catId) {
+            if (!confirm('¿Eliminar fila?')) return;
             this.saving = true;
             try {
-                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/categoria/' + catId, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/fila/' + catId, {
+                    method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 });
                 const json = await r.json();
-                if (json.success) this.dataset = json.data;
-                else this.error = json.message;
-            } catch (e) { this.error = 'Error al eliminar'; }
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
         },
 
-        async togglePivotRow() {
-            if (this.dataset.vertical.pivote) {
-                // Delete existing pivot
-                await this.deleteCat(this.dataset.vertical.pivote.categoria_id);
-            } else {
-                // Add pivot row as a vertical category
-                this.saving = true;
-                try {
-                    const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/raiz', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({ eje: 'vertical', nombre: 'Pivote', tipo: 'pivote' }),
-                    });
-                    const json = await r.json();
-                    if (json.success) this.dataset = json.data;
-                    else this.error = json.message;
-                } catch (e) { this.error = 'Error al añadir pivote'; }
-                this.saving = false;
-            }
+        async deleteColumn(catId) {
+            if (!confirm('¿Eliminar columna?')) return;
+            this.saving = true;
+            try {
+                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/columna/' + catId, {
+                    method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                });
+                const json = await r.json();
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
+            this.saving = false;
         },
 
-        // ============ INLINE RENAME ============
+        // ============ HEADER EDITING ============
 
-        isRenaming(catId) {
-            return this.editingCatId === catId;
-        },
-
-        startRename(catId, currentName) {
-            this.editingCatId = catId;
-            this.editValue = currentName || '';
+        startHeaderEdit(catId, valor) {
+            this.editingHeader = catId;
+            this.editCatId = catId;
+            this.editValue = valor || '';
             this.$nextTick(() => {
-                const el = this.$el.querySelector('.rename-input');
+                const el = document.querySelector('.editing-input, .table th input, .table th .form-control');
                 if (el) el.focus();
             });
         },
 
-        cancelRename() {
-            this.editingCatId = null;
-            this.editValue = '';
+        cancelHeaderEdit() {
+            this.editingHeader = null;
+            this.editCatId = null;
         },
 
-        async saveRename() {
-            const catId = this.editingCatId;
+        async saveHeaderEdit() {
+            const catId = this.editCatId;
             const nombre = this.editValue.trim();
-            if (!catId || !nombre) { this.cancelRename(); return; }
-            this.editingCatId = null;
-            this.editValue = '';
+            if (!catId || !nombre) { this.cancelHeaderEdit(); return; }
+            this.editingHeader = null;
+            this.editCatId = null;
             this.saveStatus = 'Guardando...';
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/categoria/' + catId, {
@@ -583,19 +390,17 @@ function datasetEditor() {
                 });
                 const json = await r.json();
                 if (json.success) {
-                    await this.fetchEstado();
+                    const idx = this.dataset.tabla[0].findIndex(c => c.categoria_id === catId);
+                    if (idx > 0) this.dataset.tabla[0][idx].valor = nombre;
+                    for (let ri = 1; ri < this.dataset.tabla.length; ri++) {
+                        if (this.dataset.tabla[ri][0]?.categoria_id === catId) {
+                            this.dataset.tabla[ri][0].valor = nombre;
+                        }
+                    }
                     this.saveStatus = 'Guardado';
                 } else this.error = json.message;
-            } catch (e) { this.error = 'Error al renombrar'; }
+            } catch (e) { this.error = 'Error al guardar'; }
             setTimeout(() => { this.saveStatus = ''; }, 1500);
-        },
-
-        async fetchEstado() {
-            try {
-                const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/estado');
-                const json = await r.json();
-                if (json.success) this.dataset = json.data;
-            } catch(e) { console.error('Error fetching estado', e); }
         },
 
         // ============ CELL EDITING ============
@@ -604,14 +409,14 @@ function datasetEditor() {
             return this.editing && this.editRow === ri && this.editCol === ci;
         },
 
-        startEdit(ri, ci, datoId, valor, catVId, catHId) {
+        startEdit(ri, ci, datoId, valor) {
             this.editing = true;
             this.editRow = ri;
             this.editCol = ci;
             this.editDatoId = datoId;
             this.editValue = valor ?? '';
             this.$nextTick(() => {
-                const el = this.$el.querySelector('.editing-input');
+                const el = this.$el?.querySelector('.editing-input');
                 if (el) el.focus();
             });
         },
@@ -620,12 +425,9 @@ function datasetEditor() {
             if (!this.editing || !this.editDatoId) return;
             const datoId = this.editDatoId;
             const valor = this.editValue;
-            const row = this.editRow;
-            const col = this.editCol;
+            const row = this.editRow, col = this.editCol;
             this.editing = false;
-            this.editRow = -1;
-            this.editCol = -1;
-            this.editDatoId = null;
+            this.editRow = -1; this.editCol = -1; this.editDatoId = null;
             this.saveStatus = 'Guardando...';
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/celda/' + datoId, {
@@ -636,7 +438,7 @@ function datasetEditor() {
                 const json = await r.json();
                 if (json.success) {
                     const tr = row + 1;
-                    if (this.dataset.tabla[tr] && this.dataset.tabla[tr][col]) {
+                    if (this.dataset.tabla[tr]?.[col]) {
                         this.dataset.tabla[tr][col].valor = valor;
                     }
                     this.saveStatus = 'Guardado';
@@ -647,89 +449,53 @@ function datasetEditor() {
 
         cancelEdit() {
             this.editing = false;
-            this.editRow = -1;
-            this.editCol = -1;
-            this.editDatoId = null;
+            this.editRow = -1; this.editCol = -1; this.editDatoId = null;
         },
 
-        onEnter(e) {
-            if (!this.editing) return;
-            e.preventDefault();
-            this.saveAndMoveNext();
-        },
+        onEnter(e) { if (!this.editing) return; e.preventDefault(); this.saveAndMoveNext(); },
+        onTab(e) { if (!this.editing) return; e.preventDefault(); this.saveAndMoveNext(); },
+        onShiftTab(e) { if (!this.editing) return; e.preventDefault(); this.saveAndMovePrev(); },
 
-        onTab(e) {
-            if (!this.editing) return;
-            e.preventDefault();
-            this.saveAndMoveNext();
-        },
-
-        onShiftTab(e) {
-            if (!this.editing) return;
-            e.preventDefault();
-            this.saveAndMovePrev();
-        },
-
-        async saveAndMoveNext() {
+        saveAndMoveNext() {
             if (!this.editing) return;
             const cr = this.editRow, cc = this.editCol;
-            await this.saveEdit();
-
-            const rows = this.dataRows;
-            const maxR = rows.length - 1;
-            let headerLen = this.dataset.tabla[0]?.length ?? 0;
-            let firstDataCol = 0;
-            // Find first data column
-            for (let i = 0; i < headerLen; i++) {
-                if (this.dataset.tabla[0][i]?.tipo === 'header') { firstDataCol = i; break; }
-            }
-            if (firstDataCol === 0) firstDataCol = 1;
-            const maxC = headerLen - 1;
-
+            this.saveEdit();
+            const maxR = this.dataset.tabla.length - 2;
+            const maxC = this.dataset.tabla[0]?.length - 1 ?? 0;
             let nr = cr, nc = cc + 1;
-            if (nc > maxC) { nr = cr + 1; nc = firstDataCol; }
-            if (nr > maxR) { nr = 0; nc = firstDataCol; }
-
-            const realRow = nr + 1;
-            const cell = this.dataset.tabla[realRow]?.[nc];
-            if (cell && cell.tipo === 'celda' && !cell.es_grupo && cell.dato_id) {
-                this.startEdit(nr, nc, cell.dato_id, cell.valor, cell.cat_vertical_id, cell.cat_horizontal_id);
+            if (nc > maxC) { nr = cr + 1; nc = 1; }
+            if (nr > maxR) nr = 0;
+            const cell = this.dataset.tabla[nr + 1]?.[nc];
+            if (cell && cell.tipo === 'celda') {
+                this.startEdit(nr, nc, cell.dato_id, cell.valor);
             }
         },
 
-        async saveAndMovePrev() {
+        saveAndMovePrev() {
             if (!this.editing) return;
             const cr = this.editRow, cc = this.editCol;
-            await this.saveEdit();
-
-            const headerLen = this.dataset.tabla[0]?.length ?? 0;
-            let firstDataCol = 1;
-            const maxC = headerLen - 1;
-            const maxR = this.dataRows.length - 1;
-
+            this.saveEdit();
+            const maxC = this.dataset.tabla[0]?.length - 1 ?? 0;
+            const maxR = this.dataset.tabla.length - 2;
             let nr = cr, nc = cc - 1;
-            if (nc < firstDataCol) { nr = cr - 1; nc = maxC; }
+            if (nc < 1) { nr = cr - 1; nc = maxC; }
             if (nr < 0) { nr = maxR; nc = maxC; }
-
-            const realRow = nr + 1;
-            const cell = this.dataset.tabla[realRow]?.[nc];
-            if (cell && cell.tipo === 'celda' && !cell.es_grupo && cell.dato_id) {
-                this.startEdit(nr, nc, cell.dato_id, cell.valor, cell.cat_vertical_id, cell.cat_horizontal_id);
+            const cell = this.dataset.tabla[nr + 1]?.[nc];
+            if (cell && cell.tipo === 'celda') {
+                this.startEdit(nr, nc, cell.dato_id, cell.valor);
             }
         },
 
         async limpiarTodo() {
-            if (!confirm('¿Eliminar todo el dataset? Esta acción no se puede deshacer.')) return;
+            if (!confirm('¿Eliminar todo el dataset?')) return;
             this.saving = true;
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/limpiar', {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 });
                 const json = await r.json();
-                if (json.success) this.dataset = json.data;
-                else this.error = json.message;
-            } catch (e) { this.error = 'Error al limpiar dataset'; }
+                if (json.success) this.dataset = json.data; else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
         },
 
@@ -738,15 +504,9 @@ function datasetEditor() {
         async handlePaste(e) {
             const data = e.clipboardData.getData('text');
             if (!data.trim()) return;
-
             const rows = data.split('\n').map(r => r.split('\t').map(c => c.trim()));
-            if (rows.length < 2) {
-                this.error = 'Los datos copiados deben tener al menos 2 filas (encabezados + datos)';
-                return;
-            }
-
-            if (!confirm('Se reemplazará todo el dataset con los datos copiados (' + rows.length + ' filas × ' + rows[0].length + ' columnas). ¿Continuar?')) return;
-
+            if (rows.length < 2) { this.error = 'Mínimo 2 filas'; return; }
+            if (!confirm('Reemplazar dataset con ' + rows.length + ' filas × ' + rows[0].length + ' columnas?')) return;
             this.saving = true;
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/paste', {
@@ -755,11 +515,9 @@ function datasetEditor() {
                     body: JSON.stringify({ grid: rows }),
                 });
                 const json = await r.json();
-                if (json.success) {
-                    this.dataset = json.data;
-                    this.saveStatus = 'Datos importados desde el portapapeles';
-                } else this.error = json.message;
-            } catch (e) { this.error = 'Error al pegar datos'; }
+                if (json.success) { this.dataset = json.data; this.saveStatus = 'Pegado'; }
+                else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
             setTimeout(() => { this.saveStatus = ''; }, 3000);
         },
@@ -769,23 +527,17 @@ function datasetEditor() {
         async importFile(input) {
             const file = input.files[0];
             if (!file) return;
-
             const formData = new FormData();
             formData.append('dataset', file);
-
             this.saving = true;
             try {
                 const r = await fetch('{{ url("/sgiem/admin/cuadros") }}/' + this.cuadroId + '/dataset/importar', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: formData,
+                    method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: formData,
                 });
                 const json = await r.json();
-                if (json.success) {
-                    this.dataset = json.data;
-                    this.saveStatus = 'Archivo importado correctamente';
-                } else this.error = json.message;
-            } catch (e) { this.error = 'Error al importar archivo'; }
+                if (json.success) { this.dataset = json.data; this.saveStatus = 'Importado'; }
+                else this.error = json.message;
+            } catch (e) { this.error = 'Error'; }
             this.saving = false;
             input.value = '';
             setTimeout(() => { this.saveStatus = ''; }, 3000);
@@ -795,56 +547,42 @@ function datasetEditor() {
 
         renderChart() {
             if (!this.$refs.chart || this.dataset.tabla.length < 2) return;
-
-            const dataRows = this.dataRows.filter(r => !this.isPivotRow(r));
-            if (dataRows.length < 2) return;
-
+            const tabla = this.dataset.tabla;
             const xIdx = this.parseIndices(this.chartParams.x);
             const yIdx = this.parseIndices(this.chartParams.y);
-
-            const maxCol = this.dataset.tabla[0].length - 1;
+            if (xIdx.length === 0 && yIdx.length === 0) return;
+            const maxCol = tabla[0].length - 1;
             const labels = [];
             const datasetsMap = {};
-
             const useX = xIdx.length > 0 ? xIdx : [0];
             const useY = yIdx.length > 0 ? yIdx : Array.from({length: maxCol}, (_, i) => i + 1);
+            const header = tabla[0];
 
-            const header = this.dataset.tabla[0];
-
-            for (const row of dataRows) {
+            for (let ri = 1; ri < tabla.length; ri++) {
+                const row = tabla[ri];
                 let label = useX.map(i => row[i]?.valor ?? '').join(' — ');
-                if (!label) label = 'Fila';
+                if (!label) label = 'Fila ' + ri;
                 labels.push(label);
-
                 for (const ci of useY) {
                     if (ci > maxCol) continue;
                     const colName = header[ci]?.valor ?? 'Col ' + ci;
-                    if (!datasetsMap[colName]) {
-                        datasetsMap[colName] = { label: colName, data: [], borderWidth: 2 };
-                    }
+                    if (!datasetsMap[colName]) datasetsMap[colName] = { label: colName, data: [], borderWidth: 2 };
                     const val = parseFloat(String(row[ci]?.valor ?? '').replace(/[$,%]/g, '')) || 0;
                     datasetsMap[colName].data.push(val);
                 }
             }
 
-            const colors = [
-                '#0d6efd', '#198754', '#ffc107', '#dc3545', '#0dcaf0',
-                '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2'
-            ];
+            const colors = ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0','#6f42c1','#fd7e14','#20c997','#e83e8c','#6610f2'];
             const datasets = Object.values(datasetsMap).map((ds, i) => ({
                 ...ds,
-                backgroundColor: this.chartType === 'line'
-                    ? colors[i % colors.length]
-                    : colors[i % colors.length] + '80',
+                backgroundColor: this.chartType === 'line' ? colors[i % colors.length] : colors[i % colors.length] + '80',
                 borderColor: colors[i % colors.length],
             }));
 
-            const isPie = ['pie', 'doughnut', 'polarArea'].includes(this.chartType);
-            const isRadar = this.chartType === 'radar';
-
+            const isPie = ['pie','doughnut','polarArea'].includes(this.chartType);
             if (this.chartInstance) this.chartInstance.destroy();
 
-            const config = {
+            this.chartInstance = new Chart(this.$refs.chart, {
                 type: this.chartType,
                 data: {
                     labels: isPie ? datasets.map(d => d.label) : labels,
@@ -855,17 +593,14 @@ function datasetEditor() {
                     }] : datasets,
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
+                    responsive: true, maintainAspectRatio: true,
                     plugins: { legend: { position: 'bottom' } },
-                    scales: isPie || isRadar ? undefined : {
+                    scales: isPie ? undefined : {
                         y: { beginAtZero: true, stacked: this.chartParams.m === 's' },
                         x: { stacked: this.chartParams.m === 's' },
                     },
                 },
-            };
-
-            this.chartInstance = new Chart(this.$refs.chart, config);
+            });
         },
 
         parseIndices(str) {
