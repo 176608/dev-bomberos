@@ -116,31 +116,12 @@
         document.getElementById('status-text').textContent = msg || '';
     }
 
-    function categoriaLookup() {
-        if (!categoriaLookup.cache) {
-            const c = {};
-            for (const v of estado.verticales) c[v.categoria_id] = { ...v, eje: 'vertical' };
-            for (const h of estado.horizontales) c[h.categoria_id] = { ...h, eje: 'horizontal' };
-            function walk(nodes, eje) {
-                for (const n of nodes) {
-                    c[n.categoria_id] = { categoria_id: n.categoria_id, nombre: n.nombre, eje, tipo: n.tipo };
-                    if (n.hijos) walk(n.hijos, eje);
-                }
-            }
-            walk(estado.vertical_tree || [], 'vertical');
-            walk(estado.horizontal_tree || [], 'horizontal');
-            categoriaLookup.cache = c;
-        }
-        return categoriaLookup.cache;
-    }
-
-    function getCellCoords(el) {
+    function getCellCoords(el, targetEl) {
         const tag = el.tagName;
         if (tag === 'TH') {
-            const catId = parseInt(el.dataset.categoriaId);
+            const idEl = (targetEl && targetEl !== el) ? targetEl.closest('[data-categoria-id]') || el : el;
+            const catId = parseInt(idEl.dataset.categoriaId);
             if (!catId) return null;
-            const cat = categoriaLookup()[catId];
-            if (!cat) return null;
             const thead = el.closest('thead');
             if (thead) {
                 const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
@@ -250,8 +231,21 @@
         return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    function buildHijosMap(tree) {
+        const m = {};
+        function walk(nodes) {
+            for (const n of nodes) {
+                if (n.hijos && n.hijos.length > 0) {
+                    m[n.categoria_id] = n.hijos;
+                    walk(n.hijos);
+                }
+            }
+        }
+        walk(tree || []);
+        return m;
+    }
+
     function renderGrid(d) {
-        delete categoriaLookup.cache;
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
             document.getElementById('empty-state').style.display = '';
@@ -261,7 +255,7 @@
         const empty = document.getElementById('empty-state');
         if (empty) empty.style.display = 'none';
 
-        const { verticales, horizontales, tabla, encabezados, etiquetas } = d;
+        const { verticales, horizontales, tabla, vertical_tree, horizontal_tree } = d;
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
 
@@ -276,68 +270,75 @@
 
         document.getElementById('dimension-badge').textContent = verticales.length + ' × ' + horizontales.length;
 
-        // === HEADERS (encabezados) ===
-        let theadHtml = '';
-        for (const row of encabezados) {
-            theadHtml += '<tr>';
-            for (const cell of row) {
-                if (cell.tipo === 'corner') {
-                    theadHtml += '<th class="text-center align-middle" style="width:44px" rowspan="' + (cell.rowspan || 1) + '">' +
-                        '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
-                        '</th>';
-                } else if (cell.tipo === 'parent') {
-                    theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px" colspan="' + cell.colspan + '">' +
-                        '<div class="small fw-semibold">' + esc(cell.nombre) + '</div>' +
-                        '<div class="position-absolute top-0 end-0 d-flex" style="gap:2px">' +
-                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
-                        '</div></th>';
-                } else {
-                    theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
-                        '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal">' + esc(cell.nombre) + '</div>' +
-                        '<div class="position-absolute top-0 end-0 d-flex" style="gap:2px">' +
-                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
-                        '<button class="btn btn-sm text-danger p-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" title="Eliminar columna"><i class="bi bi-x-circle" style="font-size:0.65rem"></i></button>' +
-                        '</div></th>';
+        const vHijos = buildHijosMap(vertical_tree);
+        const hHijos = buildHijosMap(horizontal_tree);
+
+        function hijosOf(eje, catId) { return (eje === 'vertical' ? vHijos : hHijos)[catId] || null; }
+
+        // === HEADERS ===
+        let theadHtml = '<tr><th class="text-center align-middle" style="width:44px">' +
+            '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
+            '</th>';
+        for (const h of horizontales) {
+            const hijos = hijosOf('horizontal', h.categoria_id);
+            if (hijos) {
+                let chHtml = '';
+                for (const ch of hijos) {
+                    chHtml += '<div contenteditable="true" data-categoria-id="' + ch.categoria_id + '" onblur="window.renombrarHeader(this, ' + ch.categoria_id + ')" class="px-1 text-truncate small">' + esc(ch.nombre) + '</div>';
                 }
+                theadHtml += '<th data-categoria-id="' + h.categoria_id + '" class="position-relative" style="min-width:120px;padding:0;background:#f0f2f5">' +
+                    '<div class="d-flex" style="min-height:52px">' +
+                    '<div class="small fw-semibold d-flex align-items-center justify-content-center border-end px-1" style="background:#e2e6ea;width:50%">' + esc(h.nombre) + '</div>' +
+                    '<div class="d-flex flex-column justify-content-center small" style="width:50%">' + chHtml + '</div>' +
+                    '</div>' +
+                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
+                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
+                    '</th>';
+            } else {
+                theadHtml += '<th data-categoria-id="' + h.categoria_id + '" class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
+                    '<div contenteditable="true" data-categoria-id="' + h.categoria_id + '" onblur="window.renombrarHeader(this, ' + h.categoria_id + ')" class="fw-normal px-1">' + esc(h.nombre) + '</div>' +
+                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
+                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
+                    '</th>';
             }
-            theadHtml += '<th class="text-center align-middle" style="width:36px;background:#f0f2f5" rowspan="' + encabezados.length + '">' +
-                '<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
-            theadHtml += '</tr>';
         }
+        theadHtml += '<th class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th></tr>';
         thead.innerHTML = theadHtml;
 
         // === BODY ===
         let tbodyHtml = '';
-        for (let ri = 0; ri < etiquetas.length; ri++) {
-            const labels = etiquetas[ri];
+        for (let ri = 0; ri < verticales.length; ri++) {
+            const v = verticales[ri];
+            const hijos = hijosOf('vertical', v.categoria_id);
             const dataRow = tabla[ri + 1] || [];
             tbodyHtml += '<tr>';
-            for (const lb of labels) {
-                if (lb.tipo === 'parent') {
-                    tbodyHtml += '<th data-categoria-id="' + lb.categoria_id + '" class="position-relative align-middle text-center" style="background:#e2e6ea;min-width:90px;font-weight:500" rowspan="' + lb.rowspan + '">' +
-                        '<div class="small fw-semibold">' + esc(lb.nombre) + '</div>' +
-                        '<div class="position-absolute top-0 start-100 translate-middle" style="z-index:2">' +
-                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + lb.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
-                        '</div></th>';
-                } else {
-                    tbodyHtml += '<th data-categoria-id="' + lb.categoria_id + '" class="position-relative align-middle" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
-                        '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + lb.categoria_id + ')" class="text-truncate">' + esc(lb.nombre) + '</div>' +
-                        '<div class="position-absolute top-0 start-100 translate-middle d-flex" style="gap:2px;z-index:2">' +
-                        '<button class="btn btn-sm text-primary p-0" onclick="window.agregarHijo(' + lb.categoria_id + ')" title="Añadir hijo"><i class="bi bi-plus-circle" style="font-size:0.65rem"></i></button>' +
-                        '<button class="btn btn-sm text-danger p-0" onclick="window.eliminarFila(' + lb.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle" style="font-size:0.65rem"></i></button>' +
-                        '</div></th>';
+            if (hijos) {
+                let chHtml = '';
+                for (const ch of hijos) {
+                    chHtml += '<div contenteditable="true" data-categoria-id="' + ch.categoria_id + '" onblur="window.renombrarHeader(this, ' + ch.categoria_id + ')" class="px-1 text-truncate small">' + esc(ch.nombre) + '</div>';
                 }
+                tbodyHtml += '<th data-categoria-id="' + v.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;padding:0;font-weight:500">' +
+                    '<div class="d-flex flex-column" style="min-height:52px">' +
+                    '<div class="small fw-semibold d-flex align-items-center border-bottom px-1" style="background:#e2e6ea;flex:1">' + esc(v.nombre) + '</div>' +
+                    '<div class="d-flex flex-column small" style="flex:1">' + chHtml + '</div>' +
+                    '</div>' +
+                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
+                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
+                    '</th>';
+            } else {
+                tbodyHtml += '<th data-categoria-id="' + v.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
+                    '<div contenteditable="true" data-categoria-id="' + v.categoria_id + '" onblur="window.renombrarHeader(this, ' + v.categoria_id + ')" class="text-truncate px-1">' + esc(v.nombre) + '</div>' +
+                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
+                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
+                    '</th>';
             }
             for (let ci = 1; ci < dataRow.length; ci++) {
                 const cel = dataRow[ci] || {};
                 tbodyHtml += '<td class="position-relative"><div contenteditable="true" onblur="window.guardarCelda(this, ' + (cel.cat_vertical_id || 'null') + ', ' + (cel.cat_horizontal_id || 'null') + ')">' + esc(cel.valor || '') + '</div></td>';
             }
-            tbodyHtml += '<td class="text-center align-middle" style="width:36px">' +
-                '<button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + (labels.length > 0 ? labels[labels.length - 1].categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td>';
-            tbodyHtml += '</tr>';
+            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
         }
 
-        // Footer row
         tbodyHtml += '<tr class="table-light"><td><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Fila</button></td>' +
             '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">' +
             '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>' +
@@ -385,7 +386,7 @@
             if (e.target.closest('button, a, input')) return;
             const cell = e.target.closest('td, th');
             if (!cell) return;
-            const coords = getCellCoords(cell);
+            const coords = getCellCoords(cell, e.target);
             if (!coords) return;
 
             if (e.shiftKey) {
