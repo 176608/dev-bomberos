@@ -352,6 +352,30 @@ class DatasetService
         return $this->pasteGrid($cuadro_id, $grid);
     }
 
+    public function pasteCategorias(int $cuadro_id, string $eje, int $startCategoriaId, array $valores): array
+    {
+        $categorias = $this->categoria
+            ->where('cuadro_id', $cuadro_id)
+            ->where('eje', $eje)
+            ->orderBy('orden')
+            ->get();
+
+        $startIdx = $categorias->search(fn($c) => $c->categoria_id === $startCategoriaId);
+        if ($startIdx === false) {
+            throw new \RuntimeException('Categoría inicial no encontrada');
+        }
+
+        foreach ($valores as $i => $valor) {
+            $idx = $startIdx + $i;
+            if ($idx >= $categorias->count()) break;
+            $categorias[$idx]->update(['nombre' => trim($valor)]);
+        }
+
+        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar en categorías', 'eje' => $eje]);
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
     public function limpiarDataset(int $cuadro_id): array
     {
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);

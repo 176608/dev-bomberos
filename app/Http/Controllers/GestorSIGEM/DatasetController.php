@@ -111,6 +111,24 @@ class DatasetController extends Controller
         }
     }
 
+    public function pasteCategorias(Request $request, $id)
+    {
+        $request->validate([
+            'eje' => 'required|in:vertical,horizontal',
+            'start_categoria_id' => 'required|integer',
+            'valores' => 'required|array',
+            'valores.*' => 'string',
+        ]);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->pasteCategorias(
+                (int) $id, $request->eje, (int) $request->start_categoria_id, $request->valores
+            )]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function limpiar($id)
     {
         try {

@@ -64,6 +64,8 @@
 #dataset-table td > div, #dataset-table th > div { min-height: 26px; outline: none; padding: 0.1rem 0.2rem; border-radius: 2px; }
 #dataset-table td > div:focus { box-shadow: inset 0 0 0 1px var(--bs-primary); background: #fff; }
 #dataset-table tbody tr:not(:last-child) > td:not(:first-child) { cursor: cell; }
+#dataset-table thead th:not(:first-child):not(:last-child) { cursor: pointer; }
+#dataset-table tbody tr:not(:last-child) > th:first-child { cursor: pointer; }
 #dataset-table .cell-selected { box-shadow: inset 0 0 0 1.5px var(--bs-primary) !important; }
 #dataset-table .cell-anchor { background: var(--bs-primary) !important; color: #fff; }
 #dataset-table .cell-anchor > div { color: #fff; }
@@ -91,7 +93,7 @@
         startX: 0, startY: 0,
         dragging: false,
     };
-    let lastCell = null;
+    let lastCell = null; // { type: 'cell'|'horizontal'|'vertical', vId, hId }
 
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
@@ -115,6 +117,26 @@
     }
 
     function getCellCoords(el) {
+        const tag = el.tagName;
+        if (tag === 'TH') {
+            const thead = el.closest('thead');
+            if (thead) {
+                const tr = el.closest('tr');
+                const ci = Array.from(tr.children).indexOf(el) - 1;
+                if (ci < 0 || ci >= estado.horizontales.length) return null;
+                return { type: 'horizontal', ri: -1, ci, vId: null, hId: estado.horizontales[ci]?.categoria_id };
+            }
+            const tbody = el.closest('tbody');
+            if (tbody) {
+                const tr = el.closest('tr');
+                const ri = Array.from(tbody.children).indexOf(tr);
+                if (ri < 0 || ri >= estado.verticales.length) return null;
+                const ci = Array.from(tr.children).indexOf(el);
+                if (ci !== 0) return null;
+                return { type: 'vertical', ri, ci: -1, vId: estado.verticales[ri]?.categoria_id, hId: null };
+            }
+            return null;
+        }
         const tr = el.closest('tr');
         const tbody = tr ? tr.closest('tbody') : null;
         if (!tbody) return null;
@@ -122,7 +144,7 @@
         if (ri < 0 || ri >= estado.verticales.length) return null;
         const ci = Array.from(tr.children).indexOf(el) - 1;
         if (ci < 0 || ci >= estado.horizontales.length) return null;
-        return { ri, ci, vId: estado.verticales[ri]?.categoria_id, hId: estado.horizontales[ci]?.categoria_id };
+        return { type: 'cell', ri, ci, vId: estado.verticales[ri]?.categoria_id, hId: estado.horizontales[ci]?.categoria_id };
     }
 
     function setSelection(minRi, minCi, maxRi, maxCi) {
@@ -131,8 +153,8 @@
         sel.startCi = minCi;
         sel.endRi = maxRi;
         sel.endCi = maxCi;
-        sel.anchorVi = estado.verticales[minRi]?.categoria_id;
-        sel.anchorHi = estado.horizontales[minCi]?.categoria_id;
+        sel.anchorVi = minRi >= 0 ? estado.verticales[minRi]?.categoria_id : null;
+        sel.anchorHi = minCi >= 0 ? estado.horizontales[minCi]?.categoria_id : null;
         renderSelection();
     }
 
@@ -148,16 +170,32 @@
             el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
         });
         if (!sel.active) return;
+        if (sel.startRi === -1 && sel.startCi >= 0) {
+            const tr = document.querySelector('#dataset-table thead tr');
+            if (!tr) return;
+            for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
+                const th = tr.children[ci + 1];
+                if (th && th.tagName === 'TH') th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+            }
+            return;
+        }
+        if (sel.startCi === -1 && sel.startRi >= 0) {
+            const tbody = document.getElementById('tbody');
+            for (let ri = sel.startRi; ri <= sel.endRi; ri++) {
+                const tr = tbody.children[ri];
+                if (!tr) break;
+                const th = tr.children[0];
+                if (th && th.tagName === 'TH') th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+            }
+            return;
+        }
         const tbody = document.getElementById('tbody');
-        const rows = tbody.children;
         for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.verticales.length; ri++) {
-            const tr = rows[ri];
+            const tr = tbody.children[ri];
             if (!tr) break;
             for (let ci = sel.startCi; ci <= sel.endCi && ci < estado.horizontales.length; ci++) {
                 const td = tr.children[ci + 1];
-                if (td && td.tagName === 'TD') {
-                    td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-                }
+                if (td && td.tagName === 'TD') td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
             }
         }
     }
@@ -267,9 +305,18 @@
 
     function getPasteAnchor() {
         if (sel.active) {
+            if (sel.startRi === -1 && sel.startCi >= 0) {
+                const minCi = Math.min(sel.startCi, sel.endCi);
+                return { type: 'horizontal', vId: null, hId: estado.horizontales[minCi]?.categoria_id };
+            }
+            if (sel.startCi === -1 && sel.startRi >= 0) {
+                const minRi = Math.min(sel.startRi, sel.endRi);
+                return { type: 'vertical', vId: estado.verticales[minRi]?.categoria_id, hId: null };
+            }
             const minRi = Math.min(sel.startRi, sel.endRi);
             const minCi = Math.min(sel.startCi, sel.endCi);
             return {
+                type: 'cell',
                 vId: estado.verticales[minRi]?.categoria_id,
                 hId: estado.horizontales[minCi]?.categoria_id,
             };
@@ -282,28 +329,40 @@
         const table = document.getElementById('dataset-table');
         const tbody = document.getElementById('tbody');
 
-        tbody.addEventListener('pointerdown', function(e) {
-            const td = e.target.closest('td');
-            if (!td) return;
-            const coords = getCellCoords(td);
+        table.addEventListener('pointerdown', function(e) {
+            if (e.target.closest('button, a, input')) return;
+            const cell = e.target.closest('td, th');
+            if (!cell) return;
+            const coords = getCellCoords(cell);
             if (!coords) return;
 
             if (e.shiftKey) {
                 e.preventDefault();
-                clearSelection();
-                if (!sel.active) {
-                    setSelection(coords.ri, coords.ci, coords.ri, coords.ci);
+                const type = coords.type;
+                const prevType = sel.active ? (
+                    sel.startRi === -1 ? 'horizontal' :
+                    sel.startCi === -1 ? 'vertical' : 'cell'
+                ) : type;
+                if (type !== prevType) return;
+                if (type === 'horizontal') {
+                    const mc = sel.active ? Math.min(sel.startCi, coords.ci) : coords.ci;
+                    const xc = sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci;
+                    setSelection(-1, mc, -1, xc);
+                } else if (type === 'vertical') {
+                    const mr = sel.active ? Math.min(sel.startRi, coords.ri) : coords.ri;
+                    const xr = sel.active ? Math.max(sel.startRi, coords.ri) : coords.ri;
+                    setSelection(mr, -1, xr, -1);
                 } else {
-                    const minRi = Math.min(sel.startRi, coords.ri);
-                    const maxRi = Math.max(sel.startRi, coords.ri);
-                    const minCi = Math.min(sel.startCi, coords.ci);
-                    const maxCi = Math.max(sel.startCi, coords.ci);
-                    setSelection(minRi, minCi, maxRi, maxCi);
+                    const mr = sel.active ? Math.min(sel.startRi, coords.ri) : coords.ri;
+                    const xr = sel.active ? Math.max(sel.startRi, coords.ri) : coords.ri;
+                    const mc = sel.active ? Math.min(sel.startCi, coords.ci) : coords.ci;
+                    const xc = sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci;
+                    setSelection(mr, mc, xr, xc);
                 }
                 return;
             }
 
-            lastCell = { vId: coords.vId, hId: coords.hId };
+            lastCell = { type: coords.type, vId: coords.vId, hId: coords.hId };
             pointer.down = true;
             pointer.startRi = coords.ri;
             pointer.startCi = coords.ci;
@@ -325,15 +384,27 @@
             e.preventDefault();
             const el = document.elementFromPoint(e.clientX, e.clientY);
             if (!el) return;
-            const td = el.closest('td');
-            if (!td) return;
-            const coords = getCellCoords(td);
+            const cell = el.closest('td, th');
+            if (!cell) return;
+            const coords = getCellCoords(cell);
             if (!coords) return;
-            const minRi = Math.min(pointer.startRi, coords.ri);
-            const maxRi = Math.max(pointer.startRi, coords.ri);
-            const minCi = Math.min(pointer.startCi, coords.ci);
-            const maxCi = Math.max(pointer.startCi, coords.ci);
-            setSelection(minRi, minCi, maxRi, maxCi);
+            const startType = pointer.startRi === -1 ? 'horizontal' : pointer.startCi === -1 ? 'vertical' : 'cell';
+            if (coords.type !== startType) return;
+            if (startType === 'horizontal') {
+                const mc = Math.min(pointer.startCi, coords.ci);
+                const xc = Math.max(pointer.startCi, coords.ci);
+                setSelection(-1, mc, -1, xc);
+            } else if (startType === 'vertical') {
+                const mr = Math.min(pointer.startRi, coords.ri);
+                const xr = Math.max(pointer.startRi, coords.ri);
+                setSelection(mr, -1, xr, -1);
+            } else {
+                const mr = Math.min(pointer.startRi, coords.ri);
+                const xr = Math.max(pointer.startRi, coords.ri);
+                const mc = Math.min(pointer.startCi, coords.ci);
+                const xc = Math.max(pointer.startCi, coords.ci);
+                setSelection(mr, mc, xr, xc);
+            }
         });
 
         document.addEventListener('pointerup', function(e) {
@@ -342,7 +413,13 @@
                 pointer.down = false;
                 pointer.dragging = false;
                 if (sel.active) {
-                    status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
+                    if (sel.startRi === -1) {
+                        status('Selección: ' + (sel.endCi - sel.startCi + 1) + ' columnas');
+                    } else if (sel.startCi === -1) {
+                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + ' filas');
+                    } else {
+                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
+                    }
                 }
             } else if (pointer.down) {
                 pointer.down = false;
@@ -361,7 +438,31 @@
 
             const anchor = getPasteAnchor();
 
-            if (anchor && anchor.vId && anchor.hId) {
+            if (anchor && anchor.type === 'horizontal' && anchor.hId) {
+                const valores = clipGrid[0] || [];
+                if (valores.length === 0) return;
+                saveAllBeforeAction();
+                status('Pegando columnas...');
+                api('/paste-categorias', {
+                    method: 'POST',
+                    body: { eje: 'horizontal', start_categoria_id: anchor.hId, valores }
+                }).then(j => {
+                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Columnas renombradas'); }
+                    else alerta(j.message);
+                }).catch(() => alerta('Error de red'));
+            } else if (anchor && anchor.type === 'vertical' && anchor.vId) {
+                const valores = clipGrid.map(r => r[0]).filter(v => v != null);
+                if (valores.length === 0) return;
+                saveAllBeforeAction();
+                status('Pegando filas...');
+                api('/paste-categorias', {
+                    method: 'POST',
+                    body: { eje: 'vertical', start_categoria_id: anchor.vId, valores }
+                }).then(j => {
+                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Filas renombradas'); }
+                    else alerta(j.message);
+                }).catch(() => alerta('Error de red'));
+            } else if (anchor && anchor.type === 'cell' && anchor.vId && anchor.hId) {
                 saveAllBeforeAction();
                 status('Pegando...');
                 api('/paste', {
