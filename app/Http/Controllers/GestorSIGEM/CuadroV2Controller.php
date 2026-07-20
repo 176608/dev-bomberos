@@ -82,7 +82,11 @@ class CuadroV2Controller extends Controller
                 'tiene_dataset' => false,
                 'verticales' => [],
                 'horizontales' => [],
-                'tabla' => [],
+                'vertical_tree' => [],
+                'horizontal_tree' => [],
+                'headers' => [],
+                'labels' => [],
+                'data' => [],
                 'max_filas' => 0,
                 'max_columnas' => 0,
             ];

@@ -35,38 +35,25 @@ class DatasetService
 
         $tieneDataset = $verticalLeaves->count() > 0 || $horizontalLeaves->count() > 0;
 
-        $tabla = [];
+        $dataGrid = [];
         if ($tieneDataset) {
-            $headerRow = [['tipo' => 'corner', 'valor' => '']];
-            foreach ($horizontalLeaves as $h) {
-                $headerRow[] = [
-                    'tipo' => 'header', 'eje' => 'horizontal',
-                    'categoria_id' => $h->categoria_id, 'valor' => $h->nombre,
-                ];
-            }
-            $tabla[] = $headerRow;
-
             $mapa = [];
             foreach ($datos as $d) {
                 $mapa[$d->cat_vertical_id][$d->cat_horizontal_id] = $d;
             }
 
             foreach ($verticalLeaves as $v) {
-                $row = [[
-                    'tipo' => 'header', 'eje' => 'vertical',
-                    'categoria_id' => $v->categoria_id, 'valor' => $v->nombre,
-                ]];
+                $row = [];
                 foreach ($horizontalLeaves as $h) {
                     $dato = $mapa[$v->categoria_id][$h->categoria_id] ?? null;
                     $row[] = [
-                        'tipo' => 'celda',
                         'dato_id' => $dato?->dato_id,
                         'valor' => $dato?->valor ?? '',
                         'cat_vertical_id' => $v->categoria_id,
                         'cat_horizontal_id' => $h->categoria_id,
                     ];
                 }
-                $tabla[] = $row;
+                $dataGrid[] = $row;
             }
         }
 
@@ -79,9 +66,9 @@ class DatasetService
             'horizontales' => $horizontalLeaves->values()->toArray(),
             'vertical_tree' => $vertTreeSerialized,
             'horizontal_tree' => $horizTreeSerialized,
-            'encabezados' => $this->buildEncabezados($horizTreeSerialized),
-            'etiquetas' => $this->buildEtiquetas($vertTreeSerialized),
-            'tabla' => $tabla,
+            'headers' => $this->buildEncabezados($horizTreeSerialized),
+            'labels' => $this->buildEtiquetas($vertTreeSerialized),
+            'data' => $dataGrid,
             'max_filas' => $verticalLeaves->count(),
             'max_columnas' => $horizontalLeaves->count(),
         ];
@@ -443,9 +430,9 @@ class DatasetService
         $this->auditar($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
         return [
             'tiene_dataset' => false,
-            'verticales' => [], 'horizontales' => [], 'tabla' => [],
+            'verticales' => [], 'horizontales' => [],
             'vertical_tree' => [], 'horizontal_tree' => [],
-            'encabezados' => [], 'etiquetas' => [],
+            'headers' => [], 'labels' => [], 'data' => [],
             'max_filas' => 0, 'max_columnas' => 0,
         ];
     }
