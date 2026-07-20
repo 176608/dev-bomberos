@@ -91,6 +91,7 @@
         startX: 0, startY: 0,
         dragging: false,
     };
+    let lastCell = null;
 
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
@@ -264,15 +265,16 @@
         if (focused) focused.blur();
     }
 
-    function getTopLeftOfSelection() {
-        if (!sel.active) return null;
-        const minRi = Math.min(sel.startRi, sel.endRi);
-        const minCi = Math.min(sel.startCi, sel.endCi);
-        return {
-            ri: minRi, ci: minCi,
-            vId: estado.verticales[minRi]?.categoria_id,
-            hId: estado.horizontales[minCi]?.categoria_id,
-        };
+    function getPasteAnchor() {
+        if (sel.active) {
+            const minRi = Math.min(sel.startRi, sel.endRi);
+            const minCi = Math.min(sel.startCi, sel.endCi);
+            return {
+                vId: estado.verticales[minRi]?.categoria_id,
+                hId: estado.horizontales[minCi]?.categoria_id,
+            };
+        }
+        return lastCell;
     }
 
     // === POINTER EVENTS FOR CELL SELECTION ===
@@ -301,6 +303,7 @@
                 return;
             }
 
+            lastCell = { vId: coords.vId, hId: coords.hId };
             pointer.down = true;
             pointer.startRi = coords.ri;
             pointer.startCi = coords.ci;
@@ -339,10 +342,7 @@
                 pointer.down = false;
                 pointer.dragging = false;
                 if (sel.active) {
-                    const topLeft = getTopLeftOfSelection();
-                    if (topLeft) {
-                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
-                    }
+                    status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
                 }
             } else if (pointer.down) {
                 pointer.down = false;
@@ -359,17 +359,17 @@
             const clipGrid = text.split('\n').filter(r => r.trim()).map(r => r.split('\t').map(c => c.trim()));
             if (clipGrid.length === 0) return;
 
-            const topLeft = getTopLeftOfSelection();
+            const anchor = getPasteAnchor();
 
-            if (topLeft && topLeft.vId && topLeft.hId) {
+            if (anchor && anchor.vId && anchor.hId) {
                 saveAllBeforeAction();
                 status('Pegando...');
                 api('/paste', {
                     method: 'POST',
                     body: {
                         grid: clipGrid,
-                        start_vertical_id: topLeft.vId,
-                        start_horizontal_id: topLeft.hId,
+                        start_vertical_id: anchor.vId,
+                        start_horizontal_id: anchor.hId,
                     }
                 }).then(j => {
                     if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
