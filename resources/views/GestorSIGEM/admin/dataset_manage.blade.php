@@ -301,13 +301,13 @@
                     } else if (cell.tipo === 'parent') {
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + esc(cell.nombre) + '</div>'
-                            + '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     } else {
                         theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + esc(cell.nombre) + '</div>'
-                            + '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     }
@@ -329,13 +329,13 @@
                 if (label.tipo === 'parent' && label.rowspan > 1) {
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + esc(label.nombre) + '</div>'
-                        + '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 } else {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + esc(label.nombre) + '</div>'
-                        + '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 }

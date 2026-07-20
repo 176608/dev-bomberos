@@ -207,6 +207,10 @@ class DatasetService
             throw new \RuntimeException('Categoría padre no encontrada');
         }
 
+        if ($padre->padre_id !== null) {
+            throw new \RuntimeException('No se pueden agregar hijos a una categoría que ya es hija. Máximo 2 niveles de jerarquía.');
+        }
+
         $hijosExistentes = $padre->hijos()->count();
         $maxOrden = $padre->hijos()->max('orden') ?? 0;
         $esPrimerHijo = $hijosExistentes === 0;
@@ -531,13 +535,14 @@ class DatasetService
         }
         foreach ($nodes as $node) {
             $hasChildren = !empty($node['hijos']);
+            $esHijo = $depth > 0;
             if ($hasChildren) {
                 $rows[$depth][] = [
                     'tipo' => 'parent',
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'colspan' => $node['span'],
-                    'tiene_hijos' => true,
+                    'es_hijo' => $esHijo,
                 ];
                 $this->buildEncabezadosRecursive($node['hijos'], $depth + 1, $rows);
             } else {
@@ -546,7 +551,7 @@ class DatasetService
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'colspan' => 1,
-                    'tiene_hijos' => false,
+                    'es_hijo' => $esHijo,
                 ];
             }
         }
@@ -574,8 +579,7 @@ class DatasetService
                         'categoria_id' => $pNode['categoria_id'],
                         'nombre' => $pNode['nombre'],
                         'rowspan' => $pNode['span'],
-                        'tiene_hijos' => true,
-                        'es_hoja' => false,
+                        'es_hijo' => false,
                     ];
                 }
                 $rowLabels[] = [
@@ -583,8 +587,7 @@ class DatasetService
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'rowspan' => 1,
-                    'tiene_hijos' => false,
-                    'es_hoja' => true,
+                    'es_hijo' => !empty($parents),
                 ];
                 $leafRows[] = $rowLabels;
             }
