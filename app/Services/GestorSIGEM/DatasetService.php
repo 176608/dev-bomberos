@@ -60,6 +60,8 @@ class DatasetService
                         'tipo' => 'celda',
                         'dato_id' => $dato?->dato_id,
                         'valor' => $dato?->valor ?? '',
+                        'cat_vertical_id' => $v->categoria_id,
+                        'cat_horizontal_id' => $h->categoria_id,
                     ];
                 }
                 $tabla[] = $row;
