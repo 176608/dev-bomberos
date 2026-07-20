@@ -94,10 +94,18 @@ class DatasetController extends Controller
 
     public function paste(Request $request, $id)
     {
-        $request->validate(['grid' => 'required|array', 'grid.*' => 'required|array']);
+        $request->validate([
+            'grid' => 'required|array',
+            'grid.*' => 'required|array',
+            'start_vertical_id' => 'nullable|integer',
+            'start_horizontal_id' => 'nullable|integer',
+        ]);
 
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->pasteGrid((int) $id, $request->grid)]);
+            return response()->json(['success' => true, 'data' => $this->datasetService->pasteGrid(
+                (int) $id, $request->grid,
+                $request->start_vertical_id, $request->start_horizontal_id
+            )]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }

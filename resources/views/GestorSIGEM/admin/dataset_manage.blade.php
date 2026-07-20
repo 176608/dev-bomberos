@@ -1,13 +1,14 @@
-<div class="container-fluid py-4" id="app-dataset">
+<div class="container-fluid py-3" id="app-dataset">
 
-    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
-        <span>
-            <i class="bi bi-pencil-square"></i>
-            <strong>Dataset</strong> —
-            <code>{{ $cuadro->codigo_cuadro }}</code>
-            <strong>{{ $cuadro->c_titulo }}</strong>
-        </span>
-        <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-sm btn-outline-secondary">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-0"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Dataset</h5>
+            <small class="text-muted">
+                <code>{{ $cuadro->codigo_cuadro }}</code>
+                <strong>{{ $cuadro->c_titulo }}</strong>
+            </small>
+        </div>
+        <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
@@ -15,39 +16,59 @@
     <div id="alerts"></div>
 
     @if(!$estadoInicial['tiene_dataset'])
-        <div class="card shadow-sm p-4 text-center" id="empty-state">
-            <h5>Generar grilla</h5>
-            <div class="row justify-content-center mt-3">
-                <div class="col-auto">
-                    <label>Filas</label>
-                    <input type="number" class="form-control text-center" id="input-filas" value="5" min="1" max="50">
+        <div class="card shadow-sm border-0" id="empty-state">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
+                <h5 class="mt-3">Generar grilla</h5>
+                <p class="text-muted small mb-3">Creá una grilla vacía para empezar a cargar datos</p>
+                <div class="row justify-content-center g-2 mb-3">
+                    <div class="col-auto">
+                        <label class="form-label small">Filas</label>
+                        <input type="number" class="form-control text-center" id="input-filas" value="5" min="1" max="50" style="width:80px">
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small">Columnas</label>
+                        <input type="number" class="form-control text-center" id="input-columnas" value="5" min="1" max="50" style="width:80px">
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <label>Columnas</label>
-                    <input type="number" class="form-control text-center" id="input-columnas" value="5" min="1" max="50">
-                </div>
+                <button class="btn btn-primary px-4" id="btn-generar"><i class="bi bi-plus-square me-1"></i>Generar</button>
+                <hr class="my-3" style="max-width:300px;margin-inline:auto">
+                <button class="btn btn-outline-secondary btn-sm" id="btn-importar-vacio"><i class="bi bi-upload me-1"></i>Importar CSV</button>
+                <input type="file" id="input-csv-vacio" accept=".csv,.txt" hidden>
             </div>
-            <button class="btn btn-success mt-3" id="btn-generar">Generar</button>
-            <hr class="my-3">
-            <button class="btn btn-outline-secondary btn-sm" id="btn-importar-vacio">Importar CSV</button>
-            <input type="file" id="input-csv-vacio" accept=".csv,.txt" hidden>
         </div>
     @endif
 
     <div id="grid-container" @if(!$estadoInicial['tiene_dataset']) style="display:none" @endif>
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-2">
                 <div class="table-responsive" style="max-height:75vh">
-                    <table class="table table-sm table-bordered mb-0" style="font-size:0.82rem" id="dataset-table">
-                        <thead id="thead"></thead>
+                    <table class="table table-sm table-bordered table-hover mb-0" style="font-size:0.82rem" id="dataset-table">
+                        <thead id="thead" class="table-light"></thead>
                         <tbody id="tbody"></tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer text-end small text-muted" id="status-bar"></div>
+            <div class="card-footer py-1 d-flex justify-content-between align-items-center" id="status-bar">
+                <small class="text-muted" id="status-text"></small>
+                <div>
+                    <span class="badge bg-secondary" id="dimension-badge"></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+#dataset-table td, #dataset-table th { vertical-align: middle; padding: 0.15rem 0.3rem; }
+#dataset-table td > div, #dataset-table th > div { min-height: 26px; outline: none; padding: 0.1rem 0.2rem; border-radius: 2px; }
+#dataset-table td > div:focus { box-shadow: inset 0 0 0 1px var(--bs-primary); background: #fff; }
+#dataset-table tbody tr:not(:last-child) > td:not(:first-child) { cursor: cell; }
+#dataset-table .cell-selected { box-shadow: inset 0 0 0 1.5px var(--bs-primary) !important; }
+#dataset-table .cell-anchor { background: var(--bs-primary) !important; color: #fff; }
+#dataset-table .cell-anchor > div { color: #fff; }
+#status-bar .badge { font-size: 0.7rem; }
+</style>
 
 <script>
 (function() {
@@ -56,6 +77,20 @@
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
 
     let estado = @json($estadoInicial);
+
+    const sel = {
+        active: false,
+        startRi: -1, startCi: -1,
+        endRi: -1, endCi: -1,
+        anchorVi: null, anchorHi: null,
+    };
+
+    const pointer = {
+        down: false,
+        startRi: -1, startCi: -1,
+        startX: 0, startY: 0,
+        dragging: false,
+    };
 
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
@@ -75,7 +110,55 @@
     }
 
     function status(msg) {
-        document.getElementById('status-bar').textContent = msg || '';
+        document.getElementById('status-text').textContent = msg || '';
+    }
+
+    function getCellCoords(el) {
+        const tr = el.closest('tr');
+        const tbody = tr ? tr.closest('tbody') : null;
+        if (!tbody) return null;
+        const ri = Array.from(tbody.children).indexOf(tr);
+        if (ri < 0 || ri >= estado.verticales.length) return null;
+        const ci = Array.from(tr.children).indexOf(el) - 1;
+        if (ci < 0 || ci >= estado.horizontales.length) return null;
+        return { ri, ci, vId: estado.verticales[ri]?.categoria_id, hId: estado.horizontales[ci]?.categoria_id };
+    }
+
+    function setSelection(minRi, minCi, maxRi, maxCi) {
+        sel.active = true;
+        sel.startRi = minRi;
+        sel.startCi = minCi;
+        sel.endRi = maxRi;
+        sel.endCi = maxCi;
+        sel.anchorVi = estado.verticales[minRi]?.categoria_id;
+        sel.anchorHi = estado.horizontales[minCi]?.categoria_id;
+        renderSelection();
+    }
+
+    function clearSelection() {
+        sel.active = false;
+        document.querySelectorAll('#dataset-table .cell-selected').forEach(el => {
+            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
+        });
+    }
+
+    function renderSelection() {
+        document.querySelectorAll('#dataset-table .cell-selected').forEach(el => {
+            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
+        });
+        if (!sel.active) return;
+        const tbody = document.getElementById('tbody');
+        const rows = tbody.children;
+        for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.verticales.length; ri++) {
+            const tr = rows[ri];
+            if (!tr) break;
+            for (let ci = sel.startCi; ci <= sel.endCi && ci < estado.horizontales.length; ci++) {
+                const td = tr.children[ci + 1];
+                if (td && td.tagName === 'TD') {
+                    td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                }
+            }
+        }
     }
 
     const vivos = {};
@@ -90,10 +173,9 @@
             method: 'PUT',
             body: { valor: val },
         }).then(j => {
-            if (j.success) { dato.valor = val; status('✓'); }
+            if (j.success) { dato.valor = val; status('✓ Guardado'); }
             else alerta(j.message);
         }).catch(() => alerta('Error de red'));
-        setTimeout(() => status(''), 1200);
     }
 
     function renombrar(el, id) {
@@ -104,27 +186,30 @@
             method: 'PUT',
             body: { nombre: nombre },
         }).then(j => {
-            if (j.success) status('✓');
+            if (j.success) status('✓ Guardado');
             else alerta(j.message);
         }).catch(() => alerta('Error'));
-        setTimeout(() => status(''), 1200);
+    }
+
+    function esc(s) {
+        if (!s) return '';
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function renderGrid(d) {
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
+            document.getElementById('empty-state').style.display = '';
             return;
         }
         document.getElementById('grid-container').style.display = '';
-        if (document.getElementById('empty-state')) {
-            document.getElementById('empty-state').style.display = 'none';
-        }
+        const empty = document.getElementById('empty-state');
+        if (empty) empty.style.display = 'none';
 
         const { verticales, horizontales, tabla } = d;
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
 
-        // Build map of dato_id by vId-hId
         for (const k in vivos) delete vivos[k];
         for (const row of tabla.slice(1)) {
             for (const cel of row.slice(1)) {
@@ -134,69 +219,178 @@
             }
         }
 
-        // Render
-        let html = '<tr><th style="min-width:40px" class="text-center">' +
-            '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
-            '</th>';
+        document.getElementById('dimension-badge').textContent = verticales.length + ' × ' + horizontales.length;
 
+        let html = '<tr><th class="text-center" style="width:44px">' +
+            '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
+            '</th>';
         for (const h of horizontales) {
-            html += '<th style="min-width:90px;background:#e9ecef" class="align-middle position-relative">' +
-                '<div contenteditable="true" onblur="renombrarHeader(this, ' + h.categoria_id + ')" class="px-1">' + esc(h.nombre) + '</div>' +
-                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 end-0" onclick="eliminarColumna(' + h.categoria_id + ')" title="Eliminar"><i class="bi bi-x-circle" style="font-size:0.7rem"></i></button>' +
+            html += '<th class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
+                '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + h.categoria_id + ')" class="fw-normal">' + esc(h.nombre) + '</div>' +
+                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" title="Eliminar columna"><i class="bi bi-x-circle" style="font-size:0.6rem"></i></button>' +
                 '</th>';
         }
-        html += '<th style="min-width:40px" class="text-center"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th></tr>';
+        html += '<th class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th></tr>';
         thead.innerHTML = html;
 
         html = '';
         for (const v of verticales) {
             html += '<tr>' +
-                '<th style="background:#f8f9fa;min-width:120px" class="position-relative">' +
-                '<div contenteditable="true" onblur="renombrarHeader(this, ' + v.categoria_id + ')" class="px-1">' + esc(v.nombre) + '</div>' +
-                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 start-100 translate-middle" onclick="eliminarFila(' + v.categoria_id + ')" title="Eliminar"><i class="bi bi-x-circle" style="font-size:0.7rem"></i></button>' +
+                '<th class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
+                '<div contenteditable="true" onblur="window.renombrarHeader(this, ' + v.categoria_id + ')" class="text-truncate">' + esc(v.nombre) + '</div>' +
+                '<button class="btn btn-sm text-danger p-0 position-absolute top-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle" style="font-size:0.6rem"></i></button>' +
                 '</th>';
             for (const h of horizontales) {
                 const cel = vivos[v.categoria_id + '-' + h.categoria_id] || {};
-                html += '<td style="min-width:70px"><div contenteditable="true" onblur="guardarCelda(this, ' + v.categoria_id + ', ' + h.categoria_id + ')" class="px-1" style="min-height:26px">' + esc(cel.valor || '') + '</div></td>';
+                html += '<td class="position-relative"><div contenteditable="true" onblur="window.guardarCelda(this, ' + v.categoria_id + ', ' + h.categoria_id + ')">' + esc(cel.valor || '') + '</div></td>';
             }
-            html += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="eliminarFila(' + v.categoria_id + ')" title="Eliminar"><i class="bi bi-x-circle"></i></button></td></tr>';
+            html += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
         }
 
-        html += '<tr><td><button class="btn btn-sm btn-outline-success py-0" onclick="agregarFila()"><i class="bi bi-plus-lg"></i> Fila</button></td>' +
-            '<td colspan="' + (horizontales.length + 1) + '" class="text-muted small">' +
-            verticales.length + ' × ' + horizontales.length +
-            ' <span class="vr mx-2"></span> ' +
-            '<a href="#" onclick="importarCSV(); return false">Importar CSV</a>' +
+        html += '<tr class="table-light"><td><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Fila</button></td>' +
+            '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">' +
+            '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>' +
             '<input type="file" id="input-csv" accept=".csv,.txt" style="display:none">' +
             ' <span class="vr mx-2"></span> ' +
-            '<span class="text-muted">Ctrl+V para pegar</span></td></tr>';
+            '<span class="small">Ctrl+V para pegar</span></td></tr>';
 
         tbody.innerHTML = html;
+        renderSelection();
     }
 
-    function esc(s) {
-        if (!s) return '';
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    function saveAllBeforeAction() {
+        // Trigger blur on any actively edited cell
+        const focused = document.querySelector('#dataset-table div:focus');
+        if (focused) focused.blur();
     }
 
-    // === PASTE ===
+    function getTopLeftOfSelection() {
+        if (!sel.active) return null;
+        const minRi = Math.min(sel.startRi, sel.endRi);
+        const minCi = Math.min(sel.startCi, sel.endCi);
+        return {
+            ri: minRi, ci: minCi,
+            vId: estado.verticales[minRi]?.categoria_id,
+            hId: estado.horizontales[minCi]?.categoria_id,
+        };
+    }
+
+    // === POINTER EVENTS FOR CELL SELECTION ===
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('dataset-table').addEventListener('paste', function(e) {
+        const table = document.getElementById('dataset-table');
+        const tbody = document.getElementById('tbody');
+
+        tbody.addEventListener('pointerdown', function(e) {
+            const td = e.target.closest('td');
+            if (!td) return;
+            const coords = getCellCoords(td);
+            if (!coords) return;
+
+            if (e.shiftKey) {
+                e.preventDefault();
+                clearSelection();
+                if (!sel.active) {
+                    setSelection(coords.ri, coords.ci, coords.ri, coords.ci);
+                } else {
+                    const minRi = Math.min(sel.startRi, coords.ri);
+                    const maxRi = Math.max(sel.startRi, coords.ri);
+                    const minCi = Math.min(sel.startCi, coords.ci);
+                    const maxCi = Math.max(sel.startCi, coords.ci);
+                    setSelection(minRi, minCi, maxRi, maxCi);
+                }
+                return;
+            }
+
+            pointer.down = true;
+            pointer.startRi = coords.ri;
+            pointer.startCi = coords.ci;
+            pointer.startX = e.clientX;
+            pointer.startY = e.clientY;
+            pointer.dragging = false;
+        });
+
+        document.addEventListener('pointermove', function(e) {
+            if (!pointer.down) return;
+            const dx = e.clientX - pointer.startX;
+            const dy = e.clientY - pointer.startY;
+            if (!pointer.dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+                pointer.dragging = true;
+                document.body.style.userSelect = 'none';
+                setSelection(pointer.startRi, pointer.startCi, pointer.startRi, pointer.startCi);
+            }
+            if (!pointer.dragging) return;
+            e.preventDefault();
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            if (!el) return;
+            const td = el.closest('td');
+            if (!td) return;
+            const coords = getCellCoords(td);
+            if (!coords) return;
+            const minRi = Math.min(pointer.startRi, coords.ri);
+            const maxRi = Math.max(pointer.startRi, coords.ri);
+            const minCi = Math.min(pointer.startCi, coords.ci);
+            const maxCi = Math.max(pointer.startCi, coords.ci);
+            setSelection(minRi, minCi, maxRi, maxCi);
+        });
+
+        document.addEventListener('pointerup', function(e) {
+            if (pointer.dragging) {
+                document.body.style.userSelect = '';
+                pointer.down = false;
+                pointer.dragging = false;
+                if (sel.active) {
+                    const topLeft = getTopLeftOfSelection();
+                    if (topLeft) {
+                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
+                    }
+                }
+            } else if (pointer.down) {
+                pointer.down = false;
+                clearSelection();
+            }
+        });
+
+        // === PASTE ===
+        table.addEventListener('paste', function(e) {
             const text = (e.clipboardData || window.clipboardData).getData('text');
             if (!text.trim()) return;
             e.preventDefault();
-            const rows = text.split('\n').map(r => r.split('\t').map(c => c.trim()));
-            if (rows.length < 2 || !confirm('¿Reemplazar dataset (' + rows.length + '×' + rows[0].length + ')?')) return;
-            status('Pegando...');
-            api('/paste', { method: 'POST', body: { grid: rows } }).then(j => {
-                if (j.success) { estado = j.data; renderGrid(estado); status('Pegado'); }
-                else alerta(j.message);
-            }).catch(() => alerta('Error'));
-            setTimeout(() => status(''), 2000);
+
+            const clipGrid = text.split('\n').filter(r => r.trim()).map(r => r.split('\t').map(c => c.trim()));
+            if (clipGrid.length === 0) return;
+
+            const topLeft = getTopLeftOfSelection();
+
+            if (topLeft && topLeft.vId && topLeft.hId) {
+                saveAllBeforeAction();
+                status('Pegando...');
+                api('/paste', {
+                    method: 'POST',
+                    body: {
+                        grid: clipGrid,
+                        start_vertical_id: topLeft.vId,
+                        start_horizontal_id: topLeft.hId,
+                    }
+                }).then(j => {
+                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
+                    else alerta(j.message);
+                }).catch(() => alerta('Error de red'));
+            } else {
+                if (clipGrid.length < 2 || !confirm('¿Reemplazar todo el dataset (' + clipGrid.length + '×' + clipGrid[0].length + ')?')) return;
+                saveAllBeforeAction();
+                status('Pegando...');
+                api('/paste', {
+                    method: 'POST',
+                    body: { grid: clipGrid }
+                }).then(j => {
+                    if (j.success) { estado = j.data; renderGrid(estado); status('✓ Reemplazado'); }
+                    else alerta(j.message);
+                }).catch(() => alerta('Error de red'));
+            }
         });
     });
 
-    // === GLOBAL FUNCTIONS (called from onclick) ===
+    // === GLOBAL FUNCTIONS ===
     window.guardarCelda = guardarCelda;
 
     window.renombrarHeader = function(el, id) {
@@ -204,39 +398,44 @@
     };
 
     window.agregarFila = function() {
+        saveAllBeforeAction();
         api('/fila', { method: 'POST' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+            if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     };
 
     window.agregarColumna = function() {
+        saveAllBeforeAction();
         api('/columna', { method: 'POST' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+            if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     };
 
     window.eliminarFila = function(id) {
-        if (!confirm('¿Eliminar fila?')) return;
+        saveAllBeforeAction();
+        if (!confirm('¿Eliminar esta fila?')) return;
         api('/fila/' + id, { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Fila eliminada'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     };
 
     window.eliminarColumna = function(id) {
-        if (!confirm('¿Eliminar columna?')) return;
+        saveAllBeforeAction();
+        if (!confirm('¿Eliminar esta columna?')) return;
         api('/columna/' + id, { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Columna eliminada'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     };
 
     window.limpiarDataset = function() {
+        saveAllBeforeAction();
         if (!confirm('¿Eliminar todo el dataset?')) return;
         api('/limpiar', { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Dataset limpiado'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     };
@@ -246,8 +445,8 @@
         const filas = parseInt(document.getElementById('input-filas').value) || 5;
         const cols = parseInt(document.getElementById('input-columnas').value) || 5;
         status('Generando...');
-        api('/generar', { method: 'POST', body: { filas: filas, columnas: cols } }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); }
+        api('/generar', { method: 'POST', body: { filas, columnas: cols } }).then(j => {
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Grilla generada'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
     });
@@ -273,11 +472,10 @@
         status('Importando...');
         fetch(BASE + '/importar', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF }, body: fd })
             .then(r => r.json()).then(j => {
-                if (j.success) { estado = j.data; renderGrid(estado); status('Importado'); }
+                if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Importado'); }
                 else alerta(j.message);
             }).catch(() => alerta('Error'));
         input.value = '';
-        setTimeout(() => status(''), 2000);
     }
 
     window.importarCSV = function() {

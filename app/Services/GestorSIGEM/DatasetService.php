@@ -246,10 +246,15 @@ class DatasetService
         return $cat;
     }
 
-    public function pasteGrid(int $cuadro_id, array $grid): array
+    public function pasteGrid(int $cuadro_id, array $grid, ?int $startVerticalId = null, ?int $startHorizontalId = null): array
     {
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+        if ($startVerticalId !== null && $startHorizontalId !== null) {
+            return $this->pastePartial($cuadro_id, $cuadro, $grid, $startVerticalId, $startHorizontalId);
+        }
+
         if (count($grid) < 2) throw new \InvalidArgumentException('Debe tener al menos 2 filas');
 
         $cuadro->datos()->delete();
@@ -289,6 +294,44 @@ class DatasetService
                     'valor' => $valor, 'valor_crudo' => $valor,
                     'fila' => $f + 1, 'columna' => $c + 1,
                 ]);
+            }
+        }
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
+    private function pastePartial(int $cuadro_id, Cuadro $cuadro, array $grid, int $startVerticalId, int $startHorizontalId): array
+    {
+        $verticales = $cuadro->categoriasVerticales()->orderBy('orden')->get();
+        $horizontales = $cuadro->categoriasHorizontales()->orderBy('orden')->get();
+
+        $vIdx = $verticales->search(fn($v) => $v->categoria_id === $startVerticalId);
+        $hIdx = $horizontales->search(fn($h) => $h->categoria_id === $startHorizontalId);
+
+        if ($vIdx === false || $hIdx === false) {
+            throw new \RuntimeException('Posición inicial no encontrada en la grilla');
+        }
+
+        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar parcial']);
+
+        foreach ($grid as $f => $row) {
+            $vPos = $vIdx + $f;
+            if ($vPos >= $verticales->count()) break;
+            $vCat = $verticales[$vPos];
+
+            foreach ($row as $c => $valor) {
+                $hPos = $hIdx + $c;
+                if ($hPos >= $horizontales->count()) break;
+                $hCat = $horizontales[$hPos];
+
+                $this->dato->updateOrCreate(
+                    [
+                        'cuadro_id' => $cuadro_id,
+                        'cat_vertical_id' => $vCat->categoria_id,
+                        'cat_horizontal_id' => $hCat->categoria_id,
+                    ],
+                    ['valor' => $valor, 'valor_crudo' => $valor]
+                );
             }
         }
 
