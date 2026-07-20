@@ -80,9 +80,10 @@ class CuadroV2Controller extends Controller
         } catch (\RuntimeException) {
             $estado = [
                 'tiene_dataset' => false,
-                'verticales' => [],
-                'horizontales' => [],
+                'vertical' => ['arbol' => [], 'hojas' => [], 'pivote' => null],
+                'horizontal' => ['arbol' => [], 'hojas' => [], 'pivote' => null],
                 'tabla' => [],
+                'tabla_headers' => [],
                 'max_filas' => 0,
                 'max_columnas' => 0,
             ];

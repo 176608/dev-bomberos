@@ -46,13 +46,29 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::get('/{id}/datos', [CuadroV2Controller::class, 'datosJson'])->name('datos-json');
             Route::get('/{id}/dataset', [CuadroV2Controller::class, 'datasetManage'])->name('dataset');
             Route::prefix('{id}/dataset')->name('dataset.')->group(function () {
+                Route::get('/estado', [DatasetController::class, 'estado'])->name('estado');
                 Route::post('/generar', [DatasetController::class, 'generar'])->name('generar');
+
+                // Tree CRUD
+                Route::post('/raiz', [DatasetController::class, 'storeRaiz'])->name('raiz.store');
+                Route::post('/{padre}/hijo', [DatasetController::class, 'storeHijo'])->name('hijo.store');
+                Route::post('/{categoria}/hermano', [DatasetController::class, 'storeHermano'])->name('hermano.store');
+                Route::delete('/categoria/{categoria}', [DatasetController::class, 'destroyCategoria'])->name('categoria.destroy');
+                Route::put('/categoria/{categoria}', [DatasetController::class, 'updateCategoria'])->name('categoria.update');
+                Route::put('/categoria/{categoria}/tipo', [DatasetController::class, 'updateTipoCategoria'])->name('categoria.tipo');
+                Route::put('/categoria/{categoria}/reordenar', [DatasetController::class, 'reordenar'])->name('categoria.reordenar');
+
+                // Legacy row/column (for convenience)
                 Route::post('/fila', [DatasetController::class, 'storeFila'])->name('fila.store');
                 Route::delete('/fila/{categoria}', [DatasetController::class, 'destroyFila'])->name('fila.destroy');
                 Route::post('/columna', [DatasetController::class, 'storeColumna'])->name('columna.store');
                 Route::delete('/columna/{categoria}', [DatasetController::class, 'destroyColumna'])->name('columna.destroy');
+
+                // Cell data
                 Route::put('/celda/{dato}', [DatasetController::class, 'updateCelda'])->name('celda.update');
-                Route::put('/categoria/{categoria}', [DatasetController::class, 'updateCategoria'])->name('categoria.update');
+                Route::post('/celda', [DatasetController::class, 'updateCeldaPorCruze'])->name('celda.cruze');
+
+                // Paste / Import / Cleanup
                 Route::post('/paste', [DatasetController::class, 'paste'])->name('paste');
                 Route::post('/importar', [DatasetController::class, 'importar'])->name('importar');
                 Route::delete('/limpiar', [DatasetController::class, 'limpiar'])->name('limpiar');
