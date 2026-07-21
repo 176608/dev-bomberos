@@ -301,6 +301,35 @@ class DatasetService
     {
         $cat = $this->categoria->find($categoria_id);
         if (!$cat) throw new \RuntimeException('Categoría no encontrada');
+
+        $nombre = trim($nombre);
+        if ($nombre === '') throw new \RuntimeException('El nombre no puede estar vacío.');
+
+        if ($cat->padre_id !== null) {
+            $padre = $this->categoria->find($cat->padre_id);
+            if ($padre && strcasecmp($nombre, trim($padre->nombre)) === 0) {
+                throw new \RuntimeException('Un hijo no puede tener el mismo nombre que su padre.');
+            }
+        } else {
+            $hijos = $this->categoria->where('padre_id', $categoria_id)->get();
+            foreach ($hijos as $hijo) {
+                if (strcasecmp($nombre, trim($hijo->nombre)) === 0) {
+                    throw new \RuntimeException('Un padre no puede tener el mismo nombre que uno de sus hijos.');
+                }
+            }
+        }
+
+        $existe = $this->categoria
+            ->where('cuadro_id', $cat->cuadro_id)
+            ->where('eje', $cat->eje)
+            ->where('padre_id', $cat->padre_id)
+            ->where('categoria_id', '!=', $categoria_id)
+            ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
+            ->exists();
+        if ($existe) {
+            throw new \RuntimeException('Ya existe otra categoría con ese nombre en el mismo nivel.');
+        }
+
         $cat->update(['nombre' => $nombre]);
         $this->auditar($cat->cuadro_id, 'actualizar', ['accion' => 'Renombrar', 'categoria_id' => $categoria_id]);
         return $cat;

@@ -237,7 +237,10 @@
             body: { nombre: nombre },
         }).then(j => {
             if (j.success) status('✓ Guardado');
-            else alerta(j.message);
+            else {
+                alerta(j.message);
+                renderGrid(estado);
+            }
         }).catch(() => alerta('Error'));
     }
 
