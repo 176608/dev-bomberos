@@ -101,6 +101,7 @@
 
     window.switchMode = function(mode) {
         currentMode = mode;
+        clearSelection();
         document.querySelectorAll('[data-mode]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
@@ -347,10 +348,10 @@
         if (headers.length === 0) {
             theadHtml = '<tr>'
                 + '<th class="text-center align-middle" style="width:44px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-danger py-0 px-1 edit-only" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
                 + '</th>'
                 + '<th class="text-center" style="width:36px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-primary py-0 px-1 edit-only" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button>'
+                + '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button>'
                 + '</th></tr>';
         } else {
             const numHeaderRows = headers.length;
@@ -362,25 +363,31 @@
                         const rspan = cell.rowspan || numHeaderRows;
                         theadHtml += '<th rowspan="' + rspan + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="width:' + (numLabelCols * 44) + 'px;background:#f0f2f5">'
                             + '<div class="d-flex flex-column align-items-center gap-1">'
-                            + '<button class="btn btn-sm btn-outline-danger py-0 px-1 edit-only" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
                             + '<span class="pivot-label editable-header text-muted small" contenteditable="false" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
                             + '</div></th>';
                     } else if (cell.tipo === 'parent') {
-                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
-                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0 edit-only" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0 edit-only" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle text-center" style="background:#e2e6ea;min-width:90px">'
+                            + '<div class="d-flex justify-content-between align-items-center w-100 gap-1">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header flex-grow-1 min-w-0">' + esc(cell.nombre) + '</div>'
+                            + '<div class="d-flex gap-1 flex-shrink-0 edit-only">'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button>'
+                            + '</div></div>'
                             + '</th>';
                     } else {
-                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small editable-header">' + esc(cell.nombre) + '</div>'
-                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0 edit-only" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0 edit-only" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle text-center" style="background:#f0f2f5;min-width:90px">'
+                            + '<div class="d-flex justify-content-between align-items-center w-100 gap-1">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small editable-header flex-grow-1 min-w-0">' + esc(cell.nombre) + '</div>'
+                            + '<div class="d-flex gap-1 flex-shrink-0 edit-only">'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button>'
+                            + '</div></div>'
                             + '</th>';
                     }
                 }
                 if (ri === 0) {
-                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1 edit-only" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
+                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button></th>';
                 }
                 theadHtml += '</tr>';
             }
@@ -394,16 +401,22 @@
             const labelRow = labels[ri];
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
-                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle edit-only" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle edit-only" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" style="background:#f8f9fa;min-width:110px;font-weight:500">'
+                        + '<div class="d-flex justify-content-between align-items-center w-100 gap-1">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header flex-grow-1 min-w-0">' + esc(label.nombre) + '</div>'
+                        + '<div class="d-flex gap-1 flex-shrink-0 edit-only">'
+                        + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
+                        + '</div></div>'
                         + '</th>';
                 } else {
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small editable-header">' + esc(label.nombre) + '</div>'
-                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle edit-only" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle edit-only" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" style="background:#f8f9fa;min-width:110px;font-weight:400">'
+                        + '<div class="d-flex justify-content-between align-items-center w-100 gap-1">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small editable-header flex-grow-1 min-w-0">' + esc(label.nombre) + '</div>'
+                        + '<div class="d-flex gap-1 flex-shrink-0 edit-only">'
+                        + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.65rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
+                        + '</div></div>'
                         + '</th>';
                 }
             }
@@ -414,12 +427,12 @@
                     + esc(cel.valor || '') + '</div></td>';
             }
             const lastLabel = labelRow[labelRow.length - 1];
-            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1 edit-only" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
+            tbodyHtml += '<td class="text-center"><button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x"></i></button></td></tr>';
         }
 
         const footerCols = numLabelCols + horizontales.length + 1;
         tbodyHtml += '<tr class="table-light">'
-            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success py-0 edit-only" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i> Fila</button></td>'
+            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarFila()" title="Agregar fila"><i class="bi bi-plus"></i></button> <span class="edit-only small text-muted">Fila</span></td>'
             + '<td colspan="' + (horizontales.length + 1) + '"></td></tr>';
 
         tbody.innerHTML = tbodyHtml;
@@ -465,8 +478,11 @@
             const coords = getCellCoords(cell);
             if (!coords) return;
 
+            if (currentMode === 'datos' && coords.type !== 'cell') return;
+
             if (e.shiftKey) {
                 e.preventDefault();
+                if (currentMode === 'datos' && coords.type !== 'cell') return;
                 const type = coords.type;
                 const prevType = sel.active ? (
                     sel.startRi === -1 ? 'horizontal' :
@@ -492,6 +508,11 @@
             }
 
             lastCell = { type: coords.type, vId: coords.vId, hId: coords.hId };
+            if (currentMode === 'datos' && coords.type === 'cell' && coords.vId && coords.hId) {
+                const vCat = estado.verticales.find(v => v.categoria_id === coords.vId);
+                const hCat = estado.horizontales.find(h => h.categoria_id === coords.hId);
+                if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
+            }
             pointer.down = true;
             pointer.startRi = coords.ri;
             pointer.startCi = coords.ci;
@@ -519,6 +540,7 @@
             if (!coords) return;
             const startType = pointer.startRi === -1 ? 'horizontal' : pointer.startCi === -1 ? 'vertical' : 'cell';
             if (coords.type !== startType) return;
+            if (currentMode === 'datos' && startType !== 'cell') return;
             if (startType === 'horizontal') {
                 const mc = Math.min(pointer.startCi, coords.ci);
                 const xc = Math.max(pointer.startCi, coords.ci);
@@ -698,6 +720,10 @@
                 range.collapse(false);
                 selR.removeAllRanges();
                 selR.addRange(range);
+                // Show category info
+                const vCat = estado.verticales[ri];
+                const hCat = estado.horizontales[ci];
+                if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
             }
         });
     });
