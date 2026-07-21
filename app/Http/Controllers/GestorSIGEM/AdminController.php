@@ -45,6 +45,8 @@ class AdminController extends Controller
 
         $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
 
+        $modelos = $auditoria->pluck('modelo')->unique()->sort()->values();
+
         $resumen = [
             'total_temas' => TemaV2::count(),
             'total_subtemas' => SubtemaV2::count(),
@@ -56,6 +58,7 @@ class AdminController extends Controller
             'crud_view' => 'GestorSIGEM.admin.dashboard',
             'auditoria' => $auditoria,
             'resumen' => $resumen,
+            'modelos' => $modelos,
             'esAdmin' => $user->hasRole('Administrador'),
             'rangoActual' => $rango,
         ]);

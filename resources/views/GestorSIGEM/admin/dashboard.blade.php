@@ -44,7 +44,15 @@
                 <a href="{{ route('sgiem.admin.index', ['rango' => 'mensual']) }}" class="btn btn-outline-primary {{ $rangoActual === 'mensual' ? 'active' : '' }}">Mensual</a>
                 <a href="{{ route('sgiem.admin.index', ['rango' => 'todos']) }}" class="btn btn-outline-primary {{ $rangoActual === 'todos' ? 'active' : '' }}">Todos</a>
             </div>
-            <small class="text-muted">{{ $auditoria->count() }} eventos</small>
+            <div class="d-flex align-items-center gap-2">
+                <select id="filtro-modelo" class="form-select form-select-sm" style="width:auto">
+                    <option value="">Todos los modelos</option>
+                    @foreach($modelos as $m)
+                        <option value="{{ $m }}">{{ $m }}</option>
+                    @endforeach
+                </select>
+                <small class="text-muted">{{ $auditoria->count() }} eventos</small>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -116,32 +124,55 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    $('#tablaAuditoria').DataTable({
+    var dt = $('#tablaAuditoria').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
         order: [[0, 'desc']],
         pageLength: 25,
         responsive: true,
     });
+
+    $('#filtro-modelo').on('change', function() {
+        dt.column(2).search($(this).val()).draw();
+    });
 });
+
+function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderDiff(prev, next) {
+    var allKeys = {};
+    if (prev) Object.keys(prev).forEach(function(k) { allKeys[k] = true; });
+    if (next) Object.keys(next).forEach(function(k) { allKeys[k] = true; });
+    var keys = Object.keys(allKeys);
+
+    var html = '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:25%">Campo</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
+    var changes = 0;
+    keys.forEach(function(key) {
+        var oldVal = prev ? JSON.stringify(prev[key], null, 2) : null;
+        var newVal = next ? JSON.stringify(next[key], null, 2) : null;
+        if (oldVal === newVal) return;
+        changes++;
+        html += '<tr><td><code>' + esc(key) + '</code></td>';
+        html += '<td class="text-danger" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(oldVal != null ? oldVal : '—') + '</pre></td>';
+        html += '<td class="text-success" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(newVal != null ? newVal : '—') + '</pre></td></tr>';
+    });
+    if (changes === 0) {
+        html += '<tr><td colspan="3" class="text-muted text-center">Sin cambios detectados</td></tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+}
 
 function verDiff(id) {
     fetch('{{ route("sgiem.admin.auditoria.detalle", ":id") }}'.replace(':id', id))
         .then(r => r.json())
         .then(data => {
-            let html = '<div class="row">';
-            if (data.datos_previos) {
-                html += '<div class="col-md-6"><h6>Antes</h6><pre class="bg-light p-2 rounded">' +
-                    JSON.stringify(data.datos_previos, null, 2) + '</pre></div>';
-            }
-            if (data.datos_nuevos) {
-                html += '<div class="col-md-6"><h6>Después</h6><pre class="bg-light p-2 rounded">' +
-                    JSON.stringify(data.datos_nuevos, null, 2) + '</pre></div>';
-            }
-            html += '</div>';
-            document.getElementById('diff-content').innerHTML = html;
+            document.getElementById('diff-content').innerHTML = renderDiff(data.datos_previos, data.datos_nuevos);
             new bootstrap.Modal(document.getElementById('modalDiff')).show();
         })
-        .catch(() => {
+        .catch(function() {
             document.getElementById('diff-content').innerHTML = '<div class="alert alert-danger">Error al cargar detalle</div>';
         });
 }
