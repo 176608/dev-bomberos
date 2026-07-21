@@ -12,6 +12,10 @@ class DatasetController extends Controller
         private DatasetService $datasetService,
     ) {
         $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            $this->datasetService->setSesionId($request->header('X-Sesion-Id'));
+            return $next($request);
+        });
     }
 
     public function estado($id)
@@ -159,6 +163,31 @@ class DatasetController extends Controller
                 return response()->json(['success' => true, 'data' => $this->datasetService->importarCsv((int) $id, $file)]);
             }
             throw new \RuntimeException('Solo CSV por ahora');
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function limpiarDatos($id)
+    {
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->limpiarDatos((int) $id)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function updatePivot(Request $request, $id)
+    {
+        $request->validate(['label' => 'required|string|max:100']);
+
+        try {
+            $cuadro = \App\Models\SIGEM\Cuadro::obtenerPorId((int) $id);
+            if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+            $cuadro->actualizar(['pivot_label' => $request->label]);
+
+            return response()->json(['success' => true]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }

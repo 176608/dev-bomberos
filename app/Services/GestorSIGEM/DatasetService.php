@@ -8,15 +8,23 @@ use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class DatasetService
 {
+    private ?string $sesionId = null;
+
     public function __construct(
         private Cuadro $cuadro,
         private CuadroCategoria $categoria,
         private CuadroDato $dato,
         private AuditoriaSgiem $auditoria,
     ) {}
+
+    public function setSesionId(?string $id): void
+    {
+        if ($id) $this->sesionId = $id;
+    }
 
     public function obtenerEstado(int $cuadro_id): array
     {
@@ -96,6 +104,8 @@ class DatasetService
             }
         }
 
+        if (!$this->sesionId) $this->sesionId = (string) Str::uuid();
+
         return [
             'tiene_dataset' => $tieneDataset,
             'verticales' => $verticales,
@@ -106,6 +116,7 @@ class DatasetService
             'max_filas' => count($leafVIds),
             'max_columnas' => count($leafHIds),
             'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
+            'sesion_token' => $this->sesionId,
         ];
     }
 
@@ -316,18 +327,26 @@ class DatasetService
             }
         }
 
-        $existe = $this->categoria
-            ->where('cuadro_id', $cat->cuadro_id)
-            ->where('eje', $cat->eje)
-            ->where('padre_id', $cat->padre_id)
-            ->where('categoria_id', '!=', $categoria_id)
-            ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
-            ->exists();
-        if ($existe) {
-            throw new \RuntimeException('Ya existe otra categoría con ese nombre en el mismo nivel.');
+        // Auto-rename on sibling collision
+        $base = $nombre;
+        $contador = 0;
+        $renombrado = false;
+        while (true) {
+            $existe = $this->categoria
+                ->where('cuadro_id', $cat->cuadro_id)
+                ->where('eje', $cat->eje)
+                ->where('padre_id', $cat->padre_id)
+                ->where('categoria_id', '!=', $categoria_id)
+                ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
+                ->exists();
+            if (!$existe) break;
+            $contador++;
+            $nombre = $base . ' (' . $contador . ')';
+            $renombrado = true;
         }
 
         $cat->update(['nombre' => $nombre]);
+        $cat->setAttribute('_renombrado', $renombrado);
         return $cat;
     }
 
@@ -463,6 +482,17 @@ class DatasetService
             'headers' => [], 'labels' => [], 'data' => [],
             'max_filas' => 0, 'max_columnas' => 0,
         ];
+    }
+
+    public function limpiarDatos(int $cuadro_id): array
+    {
+        $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
+        if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+        $this->dato->where('cuadro_id', $cuadro_id)->update(['valor' => '', 'valor_crudo' => '']);
+        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Limpiar datos']);
+
+        return $this->obtenerEstado($cuadro_id);
     }
 
     // ============ TREE HELPERS ============
@@ -646,12 +676,16 @@ class DatasetService
     private function auditar(int $cuadro_id, string $accion, array $detalle = []): void
     {
         if (!Auth::check()) return;
-        $this->auditoria->create([
+        $entry = [
             'user_id' => Auth::id(),
             'modelo' => 'Dataset',
             'modelo_id' => $cuadro_id,
             'accion' => $accion,
             'datos_nuevos' => $detalle,
-        ]);
+        ];
+        if ($this->sesionId) {
+            $entry['sesion_id'] = $this->sesionId;
+        }
+        $this->auditoria->create($entry);
     }
 }

@@ -23,6 +23,9 @@
             </button>
         </div>
         <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
+        <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
+            <i class="bi bi-eraser me-1"></i>Limpiar datos
+        </button>
     </div>
 
     <div id="alerts"></div>
@@ -81,6 +84,8 @@
 #status-bar .badge { font-size: 0.7rem; }
 #mode-tabs .btn-group .btn.active { background: var(--bs-primary); color: #fff; }
 .mode-datos .edit-only { display: none !important; }
+.mode-datos .datos-only { display: inline-flex !important; }
+.mode-diseno .datos-only { display: none !important; }
 .mode-datos .editable-header { cursor: default !important; }
 .mode-datos .editable-header:focus { box-shadow: none !important; }
 #dataset-table .editable-header { cursor: text; }
@@ -98,6 +103,7 @@
 
     let estado = @json($estadoInicial);
     let currentMode = 'diseno';
+    let sesionToken = estado.sesion_token || '';
 
     window.switchMode = function(mode) {
         currentMode = mode;
@@ -138,11 +144,18 @@
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
         opts.headers['X-CSRF-TOKEN'] = CSRF;
+        if (sesionToken) opts.headers['X-Sesion-Id'] = sesionToken;
         if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
             opts.body = JSON.stringify(opts.body);
             opts.headers['Content-Type'] = 'application/json';
         }
-        return fetch(BASE + path, opts).then(r => r.json());
+        return fetch(BASE + path, opts).then(r => r.json()).then(j => {
+            if (j.data) {
+                estado = j.data;
+                sesionToken = estado.sesion_token || sesionToken;
+            }
+            return j;
+        });
     }
 
     function alerta(msg, tipo) {
@@ -338,8 +351,13 @@
             method: 'PUT',
             body: { nombre: nombre },
         }).then(j => {
-            if (j.success) status('✓ Guardado');
-            else {
+            if (j.success) {
+                if (j.categoria?._renombrado) {
+                    el.textContent = j.categoria.nombre;
+                    alerta('Ya existía, se renombró a <strong>' + esc(j.categoria.nombre) + '</strong>', 'warning');
+                }
+                status('✓ Guardado');
+            } else {
                 alerta(j.message);
                 renderGrid(estado);
             }
@@ -825,12 +843,25 @@
         }).catch(() => alerta('Error'));
     };
 
+    window.limpiarDatos = function() {
+        if (!confirm('¿Limpiar todos los valores de las celdas? Se conservarán las categorías.')) return;
+        saveAllBeforeAction();
+        status('Limpiando datos...');
+        api('/datos', { method: 'DELETE' }).then(j => {
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Datos limpiados'); }
+            else alerta(j.message);
+        }).catch(() => alerta('Error de red'));
+    };
+
     window.guardarPivot = function(el) {
         const val = el.textContent.trim() || 'PIVOTE';
         estado.pivot_label = val;
         log('guardarPivot', { val });
-        status('Pivote: ' + val);
-        // TODO: persist to backend
+        status('Guardando pivote...');
+        api('/pivot', { method: 'PUT', body: { label: val } }).then(j => {
+            if (j.success) status('Pivote: ' + val);
+            else alerta(j.message);
+        }).catch(() => alerta('Error de red'));
     };
 
     // === GENERATE ===

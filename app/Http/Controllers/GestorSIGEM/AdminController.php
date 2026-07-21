@@ -8,6 +8,7 @@ use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\AuditoriaSgiem;
 use App\Services\SecureFileUpload;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -18,7 +19,7 @@ class AdminController extends Controller
         $this->fileUploader = new SecureFileUpload();
     }
 
-    public function index()
+    public function index(Request $request)
     {
         // Verificar permisos de administrador
         if (!auth()->check()) {
@@ -30,10 +31,19 @@ class AdminController extends Controller
             return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 
-        $auditoria = AuditoriaSgiem::with('usuario')
-            ->orderBy('created_at', 'desc')
-            ->take(100)
-            ->get();
+        $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'hoy';
+
+        $query = AuditoriaSgiem::with('usuario');
+
+        if ($rango === 'hoy') {
+            $query->whereDate('created_at', today());
+        } elseif ($rango === 'semanal') {
+            $query->where('created_at', '>=', now()->subWeek());
+        } elseif ($rango === 'mensual') {
+            $query->where('created_at', '>=', now()->subDays(30));
+        }
+
+        $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
 
         $resumen = [
             'total_temas' => TemaV2::count(),
@@ -47,6 +57,7 @@ class AdminController extends Controller
             'auditoria' => $auditoria,
             'resumen' => $resumen,
             'esAdmin' => $user->hasRole('Administrador'),
+            'rangoActual' => $rango,
         ]);
     }
 
