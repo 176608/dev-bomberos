@@ -116,31 +116,33 @@
         document.getElementById('status-text').textContent = msg || '';
     }
 
-    function getCellCoords(el, targetEl) {
-        const tag = el.tagName;
-        if (tag === 'TH') {
-            const idEl = (targetEl && targetEl !== el) ? targetEl.closest('[data-categoria-id]') || el : el;
-            const catId = parseInt(idEl.dataset.categoriaId);
+    function getCellCoords(el) {
+        const th = el.closest('th');
+        const td = el.closest('td');
+        if (th && th.closest('thead')) {
+            const catId = parseInt(th.dataset.categoriaId);
             if (!catId) return null;
-            const thead = el.closest('thead');
-            if (thead) {
-                const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
-                return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
-            }
-            if (el.closest('tbody')) {
-                const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
-                return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
-            }
-            return null;
+            const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
+            return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
         }
-        const tr = el.closest('tr');
-        const tbody = tr ? tr.closest('tbody') : null;
-        if (!tbody) return null;
-        const ri = Array.from(tbody.children).indexOf(tr);
-        if (ri < 0 || ri >= estado.verticales.length) return null;
-        const ci = Array.from(tr.children).indexOf(el) - 1;
-        if (ci < 0 || ci >= estado.horizontales.length) return null;
-        return { type: 'cell', ri, ci, vId: estado.verticales[ri]?.categoria_id, hId: estado.horizontales[ci]?.categoria_id };
+        if (th && th.closest('tbody')) {
+            const catId = parseInt(th.dataset.categoriaId);
+            if (!catId) return null;
+            const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
+            if (ri < 0) return null;
+            return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
+        }
+        if (td && td.closest('tbody')) {
+            if (td.querySelector('button')) return null;
+            const vId = parseInt(td.dataset.verticalId);
+            const hId = parseInt(td.dataset.horizontalId);
+            if (!vId || !hId) return null;
+            const ri = estado.verticales.findIndex(v => v.categoria_id === vId);
+            const ci = estado.horizontales.findIndex(h => h.categoria_id === hId);
+            if (ri < 0 || ci < 0) return null;
+            return { type: 'cell', ri, ci, vId, hId };
+        }
+        return null;
     }
 
     function setSelection(minRi, minCi, maxRi, maxCi) {
@@ -166,32 +168,45 @@
             el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
         });
         if (!sel.active) return;
+
+        const tbody = document.getElementById('tbody');
+        if (!tbody) return;
+
         if (sel.startRi === -1 && sel.startCi >= 0) {
-            const tr = document.querySelector('#dataset-table thead tr');
-            if (!tr) return;
-            for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
-                const th = tr.children[ci + 1];
-                if (th && th.tagName === 'TH') th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+            for (let ri = 0; ri < estado.data.length; ri++) {
+                const tr = tbody.children[ri];
+                if (!tr) break;
+                const tds = Array.from(tr.querySelectorAll('td[data-horizontal-id]'));
+                for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
+                    const hId = estado.horizontales[ci]?.categoria_id;
+                    if (!hId) continue;
+                    const td = tds.find(t => parseInt(t.dataset.horizontalId) === hId);
+                    if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                }
             }
             return;
         }
+
         if (sel.startCi === -1 && sel.startRi >= 0) {
-            const tbody = document.getElementById('tbody');
             for (let ri = sel.startRi; ri <= sel.endRi; ri++) {
                 const tr = tbody.children[ri];
                 if (!tr) break;
-                const th = tr.children[0];
-                if (th && th.tagName === 'TH') th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
+                const dataTds = tr.querySelectorAll('td[data-horizontal-id]');
+                dataTds.forEach(td => td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
             }
             return;
         }
-        const tbody = document.getElementById('tbody');
-        for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.verticales.length; ri++) {
+
+        for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.data.length; ri++) {
             const tr = tbody.children[ri];
             if (!tr) break;
-            for (let ci = sel.startCi; ci <= sel.endCi && ci < estado.horizontales.length; ci++) {
-                const td = tr.children[ci + 1];
-                if (td && td.tagName === 'TD') td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+            const tds = Array.from(tr.querySelectorAll('td[data-horizontal-id]'));
+            for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
+                const hId = estado.horizontales[ci]?.categoria_id;
+                if (!hId) continue;
+                const td = tds.find(t => parseInt(t.querySelector('[data-horizontal-id]')?.dataset?.horizontalId) === hId);
+                if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
             }
         }
     }
@@ -222,27 +237,16 @@
             body: { nombre: nombre },
         }).then(j => {
             if (j.success) status('✓ Guardado');
-            else alerta(j.message);
+            else {
+                alerta(j.message);
+                renderGrid(estado);
+            }
         }).catch(() => alerta('Error'));
     }
 
     function esc(s) {
         if (!s) return '';
         return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function buildHijosMap(tree) {
-        const m = {};
-        function walk(nodes) {
-            for (const n of nodes) {
-                if (n.hijos && n.hijos.length > 0) {
-                    m[n.categoria_id] = n.hijos;
-                    walk(n.hijos);
-                }
-            }
-        }
-        walk(tree || []);
-        return m;
     }
 
     function renderGrid(d) {
@@ -255,13 +259,13 @@
         const empty = document.getElementById('empty-state');
         if (empty) empty.style.display = 'none';
 
-        const { verticales, horizontales, tabla, vertical_tree, horizontal_tree } = d;
+        const { verticales, horizontales, headers, labels, data } = d;
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
 
         for (const k in vivos) delete vivos[k];
-        for (const row of tabla.slice(1)) {
-            for (const cel of row.slice(1)) {
+        for (const row of data) {
+            for (const cel of row) {
                 if (cel.dato_id) {
                     vivos[cel.cat_vertical_id + '-' + cel.cat_horizontal_id] = cel;
                 }
@@ -270,81 +274,93 @@
 
         document.getElementById('dimension-badge').textContent = verticales.length + ' × ' + horizontales.length;
 
-        const vHijos = buildHijosMap(vertical_tree);
-        const hHijos = buildHijosMap(horizontal_tree);
-
-        function hijosOf(eje, catId) { return (eje === 'vertical' ? vHijos : hHijos)[catId] || null; }
+        const numLabelCols = labels.length > 0
+            ? Math.max(...labels.map(r => r.length), 1)
+            : 1;
 
         // === HEADERS ===
-        let theadHtml = '<tr><th class="text-center align-middle" style="width:44px">' +
-            '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>' +
-            '</th>';
-        for (const h of horizontales) {
-            const hijos = hijosOf('horizontal', h.categoria_id);
-            if (hijos) {
-                let chHtml = '';
-                for (const ch of hijos) {
-                    chHtml += '<div contenteditable="true" data-categoria-id="' + ch.categoria_id + '" onblur="window.renombrarHeader(this, ' + ch.categoria_id + ')" class="px-1 text-truncate small">' + esc(ch.nombre) + '</div>';
+        let theadHtml = '';
+        if (headers.length === 0) {
+            theadHtml = '<tr>'
+                + '<th class="text-center align-middle" style="width:44px;background:#f0f2f5">'
+                + '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                + '</th>'
+                + '<th class="text-center" style="width:36px;background:#f0f2f5">'
+                + '<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button>'
+                + '</th></tr>';
+        } else {
+            const numHeaderRows = headers.length;
+            for (let ri = 0; ri < numHeaderRows; ri++) {
+                theadHtml += '<tr>';
+                const headerRow = headers[ri];
+                for (const cell of headerRow) {
+                    if (cell.tipo === 'corner') {
+                        const rspan = cell.rowspan || numHeaderRows;
+                        theadHtml += '<th rowspan="' + rspan + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="width:' + (numLabelCols * 44) + 'px;background:#f0f2f5">'
+                            + '<div class="d-flex flex-column align-items-center gap-1">'
+                            + '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                            + '<small class="text-muted" style="font-size:0.65rem">PIVOTE</small>'
+                            + '</div></th>';
+                    } else if (cell.tipo === 'parent') {
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + esc(cell.nombre) + '</div>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                            + '</th>';
+                    } else {
+                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + esc(cell.nombre) + '</div>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                            + '</th>';
+                    }
                 }
-                theadHtml += '<th data-categoria-id="' + h.categoria_id + '" class="position-relative" style="min-width:120px;padding:0;background:#f0f2f5">' +
-                    '<div class="d-flex" style="min-height:52px">' +
-                    '<div class="small fw-semibold d-flex align-items-center justify-content-center border-end px-1" style="background:#e2e6ea;width:50%">' + esc(h.nombre) + '</div>' +
-                    '<div class="d-flex flex-column justify-content-center small" style="width:50%">' + chHtml + '</div>' +
-                    '</div>' +
-                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
-                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
-                    '</th>';
-            } else {
-                theadHtml += '<th data-categoria-id="' + h.categoria_id + '" class="align-middle position-relative" style="min-width:90px;background:#f0f2f5">' +
-                    '<div contenteditable="true" data-categoria-id="' + h.categoria_id + '" onblur="window.renombrarHeader(this, ' + h.categoria_id + ')" class="fw-normal px-1">' + esc(h.nombre) + '</div>' +
-                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
-                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + h.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
-                    '</th>';
+                if (ri === 0) {
+                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
+                }
+                theadHtml += '</tr>';
             }
         }
-        theadHtml += '<th class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th></tr>';
         thead.innerHTML = theadHtml;
 
         // === BODY ===
         let tbodyHtml = '';
-        for (let ri = 0; ri < verticales.length; ri++) {
-            const v = verticales[ri];
-            const hijos = hijosOf('vertical', v.categoria_id);
-            const dataRow = tabla[ri + 1] || [];
+        for (let ri = 0; ri < labels.length; ri++) {
             tbodyHtml += '<tr>';
-            if (hijos) {
-                let chHtml = '';
-                for (const ch of hijos) {
-                    chHtml += '<div contenteditable="true" data-categoria-id="' + ch.categoria_id + '" onblur="window.renombrarHeader(this, ' + ch.categoria_id + ')" class="px-1 text-truncate small">' + esc(ch.nombre) + '</div>';
+            const labelRow = labels[ri];
+            for (const label of labelRow) {
+                if (label.tipo === 'parent' && label.rowspan > 1) {
+                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + esc(label.nombre) + '</div>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        + '</th>';
+                } else {
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + esc(label.nombre) + '</div>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        + '</th>';
                 }
-                tbodyHtml += '<th data-categoria-id="' + v.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;padding:0;font-weight:500">' +
-                    '<div class="d-flex flex-column" style="min-height:52px">' +
-                    '<div class="small fw-semibold d-flex align-items-center border-bottom px-1" style="background:#e2e6ea;flex:1">' + esc(v.nombre) + '</div>' +
-                    '<div class="d-flex flex-column small" style="flex:1">' + chHtml + '</div>' +
-                    '</div>' +
-                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
-                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
-                    '</th>';
-            } else {
-                tbodyHtml += '<th data-categoria-id="' + v.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">' +
-                    '<div contenteditable="true" data-categoria-id="' + v.categoria_id + '" onblur="window.renombrarHeader(this, ' + v.categoria_id + ')" class="text-truncate px-1">' + esc(v.nombre) + '</div>' +
-                    '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' +
-                    '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + v.categoria_id + ')" style="z-index:2;font-size:0.6rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>' +
-                    '</th>';
             }
-            for (let ci = 1; ci < dataRow.length; ci++) {
-                const cel = dataRow[ci] || {};
-                tbodyHtml += '<td class="position-relative"><div contenteditable="true" onblur="window.guardarCelda(this, ' + (cel.cat_vertical_id || 'null') + ', ' + (cel.cat_horizontal_id || 'null') + ')">' + esc(cel.valor || '') + '</div></td>';
+            const dataRow = data[ri] || [];
+            for (const cel of dataRow) {
+                tbodyHtml += '<td class="position-relative" data-vertical-id="' + cel.cat_vertical_id + '" data-horizontal-id="' + cel.cat_horizontal_id + '" data-dato-id="' + (cel.dato_id || '') + '">'
+                    + '<div contenteditable="true" onblur="window.guardarCelda(this, ' + cel.cat_vertical_id + ', ' + cel.cat_horizontal_id + ')">'
+                    + esc(cel.valor || '') + '</div></td>';
             }
-            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + v.categoria_id + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
+            const lastLabel = labelRow[labelRow.length - 1];
+            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
         }
 
-        tbodyHtml += '<tr class="table-light"><td><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Fila</button></td>' +
-            '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">' +
-            '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>' +
-            '<input type="file" id="input-csv" accept=".csv,.txt" style="display:none">' +
-            ' <span class="vr mx-2"></span> ' +
-            '<span class="small">Ctrl+V para pegar</span></td></tr>';
+        const footerCols = numLabelCols + horizontales.length + 1;
+        tbodyHtml += '<tr class="table-light">'
+            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i> Fila</button></td>'
+            + '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">'
+            + '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>'
+            + '<input type="file" id="input-csv" accept=".csv,.txt" style="display:none">'
+            + ' <span class="vr mx-2"></span> '
+            + '<span class="small">Ctrl+V para pegar</span></td></tr>';
 
         tbody.innerHTML = tbodyHtml;
         renderSelection();
@@ -386,7 +402,7 @@
             if (e.target.closest('button, a, input')) return;
             const cell = e.target.closest('td, th');
             if (!cell) return;
-            const coords = getCellCoords(cell, e.target);
+            const coords = getCellCoords(cell);
             if (!coords) return;
 
             if (e.shiftKey) {
