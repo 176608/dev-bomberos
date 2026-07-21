@@ -227,10 +227,18 @@
         if (!tbody) return;
 
         // Helper: highlight parent th of a leaf vertical
-        function highlightParent(ri) {
+        function highlightVParent(ri) {
             const v = estado.verticales[ri];
             if (!v || !v.padre_id) return;
             const p = tbody.querySelector('th[data-categoria-id="' + v.padre_id + '"]');
+            if (p) p.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+        }
+
+        // Helper: highlight parent th of a leaf horizontal
+        function highlightHParent(ci) {
+            const h = estado.horizontales[ci];
+            if (!h || !h.padre_id) return;
+            const p = thead.querySelector('th[data-categoria-id="' + h.padre_id + '"]');
             if (p) p.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
         }
 
@@ -252,6 +260,7 @@
                     if (!hId) continue;
                     const td = tr.querySelector('td[data-horizontal-id="' + hId + '"]');
                     if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                    highlightHParent(ci);
                 }
             }
             return;
@@ -264,19 +273,20 @@
                 if (!tr) break;
                 tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
                 tr.querySelectorAll('td[data-horizontal-id]').forEach(td => td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
-                highlightParent(ri);
+                highlightVParent(ri);
             }
             return;
         }
 
         // — Cell selection (single or multi) —
-        // Highlight column headers
+        // Highlight column headers + parent column headers
         if (thead) {
             for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
                 const hId = estado.horizontales[ci]?.categoria_id;
                 if (!hId) continue;
                 const headerTh = thead.querySelector('th[data-categoria-id="' + hId + '"]');
                 if (headerTh) headerTh.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                highlightHParent(ci);
             }
         }
 
@@ -289,7 +299,7 @@
             tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
 
             // Parent label if this leaf has a parent
-            highlightParent(ri);
+            highlightVParent(ri);
 
             // Data cells
             for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
