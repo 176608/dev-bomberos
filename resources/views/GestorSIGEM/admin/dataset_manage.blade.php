@@ -99,7 +99,7 @@
     let estado = @json($estadoInicial);
     let currentMode = 'diseno';
 
-    function switchMode(mode) {
+    window.switchMode = function(mode) {
         currentMode = mode;
         document.querySelectorAll('[data-mode]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
@@ -117,7 +117,7 @@
             if (mode === 'datos') el.blur();
         });
         status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
-    }
+    };
 
     const sel = {
         active: false,
