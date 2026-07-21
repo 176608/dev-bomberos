@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 class DatasetService
 {
     private ?string $sesionId = null;
+    private array $auditBatch = [];
 
     public function __construct(
         private Cuadro $cuadro,
@@ -26,8 +27,21 @@ class DatasetService
         if ($id) $this->sesionId = $id;
     }
 
+    private function collectAudit(string $accion, array $detalle = []): void
+    {
+        $this->auditBatch[] = array_merge(['accion' => $accion], $detalle);
+    }
+
+    private function flushAuditBatch(int $cuadro_id): void
+    {
+        if (empty($this->auditBatch)) return;
+        $this->auditar($cuadro_id, 'actualizar', ['acciones' => $this->auditBatch]);
+        $this->auditBatch = [];
+    }
+
     public function obtenerEstado(int $cuadro_id): array
     {
+        $this->flushAuditBatch($cuadro_id);
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
@@ -182,7 +196,7 @@ class DatasetService
             ]);
         }
 
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar fila']);
+        $this->collectAudit('Agregar fila');
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -199,7 +213,7 @@ class DatasetService
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'vertical');
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Eliminar fila']);
+        $this->collectAudit('Eliminar fila');
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -225,7 +239,7 @@ class DatasetService
             ]);
         }
 
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar columna']);
+        $this->collectAudit('Agregar columna');
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -242,7 +256,7 @@ class DatasetService
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'horizontal');
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Eliminar columna']);
+        $this->collectAudit('Eliminar columna');
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -293,7 +307,7 @@ class DatasetService
             }
         }
 
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Agregar hijo', 'padre_id' => $padre_id]);
+        $this->collectAudit('Agregar hijo', ['padre_id' => $padre_id]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -415,7 +429,7 @@ class DatasetService
             throw new \RuntimeException('Posición inicial no encontrada en la grilla');
         }
 
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar parcial']);
+        $this->collectAudit('Pegar parcial');
 
         foreach ($grid as $f => $row) {
             $vPos = $vIdx + $f;
@@ -463,7 +477,7 @@ class DatasetService
             $this->renombrarCategoria($categorias[$idx]->categoria_id, trim($valor));
         }
 
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar en categorías', 'eje' => $eje]);
+        $this->collectAudit('Pegar en categorías', ['eje' => $eje]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -476,11 +490,14 @@ class DatasetService
         $cuadro->categorias()->delete();
 
         $this->auditar($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
+        if (!$this->sesionId) $this->sesionId = (string) Str::uuid();
         return [
             'tiene_dataset' => false,
             'verticales' => [], 'horizontales' => [],
             'headers' => [], 'labels' => [], 'data' => [],
             'max_filas' => 0, 'max_columnas' => 0,
+            'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
+            'sesion_token' => $this->sesionId,
         ];
     }
 

@@ -34,8 +34,8 @@
         <div class="card shadow-sm border-0" id="empty-state">
             <div class="card-body text-center py-5">
                 <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
-                <h5 class="mt-3">Generar grilla</h5>
-                <p class="text-muted small mb-3">Creá una grilla vacía para empezar a cargar datos</p>
+                <h5 class="mt-3">Generar cuadrícula</h5>
+                <p class="text-muted small mb-3">Creá una cuadrícula vacía para empezar a cargar datos</p>
                 <div class="row justify-content-center g-2 mb-3">
                     <div class="col-auto">
                         <label class="form-label small">Filas</label>
@@ -86,10 +86,16 @@
 .mode-datos .edit-only { display: none !important; }
 .mode-datos .datos-only { display: inline-flex !important; }
 .mode-diseno .datos-only { display: none !important; }
-.mode-datos .editable-header { cursor: default !important; }
-.mode-datos .editable-header:focus { box-shadow: none !important; }
+.mode-diseno .edit-only { display: inline-flex !important; }
 #dataset-table .editable-header { cursor: text; }
-#dataset-table td > div:focus { box-shadow: inset 0 0 0 1px var(--bs-primary); background: #fff; }
+#dataset-table td[data-vertical-id] > div { cursor: text; }
+.mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
+/* Espacio para botones en labels verticales en modo diseño */
+#dataset-table tbody th.position-relative { padding-right: 56px; }
+.mode-datos #dataset-table tbody th.position-relative { padding-right: 0.3rem; }
+/* Celdas de datos no editables visualmente en modo diseño */
+.mode-diseno #dataset-table td[data-vertical-id] { background: #f8f9fa; }
+.mode-diseno #dataset-table td[data-vertical-id] > div { color: #6c757d; }
 </style>
 
 <script>
@@ -115,13 +121,18 @@
         document.getElementById('grid-container').classList.toggle('mode-diseno', mode === 'diseno');
         const hint = document.getElementById('mode-hint');
         if (mode === 'diseno') {
-            hint.textContent = 'Editar estructura de filas, columnas y nombres';
+            hint.textContent = 'Diseño: estructura de filas, columnas y nombres';
         } else {
-            hint.textContent = 'Editar celdas — Flechas, Tab, Enter para navegar';
+            hint.textContent = 'Datos: editar celdas. También podés renombrar categorías y pivote';
         }
+        // Headers: editable en ambos modos
         document.querySelectorAll('#dataset-table .editable-header').forEach(el => {
-            el.contentEditable = mode === 'diseno';
-            if (mode === 'datos') el.blur();
+            el.contentEditable = 'true';
+        });
+        // Celdas de datos: solo editables en modo datos
+        document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
+            el.contentEditable = mode === 'datos';
+            if (mode === 'diseno') el.blur();
         });
         status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
     };

@@ -73,7 +73,7 @@
                             $ds = $log->datos_nuevos;
                             $accionTexto = $ds['accion'] ?? ($log->accion === 'crear' ? 'Creación' : ($log->accion === 'eliminar' ? 'Eliminación' : 'Actualización'));
                         @endphp
-                        <tr>
+                        <tr data-sesion-id="{{ $log->sesion_id ?? '' }}">
                             <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
                             <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
                             <td><code>{{ $log->modelo }}</code></td>
@@ -129,6 +129,48 @@ $(document).ready(function() {
         order: [[0, 'desc']],
         pageLength: 25,
         responsive: true,
+        drawCallback: function() {
+            var api = this.api();
+            var tableBody = $(api.table().body());
+            tableBody.find('tr.group-sesion').remove();
+
+            var groups = {};
+            api.rows({ page: 'current' }).every(function() {
+                var node = this.node();
+                if (!node) return;
+                var id = $(node).data('sesion-id') || '';
+                if (!id) return;
+                if (!groups[id]) groups[id] = { count: 0, user: '', model: '', actions: [] };
+                groups[id].count++;
+                groups[id].user = $(node).find('td:eq(1) small').text();
+                groups[id].model = $(node).find('td:eq(2) code').text();
+                var a = $(node).find('td:eq(5) small').text().trim();
+                if (a) groups[id].actions.push(a);
+            });
+
+            var rows = api.rows({ page: 'current' }).nodes();
+            var inserted = {};
+            $(rows).each(function() {
+                var id = $(this).data('sesion-id') || '';
+                if (!id || inserted[id]) return;
+                inserted[id] = true;
+                var g = groups[id];
+                $(this).before(
+                    '<tr class="group-sesion table-secondary">' +
+                        '<td colspan="6" style="font-size:0.82rem">' +
+                            '<i class="bi bi-clock-history me-2"></i>' +
+                            '<strong>Sesión</strong>' +
+                            '<span class="text-muted mx-1">·</span>' +
+                            '<strong>' + esc(g.user) + '</strong>' +
+                            '<span class="text-muted mx-1">·</span>' +
+                            '<code>' + esc(g.model) + '</code>' +
+                            '<span class="badge bg-info ms-2">' + g.count + '</span>' +
+                            '<span class="text-muted ms-2 small">' + esc(g.actions.join(', ')) + '</span>' +
+                        '</td>' +
+                    '</tr>'
+                );
+            });
+        }
     });
 
     $('#filtro-modelo').on('change', function() {
@@ -141,7 +183,33 @@ function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function renderActions(acciones) {
+    if (!acciones || !acciones.length) return '<p class="text-muted">Sin cambios</p>';
+    var html = '<ul class="list-group list-group-flush">';
+    acciones.forEach(function(a) {
+        var txt = a.accion || JSON.stringify(a);
+        var cls = 'text-primary';
+        if (txt.toLowerCase().includes('eliminar')) cls = 'text-danger';
+        else if (txt.toLowerCase().includes('agregar') || txt.toLowerCase().includes('crear')) cls = 'text-success';
+        var extra = [];
+        Object.keys(a).forEach(function(k) {
+            if (k === 'accion') return;
+            extra.push(k + ': ' + a[k]);
+        });
+        var detail = extra.length ? ' <span class="text-muted">(' + extra.join(', ') + ')</span>' : '';
+        html += '<li class="list-group-item py-1 px-2 ' + cls + '"><i class="bi bi-arrow-right-short"></i> ' + esc(txt) + detail + '</li>';
+    });
+    html += '</ul>';
+    return html;
+}
+
 function renderDiff(prev, next) {
+    if (!prev && !next) return '<p class="text-muted">Sin datos</p>';
+
+    // Batched actions
+    if (next && next.acciones) return renderActions(next.acciones);
+    if (prev && prev.acciones) return renderActions(prev.acciones);
+
     var allKeys = {};
     if (prev) Object.keys(prev).forEach(function(k) { allKeys[k] = true; });
     if (next) Object.keys(next).forEach(function(k) { allKeys[k] = true; });
@@ -150,6 +218,7 @@ function renderDiff(prev, next) {
     var html = '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:25%">Campo</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
     var changes = 0;
     keys.forEach(function(key) {
+        if (key === 'acciones') return;
         var oldVal = prev ? JSON.stringify(prev[key], null, 2) : null;
         var newVal = next ? JSON.stringify(next[key], null, 2) : null;
         if (oldVal === newVal) return;
@@ -159,7 +228,7 @@ function renderDiff(prev, next) {
         html += '<td class="text-success" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(newVal != null ? newVal : '—') + '</pre></td></tr>';
     });
     if (changes === 0) {
-        html += '<tr><td colspan="3" class="text-muted text-center">Sin cambios detectados</td></tr>';
+        html += '<tr><td colspan="3" class="text-muted text-center">Sin cambios</td></tr>';
     }
     html += '</tbody></table>';
     return html;
