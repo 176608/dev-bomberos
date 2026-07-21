@@ -291,7 +291,6 @@ class DatasetService
         $dato = $this->dato->find($dato_id);
         if (!$dato) throw new \RuntimeException('Celda no encontrada');
         $dato->update(['valor' => $valor, 'valor_crudo' => $valor]);
-        $this->auditar($dato->cuadro_id, 'actualizar', ['accion' => 'Editar celda', 'dato_id' => $dato_id]);
         return $dato;
     }
 
@@ -329,7 +328,6 @@ class DatasetService
         }
 
         $cat->update(['nombre' => $nombre]);
-        $this->auditar($cat->cuadro_id, 'actualizar', ['accion' => 'Renombrar', 'categoria_id' => $categoria_id]);
         return $cat;
     }
 
