@@ -302,14 +302,14 @@
                             + '<small class="text-muted" style="font-size:0.65rem">PIVOTE</small>'
                             + '</div></th>';
                     } else if (cell.tipo === 'parent') {
-                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + esc(cell.nombre) + '</div>'
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px' + (cell.es_hijo ? ';padding-top:4px' : '') + '">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + (cell.es_hijo ? '<span style="color:#6c757d">↳</span> ' : '') + esc(cell.nombre) + '</div>'
                             + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     } else {
-                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + esc(cell.nombre) + '</div>'
+                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px' + (cell.es_hijo ? ';padding-top:4px' : '') + '">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + (cell.es_hijo ? '<span style="color:#6c757d">↳</span> ' : '') + esc(cell.nombre) + '</div>'
                             + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
@@ -330,14 +330,14 @@
             const labelRow = labels[ri];
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + esc(label.nombre) + '</div>'
+                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500' + (label.es_hijo ? ';padding-left:12px' : '') + '">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + (label.es_hijo ? '<span style="color:#6c757d">↳</span> ' : '') + esc(label.nombre) + '</div>'
                         + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 } else {
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + esc(label.nombre) + '</div>'
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400' + (label.es_hijo ? ';padding-left:12px' : '') + '">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + (label.es_hijo ? '<span style="color:#6c757d">↳</span> ' : '') + esc(label.nombre) + '</div>'
                         + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';

@@ -219,7 +219,7 @@ class DatasetService
             'cuadro_id' => $cuadro_id,
             'eje' => $padre->eje,
             'padre_id' => $padre->categoria_id,
-            'nombre' => 'Hijo ' . ($maxOrden + 1),
+            'nombre' => $padre->nombre . ' > Hijo ' . ($maxOrden + 1),
             'orden' => $maxOrden + 1,
             'tipo' => 'dato',
         ]);
@@ -308,13 +308,14 @@ class DatasetService
         if ($cat->padre_id !== null) {
             $padre = $this->categoria->find($cat->padre_id);
             if ($padre && strcasecmp($nombre, trim($padre->nombre)) === 0) {
-                throw new \RuntimeException('Un hijo no puede tener el mismo nombre que su padre.');
+                $nombre = $padre->nombre . ' (nivel 2)';
             }
         } else {
             $hijos = $this->categoria->where('padre_id', $categoria_id)->get();
             foreach ($hijos as $hijo) {
                 if (strcasecmp($nombre, trim($hijo->nombre)) === 0) {
-                    throw new \RuntimeException('Un padre no puede tener el mismo nombre que uno de sus hijos.');
+                    $nombre = $nombre . ' (nivel 2)';
+                    break;
                 }
             }
         }
@@ -327,7 +328,7 @@ class DatasetService
             ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
             ->exists();
         if ($existe) {
-            throw new \RuntimeException('Ya existe otra categoría con ese nombre en el mismo nivel.');
+            $nombre = $nombre . ' (2)';
         }
 
         $cat->update(['nombre' => $nombre]);
@@ -445,7 +446,7 @@ class DatasetService
         foreach ($valores as $i => $valor) {
             $idx = $startIdx + $i;
             if ($idx >= $categorias->count()) break;
-            $categorias[$idx]->update(['nombre' => trim($valor)]);
+            $this->renombrarCategoria($categorias[$idx]->categoria_id, trim($valor));
         }
 
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar en categorías', 'eje' => $eje]);
