@@ -78,6 +78,9 @@
     const CSRF = '{{ csrf_token() }}';
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
 
+    const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
+    function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
+
     let estado = @json($estadoInicial);
 
     const sel = {
@@ -123,14 +126,27 @@
             const catId = parseInt(th.dataset.categoriaId);
             if (!catId) return null;
             const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
-            return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
+            if (ci >= 0) {
+                return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
+            }
+            const colIdx = parseInt(th.dataset.colIndex);
+            if (!isNaN(colIdx) && estado.horizontales[colIdx]) {
+                return { type: 'horizontal', ri: -1, ci: colIdx, vId: null, hId: estado.horizontales[colIdx].categoria_id };
+            }
+            return null;
         }
         if (th && th.closest('tbody')) {
             const catId = parseInt(th.dataset.categoriaId);
             if (!catId) return null;
             const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
-            if (ri < 0) return null;
-            return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
+            if (ri >= 0) {
+                return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
+            }
+            const rowIdx = parseInt(th.dataset.rowIndex);
+            if (!isNaN(rowIdx) && estado.verticales[rowIdx]) {
+                return { type: 'vertical', ri: rowIdx, ci: -1, vId: estado.verticales[rowIdx].categoria_id, hId: null };
+            }
+            return null;
         }
         if (td && td.closest('tbody')) {
             if (td.querySelector('button')) return null;
@@ -218,6 +234,7 @@
         const key = vId + '-' + hId;
         const dato = vivos[key];
         if (!dato) return;
+        log('guardarCelda', { vId, hId, val, dato_id: dato.dato_id });
         status('Guardando...');
         api('/celda/' + dato.dato_id, {
             method: 'PUT',
@@ -231,6 +248,7 @@
     function renombrar(el, id) {
         const nombre = el.textContent.trim();
         if (!nombre) return;
+        log('renombrar', { id, nombre });
         status('Guardando...');
         api('/categoria/' + id, {
             method: 'PUT',
@@ -255,6 +273,7 @@
             document.getElementById('empty-state').style.display = '';
             return;
         }
+        log('renderGrid', { labels: d.labels, headers: d.headers, dataLen: d.data?.length });
         document.getElementById('grid-container').style.display = '';
         const empty = document.getElementById('empty-state');
         if (empty) empty.style.display = 'none';
@@ -302,13 +321,13 @@
                             + '<small class="text-muted" style="font-size:0.65rem">PIVOTE</small>'
                             + '</div></th>';
                     } else if (cell.tipo === 'parent') {
-                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + esc(cell.nombre) + '</div>'
                             + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     } else {
-                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
+                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + esc(cell.nombre) + '</div>'
                             + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                             + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
@@ -330,13 +349,13 @@
             const labelRow = labels[ri];
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
+                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + esc(label.nombre) + '</div>'
                         + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 } else {
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + esc(label.nombre) + '</div>'
                         + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
                         + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
@@ -506,6 +525,7 @@
             if (clipGrid.length === 0) return;
 
             const anchor = getPasteAnchor();
+            log('paste', { clipGrid, anchor });
 
             if (anchor && anchor.type === 'horizontal' && anchor.hId) {
                 const valores = clipGrid[0] || [];
@@ -568,6 +588,7 @@
     };
 
     window.agregarHijo = function(padreId) {
+        log('agregarHijo', { padreId });
         saveAllBeforeAction();
         api('/hijo', { method: 'POST', body: { padre_id: padreId } }).then(j => {
             if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); }
@@ -576,6 +597,7 @@
     };
 
     window.agregarFila = function() {
+        log('agregarFila');
         saveAllBeforeAction();
         api('/fila', { method: 'POST' }).then(j => {
             if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); }
@@ -584,6 +606,7 @@
     };
 
     window.agregarColumna = function() {
+        log('agregarColumna');
         saveAllBeforeAction();
         api('/columna', { method: 'POST' }).then(j => {
             if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); }
@@ -592,6 +615,7 @@
     };
 
     window.eliminarFila = function(id) {
+        log('eliminarFila', { id });
         saveAllBeforeAction();
         if (!confirm('¿Eliminar esta fila?')) return;
         api('/fila/' + id, { method: 'DELETE' }).then(j => {
@@ -601,6 +625,7 @@
     };
 
     window.eliminarColumna = function(id) {
+        log('eliminarColumna', { id });
         saveAllBeforeAction();
         if (!confirm('¿Eliminar esta columna?')) return;
         api('/columna/' + id, { method: 'DELETE' }).then(j => {
