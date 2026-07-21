@@ -35,25 +35,38 @@ class DatasetService
 
         $tieneDataset = $verticalLeaves->count() > 0 || $horizontalLeaves->count() > 0;
 
-        $dataGrid = [];
+        $tabla = [];
         if ($tieneDataset) {
+            $headerRow = [['tipo' => 'corner', 'valor' => '']];
+            foreach ($horizontalLeaves as $h) {
+                $headerRow[] = [
+                    'tipo' => 'header', 'eje' => 'horizontal',
+                    'categoria_id' => $h->categoria_id, 'valor' => $h->nombre,
+                ];
+            }
+            $tabla[] = $headerRow;
+
             $mapa = [];
             foreach ($datos as $d) {
                 $mapa[$d->cat_vertical_id][$d->cat_horizontal_id] = $d;
             }
 
             foreach ($verticalLeaves as $v) {
-                $row = [];
+                $row = [[
+                    'tipo' => 'header', 'eje' => 'vertical',
+                    'categoria_id' => $v->categoria_id, 'valor' => $v->nombre,
+                ]];
                 foreach ($horizontalLeaves as $h) {
                     $dato = $mapa[$v->categoria_id][$h->categoria_id] ?? null;
                     $row[] = [
+                        'tipo' => 'celda',
                         'dato_id' => $dato?->dato_id,
                         'valor' => $dato?->valor ?? '',
                         'cat_vertical_id' => $v->categoria_id,
                         'cat_horizontal_id' => $h->categoria_id,
                     ];
                 }
-                $dataGrid[] = $row;
+                $tabla[] = $row;
             }
         }
 
@@ -66,9 +79,9 @@ class DatasetService
             'horizontales' => $horizontalLeaves->values()->toArray(),
             'vertical_tree' => $vertTreeSerialized,
             'horizontal_tree' => $horizTreeSerialized,
-            'headers' => $this->buildEncabezados($horizTreeSerialized),
-            'labels' => $this->buildEtiquetas($vertTreeSerialized),
-            'data' => $dataGrid,
+            'encabezados' => $this->buildEncabezados($horizTreeSerialized),
+            'etiquetas' => $this->buildEtiquetas($vertTreeSerialized),
+            'tabla' => $tabla,
             'max_filas' => $verticalLeaves->count(),
             'max_columnas' => $horizontalLeaves->count(),
         ];
@@ -207,10 +220,6 @@ class DatasetService
             throw new \RuntimeException('Categoría padre no encontrada');
         }
 
-        if ($padre->padre_id !== null) {
-            throw new \RuntimeException('No se pueden agregar hijos a una categoría que ya es hija. Máximo 2 niveles de jerarquía.');
-        }
-
         $hijosExistentes = $padre->hijos()->count();
         $maxOrden = $padre->hijos()->max('orden') ?? 0;
         $esPrimerHijo = $hijosExistentes === 0;
@@ -219,7 +228,7 @@ class DatasetService
             'cuadro_id' => $cuadro_id,
             'eje' => $padre->eje,
             'padre_id' => $padre->categoria_id,
-            'nombre' => $padre->nombre . ' > Hijo ' . ($maxOrden + 1),
+            'nombre' => 'Hijo ' . ($maxOrden + 1),
             'orden' => $maxOrden + 1,
             'tipo' => 'dato',
         ]);
@@ -301,36 +310,6 @@ class DatasetService
     {
         $cat = $this->categoria->find($categoria_id);
         if (!$cat) throw new \RuntimeException('Categoría no encontrada');
-
-        $nombre = trim($nombre);
-        if ($nombre === '') throw new \RuntimeException('El nombre no puede estar vacío.');
-
-        if ($cat->padre_id !== null) {
-            $padre = $this->categoria->find($cat->padre_id);
-            if ($padre && strcasecmp($nombre, trim($padre->nombre)) === 0) {
-                $nombre = $padre->nombre . ' (nivel 2)';
-            }
-        } else {
-            $hijos = $this->categoria->where('padre_id', $categoria_id)->get();
-            foreach ($hijos as $hijo) {
-                if (strcasecmp($nombre, trim($hijo->nombre)) === 0) {
-                    $nombre = $nombre . ' (nivel 2)';
-                    break;
-                }
-            }
-        }
-
-        $existe = $this->categoria
-            ->where('cuadro_id', $cat->cuadro_id)
-            ->where('eje', $cat->eje)
-            ->where('padre_id', $cat->padre_id)
-            ->where('categoria_id', '!=', $categoria_id)
-            ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
-            ->exists();
-        if ($existe) {
-            $nombre = $nombre . ' (2)';
-        }
-
         $cat->update(['nombre' => $nombre]);
         $this->auditar($cat->cuadro_id, 'actualizar', ['accion' => 'Renombrar', 'categoria_id' => $categoria_id]);
         return $cat;
@@ -446,7 +425,7 @@ class DatasetService
         foreach ($valores as $i => $valor) {
             $idx = $startIdx + $i;
             if ($idx >= $categorias->count()) break;
-            $this->renombrarCategoria($categorias[$idx]->categoria_id, trim($valor));
+            $categorias[$idx]->update(['nombre' => trim($valor)]);
         }
 
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar en categorías', 'eje' => $eje]);
@@ -464,9 +443,9 @@ class DatasetService
         $this->auditar($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
         return [
             'tiene_dataset' => false,
-            'verticales' => [], 'horizontales' => [],
+            'verticales' => [], 'horizontales' => [], 'tabla' => [],
             'vertical_tree' => [], 'horizontal_tree' => [],
-            'headers' => [], 'labels' => [], 'data' => [],
+            'encabezados' => [], 'etiquetas' => [],
             'max_filas' => 0, 'max_columnas' => 0,
         ];
     }
@@ -565,14 +544,13 @@ class DatasetService
         }
         foreach ($nodes as $node) {
             $hasChildren = !empty($node['hijos']);
-            $esHijo = $depth > 0;
             if ($hasChildren) {
                 $rows[$depth][] = [
                     'tipo' => 'parent',
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'colspan' => $node['span'],
-                    'es_hijo' => $esHijo,
+                    'tiene_hijos' => true,
                 ];
                 $this->buildEncabezadosRecursive($node['hijos'], $depth + 1, $rows);
             } else {
@@ -581,7 +559,7 @@ class DatasetService
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'colspan' => 1,
-                    'es_hijo' => $esHijo,
+                    'tiene_hijos' => false,
                 ];
             }
         }
@@ -609,7 +587,8 @@ class DatasetService
                         'categoria_id' => $pNode['categoria_id'],
                         'nombre' => $pNode['nombre'],
                         'rowspan' => $pNode['span'],
-                        'es_hijo' => false,
+                        'tiene_hijos' => true,
+                        'es_hoja' => false,
                     ];
                 }
                 $rowLabels[] = [
@@ -617,7 +596,8 @@ class DatasetService
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'rowspan' => 1,
-                    'es_hijo' => !empty($parents),
+                    'tiene_hijos' => false,
+                    'es_hoja' => true,
                 ];
                 $leafRows[] = $rowLabels;
             }
