@@ -30,33 +30,6 @@ class DatasetService
         $vertTree = $this->buildTree($allVertical);
         $horizTree = $this->buildTree($allHorizontal);
 
-        $verticalLeaves = $this->getLeaves($allVertical);
-        $horizontalLeaves = $this->getLeaves($allHorizontal);
-
-        $tieneDataset = $verticalLeaves->count() > 0 || $horizontalLeaves->count() > 0;
-
-        $dataGrid = [];
-        if ($tieneDataset) {
-            $mapa = [];
-            foreach ($datos as $d) {
-                $mapa[$d->cat_vertical_id][$d->cat_horizontal_id] = $d;
-            }
-
-            foreach ($verticalLeaves as $v) {
-                $row = [];
-                foreach ($horizontalLeaves as $h) {
-                    $dato = $mapa[$v->categoria_id][$h->categoria_id] ?? null;
-                    $row[] = [
-                        'dato_id' => $dato?->dato_id,
-                        'valor' => $dato?->valor ?? '',
-                        'cat_vertical_id' => $v->categoria_id,
-                        'cat_horizontal_id' => $h->categoria_id,
-                    ];
-                }
-                $dataGrid[] = $row;
-            }
-        }
-
         $vertTreeSerialized = $this->serializeTree($vertTree);
         $horizTreeSerialized = $this->serializeTree($horizTree);
 
@@ -64,15 +37,74 @@ class DatasetService
         $numLabelCols = $labels ? max(array_map('count', $labels)) : 1;
         $headers = $this->buildEncabezados($horizTreeSerialized, $numLabelCols);
 
+        $leafVIds = [];
+        foreach ($labels as $row) {
+            foreach ($row as $cell) {
+                if ($cell['tipo'] === 'leaf') {
+                    $leafVIds[] = $cell['categoria_id'];
+                    break;
+                }
+            }
+        }
+
+        $leafHIds = [];
+        if (!empty($headers)) {
+            $leafCells = [];
+            foreach ($headers as $row) {
+                foreach ($row as $cell) {
+                    if ($cell['tipo'] === 'leaf') {
+                        $leafCells[] = $cell;
+                    }
+                }
+            }
+            usort($leafCells, fn($a, $b) => $a['col_index'] <=> $b['col_index']);
+            $leafHIds = array_map(fn($c) => $c['categoria_id'], $leafCells);
+        }
+
+        $tieneDataset = !empty($leafVIds) || !empty($leafHIds);
+
+        $vertMap = $allVertical->keyBy('categoria_id');
+        $horizMap = $allHorizontal->keyBy('categoria_id');
+
+        $verticales = [];
+        foreach ($leafVIds as $id) {
+            if ($vertMap->has($id)) $verticales[] = $vertMap[$id]->toArray();
+        }
+        $horizontales = [];
+        foreach ($leafHIds as $id) {
+            if ($horizMap->has($id)) $horizontales[] = $horizMap[$id]->toArray();
+        }
+
+        $dataGrid = [];
+        if ($tieneDataset) {
+            $mapa = [];
+            foreach ($datos as $d) {
+                $mapa[$d->cat_vertical_id][$d->cat_horizontal_id] = $d;
+            }
+            foreach ($leafVIds as $vId) {
+                $row = [];
+                foreach ($leafHIds as $hId) {
+                    $dato = $mapa[$vId][$hId] ?? null;
+                    $row[] = [
+                        'dato_id' => $dato?->dato_id,
+                        'valor' => $dato?->valor ?? '',
+                        'cat_vertical_id' => $vId,
+                        'cat_horizontal_id' => $hId,
+                    ];
+                }
+                $dataGrid[] = $row;
+            }
+        }
+
         return [
             'tiene_dataset' => $tieneDataset,
-            'verticales' => $verticalLeaves->values()->toArray(),
-            'horizontales' => $horizontalLeaves->values()->toArray(),
+            'verticales' => $verticales,
+            'horizontales' => $horizontales,
             'headers' => $headers,
             'labels' => $labels,
             'data' => $dataGrid,
-            'max_filas' => $verticalLeaves->count(),
-            'max_columnas' => $horizontalLeaves->count(),
+            'max_filas' => count($leafVIds),
+            'max_columnas' => count($leafHIds),
         ];
     }
 

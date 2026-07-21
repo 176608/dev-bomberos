@@ -32,9 +32,6 @@
                     </div>
                 </div>
                 <button class="btn btn-primary px-4" id="btn-generar"><i class="bi bi-plus-square me-1"></i>Generar</button>
-                <hr class="my-3" style="max-width:300px;margin-inline:auto">
-                <button class="btn btn-outline-secondary btn-sm" id="btn-importar-vacio"><i class="bi bi-upload me-1"></i>Importar CSV</button>
-                <input type="file" id="input-csv-vacio" accept=".csv,.txt" hidden>
             </div>
         </div>
     @endif
@@ -189,14 +186,22 @@
         if (!tbody) return;
 
         if (sel.startRi === -1 && sel.startCi >= 0) {
+            const thead = document.getElementById('thead');
+            if (thead) {
+                thead.querySelectorAll('th[data-col-index]').forEach(th => {
+                    const ci = parseInt(th.dataset.colIndex);
+                    if (ci >= sel.startCi && ci <= sel.endCi) {
+                        th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                    }
+                });
+            }
             for (let ri = 0; ri < estado.data.length; ri++) {
                 const tr = tbody.children[ri];
                 if (!tr) break;
-                const tds = Array.from(tr.querySelectorAll('td[data-horizontal-id]'));
                 for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
                     const hId = estado.horizontales[ci]?.categoria_id;
                     if (!hId) continue;
-                    const td = tds.find(t => parseInt(t.dataset.horizontalId) === hId);
+                    const td = tr.querySelector('td[data-horizontal-id="' + hId + '"]');
                     if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
                 }
             }
@@ -208,8 +213,7 @@
                 const tr = tbody.children[ri];
                 if (!tr) break;
                 tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
-                const dataTds = tr.querySelectorAll('td[data-horizontal-id]');
-                dataTds.forEach(td => td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
+                tr.querySelectorAll('td[data-horizontal-id]').forEach(td => td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
             }
             return;
         }
@@ -217,11 +221,13 @@
         for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.data.length; ri++) {
             const tr = tbody.children[ri];
             if (!tr) break;
-            const tds = Array.from(tr.querySelectorAll('td[data-horizontal-id]'));
+            if (ri === sel.startRi || ri === sel.endRi) {
+                tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
+            }
             for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
                 const hId = estado.horizontales[ci]?.categoria_id;
                 if (!hId) continue;
-                const td = tds.find(t => parseInt(t.querySelector('[data-horizontal-id]')?.dataset?.horizontalId) === hId);
+                const td = tr.querySelector('td[data-horizontal-id="' + hId + '"]');
                 if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
             }
         }
@@ -375,11 +381,7 @@
         const footerCols = numLabelCols + horizontales.length + 1;
         tbodyHtml += '<tr class="table-light">'
             + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i> Fila</button></td>'
-            + '<td colspan="' + (horizontales.length + 1) + '" class="text-muted">'
-            + '<a href="#" onclick="window.importarCSV(); return false" class="text-decoration-none small"><i class="bi bi-upload"></i> Importar CSV</a>'
-            + '<input type="file" id="input-csv" accept=".csv,.txt" style="display:none">'
-            + ' <span class="vr mx-2"></span> '
-            + '<span class="small">Ctrl+V para pegar</span></td></tr>';
+            + '<td colspan="' + (horizontales.length + 1) + '"></td></tr>';
 
         tbody.innerHTML = tbodyHtml;
         renderSelection();
@@ -654,19 +656,6 @@
         }).catch(() => alerta('Error'));
     });
 
-    // === IMPORT (empty state) ===
-    document.getElementById('btn-importar-vacio')?.addEventListener('click', function() {
-        document.getElementById('input-csv-vacio').click();
-    });
-    document.getElementById('input-csv-vacio')?.addEventListener('change', function(e) {
-        importarFile(e.target);
-    });
-
-    // === IMPORT (grid state) ===
-    document.addEventListener('change', function(e) {
-        if (e.target.id === 'input-csv') importarFile(e.target);
-    });
-
     function importarFile(input) {
         const file = input.files[0];
         if (!file) return;
@@ -680,10 +669,6 @@
             }).catch(() => alerta('Error'));
         input.value = '';
     }
-
-    window.importarCSV = function() {
-        document.getElementById('input-csv').click();
-    };
 
     // === INIT ===
     if (estado.tiene_dataset) {
