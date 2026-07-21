@@ -105,6 +105,7 @@ class DatasetService
             'data' => $dataGrid,
             'max_filas' => count($leafVIds),
             'max_columnas' => count($leafHIds),
+            'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
         ];
     }
 

@@ -13,6 +13,18 @@
         </a>
     </div>
 
+    <div class="d-flex justify-content-between align-items-center mb-2" id="mode-tabs">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Modo de edición">
+            <button type="button" class="btn btn-outline-primary active" data-mode="diseno" onclick="switchMode('diseno')">
+                <i class="bi bi-pencil-square me-1"></i>Diseño
+            </button>
+            <button type="button" class="btn btn-outline-primary" data-mode="datos" onclick="switchMode('datos')">
+                <i class="bi bi-table me-1"></i>Datos
+            </button>
+        </div>
+        <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
+    </div>
+
     <div id="alerts"></div>
 
     @if(!$estadoInicial['tiene_dataset'])
@@ -67,6 +79,12 @@
 #dataset-table .cell-anchor { background: var(--bs-primary) !important; color: #fff; }
 #dataset-table .cell-anchor > div { color: #fff; }
 #status-bar .badge { font-size: 0.7rem; }
+#mode-tabs .btn-group .btn.active { background: var(--bs-primary); color: #fff; }
+.mode-datos .edit-only { display: none !important; }
+.mode-datos .editable-header { cursor: default !important; }
+.mode-datos .editable-header:focus { box-shadow: none !important; }
+#dataset-table .editable-header { cursor: text; }
+#dataset-table td > div:focus { box-shadow: inset 0 0 0 1px var(--bs-primary); background: #fff; }
 </style>
 
 <script>
@@ -79,6 +97,27 @@
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
 
     let estado = @json($estadoInicial);
+    let currentMode = 'diseno';
+
+    function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        document.getElementById('grid-container').classList.toggle('mode-datos', mode === 'datos');
+        document.getElementById('grid-container').classList.toggle('mode-diseno', mode === 'diseno');
+        const hint = document.getElementById('mode-hint');
+        if (mode === 'diseno') {
+            hint.textContent = 'Editar estructura de filas, columnas y nombres';
+        } else {
+            hint.textContent = 'Editar celdas — Flechas, Tab, Enter para navegar';
+        }
+        document.querySelectorAll('#dataset-table .editable-header').forEach(el => {
+            el.contentEditable = mode === 'diseno';
+            if (mode === 'datos') el.blur();
+        });
+        status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
+    }
 
     const sel = {
         active: false,
@@ -308,10 +347,10 @@
         if (headers.length === 0) {
             theadHtml = '<tr>'
                 + '<th class="text-center align-middle" style="width:44px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                + '<button class="btn btn-sm btn-outline-danger py-0 px-1 edit-only" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
                 + '</th>'
                 + '<th class="text-center" style="width:36px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button>'
+                + '<button class="btn btn-sm btn-outline-primary py-0 px-1 edit-only" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button>'
                 + '</th></tr>';
         } else {
             const numHeaderRows = headers.length;
@@ -323,25 +362,25 @@
                         const rspan = cell.rowspan || numHeaderRows;
                         theadHtml += '<th rowspan="' + rspan + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="width:' + (numLabelCols * 44) + 'px;background:#f0f2f5">'
                             + '<div class="d-flex flex-column align-items-center gap-1">'
-                            + '<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
-                            + '<small class="text-muted" style="font-size:0.65rem">PIVOTE</small>'
+                            + '<button class="btn btn-sm btn-outline-danger py-0 px-1 edit-only" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
+                            + '<span class="pivot-label editable-header text-muted small" contenteditable="false" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
                             + '</div></th>';
                     } else if (cell.tipo === 'parent') {
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#e2e6ea;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small">' + esc(cell.nombre) + '</div>'
-                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0 edit-only" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0 edit-only" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     } else {
                         theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle position-relative text-center" style="background:#f0f2f5;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small">' + esc(cell.nombre) + '</div>'
-                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small editable-header">' + esc(cell.nombre) + '</div>'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 end-0 edit-only" onclick="window.agregarHijo(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                            + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 end-0 edit-only" onclick="window.eliminarColumna(' + cell.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                             + '</th>';
                     }
                 }
                 if (ri === 0) {
-                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
+                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary py-0 px-1 edit-only" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus-lg"></i></button></th>';
                 }
                 theadHtml += '</tr>';
             }
@@ -356,15 +395,15 @@
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold">' + esc(label.nombre) + '</div>'
-                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle edit-only" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle edit-only" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 } else {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small">' + esc(label.nombre) + '</div>'
-                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
-                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small editable-header">' + esc(label.nombre) + '</div>'
+                        + (!label.es_hijo ? '<button class="btn btn-sm text-primary p-0 position-absolute top-0 start-100 translate-middle edit-only" onclick="window.agregarHijo(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-plus-circle"></i></button>' : '')
+                        + '<button class="btn btn-sm text-danger p-0 position-absolute bottom-0 start-100 translate-middle edit-only" onclick="window.eliminarFila(' + label.categoria_id + ')" style="z-index:2;font-size:0.55rem;background:rgba(255,255,255,0.8)"><i class="bi bi-x-circle"></i></button>'
                         + '</th>';
                 }
             }
@@ -375,12 +414,12 @@
                     + esc(cel.valor || '') + '</div></td>';
             }
             const lastLabel = labelRow[labelRow.length - 1];
-            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
+            tbodyHtml += '<td class="text-center"><button class="btn btn-sm text-danger py-0 px-1 edit-only" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x-circle"></i></button></td></tr>';
         }
 
         const footerCols = numLabelCols + horizontales.length + 1;
         tbodyHtml += '<tr class="table-light">'
-            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success py-0" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i> Fila</button></td>'
+            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success py-0 edit-only" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i> Fila</button></td>'
             + '<td colspan="' + (horizontales.length + 1) + '"></td></tr>';
 
         tbody.innerHTML = tbodyHtml;
@@ -526,6 +565,29 @@
             const clipGrid = text.split('\n').filter(r => r.trim()).map(r => r.split('\t').map(c => c.trim()));
             if (clipGrid.length === 0) return;
 
+            // En modo Datos, solo pegar como celdas
+            if (currentMode === 'datos') {
+                const anchor = sel.active ? getPasteAnchor() : lastCell;
+                if (!anchor || anchor.type !== 'cell' || !anchor.vId || !anchor.hId) {
+                    status('Seleccioná una celda para pegar');
+                    return;
+                }
+                saveAllBeforeAction();
+                status('Pegando...');
+                api('/paste', {
+                    method: 'POST',
+                    body: {
+                        grid: clipGrid,
+                        start_vertical_id: anchor.vId,
+                        start_horizontal_id: anchor.hId,
+                    }
+                }).then(j => {
+                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
+                    else alerta(j.message);
+                }).catch(() => alerta('Error de red'));
+                return;
+            }
+
             const anchor = getPasteAnchor();
             log('paste', { clipGrid, anchor });
 
@@ -578,6 +640,64 @@
                     if (j.success) { estado = j.data; renderGrid(estado); status('✓ Reemplazado'); }
                     else alerta(j.message);
                 }).catch(() => alerta('Error de red'));
+            }
+        });
+
+        // === KEYBOARD NAVIGATION (Datos mode) ===
+        table.addEventListener('keydown', function(e) {
+            if (currentMode !== 'datos') return;
+            if (e.target.closest('button, a, input')) return;
+
+            const td = e.target.closest('td[data-vertical-id]');
+            if (!td) return;
+
+            const vId = parseInt(td.dataset.verticalId);
+            const hId = parseInt(td.dataset.horizontalId);
+            if (!vId || !hId) return;
+
+            let ri = estado.verticales.findIndex(v => v.categoria_id === vId);
+            let ci = estado.horizontales.findIndex(h => h.categoria_id === hId);
+            if (ri < 0 || ci < 0) return;
+
+            const key = e.key;
+            const isArrow = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key);
+            const isTab = key === 'Tab';
+            const isEnter = key === 'Enter';
+
+            if (!isArrow && !isTab && !isEnter) return;
+            e.preventDefault();
+
+            if (key === 'ArrowRight') ci++;
+            else if (key === 'ArrowLeft') ci--;
+            else if (key === 'ArrowDown') ri++;
+            else if (key === 'ArrowUp') ri--;
+            else if (key === 'Tab') { e.shiftKey ? ci-- : ci++; }
+            else if (key === 'Enter') { e.shiftKey ? ri-- : ri++; }
+
+            if (ri < 0) ri = 0;
+            if (ri >= estado.verticales.length) ri = estado.verticales.length - 1;
+            if (ci < 0) ci = 0;
+            if (ci >= estado.horizontales.length) ci = estado.horizontales.length - 1;
+
+            const targetTd = document.querySelector(
+                '#tbody td[data-vertical-id="' + estado.verticales[ri].categoria_id + '"][data-horizontal-id="' + estado.horizontales[ci].categoria_id + '"]'
+            );
+            if (!targetTd) return;
+
+            const div = targetTd.querySelector('div[contenteditable]');
+            if (div) {
+                // Update lastCell for paste anchor
+                lastCell = { type: 'cell', vId: estado.verticales[ri].categoria_id, hId: estado.horizontales[ci].categoria_id };
+                clearSelection();
+                setSelection(ri, ci, ri, ci);
+                div.focus();
+                // Place cursor at end
+                const range = document.createRange();
+                const selR = window.getSelection();
+                range.selectNodeContents(div);
+                range.collapse(false);
+                selR.removeAllRanges();
+                selR.addRange(range);
             }
         });
     });
@@ -643,6 +763,14 @@
             if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Dataset limpiado'); }
             else alerta(j.message);
         }).catch(() => alerta('Error'));
+    };
+
+    window.guardarPivot = function(el) {
+        const val = el.textContent.trim() || 'PIVOTE';
+        estado.pivot_label = val;
+        log('guardarPivot', { val });
+        status('Pivote: ' + val);
+        // TODO: persist to backend
     };
 
     // === GENERATE ===

@@ -21,7 +21,8 @@ class Cuadro extends Model
         'permite_grafica',
         'tipos_grafica_permitida',
         'cabecera_gen',
-        'piepagina_gen'
+        'piepagina_gen',
+        'pivot_label'
     ];
 
     protected $casts = [
