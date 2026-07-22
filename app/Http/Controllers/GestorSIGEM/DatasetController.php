@@ -111,6 +111,15 @@ class DatasetController extends Controller
         }
     }
 
+    public function cloneCategoria($id, $categoria)
+    {
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->clonarCategoria((int) $id, (int) $categoria)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function storeHijo(Request $request, $id)
     {
         $request->validate(['padre_id' => 'required|integer']);

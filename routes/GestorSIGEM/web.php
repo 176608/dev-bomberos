@@ -57,6 +57,7 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
                 Route::post('/paste', [DatasetController::class, 'paste'])->name('paste');
                 Route::post('/paste-categorias', [DatasetController::class, 'pasteCategorias'])->name('paste-categorias');
                 Route::post('/hijo', [DatasetController::class, 'storeHijo'])->name('hijo.store');
+                Route::post('/clonar/{categoria}', [DatasetController::class, 'cloneCategoria'])->name('clonar');
                 Route::post('/importar', [DatasetController::class, 'importar'])->name('importar');
                 Route::put('/pivot', [DatasetController::class, 'updatePivot'])->name('pivot.update');
                 Route::delete('/datos', [DatasetController::class, 'limpiarDatos'])->name('datos.limpiar');

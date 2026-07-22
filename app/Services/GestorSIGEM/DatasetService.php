@@ -276,6 +276,93 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
+    public function clonarCategoria(int $cuadro_id, int $categoria_id): array
+    {
+        $padre = $this->categoria->find($categoria_id);
+        if (!$padre || $padre->cuadro_id != $cuadro_id) {
+            throw new \RuntimeException('Categoría no encontrada');
+        }
+        if ($padre->padre_id !== null) {
+            throw new \RuntimeException('No se puede clonar una categoría hija');
+        }
+
+        $hijos = $padre->hijos()->orderBy('orden')->get();
+        if ($hijos->count() < 2) {
+            throw new \RuntimeException('La categoría debe tener al menos 2 hijos para clonar');
+        }
+
+        $eje = $padre->eje;
+
+        $this->categoria->where('cuadro_id', $cuadro_id)
+            ->where('eje', $eje)
+            ->whereNull('padre_id')
+            ->where('orden', '>', $padre->orden)
+            ->increment('orden');
+
+        $baseNombre = $padre->nombre . ' Clon';
+        $nombre = $baseNombre;
+        $contador = 0;
+        while ($this->categoria->where('cuadro_id', $cuadro_id)
+            ->where('eje', $eje)
+            ->whereNull('padre_id')
+            ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
+            ->exists()
+        ) {
+            $contador++;
+            $nombre = $baseNombre . '(' . $contador . ')';
+        }
+
+        $clon = $this->categoria->create([
+            'cuadro_id' => $cuadro_id,
+            'eje' => $eje,
+            'nombre' => $nombre,
+            'orden' => $padre->orden + 1,
+            'tipo' => 'dato',
+        ]);
+
+        $nuevosHijos = [];
+        foreach ($hijos as $hijo) {
+            $nuevosHijos[] = $this->categoria->create([
+                'cuadro_id' => $cuadro_id,
+                'eje' => $eje,
+                'padre_id' => $clon->categoria_id,
+                'nombre' => $hijo->nombre,
+                'orden' => $hijo->orden,
+                'tipo' => 'dato',
+            ]);
+        }
+
+        if ($eje === 'vertical') {
+            $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
+            foreach ($nuevosHijos as $nh) {
+                foreach ($horizontales as $c => $hCat) {
+                    $this->dato->create([
+                        'cuadro_id' => $cuadro_id,
+                        'cat_horizontal_id' => $hCat->categoria_id,
+                        'cat_vertical_id' => $nh->categoria_id,
+                        'valor' => '',
+                        'fila' => $nh->orden, 'columna' => $c + 1,
+                    ]);
+                }
+            }
+        } else {
+            $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
+            foreach ($verticales as $f => $vCat) {
+                foreach ($nuevosHijos as $nh) {
+                    $this->dato->create([
+                        'cuadro_id' => $cuadro_id,
+                        'cat_horizontal_id' => $nh->categoria_id,
+                        'cat_vertical_id' => $vCat->categoria_id,
+                        'valor' => '',
+                        'fila' => $f + 1, 'columna' => $nh->orden,
+                    ]);
+                }
+            }
+        }
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
     public function actualizarCelda(int $dato_id, string $valor): CuadroDato
     {
         $dato = $this->dato->find($dato_id);
@@ -515,8 +602,10 @@ class DatasetService
             if ($hijos->isNotEmpty()) {
                 $item['hijos'] = $this->serializeTree($hijos->all());
                 $item['span'] = $this->countLeavesRecursive($item);
+                $item['num_hijos'] = $hijos->count();
             } else {
                 $item['span'] = 1;
+                $item['num_hijos'] = 0;
             }
             $result[] = $item;
         }
@@ -553,6 +642,7 @@ class DatasetService
                     'categoria_id' => $node['categoria_id'],
                     'nombre' => $node['nombre'],
                     'colspan' => $node['span'],
+                    'num_hijos' => $node['num_hijos'] ?? 0,
                     'es_hijo' => $esHijo,
                     'col_index' => $colIdx,
                 ];
@@ -588,6 +678,7 @@ class DatasetService
                             'categoria_id' => $node['categoria_id'],
                             'nombre' => $node['nombre'],
                             'rowspan' => $span,
+                            'num_hijos' => $node['num_hijos'] ?? 0,
                             'es_hijo' => false,
                             'row_index' => $rowIdx,
                         ];

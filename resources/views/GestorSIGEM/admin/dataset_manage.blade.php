@@ -114,11 +114,11 @@
 #dataset-table .editable-header { cursor: text; }
 #dataset-table td[data-vertical-id] > div { cursor: text; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
-/* Headers horizontales con position-relative: espacio para 2 botones sin que salgan */
-#dataset-table thead th.position-relative { padding-right: 52px; }
+/* Headers horizontales con position-relative: espacio para 3 botones sin que salgan */
+#dataset-table thead th.position-relative { padding-right: 76px; }
 .mode-datos #dataset-table thead th.position-relative { padding-right: 0.3rem; }
-/* Labels verticales con position-relative (con hijos): espacio para 2 botones */
-#dataset-table tbody th.position-relative { padding-right: 52px; }
+/* Labels verticales con position-relative (con hijos): espacio para 3 botones */
+#dataset-table tbody th.position-relative { padding-right: 76px; }
 .mode-datos #dataset-table tbody th.position-relative { padding-right: 0.3rem; }
 /* Labels sin hijos (d-flex): 75/25, modo datos 100% */
 .mode-datos #dataset-table th.d-flex .edit-only,
@@ -467,6 +467,7 @@
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
                             + '<div class="position-absolute end-0 top-50 translate-middle-y d-flex flex-row gap-0 p-0 edit-only" style="z-index:2">'
                             + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                            + (cell.num_hijos >= 2 ? '<button class="btn btn-sm btn-outline-info rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.7rem" title="Clonar categoría" onclick="window.clonarCategoria(' + cell.categoria_id + ')"><i class="bi bi-copy"></i></button>' : '')
                             + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button>'
                             + '</div>'
                             + '</th>';
@@ -498,11 +499,12 @@
             const labelRow = labels[ri];
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    // Parent 2+ children: vertical buttons (+ top, x bottom), centered
+                    // Parent 2+ children: vertical buttons (+ top, clone middle, x bottom), centered
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="position-absolute end-0 top-50 translate-middle-y d-flex flex-column gap-0 p-0 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
+                        + (label.num_hijos >= 2 ? '<button class="btn btn-sm btn-outline-info rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.7rem" title="Clonar categoría" onclick="window.clonarCategoria(' + label.categoria_id + ')"><i class="bi bi-copy"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
                         + '</div>'
                         + '</th>';
@@ -880,6 +882,16 @@
         }).catch(() => alerta('Error'));
     };
 
+    window.clonarCategoria = function(categoriaId) {
+        log('clonarCategoria', { categoriaId });
+        saveAllBeforeAction();
+        if (!confirm('¿Clonar esta categoría con todos sus hijos?')) return;
+        api('/clonar/' + categoriaId, { method: 'POST' }).then(j => {
+            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría clonada'); }
+            else alerta(j.message);
+        }).catch(() => alerta('Error'));
+    };
+
     window.agregarFila = function() {
         log('agregarFila');
         saveAllBeforeAction();
@@ -985,6 +997,7 @@
     // === INIT ===
     if (estado.tiene_dataset) {
         renderGrid(estado);
+        switchMode('diseno');
     }
 })();
 </script>
