@@ -469,10 +469,10 @@
             const labelRow = labels[ri];
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    // Parent with 2+ children: vertical stacking
+                    // Parent with 2+ children: vertical stacking, centered vertically
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
-                        + '<div class="position-absolute top-0 end-0 d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
+                        + '<div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'
@@ -503,8 +503,7 @@
                     + '<div contenteditable="true" onblur="window.guardarCelda(this, ' + cel.cat_vertical_id + ', ' + cel.cat_horizontal_id + ')">'
                     + esc(cel.valor || '') + '</div></td>';
             }
-            const lastLabel = labelRow[labelRow.length - 1];
-            tbodyHtml += '<td class="text-center"><button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.eliminarFila(' + (lastLabel ? lastLabel.categoria_id : 'null') + ')" title="Eliminar fila"><i class="bi bi-x"></i></button></td></tr>';
+            tbodyHtml += '<td></td></tr>';
         }
 
         const footerCols = numLabelCols + horizontales.length + 1;
