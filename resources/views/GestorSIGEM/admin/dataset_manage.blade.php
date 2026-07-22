@@ -91,7 +91,7 @@
 #dataset-table td[data-vertical-id] > div { cursor: text; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
 /* Espacio para botones en labels verticales en modo diseño */
-#dataset-table tbody th.position-relative { padding-right: 56px; }
+#dataset-table tbody th.position-relative { padding-right: 34px; }
 .mode-datos #dataset-table tbody th.position-relative { padding-right: 0.3rem; }
 /* Celdas de datos no editables visualmente en modo diseño */
 .mode-diseno #dataset-table td[data-vertical-id] { background: #f8f9fa; }
@@ -123,7 +123,7 @@
         if (mode === 'diseno') {
             hint.textContent = 'Diseño: estructura de filas, columnas y nombres';
         } else {
-            hint.textContent = 'Datos: editar celdas. También podés renombrar categorías y pivote';
+            hint.textContent = 'Datos: editar celdas. También puede renombrar categorías y pivote';
         }
         // Headers: editable en ambos modos
         document.querySelectorAll('#dataset-table .editable-header').forEach(el => {
@@ -468,7 +468,7 @@
                 if (label.tipo === 'parent' && label.rowspan > 1) {
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
-                        + '<div class="position-absolute top-0 end-0 d-flex gap-1 p-1 edit-only" style="z-index:2">'
+                        + '<div class="position-absolute top-0 end-0 d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'
@@ -476,7 +476,7 @@
                 } else {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small editable-header">' + esc(label.nombre) + '</div>'
-                        + '<div class="position-absolute top-0 end-0 d-flex gap-1 p-1 edit-only" style="z-index:2">'
+                        + '<div class="position-absolute top-0 end-0 d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'

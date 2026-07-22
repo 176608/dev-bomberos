@@ -196,7 +196,7 @@ class DatasetService
             ]);
         }
 
-        $this->collectAudit('Agregar fila');
+        $this->collectAudit('Agregar fila', ['nombre' => $cat->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -207,13 +207,14 @@ class DatasetService
             throw new \RuntimeException('Fila no encontrada');
         }
 
+        $nombreCat = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_vertical_id', $categoria_id)->delete();
         $this->categoria->where('padre_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'vertical');
-        $this->collectAudit('Eliminar fila');
+        $this->collectAudit('Eliminar fila', ['nombre' => $nombreCat]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -239,7 +240,7 @@ class DatasetService
             ]);
         }
 
-        $this->collectAudit('Agregar columna');
+        $this->collectAudit('Agregar columna', ['nombre' => $cat->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -250,13 +251,14 @@ class DatasetService
             throw new \RuntimeException('Columna no encontrada');
         }
 
+        $nombreCat = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_horizontal_id', $categoria_id)->delete();
         $this->categoria->where('padre_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'horizontal');
-        $this->collectAudit('Eliminar columna');
+        $this->collectAudit('Eliminar columna', ['nombre' => $nombreCat]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -307,7 +309,7 @@ class DatasetService
             }
         }
 
-        $this->collectAudit('Agregar hijo', ['padre_id' => $padre_id]);
+        $this->collectAudit('Agregar hijo', ['nombre' => $hijo->nombre, 'padre' => $padre->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -429,7 +431,7 @@ class DatasetService
             throw new \RuntimeException('Posición inicial no encontrada en la grilla');
         }
 
-        $this->collectAudit('Pegar parcial');
+        $this->collectAudit('Pegar parcial', ['desde_fila' => $vIdx, 'desde_columna' => $hIdx, 'filas' => count($grid), 'columnas' => count($grid[0] ?? [])]);
 
         foreach ($grid as $f => $row) {
             $vPos = $vIdx + $f;
@@ -477,7 +479,7 @@ class DatasetService
             $this->renombrarCategoria($categorias[$idx]->categoria_id, trim($valor));
         }
 
-        $this->collectAudit('Pegar en categorías', ['eje' => $eje]);
+        $this->collectAudit('Pegar en categorías', ['eje' => $eje, 'cantidad' => count($valores)]);
         return $this->obtenerEstado($cuadro_id);
     }
 

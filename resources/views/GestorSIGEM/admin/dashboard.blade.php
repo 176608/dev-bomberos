@@ -187,17 +187,17 @@ function renderActions(acciones) {
     if (!acciones || !acciones.length) return '<p class="text-muted">Sin cambios</p>';
     var html = '<ul class="list-group list-group-flush">';
     acciones.forEach(function(a) {
-        var txt = a.accion || JSON.stringify(a);
+        var accion = a.accion || '—';
         var cls = 'text-primary';
-        if (txt.toLowerCase().includes('eliminar')) cls = 'text-danger';
-        else if (txt.toLowerCase().includes('agregar') || txt.toLowerCase().includes('crear')) cls = 'text-success';
-        var extra = [];
-        Object.keys(a).forEach(function(k) {
-            if (k === 'accion') return;
-            extra.push(k + ': ' + a[k]);
-        });
-        var detail = extra.length ? ' <span class="text-muted">(' + extra.join(', ') + ')</span>' : '';
-        html += '<li class="list-group-item py-1 px-2 ' + cls + '"><i class="bi bi-arrow-right-short"></i> ' + esc(txt) + detail + '</li>';
+        if (accion.toLowerCase().includes('eliminar')) cls = 'text-danger';
+        else if (accion.toLowerCase().includes('agregar') || accion.toLowerCase().includes('crear')) cls = 'text-success';
+        var partes = [accion];
+        if (a.nombre) partes.push('<strong>' + esc(a.nombre) + '</strong>');
+        if (a.padre) partes.push('en <em>' + esc(a.padre) + '</em>');
+        if (a.eje) partes.push('(' + esc(a.eje) + ')');
+        if (a.desde_fila !== undefined) partes.push('fila ' + a.desde_fila + ', col ' + a.desde_columna + ' [' + a.filas + '×' + a.columnas + ']');
+        if (a.cantidad) partes.push('×' + a.cantidad);
+        html += '<li class="list-group-item py-1 px-2 ' + cls + '"><i class="bi bi-arrow-right-short"></i> ' + partes.join(' ') + '</li>';
     });
     html += '</ul>';
     return html;
