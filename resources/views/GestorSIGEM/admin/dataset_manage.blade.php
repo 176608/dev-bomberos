@@ -132,58 +132,71 @@
 
 <script>
 (function() {
+    // ============ ERROR CODES ============
+    const ERR = {
+        CELDA: 'ERR-CEL',
+        RENOM: 'ERR-REN',
+        PST_DATOS: 'ERR-PDA',
+        PST_HCAT: 'ERR-PHC',
+        PST_VCAT: 'ERR-PVC',
+        PST_CEL: 'ERR-PCE',
+        PST_FULL: 'ERR-PFL',
+        HIJOS: 'ERR-HIJ',
+        CLON: 'ERR-CLO',
+        FILA: 'ERR-FIL',
+        COL: 'ERR-COL',
+        E_FILA: 'ERR-EFL',
+        E_COL: 'ERR-ECL',
+        DATOS: 'ERR-DAT',
+        PIVOT: 'ERR-PVT',
+        GENERAR: 'ERR-GEN',
+        REGEN: 'ERR-RGN',
+        IMPORT: 'ERR-IMP',
+    };
+
+    // ============ CONFIG ============
     const CUADRO_ID = {{ $cuadro->cuadro_id }};
     const CSRF = '{{ csrf_token() }}';
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
-
     const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
 
     let estado = @json($estadoInicial);
     let currentMode = 'diseno';
 
+    // ============ DATA VIVOS (cell cache) ============
+    const vivos = {};
 
-    window.switchMode = function(mode) {
-        currentMode = mode;
-        clearSelection();
-        document.querySelectorAll('[data-mode]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.mode === mode);
-        });
-        document.getElementById('grid-container').classList.toggle('mode-datos', mode === 'datos');
-        document.getElementById('grid-container').classList.toggle('mode-diseno', mode === 'diseno');
-        const hint = document.getElementById('mode-hint');
-        if (mode === 'diseno') {
-            hint.textContent = 'Diseño: estructura de filas, columnas y nombres';
-        } else {
-            hint.textContent = 'Datos: editar celdas. También puede renombrar categorías y pivote';
-        }
-        // Headers: editable en ambos modos
-        document.querySelectorAll('#dataset-table .editable-header').forEach(el => {
-            el.contentEditable = 'true';
-        });
-        // Celdas de datos: solo editables en modo datos
-        document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
-            el.contentEditable = mode === 'datos';
-            if (mode === 'diseno') el.blur();
-        });
-        status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
-    };
+    // ============ SELECTION STATE ============
+    const sel = { active: false, startRi: -1, startCi: -1, endRi: -1, endCi: -1, anchorVi: null, anchorHi: null };
+    const pointer = { down: false, startRi: -1, startCi: -1, startX: 0, startY: 0, dragging: false };
+    let lastCell = null;
 
-    const sel = {
-        active: false,
-        startRi: -1, startCi: -1,
-        endRi: -1, endCi: -1,
-        anchorVi: null, anchorHi: null,
-    };
+    // ============ UI HELPERS ============
+    function alerta(msg, tipo) {
+        document.getElementById('alerts').innerHTML =
+            '<div class="alert alert-' + (tipo || 'danger') + ' alert-dismissible fade show">' + msg +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+    }
 
-    const pointer = {
-        down: false,
-        startRi: -1, startCi: -1,
-        startX: 0, startY: 0,
-        dragging: false,
-    };
-    let lastCell = null; // { type: 'cell'|'horizontal'|'vertical', vId, hId }
+    function status(msg) { document.getElementById('status-text').textContent = msg || ''; }
 
+    function esc(s) {
+        if (!s) return '';
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function hexToRgba(hex, alpha) {
+        if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
+        return 'rgba(' + parseInt(hex.slice(1,3),16) + ',' + parseInt(hex.slice(3,5),16) + ',' + parseInt(hex.slice(5,7),16) + ',' + alpha + ')';
+    }
+
+    function saveAllBeforeAction() {
+        const focused = document.querySelector('#dataset-table div:focus');
+        if (focused) focused.blur();
+    }
+
+    // ============ API ============
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
         opts.headers['X-CSRF-TOKEN'] = CSRF;
@@ -197,44 +210,52 @@
         });
     }
 
-    function alerta(msg, tipo) {
-        const div = document.getElementById('alerts');
-        div.innerHTML = '<div class="alert alert-' + (tipo || 'danger') + ' alert-dismissible fade show">' +
-            msg +
-            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
-    }
+    // ============ MODE SWITCH ============
+    window.switchMode = function(mode) {
+        currentMode = mode;
+        clearSelection();
+        document.querySelectorAll('[data-mode]').forEach(btn =>
+            btn.classList.toggle('active', btn.dataset.mode === mode)
+        );
+        const c = document.getElementById('grid-container');
+        c.classList.toggle('mode-datos', mode === 'datos');
+        c.classList.toggle('mode-diseno', mode === 'diseno');
+        document.getElementById('mode-hint').textContent =
+            mode === 'diseno'
+                ? 'Diseño: estructura de filas, columnas y nombres'
+                : 'Datos: editar celdas. También puede renombrar categorías y pivote';
+        document.querySelectorAll('#dataset-table .editable-header').forEach(el => el.contentEditable = 'true');
+        document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
+            el.contentEditable = mode === 'datos';
+            if (mode === 'diseno') el.blur();
+        });
+        status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
+    };
 
-    function status(msg) {
-        document.getElementById('status-text').textContent = msg || '';
-    }
-
+    // ============ CELL COORDINATES ============
     function getCellCoords(el) {
         const th = el.closest('th');
         const td = el.closest('td');
         if (th && th.closest('thead')) {
             const catId = parseInt(th.dataset.categoriaId);
-            if (!catId) return null;
-            const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
-            if (ci >= 0) {
-                return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
+            if (catId) {
+                const ci = estado.horizontales.findIndex(h => h.categoria_id === catId);
+                if (ci >= 0) return { type: 'horizontal', ri: -1, ci, vId: null, hId: catId };
             }
             const colIdx = parseInt(th.dataset.colIndex);
-            if (!isNaN(colIdx) && estado.horizontales[colIdx]) {
+            if (!isNaN(colIdx) && estado.horizontales[colIdx])
                 return { type: 'horizontal', ri: -1, ci: colIdx, vId: null, hId: estado.horizontales[colIdx].categoria_id };
-            }
             return null;
         }
         if (th && th.closest('tbody')) {
             const catId = parseInt(th.dataset.categoriaId);
-            if (!catId) return null;
-            const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
-            if (ri >= 0) {
-                return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
+            if (catId) {
+                const ri = estado.verticales.findIndex(v => v.categoria_id === catId);
+                if (ri >= 0) return { type: 'vertical', ri, ci: -1, vId: catId, hId: null };
             }
             const rowIdx = parseInt(th.dataset.rowIndex);
-            if (!isNaN(rowIdx) && estado.verticales[rowIdx]) {
+            if (!isNaN(rowIdx) && estado.verticales[rowIdx])
                 return { type: 'vertical', ri: rowIdx, ci: -1, vId: estado.verticales[rowIdx].categoria_id, hId: null };
-            }
             return null;
         }
         if (td && td.closest('tbody')) {
@@ -250,12 +271,10 @@
         return null;
     }
 
+    // ============ SELECTION ============
     function setSelection(minRi, minCi, maxRi, maxCi) {
         sel.active = true;
-        sel.startRi = minRi;
-        sel.startCi = minCi;
-        sel.endRi = maxRi;
-        sel.endCi = maxCi;
+        sel.startRi = minRi; sel.startCi = minCi; sel.endRi = maxRi; sel.endCi = maxCi;
         sel.anchorVi = minRi >= 0 ? estado.verticales[minRi]?.categoria_id : null;
         sel.anchorHi = minCi >= 0 ? estado.horizontales[minCi]?.categoria_id : null;
         renderSelection();
@@ -263,348 +282,251 @@
 
     function clearSelection() {
         sel.active = false;
-        document.querySelectorAll('#dataset-table .cell-selected').forEach(el => {
-            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
-        });
+        document.querySelectorAll('#dataset-table .cell-selected').forEach(el =>
+            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10')
+        );
     }
 
     function renderSelection() {
-        document.querySelectorAll('#dataset-table .cell-selected').forEach(el => {
-            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10');
-        });
+        document.querySelectorAll('#dataset-table .cell-selected').forEach(el =>
+            el.classList.remove('cell-selected', 'bg-primary', 'bg-opacity-10')
+        );
         if (!sel.active) return;
-
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
         if (!tbody) return;
 
-        // Helper: highlight parent th of a leaf vertical
-        function highlightVParent(ri) {
+        const highlightVP = ri => {
             const v = estado.verticales[ri];
-            if (!v || !v.padre_id) return;
-            const p = tbody.querySelector('th[data-categoria-id="' + v.padre_id + '"]');
-            if (p) p.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-        }
-
-        // Helper: highlight parent th of a leaf horizontal
-        function highlightHParent(ci) {
+            if (v?.padre_id) tbody.querySelector('th[data-categoria-id="' + v.padre_id + '"]')?.classList.add('cell-selected','bg-primary','bg-opacity-10');
+        };
+        const highlightHP = ci => {
             const h = estado.horizontales[ci];
-            if (!h || !h.padre_id) return;
-            const p = thead.querySelector('th[data-categoria-id="' + h.padre_id + '"]');
-            if (p) p.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-        }
+            if (h?.padre_id) thead?.querySelector('th[data-categoria-id="' + h.padre_id + '"]')?.classList.add('cell-selected','bg-primary','bg-opacity-10');
+        };
 
-        // — Column selection —
+        // Column selection
         if (sel.startRi === -1 && sel.startCi >= 0) {
-            if (thead) {
-                thead.querySelectorAll('th[data-col-index]').forEach(th => {
-                    const ci = parseInt(th.dataset.colIndex);
-                    if (ci >= sel.startCi && ci <= sel.endCi) {
-                        th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-                    }
-                });
-            }
+            thead?.querySelectorAll('th[data-col-index]').forEach(th => {
+                const ci = parseInt(th.dataset.colIndex);
+                if (ci >= sel.startCi && ci <= sel.endCi) th.classList.add('cell-selected','bg-primary','bg-opacity-10');
+            });
             for (let ri = 0; ri < estado.data.length; ri++) {
                 const tr = tbody.children[ri];
                 if (!tr) break;
                 for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
                     const hId = estado.horizontales[ci]?.categoria_id;
                     if (!hId) continue;
-                    const td = tr.querySelector('td[data-horizontal-id="' + hId + '"]');
-                    if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-                    highlightHParent(ci);
+                    tr.querySelector('td[data-horizontal-id="' + hId + '"]')?.classList.add('cell-selected','bg-primary','bg-opacity-10');
+                    highlightHP(ci);
                 }
             }
             return;
         }
 
-        // — Row selection —
+        // Row selection
         if (sel.startCi === -1 && sel.startRi >= 0) {
             for (let ri = sel.startRi; ri <= sel.endRi; ri++) {
                 const tr = tbody.children[ri];
                 if (!tr) break;
-                tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
-                tr.querySelectorAll('td[data-horizontal-id]').forEach(td => td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
-                highlightVParent(ri);
+                tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected','bg-primary','bg-opacity-10'));
+                tr.querySelectorAll('td[data-horizontal-id]').forEach(td => td.classList.add('cell-selected','bg-primary','bg-opacity-10'));
+                highlightVP(ri);
             }
             return;
         }
 
-        // — Cell selection (single or multi) —
-        // Highlight column headers + parent column headers
-        if (thead) {
-            for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
-                const hId = estado.horizontales[ci]?.categoria_id;
-                if (!hId) continue;
-                const headerTh = thead.querySelector('th[data-categoria-id="' + hId + '"]');
-                if (headerTh) headerTh.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
-                highlightHParent(ci);
-            }
+        // Cell selection
+        if (thead) for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
+            const hId = estado.horizontales[ci]?.categoria_id;
+            if (!hId) continue;
+            thead.querySelector('th[data-categoria-id="' + hId + '"]')?.classList.add('cell-selected','bg-primary','bg-opacity-10');
+            highlightHP(ci);
         }
-
-        // Highlight rows, labels, parents, and data cells
         for (let ri = sel.startRi; ri <= sel.endRi && ri < estado.data.length; ri++) {
             const tr = tbody.children[ri];
             if (!tr) break;
-
-            // Row labels (direct leaf th + any parent th with rowspan)
-            tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10'));
-
-            // Parent label if this leaf has a parent
-            highlightVParent(ri);
-
-            // Data cells
+            tr.querySelectorAll('th').forEach(th => th.classList.add('cell-selected','bg-primary','bg-opacity-10'));
+            highlightVP(ri);
             for (let ci = sel.startCi; ci <= sel.endCi; ci++) {
                 const hId = estado.horizontales[ci]?.categoria_id;
                 if (!hId) continue;
-                const td = tr.querySelector('td[data-horizontal-id="' + hId + '"]');
-                if (td) td.classList.add('cell-selected', 'bg-primary', 'bg-opacity-10');
+                tr.querySelector('td[data-horizontal-id="' + hId + '"]')?.classList.add('cell-selected','bg-primary','bg-opacity-10');
             }
         }
     }
 
-    const vivos = {};
-
-    function guardarCelda(el, vId, hId) {
+    // ============ CELL SAVE / RENAME ============
+    window.guardarCelda = function(el, vId, hId) {
         const val = el.textContent.trim();
-        const key = vId + '-' + hId;
-        const dato = vivos[key];
+        const dato = vivos[vId + '-' + hId];
         if (!dato) return;
-        log('guardarCelda', { vId, hId, val, dato_id: dato.dato_id });
+        log('guardarCelda', { vId, hId, val });
         status('Guardando...');
-        api('/celda/' + dato.dato_id, {
-            method: 'PUT',
-            body: { valor: val },
-        }).then(j => {
-            if (j.success) { dato.valor = val; status('✓ Guardado'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error de red'));
-    }
+        api('/celda/' + dato.dato_id, { method: 'PUT', body: { valor: val } })
+            .then(j => { if (j.success) { dato.valor = val; status('✓ Guardado'); } else alerta(j.message); })
+            .catch(() => alerta('Error de red [' + ERR.CELDA + ']'));
+    };
 
     function renombrar(el, id) {
         const nombre = el.textContent.trim();
         if (!nombre) return;
-        log('renombrar', { id, nombre });
         status('Guardando...');
-        api('/categoria/' + id, {
-            method: 'PUT',
-            body: { nombre: nombre },
-        }).then(j => {
-            if (j.success) {
-                if (j.categoria?._renombrado) {
-                    el.textContent = j.categoria.nombre;
-                    alerta('Ya existía, se renombró a <strong>' + esc(j.categoria.nombre) + '</strong>', 'warning');
-                }
-                status('✓ Guardado');
-            } else {
-                alerta(j.message);
-                renderGrid(estado);
-            }
-        }).catch(() => alerta('Error'));
+        api('/categoria/' + id, { method: 'PUT', body: { nombre } })
+            .then(j => {
+                if (j.success) {
+                    if (j.categoria?._renombrado) { el.textContent = j.categoria.nombre; alerta('Ya existía, se renombró a <strong>' + esc(j.categoria.nombre) + '</strong>', 'warning'); }
+                    status('✓ Guardado');
+                } else { alerta(j.message); renderGrid(estado); }
+            })
+            .catch(() => alerta('Error [' + ERR.RENOM + ']'));
+    }
+    window.renombrarHeader = renombrar;
+
+    // ============ PASTE ANCHOR ============
+    function getPasteAnchor() {
+        if (!sel.active) return lastCell;
+        if (sel.startRi === -1 && sel.startCi >= 0) {
+            const mc = Math.min(sel.startCi, sel.endCi);
+            return { type: 'horizontal', vId: null, hId: estado.horizontales[mc]?.categoria_id };
+        }
+        if (sel.startCi === -1 && sel.startRi >= 0) {
+            const mr = Math.min(sel.startRi, sel.endRi);
+            return { type: 'vertical', vId: estado.verticales[mr]?.categoria_id, hId: null };
+        }
+        const mr = Math.min(sel.startRi, sel.endRi), mc = Math.min(sel.startCi, sel.endCi);
+        return { type: 'cell', vId: estado.verticales[mr]?.categoria_id, hId: estado.horizontales[mc]?.categoria_id };
     }
 
-    function esc(s) {
-        if (!s) return '';
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    function buildPasteBody(clipGrid, anchor) {
+        const body = { grid: clipGrid };
+        if (anchor?.vId) body.start_vertical_id = anchor.vId;
+        if (anchor?.hId) body.start_horizontal_id = anchor.hId;
+        body.verticales = estado.verticales.map(v => v.categoria_id);
+        body.horizontales = estado.horizontales.map(h => h.categoria_id);
+        return body;
     }
 
+    function doPaste(anchor, clipGrid, errCode) {
+        saveAllBeforeAction();
+        status('Pegando...');
+        api('/paste', { method: 'POST', body: buildPasteBody(clipGrid, anchor) })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); } else alerta(j.message); })
+            .catch(() => alerta('Error de red [' + errCode + ']'));
+    }
+
+    // ============ RENDER GRID ============
     function renderGrid(d) {
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
-            document.getElementById('empty-state').style.display = '';
+            const es = document.getElementById('empty-state');
+            if (es) es.style.display = '';
             return;
         }
-        log('renderGrid', { labels: d.labels, headers: d.headers, dataLen: d.data?.length });
         document.getElementById('grid-container').style.display = '';
-        const empty = document.getElementById('empty-state');
-        if (empty) empty.style.display = 'none';
+        const es = document.getElementById('empty-state');
+        if (es) es.style.display = 'none';
 
         const { verticales, horizontales, headers, labels, data } = d;
         const thead = document.getElementById('thead');
         const tbody = document.getElementById('tbody');
 
         for (const k in vivos) delete vivos[k];
-        for (const row of data) {
-            for (const cel of row) {
-                if (cel.dato_id) {
-                    vivos[cel.cat_vertical_id + '-' + cel.cat_horizontal_id] = cel;
-                }
-            }
-        }
+        for (const row of data) for (const cel of row)
+            if (cel.dato_id) vivos[cel.cat_vertical_id + '-' + cel.cat_horizontal_id] = cel;
 
         document.getElementById('dimension-badge').textContent = verticales.length + ' × ' + horizontales.length;
+        const numLabelCols = labels.length ? Math.max(...labels.map(r => r.length), 1) : 1;
 
-        const numLabelCols = labels.length > 0
-            ? Math.max(...labels.map(r => r.length), 1)
-            : 1;
-
-        // === HEADERS ===
+        // — HEADERS —
         let theadHtml = '';
         if (headers.length === 0) {
-            theadHtml = '<tr>'
-                + '<th class="text-center align-middle" style="width:44px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
-                + '</th>'
+            theadHtml = '<tr><th class="text-center align-middle" style="width:44px;background:#f0f2f5">'
+                + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button></th>'
                 + '<th class="text-center" style="width:36px;background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button>'
-                + '</th></tr>';
+                + '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button></th></tr>';
         } else {
-            const numHeaderRows = headers.length;
-            for (let ri = 0; ri < numHeaderRows; ri++) {
+            for (let ri = 0, numHR = headers.length; ri < numHR; ri++) {
                 theadHtml += '<tr>';
-                const headerRow = headers[ri];
-                for (const cell of headerRow) {
+                for (const cell of headers[ri]) {
                     if (cell.tipo === 'corner') {
-                        const rspan = cell.rowspan || numHeaderRows;
-                        theadHtml += '<th rowspan="' + rspan + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="width:' + (numLabelCols * 44) + 'px;background:#f0f2f5">'
+                        theadHtml += '<th rowspan="' + (cell.rowspan || numHR) + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="width:' + (numLabelCols * 44) + 'px;background:#f0f2f5">'
                             + '<div class="d-flex flex-column align-items-center gap-1">'
                             + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
-                            + '<span class="pivot-label editable-header text-muted small" contenteditable="false" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
-                            + '</div></th>';
+                            + '<span class="pivot-label editable-header text-muted small" contenteditable="false" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span></div></th>';
                     } else if (cell.tipo === 'parent') {
-                        // Horizontal parent (1+ children): sequential horizontal buttons, centered vertically
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="align-middle text-center position-relative" style="background:#e2e6ea;min-width:90px">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
                             + '<div class="position-absolute end-0 top-50 translate-middle-y d-flex flex-row gap-0 p-0 edit-only" style="z-index:2">'
                             + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
                             + (cell.num_hijos >= 2 ? '<button class="btn btn-sm btn-outline-info rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.7rem" title="Clonar categoría" onclick="window.clonarCategoria(' + cell.categoria_id + ')"><i class="bi bi-copy"></i></button>' : '')
-                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button>'
-                            + '</div>'
-                            + '</th>';
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button></div></th>';
                     } else {
-                        // Leaf (no children): vertical buttons
                         theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="align-middle text-center" style="background:#f0f2f5;min-width:90px">'
                             + '<div class="d-flex align-items-center" style="background:#f0f2f5">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="w-75 px-1 small editable-header text-start">' + esc(cell.nombre) + '</div>'
                             + '<div class="w-25 d-flex flex-column gap-0 p-0 edit-only align-items-center">'
                             + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
-                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button>'
-                            + '</div>'
-                            + '</div>'
-                            + '</th>';
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x"></i></button></div></div></th>';
                     }
                 }
-                if (ri === 0) {
-                    theadHtml += '<th rowspan="' + numHeaderRows + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button></th>';
-                }
+                if (ri === 0) theadHtml += '<th rowspan="' + numHR + '" class="text-center" style="width:36px"><button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button></th>';
                 theadHtml += '</tr>';
             }
         }
         thead.innerHTML = theadHtml;
 
-        // === BODY ===
+        // — BODY —
         let tbodyHtml = '';
         for (let ri = 0; ri < labels.length; ri++) {
             tbodyHtml += '<tr>';
-            const labelRow = labels[ri];
-            for (const label of labelRow) {
+            for (const label of labels[ri]) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
-                    // Parent 2+ children: vertical buttons (+ top, clone middle, x bottom), centered
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="position-absolute end-0 top-50 translate-middle-y d-flex flex-column gap-0 p-0 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
                         + (label.num_hijos >= 2 ? '<button class="btn btn-sm btn-outline-info rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.7rem" title="Clonar categoría" onclick="window.clonarCategoria(' + label.categoria_id + ')"><i class="bi bi-copy"></i></button>' : '')
-                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
-                        + '</div>'
-                        + '</th>';
+                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button></div></th>';
                 } else if (label.tipo === 'parent') {
-                    // Parent 1 child: sequential horizontal buttons (+ then x), mantiene position-relative
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="position-absolute end-0 top-50 translate-middle-y d-flex flex-row gap-0 p-0 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
-                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
-                        + '</div>'
-                        + '</th>';
+                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button></div></th>';
                 } else {
-                    // Leaf (no children): sequential horizontal buttons (+ then x)
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="d-flex align-items-center" style="background:#f8f9fa;min-width:110px;font-weight:400">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="w-75 px-1 small editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="w-25 d-flex flex-row gap-0 p-0 edit-only align-items-center justify-content-end">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus"></i></button>' : '')
-                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button>'
-                        + '</div>'
-                        + '</th>';
+                        + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:1rem" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x"></i></button></div></th>';
                 }
             }
-            const dataRow = data[ri] || [];
-            for (const cel of dataRow) {
+            for (const cel of (data[ri] || []))
                 tbodyHtml += '<td class="position-relative" data-vertical-id="' + cel.cat_vertical_id + '" data-horizontal-id="' + cel.cat_horizontal_id + '" data-dato-id="' + (cel.dato_id || '') + '">'
-                    + '<div contenteditable="true" onblur="window.guardarCelda(this, ' + cel.cat_vertical_id + ', ' + cel.cat_horizontal_id + ')">'
-                    + esc(cel.valor || '') + '</div></td>';
-            }
+                    + '<div contenteditable="true" onblur="window.guardarCelda(this, ' + cel.cat_vertical_id + ', ' + cel.cat_horizontal_id + ')">' + esc(cel.valor || '') + '</div></td>';
             tbodyHtml += '<td></td></tr>';
         }
-
-        const footerCols = numLabelCols + horizontales.length + 1;
-        tbodyHtml += '<tr class="table-light">'
-            + '<td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarFila()" title="Agregar fila"><i class="bi bi-plus"></i></button> <span class="edit-only small text-muted">Fila</span></td>'
-            + '<td colspan="' + (horizontales.length + 1) + '"></td></tr>';
-
+        tbodyHtml += '<tr class="table-light"><td colspan="' + numLabelCols + '"><button class="btn btn-sm btn-outline-success rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarFila()" title="Agregar fila"><i class="bi bi-plus"></i></button> <span class="edit-only small text-muted">Fila</span></td><td colspan="' + (horizontales.length + 1) + '"></td></tr>';
         tbody.innerHTML = tbodyHtml;
 
-        // Apply theme color if available
+        // — Theme color —
         const color = (window.estado && window.estado.tema_color) || null;
         let styleEl = document.getElementById('tema-color-style');
-        if (color && hexToRgba(color, 0.5) !== null) {
-            const childBg = hexToRgba(color, 0.5);
-            const cellBg = hexToRgba(color, 0.12);
-            if (!styleEl) {
-                styleEl = document.createElement('style');
-                styleEl.id = 'tema-color-style';
-                document.head.appendChild(styleEl);
-            }
+        if (color && hexToRgba(color, 0.5)) {
+            const childBg = hexToRgba(color, 0.5), cellBg = hexToRgba(color, 0.12);
+            if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'tema-color-style'; document.head.appendChild(styleEl); }
             styleEl.textContent =
-                '#dataset-table thead th.position-relative .editable-header,' +
-                '#dataset-table thead th.position-relative .fw-bold { background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px; }' +
-                '#dataset-table thead th .editable-header[data-es-hijo="1"] { background:' + childBg + ';border-radius:3px;padding:1px 6px; }' +
-                '#dataset-table tbody td { background:' + cellBg + '; }' +
-                '#dataset-table tbody th.position-relative .editable-header,' +
-                '#dataset-table tbody th.position-relative .fw-semibold { background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px; }' +
-                '#dataset-table tbody th .editable-header[data-es-hijo="1"] { background:' + childBg + ';border-radius:3px;padding:1px 6px; }';
-        } else if (styleEl) {
-            styleEl.textContent = '';
-        }
+                '#dataset-table thead th.position-relative .editable-header,#dataset-table thead th.position-relative .fw-bold{background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px}'
+                + '#dataset-table thead th .editable-header[data-es-hijo="1"]{background:' + childBg + ';border-radius:3px;padding:1px 6px}'
+                + '#dataset-table tbody td{background:' + cellBg + '}'
+                + '#dataset-table tbody th.position-relative .editable-header,#dataset-table tbody th.position-relative .fw-semibold{background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px}'
+                + '#dataset-table tbody th .editable-header[data-es-hijo="1"]{background:' + childBg + ';border-radius:3px;padding:1px 6px}';
+        } else if (styleEl) styleEl.textContent = '';
         renderSelection();
     }
 
-    function hexToRgba(hex, alpha) {
-        if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
-        const r = parseInt(hex.slice(1,3), 16);
-        const g = parseInt(hex.slice(3,5), 16);
-        const b = parseInt(hex.slice(5,7), 16);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function saveAllBeforeAction() {
-        // Trigger blur on any actively edited cell
-        const focused = document.querySelector('#dataset-table div:focus');
-        if (focused) focused.blur();
-    }
-
-    function getPasteAnchor() {
-        if (sel.active) {
-            if (sel.startRi === -1 && sel.startCi >= 0) {
-                const minCi = Math.min(sel.startCi, sel.endCi);
-                return { type: 'horizontal', vId: null, hId: estado.horizontales[minCi]?.categoria_id };
-            }
-            if (sel.startCi === -1 && sel.startRi >= 0) {
-                const minRi = Math.min(sel.startRi, sel.endRi);
-                return { type: 'vertical', vId: estado.verticales[minRi]?.categoria_id, hId: null };
-            }
-            const minRi = Math.min(sel.startRi, sel.endRi);
-            const minCi = Math.min(sel.startCi, sel.endCi);
-            return {
-                type: 'cell',
-                vId: estado.verticales[minRi]?.categoria_id,
-                hId: estado.horizontales[minCi]?.categoria_id,
-            };
-        }
-        return lastCell;
-    }
-
-    // === POINTER EVENTS FOR CELL SELECTION ===
+    // ============ POINTER EVENTS FOR CELL SELECTION ============
     document.addEventListener('DOMContentLoaded', function() {
         const table = document.getElementById('dataset-table');
         const tbody = document.getElementById('tbody');
@@ -615,32 +537,25 @@
             if (!cell) return;
             const coords = getCellCoords(cell);
             if (!coords) return;
-
             if (currentMode === 'datos' && coords.type !== 'cell') return;
 
             if (e.shiftKey) {
                 e.preventDefault();
                 if (currentMode === 'datos' && coords.type !== 'cell') return;
                 const type = coords.type;
-                const prevType = sel.active ? (
-                    sel.startRi === -1 ? 'horizontal' :
-                    sel.startCi === -1 ? 'vertical' : 'cell'
-                ) : type;
+                const prevType = sel.active ? (sel.startRi === -1 ? 'horizontal' : sel.startCi === -1 ? 'vertical' : 'cell') : type;
                 if (type !== prevType) return;
                 if (type === 'horizontal') {
                     const mc = sel.active ? Math.min(sel.startCi, coords.ci) : coords.ci;
-                    const xc = sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci;
-                    setSelection(-1, mc, -1, xc);
+                    setSelection(-1, mc, -1, sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci);
                 } else if (type === 'vertical') {
                     const mr = sel.active ? Math.min(sel.startRi, coords.ri) : coords.ri;
-                    const xr = sel.active ? Math.max(sel.startRi, coords.ri) : coords.ri;
-                    setSelection(mr, -1, xr, -1);
+                    setSelection(mr, -1, sel.active ? Math.max(sel.startRi, coords.ri) : coords.ri, -1);
                 } else {
                     const mr = sel.active ? Math.min(sel.startRi, coords.ri) : coords.ri;
                     const xr = sel.active ? Math.max(sel.startRi, coords.ri) : coords.ri;
                     const mc = sel.active ? Math.min(sel.startCi, coords.ci) : coords.ci;
-                    const xc = sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci;
-                    setSelection(mr, mc, xr, xc);
+                    setSelection(mr, mc, xr, sel.active ? Math.max(sel.startCi, coords.ci) : coords.ci);
                 }
                 return;
             }
@@ -652,18 +567,14 @@
                 if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
             }
             pointer.down = true;
-            pointer.startRi = coords.ri;
-            pointer.startCi = coords.ci;
-            pointer.startX = e.clientX;
-            pointer.startY = e.clientY;
+            pointer.startRi = coords.ri; pointer.startCi = coords.ci;
+            pointer.startX = e.clientX; pointer.startY = e.clientY;
             pointer.dragging = false;
         });
 
         document.addEventListener('pointermove', function(e) {
             if (!pointer.down) return;
-            const dx = e.clientX - pointer.startX;
-            const dy = e.clientY - pointer.startY;
-            if (!pointer.dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+            if (!pointer.dragging && (Math.abs(e.clientX - pointer.startX) > 4 || Math.abs(e.clientY - pointer.startY) > 4)) {
                 pointer.dragging = true;
                 document.body.style.userSelect = 'none';
                 setSelection(pointer.startRi, pointer.startCi, pointer.startRi, pointer.startCi);
@@ -677,311 +588,192 @@
             const coords = getCellCoords(cell);
             if (!coords) return;
             const startType = pointer.startRi === -1 ? 'horizontal' : pointer.startCi === -1 ? 'vertical' : 'cell';
-            if (coords.type !== startType) return;
-            if (currentMode === 'datos' && startType !== 'cell') return;
-            if (startType === 'horizontal') {
-                const mc = Math.min(pointer.startCi, coords.ci);
-                const xc = Math.max(pointer.startCi, coords.ci);
-                setSelection(-1, mc, -1, xc);
-            } else if (startType === 'vertical') {
-                const mr = Math.min(pointer.startRi, coords.ri);
-                const xr = Math.max(pointer.startRi, coords.ri);
-                setSelection(mr, -1, xr, -1);
-            } else {
-                const mr = Math.min(pointer.startRi, coords.ri);
-                const xr = Math.max(pointer.startRi, coords.ri);
-                const mc = Math.min(pointer.startCi, coords.ci);
-                const xc = Math.max(pointer.startCi, coords.ci);
-                setSelection(mr, mc, xr, xc);
-            }
+            if (coords.type !== startType || (currentMode === 'datos' && startType !== 'cell')) return;
+            const mc = Math.min(pointer.startCi, coords.ci), xc = Math.max(pointer.startCi, coords.ci);
+            const mr = Math.min(pointer.startRi, coords.ri), xr = Math.max(pointer.startRi, coords.ri);
+            if (startType === 'horizontal') setSelection(-1, mc, -1, xc);
+            else if (startType === 'vertical') setSelection(mr, -1, xr, -1);
+            else setSelection(mr, mc, xr, xc);
         });
 
         document.addEventListener('pointerup', function(e) {
             if (pointer.dragging) {
                 document.body.style.userSelect = '';
-                pointer.down = false;
-                pointer.dragging = false;
+                pointer.down = false; pointer.dragging = false;
                 if (sel.active) {
-                    if (sel.startRi === -1) {
-                        status('Selección: ' + (sel.endCi - sel.startCi + 1) + ' columnas');
-                    } else if (sel.startCi === -1) {
-                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + ' filas');
-                    } else {
-                        status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
-                    }
+                    if (sel.startRi === -1) status('Selección: ' + (sel.endCi - sel.startCi + 1) + ' columnas');
+                    else if (sel.startCi === -1) status('Selección: ' + (sel.endRi - sel.startRi + 1) + ' filas');
+                    else status('Selección: ' + (sel.endRi - sel.startRi + 1) + '×' + (sel.endCi - sel.startCi + 1) + ' celdas');
                 }
-            } else if (pointer.down) {
-                pointer.down = false;
-                clearSelection();
-            }
+            } else if (pointer.down) { pointer.down = false; clearSelection(); }
         });
 
-        // === PASTE ===
+        // ============ PASTE ============
         table.addEventListener('paste', function(e) {
             const text = (e.clipboardData || window.clipboardData).getData('text');
             if (!text.trim()) return;
             e.preventDefault();
-
             const clipGrid = text.split('\n').filter(r => r.trim()).map(r => r.split('\t').map(c => c.trim()));
             if (clipGrid.length === 0) return;
 
-            // En modo Datos, solo pegar como celdas
+            // Datos mode: solo celdas
             if (currentMode === 'datos') {
                 const anchor = sel.active ? getPasteAnchor() : lastCell;
                 if (!anchor || anchor.type !== 'cell' || !anchor.vId || !anchor.hId) {
                     status('Seleccioná una celda para pegar');
                     return;
                 }
-                saveAllBeforeAction();
-                status('Pegando...');
-                api('/paste', {
-                    method: 'POST',
-                    body: {
-                        grid: clipGrid,
-                        start_vertical_id: anchor.vId,
-                        start_horizontal_id: anchor.hId,
-                        verticales: estado.verticales.map(v => v.categoria_id),
-                        horizontales: estado.horizontales.map(h => h.categoria_id),
-                    }
-                }).then(j => {
-                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
-                    else alerta(j.message);
-                }).catch(() => alerta('Error de red'));
+                doPaste(anchor, clipGrid, ERR.PST_DATOS);
                 return;
             }
 
             const anchor = getPasteAnchor();
             log('paste', { clipGrid, anchor });
 
-            if (anchor && anchor.type === 'horizontal' && anchor.hId) {
+            if (anchor?.type === 'horizontal' && anchor.hId) {
                 const valores = clipGrid[0] || [];
-                if (valores.length === 0) return;
+                if (!valores.length) return;
                 saveAllBeforeAction();
                 status('Pegando columnas...');
-                api('/paste-categorias', {
-                    method: 'POST',
-                    body: { eje: 'horizontal', start_categoria_id: anchor.hId, valores }
-                }).then(j => {
-                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Columnas renombradas'); }
-                    else alerta(j.message);
-                }).catch(() => alerta('Error de red'));
-            } else if (anchor && anchor.type === 'vertical' && anchor.vId) {
+                api('/paste-categorias', { method: 'POST', body: { eje: 'horizontal', start_categoria_id: anchor.hId, valores } })
+                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Columnas renombradas'); } else alerta(j.message); })
+                    .catch(() => alerta('Error de red [' + ERR.PST_HCAT + ']'));
+            } else if (anchor?.type === 'vertical' && anchor.vId) {
                 const valores = clipGrid.map(r => r[0]).filter(v => v != null);
-                if (valores.length === 0) return;
+                if (!valores.length) return;
                 saveAllBeforeAction();
                 status('Pegando filas...');
-                api('/paste-categorias', {
-                    method: 'POST',
-                    body: { eje: 'vertical', start_categoria_id: anchor.vId, valores }
-                }).then(j => {
-                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Filas renombradas'); }
-                    else alerta(j.message);
-                }).catch(() => alerta('Error de red'));
-            } else if (anchor && anchor.type === 'cell' && anchor.vId && anchor.hId) {
-                saveAllBeforeAction();
-                status('Pegando...');
-                api('/paste', {
-                    method: 'POST',
-                    body: {
-                        grid: clipGrid,
-                        start_vertical_id: anchor.vId,
-                        start_horizontal_id: anchor.hId,
-                        verticales: estado.verticales.map(v => v.categoria_id),
-                        horizontales: estado.horizontales.map(h => h.categoria_id),
-                    }
-                }).then(j => {
-                    if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
-                    else alerta(j.message);
-                }).catch(() => alerta('Error de red'));
+                api('/paste-categorias', { method: 'POST', body: { eje: 'vertical', start_categoria_id: anchor.vId, valores } })
+                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Filas renombradas'); } else alerta(j.message); })
+                    .catch(() => alerta('Error de red [' + ERR.PST_VCAT + ']'));
+            } else if (anchor?.type === 'cell' && anchor.vId && anchor.hId) {
+                doPaste(anchor, clipGrid, ERR.PST_CEL);
             } else {
                 if (clipGrid.length < 2 || !confirm('¿Reemplazar todo el dataset (' + clipGrid.length + '×' + clipGrid[0].length + ')?')) return;
-                saveAllBeforeAction();
-                status('Pegando...');
-                api('/paste', {
-                    method: 'POST',
-                    body: { grid: clipGrid }
-                }).then(j => {
-                    if (j.success) { estado = j.data; renderGrid(estado); status('✓ Reemplazado'); }
-                    else alerta(j.message);
-                }).catch(() => alerta('Error de red'));
+                doPaste(null, clipGrid, ERR.PST_FULL);
             }
         });
 
-        // === KEYBOARD NAVIGATION (Datos mode) ===
+        // ============ KEYBOARD NAVIGATION ============
         table.addEventListener('keydown', function(e) {
-            if (currentMode !== 'datos') return;
-            if (e.target.closest('button, a, input')) return;
-
+            if (currentMode !== 'datos' || e.target.closest('button, a, input')) return;
             const td = e.target.closest('td[data-vertical-id]');
             if (!td) return;
-
-            const vId = parseInt(td.dataset.verticalId);
-            const hId = parseInt(td.dataset.horizontalId);
+            const vId = parseInt(td.dataset.verticalId), hId = parseInt(td.dataset.horizontalId);
             if (!vId || !hId) return;
-
             let ri = estado.verticales.findIndex(v => v.categoria_id === vId);
             let ci = estado.horizontales.findIndex(h => h.categoria_id === hId);
             if (ri < 0 || ci < 0) return;
-
-            const key = e.key;
-            const isArrow = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key);
-            const isTab = key === 'Tab';
-            const isEnter = key === 'Enter';
-
-            if (!isArrow && !isTab && !isEnter) return;
+            const k = e.key;
+            if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab','Enter'].includes(k)) return;
             e.preventDefault();
-
-            if (key === 'ArrowRight') ci++;
-            else if (key === 'ArrowLeft') ci--;
-            else if (key === 'ArrowDown') ri++;
-            else if (key === 'ArrowUp') ri--;
-            else if (key === 'Tab') { e.shiftKey ? ci-- : ci++; }
-            else if (key === 'Enter') { e.shiftKey ? ri-- : ri++; }
-
-            if (ri < 0) ri = 0;
-            if (ri >= estado.verticales.length) ri = estado.verticales.length - 1;
-            if (ci < 0) ci = 0;
-            if (ci >= estado.horizontales.length) ci = estado.horizontales.length - 1;
-
-            const targetTd = document.querySelector(
-                '#tbody td[data-vertical-id="' + estado.verticales[ri].categoria_id + '"][data-horizontal-id="' + estado.horizontales[ci].categoria_id + '"]'
-            );
-            if (!targetTd) return;
-
-            const div = targetTd.querySelector('div[contenteditable]');
-            if (div) {
-                // Update lastCell for paste anchor
-                lastCell = { type: 'cell', vId: estado.verticales[ri].categoria_id, hId: estado.horizontales[ci].categoria_id };
-                clearSelection();
-                setSelection(ri, ci, ri, ci);
-                div.focus();
-                // Place cursor at end
-                const range = document.createRange();
-                const selR = window.getSelection();
-                range.selectNodeContents(div);
-                range.collapse(false);
-                selR.removeAllRanges();
-                selR.addRange(range);
-                // Show category info
-                const vCat = estado.verticales[ri];
-                const hCat = estado.horizontales[ci];
-                if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
-            }
+            if (k === 'ArrowRight') ci++; else if (k === 'ArrowLeft') ci--;
+            else if (k === 'ArrowDown') ri++; else if (k === 'ArrowUp') ri--;
+            else if (k === 'Tab') e.shiftKey ? ci-- : ci++;
+            else if (k === 'Enter') e.shiftKey ? ri-- : ri++;
+            ri = Math.max(0, Math.min(ri, estado.verticales.length - 1));
+            ci = Math.max(0, Math.min(ci, estado.horizontales.length - 1));
+            const t = document.querySelector('#tbody td[data-vertical-id="' + estado.verticales[ri].categoria_id + '"][data-horizontal-id="' + estado.horizontales[ci].categoria_id + '"]');
+            const div = t?.querySelector('div[contenteditable]');
+            if (!div) return;
+            lastCell = { type: 'cell', vId: estado.verticales[ri].categoria_id, hId: estado.horizontales[ci].categoria_id };
+            clearSelection(); setSelection(ri, ci, ri, ci); div.focus();
+            const r = document.createRange(), s = window.getSelection();
+            r.selectNodeContents(div); r.collapse(false); s.removeAllRanges(); s.addRange(r);
+            const vCat = estado.verticales[ri], hCat = estado.horizontales[ci];
+            if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
         });
     });
 
-    // === GLOBAL FUNCTIONS ===
-    window.guardarCelda = guardarCelda;
-
-    window.renombrarHeader = function(el, id) {
-        renombrar(el, id);
-    };
-
+    // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
-        log('agregarHijo', { padreId });
         saveAllBeforeAction();
-        api('/hijo', { method: 'POST', body: { padre_id: padreId } }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/hijo', { method: 'POST', body: { padre_id: padreId } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.HIJOS + ']'));
     };
 
     window.clonarCategoria = function(categoriaId) {
-        log('clonarCategoria', { categoriaId });
         saveAllBeforeAction();
         if (!confirm('¿Clonar esta categoría con todos sus hijos?')) return;
-        api('/clonar/' + categoriaId, { method: 'POST' }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría clonada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/clonar/' + categoriaId, { method: 'POST' })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría clonada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.CLON + ']'));
     };
 
     window.agregarFila = function() {
-        log('agregarFila');
         saveAllBeforeAction();
-        api('/fila', { method: 'POST' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/fila', { method: 'POST' })
+            .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.FILA + ']'));
     };
 
     window.agregarColumna = function() {
-        log('agregarColumna');
         saveAllBeforeAction();
-        api('/columna', { method: 'POST' }).then(j => {
-            if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/columna', { method: 'POST' })
+            .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.COL + ']'));
     };
 
     window.eliminarFila = function(id) {
-        log('eliminarFila', { id });
         saveAllBeforeAction();
         if (!confirm('¿Eliminar esta fila?')) return;
-        api('/fila/' + id, { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Fila eliminada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/fila/' + id, { method: 'DELETE' })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Fila eliminada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.E_FILA + ']'));
     };
 
     window.eliminarColumna = function(id) {
-        log('eliminarColumna', { id });
         saveAllBeforeAction();
         if (!confirm('¿Eliminar esta columna?')) return;
-        api('/columna/' + id, { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Columna eliminada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/columna/' + id, { method: 'DELETE' })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Columna eliminada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.E_COL + ']'));
     };
 
     window.limpiarDataset = function() {
         saveAllBeforeAction();
-        const m = new bootstrap.Modal(document.getElementById('modalRegenerar'));
-        m.show();
+        new bootstrap.Modal(document.getElementById('modalRegenerar')).show();
     };
 
     window.limpiarDatos = function() {
         if (!confirm('¿Limpiar todos los valores de las celdas? Se conservarán las categorías.')) return;
         saveAllBeforeAction();
         status('Limpiando datos...');
-        api('/datos', { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Datos limpiados'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error de red'));
+        api('/datos', { method: 'DELETE' })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Datos limpiados'); } else alerta(j.message); })
+            .catch(() => alerta('Error de red [' + ERR.DATOS + ']'));
     };
 
     window.guardarPivot = function(el) {
         const val = el.textContent.trim() || 'PIVOTE';
         estado.pivot_label = val;
-        log('guardarPivot', { val });
         status('Guardando pivote...');
-        api('/pivot', { method: 'PUT', body: { label: val } }).then(j => {
-            if (j.success) status('Pivote: ' + val);
-            else alerta(j.message);
-        }).catch(() => alerta('Error de red'));
+        api('/pivot', { method: 'PUT', body: { label: val } })
+            .then(j => { if (j.success) status('Pivote: ' + val); else alerta(j.message); })
+            .catch(() => alerta('Error de red [' + ERR.PIVOT + ']'));
     };
 
-    // === GENERATE ===
+    // ============ GENERATE / REGENERATE ============
     document.getElementById('btn-generar')?.addEventListener('click', function() {
         const filas = parseInt(document.getElementById('input-filas').value) || 5;
         const cols = parseInt(document.getElementById('input-columnas').value) || 5;
         status('Generando...');
-        api('/generar', { method: 'POST', body: { filas, columnas: cols } }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Grilla generada'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/generar', { method: 'POST', body: { filas, columnas: cols } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Grilla generada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.GENERAR + ']'));
     });
 
     document.getElementById('btn-regenerar')?.addEventListener('click', function() {
         const filas = parseInt(document.getElementById('modal-input-filas').value) || 5;
         const cols = parseInt(document.getElementById('modal-input-columnas').value) || 5;
         status('Regenerando...');
-        api('/generar', { method: 'POST', body: { filas, columnas: cols } }).then(j => {
-            if (j.success) {
-                estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula regenerada');
-                bootstrap.Modal.getInstance(document.getElementById('modalRegenerar'))?.hide();
-            } else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        api('/generar', { method: 'POST', body: { filas, columnas: cols } })
+            .then(j => {
+                if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula regenerada'); bootstrap.Modal.getInstance(document.getElementById('modalRegenerar'))?.hide(); }
+                else alerta(j.message);
+            })
+            .catch(() => alerta('Error [' + ERR.REGEN + ']'));
     });
 
     function importarFile(input) {
@@ -994,11 +786,11 @@
             .then(r => r.json()).then(j => {
                 if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Importado'); }
                 else alerta(j.message);
-            }).catch(() => alerta('Error'));
+            }).catch(() => alerta('Error [' + ERR.IMPORT + ']'));
         input.value = '';
     }
 
-    // === INIT ===
+    // ============ INIT ============
     if (estado.tiene_dataset) {
         renderGrid(estado);
         switchMode('diseno');
