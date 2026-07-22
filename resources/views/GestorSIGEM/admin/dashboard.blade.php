@@ -67,7 +67,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($auditoria as $log)
+                    @foreach($auditoria as $log)
                         @php
                             $ds = $log->datos_nuevos;
                             $accionTexto = $ds['accion'] ?? ($log->accion === 'crear' ? 'Creación' : ($log->accion === 'eliminar' ? 'Eliminación' : 'Actualización'));
@@ -96,11 +96,7 @@
                                 @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-3">No hay eventos en este período.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -125,7 +121,7 @@
 <script>
 $(document).ready(function() {
     var dt = $('#tablaAuditoria').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json', emptyTable: 'No hay eventos en este período.' },
         order: [[0, 'desc']],
         pageLength: 25,
         responsive: true,
