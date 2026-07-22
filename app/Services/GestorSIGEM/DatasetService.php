@@ -471,16 +471,17 @@ class DatasetService
 
     private function pastePartial(int $cuadro_id, Cuadro $cuadro, array $grid, int $startVerticalId, int $startHorizontalId, ?array $vertOrder = null, ?array $horizOrder = null): array
     {
+        $verticales = collect();
+        $horizontales = collect();
+
         if ($vertOrder !== null && $horizOrder !== null) {
             $vIdx = array_search($startVerticalId, $vertOrder);
             $hIdx = array_search($startHorizontalId, $horizOrder);
-            $useOrder = true;
         } else {
             $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
             $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
             $vIdx = $verticales->search(fn($v) => $v->categoria_id === $startVerticalId);
             $hIdx = $horizontales->search(fn($h) => $h->categoria_id === $startHorizontalId);
-            $useOrder = false;
         }
 
         if ($vIdx === false || $hIdx === false) {
