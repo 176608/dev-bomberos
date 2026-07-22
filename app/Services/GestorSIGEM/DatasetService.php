@@ -131,6 +131,7 @@ class DatasetService
             'max_columnas' => count($leafHIds),
             'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
             'sesion_token' => $this->sesionId,
+            'tema_color' => $cuadro->tema?->color ?? null,
         ];
     }
 
@@ -500,6 +501,7 @@ class DatasetService
             'max_filas' => 0, 'max_columnas' => 0,
             'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
             'sesion_token' => $this->sesionId,
+            'tema_color' => $cuadro->tema?->color ?? null,
         ];
     }
 

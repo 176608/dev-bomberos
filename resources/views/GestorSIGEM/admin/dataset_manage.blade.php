@@ -90,12 +90,17 @@
 #dataset-table .editable-header { cursor: text; }
 #dataset-table td[data-vertical-id] > div { cursor: text; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
-/* Labels con position-relative (con hijos): espacio para botones */
+/* Headers horizontales con position-relative: espacio para botones */
+#dataset-table thead th.position-relative { padding-right: 56px; }
+.mode-datos #dataset-table thead th.position-relative { padding-right: 0.3rem; }
+/* Labels verticales con position-relative (con hijos): espacio para botones */
 #dataset-table tbody th.position-relative { padding-right: 56px; }
 .mode-datos #dataset-table tbody th.position-relative { padding-right: 0.3rem; }
-/* Labels sin hijos: flex 50/50, ocultar botones en modo datos */
-.mode-datos #dataset-table tbody th.d-flex .edit-only { display: none !important; }
-.mode-datos #dataset-table tbody th.d-flex > div:first-child { width: 100% !important; }
+/* Labels sin hijos (d-flex): 75/25, modo datos 100% */
+.mode-datos #dataset-table th.d-flex .edit-only,
+.mode-datos #dataset-table td.d-flex .edit-only { display: none !important; }
+.mode-datos #dataset-table th.d-flex > div:first-child,
+.mode-datos #dataset-table td.d-flex > div:first-child { width: 100% !important; }
 /* Celdas de datos no editables visualmente en modo diseño */
 .mode-diseno #dataset-table td[data-vertical-id] { background: #f8f9fa; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { color: #6c757d; }
@@ -436,20 +441,33 @@
                             + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
                             + '<span class="pivot-label editable-header text-muted small" contenteditable="false" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
                             + '</div></th>';
+                    } else if (cell.tipo === 'parent' && cell.colspan > 1) {
+                        // Horizontal parent with 2+ children: vertical stacking, centered
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="align-middle text-center position-relative" style="background:#e2e6ea;min-width:90px">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
+                            + '<div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
+                            + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
+                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
+                            + '</div>'
+                            + '</th>';
                     } else if (cell.tipo === 'parent') {
-                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle text-center position-relative" style="background:#e2e6ea;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
+                        // Horizontal parent with 1 child: original horizontal
+                        theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="align-middle text-center position-relative" style="background:#e2e6ea;min-width:90px">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-semibold px-1 small editable-header">' + esc(cell.nombre) + '</div>'
                             + '<div class="position-absolute top-0 end-0 d-flex gap-1 p-1 edit-only" style="z-index:2">'
                             + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                             + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                             + '</div>'
                             + '</th>';
                     } else {
-                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" class="align-middle text-center position-relative" style="background:#f0f2f5;min-width:90px">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="fw-normal px-1 small editable-header">' + esc(cell.nombre) + '</div>'
-                            + '<div class="position-absolute top-0 end-0 d-flex gap-1 p-1 edit-only" style="z-index:2">'
+                        // Leaf (no children): 75/25 d-flex
+                        theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="align-middle text-center" style="background:#f0f2f5;min-width:90px">'
+                            + '<div class="d-flex align-items-center" style="background:#f0f2f5">'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="w-75 px-1 small editable-header text-start">' + esc(cell.nombre) + '</div>'
+                            + '<div class="w-25 d-flex flex-column gap-1 p-1 edit-only align-items-center">'
                             + (!cell.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + cell.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                             + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar columna" onclick="window.eliminarColumna(' + cell.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
+                            + '</div>'
                             + '</div>'
                             + '</th>';
                     }
@@ -470,8 +488,8 @@
             for (const label of labelRow) {
                 if (label.tipo === 'parent' && label.rowspan > 1) {
                     // Parent with 2+ children: vertical stacking, centered vertically
-                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
+                    tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="position-absolute top-50 end-0 translate-middle-y d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
@@ -479,18 +497,18 @@
                         + '</th>';
                 } else if (label.tipo === 'parent') {
                     // Parent with 1 child: original horizontal layout
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:500">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small fw-semibold editable-header">' + esc(label.nombre) + '</div>'
                         + '<div class="position-absolute top-0 end-0 d-flex gap-1 p-1 edit-only" style="z-index:2">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'
                         + '</th>';
                 } else {
-                    // Leaf (no children): 50/50 flex horizontal
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="d-flex align-items-center" style="background:#f8f9fa;min-width:110px;font-weight:400">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="w-50 px-1 small editable-header">' + esc(label.nombre) + '</div>'
-                        + '<div class="w-50 d-flex gap-1 p-1 edit-only justify-content-end align-items-center">'
+                    // Leaf (no children): 75/25 flex horizontal
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="d-flex align-items-center" style="background:#f8f9fa;min-width:110px;font-weight:400">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="w-75 px-1 small editable-header">' + esc(label.nombre) + '</div>'
+                        + '<div class="w-25 d-flex flex-column gap-1 p-1 edit-only align-items-center">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'
@@ -512,7 +530,38 @@
             + '<td colspan="' + (horizontales.length + 1) + '"></td></tr>';
 
         tbody.innerHTML = tbodyHtml;
+
+        // Apply theme color if available
+        const color = (window.estado && window.estado.tema_color) || null;
+        let styleEl = document.getElementById('tema-color-style');
+        if (color && hexToRgba(color, 0.5) !== null) {
+            const childBg = hexToRgba(color, 0.5);
+            const cellBg = hexToRgba(color, 0.12);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'tema-color-style';
+                document.head.appendChild(styleEl);
+            }
+            styleEl.textContent =
+                '#dataset-table thead th.position-relative .editable-header,' +
+                '#dataset-table thead th.position-relative .fw-bold { background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px; }' +
+                '#dataset-table thead th .editable-header[data-es-hijo="1"] { background:' + childBg + ';border-radius:3px;padding:1px 6px; }' +
+                '#dataset-table tbody td { background:' + cellBg + '; }' +
+                '#dataset-table tbody th.position-relative .editable-header,' +
+                '#dataset-table tbody th.position-relative .fw-semibold { background:' + color + ';color:#fff;border-radius:3px;padding:1px 6px; }' +
+                '#dataset-table tbody th .editable-header[data-es-hijo="1"] { background:' + childBg + ';border-radius:3px;padding:1px 6px; }';
+        } else if (styleEl) {
+            styleEl.textContent = '';
+        }
         renderSelection();
+    }
+
+    function hexToRgba(hex, alpha) {
+        if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
+        const r = parseInt(hex.slice(1,3), 16);
+        const g = parseInt(hex.slice(3,5), 16);
+        const b = parseInt(hex.slice(5,7), 16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
 
     function saveAllBeforeAction() {
