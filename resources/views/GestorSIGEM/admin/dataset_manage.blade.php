@@ -90,9 +90,9 @@
 #dataset-table .editable-header { cursor: text; }
 #dataset-table td[data-vertical-id] > div { cursor: text; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
-/* Espacio para botones en labels verticales en modo diseño */
-#dataset-table tbody th.position-relative { padding-right: 34px; }
-.mode-datos #dataset-table tbody th.position-relative { padding-right: 0.3rem; }
+/* Labels sin hijos: flex 50/50, ocultar botones en modo datos */
+.mode-datos #dataset-table tbody th.d-flex .edit-only { display: none !important; }
+.mode-datos #dataset-table tbody th.d-flex > div:first-child { width: 100% !important; }
 /* Celdas de datos no editables visualmente en modo diseño */
 .mode-diseno #dataset-table td[data-vertical-id] { background: #f8f9fa; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { color: #6c757d; }
@@ -474,9 +474,9 @@
                         + '</div>'
                         + '</th>';
                 } else {
-                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="position-relative" style="background:#f8f9fa;min-width:110px;font-weight:400">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="px-1 small editable-header">' + esc(label.nombre) + '</div>'
-                        + '<div class="position-absolute top-0 end-0 d-flex flex-column gap-1 p-1 edit-only" style="z-index:2">'
+                    tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" class="d-flex align-items-center" style="background:#f8f9fa;min-width:110px;font-weight:400">'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="w-50 px-1 small editable-header">' + esc(label.nombre) + '</div>'
+                        + '<div class="w-50 d-flex gap-1 p-1 edit-only justify-content-end align-items-center">'
                         + (!label.es_hijo ? '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Añadir hijo" onclick="window.agregarHijo(' + label.categoria_id + ')"><i class="bi bi-plus" style="font-size:1rem"></i></button>' : '')
                         + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px" title="Eliminar fila" onclick="window.eliminarFila(' + label.categoria_id + ')"><i class="bi bi-x" style="font-size:1rem"></i></button>'
                         + '</div>'
