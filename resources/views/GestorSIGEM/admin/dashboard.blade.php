@@ -35,7 +35,6 @@
 
 <div class="card">
     <div class="card-body">
-        @if($auditoria->count() > 0)
         {{-- Time filters --}}
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="btn-group btn-group-sm" role="group">
@@ -68,7 +67,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($auditoria as $log)
+                    @forelse($auditoria as $log)
                         @php
                             $ds = $log->datos_nuevos;
                             $accionTexto = $ds['accion'] ?? ($log->accion === 'crear' ? 'Creación' : ($log->accion === 'eliminar' ? 'Eliminación' : 'Actualización'));
@@ -97,13 +96,14 @@
                                 @endif
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">No hay eventos en este período.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-        @else
-        <p class="text-muted text-center mb-0">No hay eventos en este período.</p>
-        @endif
     </div>
 </div>
 

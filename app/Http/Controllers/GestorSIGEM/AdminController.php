@@ -45,7 +45,7 @@ class AdminController extends Controller
 
         $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
 
-        $modelos = $auditoria->pluck('modelo')->unique()->sort()->values();
+        $modelos = AuditoriaSgiem::distinct()->pluck('modelo')->sort()->values();
 
         $resumen = [
             'total_temas' => TemaV2::count(),
