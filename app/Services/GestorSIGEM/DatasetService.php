@@ -2,52 +2,18 @@
 
 namespace App\Services\GestorSIGEM;
 
-use App\Models\SIGEM\AuditoriaSgiem;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class DatasetService
 {
-    private ?string $sesionId = null;
-
     public function __construct(
         private Cuadro $cuadro,
         private CuadroCategoria $categoria,
         private CuadroDato $dato,
-        private AuditoriaSgiem $auditoria,
     ) {}
-
-    public function setSesionId(?string $id): void
-    {
-        if ($id) $this->sesionId = $id;
-    }
-
-    private function cacheKey(): string
-    {
-        return 'audit_batch_' . ($this->sesionId ?? 'null');
-    }
-
-    private function collectAudit(string $accion, array $detalle = []): void
-    {
-        if (!$this->sesionId) return;
-        $data = \Illuminate\Support\Facades\Cache::get($this->cacheKey(), ['acciones' => []]);
-        $data['acciones'][] = array_merge(['accion' => $accion], $detalle);
-        \Illuminate\Support\Facades\Cache::put($this->cacheKey(), $data, now()->addDay());
-    }
-
-    private function flushAuditBatch(int $cuadro_id): void
-    {
-        if (!$this->sesionId) return;
-        $data = \Illuminate\Support\Facades\Cache::get($this->cacheKey(), []);
-        $acciones = $data['acciones'] ?? [];
-        if (empty($acciones)) return;
-        $this->auditar($cuadro_id, 'actualizar', ['acciones' => $acciones]);
-        \Illuminate\Support\Facades\Cache::forget($this->cacheKey());
-    }
 
     public function obtenerEstado(int $cuadro_id): array
     {
@@ -137,7 +103,6 @@ class DatasetService
             'max_filas' => count($leafVIds),
             'max_columnas' => count($leafHIds),
             'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
-            'sesion_token' => $this->sesionId,
             'tema_color' => $cuadro->tema?->color ?? null,
         ];
     }
@@ -147,11 +112,8 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
-        $this->flushAuditBatch($cuadro_id);
         $cuadro->datos()->delete();
         $this->deleteCategoriasSafe($cuadro);
-
-        $this->auditar($cuadro_id, 'crear', ['filas' => $filas, 'columnas' => $columnas]);
 
         $verticales = [];
         for ($f = 1; $f <= $filas; $f++) {
@@ -205,7 +167,6 @@ class DatasetService
             ]);
         }
 
-        $this->collectAudit('Agregar fila', ['nombre' => $cat->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -216,14 +177,12 @@ class DatasetService
             throw new \RuntimeException('Fila no encontrada');
         }
 
-        $nombreCat = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_vertical_id', $categoria_id)->delete();
         $this->categoria->where('padre_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'vertical');
-        $this->collectAudit('Eliminar fila', ['nombre' => $nombreCat]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -249,7 +208,6 @@ class DatasetService
             ]);
         }
 
-        $this->collectAudit('Agregar columna', ['nombre' => $cat->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -260,14 +218,12 @@ class DatasetService
             throw new \RuntimeException('Columna no encontrada');
         }
 
-        $nombreCat = $cat->nombre;
         $this->dato->where('cuadro_id', $cuadro_id)
             ->where('cat_horizontal_id', $categoria_id)->delete();
         $this->categoria->where('padre_id', $categoria_id)->delete();
         $cat->delete();
 
         $this->reordenar($cuadro_id, 'horizontal');
-        $this->collectAudit('Eliminar columna', ['nombre' => $nombreCat]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -282,7 +238,6 @@ class DatasetService
             throw new \RuntimeException('No se pueden agregar hijos a una categoría que ya es hija. Máximo 2 niveles de jerarquía.');
         }
 
-        $hijosExistentes = $padre->hijos()->count();
         $maxOrden = $padre->hijos()->max('orden') ?? 0;
 
         $hijo = $this->categoria->create([
@@ -318,7 +273,6 @@ class DatasetService
             }
         }
 
-        $this->collectAudit('Agregar hijo', ['nombre' => $hijo->nombre, 'padre' => $padre->nombre]);
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -386,10 +340,8 @@ class DatasetService
 
         if (count($grid) < 2) throw new \InvalidArgumentException('Debe tener al menos 2 filas');
 
-        $this->flushAuditBatch($cuadro_id);
         $cuadro->datos()->delete();
         $this->deleteCategoriasSafe($cuadro);
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar grid']);
 
         $headers = $grid[0];
         $numCols = count($headers);
@@ -441,8 +393,6 @@ class DatasetService
             throw new \RuntimeException('Posición inicial no encontrada en la grilla');
         }
 
-        $this->collectAudit('Pegar parcial', ['desde_fila' => $vIdx, 'desde_columna' => $hIdx, 'filas' => count($grid), 'columnas' => count($grid[0] ?? [])]);
-
         foreach ($grid as $f => $row) {
             $vPos = $vIdx + $f;
             if ($vPos >= $verticales->count()) break;
@@ -489,29 +439,7 @@ class DatasetService
             $this->renombrarCategoria($categorias[$idx]->categoria_id, trim($valor));
         }
 
-        $this->collectAudit('Pegar en categorías', ['eje' => $eje, 'cantidad' => count($valores)]);
         return $this->obtenerEstado($cuadro_id);
-    }
-
-    public function limpiarDataset(int $cuadro_id): array
-    {
-        $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
-        if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
-
-        $cuadro->datos()->delete();
-        $this->deleteCategoriasSafe($cuadro);
-
-        $this->collectAudit('Limpiar dataset', []);
-        $this->flushAuditBatch($cuadro_id);
-        return [
-            'tiene_dataset' => false,
-            'verticales' => [], 'horizontales' => [],
-            'headers' => [], 'labels' => [], 'data' => [],
-            'max_filas' => 0, 'max_columnas' => 0,
-            'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
-            'sesion_token' => $this->sesionId,
-            'tema_color' => $cuadro->tema?->color ?? null,
-        ];
     }
 
     public function limpiarDatos(int $cuadro_id): array
@@ -519,10 +447,7 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
-        $this->flushAuditBatch($cuadro_id);
         $this->dato->where('cuadro_id', $cuadro_id)->update(['valor' => '', 'valor_crudo' => '']);
-        $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Limpiar datos']);
-
         return $this->obtenerEstado($cuadro_id);
     }
 
@@ -715,21 +640,5 @@ class DatasetService
         if (!empty($parentIds)) {
             $this->categoria->whereIn('categoria_id', $parentIds)->delete();
         }
-    }
-
-    private function auditar(int $cuadro_id, string $accion, array $detalle = []): void
-    {
-        if (!Auth::check()) return;
-        $entry = [
-            'user_id' => Auth::id(),
-            'modelo' => 'Dataset',
-            'modelo_id' => $cuadro_id,
-            'accion' => $accion,
-            'datos_nuevos' => $detalle,
-        ];
-        if ($this->sesionId) {
-            $entry['sesion_id'] = $this->sesionId;
-        }
-        $this->auditoria->create($entry);
     }
 }

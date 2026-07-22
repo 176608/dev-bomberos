@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use App\Services\GestorSIGEM\DatasetService;
 use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 
@@ -13,14 +12,6 @@ class DatasetController extends Controller
         private DatasetService $datasetService,
     ) {
         $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            $sesionId = $request->header('X-Sesion-Id');
-            if (!$sesionId) {
-                $sesionId = (string) \Illuminate\Support\Str::uuid();
-            }
-            $this->datasetService->setSesionId($sesionId);
-            return $next($request);
-        });
     }
 
     public function estado($id)
@@ -146,15 +137,6 @@ class DatasetController extends Controller
             )]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
-        }
-    }
-
-    public function limpiar($id)
-    {
-        try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->limpiarDataset((int) $id)]);
-        } catch (\RuntimeException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
     }
 

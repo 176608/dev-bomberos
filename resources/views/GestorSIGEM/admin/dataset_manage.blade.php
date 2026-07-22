@@ -71,6 +71,30 @@
     </div>
 </div>
 
+<!-- Modal regenerar cuadrícula -->
+<div class="modal fade" id="modalRegenerar" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-arrow-repeat" style="font-size:2.5rem;color:var(--bs-warning)"></i>
+                <h5 class="mt-2">Regenerar cuadrícula</h5>
+                <p class="text-muted small mb-3">Se eliminarán todas las categorías y datos actuales</p>
+                <div class="row justify-content-center g-2 mb-3">
+                    <div class="col-auto">
+                        <label class="form-label small">Filas</label>
+                        <input type="number" class="form-control text-center" id="modal-input-filas" value="5" min="1" max="50" style="width:80px">
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label small">Columnas</label>
+                        <input type="number" class="form-control text-center" id="modal-input-columnas" value="5" min="1" max="50" style="width:80px">
+                    </div>
+                </div>
+                <button class="btn btn-warning px-4" id="btn-regenerar"><i class="bi bi-arrow-repeat me-1"></i>Regenerar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 #dataset-table td, #dataset-table th { vertical-align: middle; padding: 0.15rem 0.3rem; }
 #dataset-table td > div, #dataset-table th > div { min-height: 26px; outline: none; padding: 0.1rem 0.2rem; border-radius: 2px; }
@@ -117,7 +141,7 @@
 
     let estado = @json($estadoInicial);
     let currentMode = 'diseno';
-    let sesionToken = estado.sesion_token || '';
+
 
     window.switchMode = function(mode) {
         currentMode = mode;
@@ -163,16 +187,12 @@
     function api(path, opts = {}) {
         opts.headers = opts.headers || {};
         opts.headers['X-CSRF-TOKEN'] = CSRF;
-        if (sesionToken) opts.headers['X-Sesion-Id'] = sesionToken;
         if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
             opts.body = JSON.stringify(opts.body);
             opts.headers['Content-Type'] = 'application/json';
         }
         return fetch(BASE + path, opts).then(r => r.json()).then(j => {
-            if (j.data) {
-                estado = j.data;
-                sesionToken = estado.sesion_token || sesionToken;
-            }
+            if (j.data) estado = j.data;
             return j;
         });
     }
@@ -892,11 +912,8 @@
 
     window.limpiarDataset = function() {
         saveAllBeforeAction();
-        if (!confirm('¿Eliminar todo el dataset?')) return;
-        api('/limpiar', { method: 'DELETE' }).then(j => {
-            if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Dataset limpiado'); }
-            else alerta(j.message);
-        }).catch(() => alerta('Error'));
+        const m = new bootstrap.Modal(document.getElementById('modalRegenerar'));
+        m.show();
     };
 
     window.limpiarDatos = function() {
@@ -928,6 +945,18 @@
         api('/generar', { method: 'POST', body: { filas, columnas: cols } }).then(j => {
             if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Grilla generada'); }
             else alerta(j.message);
+        }).catch(() => alerta('Error'));
+    });
+
+    document.getElementById('btn-regenerar')?.addEventListener('click', function() {
+        const filas = parseInt(document.getElementById('modal-input-filas').value) || 5;
+        const cols = parseInt(document.getElementById('modal-input-columnas').value) || 5;
+        status('Regenerando...');
+        api('/generar', { method: 'POST', body: { filas, columnas: cols } }).then(j => {
+            if (j.success) {
+                estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula regenerada');
+                bootstrap.Modal.getInstance(document.getElementById('modalRegenerar'))?.hide();
+            } else alerta(j.message);
         }).catch(() => alerta('Error'));
     });
 
