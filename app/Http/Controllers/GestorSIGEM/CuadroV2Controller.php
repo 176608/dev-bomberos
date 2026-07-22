@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers\GestorSIGEM;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\GestorSIGEM\StoreCuadroV2Request;
-use App\Http\Requests\GestorSIGEM\StoreCategoriaRequest;
-use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 use App\Services\GestorSIGEM\CuadroV2Service;
-use App\Services\GestorSIGEM\CategoriaService;
 use App\Services\GestorSIGEM\DatasetService;
 
 class CuadroV2Controller extends Controller
 {
     public function __construct(
         private CuadroV2Service $cuadroV2Service,
-        private CategoriaService $categoriaService,
         private DatasetService $datasetService,
     ) {
-        $this->middleware('auth')->except(['catalogoPublico']);
+        $this->middleware('auth');
     }
 
     public function index()
@@ -149,78 +144,6 @@ class CuadroV2Controller extends Controller
             return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', $e->getMessage());
         }
-    }
-
-    public function procesarDataset(ProcesarDatasetRequest $request, $id)
-    {
-        try {
-            $this->datasetService->procesar((int) $id, $request->file('dataset'));
-
-            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
-                ->with('success', 'Dataset cargado. Revisa la interpretación.');
-
-        } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros.index')
-                ->with('error', $e->getMessage());
-        }
-    }
-
-    public function editarInterpretacion($id)
-    {
-        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
-
-        if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros.index')
-                ->with('error', 'Cuadro no encontrado.');
-        }
-
-        return view('GestorSIGEM.layout')->with([
-            'crud_view' => 'GestorSIGEM.admin.interpretacion',
-            'cuadro' => $cuadro,
-        ]);
-    }
-
-    public function actualizarCategorias(Request $request, $id)
-    {
-        // TODO: Fase 2 — implementar actualización masiva de categorías
-        return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
-            ->with('success', 'Categorías actualizadas.');
-    }
-
-    public function actualizarDato(Request $request, $id, $datoId)
-    {
-        try {
-            $dato = $this->categoriaService->actualizarDato(
-                (int) $id,
-                (int) $datoId,
-                $request->input('valor', '')
-            );
-
-            return response()->json(['success' => true, 'dato' => $dato]);
-
-        } catch (\RuntimeException $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        }
-    }
-
-    public function agregarCategoria(StoreCategoriaRequest $request, $id)
-    {
-        try {
-            $this->categoriaService->agregar((int) $id, $request->validated());
-
-            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
-                ->with('success', 'Categoría agregada.');
-
-        } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros.interpretacion', $id)
-                ->with('error', $e->getMessage());
-        }
-    }
-
-    public function catalogoPublico()
-    {
-        $cuadros = $this->cuadroV2Service->catalogoPublico();
-        return response()->json($cuadros);
     }
 
     public function togglePublicado($id)

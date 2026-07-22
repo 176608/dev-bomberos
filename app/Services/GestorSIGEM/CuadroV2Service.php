@@ -104,11 +104,6 @@ class CuadroV2Service
         return $data;
     }
 
-    public function catalogoPublico(): array
-    {
-        return $this->cuadro->publicados()->with(['subtema.tema'])->get()->toArray();
-    }
-
     public function obtenerSubtemasParaFormulario(): array
     {
         return SubtemaV2::obtenerTodos()->toArray();

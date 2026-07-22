@@ -740,6 +740,8 @@
                         grid: clipGrid,
                         start_vertical_id: anchor.vId,
                         start_horizontal_id: anchor.hId,
+                        verticales: estado.verticales.map(v => v.categoria_id),
+                        horizontales: estado.horizontales.map(h => h.categoria_id),
                     }
                 }).then(j => {
                     if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }
@@ -784,6 +786,8 @@
                         grid: clipGrid,
                         start_vertical_id: anchor.vId,
                         start_horizontal_id: anchor.hId,
+                        verticales: estado.verticales.map(v => v.categoria_id),
+                        horizontales: estado.horizontales.map(h => h.categoria_id),
                     }
                 }).then(j => {
                     if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Pegado'); }

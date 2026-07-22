@@ -99,12 +99,17 @@ class DatasetController extends Controller
             'grid.*' => 'required|array',
             'start_vertical_id' => 'nullable|integer',
             'start_horizontal_id' => 'nullable|integer',
+            'verticales' => 'nullable|array',
+            'verticales.*' => 'integer',
+            'horizontales' => 'nullable|array',
+            'horizontales.*' => 'integer',
         ]);
 
         try {
             return response()->json(['success' => true, 'data' => $this->datasetService->pasteGrid(
                 (int) $id, $request->grid,
-                $request->start_vertical_id, $request->start_horizontal_id
+                $request->start_vertical_id, $request->start_horizontal_id,
+                $request->verticales, $request->horizontales
             )]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);

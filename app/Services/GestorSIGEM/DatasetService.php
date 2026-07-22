@@ -13,6 +13,7 @@ class DatasetService
         private Cuadro $cuadro,
         private CuadroCategoria $categoria,
         private CuadroDato $dato,
+        private DatasetGridPresenter $presenter,
     ) {}
 
     public function obtenerEstado(int $cuadro_id): array
@@ -24,15 +25,15 @@ class DatasetService
         $allHorizontal = $cuadro->categoriasHorizontales()->orderBy('orden')->get();
         $datos = $cuadro->datos;
 
-        $vertTree = $this->buildTree($allVertical);
-        $horizTree = $this->buildTree($allHorizontal);
+        $vertTree = $this->presenter->buildTree($allVertical);
+        $horizTree = $this->presenter->buildTree($allHorizontal);
 
-        $vertTreeSerialized = $this->serializeTree($vertTree);
-        $horizTreeSerialized = $this->serializeTree($horizTree);
+        $vertTreeSerialized = $this->presenter->serializeTree($vertTree);
+        $horizTreeSerialized = $this->presenter->serializeTree($horizTree);
 
-        $labels = $this->buildEtiquetas($vertTreeSerialized);
+        $labels = $this->presenter->buildEtiquetas($vertTreeSerialized);
         $numLabelCols = $labels ? max(array_map('count', $labels)) : 1;
-        $headers = $this->buildEncabezados($horizTreeSerialized, $numLabelCols);
+        $headers = $this->presenter->buildEncabezados($horizTreeSerialized, $numLabelCols);
 
         $leafVIds = [];
         foreach ($labels as $row) {
@@ -416,13 +417,13 @@ class DatasetService
         return $cat;
     }
 
-    public function pasteGrid(int $cuadro_id, array $grid, ?int $startVerticalId = null, ?int $startHorizontalId = null): array
+    public function pasteGrid(int $cuadro_id, array $grid, ?int $startVerticalId = null, ?int $startHorizontalId = null, ?array $vertOrder = null, ?array $horizOrder = null): array
     {
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
         if ($startVerticalId !== null && $startHorizontalId !== null) {
-            return $this->pastePartial($cuadro_id, $cuadro, $grid, $startVerticalId, $startHorizontalId);
+            return $this->pastePartial($cuadro_id, $cuadro, $grid, $startVerticalId, $startHorizontalId, $vertOrder, $horizOrder);
         }
 
         if (count($grid) < 2) throw new \InvalidArgumentException('Debe tener al menos 2 filas');
@@ -468,28 +469,43 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    private function pastePartial(int $cuadro_id, Cuadro $cuadro, array $grid, int $startVerticalId, int $startHorizontalId): array
+    private function pastePartial(int $cuadro_id, Cuadro $cuadro, array $grid, int $startVerticalId, int $startHorizontalId, ?array $vertOrder = null, ?array $horizOrder = null): array
     {
-        $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
-        $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
-
-        $vIdx = $verticales->search(fn($v) => $v->categoria_id === $startVerticalId);
-        $hIdx = $horizontales->search(fn($h) => $h->categoria_id === $startHorizontalId);
+        if ($vertOrder !== null && $horizOrder !== null) {
+            $vIdx = array_search($startVerticalId, $vertOrder);
+            $hIdx = array_search($startHorizontalId, $horizOrder);
+            $useOrder = true;
+        } else {
+            $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
+            $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
+            $vIdx = $verticales->search(fn($v) => $v->categoria_id === $startVerticalId);
+            $hIdx = $horizontales->search(fn($h) => $h->categoria_id === $startHorizontalId);
+            $useOrder = false;
+        }
 
         if ($vIdx === false || $hIdx === false) {
             throw new \RuntimeException('Posición inicial no encontrada en la grilla');
         }
 
+        $getVId = function($pos) use ($vertOrder, $verticales) {
+            return $vertOrder !== null ? $vertOrder[$pos] : $verticales[$pos]->categoria_id;
+        };
+        $getHId = function($pos) use ($horizOrder, $horizontales) {
+            return $horizOrder !== null ? $horizOrder[$pos] : $horizontales[$pos]->categoria_id;
+        };
+        $countV = $vertOrder !== null ? count($vertOrder) : $verticales->count();
+        $countH = $horizOrder !== null ? count($horizOrder) : $horizontales->count();
+
         foreach ($grid as $f => $row) {
             $vPos = $vIdx + $f;
-            if ($vPos >= $verticales->count()) break;
-            $vCat = $verticales[$vPos];
+            if ($vPos >= $countV) break;
+            $vCatId = $getVId($vPos);
             foreach ($row as $c => $valor) {
                 $hPos = $hIdx + $c;
-                if ($hPos >= $horizontales->count()) break;
-                $hCat = $horizontales[$hPos];
+                if ($hPos >= $countH) break;
+                $hCatId = $getHId($hPos);
                 $this->dato->updateOrCreate(
-                    ['cuadro_id' => $cuadro_id, 'cat_vertical_id' => $vCat->categoria_id, 'cat_horizontal_id' => $hCat->categoria_id],
+                    ['cuadro_id' => $cuadro_id, 'cat_vertical_id' => $vCatId, 'cat_horizontal_id' => $hCatId],
                     ['valor' => $valor, 'valor_crudo' => $valor]
                 );
             }
@@ -538,30 +554,7 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    // ============ TREE HELPERS ============
-
-    private function buildTree($categories): array
-    {
-        $byParent = [];
-        foreach ($categories as $cat) {
-            $byParent[$cat->padre_id ?? 0][] = $cat;
-        }
-        $result = [];
-        foreach ($byParent[0] ?? [] as $root) {
-            $this->attachChildren($root, $byParent);
-            $result[] = $root;
-        }
-        return $result;
-    }
-
-    private function attachChildren($node, array &$byParent): void
-    {
-        $children = $byParent[$node->categoria_id] ?? [];
-        foreach ($children as $child) {
-            $this->attachChildren($child, $byParent);
-        }
-        $node->setRelation('hijos', collect($children));
-    }
+    // ============ UTILITY HELPERS ============
 
     private function getLeaves($categories)
     {
@@ -577,138 +570,6 @@ class DatasetService
         $all = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', $eje)->orderBy('orden')->get();
         return $this->getLeaves($all);
-    }
-
-    private function countLeavesRecursive(array $node): int
-    {
-        if (empty($node['hijos'])) return 1;
-        $count = 0;
-        foreach ($node['hijos'] as $child) {
-            $count += $this->countLeavesRecursive($child);
-        }
-        return $count;
-    }
-
-    private function serializeTree(array $nodes): array
-    {
-        $result = [];
-        foreach ($nodes as $node) {
-            $item = [
-                'categoria_id' => $node->categoria_id,
-                'nombre' => $node->nombre,
-                'tipo' => $node->tipo,
-            ];
-            $hijos = $node->hijos ?? collect();
-            if ($hijos->isNotEmpty()) {
-                $item['hijos'] = $this->serializeTree($hijos->all());
-                $item['span'] = $this->countLeavesRecursive($item);
-                $item['num_hijos'] = $hijos->count();
-            } else {
-                $item['span'] = 1;
-                $item['num_hijos'] = 0;
-            }
-            $result[] = $item;
-        }
-        return $result;
-    }
-
-    // ============ RENDERING HELPERS ============
-
-    private function buildEncabezados(array $horizTree, int $numLabelCols): array
-    {
-        $rows = [];
-        $colIdx = 0;
-        $this->buildEncabezadosRecursive($horizTree, 0, $rows, $numLabelCols, $colIdx);
-        $maxDepth = count($rows);
-        if ($maxDepth > 0 && isset($rows[0][0]) && $rows[0][0]['tipo'] === 'corner') {
-            $rows[0][0]['rowspan'] = $maxDepth;
-        }
-        return $rows;
-    }
-
-    private function buildEncabezadosRecursive(array $nodes, int $depth, array &$rows, int $numLabelCols, int &$colIdx): void
-    {
-        if (!isset($rows[$depth])) {
-            $rows[$depth] = $depth === 0
-                ? [['tipo' => 'corner', 'valor' => '', 'rowspan' => 1, 'colspan' => $numLabelCols]]
-                : [];
-        }
-        foreach ($nodes as $node) {
-            $hasChildren = !empty($node['hijos']);
-            $esHijo = $depth > 0;
-            if ($hasChildren) {
-                $rows[$depth][] = [
-                    'tipo' => 'parent',
-                    'categoria_id' => $node['categoria_id'],
-                    'nombre' => $node['nombre'],
-                    'colspan' => $node['span'],
-                    'num_hijos' => $node['num_hijos'] ?? 0,
-                    'es_hijo' => $esHijo,
-                    'col_index' => $colIdx,
-                ];
-                $this->buildEncabezadosRecursive($node['hijos'], $depth + 1, $rows, $numLabelCols, $colIdx);
-            } else {
-                $rows[$depth][] = [
-                    'tipo' => 'leaf',
-                    'categoria_id' => $node['categoria_id'],
-                    'nombre' => $node['nombre'],
-                    'colspan' => 1,
-                    'es_hijo' => $esHijo,
-                    'col_index' => $colIdx,
-                ];
-                $colIdx++;
-            }
-        }
-    }
-
-    private function buildEtiquetas(array $vertTree): array
-    {
-        $rows = [];
-        $rowIdx = 0;
-        foreach ($vertTree as $node) {
-            $hasChildren = !empty($node['hijos']);
-            if ($hasChildren) {
-                $span = $node['span'];
-                $firstChild = true;
-                foreach ($node['hijos'] as $child) {
-                    $row = [];
-                    if ($firstChild) {
-                        $row[] = [
-                            'tipo' => 'parent',
-                            'categoria_id' => $node['categoria_id'],
-                            'nombre' => $node['nombre'],
-                            'rowspan' => $span,
-                            'num_hijos' => $node['num_hijos'] ?? 0,
-                            'es_hijo' => false,
-                            'row_index' => $rowIdx,
-                        ];
-                        $firstChild = false;
-                    }
-                    $row[] = [
-                        'tipo' => 'leaf',
-                        'categoria_id' => $child['categoria_id'],
-                        'nombre' => $child['nombre'],
-                        'rowspan' => 1,
-                        'es_hijo' => true,
-                        'row_index' => $rowIdx,
-                    ];
-                    $rows[] = $row;
-                    $rowIdx++;
-                }
-            } else {
-                $rows[] = [[
-                    'tipo' => 'leaf',
-                    'categoria_id' => $node['categoria_id'],
-                    'nombre' => $node['nombre'],
-                    'rowspan' => 1,
-                    'colspan' => 2,
-                    'es_hijo' => false,
-                    'row_index' => $rowIdx,
-                ]];
-                $rowIdx++;
-            }
-        }
-        return $rows;
     }
 
     private function reordenar(int $cuadro_id, string $eje): void

@@ -8,9 +8,6 @@ use App\Http\Controllers\GestorSIGEM\DatasetController;
 
 Route::prefix('sgiem')->name('sgiem.')->group(function () {
 
-    Route::get('/v1/catalogo', [CuadroV2Controller::class, 'catalogoPublico'])
-        ->name('v1.catalogo');
-
     Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
 
@@ -37,11 +34,6 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::get('/{id}/editar', [CuadroV2Controller::class, 'edit'])->name('edit');
             Route::put('/{id}', [CuadroV2Controller::class, 'update'])->name('update');
             Route::delete('/{id}', [CuadroV2Controller::class, 'destroy'])->name('destroy');
-            Route::post('/{id}/procesar-dataset', [CuadroV2Controller::class, 'procesarDataset'])->name('procesar-dataset');
-            Route::get('/{id}/interpretacion', [CuadroV2Controller::class, 'editarInterpretacion'])->name('interpretacion');
-            Route::put('/{id}/categorias', [CuadroV2Controller::class, 'actualizarCategorias'])->name('actualizar-categorias');
-            Route::put('/{id}/datos/{dato}', [CuadroV2Controller::class, 'actualizarDato'])->name('actualizar-dato');
-            Route::post('/{id}/categorias', [CuadroV2Controller::class, 'agregarCategoria'])->name('agregar-categoria');
             Route::put('/{id}/toggle-publicado', [CuadroV2Controller::class, 'togglePublicado'])->name('toggle-publicado');
             Route::get('/{id}/datos', [CuadroV2Controller::class, 'datosJson'])->name('datos-json');
             Route::get('/{id}/dataset', [CuadroV2Controller::class, 'datasetManage'])->name('dataset');
