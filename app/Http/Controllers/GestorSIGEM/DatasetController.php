@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Services\GestorSIGEM\DatasetService;
 use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 
@@ -13,7 +14,11 @@ class DatasetController extends Controller
     ) {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            $this->datasetService->setSesionId($request->header('X-Sesion-Id'));
+            $sesionId = $request->header('X-Sesion-Id');
+            if (!$sesionId) {
+                $sesionId = (string) \Illuminate\Support\Str::uuid();
+            }
+            $this->datasetService->setSesionId($sesionId);
             return $next($request);
         });
     }

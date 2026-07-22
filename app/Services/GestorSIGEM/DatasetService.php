@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 class DatasetService
 {
     private ?string $sesionId = null;
-    private array $auditBatch = [];
 
     public function __construct(
         private Cuadro $cuadro,
@@ -27,21 +26,31 @@ class DatasetService
         if ($id) $this->sesionId = $id;
     }
 
+    private function cacheKey(): string
+    {
+        return 'audit_batch_' . ($this->sesionId ?? 'null');
+    }
+
     private function collectAudit(string $accion, array $detalle = []): void
     {
-        $this->auditBatch[] = array_merge(['accion' => $accion], $detalle);
+        if (!$this->sesionId) return;
+        $data = \Illuminate\Support\Facades\Cache::get($this->cacheKey(), ['acciones' => []]);
+        $data['acciones'][] = array_merge(['accion' => $accion], $detalle);
+        \Illuminate\Support\Facades\Cache::put($this->cacheKey(), $data, now()->addDay());
     }
 
     private function flushAuditBatch(int $cuadro_id): void
     {
-        if (empty($this->auditBatch)) return;
-        $this->auditar($cuadro_id, 'actualizar', ['acciones' => $this->auditBatch]);
-        $this->auditBatch = [];
+        if (!$this->sesionId) return;
+        $data = \Illuminate\Support\Facades\Cache::get($this->cacheKey(), []);
+        $acciones = $data['acciones'] ?? [];
+        if (empty($acciones)) return;
+        $this->auditar($cuadro_id, 'actualizar', ['acciones' => $acciones]);
+        \Illuminate\Support\Facades\Cache::forget($this->cacheKey());
     }
 
     public function obtenerEstado(int $cuadro_id): array
     {
-        $this->flushAuditBatch($cuadro_id);
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
@@ -118,8 +127,6 @@ class DatasetService
             }
         }
 
-        if (!$this->sesionId) $this->sesionId = (string) Str::uuid();
-
         return [
             'tiene_dataset' => $tieneDataset,
             'verticales' => $verticales,
@@ -140,8 +147,9 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
+        $this->flushAuditBatch($cuadro_id);
         $cuadro->datos()->delete();
-        $cuadro->categorias()->delete();
+        $this->deleteCategoriasSafe($cuadro);
 
         $this->auditar($cuadro_id, 'crear', ['filas' => $filas, 'columnas' => $columnas]);
 
@@ -378,8 +386,9 @@ class DatasetService
 
         if (count($grid) < 2) throw new \InvalidArgumentException('Debe tener al menos 2 filas');
 
+        $this->flushAuditBatch($cuadro_id);
         $cuadro->datos()->delete();
-        $cuadro->categorias()->delete();
+        $this->deleteCategoriasSafe($cuadro);
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Pegar grid']);
 
         $headers = $grid[0];
@@ -490,10 +499,10 @@ class DatasetService
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
         $cuadro->datos()->delete();
-        $cuadro->categorias()->delete();
+        $this->deleteCategoriasSafe($cuadro);
 
-        $this->auditar($cuadro_id, 'eliminar', ['accion' => 'Limpiar dataset']);
-        if (!$this->sesionId) $this->sesionId = (string) Str::uuid();
+        $this->collectAudit('Limpiar dataset', []);
+        $this->flushAuditBatch($cuadro_id);
         return [
             'tiene_dataset' => false,
             'verticales' => [], 'horizontales' => [],
@@ -510,6 +519,7 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
+        $this->flushAuditBatch($cuadro_id);
         $this->dato->where('cuadro_id', $cuadro_id)->update(['valor' => '', 'valor_crudo' => '']);
         $this->auditar($cuadro_id, 'actualizar', ['accion' => 'Limpiar datos']);
 
@@ -691,6 +701,19 @@ class DatasetService
             ->where('eje', $eje)->orderBy('orden')->get();
         foreach ($cats as $i => $cat) {
             $cat->update(['orden' => $i + 1]);
+        }
+    }
+
+    private function deleteCategoriasSafe($cuadro): void
+    {
+        $allCats = $cuadro->categorias()->get();
+        $childIds = $allCats->whereNotNull('padre_id')->pluck('categoria_id')->toArray();
+        $parentIds = $allCats->whereNull('padre_id')->pluck('categoria_id')->toArray();
+        if (!empty($childIds)) {
+            $this->categoria->whereIn('categoria_id', $childIds)->delete();
+        }
+        if (!empty($parentIds)) {
+            $this->categoria->whereIn('categoria_id', $parentIds)->delete();
         }
     }
 
