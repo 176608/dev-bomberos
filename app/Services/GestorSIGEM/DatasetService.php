@@ -719,9 +719,11 @@ class DatasetService
 
     private function reordenar(int $cuadro_id, string $eje): void
     {
-        $cats = $this->categoria->where('cuadro_id', $cuadro_id)
-            ->where('eje', $eje)->orderBy('orden')->get();
-        foreach ($cats as $i => $cat) {
+        $roots = $this->categoria->where('cuadro_id', $cuadro_id)
+            ->where('eje', $eje)
+            ->whereNull('padre_id')
+            ->orderBy('orden')->get();
+        foreach ($roots as $i => $cat) {
             $cat->update(['orden' => $i + 1]);
         }
     }
