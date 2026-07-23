@@ -219,7 +219,8 @@
     }
 
     function catActionsHtml(catId, esHijo, numHijos, esParent, esVertical) {
-        var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-xs">';
+        var size = esHijo ? 'xs' : 'sm';
+        var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-' + size + '">';
         if (!esHijo) {
             var c = esVertical ? 'success' : 'primary';
             h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
