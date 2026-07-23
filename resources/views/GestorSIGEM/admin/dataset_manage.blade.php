@@ -29,11 +29,8 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2" id="seccion-tabs">
-        <small class="text-muted me-1">Sección:</small>
-        <div class="d-flex gap-1 flex-wrap" id="seccion-list"></div>
-        <button class="btn btn-sm btn-outline-primary" onclick="window.agregarSeccion()" title="Agregar sección">
-            <i class="bi bi-plus-lg"></i>
-        </button>
+        <small class="text-muted me-1">Secciones:</small>
+        <div class="d-flex gap-2 flex-wrap align-items-center" id="seccion-list"></div>
     </div>
 
     <div id="alerts"></div>
@@ -430,23 +427,40 @@
         const list = document.getElementById('seccion-list');
         if (!list) return;
         list.innerHTML = '';
-        (estado.secciones || []).forEach(s => {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-sm ' + (s.seccion_id === estado.seccion_activa_id ? 'btn-primary' : 'btn-outline-secondary');
-            btn.textContent = s.nombre;
-            btn.onclick = () => switchSeccion(s.seccion_id);
-            const delBtn = document.createElement('button');
-            if (estado.secciones.length > 1) {
-                delBtn.className = 'btn btn-sm btn-outline-danger ms-1';
-                delBtn.innerHTML = '<i class="bi bi-x"></i>';
-                delBtn.title = 'Eliminar sección';
-                delBtn.onclick = function(e) { e.stopPropagation(); window.eliminarSeccion(s.seccion_id); };
+        (estado.secciones || []).forEach((s, idx) => {
+            const active = s.seccion_id === estado.seccion_activa_id;
+            const grp = document.createElement('div');
+            grp.className = 'btn-group btn-group-sm';
+            grp.setAttribute('role', 'group');
+            // Rename button
+            const renBtn = document.createElement('button');
+            renBtn.className = 'btn btn-primary';
+            renBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+            renBtn.title = 'Renombrar sección';
+            renBtn.onclick = function(e) { e.stopPropagation(); window.renombrarSeccion(s.seccion_id, s.nombre); };
+            // Name / select button
+            const nameBtn = document.createElement('button');
+            nameBtn.className = 'btn ' + (active ? 'btn-primary' : 'btn-outline-primary');
+            nameBtn.textContent = s.nombre;
+            nameBtn.title = 'Seleccionar sección';
+            nameBtn.onclick = () => switchSeccion(s.seccion_id);
+            // 3rd button: + on basal, trash on others
+            const thirdBtn = document.createElement('button');
+            if (idx === 0) {
+                thirdBtn.className = 'btn btn-outline-primary';
+                thirdBtn.innerHTML = '<i class="bi bi-plus-lg"></i>';
+                thirdBtn.title = 'Agregar sección';
+                thirdBtn.onclick = function(e) { e.stopPropagation(); window.agregarSeccion(); };
+            } else {
+                thirdBtn.className = 'btn btn-danger';
+                thirdBtn.innerHTML = '<i class="bi bi-trash3"></i>';
+                thirdBtn.title = 'Eliminar sección';
+                thirdBtn.onclick = function(e) { e.stopPropagation(); window.eliminarSeccion(s.seccion_id); };
             }
-            const wrapper = document.createElement('div');
-            wrapper.className = 'd-flex align-items-center';
-            wrapper.appendChild(btn);
-            if (delBtn.innerHTML) wrapper.appendChild(delBtn);
-            list.appendChild(wrapper);
+            grp.appendChild(renBtn);
+            grp.appendChild(nameBtn);
+            grp.appendChild(thirdBtn);
+            list.appendChild(grp);
         });
     }
 
@@ -813,10 +827,19 @@
             .catch(() => alerta('Error [' + ERR.SECCION + ']'));
     };
 
+    window.renombrarSeccion = function(seccionId, nombreActual) {
+        const nombre = prompt('Renombrar sección:', nombreActual);
+        if (!nombre || nombre === nombreActual) return;
+        saveAllBeforeAction();
+        status('Renombrando...');
+        api('/seccion/' + seccionId, { method: 'PUT', body: { nombre } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección renombrada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.SECCION + ']'));
+    };
+
     window.eliminarSeccion = function(seccionId) {
         const seccion = (estado.secciones || []).find(s => s.seccion_id === seccionId);
         if (!seccion) return;
-        if ((estado.secciones || []).length <= 1) { alerta('No se puede eliminar la única sección', 'warning'); return; }
         if (!confirm('¿Eliminar la sección "' + seccion.nombre + '" y todos sus datos?')) return;
         saveAllBeforeAction();
         status('Eliminando...');
