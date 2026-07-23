@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="card-footer py-1 d-flex justify-content-between align-items-center" id="status-bar">
-                <small class="text-muted" id="status-text"></small>
+                <small id="status-text"></small>
                 <div>
                     <span class="badge bg-secondary" id="dimension-badge"></span>
                 </div>
@@ -113,6 +113,8 @@
 #dataset-table .cell-anchor { background: var(--bs-primary) !important; color: #fff; }
 #dataset-table .cell-anchor > div { color: #fff; }
 #status-bar .badge { font-size: 0.7rem; }
+#status-bar #status-text { font-size: 0.8rem; }
+#status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 #mode-tabs .btn-group .btn.active { background: var(--bs-primary); color: #fff; }
 .mode-datos .edit-only { display: none !important; }
 .mode-datos .datos-only { display: inline-flex !important; }
@@ -132,9 +134,7 @@
 .mode-datos #dataset-table td.d-flex .edit-only { display: none !important; }
 .mode-datos #dataset-table th.d-flex > div:first-child,
 .mode-datos #dataset-table td.d-flex > div:first-child { width: 100% !important; }
-/* Celdas de datos no editables visualmente en modo diseño */
-.mode-diseno #dataset-table td[data-vertical-id] { background: #f8f9fa; }
-.mode-diseno #dataset-table td[data-vertical-id] > div { color: #6c757d; }
+/* Sin estilos diferenciales entre modos para datos — misma apariencia, solo cambia editabilidad */
 </style>
 
 <script>
@@ -187,7 +187,17 @@
             '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
     }
 
-    function status(msg) { document.getElementById('status-text').textContent = msg || ''; }
+    function status(msg) {
+        const el = document.getElementById('status-text');
+        if (!el) return;
+        el.textContent = msg || '';
+        const bar = document.getElementById('status-bar');
+        if (bar && msg) {
+            bar.classList.add('status-flash');
+            clearTimeout(bar._flashTimer);
+            bar._flashTimer = setTimeout(() => bar.classList.remove('status-flash'), 2500);
+        }
+    }
 
     function esc(s) {
         if (!s) return '';
@@ -650,6 +660,10 @@
                 const hCat = estado.horizontales.find(h => h.categoria_id === coords.hId);
                 if (vCat && hCat) status('Fila: "' + vCat.nombre + '" | Columna: "' + hCat.nombre + '"');
             }
+            if (currentMode === 'diseno' && coords.type !== 'cell') {
+                document.querySelectorAll('#dataset-table .cell-selected').forEach(c => c.classList.remove('cell-selected'));
+                cell.classList.add('cell-selected');
+            }
             pointer.down = true;
             pointer.startRi = coords.ri; pointer.startCi = coords.ci;
             pointer.startX = e.clientX; pointer.startY = e.clientY;
@@ -806,43 +820,79 @@
                 return;
             }
 
-            // Diseño mode: navigate categories
+            // Diseño mode: navigate ALL categories (padres, hijos, pivote)
             if (currentMode === 'diseno') {
-                const th = e.target.closest('th[data-categoria-id]');
-                if (!th) return;
-                const esVertical = !!th.closest('tbody');
-                const cats = esVertical ? estado.verticales : estado.horizontales;
-                let idx;
-                if (esVertical) {
-                    const rowIdx = parseInt(th.dataset.rowIndex);
-                    if (isNaN(rowIdx) || rowIdx < 0 || rowIdx >= cats.length) return;
-                    idx = rowIdx;
-                } else {
-                    const colIdx = parseInt(th.dataset.colIndex);
-                    if (isNaN(colIdx) || colIdx < 0 || colIdx >= cats.length) return;
-                    idx = colIdx;
-                }
+                const pivotLabel = document.querySelector('#thead .pivot-label');
+                const pivotTh = pivotLabel?.closest('th');
+                const horizHeaders = Array.from(document.querySelectorAll('#thead th[data-categoria-id]'));
+                const vertLabels = Array.from(document.querySelectorAll('#tbody th[data-categoria-id]'));
+                const allFocusable = [pivotTh, ...horizHeaders, ...vertLabels].filter(Boolean);
+
+                const active = document.activeElement;
+                const activeTh = active?.closest('th');
                 const k = e.key;
                 if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab','Enter'].includes(k)) return;
                 e.preventDefault();
-                if (k === 'ArrowUp' || k === 'ArrowLeft') idx--;
-                else if (k === 'ArrowDown' || k === 'ArrowRight') idx++;
-                else if (k === 'Tab') e.shiftKey ? idx-- : idx++;
-                else if (k === 'Enter') e.shiftKey ? idx-- : idx++;
-                idx = Math.max(0, Math.min(idx, cats.length - 1));
-                const target = document.querySelector(
-                    (esVertical ? '#tbody ' : '#thead ') + 'th[data-categoria-id="' + cats[idx].categoria_id + '"]'
-                );
-                if (!target) return;
-                const span = target.querySelector('.editable-header');
-                if (!span) return;
-                clearSelection();
-                document.querySelectorAll('#dataset-table .cell-selected').forEach(el => el.classList.remove('cell-selected'));
-                target.classList.add('cell-selected');
-                span.focus();
-                const r = document.createRange(), s = window.getSelection();
-                r.selectNodeContents(span); r.collapse(false); s.removeAllRanges(); s.addRange(r);
-                status('Cat: "' + cats[idx].nombre + '"');
+
+                function focusTh(el) {
+                    if (!el || el === activeTh) return;
+                    clearSelection();
+                    document.querySelectorAll('#dataset-table .cell-selected').forEach(c => c.classList.remove('cell-selected'));
+                    el.classList.add('cell-selected');
+                    const span = el.querySelector('.editable-header, .pivot-label');
+                    if (span) {
+                        span.focus();
+                        const r = document.createRange(), s = window.getSelection();
+                        r.selectNodeContents(span); r.collapse(false); s.removeAllRanges(); s.addRange(r);
+                    } else { el.focus(); }
+                    status((el.querySelector('.pivot-label') ? 'Pivote' : 'Cat') + ': "' + (el.textContent || '').trim() + '"');
+                }
+
+                // If active element is not a known navigable th, focus the first one
+                if (!activeTh || (!allFocusable.includes(activeTh))) {
+                    focusTh(allFocusable[0]);
+                    return;
+                }
+
+                const idxH = horizHeaders.indexOf(activeTh);
+                const idxV = vertLabels.indexOf(activeTh);
+                const isPivot = activeTh === pivotTh;
+                let next = null;
+
+                if (k === 'ArrowRight' || k === 'ArrowLeft') {
+                    const right = (k === 'ArrowRight');
+                    if (isPivot) {
+                        next = right ? horizHeaders[0] : vertLabels[vertLabels.length - 1];
+                    } else if (idxH >= 0) {
+                        if (right && idxH < horizHeaders.length - 1) next = horizHeaders[idxH + 1];
+                        else if (right && idxH === horizHeaders.length - 1) next = vertLabels[0];
+                        else if (!right && idxH > 0) next = horizHeaders[idxH - 1];
+                        else if (!right && idxH === 0) next = pivotTh;
+                    } else if (idxV >= 0) {
+                        if (right) next = horizHeaders[0];
+                        else next = pivotTh;
+                    }
+                } else if (k === 'ArrowDown' || k === 'ArrowUp') {
+                    const down = (k === 'ArrowDown');
+                    if (isPivot) {
+                        next = down ? vertLabels[0] : vertLabels[vertLabels.length - 1];
+                    } else if (idxH >= 0) {
+                        next = down
+                            ? vertLabels[Math.min(idxH, vertLabels.length - 1)]
+                            : (pivotTh || vertLabels[vertLabels.length - 1]);
+                    } else if (idxV >= 0) {
+                        if (down && idxV < vertLabels.length - 1) next = vertLabels[idxV + 1];
+                        else if (down && idxV === vertLabels.length - 1) next = horizHeaders[0];
+                        else if (!down && idxV > 0) next = vertLabels[idxV - 1];
+                        else if (!down && idxV === 0) next = pivotTh;
+                    }
+                } else if (k === 'Tab' || k === 'Enter') {
+                    const curIdx = allFocusable.indexOf(activeTh);
+                    const step = (k === 'Tab' && e.shiftKey) ? -1 : 1;
+                    next = allFocusable[(curIdx + step + allFocusable.length) % allFocusable.length];
+                }
+
+                focusTh(next);
             }
         }, true);
     });
