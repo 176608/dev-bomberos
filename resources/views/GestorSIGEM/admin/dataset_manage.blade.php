@@ -107,8 +107,9 @@
 #dataset-table tbody tr:not(:last-child) > td:not(:first-child) { cursor: cell; }
 #dataset-table thead th:not(:first-child):not(:last-child) { cursor: pointer; }
 #dataset-table tbody tr:not(:last-child) > th:first-child { cursor: pointer; }
-#dataset-table .cell-selected { box-shadow: inset 0 0 0 2px var(--bs-primary), 0 0 0 1px rgba(13,110,253,0.2) !important; background-color: rgba(13,110,253,0.08) !important; }
-.mode-diseno #dataset-table .cell-selected { box-shadow: inset 0 0 0 2.5px var(--bs-primary), 0 0 0 2px rgba(13,110,253,0.35) !important; background-color: rgba(13,110,253,0.12) !important; }
+#dataset-table .cell-selected { outline: 2.5px solid var(--bs-primary) !important; outline-offset: -0.5px; background-color: rgba(13,110,253,0.12) !important; }
+.mode-diseno #dataset-table .cell-selected { outline: 3px solid var(--bs-primary) !important; outline-offset: 0px; background-color: rgba(13,110,253,0.18) !important; }
+#dataset-table .cell-paste-target { outline: 3px dashed #198754 !important; outline-offset: -1px; background-color: rgba(25,135,84,0.10) !important; }
 #dataset-table .cell-anchor { background: var(--bs-primary) !important; color: #fff; }
 #dataset-table .cell-anchor > div { color: #fff; }
 #status-bar .badge { font-size: 0.7rem; }
@@ -615,6 +616,7 @@
 
         table.addEventListener('pointerdown', function(e) {
             if (e.target.closest('button, a, input')) return;
+            document.querySelectorAll('#dataset-table .cell-paste-target').forEach(el => el.classList.remove('cell-paste-target'));
             const cell = e.target.closest('td, th');
             if (!cell) return;
             const coords = getCellCoords(cell);
@@ -700,6 +702,21 @@
         });
 
         // ============ PASTE ============
+        function highlightPasteTarget(anchor) {
+            document.querySelectorAll('#dataset-table .cell-paste-target').forEach(el => el.classList.remove('cell-paste-target'));
+            if (!anchor) return;
+            let el = null;
+            if (anchor.type === 'horizontal' && anchor.hId)
+                el = document.querySelector('#thead th[data-categoria-id="' + anchor.hId + '"]');
+            else if (anchor.type === 'vertical' && anchor.vId)
+                el = document.querySelector('#tbody th[data-categoria-id="' + anchor.vId + '"]');
+            else if (anchor.type === 'cell' && anchor.vId && anchor.hId) {
+                el = document.querySelector('#tbody td[data-vertical-id="' + anchor.vId + '"][data-horizontal-id="' + anchor.hId + '"]');
+                if (!el) el = document.querySelector('#tbody th[data-categoria-id="' + anchor.vId + '"]');
+            }
+            if (el) el.classList.add('cell-paste-target');
+        }
+
         table.addEventListener('paste', function(e) {
             const text = (e.clipboardData || window.clipboardData).getData('text');
             if (!text.trim()) return;
@@ -707,13 +724,17 @@
             const clipGrid = text.split('\n').filter(r => r.trim()).map(r => r.split('\t').map(c => c.trim()));
             if (clipGrid.length === 0) return;
 
+            const dims = clipGrid.length + '×' + (clipGrid[0]?.length || 1);
+
             // Datos mode: solo celdas
             if (currentMode === 'datos') {
                 const anchor = sel.active ? getPasteAnchor() : lastCell;
                 if (!anchor || anchor.type !== 'cell' || !anchor.vId || !anchor.hId) {
-                    status('Seleccioná una celda para pegar');
+                    status('Clipboard: ' + dims + ' — Seleccioná una celda para pegar');
                     return;
                 }
+                highlightPasteTarget(anchor);
+                status('Pegando ' + dims + ' desde ' + esc(clipGrid[0][0] || '') + '...');
                 doPaste(anchor, clipGrid, ERR.PST_DATOS);
                 return;
             }
@@ -725,25 +746,30 @@
                 const valores = clipGrid[0] || [];
                 if (!valores.length) return;
                 saveAllBeforeAction();
-                status('Pegando columnas...');
+                highlightPasteTarget(anchor);
+                status('Pegando ' + valores.length + ' columna(s) desde ' + esc(valores[0] || '') + '...');
                 api('/paste-categorias', { method: 'POST', body: { eje: 'horizontal', start_categoria_id: anchor.hId, valores } })
-                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Columnas renombradas'); } else alerta(j.message); })
+                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ ' + valores.length + ' columna(s) renombrada(s)'); } else alerta(j.message); })
                     .catch(() => alerta('Error de red [' + ERR.PST_HCAT + ']'));
             } else if (anchor?.type === 'vertical' && anchor.vId) {
                 const valores = clipGrid.map(r => r[0]).filter(v => v != null);
                 if (!valores.length) return;
                 saveAllBeforeAction();
-                status('Pegando filas...');
+                highlightPasteTarget(anchor);
+                status('Pegando ' + valores.length + ' fila(s) desde ' + esc(valores[0] || '') + '...');
                 api('/paste-categorias', { method: 'POST', body: { eje: 'vertical', start_categoria_id: anchor.vId, valores } })
-                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Filas renombradas'); } else alerta(j.message); })
+                    .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ ' + valores.length + ' fila(s) renombrada(s)'); } else alerta(j.message); })
                     .catch(() => alerta('Error de red [' + ERR.PST_VCAT + ']'));
             } else if (anchor?.type === 'cell' && anchor.vId && anchor.hId) {
+                highlightPasteTarget(anchor);
+                status('Pegando ' + dims + ' en celda ' + esc(clipGrid[0][0] || '') + '...');
                 doPaste(anchor, clipGrid, ERR.PST_CEL);
             } else if (clipGrid.length >= 2) {
-                if (!confirm('¿Reemplazar todo el dataset (' + clipGrid.length + '×' + clipGrid[0].length + ')?')) return;
+                if (!confirm('Clipboard: ' + dims + '. ¿Reemplazar todo el dataset?')) return;
+                status('Reemplazando dataset con ' + dims + '...');
                 doPaste(null, clipGrid, ERR.PST_FULL);
             } else {
-                status('Seleccioná una categoría o celda para pegar');
+                status('Clipboard: ' + dims + ' — Seleccioná una categoría o celda para pegar');
             }
         });
 
@@ -784,11 +810,18 @@
             if (currentMode === 'diseno') {
                 const th = e.target.closest('th[data-categoria-id]');
                 if (!th) return;
-                const catId = parseInt(th.dataset.categoriaId);
                 const esVertical = !!th.closest('tbody');
                 const cats = esVertical ? estado.verticales : estado.horizontales;
-                let idx = cats.findIndex(c => c.categoria_id === catId);
-                if (idx < 0) return;
+                let idx;
+                if (esVertical) {
+                    const rowIdx = parseInt(th.dataset.rowIndex);
+                    if (isNaN(rowIdx) || rowIdx < 0 || rowIdx >= cats.length) return;
+                    idx = rowIdx;
+                } else {
+                    const colIdx = parseInt(th.dataset.colIndex);
+                    if (isNaN(colIdx) || colIdx < 0 || colIdx >= cats.length) return;
+                    idx = colIdx;
+                }
                 const k = e.key;
                 if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab','Enter'].includes(k)) return;
                 e.preventDefault();
@@ -803,12 +836,15 @@
                 if (!target) return;
                 const span = target.querySelector('.editable-header');
                 if (!span) return;
-                clearSelection(); span.focus();
+                clearSelection();
+                document.querySelectorAll('#dataset-table .cell-selected').forEach(el => el.classList.remove('cell-selected'));
+                target.classList.add('cell-selected');
+                span.focus();
                 const r = document.createRange(), s = window.getSelection();
                 r.selectNodeContents(span); r.collapse(false); s.removeAllRanges(); s.addRange(r);
                 status('Cat: "' + cats[idx].nombre + '"');
             }
-        });
+        }, true);
     });
 
     // ============ GLOBAL ACTION FUNCTIONS ============
