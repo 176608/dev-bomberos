@@ -66,6 +66,11 @@ class Cuadro extends Model
         return $this->hasMany(CuadroDato::class, 'cuadro_id', 'cuadro_id');
     }
 
+    public function secciones()
+    {
+        return $this->hasMany(CuadroSeccion::class, 'cuadro_id', 'cuadro_id')->orderBy('orden');
+    }
+
     public static function obtenerTodos()
     {
         return self::with(['subtema.tema', 'categorias', 'datos'])

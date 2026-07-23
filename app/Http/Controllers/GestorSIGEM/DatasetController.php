@@ -103,13 +103,15 @@ class DatasetController extends Controller
             'verticales.*' => 'integer',
             'horizontales' => 'nullable|array',
             'horizontales.*' => 'integer',
+            'seccion_id' => 'nullable|integer',
         ]);
 
         try {
             return response()->json(['success' => true, 'data' => $this->datasetService->pasteGrid(
                 (int) $id, $request->grid,
                 $request->start_vertical_id, $request->start_horizontal_id,
-                $request->verticales, $request->horizontales
+                $request->verticales, $request->horizontales,
+                $request->seccion_id
             )]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -169,10 +171,54 @@ class DatasetController extends Controller
         }
     }
 
-    public function limpiarDatos($id)
+    public function limpiarDatos(Request $request, $id)
     {
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->limpiarDatos((int) $id)]);
+            $seccion_id = (int) ($request->query('seccion_id', $request->input('seccion_id', 0)));
+            if (!$seccion_id) throw new \RuntimeException('seccion_id requerido');
+            return response()->json(['success' => true, 'data' => $this->datasetService->limpiarDatos((int) $id, $seccion_id)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function storeSeccion(Request $request, $id)
+    {
+        $request->validate(['nombre' => 'required|string|max:255']);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->agregarSeccion((int) $id, $request->nombre)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function updateSeccion(Request $request, $id, $seccion)
+    {
+        $request->validate(['nombre' => 'required|string|max:255']);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->actualizarSeccion(
+                (int) $seccion, $request->nombre, $request->header, $request->footer
+            )]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function destroySeccion($id, $seccion)
+    {
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->eliminarSeccion((int) $seccion)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function switchSeccion($id, $seccion)
+    {
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->switchSeccion((int) $id, (int) $seccion)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }

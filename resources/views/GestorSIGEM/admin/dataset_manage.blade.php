@@ -28,6 +28,14 @@
         </button>
     </div>
 
+    <div class="d-flex align-items-center gap-2 mb-2" id="seccion-tabs">
+        <small class="text-muted me-1">Sección:</small>
+        <div class="d-flex gap-1 flex-wrap" id="seccion-list"></div>
+        <button class="btn btn-sm btn-outline-primary" onclick="window.agregarSeccion()" title="Agregar sección">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+
     <div id="alerts"></div>
 
     @if(!$estadoInicial['tiene_dataset'])
@@ -152,6 +160,7 @@
         GENERAR: 'ERR-GEN',
         REGEN: 'ERR-RGN',
         IMPORT: 'ERR-IMP',
+        SECCION: 'ERR-SEC',
     };
 
     // ============ CONFIG ============
@@ -404,6 +413,7 @@
         if (anchor?.hId) body.start_horizontal_id = anchor.hId;
         body.verticales = estado.verticales.map(v => v.categoria_id);
         body.horizontales = estado.horizontales.map(h => h.categoria_id);
+        body.seccion_id = estado.seccion_activa_id;
         return body;
     }
 
@@ -415,17 +425,56 @@
             .catch(() => alerta('Error de red [' + errCode + ']'));
     }
 
+    // ============ SECCIONES ============
+    function renderSecciones() {
+        const list = document.getElementById('seccion-list');
+        if (!list) return;
+        list.innerHTML = '';
+        (estado.secciones || []).forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm ' + (s.seccion_id === estado.seccion_activa_id ? 'btn-primary' : 'btn-outline-secondary');
+            btn.textContent = s.nombre;
+            btn.onclick = () => switchSeccion(s.seccion_id);
+            const delBtn = document.createElement('button');
+            if (estado.secciones.length > 1) {
+                delBtn.className = 'btn btn-sm btn-outline-danger ms-1';
+                delBtn.innerHTML = '<i class="bi bi-x"></i>';
+                delBtn.title = 'Eliminar sección';
+                delBtn.onclick = function(e) { e.stopPropagation(); window.eliminarSeccion(s.seccion_id); };
+            }
+            const wrapper = document.createElement('div');
+            wrapper.className = 'd-flex align-items-center';
+            wrapper.appendChild(btn);
+            if (delBtn.innerHTML) wrapper.appendChild(delBtn);
+            list.appendChild(wrapper);
+        });
+    }
+
+    function switchSeccion(seccionId) {
+        if (seccionId === estado.seccion_activa_id) return;
+        status('Cargando...');
+        api('/seccion/' + seccionId + '/data')
+            .then(j => { if (j.success) { clearSelection(); renderGrid(estado); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.SECCION + ']'));
+    }
+
     // ============ RENDER GRID ============
     function renderGrid(d) {
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
+            const st = document.getElementById('seccion-tabs');
+            if (st) st.style.display = 'none';
             const es = document.getElementById('empty-state');
             if (es) es.style.display = '';
             return;
         }
         document.getElementById('grid-container').style.display = '';
+        const st = document.getElementById('seccion-tabs');
+        if (st) st.style.display = '';
         const es = document.getElementById('empty-state');
         if (es) es.style.display = 'none';
+
+        renderSecciones();
 
         const { verticales, horizontales, headers, labels, data } = d;
         const thead = document.getElementById('thead');
@@ -737,10 +786,10 @@
     };
 
     window.limpiarDatos = function() {
-        if (!confirm('¿Limpiar todos los valores de las celdas? Se conservarán las categorías.')) return;
+        if (!confirm('¿Limpiar todos los valores de la sección activa? Se conservarán las categorías.')) return;
         saveAllBeforeAction();
         status('Limpiando datos...');
-        api('/datos', { method: 'DELETE' })
+        api('/datos?seccion_id=' + estado.seccion_activa_id, { method: 'DELETE' })
             .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Datos limpiados'); } else alerta(j.message); })
             .catch(() => alerta('Error de red [' + ERR.DATOS + ']'));
     };
@@ -752,6 +801,28 @@
         api('/pivot', { method: 'PUT', body: { label: val } })
             .then(j => { if (j.success) status('Pivote: ' + val); else alerta(j.message); })
             .catch(() => alerta('Error de red [' + ERR.PIVOT + ']'));
+    };
+
+    window.agregarSeccion = function() {
+        const nombre = prompt('Nombre de la nueva sección:');
+        if (!nombre) return;
+        saveAllBeforeAction();
+        status('Creando sección...');
+        api('/seccion', { method: 'POST', body: { nombre } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección creada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.SECCION + ']'));
+    };
+
+    window.eliminarSeccion = function(seccionId) {
+        const seccion = (estado.secciones || []).find(s => s.seccion_id === seccionId);
+        if (!seccion) return;
+        if ((estado.secciones || []).length <= 1) { alerta('No se puede eliminar la única sección', 'warning'); return; }
+        if (!confirm('¿Eliminar la sección "' + seccion.nombre + '" y todos sus datos?')) return;
+        saveAllBeforeAction();
+        status('Eliminando...');
+        api('/seccion/' + seccionId, { method: 'DELETE' })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección eliminada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.SECCION + ']'));
     };
 
     // ============ GENERATE / REGENERATE ============

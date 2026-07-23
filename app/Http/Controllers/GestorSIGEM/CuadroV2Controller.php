@@ -84,6 +84,8 @@ class CuadroV2Controller extends Controller
                 'data' => [],
                 'max_filas' => 0,
                 'max_columnas' => 0,
+                'secciones' => [],
+                'seccion_activa_id' => null,
             ];
         }
 

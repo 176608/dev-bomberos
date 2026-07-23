@@ -11,6 +11,7 @@ class CuadroDato extends Model
 
     protected $fillable = [
         'cuadro_id',
+        'seccion_id',
         'cat_horizontal_id',
         'cat_vertical_id',
         'valor',
@@ -22,6 +23,7 @@ class CuadroDato extends Model
     protected $casts = [
         'dato_id' => 'integer',
         'cuadro_id' => 'integer',
+        'seccion_id' => 'integer',
         'cat_horizontal_id' => 'integer',
         'cat_vertical_id' => 'integer',
         'fila' => 'integer',
@@ -43,6 +45,11 @@ class CuadroDato extends Model
     public function categoriaVertical()
     {
         return $this->belongsTo(CuadroCategoria::class, 'cat_vertical_id', 'categoria_id');
+    }
+
+    public function seccion()
+    {
+        return $this->belongsTo(CuadroSeccion::class, 'seccion_id', 'seccion_id');
     }
 
     public function getValorNumericoAttribute()
