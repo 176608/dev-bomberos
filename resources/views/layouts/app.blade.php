@@ -231,7 +231,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Sistema de Gestión de Usuarios">
-                                        <i class="bi bi-gear"></i> SGU
+                                        <i class="bi bi-gear"></i> SGU V1
                                     </a>
                                 </li>
                                 
@@ -285,7 +285,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Sistema de Gestión de Usuarios">
-                                        <i class="bi bi-gear"></i> SGU
+                                        <i class="bi bi-gear"></i> SGU V1
                                     </a>
                                 </li>
 
