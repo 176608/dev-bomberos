@@ -427,7 +427,8 @@
         const list = document.getElementById('seccion-list');
         if (!list) return;
         list.innerHTML = '';
-        (estado.secciones || []).forEach((s, idx) => {
+        const secciones = estado.secciones || [];
+        secciones.forEach((s, idx) => {
             const active = s.seccion_id === estado.seccion_activa_id;
             const grp = document.createElement('div');
             grp.className = 'btn-group btn-group-sm';
@@ -444,22 +445,39 @@
             nameBtn.textContent = s.nombre;
             nameBtn.title = 'Seleccionar sección';
             nameBtn.onclick = () => switchSeccion(s.seccion_id);
-            // 3rd button: + on basal, trash on others
-            const thirdBtn = document.createElement('button');
-            if (idx === 0) {
-                thirdBtn.className = 'btn btn-outline-primary';
-                thirdBtn.innerHTML = '<i class="bi bi-plus-lg"></i>';
-                thirdBtn.title = 'Agregar sección';
-                thirdBtn.onclick = function(e) { e.stopPropagation(); window.agregarSeccion(); };
-            } else {
-                thirdBtn.className = 'btn btn-danger';
-                thirdBtn.innerHTML = '<i class="bi bi-trash3"></i>';
-                thirdBtn.title = 'Eliminar sección';
-                thirdBtn.onclick = function(e) { e.stopPropagation(); window.eliminarSeccion(s.seccion_id); };
-            }
+            // Append rename + name
             grp.appendChild(renBtn);
             grp.appendChild(nameBtn);
-            grp.appendChild(thirdBtn);
+            // Basal: + button, others: reorder + delete
+            if (idx === 0) {
+                const addBtn = document.createElement('button');
+                addBtn.className = 'btn btn-outline-primary';
+                addBtn.innerHTML = '<i class="bi bi-plus-lg"></i>';
+                addBtn.title = 'Agregar sección';
+                addBtn.onclick = function(e) { e.stopPropagation(); window.agregarSeccion(); };
+                grp.appendChild(addBtn);
+            } else {
+                const upBtn = document.createElement('button');
+                upBtn.className = 'btn btn-outline-secondary';
+                upBtn.innerHTML = '<i class="bi bi-caret-up-fill"></i>';
+                upBtn.title = 'Subir';
+                upBtn.onclick = function(e) { e.stopPropagation(); window.reordenarSeccion(s.seccion_id, 'up'); };
+                grp.appendChild(upBtn);
+                if (idx < secciones.length - 1) {
+                    const dnBtn = document.createElement('button');
+                    dnBtn.className = 'btn btn-outline-secondary';
+                    dnBtn.innerHTML = '<i class="bi bi-caret-down-fill"></i>';
+                    dnBtn.title = 'Bajar';
+                    dnBtn.onclick = function(e) { e.stopPropagation(); window.reordenarSeccion(s.seccion_id, 'down'); };
+                    grp.appendChild(dnBtn);
+                }
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn btn-danger';
+                delBtn.innerHTML = '<i class="bi bi-trash3"></i>';
+                delBtn.title = 'Eliminar sección';
+                delBtn.onclick = function(e) { e.stopPropagation(); window.eliminarSeccion(s.seccion_id); };
+                grp.appendChild(delBtn);
+            }
             list.appendChild(grp);
         });
     }
@@ -834,6 +852,14 @@
         status('Renombrando...');
         api('/seccion/' + seccionId, { method: 'PUT', body: { nombre } })
             .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección renombrada'); } else alerta(j.message); })
+            .catch(() => alerta('Error [' + ERR.SECCION + ']'));
+    };
+
+    window.reordenarSeccion = function(seccionId, direccion) {
+        saveAllBeforeAction();
+        status('Reordenando...');
+        api('/seccion/' + seccionId + '/reordenar', { method: 'POST', body: { direccion } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección reordenada'); } else alerta(j.message); })
             .catch(() => alerta('Error [' + ERR.SECCION + ']'));
     };
 

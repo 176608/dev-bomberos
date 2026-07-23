@@ -57,6 +57,7 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
                 Route::put('/seccion/{seccion}', [DatasetController::class, 'updateSeccion'])->name('seccion.update');
                 Route::delete('/seccion/{seccion}', [DatasetController::class, 'destroySeccion'])->name('seccion.destroy');
                 Route::get('/seccion/{seccion}/data', [DatasetController::class, 'switchSeccion'])->name('seccion.switch');
+                Route::post('/seccion/{seccion}/reordenar', [DatasetController::class, 'reordenarSeccion'])->name('seccion.reordenar');
             });
         });
 

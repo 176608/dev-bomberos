@@ -679,6 +679,26 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id, $seccion_id);
     }
 
+    public function reordenarSeccion(int $seccion_id, string $direccion): array
+    {
+        $seccion = $this->seccion->findOrFail($seccion_id);
+        $cuadro_id = $seccion->cuadro_id;
+
+        $ordenActual = $seccion->orden;
+        $ordenObjetivo = $direccion === 'up' ? $ordenActual - 1 : $ordenActual + 1;
+
+        if ($ordenObjetivo < 1) throw new \RuntimeException('La sección ya está en la primera posición');
+
+        $vecina = $this->seccion->where('cuadro_id', $cuadro_id)
+            ->where('orden', $ordenObjetivo)->first();
+        if (!$vecina) throw new \RuntimeException('No hay sección adyacente en esa dirección');
+
+        $seccion->update(['orden' => $ordenObjetivo]);
+        $vecina->update(['orden' => $ordenActual]);
+
+        return $this->obtenerEstado($cuadro_id, $seccion_id);
+    }
+
     // ============ UTILITY HELPERS ============
 
     private function getLeaves($categories)

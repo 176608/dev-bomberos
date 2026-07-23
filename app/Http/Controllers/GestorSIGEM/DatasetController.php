@@ -224,6 +224,17 @@ class DatasetController extends Controller
         }
     }
 
+    public function reordenarSeccion(Request $request, $id, $seccion)
+    {
+        $request->validate(['direccion' => 'required|in:up,down']);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->reordenarSeccion((int) $seccion, $request->direccion)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function updatePivot(Request $request, $id)
     {
         $request->validate(['label' => 'required|string|max:100']);
