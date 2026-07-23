@@ -168,14 +168,14 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    public function agregarFila(int $cuadro_id): array
+    public function agregarFila(int $cuadro_id, ?string $nombre = null): array
     {
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'vertical')->max('orden') ?? 0;
 
         $cat = $this->categoria->create([
             'cuadro_id' => $cuadro_id, 'eje' => 'vertical',
-            'nombre' => 'Fila ' . ($maxOrden + 1),
+            'nombre' => $nombre ?? ('Fila ' . ($maxOrden + 1)),
             'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
@@ -213,14 +213,14 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    public function agregarColumna(int $cuadro_id): array
+    public function agregarColumna(int $cuadro_id, ?string $nombre = null): array
     {
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'horizontal')->max('orden') ?? 0;
 
         $cat = $this->categoria->create([
             'cuadro_id' => $cuadro_id, 'eje' => 'horizontal',
-            'nombre' => 'Columna ' . ($maxOrden + 1),
+            'nombre' => $nombre ?? ('Columna ' . ($maxOrden + 1)),
             'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
@@ -258,7 +258,7 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    public function agregarHijo(int $cuadro_id, int $padre_id): array
+    public function agregarHijo(int $cuadro_id, int $padre_id, ?string $nombre = null): array
     {
         $padre = $this->categoria->find($padre_id);
         if (!$padre || $padre->cuadro_id != $cuadro_id) {
@@ -275,7 +275,7 @@ class DatasetService
             'cuadro_id' => $cuadro_id,
             'eje' => $padre->eje,
             'padre_id' => $padre->categoria_id,
-            'nombre' => 'Hijo ' . ($maxOrden + 1),
+            'nombre' => $nombre ?? ('Hijo ' . ($maxOrden + 1)),
             'orden' => $maxOrden + 1,
             'tipo' => 'dato',
         ]);

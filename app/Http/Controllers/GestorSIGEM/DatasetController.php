@@ -34,10 +34,11 @@ class DatasetController extends Controller
         }
     }
 
-    public function storeFila($id)
+    public function storeFila(Request $request, $id)
     {
+        $nombre = $request->input('nombre');
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->agregarFila((int) $id)]);
+            return response()->json(['success' => true, 'data' => $this->datasetService->agregarFila((int) $id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
@@ -52,10 +53,11 @@ class DatasetController extends Controller
         }
     }
 
-    public function storeColumna($id)
+    public function storeColumna(Request $request, $id)
     {
+        $nombre = $request->input('nombre');
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->agregarColumna((int) $id)]);
+            return response()->json(['success' => true, 'data' => $this->datasetService->agregarColumna((int) $id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
@@ -131,8 +133,9 @@ class DatasetController extends Controller
     {
         $request->validate(['padre_id' => 'required|integer']);
 
+        $nombre = $request->input('nombre');
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->agregarHijo((int) $id, (int) $request->padre_id)]);
+            return response()->json(['success' => true, 'data' => $this->datasetService->agregarHijo((int) $id, (int) $request->padre_id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }

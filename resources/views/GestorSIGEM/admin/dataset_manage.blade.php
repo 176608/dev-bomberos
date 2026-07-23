@@ -100,6 +100,25 @@
     </div>
 </div>
 
+<!-- Modal nombre -->
+<div class="modal fade" id="modalNombre" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="modalNombreTitle"><i class="bi bi-pencil me-1"></i>Nombre</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-2">
+                <input type="text" id="modalNombreInput" class="form-control form-control-sm" placeholder="Nombre..." autofocus>
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary" id="modalNombreConfirm">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 #dataset-table td, #dataset-table th { vertical-align: middle; padding: 0.1rem 0.2rem; }
 #dataset-table td > div, #dataset-table th > div { min-height: 26px; outline: none; padding: 0.1rem 0.2rem; border-radius: 2px; }
@@ -910,12 +929,42 @@
         }, true);
     });
 
+    // ============ MODAL NOMBRE ============
+    let pendingCreate = null;
+
+    function showNameModal(title, actionFn) {
+        document.getElementById('modalNombreTitle').innerHTML = '<i class="bi bi-pencil me-1"></i>' + title;
+        document.getElementById('modalNombreInput').value = '';
+        pendingCreate = actionFn;
+        new bootstrap.Modal(document.getElementById('modalNombre')).show();
+        setTimeout(() => document.getElementById('modalNombreInput').focus(), 100);
+    }
+
+    document.getElementById('modalNombreConfirm').addEventListener('click', function() {
+        const name = document.getElementById('modalNombreInput').value.trim();
+        if (!name) { document.getElementById('modalNombreInput').focus(); return; }
+        const fn = pendingCreate;
+        pendingCreate = null;
+        bootstrap.Modal.getInstance(document.getElementById('modalNombre')).hide();
+        fn(name);
+    });
+
+    document.getElementById('modalNombre').addEventListener('hidden.bs.modal', function() {
+        pendingCreate = null;
+    });
+
+    document.getElementById('modalNombreInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('modalNombreConfirm').click();
+    });
+
     // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
-        saveAllBeforeAction();
-        api('/hijo', { method: 'POST', body: { padre_id: padreId } })
-            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); } else alerta(j.message); })
-            .catch(() => alerta('Error [' + ERR.HIJOS + ']'));
+        showNameModal('Nuevo hijo', function(name) {
+            saveAllBeforeAction();
+            api('/hijo', { method: 'POST', body: { padre_id: padreId, nombre: name } })
+                .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); } else alerta(j.message); })
+                .catch(() => alerta('Error [' + ERR.HIJOS + ']'));
+        });
     };
 
     window.clonarCategoria = function(categoriaId) {
@@ -927,17 +976,21 @@
     };
 
     window.agregarFila = function() {
-        saveAllBeforeAction();
-        api('/fila', { method: 'POST' })
-            .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
-            .catch(() => alerta('Error [' + ERR.FILA + ']'));
+        showNameModal('Nueva fila', function(name) {
+            saveAllBeforeAction();
+            api('/fila', { method: 'POST', body: { nombre: name } })
+                .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
+                .catch(() => alerta('Error [' + ERR.FILA + ']'));
+        });
     };
 
     window.agregarColumna = function() {
-        saveAllBeforeAction();
-        api('/columna', { method: 'POST' })
-            .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
-            .catch(() => alerta('Error [' + ERR.COL + ']'));
+        showNameModal('Nueva columna', function(name) {
+            saveAllBeforeAction();
+            api('/columna', { method: 'POST', body: { nombre: name } })
+                .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
+                .catch(() => alerta('Error [' + ERR.COL + ']'));
+        });
     };
 
     window.eliminarFila = function(id) {
