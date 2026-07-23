@@ -168,6 +168,24 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
+    public function regenerarDataset(int $cuadro_id, string $pivot_label = 'PIVOTE'): array
+    {
+        $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
+        if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+        $this->seccion->where('cuadro_id', $cuadro_id)->delete();
+        $cuadro->datos()->delete();
+        $this->deleteCategoriasSafe($cuadro);
+
+        $this->seccion->create([
+            'cuadro_id' => $cuadro_id, 'nombre' => 'Serie única', 'orden' => 1,
+        ]);
+
+        $cuadro->actualizar(['pivot_label' => $pivot_label]);
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
     public function agregarFila(int $cuadro_id, ?string $nombre = null): array
     {
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
@@ -315,19 +333,19 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id);
     }
 
-    public function clonarCategoria(int $cuadro_id, int $categoria_id): array
+    public function clonarCategoria(int $cuadro_id, int $categoria_id, ?string $nombre = null): array
     {
         $padre = $this->categoria->find($categoria_id);
         if (!$padre || $padre->cuadro_id != $cuadro_id) {
             throw new \RuntimeException('Categoría no encontrada');
         }
         if ($padre->padre_id !== null) {
-            throw new \RuntimeException('No se puede clonar una categoría hija');
+            throw new \RuntimeException('No se puede duplicar una categoría hija');
         }
 
         $hijos = $padre->hijos()->orderBy('orden')->get();
         if ($hijos->count() < 2) {
-            throw new \RuntimeException('La categoría debe tener al menos 2 hijos para clonar');
+            throw new \RuntimeException('La categoría debe tener al menos 2 hijos para duplicar');
         }
 
         $eje = $padre->eje;
@@ -338,8 +356,12 @@ class DatasetService
             ->where('orden', '>', $padre->orden)
             ->increment('orden');
 
-        $baseNombre = $padre->nombre . ' Clon';
-        $nombre = $baseNombre;
+        if ($nombre === null) {
+            $baseNombre = $padre->nombre . ' Duplicado';
+            $nombre = $baseNombre;
+        } else {
+            $baseNombre = $nombre;
+        }
         $contador = 0;
         while ($this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', $eje)
@@ -348,7 +370,7 @@ class DatasetService
             ->exists()
         ) {
             $contador++;
-            $nombre = $baseNombre . '(' . $contador . ')';
+            $nombre = $baseNombre . ' (' . $contador . ')';
         }
 
         $clon = $this->categoria->create([

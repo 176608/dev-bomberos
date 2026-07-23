@@ -76,25 +76,25 @@
     </div>
 </div>
 
-<!-- Modal regenerar cuadrícula -->
+<!-- Modal regenerar dataset -->
 <div class="modal fade" id="modalRegenerar" tabindex="-1">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-body text-center py-4">
-                <i class="bi bi-arrow-repeat" style="font-size:2.5rem;color:var(--bs-warning)"></i>
-                <h5 class="mt-2">Regenerar cuadrícula</h5>
-                <p class="text-muted small mb-3">Se eliminarán todas las categorías y datos actuales</p>
-                <div class="row justify-content-center g-2 mb-3">
-                    <div class="col-auto">
-                        <label class="form-label small">Filas</label>
-                        <input type="number" class="form-control text-center" id="modal-input-filas" value="5" min="1" max="50" style="width:80px">
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small">Columnas</label>
-                        <input type="number" class="form-control text-center" id="modal-input-columnas" value="5" min="1" max="50" style="width:80px">
-                    </div>
+            <div class="modal-header py-2">
+                <h6 class="modal-title"><i class="bi bi-sliders me-1"></i>Regenerar Dataset</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-2">
+                <div class="alert alert-warning py-2 small mb-2">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Se <strong>eliminarán todas las categorías y datos</strong>. ¿Confirmás?
                 </div>
-                <button class="btn btn-warning px-4" id="btn-regenerar"><i class="bi bi-arrow-repeat me-1"></i>Regenerar</button>
+                <label class="form-label small mb-1">Nombre del pivote:</label>
+                <input type="text" id="modal-regenerar-pivot" class="form-control form-control-sm" placeholder="PIVOTE">
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btn-regenerar-confirm"><i class="bi bi-sliders me-1"></i>Regenerar</button>
             </div>
         </div>
     </div>
@@ -245,7 +245,7 @@
             h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
         }
         if (esParent && numHijos >= 2)
-            h += '<button class="btn btn-info" title="Clonar categoría" onclick="window.clonarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
+            h += '<button class="btn btn-info" title="Duplicar categoría" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
         h += '<button class="btn btn-danger" title="' + (esVertical ? 'Eliminar fila' : 'Eliminar columna') + '" onclick="window.' + (esVertical ? 'eliminarFila' : 'eliminarColumna') + '(' + catId + ')"><i class="bi bi-x-lg"></i></button>';
         h += '</div></div>';
         return h;
@@ -571,8 +571,11 @@
         // — HEADERS —
         let theadHtml = '';
         if (headers.length === 0) {
-            theadHtml = '<tr><th class="text-center align-middle" style="background:#f0f2f5">'
-                + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button></th>'
+            theadHtml = '<tr><th class="text-center align-middle p-1" style="background:#f0f2f5">'
+                + '<div class="d-flex align-items-center w-100 cat-inner"><div class="cat-name flex-grow-1 fw-semibold small" style="font-size:0.7rem">' + esc(estado.pivot_label || 'PIVOTE') + '</div>'
+                + '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-xs">'
+                + '<button class="btn btn-outline-danger" title="Regenerar Dataset" onclick="window.regenerarDataset()"><i class="bi bi-sliders"></i></button>'
+                + '</div></div></div></th>'
                 + '<th class="text-center" style="background:#f0f2f5">'
                 + '<button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.agregarColumna()" title="Agregar columna"><i class="bi bi-plus"></i></button></th></tr>';
         } else {
@@ -580,10 +583,12 @@
                 theadHtml += '<tr>';
                 for (const cell of headers[ri]) {
                     if (cell.tipo === 'corner') {
-                        theadHtml += '<th rowspan="' + (cell.rowspan || numHR) + '" colspan="' + numLabelCols + '" class="text-center align-middle" style="background:#f0f2f5">'
-                            + '<div class="d-flex flex-column align-items-center gap-1">'
-                            + '<button class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center edit-only" style="width:24px;height:24px;font-size:0.65rem" onclick="window.limpiarDataset()" title="Limpiar todo"><i class="bi bi-trash3"></i></button>'
-                            + '<span class="pivot-label editable-header text-muted small" style="font-size:0.65rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span></div></th>';
+                        theadHtml += '<th rowspan="' + (cell.rowspan || numHR) + '" colspan="' + numLabelCols + '" class="text-center align-middle p-1" style="background:#f0f2f5">'
+                            + '<div class="d-flex align-items-center w-100 cat-inner">'
+                            + '<span contenteditable="true" class="cat-name flex-grow-1 fw-semibold pivot-label" style="font-size:0.7rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
+                            + '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-xs">'
+                            + '<button class="btn btn-outline-danger" title="Regenerar Dataset" onclick="window.regenerarDataset()"><i class="bi bi-sliders"></i></button>'
+                            + '</div></div></div></th>';
                     } else if (cell.tipo === 'parent') {
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#e2e6ea;font-weight:600">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
@@ -932,9 +937,9 @@
     // ============ MODAL NOMBRE ============
     let pendingCreate = null;
 
-    function showNameModal(title, actionFn) {
+    function showNameModal(title, actionFn, defaultValue) {
         document.getElementById('modalNombreTitle').innerHTML = '<i class="bi bi-pencil me-1"></i>' + title;
-        document.getElementById('modalNombreInput').value = '';
+        document.getElementById('modalNombreInput').value = defaultValue || '';
         pendingCreate = actionFn;
         new bootstrap.Modal(document.getElementById('modalNombre')).show();
         setTimeout(() => document.getElementById('modalNombreInput').focus(), 100);
@@ -957,6 +962,10 @@
         if (e.key === 'Enter') document.getElementById('modalNombreConfirm').click();
     });
 
+    document.getElementById('modal-regenerar-pivot')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('btn-regenerar-confirm').click();
+    });
+
     // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
         showNameModal('Nuevo hijo', function(name) {
@@ -967,12 +976,13 @@
         });
     };
 
-    window.clonarCategoria = function(categoriaId) {
+    window.duplicarCategoria = function(categoriaId) {
         saveAllBeforeAction();
-        if (!confirm('¿Clonar esta categoría con todos sus hijos?')) return;
-        api('/clonar/' + categoriaId, { method: 'POST' })
-            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría clonada'); } else alerta(j.message); })
-            .catch(() => alerta('Error [' + ERR.CLON + ']'));
+        showNameModal('Duplicar categoría', function(name) {
+            api('/clonar/' + categoriaId, { method: 'POST', body: { nombre: name } })
+                .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría duplicada'); } else alerta(j.message); })
+                .catch(() => alerta('Error [' + ERR.CLON + ']'));
+        });
     };
 
     window.agregarFila = function() {
@@ -1009,9 +1019,12 @@
             .catch(() => alerta('Error [' + ERR.E_COL + ']'));
     };
 
-    window.limpiarDataset = function() {
+    window.regenerarDataset = function() {
         saveAllBeforeAction();
-        new bootstrap.Modal(document.getElementById('modalRegenerar')).show();
+        const modal = new bootstrap.Modal(document.getElementById('modalRegenerar'));
+        document.getElementById('modal-regenerar-pivot').value = estado.pivot_label || 'PIVOTE';
+        modal.show();
+        setTimeout(() => document.getElementById('modal-regenerar-pivot').focus(), 100);
     };
 
     window.limpiarDatos = function() {
@@ -1081,13 +1094,12 @@
             .catch(() => alerta('Error [' + ERR.GENERAR + ']'));
     });
 
-    document.getElementById('btn-regenerar')?.addEventListener('click', function() {
-        const filas = parseInt(document.getElementById('modal-input-filas').value) || 5;
-        const cols = parseInt(document.getElementById('modal-input-columnas').value) || 5;
+    document.getElementById('btn-regenerar-confirm')?.addEventListener('click', function() {
+        const pivot = document.getElementById('modal-regenerar-pivot').value.trim() || 'PIVOTE';
         status('Regenerando...');
-        api('/generar', { method: 'POST', body: { filas, columnas: cols } })
+        api('/regenerar', { method: 'POST', body: { pivot_label: pivot } })
             .then(j => {
-                if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula regenerada'); bootstrap.Modal.getInstance(document.getElementById('modalRegenerar'))?.hide(); }
+                if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Dataset regenerado'); bootstrap.Modal.getInstance(document.getElementById('modalRegenerar'))?.hide(); }
                 else alerta(j.message);
             })
             .catch(() => alerta('Error [' + ERR.REGEN + ']'));

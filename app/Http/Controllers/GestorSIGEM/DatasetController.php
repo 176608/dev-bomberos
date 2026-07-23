@@ -120,10 +120,11 @@ class DatasetController extends Controller
         }
     }
 
-    public function cloneCategoria($id, $categoria)
+    public function cloneCategoria(Request $request, $id, $categoria)
     {
+        $nombre = $request->input('nombre');
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->clonarCategoria((int) $id, (int) $categoria)]);
+            return response()->json(['success' => true, 'data' => $this->datasetService->clonarCategoria((int) $id, (int) $categoria, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
@@ -249,6 +250,17 @@ class DatasetController extends Controller
             $cuadro->actualizar(['pivot_label' => $request->label]);
 
             return response()->json(['success' => true]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function regenerar(Request $request, $id)
+    {
+        $pivot = $request->input('pivot_label', 'PIVOTE');
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->regenerarDataset((int) $id, $pivot)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
