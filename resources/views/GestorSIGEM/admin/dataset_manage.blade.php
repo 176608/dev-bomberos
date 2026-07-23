@@ -260,7 +260,7 @@
             mode === 'diseno'
                 ? 'Diseño: estructura de filas, columnas y nombres'
                 : 'Datos: editar celdas. También puede renombrar categorías y pivote';
-        document.querySelectorAll('#dataset-table .editable-header').forEach(el => el.contentEditable = 'true');
+        document.querySelectorAll('#dataset-table .cat-name, #dataset-table .pivot-label').forEach(el => el.contentEditable = 'true');
         document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
             el.contentEditable = mode === 'datos';
             if (mode === 'diseno') el.blur();
@@ -852,7 +852,7 @@
                     clearSelection();
                     document.querySelectorAll('#dataset-table .cell-selected').forEach(c => c.classList.remove('cell-selected'));
                     el.classList.add('cell-selected');
-                    const span = el.querySelector('.editable-header, .pivot-label');
+                    const span = el.querySelector('.cat-name, .pivot-label');
                     if (span) {
                         span.focus();
                         const r = document.createRange(), s = window.getSelection();
