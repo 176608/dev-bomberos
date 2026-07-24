@@ -173,17 +173,12 @@ class DatasetService
         $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
         if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
-        $this->seccion->where('cuadro_id', $cuadro_id)->delete();
-        $cuadro->datos()->delete();
-        $this->deleteCategoriasSafe($cuadro);
-
-        $this->seccion->create([
-            'cuadro_id' => $cuadro_id, 'nombre' => 'Serie única', 'orden' => 1,
-        ]);
+        $estado = $this->generarGrilla($cuadro_id, 1, 1);
 
         $cuadro->actualizar(['pivot_label' => $pivot_label]);
+        $estado['pivot_label'] = $pivot_label;
 
-        return $this->obtenerEstado($cuadro_id);
+        return $estado;
     }
 
     public function agregarFila(int $cuadro_id, ?string $nombre = null): array
