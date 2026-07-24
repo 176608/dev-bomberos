@@ -21,11 +21,29 @@
             <button type="button" class="btn btn-outline-primary" data-mode="datos" onclick="switchMode('datos')">
                 <i class="bi bi-table me-1"></i>Datos
             </button>
+            <button type="button" class="btn btn-outline-primary" data-mode="grafica" onclick="switchMode('grafica')">
+                <i class="bi bi-bar-chart me-1"></i>Gráfica
+            </button>
         </div>
         <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
-        <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
-            <i class="bi bi-eraser me-1"></i>Limpiar datos
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
+                <i class="bi bi-eraser me-1"></i>Limpiar datos
+            </button>
+            <div class="grafica-only d-none align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-config-grafica" title="Configuración de gráfica">
+                    <i class="bi bi-gear me-1"></i>Configuración
+                </button>
+                <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto">
+                    <option value="bar">Barras</option>
+                    <option value="line">Líneas</option>
+                    <option value="pie">Circular</option>
+                    <option value="doughnut">Dona</option>
+                    <option value="radar">Radar</option>
+                    <option value="polarArea">Polar</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2" id="seccion-tabs">
@@ -64,6 +82,10 @@
                         <thead id="thead" class="table-light"></thead>
                         <tbody id="tbody"></tbody>
                     </table>
+                </div>
+                <div id="chart-container">
+                    <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
+                    <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
                 </div>
             </div>
             <div class="card-footer py-1 d-flex justify-content-between align-items-center" id="status-bar">
@@ -158,6 +180,14 @@
 /* Data cells right-aligned in datos mode */
 .mode-datos #dataset-table td[data-vertical-id] > div { text-align: right; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
+
+/* Gráfica mode visibility */
+#chart-container { display: none; }
+.mode-grafica .datos-only, .mode-grafica .edit-only { display: none !important; }
+.mode-grafica .grafica-only { display: flex !important; }
+.mode-datos .grafica-only, .mode-diseno .grafica-only { display: none !important; }
+.mode-grafica .table-responsive { display: none; }
+.mode-grafica #chart-container { display: block; }
 </style>
 
 <script>
@@ -273,18 +303,26 @@
             btn.classList.toggle('active', btn.dataset.mode === mode)
         );
         const c = document.getElementById('grid-container');
-        c.classList.toggle('mode-datos', mode === 'datos');
-        c.classList.toggle('mode-diseno', mode === 'diseno');
+        c.classList.remove('mode-datos', 'mode-diseno', 'mode-grafica');
+        c.classList.add('mode-' + mode);
         document.getElementById('mode-hint').textContent =
-            mode === 'diseno'
-                ? 'Diseño: estructura de filas, columnas y nombres'
-                : 'Datos: editar celdas. También puede renombrar categorías y pivote';
+            mode === 'diseno' ? 'Diseño: estructura de filas, columnas y nombres'
+            : mode === 'datos' ? 'Datos: editar celdas. También puede renombrar categorías y pivote'
+            : 'Gráfica: visualización del dataset';
         document.querySelectorAll('#dataset-table .cat-name, #dataset-table .pivot-label').forEach(el => el.contentEditable = 'true');
         document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
             el.contentEditable = mode === 'datos';
             if (mode === 'diseno') el.blur();
         });
-        status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
+        if (mode === 'grafica') {
+            renderChart(document.getElementById('select-tipo-grafica').value);
+            updateChartDebug();
+        } else {
+            var debugEl = document.getElementById('chart-debug');
+            if (debugEl) debugEl.style.display = 'none';
+            if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
+        }
+        status(mode === 'diseno' ? 'Modo Diseño' : mode === 'datos' ? 'Modo Datos' : 'Modo Gráfica');
     };
 
     // ============ CELL COORDINATES ============
@@ -1128,6 +1166,111 @@
             lastCell = { type: 'horizontal', vId: null, hId: estado.horizontales[0].categoria_id };
     }
 
+    // ============ CHART.JS ============
+    function generarColor(index, total) {
+        if (total === 0) return 'hsl(0,70%,55%)';
+        const hue = (index * 360 / total) % 360;
+        return 'hsl(' + hue + ',70%,55%)';
+    }
+
+    function generarColorRGBA(index, total, alpha) {
+        if (alpha === undefined) alpha = 0.2;
+        if (total === 0) return 'hsla(0,70%,55%,' + alpha + ')';
+        const hue = (index * 360 / total) % 360;
+        return 'hsla(' + hue + ',70%,55%,' + alpha + ')';
+    }
+
+    function buildChartData(estado, tipo) {
+        var labels = (estado.verticales || []).map(function(v) { return v.nombre; });
+        var totalSeries = (estado.horizontales || []).length;
+        var data = estado.data || [];
+        var datasets = (estado.horizontales || []).map(function(h, ci) {
+            var vals = data.map(function(row) {
+                var cel = row[ci];
+                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseFloat(cel.valor) || 0) : 0;
+            });
+            var color = generarColor(ci, totalSeries);
+            var bgColor = tipo === 'pie' || tipo === 'doughnut' || tipo === 'polarArea' || tipo === 'radar'
+                ? labels.map(function(_, li) { return generarColor(li, labels.length); })
+                : generarColorRGBA(ci, totalSeries);
+            return {
+                label: h.nombre,
+                data: vals,
+                backgroundColor: bgColor,
+                borderColor: color,
+                borderWidth: 1,
+            };
+        });
+        return { labels: labels, datasets: datasets };
+    }
+
+    function renderChart(tipo) {
+        if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
+        if (!estado.verticales?.length || !estado.horizontales?.length) {
+            document.getElementById('chart-debug').textContent = 'No hay datos para graficar (0 filas o 0 columnas)';
+            return;
+        }
+        var chartData = buildChartData(estado, tipo);
+        var ctx = document.getElementById('chart-canvas').getContext('2d');
+        window.chartInstance = new Chart(ctx, {
+            type: tipo,
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: estado.pivot_label || 'Dataset' }
+                }
+            }
+        });
+    }
+
+    function updateChartDebug() {
+        var el = document.getElementById('chart-debug');
+        if (!el) return;
+        el.style.display = 'block';
+        var parentsV = [];
+        var parentsH = [];
+        try {
+            (estado.labels || []).forEach(function(row) {
+                (row || []).forEach(function(cell) {
+                    if (cell.tipo === 'parent') parentsV.push(cell.nombre);
+                });
+            });
+            (estado.headers || []).forEach(function(row) {
+                (row || []).forEach(function(cell) {
+                    if (cell.tipo === 'parent') parentsH.push(cell.nombre);
+                });
+            });
+        } catch(e) {}
+        var labels = (estado.verticales || []).map(function(v) { return v.nombre; });
+        var series = (estado.horizontales || []).map(function(h) { return h.nombre; });
+        var chartData = estado.verticales?.length && estado.horizontales?.length
+            ? JSON.stringify(buildChartData(estado, document.getElementById('select-tipo-grafica').value), null, 2)
+            : 'null';
+        el.textContent = '── Debug Chart Data ──\n'
+            + 'Labels (verticales): ' + JSON.stringify(labels) + '\n'
+            + 'Cantidad: ' + labels.length + '\n'
+            + 'Series (horizontales): ' + JSON.stringify(series) + '\n'
+            + 'Cantidad: ' + series.length + '\n'
+            + (parentsV.length ? 'Padres verticales: ' + JSON.stringify(parentsV) + '\n' : '')
+            + (parentsH.length ? 'Padres horizontales: ' + JSON.stringify(parentsH) + '\n' : '')
+            + 'Sección activa: "' + ((estado.secciones || []).find(function(s) { return s.seccion_id === estado.seccion_activa_id; })?.nombre || '') + '" (id: ' + (estado.seccion_activa_id || '-') + ')\n'
+            + 'chartData = ' + chartData;
+    }
+
+    document.getElementById('select-tipo-grafica')?.addEventListener('change', function() {
+        if (currentMode === 'grafica') {
+            renderChart(this.value);
+            updateChartDebug();
+        }
+    });
+
+    document.getElementById('btn-config-grafica')?.addEventListener('click', function() {
+        status('Configuración de gráfica (próximamente en Fase 2)');
+    });
+
     // ============ INIT ============
     if (estado.tiene_dataset) {
         initLastCell();
@@ -1136,3 +1279,4 @@
     }
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
