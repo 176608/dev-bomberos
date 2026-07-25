@@ -43,17 +43,18 @@
             </div>
             <div class="mb-2">
                 <label class="small text-muted mb-1">Eje X (labels)</label>
-                <select id="select-eje" class="form-select form-select-sm">
-                    <option value="vertical">Verticales (filas)</option>
-                    <option value="horizontal">Horizontales (columnas)</option>
+                <select id="select-eje" class="form-select form-select-sm" title="Define qué categorías se usan como etiquetas en el eje X vs. series en la leyenda">
+                    <option value="vertical" title="Las verticales (filas) serán las etiquetas del eje X; las horizontales (columnas) serán las series">Verticales (filas)</option>
+                    <option value="horizontal" title="Las horizontales (columnas) serán las etiquetas del eje X; las verticales (filas) serán las series">Horizontales (columnas)</option>
                 </select>
+                <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
             </div>
             <div class="mb-2">
                 <label class="small text-muted mb-1">Agrupar por</label>
-                <select id="select-agrupar" class="form-select form-select-sm">
-                    <option value="none">Ninguno</option>
-                    <option value="parent_horizontal">Padre horizontal</option>
-                    <option value="parent_vertical">Padre vertical</option>
+                <select id="select-agrupar" class="form-select form-select-sm" title="Agrupa las series visualmente según su categoría padre en la jerarquía">
+                    <option value="none" title="Sin agrupación — cada serie se muestra individualmente">Ninguno</option>
+                    <option value="parent_horizontal" title="Colorea las series por grupo según el padre horizontal">Padre horizontal</option>
+                    <option value="parent_vertical" title="Colorea las series por grupo según el padre vertical">Padre vertical</option>
                 </select>
             </div>
             <hr class="my-1">
@@ -472,6 +473,8 @@ function renderCategoryPanel() {
             }
             renderChart(document.getElementById('select-tipo-grafica').value);
             updateChartDebug();
+            updateEjeHelper();
+            saveStateToURL();
         });
     });
 }
@@ -546,6 +549,71 @@ function saveTiposPermitidos() {
     api('/tipos-grafica', { method: 'PUT', body: { tipos: tiposPermitidos } });
 }
 
+function updateEjeHelper() {
+    var el = document.getElementById('eje-helper');
+    if (!el) return;
+    var labels = chartAxis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || []);
+    var series = chartAxis === 'vertical' ? (estado.horizontales || []) : (estado.verticales || []);
+    var visibleLabels = labels.filter(function(l) {
+        var m = chartAxis === 'vertical' ? visibleV : visibleH;
+        return m[l.categoria_id] !== false;
+    });
+    var visibleSeries = series.filter(function(s) {
+        var m = chartAxis === 'vertical' ? visibleH : visibleV;
+        return m[s.categoria_id] !== false;
+    });
+    var labelNames = visibleLabels.map(function(l) { return l.nombre; });
+    var seriesNames = visibleSeries.map(function(s) { return s.nombre; });
+    el.textContent = 'Eje X: ' + labelNames.length + ' label' + (labelNames.length !== 1 ? 's' : '')
+        + ' — Series: ' + seriesNames.length;
+    el.title = 'Labels: ' + (labelNames.join(', ') || '(ninguna)') + '\nSeries: ' + (seriesNames.join(', ') || '(ninguna)');
+}
+
+function saveStateToURL() {
+    var visibleVIds = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
+    var visibleHIds = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
+    var selectedSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    var ejeCode = chartAxis === 'vertical' ? 'v' : 'h';
+    var params = [];
+    if (visibleVIds.length) params.push('v=' + visibleVIds.join(','));
+    if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
+    if (selectedSids.length) params.push('s=' + selectedSids.join(','));
+    params.push('ej=' + ejeCode);
+    var qs = params.join('&');
+    var url = window.location.pathname + (qs ? '?' + qs : '');
+    try { window.history.replaceState(null, '', url); } catch(e) {}
+}
+
+function sanitizeIdList(str) {
+    if (!str) return [];
+    return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n) && n > 0; });
+}
+
+function loadStateFromURL() {
+    var p = new URLSearchParams(window.location.search);
+    var vList = sanitizeIdList(p.get('v'));
+    var hList = sanitizeIdList(p.get('h'));
+    var sList = sanitizeIdList(p.get('s'));
+    var ejeCode = p.get('ej');
+
+    if (vList.length) {
+        Object.keys(visibleV).forEach(function(id) { visibleV[id] = vList.indexOf(parseInt(id)) >= 0; });
+    }
+    if (hList.length) {
+        Object.keys(visibleH).forEach(function(id) { visibleH[id] = hList.indexOf(parseInt(id)) >= 0; });
+    }
+    if (sList.length) {
+        Object.keys(selectedSections).forEach(function(sid) {
+            selectedSections[sid] = sList.indexOf(parseInt(sid)) >= 0;
+        });
+    }
+    if (ejeCode === 'v' || ejeCode === 'h') {
+        chartAxis = ejeCode === 'v' ? 'vertical' : 'horizontal';
+        var selEje = document.getElementById('select-eje');
+        if (selEje) selEje.value = chartAxis;
+    }
+}
+
 function initGraficaPage() {
     initVisibleState();
     populateTipoSelect();
@@ -565,9 +633,12 @@ function initGraficaPage() {
         }
     });
 
+    loadStateFromURL();
     renderCategoryPanel();
     renderChart(document.getElementById('select-tipo-grafica').value);
+    updateEjeHelper();
     updateChartDebug();
+    saveStateToURL();
     document.getElementById('chart-panel').style.display = 'block';
 }
 
@@ -621,12 +692,15 @@ document.getElementById('select-eje')?.addEventListener('change', function() {
     chartAxis = this.value;
     renderChart(selectTipoGrafica.value);
     updateChartDebug();
+    updateEjeHelper();
+    saveStateToURL();
 });
 
 document.getElementById('select-agrupar')?.addEventListener('change', function() {
     chartGroup = this.value;
     renderChart(selectTipoGrafica.value);
     updateChartDebug();
+    saveStateToURL();
 });
 
 document.getElementById('panel-items')?.addEventListener('change', function(e) {
@@ -647,6 +721,8 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
                     sectionsCache[sid] = { nombre: sName, data: j.data.data || [] };
                     renderChart(selectTipoGrafica.value);
                     updateChartDebug();
+                    updateEjeHelper();
+                    saveStateToURL();
                     status('Sección: ' + (sName || sid) + ' cargada');
                 } else {
                     selectedSections[sid] = false;
@@ -667,6 +743,8 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
     } else {
         renderChart(selectTipoGrafica.value);
         updateChartDebug();
+        updateEjeHelper();
+        saveStateToURL();
     }
 });
 
