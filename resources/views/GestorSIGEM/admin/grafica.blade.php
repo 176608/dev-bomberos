@@ -151,6 +151,13 @@ function generarColorRGBA(index, total, alpha) {
     return 'hsla(' + hue + ',70%,55%,' + alpha + ')';
 }
 
+function parseCellValue(val) {
+    if (val === undefined || val === null || val === '') return NaN;
+    if (typeof val === 'number') return val;
+    var s = String(val).replace(/,/g, '');
+    return parseFloat(s);
+}
+
 function buildParentMap(items) {
     var map = {};
     (items || []).forEach(function(item) {
@@ -216,7 +223,7 @@ function buildChartData(estado, tipo, opts) {
                 var colIndex = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === s.categoria_id; });
                 if (rowIndex < 0 || colIndex < 0) return 0;
                 var cel = dataGrid[rowIndex] ? dataGrid[rowIndex][colIndex] : null;
-                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseFloat(cel.valor) || 0) : 0;
+                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
             });
         } else {
             var serieVertIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === s.categoria_id; });
@@ -224,7 +231,7 @@ function buildChartData(estado, tipo, opts) {
                 var horizIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === l.categoria_id; });
                 if (serieVertIdx < 0 || horizIdx < 0) return 0;
                 var cel = dataGrid[serieVertIdx] ? dataGrid[serieVertIdx][horizIdx] : null;
-                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseFloat(cel.valor) || 0) : 0;
+                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
             });
         }
 
