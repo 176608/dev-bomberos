@@ -265,4 +265,21 @@ class DatasetController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }
+
+    public function updateTiposGrafica(Request $request, $id)
+    {
+        $request->validate(['tipos' => 'required|array']);
+        $request->validate(['tipos.*' => 'string|in:bar,line,pie,doughnut,radar,polarArea,scatter']);
+
+        try {
+            $cuadro = \App\Models\SIGEM\Cuadro::obtenerPorId((int) $id);
+            if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+            $cuadro->actualizar(['tipos_grafica_permitida' => $request->tipos]);
+
+            return response()->json(['success' => true, 'tipos' => $request->tipos]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
 }

@@ -119,6 +119,7 @@ class DatasetService
             'max_columnas' => count($leafHIds),
             'pivot_label' => $cuadro->pivot_label ?? 'PIVOTE',
             'tema_color' => $cuadro->tema?->color ?? null,
+            'tipos_grafica_permitida' => $cuadro->tipos_grafica_permitida ?? [],
             'secciones' => $secciones->toArray(),
             'seccion_activa_id' => $seccionActiva->seccion_id,
         ];

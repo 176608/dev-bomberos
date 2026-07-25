@@ -86,6 +86,7 @@ class CuadroV2Controller extends Controller
                 'max_columnas' => 0,
                 'secciones' => [],
                 'seccion_activa_id' => null,
+                'tipos_grafica_permitida' => $cuadro->tipos_grafica_permitida ?: [],
             ];
         }
 
