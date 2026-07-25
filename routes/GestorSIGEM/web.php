@@ -37,6 +37,7 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::put('/{id}/toggle-publicado', [CuadroV2Controller::class, 'togglePublicado'])->name('toggle-publicado');
             Route::get('/{id}/datos', [CuadroV2Controller::class, 'datosJson'])->name('datos-json');
             Route::get('/{id}/dataset', [CuadroV2Controller::class, 'datasetManage'])->name('dataset');
+            Route::get('/{id}/grafica', [CuadroV2Controller::class, 'graficaManage'])->name('grafica');
             Route::prefix('{id}/dataset')->name('dataset.')->group(function () {
                 Route::get('/estado', [DatasetController::class, 'estado'])->name('estado');
                 Route::post('/generar', [DatasetController::class, 'generar'])->name('generar');

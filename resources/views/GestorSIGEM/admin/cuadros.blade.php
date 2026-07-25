@@ -88,10 +88,11 @@
 
                                     {{-- Configurar Gráfica — solo si NO es mapa y tiene gráfica --}}
                                     @if(!$esMapa && $tieneGrafica)
-                                        <button type="button" class="btn btn-outline-success disabled"
-                                                title="Configurar Gráfica (próximamente)">
+                                        <a href="{{ route('sgiem.admin.cuadros.grafica', $cuadro->cuadro_id) }}"
+                                           class="btn btn-outline-success btn-sm"
+                                           title="Configurar Gráfica">
                                             <i class="bi bi-bar-chart"></i> Gráfica
-                                        </button>
+                                        </a>
                                     @endif
 
                                     {{-- Publicar/Restringir --}}

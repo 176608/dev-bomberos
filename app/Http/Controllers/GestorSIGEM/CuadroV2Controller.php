@@ -97,6 +97,42 @@ class CuadroV2Controller extends Controller
         ]);
     }
 
+    public function graficaManage($id)
+    {
+        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
+
+        if (!$cuadro) {
+            return redirect()->route('sgiem.admin.cuadros.index')
+                ->with('error', 'Cuadro no encontrado.');
+        }
+
+        try {
+            $estado = $this->datasetService->obtenerEstado((int) $id);
+        } catch (\RuntimeException) {
+            $estado = [
+                'tiene_dataset' => false,
+                'verticales' => [],
+                'horizontales' => [],
+                'vertical_tree' => [],
+                'horizontal_tree' => [],
+                'headers' => [],
+                'labels' => [],
+                'data' => [],
+                'max_filas' => 0,
+                'max_columnas' => 0,
+                'secciones' => [],
+                'seccion_activa_id' => null,
+                'tipos_grafica_permitida' => $cuadro->tipos_grafica_permitida ?: [],
+            ];
+        }
+
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.grafica',
+            'cuadro' => $cuadro,
+            'estadoInicial' => $estado,
+        ]);
+    }
+
     public function edit($id)
     {
         $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);

@@ -21,31 +21,16 @@
             <button type="button" class="btn btn-outline-primary" data-mode="datos" onclick="switchMode('datos')">
                 <i class="bi bi-table me-1"></i>Datos
             </button>
-            <button type="button" class="btn btn-outline-primary" data-mode="grafica" onclick="switchMode('grafica')">
+            <a href="{{ route('sgiem.admin.cuadros.grafica', $cuadro->cuadro_id) }}" class="btn btn-outline-primary" style="text-decoration:none">
                 <i class="bi bi-bar-chart me-1"></i>Gráfica
-            </button>
+            </a>
         </div>
         <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
                 <i class="bi bi-eraser me-1"></i>Limpiar datos
             </button>
-            <div class="grafica-only d-none align-items-center gap-2 flex-wrap">
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-config-grafica" title="Configuración de tipos de gráfica">
-                    <i class="bi bi-gear me-1"></i>Tipos
-                </button>
-                <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-                <button type="button" class="btn btn-sm btn-outline-success d-none" id="btn-asignar-tipo" title="Asignar este tipo">
-                    <i class="bi bi-check-lg"></i> Asignar
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-danger d-none" id="btn-eliminar-tipo" title="Eliminar este tipo">
-                    <i class="bi bi-x-lg"></i> Eliminar
-                </button>
-                <span class="text-muted small mx-1">|</span>
-                <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
-                    <i class="bi bi-list-check"></i> Categorías
-                </button>
-            </div>
+            <div class="grafica-only d-none"></div>
         </div>
     </div>
 
@@ -86,39 +71,7 @@
                         <tbody id="tbody"></tbody>
                     </table>
                 </div>
-                <div id="chart-container" class="d-flex gap-2">
-                    <div id="chart-panel" class="border rounded p-2" style="width:240px;flex-shrink:0;display:none;overflow-y:auto;max-height:500px">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías</small>
-                            <button type="button" class="btn-close btn-sm" id="btn-cerrar-panel" aria-label="Cerrar panel"></button>
-                        </div>
-                        <div class="mb-2">
-                            <label class="small text-muted mb-1">Eje X (labels)</label>
-                            <select id="select-eje" class="form-select form-select-sm">
-                                <option value="vertical">Verticales (filas)</option>
-                                <option value="horizontal">Horizontales (columnas)</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="small text-muted mb-1">Agrupar por</label>
-                            <select id="select-agrupar" class="form-select form-select-sm">
-                                <option value="none">Ninguno</option>
-                                <option value="parent_horizontal">Padre horizontal</option>
-                                <option value="parent_vertical">Padre vertical</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="small text-muted mb-1">Sección</label>
-                            <select id="select-seccion" class="form-select form-select-sm"></select>
-                        </div>
-                        <hr class="my-1">
-                        <div id="panel-items" class="small"></div>
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
-                        <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
-                    </div>
-                </div>
+                <div id="chart-container" class="d-none"></div>
             </div>
             <div class="card-footer py-1 d-flex justify-content-between align-items-center" id="status-bar">
                 <small id="status-text"></small>
@@ -213,21 +166,6 @@
 .mode-datos #dataset-table td[data-vertical-id] > div { text-align: right; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
 
-/* Gráfica mode visibility */
-#chart-container { display: none; }
-.mode-grafica .datos-only, .mode-grafica .edit-only { display: none !important; }
-.mode-grafica .grafica-only { display: flex !important; }
-.mode-datos .grafica-only, .mode-diseno .grafica-only { display: none !important; }
-.mode-grafica .table-responsive { display: none; }
-.mode-grafica #chart-container { display: flex !important; }
-
-/* Panel categorías */
-#chart-panel label.checked { font-weight:600; }
-#chart-panel .panel-parent { cursor:pointer; user-select:none; }
-#chart-panel .panel-parent:hover { background:#f0f2f5; border-radius:2px; }
-#chart-panel .panel-child { padding-left:1.2rem; }
-#chart-panel .panel-child label { cursor:pointer; }
-#chart-panel .panel-child label:hover { color:var(--bs-primary); }
 </style>
 
 <script>
@@ -343,25 +281,17 @@
             btn.classList.toggle('active', btn.dataset.mode === mode)
         );
         const c = document.getElementById('grid-container');
-        c.classList.remove('mode-datos', 'mode-diseno', 'mode-grafica');
+        c.classList.remove('mode-datos', 'mode-diseno');
         c.classList.add('mode-' + mode);
         document.getElementById('mode-hint').textContent =
             mode === 'diseno' ? 'Diseño: estructura de filas, columnas y nombres'
-            : mode === 'datos' ? 'Datos: editar celdas. También puede renombrar categorías y pivote'
-            : 'Gráfica: visualización del dataset';
+            : 'Datos: editar celdas. También puede renombrar categorías y pivote';
         document.querySelectorAll('#dataset-table .cat-name, #dataset-table .pivot-label').forEach(el => el.contentEditable = 'true');
         document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
             el.contentEditable = mode === 'datos';
             if (mode === 'diseno') el.blur();
         });
-        if (mode === 'grafica') {
-            initGraficaMode();
-        } else {
-            var debugEl = document.getElementById('chart-debug');
-            if (debugEl) debugEl.style.display = 'none';
-            if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
-        }
-        status(mode === 'diseno' ? 'Modo Diseño' : mode === 'datos' ? 'Modo Datos' : 'Modo Gráfica');
+        status(mode === 'diseno' ? 'Modo Diseño' : 'Modo Datos');
     };
 
     // ============ CELL COORDINATES ============
@@ -1205,483 +1135,7 @@
             lastCell = { type: 'horizontal', vId: null, hId: estado.horizontales[0].categoria_id };
     }
 
-    // ============ CHART STATE ============
-    var chartAxis = 'vertical';
-    var chartGroup = 'none';
-    var visibleV = {};  // { [categoria_id]: true/false }
-    var visibleH = {};
-    var tiposPermitidos = [];
 
-    // ============ CHART.JS HELPERS ============
-    function generarColor(index, total) {
-        if (total === 0) return 'hsl(0,70%,55%)';
-        var hue = (index * 360 / total) % 360;
-        return 'hsl(' + hue + ',70%,55%)';
-    }
-
-    function generarColorRGBA(index, total, alpha) {
-        if (alpha === undefined) alpha = 0.2;
-        if (total === 0) return 'hsla(0,70%,55%,' + alpha + ')';
-        var hue = (index * 360 / total) % 360;
-        return 'hsla(' + hue + ',70%,55%,' + alpha + ')';
-    }
-
-    function buildParentMap(items) {
-        var map = {};
-        (items || []).forEach(function(item) {
-            if (item.padre_id) {
-                if (!map[item.padre_id]) map[item.padre_id] = [];
-                map[item.padre_id].push(item);
-            }
-        });
-        return map;
-    }
-
-    function buildChartData(estado, tipo, opts) {
-        opts = opts || {};
-        var axis = opts.axis || 'vertical';
-        var groupBy = opts.groupBy || 'none';
-        var visibleVIds = opts.visibleV || null;
-        var visibleHIds = opts.visibleH || null;
-
-        var labelsArr, seriesArr, dataGrid;
-        if (axis === 'vertical') {
-            labelsArr = estado.verticales || [];
-            seriesArr = estado.horizontales || [];
-            dataGrid = estado.data || [];
-        } else {
-            labelsArr = estado.horizontales || [];
-            seriesArr = estado.verticales || [];
-            dataGrid = estado.data || [];
-        }
-
-        // Filter visibility
-        var labelFilter, seriesFilter;
-        if (axis === 'vertical') {
-            labelFilter = visibleVIds ? function(v) { return visibleVIds[v.categoria_id] !== false; } : null;
-            seriesFilter = visibleHIds ? function(h) { return visibleHIds[h.categoria_id] !== false; } : null;
-        } else {
-            labelFilter = visibleHIds ? function(h) { return visibleHIds[h.categoria_id] !== false; } : null;
-            seriesFilter = visibleVIds ? function(v) { return visibleVIds[v.categoria_id] !== false; } : null;
-        }
-        if (labelFilter) labelsArr = labelsArr.filter(labelFilter);
-        if (seriesFilter) seriesArr = seriesArr.filter(seriesFilter);
-
-        var labels = labelsArr.map(function(v) { return v.nombre; });
-        var totalSeries = seriesArr.length;
-
-        // Build parent map for grouping
-        var parentMap;
-        if (groupBy === 'parent_horizontal') {
-            parentMap = buildParentMap(axis === 'vertical' ? (estado.horizontales || []) : (estado.verticales || []));
-        } else if (groupBy === 'parent_vertical') {
-            parentMap = buildParentMap(axis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || []));
-        }
-
-        // Map leaf → parent_id for header label
-        var leafToParent = {};
-        if (groupBy !== 'none') {
-            (estado.verticales || []).concat(estado.horizontales || []).forEach(function(item) {
-                if (item.padre_id) leafToParent[item.categoria_id] = item.padre_id;
-            });
-        }
-
-        var datasets = seriesArr.map(function(s, si) {
-            var vals;
-            if (axis === 'vertical') {
-                vals = labelsArr.map(function(l) {
-                    var rowIndex = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === l.categoria_id; });
-                    var colIndex = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === s.categoria_id; });
-                    if (rowIndex < 0 || colIndex < 0) return 0;
-                    var cel = dataGrid[rowIndex] ? dataGrid[rowIndex][colIndex] : null;
-                    return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseFloat(cel.valor) || 0) : 0;
-                });
-            } else {
-                // axis=horizontal: labels from horizontales, series from verticales
-                // dataGrid[vertIdx][horizIdx] → extract for each label (horizIdx) per series (vertIdx)
-                var serieVertIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === s.categoria_id; });
-                vals = labelsArr.map(function(l) {
-                    var horizIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === l.categoria_id; });
-                    if (serieVertIdx < 0 || horizIdx < 0) return 0;
-                    var cel = dataGrid[serieVertIdx] ? dataGrid[serieVertIdx][horizIdx] : null;
-                    return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseFloat(cel.valor) || 0) : 0;
-                });
-            }
-
-            var colorIdx = si;
-            var parentId = leafToParent[s.categoria_id];
-            if (groupBy !== 'none' && parentId && parentMap && parentMap[parentId]) {
-                var siblings = parentMap[parentId] || [];
-                var siblingIndex = siblings.findIndex(function(ch) { return ch.categoria_id === s.categoria_id; });
-                if (siblingIndex >= 0) {
-                    var colorBase = Object.keys(leafToParent).indexOf(String(parentId));
-                    if (colorBase < 0) colorBase = 0;
-                    colorIdx = colorBase + siblingIndex * 7;
-                }
-            }
-
-            var color = generarColor(colorIdx, Math.max(totalSeries, 1));
-            var bgColor = tipo === 'pie' || tipo === 'doughnut' || tipo === 'polarArea' || tipo === 'radar'
-                ? labels.map(function(_, li) { return generarColor(li, Math.max(labels.length, 1)); })
-                : generarColorRGBA(colorIdx, Math.max(totalSeries, 1));
-
-            var label = s.nombre;
-            if (groupBy !== 'none' && parentId) {
-                var parentName = '';
-                (estado.headers || []).concat(estado.labels || []).forEach(function(row) {
-                    (row || []).forEach(function(cell) {
-                        if (cell.tipo === 'parent' && cell.categoria_id === parentId) parentName = cell.nombre;
-                    });
-                });
-                if (parentName) label = parentName + ' - ' + label;
-            }
-
-            return {
-                label: label,
-                data: vals,
-                backgroundColor: bgColor,
-                borderColor: color,
-                borderWidth: 1,
-            };
-        });
-
-        return { labels: labels, datasets: datasets };
-    }
-
-    function renderChart(tipo) {
-        if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
-        if (!estado.verticales?.length || !estado.horizontales?.length) {
-            var dbg = document.getElementById('chart-debug');
-            if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
-            return;
-        }
-        var opts = { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH };
-        var chartData = buildChartData(estado, tipo, opts);
-        var ctx = document.getElementById('chart-canvas').getContext('2d');
-        window.chartInstance = new Chart(ctx, {
-            type: tipo,
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: estado.pivot_label || 'Dataset' }
-                }
-            }
-        });
-    }
-
-    function updateChartDebug() {
-        var el = document.getElementById('chart-debug');
-        if (!el) return;
-        el.style.display = 'block';
-        var parentsV = [], parentsH = [];
-        try {
-            (estado.labels || []).forEach(function(row) { (row || []).forEach(function(cell) { if (cell.tipo === 'parent') parentsV.push(cell.nombre); }); });
-            (estado.headers || []).forEach(function(row) { (row || []).forEach(function(cell) { if (cell.tipo === 'parent') parentsH.push(cell.nombre); }); });
-        } catch(e) {}
-        var labels, series;
-        if (chartAxis === 'vertical') {
-            labels = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).map(function(v) { return v.nombre; });
-            series = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).map(function(h) { return h.nombre; });
-        } else {
-            labels = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).map(function(h) { return h.nombre; });
-            series = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).map(function(v) { return v.nombre; });
-        }
-        var chartDataStr = 'null';
-        try {
-            var cd = buildChartData(estado, document.getElementById('select-tipo-grafica').value, { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH });
-            chartDataStr = JSON.stringify(cd, null, 2);
-        } catch(e) { chartDataStr = 'Error: ' + e.message; }
-        el.textContent = '── Debug Chart Data ──\n'
-            + 'Eje X: ' + chartAxis + '\n'
-            + 'Agrupar por: ' + chartGroup + '\n'
-            + 'Labels: ' + JSON.stringify(labels) + '\n'
-            + 'Cantidad labels: ' + labels.length + '\n'
-            + 'Series: ' + JSON.stringify(series) + '\n'
-            + 'Cantidad series: ' + series.length + '\n'
-            + (parentsV.length ? 'Padres verticales: ' + JSON.stringify(parentsV) + '\n' : '')
-            + (parentsH.length ? 'Padres horizontales: ' + JSON.stringify(parentsH) + '\n' : '')
-            + 'Sección activa: "' + ((estado.secciones || []).find(function(s) { return s.seccion_id === estado.seccion_activa_id; })?.nombre || '') + '" (id: ' + (estado.seccion_activa_id || '-') + ')\n'
-            + 'chartData = ' + chartDataStr;
-    }
-
-    function renderCategoryPanel() {
-        var container = document.getElementById('panel-items');
-        if (!container) return;
-        var html = '';
-
-        function buildAxisTree(leaves, layers, axis) {
-            // leaves = estado.verticales[] or horizontales[] (with padre_id from DB)
-            // layers = estado.labels[] or headers[] (with parent names)
-            var visMap = axis === 'vertical' ? visibleV : visibleH;
-            // Collect parent IDs from leaves
-            var parentIds = {}, parentToChildren = {};
-            (leaves || []).forEach(function(l) {
-                if (l.padre_id) {
-                    parentIds[l.padre_id] = true;
-                    if (!parentToChildren[l.padre_id]) parentToChildren[l.padre_id] = [];
-                    parentToChildren[l.padre_id].push(l);
-                }
-            });
-            // Find parent names from layers
-            var parentNames = {};
-            (layers || []).forEach(function(row) {
-                (row || []).forEach(function(cell) {
-                    if (cell.tipo === 'parent' && parentIds[cell.categoria_id])
-                        parentNames[cell.categoria_id] = cell.nombre;
-                });
-            });
-            // Render parents with children
-            Object.keys(parentToChildren).forEach(function(pid) {
-                pid = parseInt(pid);
-                var pName = parentNames[pid] || ('ID ' + pid);
-                var children = parentToChildren[pid] || [];
-                if (visMap[pid] === undefined) {
-                    visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
-                }
-                var isChecked = visMap[pid] !== false;
-                var checked = isChecked ? 'checked' : '';
-                html += '<div class="panel-parent">';
-                html += '<label style="cursor:pointer;font-weight:600">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + '>';
-                html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
-                html += '</label></div>';
-                children.forEach(function(ch) {
-                    var childChecked = visMap[ch.categoria_id] !== false;
-                    var chk = childChecked ? 'checked' : '';
-                    html += '<div class="panel-child" style="padding-left:1.5rem">';
-                    html += '<label style="cursor:pointer">';
-                    html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
-                    html += esc(ch.nombre);
-                    html += '</label></div>';
-                });
-            });
-            // Render flat leaves (no padre_id)
-            var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
-            flatLeaves.forEach(function(l) {
-                var isChecked = visMap[l.categoria_id] !== false;
-                var checked = isChecked ? 'checked' : '';
-                html += '<div class="panel-child" style="padding-left:0.3rem">';
-                html += '<label style="cursor:pointer">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
-                html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
-                html += '</label></div>';
-            });
-            if (!Object.keys(parentToChildren).length && !flatLeaves.length)
-                html += '<small class="text-muted">(sin categorías)</small>';
-        }
-
-        html += '<div class="mb-1 mt-1"><strong class="small">Verticales</strong></div>';
-        buildAxisTree(estado.verticales, estado.labels, 'vertical');
-        html += '<hr class="my-1"><div class="mb-1 mt-1"><strong class="small">Horizontales</strong></div>';
-        buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
-        container.innerHTML = html;
-
-        // Attach change handlers
-        container.querySelectorAll('.cat-check').forEach(function(cb) {
-            cb.addEventListener('change', function() {
-                var axis = this.dataset.axis;
-                var id = parseInt(this.dataset.id);
-                var parent = this.dataset.parent ? parseInt(this.dataset.parent) : null;
-                var visMap = axis === 'vertical' ? visibleV : visibleH;
-                visMap[id] = this.checked;
-
-                if (parent) {
-                    updateParentCheckState(axis, parent);
-                } else {
-                    container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + id + '"]').forEach(function(ch) {
-                        ch.checked = this.checked;
-                        visMap[parseInt(ch.dataset.id)] = this.checked;
-                    }, this);
-                }
-                renderChart(document.getElementById('select-tipo-grafica').value);
-                updateChartDebug();
-            });
-        });
-    }
-
-    function updateParentCheckState(axis, parentId) {
-        var container = document.getElementById('panel-items');
-        if (!container) return;
-        var children = container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + parentId + '"]');
-        var allChecked = true, anyChecked = false;
-        children.forEach(function(ch) {
-            if (ch.checked) anyChecked = true;
-            else allChecked = false;
-        });
-        var parentCb = container.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + parentId + '"]');
-        if (parentCb) {
-            // Don't auto-check parent if not all checked, but do auto-uncheck if none checked
-            if (!anyChecked) {
-                parentCb.checked = false;
-                var visMap = axis === 'vertical' ? visibleV : visibleH;
-                visMap[parentId] = false;
-            } else if (allChecked) {
-                parentCb.checked = true;
-                var visMap2 = axis === 'vertical' ? visibleV : visibleH;
-                visMap2[parentId] = true;
-            }
-        }
-    }
-
-    function initVisibleState() {
-        visibleV = {};
-        visibleH = {};
-        (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = true; });
-        (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = true; });
-    }
-
-    function populateTipoSelect() {
-        var select = document.getElementById('select-tipo-grafica');
-        if (!select) return;
-        var allTypes = [
-            { value: 'bar', text: 'Barras' },
-            { value: 'line', text: 'Líneas' },
-            { value: 'pie', text: 'Circular' },
-            { value: 'doughnut', text: 'Dona' },
-            { value: 'radar', text: 'Radar' },
-            { value: 'polarArea', text: 'Polar' },
-        ];
-        tiposPermitidos = (estado.tipos_grafica_permitida) || [];
-        if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
-        select.innerHTML = '';
-        var available = allTypes.filter(function(t) { return tiposPermitidos.indexOf(t.value) >= 0; });
-        if (!available.length) available = allTypes.slice(0, 3);
-        available.forEach(function(t) {
-            var opt = document.createElement('option');
-            opt.value = t.value;
-            opt.textContent = t.text;
-            select.appendChild(opt);
-        });
-        // Set first as selected
-        if (select.options.length) select.selectedIndex = 0;
-        updateTipoButtons();
-    }
-
-    function updateTipoButtons() {
-        var tipo = document.getElementById('select-tipo-grafica').value;
-        var btnAgregar = document.getElementById('btn-asignar-tipo');
-        var btnEliminar = document.getElementById('btn-eliminar-tipo');
-        if (!tipo) return;
-        var isAssigned = tiposPermitidos.indexOf(tipo) >= 0;
-        btnAgregar.classList.toggle('d-none', isAssigned);
-        btnEliminar.classList.toggle('d-none', !isAssigned);
-    }
-
-        function initGraficaMode() {
-        initVisibleState();
-        populateTipoSelect();
-        var selectEje = document.getElementById('select-eje');
-        var selectGroup = document.getElementById('select-agrupar');
-        var selectSeccion = document.getElementById('select-seccion');
-        chartAxis = selectEje.value;
-        chartGroup = selectGroup.value;
-        selectSeccion.innerHTML = '';
-        (estado.secciones || []).forEach(function(s) {
-            var opt = document.createElement('option');
-            opt.value = s.seccion_id;
-            opt.textContent = s.nombre;
-            if (s.seccion_id === estado.seccion_activa_id) opt.selected = true;
-            selectSeccion.appendChild(opt);
-        });
-        renderCategoryPanel();
-        renderChart(selectTipoGrafica.value);
-        updateChartDebug();
-        // Show panel by default
-        document.getElementById('chart-panel').style.display = 'block';
-    }
-
-    // ============ CHART EVENT LISTENERS ============
-    var selectTipoGrafica = document.getElementById('select-tipo-grafica');
-    if (selectTipoGrafica) {
-        selectTipoGrafica.addEventListener('change', function() {
-            updateTipoButtons();
-            if (currentMode === 'grafica') {
-                renderChart(this.value);
-                updateChartDebug();
-            }
-        });
-    }
-
-    document.getElementById('btn-asignar-tipo')?.addEventListener('click', function() {
-        var tipo = selectTipoGrafica.value;
-        if (!tipo || tiposPermitidos.indexOf(tipo) >= 0) return;
-        tiposPermitidos.push(tipo);
-        saveTiposPermitidos();
-        updateTipoButtons();
-        status('Tipo "' + tipo + '" asignado');
-    });
-
-    document.getElementById('btn-eliminar-tipo')?.addEventListener('click', function() {
-        var tipo = selectTipoGrafica.value;
-        var idx = tiposPermitidos.indexOf(tipo);
-        if (idx < 0) return;
-        tiposPermitidos.splice(idx, 1);
-        saveTiposPermitidos();
-        // If no types left, add default
-        if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
-        populateTipoSelect();
-        if (currentMode === 'grafica') {
-            renderChart(selectTipoGrafica.value);
-            updateChartDebug();
-        }
-        status('Tipo "' + tipo + '" eliminado');
-    });
-
-    function saveTiposPermitidos() {
-        api('/tipos-grafica', { method: 'PUT', body: { tipos: tiposPermitidos } });
-    }
-
-    document.getElementById('btn-config-grafica')?.addEventListener('click', function() {
-        var msg = 'Tipos asignados: ' + (tiposPermitidos.length ? tiposPermitidos.join(', ') : '(ninguno)');
-        status(msg);
-    });
-
-    document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
-        var panel = document.getElementById('chart-panel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
-        document.getElementById('chart-panel').style.display = 'none';
-    });
-
-    document.getElementById('select-eje')?.addEventListener('change', function() {
-        chartAxis = this.value;
-        if (currentMode === 'grafica') {
-            renderChart(selectTipoGrafica.value);
-            updateChartDebug();
-        }
-    });
-
-    document.getElementById('select-agrupar')?.addEventListener('change', function() {
-        chartGroup = this.value;
-        if (currentMode === 'grafica') {
-            renderChart(selectTipoGrafica.value);
-            updateChartDebug();
-        }
-    });
-
-    document.getElementById('select-seccion')?.addEventListener('change', function() {
-        var sid = parseInt(this.value);
-        if (!sid || sid === estado.seccion_activa_id) return;
-        status('Cambiando sección...');
-        api('/seccion/' + sid + '/data', { method: 'GET' })
-            .then(function(j) {
-                if (j.data) {
-                    initVisibleState();
-                    renderCategoryPanel();
-                    renderChart(selectTipoGrafica.value);
-                    updateChartDebug();
-                    status('Sección: ' + ((estado.secciones || []).find(function(s) { return s.seccion_id === estado.seccion_activa_id; })?.nombre || ''));
-                } else {
-                    alerta(j.message || 'Error al cambiar sección');
-                }
-            })
-            .catch(function() { alerta('Error de red [' + ERR.SECCION + ']'); });
-    });
 
     // ============ INIT ============
     if (estado.tiene_dataset) {
@@ -1691,4 +1145,4 @@
     }
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
