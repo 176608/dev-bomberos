@@ -638,7 +638,7 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
 
     if (cb.checked && !sectionsCache[sid]) {
         cb.disabled = true;
-        cb.parentNode.innerHTML += ' <span class="spinner-border spinner-border-sm" role="status"></span>';
+        cb.insertAdjacentHTML('afterend', ' <span class="spinner-border spinner-border-sm" role="status"></span>');
         status('Cargando sección...');
         api('/seccion/' + sid + '/data', { method: 'GET' })
             .then(function(j) {
@@ -661,7 +661,7 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
             })
             .finally(function() {
                 cb.disabled = false;
-                var spinners = cb.parentNode.querySelectorAll('.spinner-border');
+                var spinners = cb.parentNode ? cb.parentNode.querySelectorAll('.spinner-border') : [];
                 spinners.forEach(function(sp) { sp.remove(); });
             });
     } else {
