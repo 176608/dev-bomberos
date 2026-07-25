@@ -56,10 +56,6 @@
                     <option value="parent_vertical">Padre vertical</option>
                 </select>
             </div>
-            <div class="mb-2">
-                <label class="small text-muted mb-1">Sección</label>
-                <select id="select-seccion" class="form-select form-select-sm"></select>
-            </div>
             <hr class="my-1">
             <div id="panel-items" class="small"></div>
         </div>
@@ -136,6 +132,9 @@ var chartGroup = 'none';
 var visibleV = {};
 var visibleH = {};
 var tiposPermitidos = [];
+var sectionsCache = {};
+var selectedSections = {};
+var multiSectionUnsupported = ['pie', 'doughnut'];
 
 // ============ CHART.JS HELPERS ============
 function generarColor(index, total) {
@@ -175,16 +174,15 @@ function buildChartData(estado, tipo, opts) {
     var groupBy = opts.groupBy || 'none';
     var visibleVIds = opts.visibleV || null;
     var visibleHIds = opts.visibleH || null;
+    var sectionDataGrids = opts.sectionDataGrids || null;
 
-    var labelsArr, seriesArr, dataGrid;
+    var labelsArr, seriesArr;
     if (axis === 'vertical') {
         labelsArr = estado.verticales || [];
         seriesArr = estado.horizontales || [];
-        dataGrid = estado.data || [];
     } else {
         labelsArr = estado.horizontales || [];
         seriesArr = estado.verticales || [];
-        dataGrid = estado.data || [];
     }
 
     var labelFilter, seriesFilter;
@@ -199,7 +197,7 @@ function buildChartData(estado, tipo, opts) {
     if (seriesFilter) seriesArr = seriesArr.filter(seriesFilter);
 
     var labels = labelsArr.map(function(v) { return v.nombre; });
-    var totalSeries = seriesArr.length;
+    var seriesLen = seriesArr.length;
 
     var parentMap;
     if (groupBy === 'parent_horizontal') {
@@ -215,61 +213,78 @@ function buildChartData(estado, tipo, opts) {
         });
     }
 
-    var datasets = seriesArr.map(function(s, si) {
-        var vals;
-        if (axis === 'vertical') {
-            vals = labelsArr.map(function(l) {
-                var rowIndex = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === l.categoria_id; });
-                var colIndex = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === s.categoria_id; });
-                if (rowIndex < 0 || colIndex < 0) return 0;
-                var cel = dataGrid[rowIndex] ? dataGrid[rowIndex][colIndex] : null;
-                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
-            });
-        } else {
-            var serieVertIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === s.categoria_id; });
-            vals = labelsArr.map(function(l) {
-                var horizIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === l.categoria_id; });
-                if (serieVertIdx < 0 || horizIdx < 0) return 0;
-                var cel = dataGrid[serieVertIdx] ? dataGrid[serieVertIdx][horizIdx] : null;
-                return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
-            });
-        }
+    var dataSources = [];
+    if (sectionDataGrids && sectionDataGrids.length) {
+        dataSources = sectionDataGrids;
+    } else {
+        dataSources = [{ nombre: '', data: estado.data || [] }];
+    }
 
-        var colorIdx = si;
-        var parentId = leafToParent[s.categoria_id];
-        if (groupBy !== 'none' && parentId && parentMap && parentMap[parentId]) {
-            var siblings = parentMap[parentId] || [];
-            var siblingIndex = siblings.findIndex(function(ch) { return ch.categoria_id === s.categoria_id; });
-            if (siblingIndex >= 0) {
-                var colorBase = Object.keys(leafToParent).indexOf(String(parentId));
-                if (colorBase < 0) colorBase = 0;
-                colorIdx = colorBase + siblingIndex * 7;
-            }
-        }
+    var totalGlobal = dataSources.length * seriesLen;
+    var globalIdx = 0;
+    var datasets = [];
 
-        var color = generarColor(colorIdx, Math.max(totalSeries, 1));
-        var bgColor = tipo === 'pie' || tipo === 'doughnut' || tipo === 'polarArea' || tipo === 'radar'
-            ? labels.map(function(_, li) { return generarColor(li, Math.max(labels.length, 1)); })
-            : generarColorRGBA(colorIdx, Math.max(totalSeries, 1));
+    dataSources.forEach(function(ds) {
+        var dataGrid = ds.data;
+        var prefix = ds.nombre ? ds.nombre + ' - ' : '';
 
-        var label = s.nombre;
-        if (groupBy !== 'none' && parentId) {
-            var parentName = '';
-            (estado.headers || []).concat(estado.labels || []).forEach(function(row) {
-                (row || []).forEach(function(cell) {
-                    if (cell.tipo === 'parent' && cell.categoria_id === parentId) parentName = cell.nombre;
+        seriesArr.forEach(function(s, si) {
+            var vals;
+            if (axis === 'vertical') {
+                vals = labelsArr.map(function(l) {
+                    var rowIndex = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === l.categoria_id; });
+                    var colIndex = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === s.categoria_id; });
+                    if (rowIndex < 0 || colIndex < 0) return 0;
+                    var cel = dataGrid[rowIndex] ? dataGrid[rowIndex][colIndex] : null;
+                    return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
                 });
-            });
-            if (parentName) label = parentName + ' - ' + label;
-        }
+            } else {
+                var serieVertIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === s.categoria_id; });
+                vals = labelsArr.map(function(l) {
+                    var horizIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === l.categoria_id; });
+                    if (serieVertIdx < 0 || horizIdx < 0) return 0;
+                    var cel = dataGrid[serieVertIdx] ? dataGrid[serieVertIdx][horizIdx] : null;
+                    return (cel && cel.valor !== undefined && cel.valor !== '') ? (parseCellValue(cel.valor) || 0) : 0;
+                });
+            }
 
-        return {
-            label: label,
-            data: vals,
-            backgroundColor: bgColor,
-            borderColor: color,
-            borderWidth: 1,
-        };
+            var colorIdx = globalIdx;
+            var parentId = leafToParent[s.categoria_id];
+            if (groupBy !== 'none' && parentId && parentMap && parentMap[parentId]) {
+                var siblings = parentMap[parentId] || [];
+                var siblingIndex = siblings.findIndex(function(ch) { return ch.categoria_id === s.categoria_id; });
+                if (siblingIndex >= 0) {
+                    var colorBase = Object.keys(leafToParent).indexOf(String(parentId));
+                    if (colorBase < 0) colorBase = 0;
+                    colorIdx = colorBase + globalIdx;
+                }
+            }
+
+            var color = generarColor(colorIdx, Math.max(totalGlobal, 1));
+            var bgColor = tipo === 'pie' || tipo === 'doughnut' || tipo === 'polarArea' || tipo === 'radar'
+                ? labels.map(function(_, li) { return generarColor(li, Math.max(labels.length, 1)); })
+                : generarColorRGBA(colorIdx, Math.max(totalGlobal, 1));
+
+            var label = prefix + s.nombre;
+            if (groupBy !== 'none' && parentId) {
+                var parentName = '';
+                (estado.headers || []).concat(estado.labels || []).forEach(function(row) {
+                    (row || []).forEach(function(cell) {
+                        if (cell.tipo === 'parent' && cell.categoria_id === parentId) parentName = cell.nombre;
+                    });
+                });
+                if (parentName) label = parentName + ' - ' + label;
+            }
+
+            datasets.push({
+                label: label,
+                data: vals,
+                backgroundColor: bgColor,
+                borderColor: color,
+                borderWidth: 1,
+            });
+            globalIdx++;
+        });
     });
 
     return { labels: labels, datasets: datasets };
@@ -282,7 +297,27 @@ function renderChart(tipo) {
         if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
         return;
     }
+
     var opts = { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH };
+
+    var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    var isMultiUnsupported = multiSectionUnsupported.indexOf(tipo) >= 0;
+    var useMulti = activeSids.length > 0 && !isMultiUnsupported;
+
+    if (activeSids.length > 1 && isMultiUnsupported) {
+        status('El tipo ' + tipo + ' no soporta múltiples secciones — mostrando solo sección activa');
+        useMulti = false;
+    }
+
+    if (useMulti) {
+        var grids = [];
+        activeSids.forEach(function(sid) {
+            if (sectionsCache[sid]) grids.push(sectionsCache[sid]);
+        });
+        // Only use sectionDataGrids if at least one cached & matches active count
+        if (grids.length > 0) opts.sectionDataGrids = grids;
+    }
+
     var chartData = buildChartData(estado, tipo, opts);
     var ctx = document.getElementById('chart-canvas').getContext('2d');
     window.chartInstance = new Chart(ctx, {
@@ -321,6 +356,9 @@ function updateChartDebug() {
         var cd = buildChartData(estado, document.getElementById('select-tipo-grafica').value, { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH });
         chartDataStr = JSON.stringify(cd, null, 2);
     } catch(e) { chartDataStr = 'Error: ' + e.message; }
+    var selectedNames = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
+        return ((estado.secciones || []).find(function(s) { return s.seccion_id == sid; }) || {}).nombre || sid;
+    });
     el.textContent = '── Debug Chart Data ──\n'
         + 'Eje X: ' + chartAxis + '\n'
         + 'Agrupar por: ' + chartGroup + '\n'
@@ -330,7 +368,8 @@ function updateChartDebug() {
         + 'Cantidad series: ' + series.length + '\n'
         + (parentsV.length ? 'Padres verticales: ' + JSON.stringify(parentsV) + '\n' : '')
         + (parentsH.length ? 'Padres horizontales: ' + JSON.stringify(parentsH) + '\n' : '')
-        + 'Sección activa: "' + ((estado.secciones || []).find(function(s) { return s.seccion_id === estado.seccion_activa_id; })?.nombre || '') + '" (id: ' + (estado.seccion_activa_id || '-') + ')\n'
+        + 'Secciones seleccionadas: ' + (selectedNames.length ? selectedNames.join(', ') : '(ninguna)') + '\n'
+        + 'Secciones cacheadas: ' + Object.keys(sectionsCache).join(', ') + '\n'
         + 'chartData = ' + chartDataStr;
 }
 
@@ -338,6 +377,21 @@ function renderCategoryPanel() {
     var container = document.getElementById('panel-items');
     if (!container) return;
     var html = '';
+
+    // Section checkboxes
+    html += '<div class="mb-2"><label class="small text-muted fw-semibold">Secciones</label></div>';
+    (estado.secciones || []).forEach(function(s) {
+        var isChecked = selectedSections[s.seccion_id] !== false;
+        var loading = !sectionsCache[s.seccion_id] && isChecked;
+        var checked = isChecked ? 'checked' : '';
+        html += '<div class="panel-child mb-1">';
+        html += '<label style="cursor:pointer">';
+        html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + checked + '>';
+        if (loading) html += '<span class="spinner-border spinner-border-sm me-1" role="status"></span>';
+        html += esc(s.nombre);
+        html += '</label></div>';
+    });
+    html += '<hr class="my-1">';
 
     function buildAxisTree(leaves, layers, axis) {
         var visMap = axis === 'vertical' ? visibleV : visibleH;
@@ -497,17 +551,20 @@ function initGraficaPage() {
     populateTipoSelect();
     var selectEje = document.getElementById('select-eje');
     var selectGroup = document.getElementById('select-agrupar');
-    var selectSeccion = document.getElementById('select-seccion');
     chartAxis = selectEje.value;
     chartGroup = selectGroup.value;
-    selectSeccion.innerHTML = '';
+
+    // Init multi-section state: cache current section's data grid
+    var activeId = estado.seccion_activa_id;
     (estado.secciones || []).forEach(function(s) {
-        var opt = document.createElement('option');
-        opt.value = s.seccion_id;
-        opt.textContent = s.nombre;
-        if (s.seccion_id === estado.seccion_activa_id) opt.selected = true;
-        selectSeccion.appendChild(opt);
+        if (s.seccion_id === activeId) {
+            sectionsCache[s.seccion_id] = { nombre: s.nombre, data: estado.data || [] };
+            selectedSections[s.seccion_id] = true;
+        } else {
+            selectedSections[s.seccion_id] = false;
+        }
     });
+
     renderCategoryPanel();
     renderChart(document.getElementById('select-tipo-grafica').value);
     updateChartDebug();
@@ -572,23 +629,45 @@ document.getElementById('select-agrupar')?.addEventListener('change', function()
     updateChartDebug();
 });
 
-document.getElementById('select-seccion')?.addEventListener('change', function() {
-    var sid = parseInt(this.value);
-    if (!sid || sid === estado.seccion_activa_id) return;
-    status('Cambiando sección...');
-    api('/seccion/' + sid + '/data', { method: 'GET' })
-        .then(function(j) {
-            if (j.data) {
-                initVisibleState();
-                renderCategoryPanel();
-                renderChart(selectTipoGrafica.value);
-                updateChartDebug();
-                status('Sección: ' + ((estado.secciones || []).find(function(s) { return s.seccion_id === estado.seccion_activa_id; })?.nombre || ''));
-            } else {
-                alerta(j.message || 'Error al cambiar sección');
-            }
-        })
-        .catch(function() { alerta('Error de red al cambiar sección'); });
+document.getElementById('panel-items')?.addEventListener('change', function(e) {
+    var cb = e.target;
+    if (!cb.classList.contains('sec-check')) return;
+    var sid = parseInt(cb.dataset.seccionId);
+    if (isNaN(sid)) return;
+    selectedSections[sid] = cb.checked;
+
+    if (cb.checked && !sectionsCache[sid]) {
+        cb.disabled = true;
+        cb.parentNode.innerHTML += ' <span class="spinner-border spinner-border-sm" role="status"></span>';
+        status('Cargando sección...');
+        api('/seccion/' + sid + '/data', { method: 'GET' })
+            .then(function(j) {
+                if (j.data) {
+                    var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
+                    sectionsCache[sid] = { nombre: sName, data: j.data.data || [] };
+                    renderChart(selectTipoGrafica.value);
+                    updateChartDebug();
+                    status('Sección: ' + (sName || sid) + ' cargada');
+                } else {
+                    selectedSections[sid] = false;
+                    cb.checked = false;
+                    alerta(j.message || 'Error al cargar sección');
+                }
+            })
+            .catch(function() {
+                selectedSections[sid] = false;
+                cb.checked = false;
+                alerta('Error de red al cargar sección');
+            })
+            .finally(function() {
+                cb.disabled = false;
+                var spinners = cb.parentNode.querySelectorAll('.spinner-border');
+                spinners.forEach(function(sp) { sp.remove(); });
+            });
+    } else {
+        renderChart(selectTipoGrafica.value);
+        updateChartDebug();
+    }
 });
 
 // ============ INIT ============
