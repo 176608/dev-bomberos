@@ -1281,15 +1281,8 @@
         // Map leaf → parent_id for header label
         var leafToParent = {};
         if (groupBy !== 'none') {
-            (estado.headers || []).forEach(function(row) {
-                (row || []).forEach(function(cell) {
-                    if (cell.tipo === 'leaf' && cell.padre_id) leafToParent[cell.categoria_id] = cell.padre_id;
-                });
-            });
-            (estado.labels || []).forEach(function(row) {
-                (row || []).forEach(function(cell) {
-                    if (cell.tipo === 'leaf' && cell.padre_id) leafToParent[cell.categoria_id] = cell.padre_id;
-                });
+            (estado.verticales || []).concat(estado.horizontales || []).forEach(function(item) {
+                if (item.padre_id) leafToParent[item.categoria_id] = item.padre_id;
             });
         }
 
@@ -1419,87 +1412,71 @@
         if (!container) return;
         var html = '';
 
-        function extractHierarchy(layers) {
-            // layers = headers (horizontal) or labels (vertical)
-            // Returns { parents: [{categoria_id, nombre}], childrenMap: { padre_id: [{categoria_id, nombre, padre_id}] } }
-            var parents = [], childrenMap = {};
-            if (!layers || !layers.length) return { parents: [], childrenMap: childrenMap };
-            // First row(s) have parents, subsequent rows have children
-            for (var ri = 0; ri < layers.length; ri++) {
-                var row = layers[ri] || [];
-                for (var ci = 0; ci < row.length; ci++) {
-                    var cell = row[ci];
-                    if (cell.tipo === 'parent') {
-                        if (!parents.find(function(p) { return p.categoria_id === cell.categoria_id; }))
-                            parents.push({ categoria_id: cell.categoria_id, nombre: cell.nombre });
-                    } else if (cell.tipo === 'leaf' && cell.padre_id) {
-                        if (!childrenMap[cell.padre_id]) childrenMap[cell.padre_id] = [];
-                        if (!childrenMap[cell.padre_id].find(function(c) { return c.categoria_id === cell.categoria_id; }))
-                            childrenMap[cell.padre_id].push({ categoria_id: cell.categoria_id, nombre: cell.nombre, padre_id: cell.padre_id });
-                    }
-                }
-            }
-            return { parents: parents, childrenMap: childrenMap };
-        }
-
-        function renderTree(axis, title) {
-            var layers = axis === 'vertical' ? (estado.labels || []) : (estado.headers || []);
-            var leaves = axis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || []);
+        function buildAxisTree(leaves, layers, axis) {
+            // leaves = estado.verticales[] or horizontales[] (with padre_id from DB)
+            // layers = estado.labels[] or headers[] (with parent names)
             var visMap = axis === 'vertical' ? visibleV : visibleH;
-            var hier = extractHierarchy(layers);
-
-            html += '<div class="mb-1 mt-1"><strong class="small">' + title + '</strong></div>';
-
-            // Render parents with their children
-            hier.parents.forEach(function(p) {
-                var children = hier.childrenMap[p.categoria_id] || [];
-                var isChecked = visMap[p.categoria_id] !== false;
-                var allChildrenVisible = children.length > 0 && children.every(function(ch) { return visMap[ch.categoria_id] !== false; });
-                // If parent wasn't explicitly set, derive from children
-                if (children.length && visMap[p.categoria_id] === undefined) {
-                    visMap[p.categoria_id] = allChildrenVisible;
-                    isChecked = allChildrenVisible;
+            // Collect parent IDs from leaves
+            var parentIds = {}, parentToChildren = {};
+            (leaves || []).forEach(function(l) {
+                if (l.padre_id) {
+                    parentIds[l.padre_id] = true;
+                    if (!parentToChildren[l.padre_id]) parentToChildren[l.padre_id] = [];
+                    parentToChildren[l.padre_id].push(l);
                 }
+            });
+            // Find parent names from layers
+            var parentNames = {};
+            (layers || []).forEach(function(row) {
+                (row || []).forEach(function(cell) {
+                    if (cell.tipo === 'parent' && parentIds[cell.categoria_id])
+                        parentNames[cell.categoria_id] = cell.nombre;
+                });
+            });
+            // Render parents with children
+            Object.keys(parentToChildren).forEach(function(pid) {
+                pid = parseInt(pid);
+                var pName = parentNames[pid] || ('ID ' + pid);
+                var children = parentToChildren[pid] || [];
+                if (visMap[pid] === undefined) {
+                    visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
+                }
+                var isChecked = visMap[pid] !== false;
                 var checked = isChecked ? 'checked' : '';
                 html += '<div class="panel-parent">';
                 html += '<label style="cursor:pointer;font-weight:600">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + p.categoria_id + '" data-parent="" ' + checked + '>';
-                html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + p.nombre;
+                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + '>';
+                html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
                 html += '</label></div>';
                 children.forEach(function(ch) {
                     var childChecked = visMap[ch.categoria_id] !== false;
                     var chk = childChecked ? 'checked' : '';
                     html += '<div class="panel-child" style="padding-left:1.5rem">';
                     html += '<label style="cursor:pointer">';
-                    html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + p.categoria_id + '" ' + chk + '>';
-                    html += ch.nombre;
+                    html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
+                    html += esc(ch.nombre);
                     html += '</label></div>';
                 });
             });
-
-            // Render flat leaves (those without hierarchy)
-            var flatLeaves = leaves.filter(function(l) {
-                return !hier.parents.find(function(p) { return p.categoria_id === l.categoria_id; })
-                    && !Object.values(hier.childrenMap).some(function(arr) { return arr.find(function(c) { return c.categoria_id === l.categoria_id; }); });
-            });
+            // Render flat leaves (no padre_id)
+            var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
             flatLeaves.forEach(function(l) {
                 var isChecked = visMap[l.categoria_id] !== false;
                 var checked = isChecked ? 'checked' : '';
                 html += '<div class="panel-child" style="padding-left:0.3rem">';
                 html += '<label style="cursor:pointer">';
                 html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
-                html += '<i class="bi bi-file-earmark me-1"></i>' + l.nombre;
+                html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
                 html += '</label></div>';
             });
-
-            if (!hier.parents.length && !flatLeaves.length) {
+            if (!Object.keys(parentToChildren).length && !flatLeaves.length)
                 html += '<small class="text-muted">(sin categorías)</small>';
-            }
         }
 
-        renderTree('vertical', 'Verticales');
-        html += '<hr class="my-1">';
-        renderTree('horizontal', 'Horizontales');
+        html += '<div class="mb-1 mt-1"><strong class="small">Verticales</strong></div>';
+        buildAxisTree(estado.verticales, estado.labels, 'vertical');
+        html += '<hr class="my-1"><div class="mb-1 mt-1"><strong class="small">Horizontales</strong></div>';
+        buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
         container.innerHTML = html;
 
         // Attach change handlers
@@ -1512,10 +1489,8 @@
                 visMap[id] = this.checked;
 
                 if (parent) {
-                    // Child toggled → update parent check state
                     updateParentCheckState(axis, parent);
                 } else {
-                    // Parent toggled → toggle all children
                     container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + id + '"]').forEach(function(ch) {
                         ch.checked = this.checked;
                         visMap[parseInt(ch.dataset.id)] = this.checked;
