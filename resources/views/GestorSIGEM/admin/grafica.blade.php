@@ -87,6 +87,7 @@
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const CSRF = '{{ csrf_token() }}';
@@ -586,4 +587,3 @@ document.getElementById('select-seccion')?.addEventListener('change', function()
 // ============ INIT ============
 initGraficaPage();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
