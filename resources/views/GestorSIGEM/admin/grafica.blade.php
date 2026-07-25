@@ -634,12 +634,45 @@ function initGraficaPage() {
     });
 
     loadStateFromURL();
-    renderCategoryPanel();
-    renderChart(document.getElementById('select-tipo-grafica').value);
-    updateEjeHelper();
-    updateChartDebug();
-    saveStateToURL();
-    document.getElementById('chart-panel').style.display = 'block';
+
+    // Pre-load uncached selected sections from URL params
+    var pendingLoads = [];
+    Object.keys(selectedSections).forEach(function(sid) {
+        if (selectedSections[sid] && !sectionsCache[sid]) {
+            (function(sidNum) {
+                status('Cargando sección ' + sidNum + '...');
+                pendingLoads.push(
+                    api('/seccion/' + sidNum + '/data', { method: 'GET' })
+                        .then(function(j) {
+                            if (j.data) {
+                                var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sidNum; }) || {}).nombre || '';
+                                sectionsCache[sidNum] = { nombre: sName, data: j.data.data || [] };
+                            } else {
+                                selectedSections[sidNum] = false;
+                            }
+                        })
+                        .catch(function() {
+                            selectedSections[sidNum] = false;
+                        })
+                );
+            })(parseInt(sid));
+        }
+    });
+
+    function finishGraficaInit() {
+        renderCategoryPanel();
+        renderChart(document.getElementById('select-tipo-grafica').value);
+        updateEjeHelper();
+        updateChartDebug();
+        saveStateToURL();
+        document.getElementById('chart-panel').style.display = 'block';
+    }
+
+    if (pendingLoads.length) {
+        Promise.all(pendingLoads).then(finishGraficaInit);
+    } else {
+        finishGraficaInit();
+    }
 }
 
 // ============ EVENT LISTENERS ============
