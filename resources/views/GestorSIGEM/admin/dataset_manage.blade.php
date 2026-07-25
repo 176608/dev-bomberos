@@ -1419,58 +1419,87 @@
         if (!container) return;
         var html = '';
 
-        function buildTree(items, parentMap, axis, prefix) {
-            var roots = (items || []).filter(function(i) { return !i.padre_id; });
-            var childrenMap = {};
-            (items || []).forEach(function(i) {
-                if (i.padre_id) {
-                    if (!childrenMap[i.padre_id]) childrenMap[i.padre_id] = [];
-                    childrenMap[i.padre_id].push(i);
+        function extractHierarchy(layers) {
+            // layers = headers (horizontal) or labels (vertical)
+            // Returns { parents: [{categoria_id, nombre}], childrenMap: { padre_id: [{categoria_id, nombre, padre_id}] } }
+            var parents = [], childrenMap = {};
+            if (!layers || !layers.length) return { parents: [], childrenMap: childrenMap };
+            // First row(s) have parents, subsequent rows have children
+            for (var ri = 0; ri < layers.length; ri++) {
+                var row = layers[ri] || [];
+                for (var ci = 0; ci < row.length; ci++) {
+                    var cell = row[ci];
+                    if (cell.tipo === 'parent') {
+                        if (!parents.find(function(p) { return p.categoria_id === cell.categoria_id; }))
+                            parents.push({ categoria_id: cell.categoria_id, nombre: cell.nombre });
+                    } else if (cell.tipo === 'leaf' && cell.padre_id) {
+                        if (!childrenMap[cell.padre_id]) childrenMap[cell.padre_id] = [];
+                        if (!childrenMap[cell.padre_id].find(function(c) { return c.categoria_id === cell.categoria_id; }))
+                            childrenMap[cell.padre_id].push({ categoria_id: cell.categoria_id, nombre: cell.nombre, padre_id: cell.padre_id });
+                    }
                 }
-            });
-            var allIds = (items || []).map(function(i) { return i.categoria_id; });
-            var visMap = axis === 'vertical' ? visibleV : visibleH;
+            }
+            return { parents: parents, childrenMap: childrenMap };
+        }
 
-            function renderItem(item) {
-                var children = childrenMap[item.categoria_id] || [];
-                var isChecked = visMap[item.categoria_id] !== false;
+        function renderTree(axis, title) {
+            var layers = axis === 'vertical' ? (estado.labels || []) : (estado.headers || []);
+            var leaves = axis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || []);
+            var visMap = axis === 'vertical' ? visibleV : visibleH;
+            var hier = extractHierarchy(layers);
+
+            html += '<div class="mb-1 mt-1"><strong class="small">' + title + '</strong></div>';
+
+            // Render parents with their children
+            hier.parents.forEach(function(p) {
+                var children = hier.childrenMap[p.categoria_id] || [];
+                var isChecked = visMap[p.categoria_id] !== false;
+                var allChildrenVisible = children.length > 0 && children.every(function(ch) { return visMap[ch.categoria_id] !== false; });
+                // If parent wasn't explicitly set, derive from children
+                if (children.length && visMap[p.categoria_id] === undefined) {
+                    visMap[p.categoria_id] = allChildrenVisible;
+                    isChecked = allChildrenVisible;
+                }
                 var checked = isChecked ? 'checked' : '';
-                var icon = children.length ? (isChecked ? 'bi-folder2-open' : 'bi-folder2') : 'bi-file-earmark';
-                var indent = prefix ? 'padding-left:1.2rem' : '';
-                html += '<div class="' + (children.length ? 'panel-parent' : 'panel-child') + '" style="' + indent + '">';
-                html += '<label style="cursor:pointer;font-weight:' + (children.length ? '600' : '400') + '">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + item.categoria_id + '" data-parent="' + (item.padre_id || '') + '" ' + checked + '>';
-                html += '<i class="bi ' + icon + ' me-1"></i>' + item.nombre;
+                html += '<div class="panel-parent">';
+                html += '<label style="cursor:pointer;font-weight:600">';
+                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + p.categoria_id + '" data-parent="" ' + checked + '>';
+                html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + p.nombre;
                 html += '</label></div>';
                 children.forEach(function(ch) {
                     var childChecked = visMap[ch.categoria_id] !== false;
                     var chk = childChecked ? 'checked' : '';
-                    html += '<div class="panel-child" style="padding-left:2.2rem">';
+                    html += '<div class="panel-child" style="padding-left:1.5rem">';
                     html += '<label style="cursor:pointer">';
-                    html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + item.categoria_id + '" ' + chk + '>';
+                    html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + p.categoria_id + '" ' + chk + '>';
                     html += ch.nombre;
                     html += '</label></div>';
                 });
-            }
+            });
 
-            if (items.length > 0 && !roots.length && !Object.keys(childrenMap).length) {
-                items.forEach(renderItem);
-            } else {
-                roots.forEach(renderItem);
-                // Also render orphans (children whose parents aren't in the list)
-                Object.keys(childrenMap).forEach(function(pid) {
-                    pid = parseInt(pid);
-                    if (!roots.find(function(r) { return r.categoria_id === pid; })) {
-                        childrenMap[pid].forEach(renderItem);
-                    }
-                });
+            // Render flat leaves (those without hierarchy)
+            var flatLeaves = leaves.filter(function(l) {
+                return !hier.parents.find(function(p) { return p.categoria_id === l.categoria_id; })
+                    && !Object.values(hier.childrenMap).some(function(arr) { return arr.find(function(c) { return c.categoria_id === l.categoria_id; }); });
+            });
+            flatLeaves.forEach(function(l) {
+                var isChecked = visMap[l.categoria_id] !== false;
+                var checked = isChecked ? 'checked' : '';
+                html += '<div class="panel-child" style="padding-left:0.3rem">';
+                html += '<label style="cursor:pointer">';
+                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
+                html += '<i class="bi bi-file-earmark me-1"></i>' + l.nombre;
+                html += '</label></div>';
+            });
+
+            if (!hier.parents.length && !flatLeaves.length) {
+                html += '<small class="text-muted">(sin categorías)</small>';
             }
         }
 
-        html += '<div class="mb-1"><strong class="small">Verticales</strong></div>';
-        buildTree(estado.verticales || [], null, 'vertical', false);
-        html += '<hr class="my-1"><div class="mb-1"><strong class="small">Horizontales</strong></div>';
-        buildTree(estado.horizontales || [], null, 'horizontal', false);
+        renderTree('vertical', 'Verticales');
+        html += '<hr class="my-1">';
+        renderTree('horizontal', 'Horizontales');
         container.innerHTML = html;
 
         // Attach change handlers
@@ -1482,12 +1511,11 @@
                 var visMap = axis === 'vertical' ? visibleV : visibleH;
                 visMap[id] = this.checked;
 
-                // If parent, toggle all children
                 if (parent) {
-                    // Check if any sibling toggled → update parent state
+                    // Child toggled → update parent check state
                     updateParentCheckState(axis, parent);
                 } else {
-                    // Toggle all children
+                    // Parent toggled → toggle all children
                     container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + id + '"]').forEach(function(ch) {
                         ch.checked = this.checked;
                         visMap[parseInt(ch.dataset.id)] = this.checked;
