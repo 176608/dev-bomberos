@@ -189,12 +189,15 @@
                                                 @endif
                                             </div>
 
-                                            @forelse($cuadrosSubtema as $cIdx => $cuadro)
+                                             @forelse($cuadrosSubtema as $cIdx => $cuadro)
                                                 @php
                                                     $cClase = (!$cuadro->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                                     $cBorde = (!$cuadro->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
+                                                    $targetUrl = (!$cuadro->publicado && $esDesarrollador)
+                                                        ? route('sigem.v2.cuadro.show', $cuadro->cuadro_id)
+                                                        : route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id);
                                                 @endphp
-                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.location.href='{{ route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id) }}'">
+                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.location.href='{{ $targetUrl }}'">
                                                     <span class="codigo">{{ $cuadro->codigo_cuadro }}</span>
                                                     <span class="titulo">
                                                         <strong>{{ $cuadro->c_titulo }}</strong>

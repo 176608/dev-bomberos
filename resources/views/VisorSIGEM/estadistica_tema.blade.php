@@ -356,8 +356,13 @@
                         @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
                             <div class="cuadros-lista">
                                 @foreach($cuadros as $cuadro)
+                                    @php
+                                        $targetUrl = (!$cuadro['publicado'] && $esDesarrollador)
+                                            ? route('sigem.v2.cuadro.show', $cuadro['cuadro_id'])
+                                            : route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']);
+                                    @endphp
                                     <a href="javascript:void(0)"
-                                       onclick="window.location.href='{{ route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']) }}'"
+                                       onclick="window.location.href='{{ $targetUrl }}'"
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
                                        @if(!$cuadro['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
                                         @if(!$cuadro['publicado'] && $esDesarrollador)
