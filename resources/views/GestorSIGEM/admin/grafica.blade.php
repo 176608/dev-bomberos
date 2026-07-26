@@ -20,7 +20,7 @@
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
         <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-tipo" title="Permitir o no permitir este tipo de gráfica en el dataset">
+        <button type="button" class="btn btn-sm btn-outline-success" id="btn-toggle-tipo" title="Permitir o no permitir este tipo de gráfica en el dataset">
             <i class="bi bi-gear me-1"></i> <span id="btn-tipo-label">Permitir</span>
         </button>
         <span class="text-muted small mx-1">|</span>
@@ -366,6 +366,16 @@ function renderCategoryPanel() {
 
     function buildAxisTree(leaves, layers, axis) {
         var visMap = axis === 'vertical' ? visibleV : visibleH;
+        var allIds = (leaves || []).map(function(l) { return l.categoria_id; });
+        var allVisible = allIds.length > 0 && allIds.every(function(id) { return visMap[id] !== false; });
+        var anyVisible = allIds.some(function(id) { return visMap[id] !== false; });
+
+        html += '<div class="mb-1 mt-1">';
+        html += '<label style="cursor:pointer;font-weight:600" class="small">';
+        html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
+        html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
+            + (axis === 'vertical' ? 'Verticales' : 'Horizontales');
+        html += '</label></div>';
         var parentIds = {}, parentToChildren = {};
         (leaves || []).forEach(function(l) {
             if (l.padre_id) {
@@ -419,12 +429,13 @@ function renderCategoryPanel() {
             html += '<small class="text-muted">(sin categorías)</small>';
     }
 
-    html += '<div class="mb-1 mt-1"><strong class="small">Verticales</strong></div>';
     buildAxisTree(estado.verticales, estado.labels, 'vertical');
-    html += '<hr class="my-1"><div class="mb-1 mt-1"><strong class="small">Horizontales</strong></div>';
+    html += '<hr class="my-1">';
     buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
     container.innerHTML = html;
 
+    // Sync section checkboxes state
+    syncTodoCheckboxes();
     container.querySelectorAll('.cat-check').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var axis = this.dataset.axis;
@@ -441,6 +452,34 @@ function renderCategoryPanel() {
                     visMap[parseInt(ch.dataset.id)] = this.checked;
                 }, this);
             }
+            syncTodoCheckboxes();
+            renderChart(document.getElementById('select-tipo-grafica').value);
+            updateChartDebug();
+            updateEjeHelper();
+            saveStateToURL();
+        });
+    });
+
+    container.querySelectorAll('.todo-check').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            var axis = this.dataset.axis;
+            var visMap = axis === 'vertical' ? visibleV : visibleH;
+            var on = this.checked;
+            Object.keys(visMap).forEach(function(id) { visMap[id] = on; });
+            container.querySelectorAll('.cat-check[data-axis="' + axis + '"]').forEach(function(ch) {
+                ch.checked = on;
+                // Update parent checkboxes for children
+                var pid = ch.dataset.parent;
+                if (pid) {
+                    var parentCb = container.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + pid + '"]');
+                    if (parentCb) parentCb.checked = on;
+                }
+            });
+            // Update parent visibility state for parent nodes
+            container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent=""]').forEach(function(pcb) {
+                var visMap2 = axis === 'vertical' ? visibleV : visibleH;
+                visMap2[parseInt(pcb.dataset.id)] = on;
+            });
             renderChart(document.getElementById('select-tipo-grafica').value);
             updateChartDebug();
             updateEjeHelper();
@@ -470,6 +509,25 @@ function updateParentCheckState(axis, parentId) {
             visMap2[parentId] = true;
         }
     }
+}
+
+function syncTodoCheckboxes() {
+    var container = document.getElementById('panel-items');
+    if (!container) return;
+    container.querySelectorAll('.todo-check').forEach(function(cb) {
+        var axis = cb.dataset.axis;
+        var visMap = axis === 'vertical' ? visibleV : visibleH;
+        var ids = Object.keys(visMap);
+        if (!ids.length) { cb.checked = false; cb.indeterminate = false; return; }
+        var allVis = ids.every(function(id) { return visMap[id] !== false; });
+        var anyVis = ids.some(function(id) { return visMap[id] !== false; });
+        cb.checked = allVis;
+        cb.indeterminate = anyVis && !allVis;
+        var icon = cb.nextElementSibling;
+        if (icon) {
+            icon.className = 'bi me-1 ' + (allVis ? 'bi-check2-square' : (anyVis ? 'bi-dash-square' : 'bi-square'));
+        }
+    });
 }
 
 function initVisibleState() {
@@ -510,9 +568,12 @@ function populateTipoSelect() {
 function updateTipoLabel() {
     var tipo = document.getElementById('select-tipo-grafica').value;
     var label = document.getElementById('btn-tipo-label');
-    if (!tipo || !label) return;
+    var btn = document.getElementById('btn-toggle-tipo');
+    if (!tipo || !label || !btn) return;
     var isAssigned = tiposPermitidos.indexOf(tipo) >= 0;
     label.textContent = isAssigned ? 'No permitir' : 'Permitir';
+    btn.classList.toggle('btn-outline-success', !isAssigned);
+    btn.classList.toggle('btn-outline-danger', isAssigned);
     // Update the option's display text
     var opt = document.querySelector('#select-tipo-grafica option[value="' + tipo + '"]');
     if (opt) {
