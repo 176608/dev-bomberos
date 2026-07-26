@@ -123,6 +123,7 @@ var tiposPermitidos = [];
 var sectionsCache = {};
 var selectedSections = {};
 var multiSectionUnsupported = ['pie', 'doughnut'];
+var allTypesMap = {};
 
 // ============ CHART.JS HELPERS ============
 function generarColor(index, total) {
@@ -184,6 +185,18 @@ function buildChartData(estado, tipo, opts) {
             });
         }
     });
+    var parentNameForSeries = {};
+    var seriesLayers = axis === 'vertical' ? (estado.headers || []) : (estado.labels || []);
+    (seriesArr || []).forEach(function(item) {
+        if (item.padre_id) {
+            seriesLayers.forEach(function(row) {
+                (row || []).forEach(function(cell) {
+                    if (cell.tipo === 'parent' && cell.categoria_id === item.padre_id)
+                        parentNameForSeries[item.categoria_id] = cell.nombre;
+                });
+            });
+        }
+    });
     var labels = labelsArr.map(function(v) {
         var pName = parentNameForLabel[v.categoria_id];
         return pName ? pName + ': ' + v.nombre : v.nombre;
@@ -232,6 +245,8 @@ function buildChartData(estado, tipo, opts) {
                 : generarColorRGBA(colorIdx, Math.max(totalGlobal, 1));
 
             var label = prefix + s.nombre;
+            var pName = parentNameForSeries[s.categoria_id];
+            if (pName) label = prefix + pName + ': ' + s.nombre;
 
             datasets.push({
                 label: label,
@@ -477,15 +492,15 @@ function populateTipoSelect() {
         { value: 'scatter', text: 'Dispersión' },
         { value: 'bubble', text: 'Burbujas' },
     ];
+    allTypesMap = {};
+    allTypes.forEach(function(t) { allTypesMap[t.value] = t.text; });
     tiposPermitidos = (estado.tipos_grafica_permitida) || [];
     if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     select.innerHTML = '';
-    var available = allTypes.filter(function(t) { return tiposPermitidos.indexOf(t.value) >= 0; });
-    if (!available.length) available = allTypes.slice(0, 3);
-    available.forEach(function(t) {
+    allTypes.forEach(function(t) {
         var opt = document.createElement('option');
         opt.value = t.value;
-        opt.textContent = t.text;
+        opt.textContent = t.text + (tiposPermitidos.indexOf(t.value) >= 0 ? '' : ' (no permitido)');
         select.appendChild(opt);
     });
     if (select.options.length) select.selectedIndex = 0;
@@ -498,6 +513,12 @@ function updateTipoLabel() {
     if (!tipo || !label) return;
     var isAssigned = tiposPermitidos.indexOf(tipo) >= 0;
     label.textContent = isAssigned ? 'No permitir' : 'Permitir';
+    // Update the option's display text
+    var opt = document.querySelector('#select-tipo-grafica option[value="' + tipo + '"]');
+    if (opt) {
+        var baseName = allTypesMap[tipo] || tipo;
+        opt.textContent = isAssigned ? baseName : baseName + ' (no permitido)';
+    }
 }
 
 function saveTiposPermitidos() {
