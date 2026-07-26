@@ -222,7 +222,7 @@
     const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
 
-    function togglePublicado(id) {
+    window.togglePublicado = function(id) {
         if (!confirm('¿Cambiar estado de publicación del cuadro?')) return;
         var btn = document.getElementById('btn-toggle-publicado');
         btn.disabled = true;

@@ -41,17 +41,6 @@
                 <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías</small>
                 <button type="button" class="btn-close btn-sm" id="btn-cerrar-panel" aria-label="Cerrar panel"></button>
             </div>
-            <div class="mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <label class="small text-muted mb-0">Eje X</label>
-                    <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
-                        <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
-                    </div>
-                </div>
-                <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
-            </div>
-            <hr class="my-1">
             <div id="panel-items" class="small"></div>
         </div>
         <div style="flex:1;min-width:0">
@@ -80,8 +69,8 @@
 #table-container table { font-size:0.85rem; }
 #table-container table th { white-space:nowrap; }
 #table-container table td.valor { text-align: right; }
-#table-container .section-parent { background:#f0f4f8; font-weight:600; }
-#table-container .section-parent td { border-bottom:2px solid #dee2e6; }
+#table-container .section-header { background:#e8edf2; font-weight:700; border-bottom:2px solid #cdd5de; }
+#table-container .section-header td { padding:0.3rem 0.5rem; font-size:0.8rem; }
 </style>
 @endsection
 
@@ -93,11 +82,12 @@ const IS_DEV = @json($esDesarrollador);
 
 let estado = @json($estadoInicial);
 
-var chartAxis = 'vertical';
 var visibleV = {};
 var visibleH = {};
 var sectionsCache = {};
 var selectedSections = {};
+
+// ─── Utilities ───
 
 function alerta(msg) {
     document.getElementById('status-text').textContent = '⚠ ' + msg;
@@ -117,7 +107,6 @@ function esc(s) {
     if (!s) return '';
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function api(path, opts) {
     opts = opts || {};
     opts.headers = opts.headers || {};
@@ -128,14 +117,7 @@ function api(path, opts) {
     return fetch(BASE + path, opts).then(function(r) { return r.json(); });
 }
 
-function parseCellValue(val) {
-    if (val === undefined || val === null || val === '') return NaN;
-    if (typeof val === 'number') return val;
-    var s = String(val).replace(/,/g, '');
-    return parseFloat(s);
-}
-
-// ─── Panel helpers (syncTodoCheckboxes, updateParentCheckState) ───
+// ─── Panel helpers ───
 
 function syncTodoCheckboxes() {
     var container = document.getElementById('panel-items');
@@ -167,110 +149,91 @@ function updateParentCheckState(axis, parentId) {
     if (parentCb) {
         if (!anyChecked) {
             parentCb.checked = false;
-            var visMap = axis === 'vertical' ? visibleV : visibleH;
-            visMap[parentId] = false;
+            (axis === 'vertical' ? visibleV : visibleH)[parentId] = false;
         } else if (allChecked) {
             parentCb.checked = true;
-            var visMap2 = axis === 'vertical' ? visibleV : visibleH;
-            visMap2[parentId] = true;
+            (axis === 'vertical' ? visibleV : visibleH)[parentId] = true;
         }
     }
 }
-
-// ─── Render category panel (checkboxes for axes + sections) ───
 
 function renderCategoryPanel() {
     var container = document.getElementById('panel-items');
     if (!container) return;
     var html = '';
 
-    // Sections (multi-select now — each active section stacks vertically in table)
     html += '<div class="mb-2"><label class="small text-muted fw-semibold">Secciones</label></div>';
     (estado.secciones || []).forEach(function(s) {
         var isChecked = selectedSections[s.seccion_id] !== false;
         var loading = !sectionsCache[s.seccion_id] && isChecked;
-        var checked = isChecked ? 'checked' : '';
         html += '<div class="panel-child mb-1">';
         html += '<label style="cursor:pointer">';
-        html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + checked + '>';
+        html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + (isChecked ? 'checked' : '') + '>';
         if (loading) html += '<span class="spinner-border spinner-border-sm me-1" role="status"></span>';
         html += esc(s.nombre);
         html += '</label></div>';
     });
     html += '<hr class="my-1">';
 
-    // Build axes trees
-    function buildAxisTree(leaves, layers, axis) {
+    function axisTree(leaves, layers, axis) {
         var visMap = axis === 'vertical' ? visibleV : visibleH;
         var allIds = (leaves || []).map(function(l) { return l.categoria_id; });
-        var allVisible = allIds.length > 0 && allIds.every(function(id) { return visMap[id] !== false; });
-        var anyVisible = allIds.some(function(id) { return visMap[id] !== false; });
-
+        var allVis = allIds.length > 0 && allIds.every(function(id) { return visMap[id] !== false; });
+        var anyVis = allIds.some(function(id) { return visMap[id] !== false; });
         html += '<div class="mb-1 mt-1">';
         html += '<label style="cursor:pointer;font-weight:600" class="small">';
-        html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
-        html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
-            + (axis === 'vertical' ? 'Verticales' : 'Horizontales');
+        html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVis ? 'checked' : '') + '>';
+        html += '<i class="bi ' + (allVis ? 'bi-check2-square' : (anyVis ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i> ' + (axis === 'vertical' ? 'Filas' : 'Columnas');
         html += '</label></div>';
-        var parentIds = {}, parentToChildren = {};
+
+        var parentIds = {}, p2c = {};
         (leaves || []).forEach(function(l) {
             if (l.padre_id) {
                 parentIds[l.padre_id] = true;
-                if (!parentToChildren[l.padre_id]) parentToChildren[l.padre_id] = [];
-                parentToChildren[l.padre_id].push(l);
+                (p2c[l.padre_id] = p2c[l.padre_id] || []).push(l);
             }
         });
-        var parentNames = {};
+        var pnames = {};
         (layers || []).forEach(function(row) {
-            (row || []).forEach(function(cell) {
-                if (cell.tipo === 'parent' && parentIds[cell.categoria_id])
-                    parentNames[cell.categoria_id] = cell.nombre;
+            (row || []).forEach(function(c) {
+                if (c.tipo === 'parent' && parentIds[c.categoria_id]) pnames[c.categoria_id] = c.nombre;
             });
         });
-        Object.keys(parentToChildren).forEach(function(pid) {
+        Object.keys(p2c).forEach(function(pid) {
             pid = parseInt(pid);
-            var pName = parentNames[pid] || ('ID ' + pid);
-            var children = parentToChildren[pid] || [];
-            if (visMap[pid] === undefined) {
-                visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
-            }
-            var isChecked = visMap[pid] !== false;
-            var checked = isChecked ? 'checked' : '';
-            html += '<div class="panel-parent">';
-            html += '<label style="cursor:pointer;font-weight:600">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + '>';
-            html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
+            var pn = pnames[pid] || ('ID ' + pid);
+            var kids = p2c[pid] || [];
+            if (visMap[pid] === undefined) visMap[pid] = kids.some(function(ch) { return visMap[ch.categoria_id] !== false; });
+            var chk = visMap[pid] !== false ? 'checked' : '';
+            html += '<div class="panel-parent"><label style="cursor:pointer;font-weight:600">';
+            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + chk + '>';
+            html += '<i class="bi ' + (chk ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pn);
             html += '</label></div>';
-            children.forEach(function(ch) {
-                var childChecked = visMap[ch.categoria_id] !== false;
-                var chk = childChecked ? 'checked' : '';
-                html += '<div class="panel-child" style="padding-left:1.5rem">';
-                html += '<label style="cursor:pointer">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
+            kids.forEach(function(ch) {
+                var ck = visMap[ch.categoria_id] !== false ? 'checked' : '';
+                html += '<div class="panel-child" style="padding-left:1.5rem"><label style="cursor:pointer">';
+                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + ck + '>';
                 html += esc(ch.nombre);
                 html += '</label></div>';
             });
         });
-        var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
-        flatLeaves.forEach(function(l) {
-            var isChecked = visMap[l.categoria_id] !== false;
-            var checked = isChecked ? 'checked' : '';
-            html += '<div class="panel-child" style="padding-left:0.3rem">';
-            html += '<label style="cursor:pointer">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
+        var flat = (leaves || []).filter(function(l) { return !l.padre_id; });
+        flat.forEach(function(l) {
+            var ck = visMap[l.categoria_id] !== false ? 'checked' : '';
+            html += '<div class="panel-child" style="padding-left:0.3rem"><label style="cursor:pointer">';
+            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + ck + '>';
             html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
             html += '</label></div>';
         });
-        if (!Object.keys(parentToChildren).length && !flatLeaves.length)
-            html += '<small class="text-muted">(sin categorías)</small>';
+        if (!Object.keys(p2c).length && !flat.length) html += '<small class="text-muted">(sin categorías)</small>';
     }
 
-    buildAxisTree(estado.verticales, estado.labels, 'vertical');
+    axisTree(estado.verticales, estado.labels, 'vertical');
     html += '<hr class="my-1">';
-    buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
+    axisTree(estado.horizontales, estado.headers, 'horizontal');
     container.innerHTML = html;
-
     syncTodoCheckboxes();
+
     container.querySelectorAll('.cat-check').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var axis = this.dataset.axis;
@@ -278,7 +241,6 @@ function renderCategoryPanel() {
             var parent = this.dataset.parent ? parseInt(this.dataset.parent) : null;
             var visMap = axis === 'vertical' ? visibleV : visibleH;
             visMap[id] = this.checked;
-
             if (parent) {
                 updateParentCheckState(axis, parent);
             } else {
@@ -289,111 +251,170 @@ function renderCategoryPanel() {
             }
             syncTodoCheckboxes();
             renderTable();
-            updateEjeHelper();
             saveStateToURL();
         });
     });
-
     container.querySelectorAll('.todo-check').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var axis = this.dataset.axis;
             var visMap = axis === 'vertical' ? visibleV : visibleH;
             var on = this.checked;
-            Object.keys(visMap).forEach(function(id) { visMap[id] = on; });
+            Object.keys(visMap).forEach(function(k) { visMap[k] = on; });
             container.querySelectorAll('.cat-check[data-axis="' + axis + '"]').forEach(function(ch) {
                 ch.checked = on;
                 var pid = ch.dataset.parent;
                 if (pid) {
-                    var parentCb = container.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + pid + '"]');
-                    if (parentCb) parentCb.checked = on;
+                    var pc = container.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + pid + '"]');
+                    if (pc) pc.checked = on;
                 }
             });
             container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent=""]').forEach(function(pcb) {
-                var visMap2 = axis === 'vertical' ? visibleV : visibleH;
-                visMap2[parseInt(pcb.dataset.id)] = on;
+                (axis === 'vertical' ? visibleV : visibleH)[parseInt(pcb.dataset.id)] = on;
             });
             renderTable();
-            updateEjeHelper();
             saveStateToURL();
         });
     });
 }
 
-// ─── Render table with multi-section support ───
+// ─── Render table with headers/labels hierarchy + multi-section ───
 
 function renderTable() {
     var container = document.getElementById('table-container');
     if (!container) return;
 
-    // Determine visible leaves
-    var rows, cols;
-    if (chartAxis === 'vertical') {
-        rows = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; });
-        cols = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; });
-    } else {
-        rows = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; });
-        cols = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; });
+    var headers = estado.headers || [];
+    var labels = estado.labels || [];
+    var pivotLabel = esc(estado.pivot_label || 'PIVOTE');
+
+    // Determine visible leaf indices
+    var visVertIndices = [];
+    (estado.verticales || []).forEach(function(v, idx) {
+        if (visibleV[v.categoria_id] !== false) visVertIndices.push(idx);
+    });
+    var visHorizIndices = [];
+    (estado.horizontales || []).forEach(function(h, idx) {
+        if (visibleH[h.categoria_id] !== false) visHorizIndices.push(idx);
+    });
+
+    var numLabelCols = 1;
+    if (headers.length && headers[0].length && headers[0][0].tipo === 'corner') {
+        numLabelCols = headers[0][0].colspan || 1;
     }
 
-    // Build column lookup (map categoria_id → col index in the filtered list)
-    var colIdxMap = {};
-    cols.forEach(function(c, i) { colIdxMap[c.categoria_id] = i; });
-
-    // Gather active sections
     var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
 
-    if (!rows.length || !cols.length) {
+    var totalCols = numLabelCols + visHorizIndices.length;
+    if (!totalCols || !visVertIndices.length) {
         container.innerHTML = '<div class="text-muted small p-3">Sin datos disponibles.</div>';
         return;
     }
 
-    var pivotLabel = esc(estado.pivot_label || '');
     var html = '<table class="table table-bordered table-sm mb-0">';
-    html += '<thead class="table-light"><tr>';
-    html += '<th class="fw-semibold text-center align-middle" style="min-width:60px">' + pivotLabel + '</th>';
-    cols.forEach(function(col) {
-        html += '<th class="fw-semibold text-center small" style="white-space:nowrap">' + esc(col.nombre) + '</th>';
-    });
-    html += '</tr></thead><tbody>';
+
+    // ── HEADERS (hierarchy with filtered leaves) ──
+    // Rebuild header rows, keeping only visible columns
+    var headerDepth = headers.length;
+
+    for (var hi = 0; hi < headerDepth; hi++) {
+        html += '<thead class="table-light"><tr>';
+        var row = headers[hi];
+
+        for (var ci = 0; ci < row.length; ci++) {
+            var cell = row[ci];
+
+            if (cell.tipo === 'corner') {
+                html += '<th rowspan="' + (cell.rowspan || headerDepth) + '" colspan="' + numLabelCols + '" class="fw-semibold text-center align-middle" style="min-width:60px">' + pivotLabel + '</th>';
+                continue;
+            }
+
+            if (cell.tipo === 'parent') {
+                // Count visible leaves under this parent
+                var start = cell.col_index;
+                var end = start + cell.colspan;
+                var visibleCount = 0;
+                for (var vi = 0; vi < visHorizIndices.length; vi++) {
+                    var hidx = visHorizIndices[vi];
+                    if (hidx >= start && hidx < end) visibleCount++;
+                }
+                if (visibleCount === 0) continue; // skip parent with no visible children
+                html += '<th colspan="' + visibleCount + '" class="fw-semibold text-center small">' + esc(cell.nombre) + '</th>';
+                continue;
+            }
+
+            if (cell.tipo === 'leaf') {
+                var hidx = cell.col_index;
+                if (visHorizIndices.indexOf(hidx) < 0) continue;
+                html += '<th class="fw-semibold text-center small" style="white-space:nowrap">' + esc(cell.nombre) + '</th>';
+                continue;
+            }
+        }
+
+        html += '</tr></thead>';
+    }
+
+    // ── BODY ──
+    html += '<tbody>';
 
     if (!activeSids.length) {
-        // No sections selected — show empty
-        html += '<tr><td colspan="' + (cols.length + 1) + '" class="text-muted small text-center">Seleccioná una sección para ver datos.</td></tr>';
+        html += '<tr><td colspan="' + totalCols + '" class="text-muted small text-center p-3">Seleccioná al menos una sección para ver datos.</td></tr>';
         html += '</tbody></table>';
         container.innerHTML = html;
         return;
     }
 
+    // Filter label rows: keep only rows whose leaf is visible
+    var visibleLabelRows = [];
+    labels.forEach(function(rowCells) {
+        var leafCell = null;
+        rowCells.forEach(function(c) { if (c.tipo === 'leaf') leafCell = c; });
+        if (!leafCell) return;
+        var vIdx = leafCell.row_index;
+        if (visVertIndices.indexOf(vIdx) >= 0) {
+            visibleLabelRows.push({ cells: rowCells, vertIdx: vIdx });
+        }
+    });
+
+    // Recalculate parent rowspan after filtering
+    var parentSpan = {};
+    var openParent = null;
+    visibleLabelRows.forEach(function(lr) {
+        var parentCell = null;
+        lr.cells.forEach(function(c) { if (c.tipo === 'parent') parentCell = c; });
+        if (parentCell) {
+            openParent = parentCell.categoria_id;
+            parentSpan[openParent] = 1;
+        } else if (openParent !== null) {
+            parentSpan[openParent]++;
+        }
+    });
+
+    // For each active section, render section parent row + data
     activeSids.forEach(function(sid) {
         var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
         var secName = sec ? sec.nombre : ('Sección ' + sid);
         var secData = sectionsCache[sid] ? sectionsCache[sid].data : [];
 
-        // Section parent row (spans all columns)
-        html += '<tr class="section-parent">';
-        html += '<td colspan="' + (cols.length + 1) + '" class="fw-bold small px-2 py-1">' + esc(secName) + '</td>';
-        html += '</tr>';
+        html += '<tr class="section-header"><td colspan="' + totalCols + '">' + esc(secName) + '</td></tr>';
 
-        // Data rows for this section
-        rows.forEach(function(row) {
+        visibleLabelRows.forEach(function(lr) {
             html += '<tr>';
-            html += '<th class="fw-semibold text-nowrap small px-2">' + esc(row.nombre) + '</th>';
-
-            cols.forEach(function(col) {
-                // Find the original index in the full list for data lookup
-                var fullRowIdx = -1, fullColIdx = -1;
-                if (chartAxis === 'vertical') {
-                    fullRowIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === row.categoria_id; });
-                    fullColIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === col.categoria_id; });
-                } else {
-                    fullRowIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === row.categoria_id; });
-                    fullColIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === col.categoria_id; });
+            lr.cells.forEach(function(cell) {
+                if (cell.tipo === 'parent') {
+                    var span = parentSpan[cell.categoria_id] || 1;
+                    html += '<th rowspan="' + span + '" class="fw-semibold text-nowrap align-middle small">' + esc(cell.nombre) + '</th>';
+                } else if (cell.tipo === 'leaf') {
+                    var cs = cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
+                    html += '<th' + cs + ' class="fw-semibold text-nowrap small">' + esc(cell.nombre) + '</th>';
                 }
+            });
 
+            // Data cells for this row
+            visHorizIndices.forEach(function(hidx) {
                 var val = '';
-                if (fullRowIdx >= 0 && fullColIdx >= 0) {
-                    var cell = secData[fullRowIdx] ? secData[fullRowIdx][fullColIdx] : null;
-                    val = (cell && cell.valor !== undefined && cell.valor !== '') ? cell.valor : '';
+                if (secData[lr.vertIdx] && secData[lr.vertIdx][hidx]) {
+                    var c = secData[lr.vertIdx][hidx];
+                    val = (c.valor !== undefined && c.valor !== '') ? c.valor : '';
                 }
                 html += '<td class="valor">' + esc(String(val)) + '</td>';
             });
@@ -405,27 +426,7 @@ function renderTable() {
     container.innerHTML = html;
 }
 
-// ─── Eje helper ───
-
-function updateEjeHelper() {
-    var el = document.getElementById('eje-helper');
-    if (!el) return;
-    var vCount = 0, hCount = 0;
-    if (chartAxis === 'vertical') {
-        vCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
-        hCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
-    } else {
-        vCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
-        hCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
-    }
-    if (chartAxis === 'vertical') {
-        el.textContent = 'Verticales en eje X (' + vCount + ') — Horizontales como series (' + hCount + ')';
-    } else {
-        el.textContent = 'Horizontales en eje X (' + hCount + ') — Verticales como series (' + vCount + ')';
-    }
-}
-
-// ─── Section loading (multi-section support) ───
+// ─── Section loading ───
 
 function loadSectionData(sid) {
     if (sectionsCache[sid]) return Promise.resolve(sectionsCache[sid]);
@@ -440,7 +441,7 @@ function loadSectionData(sid) {
         });
 }
 
-// ─── Save / Load URL state ───
+// ─── URL state ───
 
 function sanitizeIdList(str) {
     if (!str) return [];
@@ -448,42 +449,23 @@ function sanitizeIdList(str) {
 }
 
 function saveStateToURL() {
-    var visibleVIds = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
-    var visibleHIds = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
-    var selectedSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-    var params = [];
-    if (visibleVIds.length) params.push('v=' + visibleVIds.join(','));
-    if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
-    if (selectedSids.length) params.push('s=' + selectedSids.join(','));
-    params.push('ej=' + (chartAxis === 'vertical' ? 'v' : 'h'));
-    var qs = params.join('&');
-    var url = window.location.pathname + (qs ? '?' + qs : '');
-    try { window.history.replaceState(null, '', url); } catch(e) {}
+    var v = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
+    var h = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
+    var s = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    var p = [];
+    if (v.length) p.push('v=' + v.join(','));
+    if (h.length) p.push('h=' + h.join(','));
+    if (s.length) p.push('s=' + s.join(','));
+    var qs = p.join('&');
+    try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
 }
 
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
-    var vList = sanitizeIdList(p.get('v'));
-    var hList = sanitizeIdList(p.get('h'));
-    var sList = sanitizeIdList(p.get('s'));
-    var ejeCode = p.get('ej');
-
-    if (vList.length) {
-        Object.keys(visibleV).forEach(function(id) { visibleV[id] = vList.indexOf(parseInt(id)) >= 0; });
-    }
-    if (hList.length) {
-        Object.keys(visibleH).forEach(function(id) { visibleH[id] = hList.indexOf(parseInt(id)) >= 0; });
-    }
-    if (sList.length) {
-        Object.keys(selectedSections).forEach(function(sid) {
-            selectedSections[sid] = sList.indexOf(parseInt(sid)) >= 0;
-        });
-    }
-    if (ejeCode === 'v' || ejeCode === 'h') {
-        chartAxis = ejeCode === 'v' ? 'vertical' : 'horizontal';
-        var sw = document.getElementById('switch-invertir-ejes');
-        if (sw) sw.checked = ejeCode === 'h';
-    }
+    var vl = sanitizeIdList(p.get('v')), hl = sanitizeIdList(p.get('h')), sl = sanitizeIdList(p.get('s'));
+    if (vl.length) Object.keys(visibleV).forEach(function(id) { visibleV[id] = vl.indexOf(parseInt(id)) >= 0; });
+    if (hl.length) Object.keys(visibleH).forEach(function(id) { visibleH[id] = hl.indexOf(parseInt(id)) >= 0; });
+    if (sl.length) Object.keys(selectedSections).forEach(function(sid) { selectedSections[sid] = sl.indexOf(parseInt(sid)) >= 0; });
 }
 
 // ─── Debug ───
@@ -492,23 +474,22 @@ function updateDebug() {
     var el = document.getElementById('chart-debug');
     if (!el) return;
     el.style.display = 'block';
-    var vNames = Object.keys(visibleV).filter(function(id) { return visibleV[id]; }).map(function(id) {
+    var vn = Object.keys(visibleV).filter(function(id) { return visibleV[id]; }).map(function(id) {
         var c = (estado.verticales || []).find(function(v) { return v.categoria_id == id; });
         return c ? c.nombre : id;
     });
-    var hNames = Object.keys(visibleH).filter(function(id) { return visibleH[id]; }).map(function(id) {
+    var hn = Object.keys(visibleH).filter(function(id) { return visibleH[id]; }).map(function(id) {
         var c = (estado.horizontales || []).find(function(h) { return h.categoria_id == id; });
         return c ? c.nombre : id;
     });
-    var selectedNames = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
+    var sn = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
         return ((estado.secciones || []).find(function(s) { return s.seccion_id == sid; }) || {}).nombre || sid;
     });
     el.textContent = '── Debug Dataset ──\n'
-        + 'Eje X: ' + chartAxis + '\n'
-        + 'Verticales visibles: ' + (vNames.length ? vNames.join(', ') : '(todas ocultas)') + '\n'
-        + 'Horizontales visibles: ' + (hNames.length ? hNames.join(', ') : '(todas ocultas)') + '\n'
-        + 'Secciones activas: ' + (selectedNames.length ? selectedNames.join(', ') : '(ninguna)') + '\n'
-        + 'Caché secciones: ' + Object.keys(sectionsCache).join(', ');
+        + 'Filas visibles: ' + (vn.length ? vn.join(', ') : '(ninguna)') + '\n'
+        + 'Columnas visibles: ' + (hn.length ? hn.join(', ') : '(ninguna)') + '\n'
+        + 'Secciones activas: ' + (sn.length ? sn.join(', ') : '(ninguna)') + '\n'
+        + 'Headers depth: ' + (estado.headers || []).length + ', Labels rows: ' + (estado.labels || []).length;
 }
 
 // ─── Init ───
@@ -523,79 +504,50 @@ function initDatasetPage() {
 
     loadStateFromURL();
 
-    // Load initial section data
-    var pendingLoads = [];
+    var pending = [];
     Object.keys(selectedSections).forEach(function(sid) {
-        if (selectedSections[sid] && !sectionsCache[sid]) {
-            pendingLoads.push(loadSectionData(parseInt(sid)));
-        }
+        if (selectedSections[sid] && !sectionsCache[sid]) pending.push(loadSectionData(parseInt(sid)));
     });
 
-    function finishInit() {
+    function finish() {
         renderCategoryPanel();
         renderTable();
-        updateEjeHelper();
         saveStateToURL();
         if (IS_DEV) updateDebug();
         document.getElementById('chart-panel').style.display = 'block';
     }
-
-    if (pendingLoads.length) {
-        Promise.all(pendingLoads).then(finishInit).catch(finishInit);
-    } else {
-        finishInit();
-    }
+    if (pending.length) Promise.all(pending).then(finish).catch(finish);
+    else finish();
 }
 
-// ─── Event listeners ───
+// ─── Events ───
 
 document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
-    var panel = document.getElementById('chart-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    var p = document.getElementById('chart-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
 });
-
 document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
     document.getElementById('chart-panel').style.display = 'none';
 });
-
-document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
-    chartAxis = this.checked ? 'horizontal' : 'vertical';
-    renderTable();
-    updateEjeHelper();
-    saveStateToURL();
-});
-
 document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', function() {
     (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });
-    chartAxis = 'vertical';
-    var sw = document.getElementById('switch-invertir-ejes');
-    if (sw) sw.checked = false;
     renderCategoryPanel();
     renderTable();
-    updateEjeHelper();
     saveStateToURL();
     status('Selección restaurada');
 });
+var dt = document.querySelector('.debug-toggle');
+if (dt) dt.addEventListener('click', function() {
+    var el = document.getElementById('chart-debug');
+    if (el) { el.style.display = el.style.display === 'none' ? 'block' : 'none'; if (el.style.display === 'block') updateDebug(); }
+});
 
-var debugToggle = document.querySelector('.debug-toggle');
-if (debugToggle) {
-    debugToggle.addEventListener('click', function() {
-        var el = document.getElementById('chart-debug');
-        if (el) {
-            el.style.display = el.style.display === 'none' ? 'block' : 'none';
-            if (el.style.display === 'block') updateDebug();
-        }
-    });
-}
-
-// Section checkbox handler (multi-select allowed)
 document.getElementById('panel-items')?.addEventListener('change', function(e) {
     var cb = e.target;
     if (!cb.classList.contains('sec-check')) return;
     var sid = parseInt(cb.dataset.seccionId);
     if (isNaN(sid)) return;
-
     selectedSections[sid] = cb.checked;
 
     if (cb.checked && !sectionsCache[sid]) {
@@ -616,8 +568,8 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
             })
             .finally(function() {
                 cb.disabled = false;
-                var spinners = cb.parentNode ? cb.parentNode.querySelectorAll('.spinner-border') : [];
-                spinners.forEach(function(sp) { sp.remove(); });
+                var sp = cb.parentNode ? cb.parentNode.querySelectorAll('.spinner-border') : [];
+                sp.forEach(function(s) { s.remove(); });
                 renderCategoryPanel();
             });
     } else {
