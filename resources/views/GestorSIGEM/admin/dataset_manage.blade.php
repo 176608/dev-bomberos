@@ -1159,8 +1159,10 @@
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+            if (currentMode !== 'diseno') return;
             var tag = e.target.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            if (document.activeElement && document.activeElement.closest('[contenteditable]')) return;
             e.preventDefault();
             if (shortcutActive) return;
             shortcutActive = true;
