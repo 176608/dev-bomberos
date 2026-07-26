@@ -34,6 +34,9 @@
         <button type="button" class="btn btn-sm btn-outline-warning" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
         </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-show-desel" title="Mostrar/ocultar categorías deseleccionadas">
+            <i class="bi bi-eye-slash"></i> <span id="show-desel-label">Ver deselecciones</span>
+        </button>
         @if(count($estadoInicial['secciones'] ?? []) > 1)
         <button type="button" class="btn btn-sm btn-outline-success" id="btn-activar-todas" title="Activar todas las secciones">
             <i class="bi bi-check-all"></i> Activar todas
@@ -72,6 +75,9 @@
 #app-dataset:not(.show-cb) .vis-cb { display:none; }
 #app-dataset:not(.show-cb) #tables-container th label,
 #app-dataset:not(.show-cb) #tables-container .section-title label { pointer-events:none; cursor:default; }
+#tables-container .desel-row { opacity:0.5; }
+#tables-container .desel-row td,
+#tables-container .desel-row th { opacity:0.5; }
 </style>
 @endsection
 
@@ -82,6 +88,7 @@ const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 const IS_DEV = @json($esDesarrollador);
 var userRoleLabel = @json($userRoleDisplay);
 var devMode = IS_DEV;
+var showDeselected = false;
 
 let estado = @json($estadoInicial);
 
@@ -130,13 +137,15 @@ function renderTables() {
     var labels = estado.labels || [];
     var pivotLabel = esc(estado.pivot_label || 'PIVOTE');
 
-    var visVIdx = []; // indices of visible vertical leaves
+    var visVIdx = [];
+    var deselV = {};
     (estado.verticales || []).forEach(function(v, i) {
-        if (visibleV[v.categoria_id] !== false) visVIdx.push(i);
+        if (visibleV[v.categoria_id] !== false || showDeselected) { visVIdx.push(i); if (visibleV[v.categoria_id] === false) deselV[v.categoria_id] = true; }
     });
     var visHIdx = [];
+    var deselH = {};
     (estado.horizontales || []).forEach(function(h, i) {
-        if (visibleH[h.categoria_id] !== false) visHIdx.push(i);
+        if (visibleH[h.categoria_id] !== false || showDeselected) { visHIdx.push(i); if (visibleH[h.categoria_id] === false) deselH[h.categoria_id] = true; }
     });
 
     var numLabelCols = 1;
@@ -271,7 +280,9 @@ function renderTables() {
         var secData = sectionsCache[sid] ? sectionsCache[sid].data : [];
 
         visLabelRows.forEach(function(rowCells) {
-            allHtml += '<tr>';
+            var rowLeaf = null; rowCells.forEach(function(c) { if (c.tipo === 'leaf') rowLeaf = c; });
+            var isRowDesel = rowLeaf && deselV[rowLeaf.categoria_id];
+            allHtml += '<tr' + (isRowDesel ? ' class="desel-row"' : '') + '>';
             rowCells.forEach(function(cell) {
                 if (cell.tipo === 'parent') {
                     var span = parentSpan[cell.categoria_id] || 1;
@@ -464,6 +475,13 @@ document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
     var btn = document.getElementById('btn-toggle-cb');
     if (btn) btn.innerHTML = '<i class="bi bi-check2-square"></i> Ocultar';
 })();
+document.getElementById('btn-show-desel')?.addEventListener('click', function() {
+    showDeselected = !showDeselected;
+    var label = document.getElementById('show-desel-label');
+    if (label) label.textContent = showDeselected ? 'Ocultar deselecciones' : 'Ver deselecciones';
+    renderTables();
+    saveStateToURL();
+});
 document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', function() {
     (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });

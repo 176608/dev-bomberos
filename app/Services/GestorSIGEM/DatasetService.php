@@ -740,6 +740,19 @@ class DatasetService
         $categoria->update(['orden' => $ordenObjetivo]);
         $vecina->update(['orden' => $ordenActual]);
 
+        // Compactar orden de todos los hermanos para que quede secuencial
+        $siblings = $this->categoria
+            ->where('cuadro_id', $cuadro_id)
+            ->where('eje', $categoria->eje)
+            ->where('padre_id', $categoria->padre_id)
+            ->orderBy('orden')
+            ->get();
+        foreach ($siblings as $i => $sib) {
+            if ($sib->orden !== $i + 1) {
+                $sib->update(['orden' => $i + 1]);
+            }
+        }
+
         return $this->obtenerEstado($cuadro_id);
     }
 
