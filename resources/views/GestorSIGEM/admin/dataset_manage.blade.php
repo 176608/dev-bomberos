@@ -612,8 +612,8 @@
     // ============ RENDER GRID ============
     function renderGrid(d) {
         siblingInfoCache = {};
-        buildSiblingInfo(d.verticales);
-        buildSiblingInfo(d.horizontales);
+        buildSiblingInfo(d.all_verticales || d.verticales);
+        buildSiblingInfo(d.all_horizontales || d.horizontales);
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
             const st = document.getElementById('seccion-tabs');

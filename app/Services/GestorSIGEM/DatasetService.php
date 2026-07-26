@@ -112,6 +112,8 @@ class DatasetService
             'tiene_dataset' => $tieneDataset,
             'verticales' => $verticales,
             'horizontales' => $horizontales,
+            'all_verticales' => $allVertical->values()->toArray(),
+            'all_horizontales' => $allHorizontal->values()->toArray(),
             'headers' => $headers,
             'labels' => $labels,
             'data' => $dataGrid,
