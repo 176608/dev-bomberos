@@ -126,6 +126,19 @@
     </div>
 </div>
 
+<!-- Keyboard shortcut prompt -->
+<div id="shortcut-prompt" class="position-fixed top-50 start-50 translate-middle p-3 bg-white border rounded shadow d-none" style="z-index:9999;min-width:260px">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <strong class="small">Nuevo</strong>
+        <button type="button" class="btn-close btn-sm" id="shortcut-close"></button>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-success btn-sm flex-fill" data-shortcut="f"><i class="bi bi-arrow-down me-1"></i>Fila</button>
+        <button type="button" class="btn btn-outline-primary btn-sm flex-fill" data-shortcut="c"><i class="bi bi-arrow-right me-1"></i>Columna</button>
+    </div>
+    <small class="text-muted mt-1 d-block">Presiona <kbd>F</kbd> o <kbd>C</kbd></small>
+</div>
+
 <style>
 #dataset-table td, #dataset-table th { vertical-align: middle; padding: 0.1rem 0.2rem; }
 #dataset-table td > div, #dataset-table th > div { min-height: 26px; outline: none; padding: 0.1rem 0.2rem; border-radius: 2px; }
@@ -1139,6 +1152,50 @@
     }
 
 
+
+    // ============ KEYBOARD SHORTCUT: N → Fila/Columna ============
+    var shortcutPrompt = document.getElementById('shortcut-prompt');
+    var shortcutActive = false;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+            var tag = e.target.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            e.preventDefault();
+            if (shortcutActive) return;
+            shortcutActive = true;
+            shortcutPrompt.classList.remove('d-none');
+        }
+        if (shortcutActive && (e.key === 'f' || e.key === 'F')) {
+            e.preventDefault();
+            dismissShortcut();
+            window.agregarFila();
+        }
+        if (shortcutActive && (e.key === 'c' || e.key === 'C')) {
+            e.preventDefault();
+            dismissShortcut();
+            window.agregarColumna();
+        }
+        if (shortcutActive && e.key === 'Escape') {
+            dismissShortcut();
+        }
+    });
+
+    document.querySelectorAll('#shortcut-prompt [data-shortcut]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (this.dataset.shortcut === 'f') window.agregarFila();
+            else window.agregarColumna();
+            dismissShortcut();
+        });
+    });
+
+    document.getElementById('shortcut-close').addEventListener('click', dismissShortcut);
+    shortcutPrompt.addEventListener('click', function(e) { if (e.target === this) dismissShortcut(); });
+
+    function dismissShortcut() {
+        shortcutActive = false;
+        shortcutPrompt.classList.add('d-none');
+    }
 
     // ============ INIT ============
     if (estado.tiene_dataset) {
