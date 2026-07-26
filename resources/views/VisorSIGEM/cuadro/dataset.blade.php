@@ -65,8 +65,8 @@
 #tables-container > .section-block { margin-bottom:1.5rem; }
 #tables-container .section-block .section-title { font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
 #tables-container table { font-size:0.85rem; margin-bottom:0; }
-#tables-container table th { white-space:nowrap; }
-#tables-container table td.valor { text-align: right; }
+#tables-container table th { white-space:nowrap; text-align:center; width:1%; }
+#tables-container table td.valor { text-align:right; white-space:nowrap; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
 #app-dataset.show-cb .vis-cb { display:inline-block; }
 #app-dataset:not(.show-cb) .vis-cb { display:none; }
