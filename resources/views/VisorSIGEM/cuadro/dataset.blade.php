@@ -324,7 +324,11 @@ function renderTables() {
                     var cnt = 0;
                     for (var vi = 0; vi < visHIdx.length; vi++) { var hidx = visHIdx[vi]; if (hidx >= start && hidx < end) cnt++; }
                     if (cnt === 0) continue;
-                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">' + esc(cell.nombre) + '</th>';
+                    var pid = cell.categoria_id;
+                    var pck = visibleH[pid] !== false ? 'checked' : '';
+                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
+                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + pck + '> ' + esc(cell.nombre) + '</label>';
+                    h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
@@ -368,7 +372,8 @@ function renderTables() {
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 } else if (cell.tipo === 'leaf') {
-                    var cs2 = cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
+                    var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
+                    var cs2 = hasParentInRow && cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
                     var ck2 = visibleV[cell.categoria_id] !== false ? 'checked' : '';
                     allHtml += '<th' + cs2 + ' class="fw-semibold text-nowrap small">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + esc(cell.nombre) + '</label>';
@@ -401,14 +406,24 @@ function renderTables() {
     // Wire up checkboxes inside tables
     container.querySelectorAll('.col-cb').forEach(function(cb) {
         cb.addEventListener('change', function() {
-            visibleH[parseInt(this.dataset.cid)] = this.checked;
+            var cid = parseInt(this.dataset.cid);
+            var on = this.checked;
+            visibleH[cid] = on;
+            (estado.horizontales || []).forEach(function(h) {
+                if (h.padre_id === cid) { visibleH[h.categoria_id] = on; }
+            });
             saveStateToURL();
             renderTables();
         });
     });
     container.querySelectorAll('.row-cb').forEach(function(cb) {
         cb.addEventListener('change', function() {
-            visibleV[parseInt(this.dataset.cid)] = this.checked;
+            var cid = parseInt(this.dataset.cid);
+            var on = this.checked;
+            visibleV[cid] = on;
+            (estado.verticales || []).forEach(function(v) {
+                if (v.padre_id === cid) { visibleV[v.categoria_id] = on; }
+            });
             saveStateToURL();
             renderTables();
         });
