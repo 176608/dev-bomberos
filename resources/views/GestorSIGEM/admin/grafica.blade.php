@@ -667,14 +667,15 @@ function saveStateToURL() {
     var visibleHIds = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
     var selectedSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
     var ejeCode = chartAxis === 'vertical' ? 'v' : 'h';
-    var params = [];
-    if (visibleVIds.length) params.push('v=' + visibleVIds.join(','));
-    if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
-    if (selectedSids.length) params.push('s=' + selectedSids.join(','));
-    params.push('ej=' + ejeCode);
+    var p = new URLSearchParams(window.location.search);
+    ['v','h','s','ej','t'].forEach(function(k) { p.delete(k); });
+    if (visibleVIds.length) p.set('v', visibleVIds.join(',')); else p.delete('v');
+    if (visibleHIds.length) p.set('h', visibleHIds.join(',')); else p.delete('h');
+    if (selectedSids.length) p.set('s', selectedSids.join(',')); else p.delete('s');
+    p.set('ej', ejeCode);
     var tipoSelect = document.getElementById('select-tipo-grafica');
-    if (tipoSelect) params.push('t=' + tipoSelect.value);
-    var qs = params.join('&');
+    if (tipoSelect) p.set('t', tipoSelect.value);
+    var qs = p.toString();
     var url = window.location.pathname + (qs ? '?' + qs : '');
     try { window.history.replaceState(null, '', url); } catch(e) {}
 }
@@ -808,6 +809,7 @@ if (selectTipoGrafica) {
         enforceSingleSection(this.value);
         renderChart(this.value);
         updateChartDebug();
+        saveStateToURL();
     });
 }
 

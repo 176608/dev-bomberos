@@ -138,7 +138,8 @@ function populateTipoSelect() {
     var html = '';
     allTypes.forEach(function(t) {
         var perm = tiposPermitidos.indexOf(t.value) >= 0;
-        html += '<option value="' + t.value + '">' + t.text + (perm ? '' : ' (no permitido)') + '</option>';
+        if (!IS_DEV && !perm) return;
+        html += '<option value="' + t.value + '">' + t.text + (!perm && IS_DEV ? ' (No permitido)' : '') + '</option>';
     });
     sel.innerHTML = html;
 }
@@ -609,17 +610,18 @@ function sanitizeIdList(str) {
 }
 
 function saveStateToURL() {
+    var p = new URLSearchParams(window.location.search);
+    ['v','h','s','ej','t'].forEach(function(k) { p.delete(k); });
     var visibleVIds = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
     var visibleHIds = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
     var selectedSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-    var params = [];
-    if (visibleVIds.length) params.push('v=' + visibleVIds.join(','));
-    if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
-    if (selectedSids.length) params.push('s=' + selectedSids.join(','));
-    params.push('ej=' + (chartAxis === 'vertical' ? 'v' : 'h'));
+    if (visibleVIds.length) p.set('v', visibleVIds.join(',')); else p.delete('v');
+    if (visibleHIds.length) p.set('h', visibleHIds.join(',')); else p.delete('h');
+    if (selectedSids.length) p.set('s', selectedSids.join(',')); else p.delete('s');
+    p.set('ej', chartAxis === 'vertical' ? 'v' : 'h');
     var tipoSelect = document.getElementById('select-tipo-grafica');
-    if (tipoSelect) params.push('t=' + tipoSelect.value);
-    var qs = params.join('&');
+    if (tipoSelect) p.set('t', tipoSelect.value);
+    var qs = p.toString();
     var url = window.location.pathname + (qs ? '?' + qs : '');
     try { window.history.replaceState(null, '', url); } catch(e) {}
 }
@@ -710,6 +712,7 @@ document.getElementById('select-tipo-grafica')?.addEventListener('change', funct
     enforceSingleSection(this.value);
     renderChart(this.value);
     if (IS_DEV) updateChartDebug();
+    saveStateToURL();
 });
 
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {

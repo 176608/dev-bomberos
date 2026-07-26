@@ -3,7 +3,7 @@
 @section('visor_title', 'Dataset — ' . ($cuadro->codigo_cuadro ?? ''))
 
 @section('visor_content')
-<div class="container-fluid py-3" id="app-dataset">
+<div class="container-fluid py-3 show-cb" id="app-dataset">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -62,7 +62,10 @@
 #tables-container table th { white-space:nowrap; }
 #tables-container table td.valor { text-align: right; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
+#app-dataset.show-cb .vis-cb { display:inline-block; }
 #app-dataset:not(.show-cb) .vis-cb { display:none; }
+#app-dataset:not(.show-cb) #tables-container th label,
+#app-dataset:not(.show-cb) #tables-container .section-title label { pointer-events:none; cursor:default; }
 </style>
 @endsection
 
@@ -329,14 +332,16 @@ function sanitize(str) {
     return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n) && n > 0; });
 }
 function saveStateToURL() {
+    var p = new URLSearchParams(window.location.search);
+    ['v','h','s'].forEach(function(k) { p.delete(k); });
     var v = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
     var h = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
     var s = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-    var p = [];
-    if (v.length) p.push('v=' + v.join(','));
-    if (h.length) p.push('h=' + h.join(','));
-    if (s.length) p.push('s=' + s.join(','));
-    try { window.history.replaceState(null, '', window.location.pathname + (p.length ? '?' + p.join('&') : '')); } catch(e) {}
+    if (v.length) p.set('v', v.join(',')); else p.delete('v');
+    if (h.length) p.set('h', h.join(',')); else p.delete('h');
+    if (s.length) p.set('s', s.join(',')); else p.delete('s');
+    var qs = p.toString();
+    try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
 }
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
@@ -395,12 +400,15 @@ function init() {
 // ─── Events ───
 
 document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
-    document.getElementById('app-dataset').classList.toggle('show-cb');
-    this.classList.toggle('active');
-    this.innerHTML = this.classList.contains('active')
+    var on = document.getElementById('app-dataset').classList.toggle('show-cb');
+    this.innerHTML = on
         ? '<i class="bi bi-check2-square"></i> Ocultar'
         : '<i class="bi bi-check2-square"></i> Checkboxes';
 });
+(function() {
+    var btn = document.getElementById('btn-toggle-cb');
+    if (btn) btn.innerHTML = '<i class="bi bi-check2-square"></i> Ocultar';
+})();
 document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', function() {
     (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });
