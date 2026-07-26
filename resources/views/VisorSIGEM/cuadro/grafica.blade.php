@@ -442,11 +442,14 @@ function renderCategoryPanel() {
             if (visMap[pid] === undefined) {
                 visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
             }
+            var visKids = children.filter(function(ch) { return visMap[ch.categoria_id] !== false; });
+            var allVis = visKids.length === children.length;
+            var someVis = visKids.length > 0;
             var isChecked = visMap[pid] !== false;
             var checked = isChecked ? 'checked' : '';
             html += '<div class="panel-parent">';
             html += '<label style="cursor:pointer;font-weight:600">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + '>';
+            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
             html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
             html += '</label></div>';
             children.forEach(function(ch) {
@@ -478,6 +481,7 @@ function renderCategoryPanel() {
     buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
     container.innerHTML = html;
 
+    container.querySelectorAll('.cat-check[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
     syncTodoCheckboxes();
     container.querySelectorAll('.cat-check').forEach(function(cb) {
         cb.addEventListener('change', function() {
@@ -540,14 +544,19 @@ function updateParentCheckState(axis, parentId) {
     });
     var parentCb = container.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + parentId + '"]');
     if (parentCb) {
+        var visMap = axis === 'vertical' ? visibleV : visibleH;
         if (!anyChecked) {
             parentCb.checked = false;
-            var visMap = axis === 'vertical' ? visibleV : visibleH;
+            parentCb.indeterminate = false;
             visMap[parentId] = false;
         } else if (allChecked) {
             parentCb.checked = true;
-            var visMap2 = axis === 'vertical' ? visibleV : visibleH;
-            visMap2[parentId] = true;
+            parentCb.indeterminate = false;
+            visMap[parentId] = true;
+        } else {
+            parentCb.checked = false;
+            parentCb.indeterminate = true;
+            visMap[parentId] = false;
         }
     }
 }

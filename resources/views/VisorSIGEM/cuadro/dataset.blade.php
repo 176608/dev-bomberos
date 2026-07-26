@@ -143,23 +143,57 @@ function renderTables() {
         return;
     }
 
-    // Filter label rows
+    // ─── Parent-children maps ───
+    var childrenOf = {};
+    (estado.verticales || []).forEach(function(v) {
+        if (v.padre_id) { if (!childrenOf[v.padre_id]) childrenOf[v.padre_id] = []; childrenOf[v.padre_id].push(v); }
+    });
+    var childrenOfH = {};
+    (estado.horizontales || []).forEach(function(h) {
+        if (h.padre_id) { if (!childrenOfH[h.padre_id]) childrenOfH[h.padre_id] = []; childrenOfH[h.padre_id].push(h); }
+    });
+
+    // ─── Parent group boundaries from original labels ───
+    var parentGroups = []; // [{parentId, cell, visibleCount}]
+    var parentGroupOfIdx = {}; // label rowIndex -> parentId
+    labels.forEach(function(rowCells, ri) {
+        var pc = null;
+        rowCells.forEach(function(c) { if (c.tipo === 'parent') pc = c; });
+        if (pc) parentGroups.push({ parentId: pc.categoria_id, cell: pc, visibleCount: 0 });
+        parentGroupOfIdx[ri] = parentGroups.length ? parentGroups[parentGroups.length - 1].parentId : null;
+    });
+
+    // ─── Filter label rows, strip parent cells, track visibility ───
     var visLabelRows = [];
+    var seenParent = {};
     labels.forEach(function(rowCells) {
         var leaf = null;
         rowCells.forEach(function(c) { if (c.tipo === 'leaf') leaf = c; });
         if (!leaf) return;
-        if (visVIdx.indexOf(leaf.row_index) >= 0) visLabelRows.push(rowCells);
+        if (visVIdx.indexOf(leaf.row_index) >= 0) {
+            var stripped = [];
+            rowCells.forEach(function(c) { if (c.tipo !== 'parent') stripped.push(c); });
+            visLabelRows.push(stripped);
+            var pid = parentGroupOfIdx[leaf.row_index] || null;
+            if (pid !== null) {
+                var pg = parentGroups.find(function(g) { return g.parentId === pid; });
+                if (pg) { pg.visibleCount++; if (seenParent[pid] === undefined) seenParent[pid] = visLabelRows.length - 1; }
+            }
+        }
     });
 
-    // Recalculate parent rowspan
+    // ─── Recalculate parentSpan, inject parent cell into first visible row ───
     var parentSpan = {};
-    var openP = null;
-    visLabelRows.forEach(function(rowCells) {
-        var pc = null;
-        rowCells.forEach(function(c) { if (c.tipo === 'parent') pc = c; });
-        if (pc) { openP = pc.categoria_id; parentSpan[openP] = 1; }
-        else if (openP !== null) parentSpan[openP]++;
+    parentGroups.forEach(function(pg) {
+        if (pg.visibleCount > 0) {
+            parentSpan[pg.parentId] = pg.visibleCount;
+            var insertAt = seenParent[pg.parentId];
+            if (insertAt !== undefined) {
+                visLabelRows[insertAt].unshift({
+                    tipo: 'parent', categoria_id: pg.parentId, nombre: pg.cell.nombre
+                });
+            }
+        }
     });
 
     // Build header rows (filtered)
@@ -181,9 +215,14 @@ function renderTables() {
                     for (var vi = 0; vi < visHIdx.length; vi++) { var hidx = visHIdx[vi]; if (hidx >= start && hidx < end) cnt++; }
                     if (cnt === 0) continue;
                     var pid = cell.categoria_id;
-                    var pck = visibleH[pid] !== false ? 'checked' : '';
+                    var hkids = childrenOfH[pid] || [];
+                    var hvis = hkids.filter(function(k) { return visibleH[k.categoria_id] !== false; });
+                    var hallVis = hvis.length === hkids.length;
+                    var hsomeVis = hvis.length > 0;
+                    var hpck = hallVis ? 'checked' : '';
+                    var hindet = hsomeVis && !hallVis ? ' data-indet="1"' : '';
                     h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
-                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + pck + '> ' + esc(cell.nombre) + '</label>';
+                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + esc(cell.nombre) + '</label>';
                     h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
@@ -228,9 +267,14 @@ function renderTables() {
             rowCells.forEach(function(cell) {
                 if (cell.tipo === 'parent') {
                     var span = parentSpan[cell.categoria_id] || 1;
-                    var ck = visibleV[cell.categoria_id] !== false ? 'checked' : '';
+                    var kids = childrenOf[cell.categoria_id] || [];
+                    var visKids = kids.filter(function(k) { return visibleV[k.categoria_id] !== false; });
+                    var allVis = visKids.length === kids.length;
+                    var someVis = visKids.length > 0;
+                    var ck = allVis ? 'checked' : '';
+                    var indet = someVis && !allVis ? ' data-indet="1"' : '';
                     allHtml += '<th rowspan="' + span + '" class="fw-semibold text-nowrap align-middle small">';
-                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + '> ' + esc(cell.nombre) + '</label>';
+                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + indet + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
@@ -264,15 +308,17 @@ function renderTables() {
 
     container.innerHTML = allHtml;
 
+    // Set indeterminate state on parent checkboxes
+    container.querySelectorAll('.row-cb[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
+    container.querySelectorAll('.col-cb[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
+
     // Wire up checkboxes inside tables
     container.querySelectorAll('.col-cb').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var cid = parseInt(this.dataset.cid);
             var on = this.checked;
             visibleH[cid] = on;
-            (estado.horizontales || []).forEach(function(h) {
-                if (h.padre_id === cid) { visibleH[h.categoria_id] = on; }
-            });
+            if (childrenOfH[cid]) childrenOfH[cid].forEach(function(h) { visibleH[h.categoria_id] = on; });
             saveStateToURL();
             renderTables();
         });
@@ -282,9 +328,7 @@ function renderTables() {
             var cid = parseInt(this.dataset.cid);
             var on = this.checked;
             visibleV[cid] = on;
-            (estado.verticales || []).forEach(function(v) {
-                if (v.padre_id === cid) { visibleV[v.categoria_id] = on; }
-            });
+            if (childrenOf[cid]) childrenOf[cid].forEach(function(v) { visibleV[v.categoria_id] = on; });
             saveStateToURL();
             renderTables();
         });
