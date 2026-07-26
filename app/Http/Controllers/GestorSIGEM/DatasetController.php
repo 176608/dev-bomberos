@@ -246,6 +246,7 @@ class DatasetController extends Controller
         $request->validate(['direccion' => 'required|in:up,down']);
 
         try {
+            Cache::forget("visor_cuadro_estado_{$id}");
             return response()->json(['success' => true, 'data' => $this->datasetService->reordenarCategoria((int) $categoria, $request->direccion)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);

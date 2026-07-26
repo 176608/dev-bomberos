@@ -761,12 +761,7 @@ function loadStateFromURL() {
         var sw = document.getElementById('switch-invertir-ejes');
         if (sw) sw.checked = ejeCode === 'h';
     }
-    if (tipoCode) {
-        var selTipo = document.getElementById('select-tipo-grafica');
-        if (selTipo && selTipo.querySelector('option[value="' + tipoCode + '"]')) {
-            selTipo.value = tipoCode;
-        }
-    }
+    window._urlTipo = tipoCode;
 }
 
 function initGraficaPage() {
@@ -789,6 +784,14 @@ function initGraficaPage() {
     });
 
     loadStateFromURL();
+
+    // Apply tipo from URL after populateTipoSelect has run
+    if (window._urlTipo) {
+        var selTipo = document.getElementById('select-tipo-grafica');
+        if (selTipo && selTipo.querySelector('option[value="' + window._urlTipo + '"]')) {
+            selTipo.value = window._urlTipo;
+        }
+    }
 
     // Pre-load uncached selected sections from URL params
     var pendingLoads = [];
