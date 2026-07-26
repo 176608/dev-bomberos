@@ -717,6 +717,30 @@ class DatasetService
         return $this->obtenerEstado($cuadro_id, $seccion_id);
     }
 
+    public function reordenarCategoria(int $categoria_id, string $direccion): array
+    {
+        $categoria = $this->categoria->findOrFail($categoria_id);
+        $cuadro_id = $categoria->cuadro_id;
+
+        $ordenActual = $categoria->orden;
+        $ordenObjetivo = $direccion === 'up' ? $ordenActual - 1 : $ordenActual + 1;
+
+        if ($ordenObjetivo < 1) throw new \RuntimeException('La categoría ya está en la primera posición');
+
+        $vecina = $this->categoria
+            ->where('cuadro_id', $cuadro_id)
+            ->where('eje', $categoria->eje)
+            ->where('padre_id', $categoria->padre_id)
+            ->where('orden', $ordenObjetivo)
+            ->first();
+        if (!$vecina) throw new \RuntimeException('No hay categoría adyacente en esa dirección');
+
+        $categoria->update(['orden' => $ordenObjetivo]);
+        $vecina->update(['orden' => $ordenActual]);
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
     // ============ UTILITY HELPERS ============
 
     private function getLeaves($categories)

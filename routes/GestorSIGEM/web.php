@@ -47,6 +47,7 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
                 Route::delete('/columna/{categoria}', [DatasetController::class, 'destroyColumna'])->name('columna.destroy');
                 Route::put('/celda/{dato}', [DatasetController::class, 'updateCelda'])->name('celda.update');
                 Route::put('/categoria/{categoria}', [DatasetController::class, 'updateCategoria'])->name('categoria.update');
+                Route::post('/categoria/{categoria}/reordenar', [DatasetController::class, 'reordenarCategoria'])->name('categoria.reordenar');
                 Route::post('/paste', [DatasetController::class, 'paste'])->name('paste');
                 Route::post('/paste-categorias', [DatasetController::class, 'pasteCategorias'])->name('paste-categorias');
                 Route::post('/hijo', [DatasetController::class, 'storeHijo'])->name('hijo.store');

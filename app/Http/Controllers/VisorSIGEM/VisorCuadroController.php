@@ -19,6 +19,14 @@ class VisorCuadroController extends Controller
         return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
     }
 
+    private function getUserRoleDisplay(): ?string
+    {
+        if (!auth()->check()) return null;
+        if (auth()->user()->hasRole('Desarrollador')) return 'Desarrollador';
+        if (auth()->user()->hasRole('Estadistico')) return 'Estadístico';
+        return null;
+    }
+
     public function dataset(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
@@ -32,6 +40,7 @@ class VisorCuadroController extends Controller
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
             'esDesarrollador' => $this->esDesarrollador(),
+            'userRoleDisplay' => $this->getUserRoleDisplay(),
         ]);
     }
 
@@ -48,6 +57,7 @@ class VisorCuadroController extends Controller
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
             'esDesarrollador' => $this->esDesarrollador(),
+            'userRoleDisplay' => $this->getUserRoleDisplay(),
         ]);
     }
 

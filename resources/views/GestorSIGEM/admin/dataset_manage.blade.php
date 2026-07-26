@@ -286,6 +286,23 @@
         if (focused) focused.blur();
     }
 
+    var siblingInfoCache = {};
+
+    function buildSiblingInfo(arr) {
+        var groups = {};
+        (arr || []).forEach(function(item) {
+            var key = item.padre_id || 0;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(item);
+        });
+        Object.keys(groups).forEach(function(key) {
+            groups[key].sort(function(a, b) { return a.orden - b.orden; });
+            groups[key].forEach(function(item, i) {
+                siblingInfoCache[item.categoria_id] = { index: i, total: groups[key].length };
+            });
+        });
+    }
+
     function catActionsHtml(catId, esHijo, numHijos, esParent, esVertical) {
         var size = esHijo ? 'xs' : 'sm';
         var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-' + size + '">';
@@ -295,6 +312,11 @@
         }
         if (esParent && numHijos >= 2)
             h += '<button class="btn btn-info" title="Duplicar categoría" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
+        var si = siblingInfoCache[catId];
+        if (si) {
+            if (si.index > 0) h += '<button class="btn btn-outline-secondary" title="Subir" onclick="window.reordenarCategoria(' + catId + ', \'up\')"><i class="bi bi-caret-up-fill"></i></button>';
+            if (si.index < si.total - 1) h += '<button class="btn btn-outline-secondary" title="Bajar" onclick="window.reordenarCategoria(' + catId + ', \'down\')"><i class="bi bi-caret-down-fill"></i></button>';
+        }
         h += '<button class="btn btn-danger" title="' + (esVertical ? 'Eliminar fila' : 'Eliminar columna') + '" onclick="window.' + (esVertical ? 'eliminarFila' : 'eliminarColumna') + '(' + catId + ')"><i class="bi bi-x-lg"></i></button>';
         h += '</div></div>';
         return h;
@@ -589,6 +611,9 @@
 
     // ============ RENDER GRID ============
     function renderGrid(d) {
+        siblingInfoCache = {};
+        buildSiblingInfo(d.verticales);
+        buildSiblingInfo(d.horizontales);
         if (!d.tiene_dataset) {
             document.getElementById('grid-container').style.display = 'none';
             const st = document.getElementById('seccion-tabs');
@@ -1122,6 +1147,14 @@
         api('/seccion/' + seccionId + '/reordenar', { method: 'POST', body: { direccion } })
             .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Sección reordenada'); } else alerta(j.message); })
             .catch(() => alerta('Error [' + ERR.SECCION + ']'));
+    };
+
+    window.reordenarCategoria = function(categoriaId, direccion) {
+        saveAllBeforeAction();
+        status('Reordenando...');
+        api('/categoria/' + categoriaId + '/reordenar', { method: 'POST', body: { direccion } })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría reordenada'); } else alerta(j.message); })
+            .catch(() => alerta('Error al reordenar categoría'));
     };
 
     window.eliminarSeccion = function(seccionId) {

@@ -20,8 +20,8 @@
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
             @if($esDesarrollador)
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de desarrollador y consultor">
-                <i class="bi bi-person-badge"></i> <span id="devmode-label">Desarrollador</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de {{ $userRoleDisplay }} y consultor">
+                <i class="bi bi-person-badge"></i> <span id="devmode-label">{{ $userRoleDisplay }}</span>
             </button>
             @endif
         </div>
@@ -80,6 +80,7 @@
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 const IS_DEV = @json($esDesarrollador);
+var userRoleLabel = @json($userRoleDisplay);
 var devMode = IS_DEV;
 
 let estado = @json($estadoInicial);
@@ -488,7 +489,7 @@ if (dt) dt.addEventListener('click', function() {
 document.getElementById('btn-devmode')?.addEventListener('click', function() {
     devMode = !devMode;
     var label = document.getElementById('devmode-label');
-    if (label) label.textContent = devMode ? 'Desarrollador' : 'Consultor';
+    if (label) label.textContent = devMode ? userRoleLabel : 'Consultor';
     var dbgEl = document.getElementById('chart-debug');
     if (dbgEl) {
         dbgEl.style.display = devMode ? 'block' : 'none';

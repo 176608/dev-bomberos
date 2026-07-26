@@ -20,8 +20,8 @@
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
             @if($esDesarrollador)
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de desarrollador y consultor">
-                <i class="bi bi-person-badge"></i> <span id="devmode-label">Desarrollador</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de {{ $userRoleDisplay }} y consultor">
+                <i class="bi bi-person-badge"></i> <span id="devmode-label">{{ $userRoleDisplay }}</span>
             </button>
             @endif
         </div>
@@ -93,6 +93,7 @@ const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 
 let estado = @json($estadoInicial);
 const IS_DEV = @json($esDesarrollador);
+var userRoleLabel = @json($userRoleDisplay);
 var devMode = IS_DEV;
 
 function alerta(msg) {
@@ -830,7 +831,7 @@ var selectTipoGrafica = document.getElementById('select-tipo-grafica');
 document.getElementById('btn-devmode')?.addEventListener('click', function() {
     devMode = !devMode;
     var label = document.getElementById('devmode-label');
-    if (label) label.textContent = devMode ? 'Desarrollador' : 'Consultor';
+    if (label) label.textContent = devMode ? userRoleLabel : 'Consultor';
     var dbgEl = document.getElementById('chart-debug');
     if (dbgEl) dbgEl.style.display = devMode ? 'block' : 'none';
     var dbgToggle = document.querySelector('.debug-toggle');
