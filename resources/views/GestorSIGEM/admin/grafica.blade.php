@@ -12,9 +12,6 @@
             <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}" class="btn btn-outline-info btn-sm">
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
-            <a href="{{ route('sgiem.admin.cuadros.edit', $cuadro->cuadro_id) }}" class="btn btn-outline-warning btn-sm">
-                <i class="bi bi-pencil me-1"></i> Editar
-            </a>
             <button type="button" class="btn btn-sm {{ $cuadro->publicado ? 'btn-success' : 'btn-secondary' }}" id="btn-toggle-publicado" onclick="togglePublicado({{ $cuadro->cuadro_id }})">
                 <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
                 {{ $cuadro->publicado ? 'Publicado' : 'No publicado' }}
