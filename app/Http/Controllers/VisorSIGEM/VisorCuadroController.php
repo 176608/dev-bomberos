@@ -14,6 +14,11 @@ class VisorCuadroController extends Controller
         private DatasetService $datasetService,
     ) {}
 
+    private function esDesarrollador(): bool
+    {
+        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
+    }
+
     public function dataset(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
@@ -26,6 +31,7 @@ class VisorCuadroController extends Controller
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
+            'esDesarrollador' => $this->esDesarrollador(),
         ]);
     }
 
@@ -41,6 +47,7 @@ class VisorCuadroController extends Controller
         return view('VisorSIGEM.cuadro.grafica', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
+            'esDesarrollador' => $this->esDesarrollador(),
         ]);
     }
 

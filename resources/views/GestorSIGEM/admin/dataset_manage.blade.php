@@ -8,9 +8,18 @@
                 <strong>{{ $cuadro->c_titulo }}</strong>
             </small>
         </div>
-        <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('sgiem.admin.cuadros.edit', $cuadro->cuadro_id) }}" class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+            <button type="button" class="btn btn-sm {{ $cuadro->publicado ? 'btn-success' : 'btn-secondary' }}" id="btn-toggle-publicado" onclick="togglePublicado({{ $cuadro->cuadro_id }})">
+                <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
+                {{ $cuadro->publicado ? 'Publicado' : 'No publicado' }}
+            </button>
+            <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-2" id="mode-tabs">
@@ -212,6 +221,28 @@
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
     const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
+
+    function togglePublicado(id) {
+        if (!confirm('¿Cambiar estado de publicación del cuadro?')) return;
+        var btn = document.getElementById('btn-toggle-publicado');
+        btn.disabled = true;
+        fetch('{{ url("/sgiem/admin/cuadros") }}/' + id + '/toggle-publicado', {
+            method: 'PUT',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(j) {
+            if (j.success) {
+                var pub = j.publicado;
+                btn.className = 'btn btn-sm ' + (pub ? 'btn-success' : 'btn-secondary');
+                btn.innerHTML = '<i class="bi ' + (pub ? 'bi-check-circle' : 'bi-x-circle') + ' me-1"></i>' + (pub ? 'Publicado' : 'No publicado');
+            } else {
+                alert(j.message || 'Error al cambiar estado');
+            }
+        })
+        .catch(function() { alert('Error de red'); })
+        .finally(function() { btn.disabled = false; });
+    }
 
     let estado = @json($estadoInicial);
     let currentMode = 'diseno';

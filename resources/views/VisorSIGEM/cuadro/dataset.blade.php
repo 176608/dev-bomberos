@@ -21,6 +21,20 @@
         </div>
     </div>
 
+    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+        <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
+            <i class="bi bi-list-check"></i> Categorías
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-warning" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
+            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+        </button>
+        @if($esDesarrollador)
+        <button type="button" class="btn btn-sm btn-outline-secondary debug-toggle" title="Alternar debug">
+            <i class="bi bi-bug"></i> Debug
+        </button>
+        @endif
+    </div>
+
     <div class="d-flex gap-2">
         <div id="chart-panel" class="border rounded p-2" style="width:240px;flex-shrink:0;overflow-y:auto;max-height:500px;display:none">
             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -42,7 +56,9 @@
         </div>
         <div style="flex:1;min-width:0">
             <div id="table-container" class="table-responsive"></div>
+            @if($esDesarrollador)
             <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
+            @endif
         </div>
     </div>
 
@@ -63,6 +79,9 @@
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 #table-container table { font-size:0.85rem; }
 #table-container table th { white-space:nowrap; }
+#table-container table td.valor { text-align: right; }
+#table-container .section-parent { background:#f0f4f8; font-weight:600; }
+#table-container .section-parent td { border-bottom:2px solid #dee2e6; }
 </style>
 @endsection
 
@@ -70,8 +89,15 @@
 <script>
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
+const IS_DEV = @json($esDesarrollador);
 
 let estado = @json($estadoInicial);
+
+var chartAxis = 'vertical';
+var visibleV = {};
+var visibleH = {};
+var sectionsCache = {};
+var selectedSections = {};
 
 function alerta(msg) {
     document.getElementById('status-text').textContent = '⚠ ' + msg;
@@ -102,11 +128,14 @@ function api(path, opts) {
     return fetch(BASE + path, opts).then(function(r) { return r.json(); });
 }
 
-var chartAxis = 'vertical';
-var visibleV = {};
-var visibleH = {};
-var sectionsCache = {};
-var selectedSections = {};
+function parseCellValue(val) {
+    if (val === undefined || val === null || val === '') return NaN;
+    if (typeof val === 'number') return val;
+    var s = String(val).replace(/,/g, '');
+    return parseFloat(s);
+}
+
+// ─── Panel helpers (syncTodoCheckboxes, updateParentCheckState) ───
 
 function syncTodoCheckboxes() {
     var container = document.getElementById('panel-items');
@@ -148,11 +177,14 @@ function updateParentCheckState(axis, parentId) {
     }
 }
 
+// ─── Render category panel (checkboxes for axes + sections) ───
+
 function renderCategoryPanel() {
     var container = document.getElementById('panel-items');
     if (!container) return;
     var html = '';
 
+    // Sections (multi-select now — each active section stacks vertically in table)
     html += '<div class="mb-2"><label class="small text-muted fw-semibold">Secciones</label></div>';
     (estado.secciones || []).forEach(function(s) {
         var isChecked = selectedSections[s.seccion_id] !== false;
@@ -167,6 +199,7 @@ function renderCategoryPanel() {
     });
     html += '<hr class="my-1">';
 
+    // Build axes trees
     function buildAxisTree(leaves, layers, axis) {
         var visMap = axis === 'vertical' ? visibleV : visibleH;
         var allIds = (leaves || []).map(function(l) { return l.categoria_id; });
@@ -286,13 +319,13 @@ function renderCategoryPanel() {
     });
 }
 
-function enforceSingleSection(tipo) {
-}
+// ─── Render table with multi-section support ───
 
 function renderTable() {
-    var tableContainer = document.getElementById('table-container');
-    if (!tableContainer) return;
+    var container = document.getElementById('table-container');
+    if (!container) return;
 
+    // Determine visible leaves
     var rows, cols;
     if (chartAxis === 'vertical') {
         rows = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; });
@@ -302,60 +335,112 @@ function renderTable() {
         cols = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; });
     }
 
+    // Build column lookup (map categoria_id → col index in the filtered list)
+    var colIdxMap = {};
+    cols.forEach(function(c, i) { colIdxMap[c.categoria_id] = i; });
+
+    // Gather active sections
+    var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+
     if (!rows.length || !cols.length) {
-        tableContainer.innerHTML = '<div class="text-muted small p-3">Sin datos que mostrar — todas las categorías ocultas.</div>';
+        container.innerHTML = '<div class="text-muted small p-3">Sin datos disponibles.</div>';
         return;
     }
 
+    var pivotLabel = esc(estado.pivot_label || '');
     var html = '<table class="table table-bordered table-sm mb-0">';
-    html += '<thead class="table-light"><tr><th></th>';
+    html += '<thead class="table-light"><tr>';
+    html += '<th class="fw-semibold text-center align-middle" style="min-width:60px">' + pivotLabel + '</th>';
     cols.forEach(function(col) {
-        html += '<th class="fw-semibold text-center">' + esc(col.nombre) + '</th>';
+        html += '<th class="fw-semibold text-center small" style="white-space:nowrap">' + esc(col.nombre) + '</th>';
     });
     html += '</tr></thead><tbody>';
 
-    rows.forEach(function(row) {
-        html += '<tr><th class="fw-semibold text-nowrap">' + esc(row.nombre) + '</th>';
-        cols.forEach(function(col) {
-            var rowIdx, colIdx;
-            if (chartAxis === 'vertical') {
-                rowIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === row.categoria_id; });
-                colIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === col.categoria_id; });
-            } else {
-                rowIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === row.categoria_id; });
-                colIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === col.categoria_id; });
-            }
-            var val = '';
-            if (rowIdx >= 0 && colIdx >= 0) {
-                var cell = estado.data[rowIdx] ? estado.data[rowIdx][colIdx] : null;
-                val = (cell && cell.valor !== undefined && cell.valor !== '') ? cell.valor : '';
-            }
-            html += '<td class="text-center">' + esc(String(val)) + '</td>';
-        });
+    if (!activeSids.length) {
+        // No sections selected — show empty
+        html += '<tr><td colspan="' + (cols.length + 1) + '" class="text-muted small text-center">Seleccioná una sección para ver datos.</td></tr>';
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        return;
+    }
+
+    activeSids.forEach(function(sid) {
+        var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
+        var secName = sec ? sec.nombre : ('Sección ' + sid);
+        var secData = sectionsCache[sid] ? sectionsCache[sid].data : [];
+
+        // Section parent row (spans all columns)
+        html += '<tr class="section-parent">';
+        html += '<td colspan="' + (cols.length + 1) + '" class="fw-bold small px-2 py-1">' + esc(secName) + '</td>';
         html += '</tr>';
+
+        // Data rows for this section
+        rows.forEach(function(row) {
+            html += '<tr>';
+            html += '<th class="fw-semibold text-nowrap small px-2">' + esc(row.nombre) + '</th>';
+
+            cols.forEach(function(col) {
+                // Find the original index in the full list for data lookup
+                var fullRowIdx = -1, fullColIdx = -1;
+                if (chartAxis === 'vertical') {
+                    fullRowIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === row.categoria_id; });
+                    fullColIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === col.categoria_id; });
+                } else {
+                    fullRowIdx = (estado.horizontales || []).findIndex(function(h) { return h.categoria_id === row.categoria_id; });
+                    fullColIdx = (estado.verticales || []).findIndex(function(v) { return v.categoria_id === col.categoria_id; });
+                }
+
+                var val = '';
+                if (fullRowIdx >= 0 && fullColIdx >= 0) {
+                    var cell = secData[fullRowIdx] ? secData[fullRowIdx][fullColIdx] : null;
+                    val = (cell && cell.valor !== undefined && cell.valor !== '') ? cell.valor : '';
+                }
+                html += '<td class="valor">' + esc(String(val)) + '</td>';
+            });
+            html += '</tr>';
+        });
     });
+
     html += '</tbody></table>';
-    tableContainer.innerHTML = html;
+    container.innerHTML = html;
 }
 
-function parseCellValue(val) {
-    if (val === undefined || val === null || val === '') return NaN;
-    if (typeof val === 'number') return val;
-    var s = String(val).replace(/,/g, '');
-    return parseFloat(s);
-}
+// ─── Eje helper ───
 
 function updateEjeHelper() {
     var el = document.getElementById('eje-helper');
     if (!el) return;
-    var vCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
-    var hCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
+    var vCount = 0, hCount = 0;
+    if (chartAxis === 'vertical') {
+        vCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
+        hCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
+    } else {
+        vCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
+        hCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
+    }
     if (chartAxis === 'vertical') {
         el.textContent = 'Verticales en eje X (' + vCount + ') — Horizontales como series (' + hCount + ')';
     } else {
         el.textContent = 'Horizontales en eje X (' + hCount + ') — Verticales como series (' + vCount + ')';
     }
 }
+
+// ─── Section loading (multi-section support) ───
+
+function loadSectionData(sid) {
+    if (sectionsCache[sid]) return Promise.resolve(sectionsCache[sid]);
+    return api('/dataset/seccion/' + sid + '/data')
+        .then(function(j) {
+            if (j.data) {
+                var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
+                sectionsCache[sid] = { nombre: sName, data: j.data || [] };
+                return sectionsCache[sid];
+            }
+            throw new Error(j.message || 'Error al cargar sección');
+        });
+}
+
+// ─── Save / Load URL state ───
 
 function sanitizeIdList(str) {
     if (!str) return [];
@@ -370,8 +455,7 @@ function saveStateToURL() {
     if (visibleVIds.length) params.push('v=' + visibleVIds.join(','));
     if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
     if (selectedSids.length) params.push('s=' + selectedSids.join(','));
-    var ejeCode = chartAxis === 'vertical' ? 'v' : 'h';
-    params.push('ej=' + ejeCode);
+    params.push('ej=' + (chartAxis === 'vertical' ? 'v' : 'h'));
     var qs = params.join('&');
     var url = window.location.pathname + (qs ? '?' + qs : '');
     try { window.history.replaceState(null, '', url); } catch(e) {}
@@ -402,6 +486,33 @@ function loadStateFromURL() {
     }
 }
 
+// ─── Debug ───
+
+function updateDebug() {
+    var el = document.getElementById('chart-debug');
+    if (!el) return;
+    el.style.display = 'block';
+    var vNames = Object.keys(visibleV).filter(function(id) { return visibleV[id]; }).map(function(id) {
+        var c = (estado.verticales || []).find(function(v) { return v.categoria_id == id; });
+        return c ? c.nombre : id;
+    });
+    var hNames = Object.keys(visibleH).filter(function(id) { return visibleH[id]; }).map(function(id) {
+        var c = (estado.horizontales || []).find(function(h) { return h.categoria_id == id; });
+        return c ? c.nombre : id;
+    });
+    var selectedNames = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
+        return ((estado.secciones || []).find(function(s) { return s.seccion_id == sid; }) || {}).nombre || sid;
+    });
+    el.textContent = '── Debug Dataset ──\n'
+        + 'Eje X: ' + chartAxis + '\n'
+        + 'Verticales visibles: ' + (vNames.length ? vNames.join(', ') : '(todas ocultas)') + '\n'
+        + 'Horizontales visibles: ' + (hNames.length ? hNames.join(', ') : '(todas ocultas)') + '\n'
+        + 'Secciones activas: ' + (selectedNames.length ? selectedNames.join(', ') : '(ninguna)') + '\n'
+        + 'Caché secciones: ' + Object.keys(sectionsCache).join(', ');
+}
+
+// ─── Init ───
+
 function initDatasetPage() {
     (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });
@@ -412,46 +523,40 @@ function initDatasetPage() {
 
     loadStateFromURL();
 
+    // Load initial section data
     var pendingLoads = [];
     Object.keys(selectedSections).forEach(function(sid) {
         if (selectedSections[sid] && !sectionsCache[sid]) {
-            (function(sidNum) {
-                pendingLoads.push(
-                    api('/dataset/seccion/' + sidNum + '/data')
-                        .then(function(j) {
-                            if (j.data) {
-                                var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sidNum; }) || {}).nombre || '';
-                                sectionsCache[sidNum] = { nombre: sName, data: j.data || [] };
-                            } else {
-                                selectedSections[sidNum] = false;
-                            }
-                        })
-                        .catch(function() {
-                            selectedSections[sidNum] = false;
-                        })
-                );
-            })(parseInt(sid));
+            pendingLoads.push(loadSectionData(parseInt(sid)));
         }
     });
 
     function finishInit() {
-        var activeSid = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; })[0];
-        if (activeSid && sectionsCache[activeSid]) {
-            estado.data = sectionsCache[activeSid].data;
-        }
         renderCategoryPanel();
         renderTable();
         updateEjeHelper();
         saveStateToURL();
+        if (IS_DEV) updateDebug();
         document.getElementById('chart-panel').style.display = 'block';
     }
 
     if (pendingLoads.length) {
-        Promise.all(pendingLoads).then(finishInit);
+        Promise.all(pendingLoads).then(finishInit).catch(finishInit);
     } else {
         finishInit();
     }
 }
+
+// ─── Event listeners ───
+
+document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
+    var panel = document.getElementById('chart-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
+    document.getElementById('chart-panel').style.display = 'none';
+});
 
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
     chartAxis = this.checked ? 'horizontal' : 'vertical';
@@ -460,6 +565,31 @@ document.getElementById('switch-invertir-ejes')?.addEventListener('change', func
     saveStateToURL();
 });
 
+document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', function() {
+    (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
+    (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });
+    chartAxis = 'vertical';
+    var sw = document.getElementById('switch-invertir-ejes');
+    if (sw) sw.checked = false;
+    renderCategoryPanel();
+    renderTable();
+    updateEjeHelper();
+    saveStateToURL();
+    status('Selección restaurada');
+});
+
+var debugToggle = document.querySelector('.debug-toggle');
+if (debugToggle) {
+    debugToggle.addEventListener('click', function() {
+        var el = document.getElementById('chart-debug');
+        if (el) {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            if (el.style.display === 'block') updateDebug();
+        }
+    });
+}
+
+// Section checkbox handler (multi-select allowed)
 document.getElementById('panel-items')?.addEventListener('change', function(e) {
     var cb = e.target;
     if (!cb.classList.contains('sec-check')) return;
@@ -472,44 +602,29 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
         cb.disabled = true;
         cb.insertAdjacentHTML('afterend', ' <span class="spinner-border spinner-border-sm" role="status"></span>');
         status('Cargando sección...');
-        api('/dataset/seccion/' + sid + '/data')
-            .then(function(j) {
-                if (j.data) {
-                    var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
-                    sectionsCache[sid] = { nombre: sName, data: j.data || [] };
-                    estado.data = j.data;
-                    renderTable();
-                    updateEjeHelper();
-                    saveStateToURL();
-                    status('Sección: ' + (sName || sid) + ' cargada');
-                } else {
-                    selectedSections[sid] = false;
-                    cb.checked = false;
-                    alerta(j.message || 'Error al cargar sección');
-                }
+        loadSectionData(sid)
+            .then(function() {
+                renderTable();
+                saveStateToURL();
+                status('');
+                if (IS_DEV) updateDebug();
             })
-            .catch(function() {
+            .catch(function(err) {
                 selectedSections[sid] = false;
                 cb.checked = false;
-                alerta('Error de red al cargar sección');
+                alerta(err.message || 'Error al cargar sección');
             })
             .finally(function() {
                 cb.disabled = false;
                 var spinners = cb.parentNode ? cb.parentNode.querySelectorAll('.spinner-border') : [];
                 spinners.forEach(function(sp) { sp.remove(); });
+                renderCategoryPanel();
             });
     } else {
-        if (cb.checked && sectionsCache[sid]) {
-            estado.data = sectionsCache[sid].data;
-        }
         renderTable();
-        updateEjeHelper();
         saveStateToURL();
+        if (IS_DEV) updateDebug();
     }
-});
-
-document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
-    document.getElementById('chart-panel').style.display = 'none';
 });
 
 initDatasetPage();

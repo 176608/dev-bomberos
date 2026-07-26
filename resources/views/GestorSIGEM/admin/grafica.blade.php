@@ -12,6 +12,13 @@
             <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}" class="btn btn-outline-info btn-sm">
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
+            <a href="{{ route('sgiem.admin.cuadros.edit', $cuadro->cuadro_id) }}" class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+            <button type="button" class="btn btn-sm {{ $cuadro->publicado ? 'btn-success' : 'btn-secondary' }}" id="btn-toggle-publicado" onclick="togglePublicado({{ $cuadro->cuadro_id }})">
+                <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
+                {{ $cuadro->publicado ? 'Publicado' : 'No publicado' }}
+            </button>
             <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
@@ -124,6 +131,28 @@ var sectionsCache = {};
 var selectedSections = {};
 var multiSectionUnsupported = ['pie', 'doughnut', 'polarArea'];
 var allTypesMap = {};
+
+function togglePublicado(id) {
+    if (!confirm('¿Cambiar estado de publicación del cuadro?')) return;
+    var btn = document.getElementById('btn-toggle-publicado');
+    btn.disabled = true;
+    fetch('{{ url("/sgiem/admin/cuadros") }}/' + id + '/toggle-publicado', {
+        method: 'PUT',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(j) {
+        if (j.success) {
+            var pub = j.publicado;
+            btn.className = 'btn btn-sm ' + (pub ? 'btn-success' : 'btn-secondary');
+            btn.innerHTML = '<i class="bi ' + (pub ? 'bi-check-circle' : 'bi-x-circle') + ' me-1"></i>' + (pub ? 'Publicado' : 'No publicado');
+        } else {
+            alert(j.message || 'Error al cambiar estado');
+        }
+    })
+    .catch(function() { alert('Error de red'); })
+    .finally(function() { btn.disabled = false; });
+}
 
 // ============ CHART.JS HELPERS ============
 function generarColor(index, total) {
