@@ -949,7 +949,10 @@
         document.getElementById('modalNombreInput').value = defaultValue || '';
         pendingCreate = actionFn;
         new bootstrap.Modal(document.getElementById('modalNombre')).show();
-        setTimeout(() => document.getElementById('modalNombreInput').focus(), 100);
+        document.getElementById('modalNombre').addEventListener('shown.bs.modal', function focusInput() {
+            document.getElementById('modalNombreInput').focus();
+            document.getElementById('modalNombre').removeEventListener('shown.bs.modal', focusInput);
+        });
     }
 
     document.getElementById('modalNombreConfirm').addEventListener('click', function() {
