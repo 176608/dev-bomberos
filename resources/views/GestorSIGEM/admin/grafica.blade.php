@@ -19,15 +19,9 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-config-grafica" title="Configuración de tipos de gráfica">
-            <i class="bi bi-gear me-1"></i>Tipos
-        </button>
         <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-        <button type="button" class="btn btn-sm btn-outline-success d-none" id="btn-asignar-tipo" title="Asignar este tipo">
-            <i class="bi bi-check-lg"></i> Asignar
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-danger d-none" id="btn-eliminar-tipo" title="Eliminar este tipo">
-            <i class="bi bi-x-lg"></i> Eliminar
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-tipo" title="Permitir o no permitir este tipo de gráfica en el dataset">
+            <i class="bi bi-gear me-1"></i> <span id="btn-tipo-label">Permitir</span>
         </button>
         <span class="text-muted small mx-1">|</span>
         <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
@@ -42,20 +36,14 @@
                 <button type="button" class="btn-close btn-sm" id="btn-cerrar-panel" aria-label="Cerrar panel"></button>
             </div>
             <div class="mb-2">
-                <label class="small text-muted mb-1">Eje X (labels)</label>
-                <select id="select-eje" class="form-select form-select-sm" title="Define qué categorías se usan como etiquetas en el eje X vs. series en la leyenda">
-                    <option value="vertical" title="Las verticales (filas) serán las etiquetas del eje X; las horizontales (columnas) serán las series">Verticales (filas)</option>
-                    <option value="horizontal" title="Las horizontales (columnas) serán las etiquetas del eje X; las verticales (filas) serán las series">Horizontales (columnas)</option>
-                </select>
+                <div class="d-flex align-items-center justify-content-between">
+                    <label class="small text-muted mb-0">Eje X</label>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
+                        <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
+                    </div>
+                </div>
                 <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
-            </div>
-            <div class="mb-2">
-                <label class="small text-muted mb-1">Agrupar por</label>
-                <select id="select-agrupar" class="form-select form-select-sm" title="Agrupa las series visualmente según su categoría padre en la jerarquía">
-                    <option value="none" title="Sin agrupación — cada serie se muestra individualmente">Ninguno</option>
-                    <option value="parent_horizontal" title="Colorea las series por grupo según el padre horizontal">Padre horizontal</option>
-                    <option value="parent_vertical" title="Colorea las series por grupo según el padre vertical">Padre vertical</option>
-                </select>
             </div>
             <hr class="my-1">
             <div id="panel-items" class="small"></div>
@@ -129,7 +117,6 @@ function api(path, opts) {
 
 // ============ CHART STATE ============
 var chartAxis = 'vertical';
-var chartGroup = 'none';
 var visibleV = {};
 var visibleH = {};
 var tiposPermitidos = [];
@@ -158,21 +145,9 @@ function parseCellValue(val) {
     return parseFloat(s);
 }
 
-function buildParentMap(items) {
-    var map = {};
-    (items || []).forEach(function(item) {
-        if (item.padre_id) {
-            if (!map[item.padre_id]) map[item.padre_id] = [];
-            map[item.padre_id].push(item);
-        }
-    });
-    return map;
-}
-
 function buildChartData(estado, tipo, opts) {
     opts = opts || {};
     var axis = opts.axis || 'vertical';
-    var groupBy = opts.groupBy || 'none';
     var visibleVIds = opts.visibleV || null;
     var visibleHIds = opts.visibleH || null;
     var sectionDataGrids = opts.sectionDataGrids || null;
@@ -197,22 +172,23 @@ function buildChartData(estado, tipo, opts) {
     if (labelFilter) labelsArr = labelsArr.filter(labelFilter);
     if (seriesFilter) seriesArr = seriesArr.filter(seriesFilter);
 
-    var labels = labelsArr.map(function(v) { return v.nombre; });
+    var parentNameForLabel = {};
+    var labelLayers = axis === 'vertical' ? (estado.labels || []) : (estado.headers || []);
+    (labelsArr || []).forEach(function(item) {
+        if (item.padre_id) {
+            labelLayers.forEach(function(row) {
+                (row || []).forEach(function(cell) {
+                    if (cell.tipo === 'parent' && cell.categoria_id === item.padre_id)
+                        parentNameForLabel[item.categoria_id] = cell.nombre;
+                });
+            });
+        }
+    });
+    var labels = labelsArr.map(function(v) {
+        var pName = parentNameForLabel[v.categoria_id];
+        return pName ? pName + ': ' + v.nombre : v.nombre;
+    });
     var seriesLen = seriesArr.length;
-
-    var parentMap;
-    if (groupBy === 'parent_horizontal') {
-        parentMap = buildParentMap(axis === 'vertical' ? (estado.horizontales || []) : (estado.verticales || []));
-    } else if (groupBy === 'parent_vertical') {
-        parentMap = buildParentMap(axis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || []));
-    }
-
-    var leafToParent = {};
-    if (groupBy !== 'none') {
-        (estado.verticales || []).concat(estado.horizontales || []).forEach(function(item) {
-            if (item.padre_id) leafToParent[item.categoria_id] = item.padre_id;
-        });
-    }
 
     var dataSources = [];
     if (sectionDataGrids && sectionDataGrids.length) {
@@ -250,32 +226,12 @@ function buildChartData(estado, tipo, opts) {
             }
 
             var colorIdx = globalIdx;
-            var parentId = leafToParent[s.categoria_id];
-            if (groupBy !== 'none' && parentId && parentMap && parentMap[parentId]) {
-                var siblings = parentMap[parentId] || [];
-                var siblingIndex = siblings.findIndex(function(ch) { return ch.categoria_id === s.categoria_id; });
-                if (siblingIndex >= 0) {
-                    var colorBase = Object.keys(leafToParent).indexOf(String(parentId));
-                    if (colorBase < 0) colorBase = 0;
-                    colorIdx = colorBase + globalIdx;
-                }
-            }
-
             var color = generarColor(colorIdx, Math.max(totalGlobal, 1));
             var bgColor = tipo === 'pie' || tipo === 'doughnut' || tipo === 'polarArea' || tipo === 'radar'
                 ? labels.map(function(_, li) { return generarColor(li, Math.max(labels.length, 1)); })
                 : generarColorRGBA(colorIdx, Math.max(totalGlobal, 1));
 
             var label = prefix + s.nombre;
-            if (groupBy !== 'none' && parentId) {
-                var parentName = '';
-                (estado.headers || []).concat(estado.labels || []).forEach(function(row) {
-                    (row || []).forEach(function(cell) {
-                        if (cell.tipo === 'parent' && cell.categoria_id === parentId) parentName = cell.nombre;
-                    });
-                });
-                if (parentName) label = parentName + ' - ' + label;
-            }
 
             datasets.push({
                 label: label,
@@ -299,7 +255,7 @@ function renderChart(tipo) {
         return;
     }
 
-    var opts = { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH };
+    var opts = { axis: chartAxis, visibleV: visibleV, visibleH: visibleH };
 
     var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
     var isMultiUnsupported = multiSectionUnsupported.indexOf(tipo) >= 0;
@@ -354,7 +310,7 @@ function updateChartDebug() {
     }
     var chartDataStr = 'null';
     try {
-        var cd = buildChartData(estado, document.getElementById('select-tipo-grafica').value, { axis: chartAxis, groupBy: chartGroup, visibleV: visibleV, visibleH: visibleH });
+        var cd = buildChartData(estado, document.getElementById('select-tipo-grafica').value, { axis: chartAxis, visibleV: visibleV, visibleH: visibleH });
         chartDataStr = JSON.stringify(cd, null, 2);
     } catch(e) { chartDataStr = 'Error: ' + e.message; }
     var selectedNames = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
@@ -362,7 +318,6 @@ function updateChartDebug() {
     });
     el.textContent = '── Debug Chart Data ──\n'
         + 'Eje X: ' + chartAxis + '\n'
-        + 'Agrupar por: ' + chartGroup + '\n'
         + 'Labels: ' + JSON.stringify(labels) + '\n'
         + 'Cantidad labels: ' + labels.length + '\n'
         + 'Series: ' + JSON.stringify(series) + '\n'
@@ -519,6 +474,8 @@ function populateTipoSelect() {
         { value: 'doughnut', text: 'Dona' },
         { value: 'radar', text: 'Radar' },
         { value: 'polarArea', text: 'Polar' },
+        { value: 'scatter', text: 'Dispersión' },
+        { value: 'bubble', text: 'Burbujas' },
     ];
     tiposPermitidos = (estado.tipos_grafica_permitida) || [];
     if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
@@ -532,17 +489,15 @@ function populateTipoSelect() {
         select.appendChild(opt);
     });
     if (select.options.length) select.selectedIndex = 0;
-    updateTipoButtons();
+    updateTipoLabel();
 }
 
-function updateTipoButtons() {
+function updateTipoLabel() {
     var tipo = document.getElementById('select-tipo-grafica').value;
-    var btnAgregar = document.getElementById('btn-asignar-tipo');
-    var btnEliminar = document.getElementById('btn-eliminar-tipo');
-    if (!tipo) return;
+    var label = document.getElementById('btn-tipo-label');
+    if (!tipo || !label) return;
     var isAssigned = tiposPermitidos.indexOf(tipo) >= 0;
-    btnAgregar.classList.toggle('d-none', isAssigned);
-    btnEliminar.classList.toggle('d-none', !isAssigned);
+    label.textContent = isAssigned ? 'No permitir' : 'Permitir';
 }
 
 function saveTiposPermitidos() {
@@ -562,11 +517,12 @@ function updateEjeHelper() {
         var m = chartAxis === 'vertical' ? visibleH : visibleV;
         return m[s.categoria_id] !== false;
     });
+    var labelAxisName = chartAxis === 'vertical' ? 'Verticales' : 'Horizontales';
+    var seriesAxisName = chartAxis === 'vertical' ? 'Horizontales' : 'Verticales';
     var labelNames = visibleLabels.map(function(l) { return l.nombre; });
     var seriesNames = visibleSeries.map(function(s) { return s.nombre; });
-    el.textContent = 'Eje X: ' + labelNames.length + ' label' + (labelNames.length !== 1 ? 's' : '')
-        + ' — Series: ' + seriesNames.length;
-    el.title = 'Labels: ' + (labelNames.join(', ') || '(ninguna)') + '\nSeries: ' + (seriesNames.join(', ') || '(ninguna)');
+    el.innerHTML = '<span title="' + esc(labelNames.join(', ') || '') + '">' + labelAxisName + ' en eje X (' + labelNames.length + ')</span>'
+        + ' — <span title="' + esc(seriesNames.join(', ') || '') + '">' + seriesAxisName + ' como series (' + seriesNames.length + ')</span>';
 }
 
 function saveStateToURL() {
@@ -609,18 +565,16 @@ function loadStateFromURL() {
     }
     if (ejeCode === 'v' || ejeCode === 'h') {
         chartAxis = ejeCode === 'v' ? 'vertical' : 'horizontal';
-        var selEje = document.getElementById('select-eje');
-        if (selEje) selEje.value = chartAxis;
+        var sw = document.getElementById('switch-invertir-ejes');
+        if (sw) sw.checked = ejeCode === 'h';
     }
 }
 
 function initGraficaPage() {
     initVisibleState();
     populateTipoSelect();
-    var selectEje = document.getElementById('select-eje');
-    var selectGroup = document.getElementById('select-agrupar');
-    chartAxis = selectEje.value;
-    chartGroup = selectGroup.value;
+    var switchEje = document.getElementById('switch-invertir-ejes');
+    chartAxis = switchEje && switchEje.checked ? 'horizontal' : 'vertical';
 
     // Init multi-section state: cache current section's data grid
     var activeId = estado.seccion_activa_id;
@@ -679,37 +633,29 @@ function initGraficaPage() {
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
 if (selectTipoGrafica) {
     selectTipoGrafica.addEventListener('change', function() {
-        updateTipoButtons();
+        updateTipoLabel();
         renderChart(this.value);
         updateChartDebug();
     });
 }
 
-document.getElementById('btn-asignar-tipo')?.addEventListener('click', function() {
+document.getElementById('btn-toggle-tipo')?.addEventListener('click', function() {
     var tipo = selectTipoGrafica.value;
-    if (!tipo || tiposPermitidos.indexOf(tipo) >= 0) return;
-    tiposPermitidos.push(tipo);
-    saveTiposPermitidos();
-    updateTipoButtons();
-    status('Tipo "' + tipo + '" asignado');
-});
-
-document.getElementById('btn-eliminar-tipo')?.addEventListener('click', function() {
-    var tipo = selectTipoGrafica.value;
+    if (!tipo) return;
     var idx = tiposPermitidos.indexOf(tipo);
-    if (idx < 0) return;
-    tiposPermitidos.splice(idx, 1);
+    if (idx >= 0) {
+        tiposPermitidos.splice(idx, 1);
+        if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
+        populateTipoSelect();
+        status('Tipo "' + tipo + '" — no permitido');
+    } else {
+        tiposPermitidos.push(tipo);
+        status('Tipo "' + tipo + '" — permitido');
+    }
     saveTiposPermitidos();
-    if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
-    populateTipoSelect();
+    updateTipoLabel();
     renderChart(selectTipoGrafica.value);
     updateChartDebug();
-    status('Tipo "' + tipo + '" eliminado');
-});
-
-document.getElementById('btn-config-grafica')?.addEventListener('click', function() {
-    var msg = 'Tipos asignados: ' + (tiposPermitidos.length ? tiposPermitidos.join(', ') : '(ninguno)');
-    status(msg);
 });
 
 document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
@@ -721,18 +667,11 @@ document.getElementById('btn-cerrar-panel')?.addEventListener('click', function(
     document.getElementById('chart-panel').style.display = 'none';
 });
 
-document.getElementById('select-eje')?.addEventListener('change', function() {
-    chartAxis = this.value;
+document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
+    chartAxis = this.checked ? 'horizontal' : 'vertical';
     renderChart(selectTipoGrafica.value);
     updateChartDebug();
     updateEjeHelper();
-    saveStateToURL();
-});
-
-document.getElementById('select-agrupar')?.addEventListener('change', function() {
-    chartGroup = this.value;
-    renderChart(selectTipoGrafica.value);
-    updateChartDebug();
     saveStateToURL();
 });
 

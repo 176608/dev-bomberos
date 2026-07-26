@@ -78,6 +78,7 @@
         configureUrls: function () {
             CONFIG.BASE_URL = window.SIGEM_BASE_URL ||
                 (window.location.pathname.includes('/m_aux/') ? '/m_aux/public/sigem' : '/sigem');
+            // @migrate m_aux → aux: (window.location.pathname.includes('/aux/') ? '/aux/public/sigem' : '/sigem')
             CONFIG.PARTIALS_URL = `${CONFIG.BASE_URL}/partial`;
             CONFIG.API_URL = CONFIG.BASE_URL; 
         },

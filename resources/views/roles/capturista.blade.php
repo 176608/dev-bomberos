@@ -426,6 +426,7 @@ function setupCrudHandlers() {
         
         $.ajax({
             url: `${window.location.origin}/m_aux/public/hidrantes/${hidranteId}/edit`,
+            // @migrate m_aux → aux: url: `${window.location.origin}/aux/public/hidrantes/${hidranteId}/edit`,
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

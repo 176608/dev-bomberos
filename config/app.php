@@ -52,6 +52,7 @@ return [
     */
 
     'url' => env('APP_URL', 'https://imip.org.mx/m_aux'),
+    // @migrate m_aux → aux: 'url' => env('APP_URL', 'https://imip.org.mx/aux'),
 
     /*
     |--------------------------------------------------------------------------
