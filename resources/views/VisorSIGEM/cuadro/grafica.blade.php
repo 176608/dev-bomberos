@@ -1,3 +1,8 @@
+@extends('VisorSIGEM.layouts.visor')
+
+@section('visor_title', 'Gráfica — ' . ($cuadro->codigo_cuadro ?? ''))
+
+@section('visor_content')
 <div class="container-fluid py-3" id="app-grafica">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -74,7 +79,9 @@
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 </style>
+@endsection
 
+@push('visor_scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
@@ -770,3 +777,4 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
 initGraficaPage();
 </script>
+@endpush

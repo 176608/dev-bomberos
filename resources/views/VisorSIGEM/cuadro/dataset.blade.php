@@ -1,3 +1,8 @@
+@extends('VisorSIGEM.layouts.visor')
+
+@section('visor_title', 'Dataset — ' . ($cuadro->codigo_cuadro ?? ''))
+
+@section('visor_content')
 <div class="container-fluid py-3" id="app-dataset">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -59,7 +64,9 @@
 #table-container table { font-size:0.85rem; }
 #table-container table th { white-space:nowrap; }
 </style>
+@endsection
 
+@push('visor_scripts')
 <script>
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
@@ -507,3 +514,4 @@ document.getElementById('btn-cerrar-panel')?.addEventListener('click', function(
 
 initDatasetPage();
 </script>
+@endpush
