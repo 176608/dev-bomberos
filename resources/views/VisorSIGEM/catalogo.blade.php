@@ -1,6 +1,6 @@
 @extends('VisorSIGEM.layouts.visor')
 
-@section('visor_title', 'SIGEM v2 — Catálogo de Indicadores')
+@section('visor_title', 'SIGEM v2 — Catálogo de Cuadros')
 
 @section('visor_content')
 @php
@@ -18,7 +18,7 @@
 
 <style>
 .catalogo-row .card-body { padding: 0 !important; }
-#indice-container, #indicadores-container {
+#indice-container, #cuadros-container {
     height: 800px; overflow-y: auto;
 }
 
@@ -51,15 +51,15 @@
 .indice-subtema-row:last-child { border-bottom: none; }
 
 #indice-container::-webkit-scrollbar,
-#indicadores-container::-webkit-scrollbar { width: 8px; }
+#cuadros-container::-webkit-scrollbar { width: 8px; }
 #indice-container::-webkit-scrollbar-track,
-#indicadores-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+#cuadros-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
 #indice-container::-webkit-scrollbar-thumb,
-#indicadores-container::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+#cuadros-container::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
 #indice-container::-webkit-scrollbar-thumb:hover,
-#indicadores-container::-webkit-scrollbar-thumb:hover { background: #555; }
+#cuadros-container::-webkit-scrollbar-thumb:hover { background: #555; }
 
-.indicador-fila {
+.cuadro-fila {
     display: flex;
     align-items: center;
     padding: 7px 12px;
@@ -68,16 +68,16 @@
     transition: background 0.15s ease;
     gap: 8px;
 }
-.indicador-fila:hover { background-color: #e8f4f8 !important; }
-.indicador-fila:last-child { border-bottom: none; }
-.indicador-fila .codigo {
+.cuadro-fila:hover { background-color: #e8f4f8 !important; }
+.cuadro-fila:last-child { border-bottom: none; }
+.cuadro-fila .codigo {
     flex-shrink: 0;
     min-width: 70px;
     font-weight: 700;
     color: #1e6b3b;
     font-size: 0.82rem;
 }
-.indicador-fila .titulo {
+.cuadro-fila .titulo {
     flex: 1;
     min-width: 0;
     font-size: 0.9rem;
@@ -86,21 +86,21 @@
     overflow-wrap: break-word;
     word-break: break-word;
 }
-.indicador-fila .subtitulo {
+.cuadro-fila .subtitulo {
     font-size: 0.8rem;
     color: #6c757d;
     margin-top: 1px;
 }
 
 @media (max-width: 768px) {
-    #indice-container, #indicadores-container { height: 500px; }
+    #indice-container, #cuadros-container { height: 500px; }
     #indice-container { margin-bottom: 16px; }
 }
 @media (max-width: 576px) {
-    #indice-container, #indicadores-container { height: 400px; }
-    .indicador-fila { padding: 6px 8px; gap: 6px; }
-    .indicador-fila .codigo { min-width: 54px; font-size: 0.75rem; }
-    .indicador-fila .titulo { font-size: 0.84rem; }
+    #indice-container, #cuadros-container { height: 400px; }
+    .cuadro-fila { padding: 6px 8px; gap: 6px; }
+    .cuadro-fila .codigo { min-width: 54px; font-size: 0.75rem; }
+    .cuadro-fila .titulo { font-size: 0.84rem; }
 }
 </style>
 
@@ -161,7 +161,7 @@
                         <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadros Estadísticos</h5>
                     </div>
                     <div class="card-body p-0">
-                        <div id="indicadores-container">
+                        <div id="cuadros-container">
                             @forelse($temas as $temaIdx => $tema)
                                 @php
                                     $bgColor = $tema->color ?? '#8FBC8F';
@@ -179,7 +179,7 @@
 
                                     @forelse($tema->subtemas as $stIdx => $subtema)
                                         @php
-                                            $indicadoresSubtema = $indicadores->where('subtema_id', $subtema->subtema_id);
+                                            $cuadrosSubtema = $cuadros->where('subtema_id', $subtema->subtema_id);
                                         @endphp
                                         <div id="subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}">
                                             <div class="fw-bold px-2 py-1" style="background:{{ hexToRgba($tema->color ?? '#8FBC8F', 0.12) }};border-left:4px solid {{ $tema->color ?? '#8FBC8F' }};font-size:0.9rem;{{ !$subtema->publicado && $esDesarrollador ? 'opacity:0.5;' : '' }}">
@@ -189,25 +189,25 @@
                                                 @endif
                                             </div>
 
-                                            @forelse($indicadoresSubtema as $indIdx => $indicador)
+                                            @forelse($cuadrosSubtema as $cIdx => $cuadro)
                                                 @php
-                                                    $indClase = (!$indicador->publicado && $esDesarrollador) ? 'opacity-50' : '';
-                                                    $indBorde = (!$indicador->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
+                                                    $cClase = (!$cuadro->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                                                    $cBorde = (!$cuadro->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
                                                 @endphp
-                                                <div class="indicador-fila {{ $indClase }}" style="background:{{ $indIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $indBorde }}" onclick="window.location.href='{{ route('sigem.v2.cuadro.show', $indicador->cuadro_id) }}'">
-                                                    <span class="codigo">{{ $indicador->codigo_cuadro }}</span>
+                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.location.href='{{ route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id) }}'">
+                                                    <span class="codigo">{{ $cuadro->codigo_cuadro }}</span>
                                                     <span class="titulo">
-                                                        <strong>{{ $indicador->c_titulo }}</strong>
-                                                        @if($indicador->c_subtitulo)
-                                                            <div class="subtitulo">{{ $indicador->c_subtitulo }}</div>
+                                                        <strong>{{ $cuadro->c_titulo }}</strong>
+                                                        @if($cuadro->c_subtitulo)
+                                                            <div class="subtitulo">{{ $cuadro->c_subtitulo }}</div>
                                                         @endif
                                                     </span>
-                                                    @if(!$indicador->publicado && $esDesarrollador)
+                                                    @if(!$cuadro->publicado && $esDesarrollador)
                                                         <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;"><i class="bi bi-eye-slash"></i></span>
                                                     @endif
                                                 </div>
                                             @empty
-                                                <div class="text-center text-muted small p-2">Sin indicadores en este subtema</div>
+                                                <div class="text-center text-muted small p-2">Sin cuadros en este subtema</div>
                                             @endforelse
                                         </div>
                                     @empty

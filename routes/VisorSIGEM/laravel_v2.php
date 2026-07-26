@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\VisorSIGEM\SIGEMV2Controller;
 use App\Http\Controllers\VisorSIGEM\DatasetViewController;
+use App\Http\Controllers\VisorSIGEM\VisorCuadroController;
 
 Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/', [SIGEMV2Controller::class, 'index'])->name('index');
@@ -9,8 +10,8 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/estadistica', [SIGEMV2Controller::class, 'estadistica'])->name('estadistica');
     Route::get('/estadistica/tema/{tema_id}', [SIGEMV2Controller::class, 'estadisticaTema'])->name('estadistica.tema');
     Route::get('/api/cuadros/{subtema_id}', [SIGEMV2Controller::class, 'ajaxCuadrosV2'])->name('api.cuadros');
-    Route::get('/indicador/{id}', [SIGEMV2Controller::class, 'verIndicador'])->name('indicador');
-    Route::get('/api/indicador/{id}/datos', [SIGEMV2Controller::class, 'datosIndicadorJson'])->name('api.indicador.datos');
+    Route::get('/indicador/{id}', [SIGEMV2Controller::class, 'verCuadroRedirect'])->name('cuadro.legacy-redirect');
+    Route::get('/api/indicador/{id}/datos', [SIGEMV2Controller::class, 'datosCuadroJson'])->name('api.cuadro.datos');
     Route::get('/cartografia', [SIGEMV2Controller::class, 'cartografia'])->name('cartografia');
 
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
@@ -19,6 +20,13 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
         Route::get('/api/cuadro/{id}', [DatasetViewController::class, 'cuadroApi'])->name('api');
         Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show');
     });
+
+    Route::prefix('cuadro/{id}')->middleware('throttle:120,1')->name('cuadro.')->group(function () {
+        Route::get('/dataset', [VisorCuadroController::class, 'dataset'])->name('dataset');
+        Route::get('/grafica', [VisorCuadroController::class, 'grafica'])->name('grafica');
+        Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data');
+    });
+
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {
         Route::get('/', [SIGEMV2Controller::class, 'consultaExpress'])->name('index');
         Route::get('/subtemas/{tema_id}', [SIGEMV2Controller::class, 'ajaxSubtemas'])->name('subtemas');

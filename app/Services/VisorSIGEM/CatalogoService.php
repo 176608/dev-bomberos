@@ -28,13 +28,13 @@ class CatalogoService
 
         $temas = $temasQuery->get();
 
-        $indicadoresQuery = $this->cuadro->query();
+        $cuadrosQuery = $this->cuadro->query();
         if (!$esDesarrollador) {
-            $indicadoresQuery->where('publicado', true);
+            $cuadrosQuery->where('publicado', true);
         }
-        $indicadores = $indicadoresQuery->get();
+        $cuadros = $cuadrosQuery->get();
 
-        $indicadores = $indicadores->sort(function ($a, $b) {
+        $cuadros = $cuadros->sort(function ($a, $b) {
             $aParts = explode('.', $a->codigo_cuadro);
             $bParts = explode('.', $b->codigo_cuadro);
             $len = max(count($aParts), count($bParts));
@@ -48,7 +48,7 @@ class CatalogoService
 
         return [
             'temas' => $temas,
-            'indicadores' => $indicadores,
+            'cuadros' => $cuadros,
             'esDesarrollador' => $esDesarrollador,
         ];
     }

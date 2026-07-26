@@ -51,12 +51,12 @@ class SIGEMV2Controller extends Controller
         return view('VisorSIGEM.estadistica_tema', $data);
     }
 
-    public function verIndicador($id)
+    public function verCuadroRedirect($id)
     {
-        return redirect()->route('sigem.v2.estadistica');
+        return redirect()->route('sigem.v2.cuadro.dataset', ['id' => $id]);
     }
 
-    public function datosIndicadorJson($id)
+    public function datosCuadroJson($id)
     {
         return response()->json(['success' => false, 'message' => 'No implementado']);
     }

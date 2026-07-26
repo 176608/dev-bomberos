@@ -235,7 +235,7 @@
     background: linear-gradient(to right, rgba(84, 151, 99, 0.72), transparent);
 }
 
-.indicadores-lista {
+.cuadros-lista {
     max-height: 70vh;
     overflow-y: auto;
 }
@@ -261,7 +261,7 @@
                         @if(isset($tema_subtemas) && $tema_subtemas->count() > 0)
                             @foreach($tema_subtemas as $tema_subtema)
                                 <a href="javascript:void(0)"
-                                   onclick="cargarIndicadores({{ $tema_subtema->subtema_id }}); return false;"
+                                   onclick="cargarCuadros({{ $tema_subtema->subtema_id }}); return false;"
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}
                                           {{ !$tema_subtema->publicado && $esDesarrollador ? 'opacity-50' : '' }}">
                                     @if(!$tema_subtema->publicado && $esDesarrollador)
@@ -332,11 +332,11 @@
                             <h5 class="mb-0">{{ $subtema_seleccionado->subtema_titulo }}</h5>
                         @else
                             <h5 class="mb-0">{{ $tema->tema_titulo }}</h5>
-                            <p class="text-muted small mb-0">Seleccione un subtema para ver sus indicadores</p>
+                            <p class="text-muted small mb-0">Seleccione un subtema para ver sus cuadros</p>
                         @endif
                     </div>
 
-                    <div class="flex-fill overflow-auto p-3" id="indicadores-container">
+                    <div class="flex-fill overflow-auto p-3" id="cuadros-container">
                         @php
                             function extraerNumeroIndice($codigo) {
                                 if (empty($codigo)) return PHP_FLOAT_MAX;
@@ -344,23 +344,23 @@
                                 if (preg_match('/(\d+(?:\.\d+)*)$/', $codigo, $m)) return floatval($m[1]);
                                 return PHP_FLOAT_MAX;
                             }
-                            if (isset($indicadores) && $indicadores->count() > 0) {
-                                $indicadoresArr = $indicadores->toArray();
-                                usort($indicadoresArr, function($a, $b) {
+                            if (isset($cuadros) && $cuadros->count() > 0) {
+                                $cuadrosArr = $cuadros->toArray();
+                                usort($cuadrosArr, function($a, $b) {
                                     return extraerNumeroIndice($a['codigo_cuadro'] ?? '') <=> extraerNumeroIndice($b['codigo_cuadro'] ?? '');
                                 });
-                                $indicadores = collect($indicadoresArr);
+                                $cuadros = collect($cuadrosArr);
                             }
                         @endphp
 
-                        @if(isset($indicadores) && $indicadores->count() > 0 && isset($subtema_seleccionado))
-                            <div class="indicadores-lista">
-                                @foreach($indicadores as $indicador)
+                        @if(isset($cuadros) && $cuadros->count() > 0 && isset($subtema_seleccionado))
+                            <div class="cuadros-lista">
+                                @foreach($cuadros as $cuadro)
                                     <a href="javascript:void(0)"
-                                       onclick="window.location.href='{{ route('sigem.v2.cuadro.show', $indicador['cuadro_id']) }}'"
-                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$indicador['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
-                                       @if(!$indicador['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
-                                        @if(!$indicador['publicado'] && $esDesarrollador)
+                                       onclick="window.location.href='{{ route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']) }}'"
+                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
+                                       @if(!$cuadro['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
+                                        @if(!$cuadro['publicado'] && $esDesarrollador)
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span>
                                             </div>
@@ -369,17 +369,17 @@
                                             <div class="col-12">
                                                 <span class="mb-1 d-block text-dark">
                                                     <span class="fw-bold text-success">
-                                                        {{ $indicador['codigo_cuadro'] ?? 'N/A' }}
+                                                        {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                     </span>
-                                                    {{ $indicador['c_titulo'] ?? 'Sin título' }}
-                                                    @if(!empty($indicador['tipo_mapa_pdf']))
+                                                    {{ $cuadro['c_titulo'] ?? 'Sin título' }}
+                                                    @if(!empty($cuadro['tipo_mapa_pdf']))
                                                         <span class="badge bg-warning text-dark ms-2">
                                                             <i class="bi bi-map-fill me-1"></i>Mapa PDF
                                                         </span>
                                                     @endif
                                                 </span>
-                                                @if(!empty($indicador['c_subtitulo']))
-                                                    <small class="text-muted d-block">{{ $indicador['c_subtitulo'] }}</small>
+                                                @if(!empty($cuadro['c_subtitulo']))
+                                                    <small class="text-muted d-block">{{ $cuadro['c_subtitulo'] }}</small>
                                                 @endif
                                             </div>
                                         </div>
@@ -389,7 +389,7 @@
                         @else
                             <div class="text-center py-5">
                                 <i class="bi bi-table" style="font-size: 3rem;"></i>
-                                <p class="mt-3">Seleccione un subtema para ver los indicadores disponibles.</p>
+                                <p class="mt-3">Seleccione un subtema para ver los cuadros disponibles.</p>
                             </div>
                         @endif
                     </div>
@@ -444,9 +444,9 @@ function cambiarTema(tema_id) {
     window.location.href = '{{ url("/sigem-v2/estadistica/tema") }}/' + tema_id;
 }
 
-function cargarIndicadores(subtema_id) {
-    var container = document.getElementById('indicadores-container');
-    container.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-success"><span class="visually-hidden">Cargando...</span></div><p class="mt-3">Cargando indicadores...</p></div>';
+function cargarCuadros(subtema_id) {
+    var container = document.getElementById('cuadros-container');
+    container.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-success"><span class="visually-hidden">Cargando...</span></div><p class="mt-3">Cargando cuadros...</p></div>';
 
     document.querySelectorAll('#subtemas-navegacion .subtema-nav-item').forEach(function (item) {
         item.classList.remove('active');
@@ -460,13 +460,13 @@ function cargarIndicadores(subtema_id) {
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success) {
-                renderizarIndicadores(data.cuadros);
+                renderizarCuadros(data.cuadros);
             } else {
-                container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>' + (data.message || 'Error al cargar indicadores') + '</div>';
+                container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>' + (data.message || 'Error al cargar cuadros') + '</div>';
             }
         })
         .catch(function () {
-            container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>Error de conexión al cargar indicadores</div>';
+            container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>Error de conexión al cargar cuadros</div>';
         });
 }
 
@@ -481,10 +481,10 @@ function actualizarInfoSubtema(subtema_id) {
         .catch(function () {});
 }
 
-function renderizarIndicadores(indicadores) {
-    var container = document.getElementById('indicadores-container');
-    if (!indicadores || indicadores.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-table" style="font-size: 3rem;"></i><p class="mt-3">No hay indicadores disponibles para este subtema.</p></div>';
+function renderizarCuadros(cuadros) {
+    var container = document.getElementById('cuadros-container');
+    if (!cuadros || cuadros.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-table" style="font-size: 3rem;"></i><p class="mt-3">No hay cuadros disponibles para este subtema.</p></div>';
         return;
     }
 
@@ -496,16 +496,16 @@ function renderizarIndicadores(indicadores) {
         return matchEnd ? parseFloat(matchEnd[1]) : Number.MAX_VALUE;
     }
 
-    var ordenados = indicadores.sort(function (a, b) {
+    var ordenados = cuadros.sort(function (a, b) {
         return extraerNumeroIndice(a.codigo_cuadro || '') - extraerNumeroIndice(b.codigo_cuadro || '');
     });
 
-    var html = '<div class="indicadores-lista">';
+    var html = '<div class="cuadros-lista">';
     ordenados.forEach(function (ind) {
         var noPublicado = ind.publicado === false || ind.publicado === 0 || ind.publicado === undefined;
         var claseOpacidad = noPublicado ? 'opacity-50' : '';
         var estiloBorde = noPublicado ? ' border-warning' : '';
-        html += '<a href="{{ url('/sigem-v2/cuadro') }}/' + ind.cuadro_id + '" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
+        html += '<a href="{{ url('/sigem-v2/cuadro') }}/' + ind.cuadro_id + '/dataset" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
         if (noPublicado) {
             html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
         }

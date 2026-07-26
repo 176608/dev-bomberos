@@ -50,7 +50,7 @@ class EstadisticaService
         }
         $temas = $temasQuery->get();
 
-        $indicadores = collect([]);
+        $cuadros = collect([]);
         $subtema_seleccionado = null;
 
         if ($tema_subtemas && $tema_subtemas->count() > 0) {
@@ -60,7 +60,7 @@ class EstadisticaService
             if (!$esDesarrollador) {
                 $query->where('publicado', true);
             }
-            $indicadores = $query->get();
+            $cuadros = $query->get();
         }
 
         return [
@@ -68,7 +68,7 @@ class EstadisticaService
             'temas' => $temas,
             'tema_subtemas' => $tema_subtemas,
             'subtema_seleccionado' => $subtema_seleccionado,
-            'indicadores' => $indicadores,
+            'cuadros' => $cuadros,
             'esDesarrollador' => $esDesarrollador,
         ];
     }
