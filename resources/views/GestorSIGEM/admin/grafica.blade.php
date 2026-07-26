@@ -327,6 +327,7 @@ function finalizeChartData(chartData, tipo) {
 
 function renderChart(tipo) {
     if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
+    if (!tipo) return;
     if (!estado.verticales?.length || !estado.horizontales?.length) {
         var dbg = document.getElementById('chart-debug');
         if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
@@ -371,11 +372,16 @@ function renderChart(tipo) {
             y: { beginAtZero: true }
         };
     }
-    window.chartInstance = new Chart(ctx, {
-        type: tipo === 'scatter' ? 'scatter' : tipo,
-        data: chartData,
-        options: chartOpts
-    });
+    try {
+        window.chartInstance = new Chart(ctx, {
+            type: tipo === 'scatter' ? 'scatter' : tipo,
+            data: chartData,
+            options: chartOpts
+        });
+    } catch(e) {
+        window.chartInstance = null;
+        console.warn('Chart render error:', e);
+    }
 }
 
 function updateChartDebug() {
@@ -623,8 +629,6 @@ var ALL_TIPOS = [
 function populateTipoSelect() {
     var select = document.getElementById('select-tipo-grafica');
     if (!select) return;
-    tiposPermitidos = (estado.tipos_grafica_permitida) || [];
-    if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     select.innerHTML = '';
     ALL_TIPOS.forEach(function(t) {
         var opt = document.createElement('option');
@@ -754,6 +758,8 @@ function loadStateFromURL() {
 
 function initGraficaPage() {
     initVisibleState();
+    tiposPermitidos = (estado.tipos_grafica_permitida) || [];
+    if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     populateTipoSelect();
     var switchEje = document.getElementById('switch-invertir-ejes');
     chartAxis = switchEje && switchEje.checked ? 'horizontal' : 'vertical';

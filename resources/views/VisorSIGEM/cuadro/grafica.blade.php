@@ -314,6 +314,7 @@ function finalizeChartData(chartData, tipo) {
 
 function renderChart(tipo) {
     if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
+    if (!tipo) return;
     if (!estado.verticales?.length || !estado.horizontales?.length) {
         var dbg = document.getElementById('chart-debug');
         if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
@@ -358,11 +359,16 @@ function renderChart(tipo) {
             y: { beginAtZero: true }
         };
     }
-    window.chartInstance = new Chart(ctx, {
-        type: tipo === 'scatter' ? 'scatter' : tipo,
-        data: chartData,
-        options: chartOpts
-    });
+    try {
+        window.chartInstance = new Chart(ctx, {
+            type: tipo === 'scatter' ? 'scatter' : tipo,
+            data: chartData,
+            options: chartOpts
+        });
+    } catch(e) {
+        window.chartInstance = null;
+        console.warn('Chart render error:', e);
+    }
 }
 
 function updateChartDebug() {
@@ -830,7 +836,8 @@ document.getElementById('btn-devmode')?.addEventListener('click', function() {
     var dbgToggle = document.querySelector('.debug-toggle');
     if (dbgToggle) dbgToggle.style.display = devMode ? '' : 'none';
     populateTipoSelect();
-    renderChart(selectTipoGrafica.value);
+    var newTipo = selectTipoGrafica.value;
+    if (newTipo) { renderChart(newTipo); enforceSingleSection(newTipo); }
     updateChartDebug();
     saveStateToURL();
 });

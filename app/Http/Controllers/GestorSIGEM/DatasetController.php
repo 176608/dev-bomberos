@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\GestorSIGEM\DatasetService;
 use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 
+use Illuminate\Support\Facades\Cache;
+
 class DatasetController extends Controller
 {
     public function __construct(
@@ -276,6 +278,8 @@ class DatasetController extends Controller
             if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
             $cuadro->actualizar(['tipos_grafica_permitida' => $request->tipos]);
+
+            Cache::forget("visor_cuadro_estado_{$id}");
 
             return response()->json(['success' => true, 'tipos' => $request->tipos]);
         } catch (\RuntimeException $e) {
