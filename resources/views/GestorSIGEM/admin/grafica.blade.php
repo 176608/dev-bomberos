@@ -262,6 +262,16 @@ function buildChartData(estado, tipo, opts) {
     return { labels: labels, datasets: datasets };
 }
 
+function finalizeChartData(chartData, tipo) {
+    if (tipo === 'scatter' || tipo === 'bubble') {
+        chartData.datasets.forEach(function(ds) {
+            ds.data = ds.data.map(function(v, i) {
+                return tipo === 'bubble' ? { x: i, y: v, r: 6 } : { x: i, y: v };
+            });
+        });
+    }
+}
+
 function renderChart(tipo) {
     if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
     if (!estado.verticales?.length || !estado.horizontales?.length) {
@@ -291,18 +301,26 @@ function renderChart(tipo) {
     }
 
     var chartData = buildChartData(estado, tipo, opts);
+    finalizeChartData(chartData, tipo);
     var ctx = document.getElementById('chart-canvas').getContext('2d');
-    window.chartInstance = new Chart(ctx, {
-        type: tipo,
-        data: chartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' },
-                title: { display: true, text: estado.pivot_label || 'Dataset' }
-            }
+    var chartOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: estado.pivot_label || 'Dataset' }
         }
+    };
+    if (tipo === 'scatter' || tipo === 'bubble') {
+        chartOpts.scales = {
+            x: { type: 'linear', ticks: { callback: function(val) { return chartData.labels[val] || val; } } },
+            y: { beginAtZero: true }
+        };
+    }
+    window.chartInstance = new Chart(ctx, {
+        type: tipo === 'scatter' ? 'scatter' : tipo,
+        data: chartData,
+        options: chartOpts
     });
 }
 
@@ -617,6 +635,8 @@ function saveStateToURL() {
     if (visibleHIds.length) params.push('h=' + visibleHIds.join(','));
     if (selectedSids.length) params.push('s=' + selectedSids.join(','));
     params.push('ej=' + ejeCode);
+    var tipoSelect = document.getElementById('select-tipo-grafica');
+    if (tipoSelect) params.push('t=' + tipoSelect.value);
     var qs = params.join('&');
     var url = window.location.pathname + (qs ? '?' + qs : '');
     try { window.history.replaceState(null, '', url); } catch(e) {}
@@ -633,6 +653,7 @@ function loadStateFromURL() {
     var hList = sanitizeIdList(p.get('h'));
     var sList = sanitizeIdList(p.get('s'));
     var ejeCode = p.get('ej');
+    var tipoCode = p.get('t');
 
     if (vList.length) {
         Object.keys(visibleV).forEach(function(id) { visibleV[id] = vList.indexOf(parseInt(id)) >= 0; });
@@ -649,6 +670,12 @@ function loadStateFromURL() {
         chartAxis = ejeCode === 'v' ? 'vertical' : 'horizontal';
         var sw = document.getElementById('switch-invertir-ejes');
         if (sw) sw.checked = ejeCode === 'h';
+    }
+    if (tipoCode) {
+        var selTipo = document.getElementById('select-tipo-grafica');
+        if (selTipo && selTipo.querySelector('option[value="' + tipoCode + '"]')) {
+            selTipo.value = tipoCode;
+        }
     }
 }
 
