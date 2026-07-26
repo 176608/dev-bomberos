@@ -735,6 +735,7 @@ function initGraficaPage() {
 
     function finishGraficaInit() {
         renderCategoryPanel();
+        enforceSingleSection(document.getElementById('select-tipo-grafica').value);
         renderChart(document.getElementById('select-tipo-grafica').value);
         updateEjeHelper();
         updateChartDebug();
@@ -750,10 +751,35 @@ function initGraficaPage() {
 }
 
 // ============ EVENT LISTENERS ============
+function enforceSingleSection(tipo) {
+    var isSingle = multiSectionUnsupported.indexOf(tipo) >= 0;
+    var container = document.getElementById('panel-items');
+    if (!container) return;
+    var checks = container.querySelectorAll('.sec-check');
+
+    if (isSingle) {
+        var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+        if (activeSids.length > 1) {
+            var keep = activeSids[0];
+            activeSids.slice(1).forEach(function(sid) { selectedSections[sid] = false; });
+            checks.forEach(function(cb) {
+                cb.checked = parseInt(cb.dataset.seccionId) === keep;
+            });
+        } else if (activeSids.length === 0) {
+            var first = checks[0];
+            if (first) {
+                var sid = parseInt(first.dataset.seccionId);
+                selectedSections[sid] = true;
+                first.checked = true;
+            }
+        }
+    }
+}
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
 if (selectTipoGrafica) {
     selectTipoGrafica.addEventListener('change', function() {
         updateTipoLabel();
+        enforceSingleSection(this.value);
         renderChart(this.value);
         updateChartDebug();
     });
@@ -800,7 +826,24 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
     if (!cb.classList.contains('sec-check')) return;
     var sid = parseInt(cb.dataset.seccionId);
     if (isNaN(sid)) return;
-    selectedSections[sid] = cb.checked;
+
+    var tipo = document.getElementById('select-tipo-grafica').value;
+    var isSingle = multiSectionUnsupported.indexOf(tipo) >= 0;
+
+    if (isSingle) {
+        if (!cb.checked) {
+            cb.checked = true;
+            return;
+        }
+        Object.keys(selectedSections).forEach(function(otherSid) {
+            selectedSections[otherSid] = parseInt(otherSid) === sid;
+        });
+        this.querySelectorAll('.sec-check').forEach(function(otherCb) {
+            otherCb.checked = parseInt(otherCb.dataset.seccionId) === sid;
+        });
+    } else {
+        selectedSections[sid] = cb.checked;
+    }
 
     if (cb.checked && !sectionsCache[sid]) {
         cb.disabled = true;
@@ -819,12 +862,14 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
                 } else {
                     selectedSections[sid] = false;
                     cb.checked = false;
+                    enforceSingleSection(selectTipoGrafica.value);
                     alerta(j.message || 'Error al cargar sección');
                 }
             })
             .catch(function() {
                 selectedSections[sid] = false;
                 cb.checked = false;
+                enforceSingleSection(selectTipoGrafica.value);
                 alerta('Error de red al cargar sección');
             })
             .finally(function() {
