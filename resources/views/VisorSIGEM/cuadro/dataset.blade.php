@@ -15,7 +15,8 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-info btn-sm">
+               class="btn btn-outline-info btn-sm" id="link-to-grafica"
+               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
         </div>
@@ -386,6 +387,8 @@ function saveStateToURL() {
     if (s.length) p.set('s', s.join(',')); else p.delete('s');
     var qs = p.toString();
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
+    var lnk = document.getElementById('link-to-grafica');
+    if (lnk) lnk.href = lnk.getAttribute('data-base') + (qs ? '?' + qs : '');
 }
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);

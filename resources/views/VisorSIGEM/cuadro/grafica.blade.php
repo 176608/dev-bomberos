@@ -15,7 +15,8 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-info btn-sm">
+               class="btn btn-outline-info btn-sm" id="link-to-dataset"
+               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
         </div>
@@ -633,6 +634,8 @@ function saveStateToURL() {
     var qs = p.toString();
     var url = window.location.pathname + (qs ? '?' + qs : '');
     try { window.history.replaceState(null, '', url); } catch(e) {}
+    var lnk = document.getElementById('link-to-dataset');
+    if (lnk) lnk.href = lnk.getAttribute('data-base') + (qs ? '?' + qs : '');
 }
 
 function loadStateFromURL() {
