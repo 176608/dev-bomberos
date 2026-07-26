@@ -122,7 +122,7 @@ var visibleH = {};
 var tiposPermitidos = [];
 var sectionsCache = {};
 var selectedSections = {};
-var multiSectionUnsupported = ['pie', 'doughnut'];
+var multiSectionUnsupported = ['pie', 'doughnut', 'polarArea'];
 var allTypesMap = {};
 
 // ============ CHART.JS HELPERS ============
@@ -264,10 +264,20 @@ function buildChartData(estado, tipo, opts) {
 
 function finalizeChartData(chartData, tipo) {
     if (tipo === 'scatter' || tipo === 'bubble') {
+        var allVals = [];
+        chartData.datasets.forEach(function(ds) { ds.data.forEach(function(v) { allVals.push(Math.abs(v)); }); });
+        var maxVal = Math.max.apply(null, allVals) || 1;
         chartData.datasets.forEach(function(ds) {
             ds.data = ds.data.map(function(v, i) {
-                return tipo === 'bubble' ? { x: i, y: v, r: 6 } : { x: i, y: v };
+                if (tipo === 'bubble') {
+                    var r = Math.max(5, (Math.abs(v) / maxVal) * 30);
+                    return { x: i, y: v, r: r };
+                }
+                return { x: i, y: v };
             });
+            ds.backgroundColor = ds.borderColor;
+            ds.pointRadius = tipo === 'scatter' ? 4 : undefined;
+            ds.pointHoverRadius = tipo === 'scatter' ? 7 : undefined;
         });
     }
 }
@@ -296,8 +306,9 @@ function renderChart(tipo) {
         activeSids.forEach(function(sid) {
             if (sectionsCache[sid]) grids.push(sectionsCache[sid]);
         });
-        // Only use sectionDataGrids if at least one cached & matches active count
         if (grids.length > 0) opts.sectionDataGrids = grids;
+    } else if (activeSids.length === 1 && sectionsCache[activeSids[0]]) {
+        opts.sectionDataGrids = [sectionsCache[activeSids[0]]];
     }
 
     var chartData = buildChartData(estado, tipo, opts);
@@ -313,7 +324,7 @@ function renderChart(tipo) {
     };
     if (tipo === 'scatter' || tipo === 'bubble') {
         chartOpts.scales = {
-            x: { type: 'linear', ticks: { callback: function(val) { return chartData.labels[val] || val; } } },
+            x: { type: 'linear', ticks: { stepSize: 1, callback: function(val) { return chartData.labels[val] || val; } } },
             y: { beginAtZero: true }
         };
     }
