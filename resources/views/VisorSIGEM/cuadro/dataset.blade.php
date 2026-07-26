@@ -19,6 +19,11 @@
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
+            @if($esDesarrollador)
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de desarrollador y consultor">
+                <i class="bi bi-person-badge"></i> <span id="devmode-label">Desarrollador</span>
+            </button>
+            @endif
         </div>
     </div>
 
@@ -75,6 +80,7 @@
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 const IS_DEV = @json($esDesarrollador);
+var devMode = IS_DEV;
 
 let estado = @json($estadoInicial);
 
@@ -403,7 +409,8 @@ function loadStateFromURL() {
 function updateDebug() {
     var el = document.getElementById('chart-debug');
     if (!el) return;
-    el.style.display = 'block';
+    el.style.display = devMode ? 'block' : 'none';
+    if (!devMode) return;
     var vn = Object.keys(visibleV).filter(function(id) { return visibleV[id]; }).map(function(id) {
         var c = (estado.verticales || []).find(function(v) { return v.categoria_id == id; }); return c ? c.nombre : id;
     });
@@ -472,7 +479,23 @@ document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', func
 var dt = document.querySelector('.debug-toggle');
 if (dt) dt.addEventListener('click', function() {
     var el = document.getElementById('chart-debug');
-    if (el) { el.style.display = el.style.display === 'none' ? 'block' : 'none'; if (el.style.display === 'block') updateDebug(); }
+    if (el) {
+        var vis = el.style.display !== 'none';
+        el.style.display = vis ? 'none' : 'block';
+        if (el.style.display === 'block') updateDebug();
+    }
+});
+document.getElementById('btn-devmode')?.addEventListener('click', function() {
+    devMode = !devMode;
+    var label = document.getElementById('devmode-label');
+    if (label) label.textContent = devMode ? 'Desarrollador' : 'Consultor';
+    var dbgEl = document.getElementById('chart-debug');
+    if (dbgEl) {
+        dbgEl.style.display = devMode ? 'block' : 'none';
+        if (devMode) updateDebug();
+    }
+    var dbgToggle = document.querySelector('.debug-toggle');
+    if (dbgToggle) dbgToggle.style.display = devMode ? '' : 'none';
 });
 document.getElementById('btn-activar-todas')?.addEventListener('click', function() {
     var changed = false;

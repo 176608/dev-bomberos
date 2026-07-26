@@ -19,6 +19,11 @@
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
+            @if($esDesarrollador)
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de desarrollador y consultor">
+                <i class="bi bi-person-badge"></i> <span id="devmode-label">Desarrollador</span>
+            </button>
+            @endif
         </div>
     </div>
 
@@ -27,6 +32,11 @@
         <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
             <i class="bi bi-list-check"></i> Categorías
         </button>
+        @if($esDesarrollador)
+        <button type="button" class="btn btn-sm btn-outline-secondary debug-toggle" title="Alternar debug">
+            <i class="bi bi-bug"></i> Debug
+        </button>
+        @endif
     </div>
 
     <div class="d-flex gap-2">
@@ -83,6 +93,7 @@ const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 
 let estado = @json($estadoInicial);
 const IS_DEV = @json($esDesarrollador);
+var devMode = IS_DEV;
 
 function alerta(msg) {
     document.getElementById('status-text').textContent = '⚠ ' + msg;
@@ -139,8 +150,8 @@ function populateTipoSelect() {
     var html = '';
     allTypes.forEach(function(t) {
         var perm = tiposPermitidos.indexOf(t.value) >= 0;
-        if (!IS_DEV && !perm) return;
-        html += '<option value="' + t.value + '">' + t.text + (!perm && IS_DEV ? ' (No permitido)' : '') + '</option>';
+        if (!devMode && !perm) return;
+        html += '<option value="' + t.value + '">' + t.text + (!perm && devMode ? ' (No permitido)' : '') + '</option>';
     });
     sel.innerHTML = html;
 }
@@ -357,7 +368,8 @@ function renderChart(tipo) {
 function updateChartDebug() {
     var el = document.getElementById('chart-debug');
     if (!el) return;
-    el.style.display = 'block';
+    el.style.display = devMode ? 'block' : 'none';
+    if (!devMode) return;
     var parentsV = [], parentsH = [];
     try {
         (estado.labels || []).forEach(function(row) { (row || []).forEach(function(cell) { if (cell.tipo === 'parent') parentsV.push(cell.nombre); }); });
@@ -809,6 +821,28 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
 });
 
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
+document.getElementById('btn-devmode')?.addEventListener('click', function() {
+    devMode = !devMode;
+    var label = document.getElementById('devmode-label');
+    if (label) label.textContent = devMode ? 'Desarrollador' : 'Consultor';
+    var dbgEl = document.getElementById('chart-debug');
+    if (dbgEl) dbgEl.style.display = devMode ? 'block' : 'none';
+    var dbgToggle = document.querySelector('.debug-toggle');
+    if (dbgToggle) dbgToggle.style.display = devMode ? '' : 'none';
+    populateTipoSelect();
+    renderChart(selectTipoGrafica.value);
+    updateChartDebug();
+    saveStateToURL();
+});
+var dt = document.querySelector('.debug-toggle');
+if (dt) dt.addEventListener('click', function() {
+    var el = document.getElementById('chart-debug');
+    if (el) {
+        var vis = el.style.display !== 'none';
+        el.style.display = vis ? 'none' : 'block';
+        if (el.style.display === 'block') updateChartDebug();
+    }
+});
 initGraficaPage();
 </script>
 @endpush

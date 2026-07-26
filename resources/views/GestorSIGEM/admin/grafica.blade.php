@@ -24,13 +24,30 @@
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
         <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-        <button type="button" class="btn btn-sm btn-outline-success" id="btn-toggle-tipo" title="Permitir o no permitir este tipo de gráfica en el dataset">
-            <i class="bi bi-gear me-1"></i> <span id="btn-tipo-label">Permitir</span>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-modal-tipos" title="Gestionar tipos de gráfica permitidos">
+            <i class="bi bi-gear me-1"></i> Tipos
         </button>
         <span class="text-muted small mx-1">|</span>
         <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
             <i class="bi bi-list-check"></i> Categorías
         </button>
+    </div>
+
+    <!-- Modal: Tipos de gráfica -->
+    <div class="modal fade" id="modal-tipos-grafica" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <small class="modal-title fw-semibold"><i class="bi bi-gear me-1"></i>Tipos de gráfica permitidos</small>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body py-2" id="modal-tipos-body"></div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="btn-guardar-tipos">Guardar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="d-flex gap-2">
@@ -592,32 +609,50 @@ function initVisibleState() {
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = true; });
 }
 
+var ALL_TIPOS = [
+    { value: 'bar', text: 'Barras' },
+    { value: 'line', text: 'Líneas' },
+    { value: 'pie', text: 'Circular' },
+    { value: 'doughnut', text: 'Dona' },
+    { value: 'radar', text: 'Radar' },
+    { value: 'polarArea', text: 'Polar' },
+    { value: 'scatter', text: 'Dispersión' },
+    { value: 'bubble', text: 'Burbujas' },
+];
+
 function populateTipoSelect() {
     var select = document.getElementById('select-tipo-grafica');
     if (!select) return;
-    var allTypes = [
-        { value: 'bar', text: 'Barras' },
-        { value: 'line', text: 'Líneas' },
-        { value: 'pie', text: 'Circular' },
-        { value: 'doughnut', text: 'Dona' },
-        { value: 'radar', text: 'Radar' },
-        { value: 'polarArea', text: 'Polar' },
-        { value: 'scatter', text: 'Dispersión' },
-        { value: 'bubble', text: 'Burbujas' },
-    ];
-    allTypesMap = {};
-    allTypes.forEach(function(t) { allTypesMap[t.value] = t.text; });
     tiposPermitidos = (estado.tipos_grafica_permitida) || [];
     if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     select.innerHTML = '';
-    allTypes.forEach(function(t) {
+    ALL_TIPOS.forEach(function(t) {
         var opt = document.createElement('option');
         opt.value = t.value;
         opt.textContent = t.text + (tiposPermitidos.indexOf(t.value) >= 0 ? '' : ' (no permitido)');
         select.appendChild(opt);
     });
     if (select.options.length) select.selectedIndex = 0;
-    updateTipoLabel();
+}
+
+function renderModalTipos() {
+    var body = document.getElementById('modal-tipos-body');
+    if (!body) return;
+    var html = '';
+    ALL_TIPOS.forEach(function(t) {
+        var perm = tiposPermitidos.indexOf(t.value) >= 0;
+        html += '<div class="d-flex align-items-center justify-content-between py-1">'
+            + '<small>' + t.text + '</small>'
+            + '<div class="form-check form-switch mb-0">'
+            + '<input class="form-check-input tipo-switch" type="checkbox" data-tipo="' + t.value + '" ' + (perm ? 'checked' : '') + '>'
+            + '</div>'
+            + '</div>';
+    });
+    body.innerHTML = html;
+}
+
+function saveTiposPermitidos() {
+    api('/tipos-grafica', { method: 'PUT', body: { tipos: tiposPermitidos } });
 }
 
 function updateTipoLabel() {
@@ -805,7 +840,6 @@ function enforceSingleSection(tipo) {
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
 if (selectTipoGrafica) {
     selectTipoGrafica.addEventListener('change', function() {
-        updateTipoLabel();
         enforceSingleSection(this.value);
         renderChart(this.value);
         updateChartDebug();
@@ -813,23 +847,27 @@ if (selectTipoGrafica) {
     });
 }
 
-document.getElementById('btn-toggle-tipo')?.addEventListener('click', function() {
-    var tipo = selectTipoGrafica.value;
-    if (!tipo) return;
-    var idx = tiposPermitidos.indexOf(tipo);
-    if (idx >= 0) {
-        tiposPermitidos.splice(idx, 1);
-        if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
-        populateTipoSelect();
-        status('Tipo "' + tipo + '" — no permitido');
-    } else {
-        tiposPermitidos.push(tipo);
-        status('Tipo "' + tipo + '" — permitido');
-    }
+document.getElementById('btn-modal-tipos')?.addEventListener('click', function() {
+    renderModalTipos();
+    var modal = new bootstrap.Modal(document.getElementById('modal-tipos-grafica'));
+    modal.show();
+});
+
+document.getElementById('btn-guardar-tipos')?.addEventListener('click', function() {
+    var switches = document.querySelectorAll('#modal-tipos-body .tipo-switch');
+    tiposPermitidos = [];
+    switches.forEach(function(sw) {
+        if (sw.checked) tiposPermitidos.push(sw.dataset.tipo);
+    });
+    if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     saveTiposPermitidos();
-    updateTipoLabel();
+    populateTipoSelect();
     renderChart(selectTipoGrafica.value);
     updateChartDebug();
+    status('Tipos de gráfica actualizados');
+    var modalEl = document.getElementById('modal-tipos-grafica');
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
 });
 
 document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
