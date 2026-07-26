@@ -633,20 +633,31 @@ function updateEjeHelper() {
     }
 }
 
-function sanitizeIdList(str) {
+function parseIdList(str) {
     if (!str) return [];
-    return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n) && n > 0; });
+    return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n); });
 }
 
 function saveStateToURL() {
     var p = new URLSearchParams(window.location.search);
     ['v','h','s','ej','t'].forEach(function(k) { p.delete(k); });
-    var visibleVIds = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
-    var visibleHIds = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
-    var selectedSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-    if (visibleVIds.length) p.set('v', visibleVIds.join(',')); else p.delete('v');
-    if (visibleHIds.length) p.set('h', visibleHIds.join(',')); else p.delete('h');
-    if (selectedSids.length) p.set('s', selectedSids.join(',')); else p.delete('s');
+
+    function save(key, items, map) {
+        var hidden = [], visible = [];
+        (items || []).forEach(function(item) {
+            var id = item.categoria_id !== undefined ? item.categoria_id : item.seccion_id;
+            (map[id] === false ? hidden : visible).push(id);
+        });
+        if (hidden.length === 0) { p.delete(key); return; }
+        p.set(key, hidden.length <= visible.length
+            ? hidden.map(function(id) { return '-' + id; }).join(',')
+            : visible.join(','));
+    }
+
+    save('v', estado.verticales, visibleV);
+    save('h', estado.horizontales, visibleH);
+    save('s', estado.secciones, selectedSections);
+
     p.set('ej', chartAxis === 'vertical' ? 'v' : 'h');
     var tipoSelect = document.getElementById('select-tipo-grafica');
     if (tipoSelect) p.set('t', tipoSelect.value);
@@ -659,23 +670,26 @@ function saveStateToURL() {
 
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
-    var vList = sanitizeIdList(p.get('v'));
-    var hList = sanitizeIdList(p.get('h'));
-    var sList = sanitizeIdList(p.get('s'));
-    var ejeCode = p.get('ej');
-    var tipoCode = p.get('t');
 
-    if (vList.length) {
-        Object.keys(visibleV).forEach(function(id) { visibleV[id] = vList.indexOf(parseInt(id)) >= 0; });
-    }
-    if (hList.length) {
-        Object.keys(visibleH).forEach(function(id) { visibleH[id] = hList.indexOf(parseInt(id)) >= 0; });
-    }
-    if (sList.length) {
-        Object.keys(selectedSections).forEach(function(sid) {
-            selectedSections[sid] = sList.indexOf(parseInt(sid)) >= 0;
+    function load(key, items, map) {
+        var raw = p.get(key);
+        if (!raw) return;
+        var ids = parseIdList(raw);
+        if (!ids.length) return;
+        var isExceptions = raw.charAt(0) === '-';
+        var set = {}; ids.forEach(function(id) { set[Math.abs(id)] = true; });
+        (items || []).forEach(function(item) {
+            var id = item.categoria_id !== undefined ? item.categoria_id : item.seccion_id;
+            map[id] = isExceptions ? !set[id] : !!set[id];
         });
     }
+
+    load('v', estado.verticales, visibleV);
+    load('h', estado.horizontales, visibleH);
+    load('s', estado.secciones, selectedSections);
+
+    var ejeCode = p.get('ej');
+    var tipoCode = p.get('t');
     if (ejeCode === 'v' || ejeCode === 'h') {
         chartAxis = ejeCode === 'v' ? 'vertical' : 'horizontal';
         var sw = document.getElementById('switch-invertir-ejes');

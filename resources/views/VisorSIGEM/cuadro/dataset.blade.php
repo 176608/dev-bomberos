@@ -28,13 +28,13 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar/ocultar checkboxes en tabla">
-            <i class="bi bi-check2-square"></i> Checkboxes
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar u ocultar los checkboxes de la tabla">
+            <i class="bi bi-check2-square"></i> Ocultar
         </button>
         <button type="button" class="btn btn-sm btn-outline-warning" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
         </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-show-desel" title="Mostrar/ocultar categorías deseleccionadas">
+        <button type="button" class="btn btn-sm btn-outline-warning" id="btn-show-desel" title="Mostrar temporalmente las categorías deseleccionadas para poder reactivarlas">
             <i class="bi bi-eye-slash"></i> <span id="show-desel-label">Ver deselecciones</span>
         </button>
         @if(count($estadoInicial['secciones'] ?? []) > 1)
@@ -388,21 +388,32 @@ function loadSectionData(sid) {
         });
 }
 
-// ─── URL state ───
+// ─── URL state (inverted: save only exceptions, or all if fewer visible) ───
 
-function sanitize(str) {
+function parseIdList(str) {
     if (!str) return [];
-    return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n) && n > 0; });
+    return str.split(',').map(function(s) { return parseInt(s, 10); }).filter(function(n) { return !isNaN(n); });
 }
 function saveStateToURL() {
     var p = new URLSearchParams(window.location.search);
     ['v','h','s'].forEach(function(k) { p.delete(k); });
-    var v = Object.keys(visibleV).filter(function(id) { return visibleV[id] !== false; });
-    var h = Object.keys(visibleH).filter(function(id) { return visibleH[id] !== false; });
-    var s = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-    if (v.length) p.set('v', v.join(',')); else p.delete('v');
-    if (h.length) p.set('h', h.join(',')); else p.delete('h');
-    if (s.length) p.set('s', s.join(',')); else p.delete('s');
+
+    function save(key, items, map) {
+        var hidden = [], visible = [];
+        (items || []).forEach(function(item) {
+            var id = item.categoria_id !== undefined ? item.categoria_id : item.seccion_id;
+            (map[id] === false ? hidden : visible).push(id);
+        });
+        if (hidden.length === 0) { p.delete(key); return; }
+        p.set(key, hidden.length <= visible.length
+            ? hidden.map(function(id) { return '-' + id; }).join(',')
+            : visible.join(','));
+    }
+
+    save('v', estado.verticales, visibleV);
+    save('h', estado.horizontales, visibleH);
+    save('s', estado.secciones, selectedSections);
+
     var qs = p.toString();
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
     var lnk = document.getElementById('link-to-grafica');
@@ -410,10 +421,23 @@ function saveStateToURL() {
 }
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
-    var vl = sanitize(p.get('v')), hl = sanitize(p.get('h')), sl = sanitize(p.get('s'));
-    if (vl.length) Object.keys(visibleV).forEach(function(id) { visibleV[id] = vl.indexOf(parseInt(id)) >= 0; });
-    if (hl.length) Object.keys(visibleH).forEach(function(id) { visibleH[id] = hl.indexOf(parseInt(id)) >= 0; });
-    if (sl.length) Object.keys(selectedSections).forEach(function(sid) { selectedSections[sid] = sl.indexOf(parseInt(sid)) >= 0; });
+
+    function load(key, items, map) {
+        var raw = p.get(key);
+        if (!raw) return;
+        var ids = parseIdList(raw);
+        if (!ids.length) return;
+        var isExceptions = raw.charAt(0) === '-';
+        var set = {}; ids.forEach(function(id) { set[Math.abs(id)] = true; });
+        (items || []).forEach(function(item) {
+            var id = item.categoria_id !== undefined ? item.categoria_id : item.seccion_id;
+            map[id] = isExceptions ? !set[id] : !!set[id];
+        });
+    }
+
+    load('v', estado.verticales, visibleV);
+    load('h', estado.horizontales, visibleH);
+    load('s', estado.secciones, selectedSections);
 }
 
 // ─── Debug ───
@@ -469,16 +493,18 @@ document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
     var on = document.getElementById('app-dataset').classList.toggle('show-cb');
     this.innerHTML = on
         ? '<i class="bi bi-check2-square"></i> Ocultar'
-        : '<i class="bi bi-check2-square"></i> Checkboxes';
+        : '<i class="bi bi-check2-square"></i> Mostrar';
+    this.className = on
+        ? 'btn btn-sm btn-outline-secondary'
+        : 'btn btn-sm btn-outline-success';
 });
-(function() {
-    var btn = document.getElementById('btn-toggle-cb');
-    if (btn) btn.innerHTML = '<i class="bi bi-check2-square"></i> Ocultar';
-})();
 document.getElementById('btn-show-desel')?.addEventListener('click', function() {
     showDeselected = !showDeselected;
     var label = document.getElementById('show-desel-label');
     if (label) label.textContent = showDeselected ? 'Ocultar deselecciones' : 'Ver deselecciones';
+    this.className = showDeselected
+        ? 'btn btn-sm btn-outline-secondary'
+        : 'btn btn-sm btn-outline-warning';
     renderTables();
     saveStateToURL();
 });
