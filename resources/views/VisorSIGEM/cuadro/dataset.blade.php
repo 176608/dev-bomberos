@@ -22,15 +22,17 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-        <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
-            <i class="bi bi-list-check"></i> Categorías
-        </button>
         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar/ocultar checkboxes en tabla">
             <i class="bi bi-check2-square"></i> Checkboxes
         </button>
         <button type="button" class="btn btn-sm btn-outline-warning" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
         </button>
+        @if(count($estadoInicial['secciones'] ?? []) > 1)
+        <button type="button" class="btn btn-sm btn-outline-success" id="btn-activar-todas" title="Activar todas las secciones">
+            <i class="bi bi-check-all"></i> Activar todas
+        </button>
+        @endif
         @if($esDesarrollador)
         <button type="button" class="btn btn-sm btn-outline-secondary debug-toggle" title="Alternar debug">
             <i class="bi bi-bug"></i> Debug
@@ -38,20 +40,11 @@
         @endif
     </div>
 
-    <div class="d-flex gap-2">
-        <div id="chart-panel" class="border rounded p-2" style="width:240px;flex-shrink:0;overflow-y:auto;max-height:500px;display:none">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías</small>
-                <button type="button" class="btn-close btn-sm" id="btn-cerrar-panel" aria-label="Cerrar panel"></button>
-            </div>
-            <div id="panel-items" class="small"></div>
-        </div>
-        <div style="flex:1;min-width:0">
-            <div id="tables-container"></div>
-            @if($esDesarrollador)
-            <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
-            @endif
-        </div>
+    <div>
+        <div id="tables-container"></div>
+        @if($esDesarrollador)
+        <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
+        @endif
     </div>
 
     <div class="card-footer py-1 px-0 d-flex justify-content-between align-items-center mt-2" id="status-bar">
@@ -61,12 +54,6 @@
 </div>
 
 <style>
-#chart-panel label.checked { font-weight:600; }
-#chart-panel .panel-parent { cursor:pointer; user-select:none; }
-#chart-panel .panel-parent:hover { background:#f0f2f5; border-radius:2px; }
-#chart-panel .panel-child { padding-left:1.2rem; }
-#chart-panel .panel-child label { cursor:pointer; }
-#chart-panel .panel-child label:hover { color:var(--bs-primary); }
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 #tables-container > .section-block { margin-bottom:1.5rem; }
@@ -120,140 +107,6 @@ function api(path, opts) {
         opts.headers['Content-Type'] = 'application/json';
     }
     return fetch(BASE + path, opts).then(function(r) { return r.json(); });
-}
-
-// ─── Category panel (sidebar) ───
-
-function syncTodoCheckboxes() {
-    var c = document.getElementById('panel-items');
-    if (!c) return;
-    c.querySelectorAll('.todo-check').forEach(function(cb) {
-        var a = cb.dataset.axis;
-        var m = a === 'vertical' ? visibleV : visibleH;
-        var ids = Object.keys(m);
-        var all = ids.length > 0 && ids.every(function(id) { return m[id] !== false; });
-        var any = ids.some(function(id) { return m[id] !== false; });
-        cb.checked = all;
-        var ic = cb.parentNode.querySelector('i');
-        if (ic) ic.className = 'bi ' + (all ? 'bi-check2-square' : (any ? 'bi-dash-square' : 'bi-square')) + ' me-1';
-    });
-}
-
-function updateParentCheck(axis, pid) {
-    var c = document.getElementById('panel-items');
-    if (!c) return;
-    var kids = c.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + pid + '"]');
-    var all = true, any = false;
-    kids.forEach(function(ch) { if (ch.checked) any = true; else all = false; });
-    var pc = c.querySelector('.cat-check[data-axis="' + axis + '"][data-id="' + pid + '"]');
-    if (pc) {
-        if (!any) { pc.checked = false; (axis === 'vertical' ? visibleV : visibleH)[pid] = false; }
-        else if (all) { pc.checked = true; (axis === 'vertical' ? visibleV : visibleH)[pid] = true; }
-    }
-}
-
-function renderPanel() {
-    var c = document.getElementById('panel-items');
-    if (!c) return;
-    var html = '';
-
-    html += '<div class="mb-2"><label class="small text-muted fw-semibold">Secciones</label></div>';
-    (estado.secciones || []).forEach(function(s) {
-        var ch = selectedSections[s.seccion_id] !== false;
-        var ld = !sectionsCache[s.seccion_id] && ch;
-        html += '<div class="panel-child mb-1"><label style="cursor:pointer">';
-        html += '<input type="checkbox" class="me-1 sec-check" data-sid="' + s.seccion_id + '" ' + (ch ? 'checked' : '') + '>';
-        if (ld) html += '<span class="spinner-border spinner-border-sm me-1"></span>';
-        html += esc(s.nombre) + '</label></div>';
-    });
-    html += '<hr class="my-1">';
-
-    function tree(leaves, layers, axis) {
-        var m = axis === 'vertical' ? visibleV : visibleH;
-        var ids = (leaves || []).map(function(l) { return l.categoria_id; });
-        var all = ids.length > 0 && ids.every(function(id) { return m[id] !== false; });
-        var any = ids.some(function(id) { return m[id] !== false; });
-        html += '<div class="mb-1 mt-1"><label style="cursor:pointer;font-weight:600" class="small">';
-        html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (all ? 'checked' : '') + '>';
-        html += '<i class="bi ' + (all ? 'bi-check2-square' : (any ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i> ' + (axis === 'vertical' ? 'Filas' : 'Columnas');
-        html += '</label></div>';
-
-        var pids = {}, p2c = {};
-        (leaves || []).forEach(function(l) {
-            if (l.padre_id) { pids[l.padre_id] = true; (p2c[l.padre_id] = p2c[l.padre_id] || []).push(l); }
-        });
-        var pn = {};
-        (layers || []).forEach(function(row) {
-            (row || []).forEach(function(cell) {
-                if (cell.tipo === 'parent' && pids[cell.categoria_id]) pn[cell.categoria_id] = cell.nombre;
-            });
-        });
-        Object.keys(p2c).forEach(function(pid) {
-            pid = parseInt(pid);
-            var name = pn[pid] || ('ID ' + pid);
-            var kids = p2c[pid] || [];
-            if (m[pid] === undefined) m[pid] = kids.some(function(ch) { return m[ch.categoria_id] !== false; });
-            var ck = m[pid] !== false ? 'checked' : '';
-            html += '<div class="panel-parent"><label style="cursor:pointer;font-weight:600">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + ck + '>';
-            html += '<i class="bi ' + (ck ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(name) + '</label></div>';
-            kids.forEach(function(ch) {
-                var ck2 = m[ch.categoria_id] !== false ? 'checked' : '';
-                html += '<div class="panel-child" style="padding-left:1.5rem"><label style="cursor:pointer">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + ck2 + '>';
-                html += esc(ch.nombre) + '</label></div>';
-            });
-        });
-        var flat = (leaves || []).filter(function(l) { return !l.padre_id; });
-        flat.forEach(function(l) {
-            var ck = m[l.categoria_id] !== false ? 'checked' : '';
-            html += '<div class="panel-child" style="padding-left:0.3rem"><label style="cursor:pointer">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + ck + '>';
-            html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre) + '</label></div>';
-        });
-        if (!Object.keys(p2c).length && !flat.length) html += '<small class="text-muted">(sin categorías)</small>';
-    }
-
-    tree(estado.verticales, estado.labels, 'vertical');
-    html += '<hr class="my-1">';
-    tree(estado.horizontales, estado.headers, 'horizontal');
-    c.innerHTML = html;
-    syncTodoCheckboxes();
-
-    c.querySelectorAll('.cat-check').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            var a = this.dataset.axis;
-            var id = parseInt(this.dataset.id);
-            var parent = this.dataset.parent ? parseInt(this.dataset.parent) : null;
-            var m = a === 'vertical' ? visibleV : visibleH;
-            m[id] = this.checked;
-            if (parent) updateParentCheck(a, parent);
-            else c.querySelectorAll('.cat-check[data-axis="' + a + '"][data-parent="' + id + '"]').forEach(function(ch) {
-                ch.checked = this.checked; m[parseInt(ch.dataset.id)] = this.checked;
-            }, this);
-            syncTodoCheckboxes();
-            renderTables();
-            saveStateToURL();
-        });
-    });
-    c.querySelectorAll('.todo-check').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            var a = this.dataset.axis;
-            var m = a === 'vertical' ? visibleV : visibleH;
-            var on = this.checked;
-            Object.keys(m).forEach(function(k) { m[k] = on; });
-            c.querySelectorAll('.cat-check[data-axis="' + a + '"]').forEach(function(ch) {
-                ch.checked = on;
-                var pid = ch.dataset.parent;
-                if (pid) { var pc = c.querySelector('.cat-check[data-axis="' + a + '"][data-id="' + pid + '"]'); if (pc) pc.checked = on; }
-            });
-            c.querySelectorAll('.cat-check[data-axis="' + a + '"][data-parent=""]').forEach(function(pcb) {
-                (a === 'vertical' ? visibleV : visibleH)[parseInt(pcb.dataset.id)] = on;
-            });
-            renderTables();
-            saveStateToURL();
-        });
-    });
 }
 
 // ─── Render tables (one table per active section) ───
@@ -345,6 +198,7 @@ function renderTables() {
 
     var headerHtml = buildHeaderRow();
 
+    var singleSection = (estado.secciones || []).length <= 1;
     var allHtml = '';
     activeSids.forEach(function(sid) {
         var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
@@ -353,7 +207,11 @@ function renderTables() {
         allHtml += '<div class="section-block">';
         allHtml += '<div class="section-title">';
         var secCk = selectedSections[sid] !== false ? 'checked' : '';
-        allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+        if (singleSection) {
+            allHtml += esc(secName);
+        } else {
+            allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+        }
         allHtml += '</div>';
 
         allHtml += '<table class="table table-bordered table-sm mb-0">';
@@ -429,10 +287,22 @@ function renderTables() {
         });
     });
     container.querySelectorAll('.sec-table-cb').forEach(function(cb) {
+        var sid = parseInt(cb.dataset.sid);
         cb.addEventListener('change', function() {
-            selectedSections[parseInt(this.dataset.sid)] = this.checked;
-            saveStateToURL();
-            renderTables();
+            var on = this.checked;
+            selectedSections[sid] = on;
+            if (on && !sectionsCache[sid]) {
+                this.disabled = true;
+                status('Cargando sección...');
+                loadSectionData(sid)
+                    .then(function() { renderTables(); saveStateToURL(); status(''); if (IS_DEV) updateDebug(); })
+                    .catch(function(err) { selectedSections[sid] = false; cb.checked = false; alerta(err.message || 'Error'); })
+                    .finally(function() { cb.disabled = false; });
+            } else {
+                renderTables();
+                saveStateToURL();
+                if (IS_DEV) updateDebug();
+            }
         });
     });
 }
@@ -514,11 +384,9 @@ function init() {
     });
 
     function done() {
-        renderPanel();
         renderTables();
         saveStateToURL();
         if (IS_DEV) updateDebug();
-        document.getElementById('chart-panel').style.display = 'block';
     }
     if (pending.length) Promise.all(pending).then(done).catch(done);
     else done();
@@ -526,13 +394,6 @@ function init() {
 
 // ─── Events ───
 
-document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
-    var p = document.getElementById('chart-panel');
-    p.style.display = p.style.display === 'none' ? 'block' : 'none';
-});
-document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
-    document.getElementById('chart-panel').style.display = 'none';
-});
 document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
     document.getElementById('app-dataset').classList.toggle('show-cb');
     this.classList.toggle('active');
@@ -543,7 +404,12 @@ document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
 document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', function() {
     (estado.verticales || []).forEach(function(v) { visibleV[v.categoria_id] = v.visible !== false; });
     (estado.horizontales || []).forEach(function(h) { visibleH[h.categoria_id] = h.visible !== false; });
-    renderPanel();
+    Object.keys(visibleH).forEach(function(id) {
+        if (!(estado.horizontales || []).some(function(h) { return h.categoria_id == id; })) visibleH[id] = true;
+    });
+    Object.keys(visibleV).forEach(function(id) {
+        if (!(estado.verticales || []).some(function(v) { return v.categoria_id == id; })) visibleV[id] = true;
+    });
     renderTables();
     saveStateToURL();
     status('Selección restaurada');
@@ -553,32 +419,19 @@ if (dt) dt.addEventListener('click', function() {
     var el = document.getElementById('chart-debug');
     if (el) { el.style.display = el.style.display === 'none' ? 'block' : 'none'; if (el.style.display === 'block') updateDebug(); }
 });
-
-// Section checkbox in side panel
-document.getElementById('panel-items')?.addEventListener('change', function(e) {
-    var cb = e.target;
-    if (!cb.classList.contains('sec-check')) return;
-    var sid = parseInt(cb.dataset.sid);
-    if (isNaN(sid)) return;
-    selectedSections[sid] = cb.checked;
-
-    if (cb.checked && !sectionsCache[sid]) {
-        cb.disabled = true;
-        cb.insertAdjacentHTML('afterend', ' <span class="spinner-border spinner-border-sm"></span>');
-        status('Cargando sección...');
-        loadSectionData(sid)
-            .then(function() { renderTables(); saveStateToURL(); status(''); if (IS_DEV) updateDebug(); })
-            .catch(function(err) { selectedSections[sid] = false; cb.checked = false; alerta(err.message || 'Error'); })
-            .finally(function() {
-                cb.disabled = false;
-                (cb.parentNode.querySelectorAll('.spinner-border') || []).forEach(function(s) { s.remove(); });
-                renderPanel();
-            });
-    } else {
-        renderTables();
-        saveStateToURL();
-        if (IS_DEV) updateDebug();
-    }
+document.getElementById('btn-activar-todas')?.addEventListener('click', function() {
+    var changed = false;
+    (estado.secciones || []).forEach(function(s) {
+        if (!selectedSections[s.seccion_id]) { selectedSections[s.seccion_id] = true; changed = true; }
+    });
+    if (!changed) return;
+    var pend = [];
+    Object.keys(selectedSections).forEach(function(sid) {
+        if (selectedSections[sid] && !sectionsCache[sid]) pend.push(loadSectionData(parseInt(sid)));
+    });
+    var finish = function() { renderTables(); saveStateToURL(); status('Todas las secciones activadas'); };
+    if (pend.length) Promise.all(pend).then(finish).catch(finish);
+    else finish();
 });
 
 init();
