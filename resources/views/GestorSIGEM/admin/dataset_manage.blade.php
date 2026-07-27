@@ -338,7 +338,7 @@
         if (!esHijo) {
             var c = esVertical ? 'success' : 'primary';
             h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
-            h += '<button class="btn btn-' + c + '" title="Añadir varios hijos" onclick="window._batchContext=' + catId + ';openBatchModal(\'hijo\')"><i class="bi bi-plus-lg me-1"></i><i class="bi bi-list"></i></button>';
+            h += '<button class="btn btn-' + c + '" title="Añadir varios hijos" onclick="openBatchModal(\'hijo\',' + catId + ')"><i class="bi bi-plus-lg me-1"></i><i class="bi bi-list"></i></button>';
         }
         if (esParent && numHijos >= 2)
             h += '<button class="btn btn-info" title="Duplicar categoría" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
@@ -1081,8 +1081,9 @@
     });
 
     document.getElementById('modalNombreBatch')?.addEventListener('click', function() {
+        var bt = pendingBatchType;
         bootstrap.Modal.getInstance(document.getElementById('modalNombre')).hide();
-        openBatchModal(pendingBatchType);
+        if (bt) openBatchModal(bt);
     });
 
     document.getElementById('modalNombre').addEventListener('hidden.bs.modal', function() {
@@ -1117,16 +1118,18 @@
 
     // ============ BATCH MODAL ============
     var _batchCreateFn = null;
+    var _batchValidateFn = null;
 
-    function openBatchModal(type) {
+    window.openBatchModal = function(type, context) {
+        if (context !== undefined) _batchContext = context;
         document.getElementById('modalBatchStep1').classList.remove('d-none');
         document.getElementById('modalBatchStep2').classList.add('d-none');
         document.getElementById('modalBatchConfirm').classList.add('d-none');
         document.getElementById('modalBatchError').classList.add('d-none');
         var label = '';
-        if (type === 'hijo') { label = 'hijos'; _batchCreateFn = batchCreateHijos; }
-        else if (type === 'fila') { label = 'filas'; _batchCreateFn = batchCreateFilas; }
-        else if (type === 'columna') { label = 'columnas'; _batchCreateFn = batchCreateColumnas; }
+        if (type === 'hijo') { label = 'hijos'; _batchCreateFn = batchCreateHijos; _batchValidateFn = makeValidateSibling('vertical', _batchContext); }
+        else if (type === 'fila') { label = 'filas'; _batchCreateFn = batchCreateFilas; _batchValidateFn = makeValidateSibling('vertical', null); }
+        else if (type === 'columna') { label = 'columnas'; _batchCreateFn = batchCreateColumnas; _batchValidateFn = makeValidateSibling('horizontal', null); }
         document.getElementById('modalBatchTitle').innerHTML = '<i class="bi bi-list me-1"></i>Añadir ' + label;
         document.getElementById('modalBatchCountLabel').textContent = '¿Cuántos ' + label + ' va a añadir?';
         document.getElementById('modalBatchCount').value = 2;
@@ -1160,19 +1163,41 @@
     document.getElementById('modalBatchConfirm')?.addEventListener('click', function() {
         var names = [];
         var errEl = document.getElementById('modalBatchError');
-        document.querySelectorAll('#modalBatchInputs .batch-name-input').forEach(function(inp) {
+        var inputs = document.querySelectorAll('#modalBatchInputs .batch-name-input');
+        inputs.forEach(function(inp) {
             var n = inp.value.trim();
             if (n) names.push(n);
         });
         if (!names.length) { errEl.textContent = 'Ingresá al menos un nombre.'; errEl.classList.remove('d-none'); return; }
+
+        // Validate against existing siblings
+        for (var i = 0; i < names.length; i++) {
+            if (_batchValidateFn) {
+                var err = _batchValidateFn(names[i]);
+                if (err) { errEl.textContent = '«' + names[i] + '»: ' + err; errEl.classList.remove('d-none'); return; }
+            }
+        }
+
+        // Validate no duplicates within the list
+        for (var i = 0; i < names.length; i++) {
+            for (var j = i + 1; j < names.length; j++) {
+                if (names[i].toLowerCase() === names[j].toLowerCase()) {
+                    errEl.textContent = '«' + names[i] + '» está repetido en la lista.';
+                    errEl.classList.remove('d-none');
+                    return;
+                }
+            }
+        }
+
         errEl.classList.add('d-none');
+        var fn = _batchCreateFn;
         bootstrap.Modal.getInstance(document.getElementById('modalBatch')).hide();
-        if (_batchCreateFn) _batchCreateFn(names);
+        if (fn) fn(names);
     });
 
     document.getElementById('modalBatch')?.addEventListener('hidden.bs.modal', function() {
         _batchCreateFn = null;
-        _batchContext = null;
+        _batchValidateFn = null;
     });
 
     document.getElementById('modalBatchInputs')?.addEventListener('keydown', function(e) {
