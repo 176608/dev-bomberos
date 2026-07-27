@@ -7,6 +7,9 @@
         $b = hexdec(substr($hex, 4, 2));
         return "rgba($r, $g, $b, $alpha)";
     }
+    function naturalSortKey($str) {
+        return preg_replace_callback('/\d+/', fn($m) => str_pad($m[0], 6, '0', STR_PAD_LEFT), $str);
+    }
 @endphp
 
 <div class="card bg-dark bg-opacity-10 border-0">
@@ -48,7 +51,7 @@
                             $colorTema = $cuadro->subtema && $cuadro->subtema->tema ? ($cuadro->subtema->tema->color ?? '#6c757d') : '#6c757d';
                         @endphp
                         <tr data-id="{{ $cuadro->cuadro_id }}">
-                            <td class="text-center"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
+                            <td class="text-center" data-order="{{ naturalSortKey($cuadro->codigo_cuadro) }}"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
                             <td><strong>{{ $cuadro->c_titulo }}</strong></td>
                             <td>
                                 @if($cuadro->subtema && $cuadro->subtema->tema)
