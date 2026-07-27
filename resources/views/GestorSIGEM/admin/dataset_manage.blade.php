@@ -123,10 +123,39 @@
             </div>
             <div class="modal-body py-2">
                 <input type="text" id="modalNombreInput" class="form-control form-control-sm" placeholder="Nombre..." autofocus>
+                <small id="modalNombreError" class="text-danger d-none mt-1"></small>
             </div>
             <div class="modal-footer py-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-sm btn-primary" id="modalNombreConfirm">Crear</button>
+                <button type="button" class="btn btn-sm btn-outline-info d-none" id="modalNombreBatch">Agregar más de uno <i class="bi bi-list-ol"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal batch crear -->
+<div class="modal fade" id="modalBatch" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="modalBatchTitle"><i class="bi bi-list me-1"></i>Crear</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-2">
+                <div id="modalBatchStep1">
+                    <label class="form-label small mb-1" id="modalBatchCountLabel">¿Cuántos va a añadir?</label>
+                    <input type="number" id="modalBatchCount" class="form-control form-control-sm" value="2" min="1" max="20">
+                    <button type="button" class="btn btn-sm btn-primary mt-2" id="modalBatchNext"><i class="bi bi-arrow-right"></i> Siguiente</button>
+                </div>
+                <div id="modalBatchStep2" class="d-none">
+                    <div id="modalBatchInputs" class="d-flex flex-column gap-1"></div>
+                    <small id="modalBatchError" class="text-danger d-none mt-1"></small>
+                </div>
+            </div>
+            <div class="modal-footer py-1" id="modalBatchFooter">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary d-none" id="modalBatchConfirm"><i class="bi bi-check-lg"></i> Crear todo</button>
             </div>
         </div>
     </div>
@@ -309,6 +338,7 @@
         if (!esHijo) {
             var c = esVertical ? 'success' : 'primary';
             h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
+            h += '<button class="btn btn-' + c + '" title="Añadir varios hijos" onclick="window._batchContext=' + catId + ';openBatchModal(\'hijo\')"><i class="bi bi-plus-lg me-1"></i><i class="bi bi-list"></i></button>';
         }
         if (esParent && numHijos >= 2)
             h += '<button class="btn btn-info" title="Duplicar categoría" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
@@ -1009,11 +1039,24 @@
 
     // ============ MODAL NOMBRE ============
     let pendingCreate = null;
+    let pendingValidate = null;
+    let pendingBatchType = null;
 
-    function showNameModal(title, actionFn, defaultValue) {
+    function showNameModal(title, actionFn, defaultValue, validateFn, batchType) {
         document.getElementById('modalNombreTitle').innerHTML = '<i class="bi bi-pencil me-1"></i>' + title;
         document.getElementById('modalNombreInput').value = defaultValue || '';
+        var errEl = document.getElementById('modalNombreError');
+        errEl.classList.add('d-none');
         pendingCreate = actionFn;
+        pendingValidate = validateFn || null;
+        var batchBtn = document.getElementById('modalNombreBatch');
+        if (batchType) {
+            pendingBatchType = batchType;
+            batchBtn.classList.remove('d-none');
+        } else {
+            pendingBatchType = null;
+            batchBtn.classList.add('d-none');
+        }
         new bootstrap.Modal(document.getElementById('modalNombre')).show();
         document.getElementById('modalNombre').addEventListener('shown.bs.modal', function focusInput() {
             document.getElementById('modalNombreInput').focus();
@@ -1022,16 +1065,31 @@
     }
 
     document.getElementById('modalNombreConfirm').addEventListener('click', function() {
-        const name = document.getElementById('modalNombreInput').value.trim();
+        var name = document.getElementById('modalNombreInput').value.trim();
         if (!name) { document.getElementById('modalNombreInput').focus(); return; }
-        const fn = pendingCreate;
+        var errEl = document.getElementById('modalNombreError');
+        if (pendingValidate) {
+            var err = pendingValidate(name);
+            if (err) { errEl.textContent = err; errEl.classList.remove('d-none'); return; }
+        }
+        errEl.classList.add('d-none');
+        var fn = pendingCreate;
         pendingCreate = null;
+        pendingValidate = null;
         bootstrap.Modal.getInstance(document.getElementById('modalNombre')).hide();
         fn(name);
     });
 
+    document.getElementById('modalNombreBatch')?.addEventListener('click', function() {
+        bootstrap.Modal.getInstance(document.getElementById('modalNombre')).hide();
+        openBatchModal(pendingBatchType);
+    });
+
     document.getElementById('modalNombre').addEventListener('hidden.bs.modal', function() {
         pendingCreate = null;
+        pendingValidate = null;
+        pendingBatchType = null;
+        document.getElementById('modalNombreError').classList.add('d-none');
     });
 
     document.getElementById('modalNombreInput').addEventListener('keydown', function(e) {
@@ -1042,14 +1100,142 @@
         if (e.key === 'Enter') document.getElementById('btn-regenerar-confirm').click();
     });
 
+    // ============ VALIDATION HELPERS ============
+    function siblingExists(eje, padreId, name) {
+        var items = (eje === 'vertical' ? (estado.all_verticales || []) : (estado.all_horizontales || [])).filter(function(item) { return item.eje === eje; });
+        if (padreId) items = items.filter(function(item) { return item.padre_id === padreId; });
+        else items = items.filter(function(item) { return !item.padre_id; });
+        return items.some(function(item) { return item.nombre.toLowerCase() === name.toLowerCase(); });
+    }
+
+    function makeValidateSibling(eje, padreId) {
+        return function(name) {
+            if (siblingExists(eje, padreId, name)) return 'Ya existe una categoría con ese nombre en este grupo.';
+            return null;
+        };
+    }
+
+    // ============ BATCH MODAL ============
+    var _batchCreateFn = null;
+
+    function openBatchModal(type) {
+        document.getElementById('modalBatchStep1').classList.remove('d-none');
+        document.getElementById('modalBatchStep2').classList.add('d-none');
+        document.getElementById('modalBatchConfirm').classList.add('d-none');
+        document.getElementById('modalBatchError').classList.add('d-none');
+        var label = '';
+        if (type === 'hijo') { label = 'hijos'; _batchCreateFn = batchCreateHijos; }
+        else if (type === 'fila') { label = 'filas'; _batchCreateFn = batchCreateFilas; }
+        else if (type === 'columna') { label = 'columnas'; _batchCreateFn = batchCreateColumnas; }
+        document.getElementById('modalBatchTitle').innerHTML = '<i class="bi bi-list me-1"></i>Añadir ' + label;
+        document.getElementById('modalBatchCountLabel').textContent = '¿Cuántos ' + label + ' va a añadir?';
+        document.getElementById('modalBatchCount').value = 2;
+        new bootstrap.Modal(document.getElementById('modalBatch')).show();
+    }
+
+    document.getElementById('modalBatchNext')?.addEventListener('click', function() {
+        var count = parseInt(document.getElementById('modalBatchCount').value);
+        if (isNaN(count) || count < 1) { document.getElementById('modalBatchCount').focus(); return; }
+        if (count > 20) { count = 20; }
+        var container = document.getElementById('modalBatchInputs');
+        container.innerHTML = '';
+        for (var i = 1; i <= count; i++) {
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control form-control-sm batch-name-input';
+            input.placeholder = 'Elemento ' + i;
+            input.dataset.index = i;
+            container.appendChild(input);
+        }
+        document.getElementById('modalBatchStep1').classList.add('d-none');
+        document.getElementById('modalBatchStep2').classList.remove('d-none');
+        document.getElementById('modalBatchConfirm').classList.remove('d-none');
+        setTimeout(function() { var fi = container.querySelector('.batch-name-input'); if (fi) fi.focus(); }, 100);
+    });
+
+    document.getElementById('modalBatchCount')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('modalBatchNext').click();
+    });
+
+    document.getElementById('modalBatchConfirm')?.addEventListener('click', function() {
+        var names = [];
+        var errEl = document.getElementById('modalBatchError');
+        document.querySelectorAll('#modalBatchInputs .batch-name-input').forEach(function(inp) {
+            var n = inp.value.trim();
+            if (n) names.push(n);
+        });
+        if (!names.length) { errEl.textContent = 'Ingresá al menos un nombre.'; errEl.classList.remove('d-none'); return; }
+        errEl.classList.add('d-none');
+        bootstrap.Modal.getInstance(document.getElementById('modalBatch')).hide();
+        if (_batchCreateFn) _batchCreateFn(names);
+    });
+
+    document.getElementById('modalBatch')?.addEventListener('hidden.bs.modal', function() {
+        _batchCreateFn = null;
+        _batchContext = null;
+    });
+
+    document.getElementById('modalBatchInputs')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.classList.contains('batch-name-input')) {
+            e.preventDefault();
+            var inputs = this.querySelectorAll('.batch-name-input');
+            var idx = Array.prototype.indexOf.call(inputs, e.target);
+            if (idx < inputs.length - 1) { inputs[idx + 1].focus(); }
+            else { document.getElementById('modalBatchConfirm').click(); }
+        }
+    });
+
+    function batchCreateHijos(names) {
+        var padreId = _batchContext;
+        saveAllBeforeAction();
+        var p = Promise.resolve();
+        names.forEach(function(name) {
+            p = p.then(function() {
+                return api('/hijo', { method: 'POST', body: { padre_id: padreId, nombre: name } })
+                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+            });
+        });
+        p.then(function() { renderGrid(estado); status(names.length + ' hijos agregados'); })
+            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+    }
+
+    function batchCreateFilas(names) {
+        saveAllBeforeAction();
+        var p = Promise.resolve();
+        names.forEach(function(name) {
+            p = p.then(function() {
+                return api('/fila', { method: 'POST', body: { nombre: name } })
+                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+            });
+        });
+        p.then(function() { renderGrid(estado); status(names.length + ' filas agregadas'); })
+            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+    }
+
+    function batchCreateColumnas(names) {
+        saveAllBeforeAction();
+        var p = Promise.resolve();
+        names.forEach(function(name) {
+            p = p.then(function() {
+                return api('/columna', { method: 'POST', body: { nombre: name } })
+                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+            });
+        });
+        p.then(function() { renderGrid(estado); status(names.length + ' columnas agregadas'); })
+            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+    }
+
+    var _batchContext = null;
+
     // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
+        _batchContext = padreId;
         showNameModal('Nuevo hijo', function(name) {
             saveAllBeforeAction();
             api('/hijo', { method: 'POST', body: { padre_id: padreId, nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.HIJOS + ']'));
-        });
+        }, '', makeValidateSibling('vertical', padreId), 'hijo');
     };
 
     window.duplicarCategoria = function(categoriaId) {
@@ -1067,7 +1253,7 @@
             api('/fila', { method: 'POST', body: { nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.FILA + ']'));
-        });
+        }, '', makeValidateSibling('vertical', null), 'fila');
     };
 
     window.agregarColumna = function() {
@@ -1076,7 +1262,7 @@
             api('/columna', { method: 'POST', body: { nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.COL + ']'));
-        });
+        }, '', makeValidateSibling('horizontal', null), 'columna');
     };
 
     window.eliminarFila = function(id) {
