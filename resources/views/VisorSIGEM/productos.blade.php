@@ -255,35 +255,6 @@
                     </div>
                 </div>
             </div>
-            
-<!--<div class="col-12">
-                <div class="card h-100 product-card">
-                    <div class="card-body">
-                        <div class="product-section">
-                            <a href="https://www.imip.org.mx/m_aux/public/biblioteca" target="_blank" class="product-image-link">
-                            <!-- @migrate m_aux → aux: <a href="https://www.imip.org.mx/aux/public/biblioteca" target="_blank" class="product-image-link"> -->
-                                <div class="product-image-container">
-                                    <img src="{{ asset('imagenes/abigail.jpeg') }}" alt="Biblioteca" class="img-fluid">
-                                    <div class="product-overlay">
-                                        <i class="bi bi-box-arrow-up-right"></i>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="product-text">
-                                <h5>
-                                    <a href="https://www.imip.org.mx/m_aux/public/biblioteca" target="_blank" class="text-decoration-none">
-                                    <!-- @migrate m_aux → aux: <a href="https://www.imip.org.mx/aux/public/biblioteca" target="_blank" class="text-decoration-none"> -->
-                                        <i class="bi bi-book me-2"></i>
-                                        Biblioteca MPDU: Abigail García Espinosa
-                                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                    </a>
-                                </h5>
-                                <p>Cuenta con un amplio acervo documental y bancos de datos especializados. Ideal para investigaciones urbanas, tesis, proyectos y trabajos académicos. Forma parte de la Red de Consulta del INEGI.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>-->
 
             <div class="col-12">
                 <div class="card h-100 product-card">
