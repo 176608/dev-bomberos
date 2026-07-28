@@ -630,6 +630,7 @@ var ALL_TIPOS = [
 function populateTipoSelect() {
     var select = document.getElementById('select-tipo-grafica');
     if (!select) return;
+    var prevVal = select.value;
     select.innerHTML = '';
     ALL_TIPOS.forEach(function(t) {
         var opt = document.createElement('option');
@@ -637,7 +638,13 @@ function populateTipoSelect() {
         opt.textContent = t.text + (tiposPermitidos.indexOf(t.value) >= 0 ? '' : ' (no permitido)');
         select.appendChild(opt);
     });
-    if (select.options.length) select.selectedIndex = 0;
+    if (select.options.length) {
+        if (tiposPermitidos.indexOf(prevVal) >= 0) {
+            select.value = prevVal;
+        } else {
+            select.selectedIndex = 0;
+        }
+    }
 }
 
 function renderModalTipos() {
@@ -885,8 +892,6 @@ document.getElementById('btn-guardar-tipos')?.addEventListener('click', function
     if (!tiposPermitidos.length) tiposPermitidos = ['bar', 'line', 'pie'];
     saveTiposPermitidos();
     populateTipoSelect();
-    renderChart(selectTipoGrafica.value);
-    updateChartDebug();
     status('Tipos de gráfica actualizados');
     var modalEl = document.getElementById('modal-tipos-grafica');
     var modal = bootstrap.Modal.getInstance(modalEl);
