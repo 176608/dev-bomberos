@@ -320,7 +320,7 @@ class DatasetController extends Controller
     public function updateTiposGrafica(Request $request, $id)
     {
         $request->validate(['tipos' => 'required|array']);
-        $request->validate(['tipos.*' => 'string|in:bar,line,pie,doughnut,radar,polarArea,scatter']);
+        $request->validate(['tipos.*' => 'string|in:bar,line,pie,doughnut,radar,polarArea,scatter,bubble']);
 
         try {
             $cuadro = \App\Models\SIGEM\Cuadro::obtenerPorId((int) $id);
