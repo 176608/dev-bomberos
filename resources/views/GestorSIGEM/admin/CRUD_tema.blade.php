@@ -287,6 +287,8 @@ $(document).ready(function() {
     @if(isset($temas) && count($temas) > 0)
     $('#tablaTemas').DataTable({
         responsive: true,
+        stateSave: true,
+        stateDuration: -1,
         language: {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",

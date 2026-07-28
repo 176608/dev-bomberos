@@ -553,6 +553,8 @@ $(document).ready(function() {
     @if(isset($ce_temas) && count($ce_temas) > 0)
     $('#tablaTemasCE').DataTable({
         responsive: true,
+        stateSave: true,
+        stateDuration: -1,
         language: dataTablesLanguage,
         columnDefs: [
             {
@@ -589,6 +591,8 @@ $(document).ready(function() {
     @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
     $('#tablaContenidosCE').DataTable({
         responsive: true,
+        stateSave: true,
+        stateDuration: -1,
         language: dataTablesLanguage,
         columnDefs: [
             {

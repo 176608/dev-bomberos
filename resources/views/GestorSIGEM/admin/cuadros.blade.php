@@ -31,6 +31,42 @@
         @endif
 
         @if(isset($cuadros) && $cuadros->count() > 0)
+            <div class="row g-2 mb-2 align-items-end">
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroTema" onchange="aplicarFiltrosCuadro()" style="min-width:140px">
+                        <option value="">Todos los temas</option>
+                        @foreach($temas as $tema)
+                            <option value="{{ $tema->tema_id }}" {{ request('tema_id') == $tema->tema_id ? 'selected' : '' }}>{{ $tema->tema_titulo }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroSubtema" onchange="aplicarFiltrosCuadro()" style="min-width:140px">
+                        <option value="">Todos los subtemas</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroDataset" onchange="aplicarFiltrosCuadro()" style="min-width:100px">
+                        <option value="">Dataset: Todos</option>
+                        <option value="1" {{ request('dataset') === '1' ? 'selected' : '' }}>Dataset: Sí</option>
+                        <option value="0" {{ request('dataset') === '0' ? 'selected' : '' }}>Dataset: No</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroPublicado" onchange="aplicarFiltrosCuadro()" style="min-width:100px">
+                        <option value="">Publicado: Todos</option>
+                        <option value="1" {{ request('publicado') === '1' ? 'selected' : '' }}>Publicado: Sí</option>
+                        <option value="0" {{ request('publicado') === '0' ? 'selected' : '' }}>Publicado: No</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroGrafica" onchange="aplicarFiltrosCuadro()" style="min-width:100px">
+                        <option value="">Gráfica: Todos</option>
+                        <option value="1" {{ request('grafica') === '1' ? 'selected' : '' }}>Gráfica: Sí</option>
+                        <option value="0" {{ request('grafica') === '0' ? 'selected' : '' }}>Gráfica: No</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="tablaCuadrosV2" class="table table-striped table-hover table-sm">
                     <thead class="table-dark">
@@ -51,7 +87,12 @@
                             $estaPublicado = $cuadro->publicado;
                             $colorTema = $cuadro->subtema && $cuadro->subtema->tema ? ($cuadro->subtema->tema->color ?? '#6c757d') : '#6c757d';
                         @endphp
-                        <tr data-id="{{ $cuadro->cuadro_id }}">
+                        <tr data-id="{{ $cuadro->cuadro_id }}"
+                            data-tema-id="{{ $cuadro->subtema?->tema?->tema_id }}"
+                            data-subtema-id="{{ $cuadro->subtema?->subtema_id }}"
+                            data-publicado="{{ $cuadro->publicado ? '1' : '0' }}"
+                            data-grafica="{{ $cuadro->permite_grafica ? '1' : '0' }}"
+                            data-dataset="{{ $cuadro->categorias()->count() > 0 ? '1' : '0' }}">
                             <td class="text-center" data-order="{{ naturalSortKey($cuadro->codigo_cuadro) }}"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
                             <td><strong>{{ $cuadro->c_titulo }}</strong></td>
                             <td>
@@ -472,9 +513,12 @@ function eliminarCuadro(id, titulo) {
 }
 
 $(document).ready(function() {
+    // ============ DATATABLE ============
     @if(isset($cuadros) && $cuadros->count() > 0)
     $('#tablaCuadrosV2').DataTable({
         responsive: true,
+        stateSave: true,
+        stateDuration: -1,
         language: {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
@@ -512,8 +556,76 @@ $(document).ready(function() {
     });
     @endif
 
+    // ============ FILTROS CUADROS + URL STATE ============
+    var filtroCuadroCallbacks = [];
+
+    function aplicarFiltrosCuadro() {
+        var temaId = document.getElementById('filtroCuadroTema').value;
+        var subId = document.getElementById('filtroCuadroSubtema').value;
+        var ds = document.getElementById('filtroCuadroDataset').value;
+        var pub = document.getElementById('filtroCuadroPublicado').value;
+        var graf = document.getElementById('filtroCuadroGrafica').value;
+
+        var url = new URL(window.location);
+        ['tema_id','subtema_id','dataset','publicado','grafica'].forEach(function(k) { url.searchParams.delete(k); });
+        if (temaId) url.searchParams.set('tema_id', temaId);
+        if (subId) url.searchParams.set('subtema_id', subId);
+        if (ds) url.searchParams.set('dataset', ds);
+        if (pub) url.searchParams.set('publicado', pub);
+        if (graf) url.searchParams.set('grafica', graf);
+        window.history.replaceState(null, '', url);
+
+        var dt = $('#tablaCuadrosV2').DataTable();
+        while (filtroCuadroCallbacks.length) {
+            var idx = $.fn.dataTable.ext.search.indexOf(filtroCuadroCallbacks.pop());
+            if (idx >= 0) $.fn.dataTable.ext.search.splice(idx, 1);
+        }
+
+        var fn = function(settings, data, dataIndex) {
+            var row = dt.row(dataIndex).node();
+            if (!row) return true;
+            if (temaId && $(row).data('tema-id') != temaId) return false;
+            if (subId && $(row).data('subtema-id') != subId) return false;
+            if (ds !== '' && $(row).data('dataset') != ds) return false;
+            if (pub !== '' && $(row).data('publicado') != pub) return false;
+            if (graf !== '' && $(row).data('grafica') != graf) return false;
+            return true;
+        };
+        filtroCuadroCallbacks.push(fn);
+        $.fn.dataTable.ext.search.push(fn);
+        dt.draw();
+    }
+    window.aplicarFiltrosCuadro = aplicarFiltrosCuadro;
+
+    function poblarSubtemasFiltro() {
+        var temaId = document.getElementById('filtroCuadroTema').value;
+        var subEl = document.getElementById('filtroCuadroSubtema');
+        subEl.innerHTML = '<option value="">Todos los subtemas</option>';
+        if (temaId && window.subtemasPorTema && window.subtemasPorTema[temaId]) {
+            window.subtemasPorTema[temaId].forEach(function(sub) {
+                var opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.nombre;
+                if (new URLSearchParams(window.location.search).get('subtema_id') == sub.id) opt.selected = true;
+                subEl.appendChild(opt);
+            });
+        }
+        aplicarFiltrosCuadro();
+    }
+    document.getElementById('filtroCuadroTema')?.addEventListener('change', poblarSubtemasFiltro);
+
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('tema_id')) {
+            document.getElementById('filtroCuadroTema').value = params.get('tema_id');
+            poblarSubtemasFiltro();
+        } else {
+            aplicarFiltrosCuadro();
+        }
+    })();
+
     // ========== CASCADING TEMA → SUBTEMA ==========
-    const subtemasPorTema = {
+    window.subtemasPorTema = {
         @foreach($temas as $tema)
             {{ $tema->tema_id }}: [
                 @foreach($tema->subtemas as $sub)
@@ -526,14 +638,14 @@ $(document).ready(function() {
     function poblarSubtemas(temaId, selectId, valorSeleccionado) {
         const select = document.getElementById(selectId);
         select.innerHTML = '';
-        if (!temaId || !subtemasPorTema[temaId]) {
+        if (!temaId || !window.subtemasPorTema[temaId]) {
             select.innerHTML = '<option value="">Primero selecciona un tema...</option>';
             select.disabled = true;
             return;
         }
         select.disabled = false;
         select.innerHTML = '<option value="">Seleccionar subtema...</option>';
-        subtemasPorTema[temaId].forEach(function(sub) {
+        window.subtemasPorTema[temaId].forEach(function(sub) {
             const opt = document.createElement('option');
             opt.value = sub.id;
             opt.textContent = sub.nombre;
