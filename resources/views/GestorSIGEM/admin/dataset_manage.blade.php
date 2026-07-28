@@ -231,16 +231,23 @@
 
 <!-- Modal batch crear -->
 <div class="modal fade" id="modalBatch" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:450px">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
         <div class="modal-content">
             <div class="modal-header py-2">
                 <h6 class="modal-title" id="modalBatchTitle"><i class="bi bi-clipboard me-1"></i>Pegar lista</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body py-2">
+            <div class="modal-body py-2 position-relative" id="modalBatchBody">
                 <label class="form-label small mb-1">Pegá la lista (un elemento por línea):</label>
-                <textarea id="modalBatchTextarea" class="form-control form-control-sm" rows="8" placeholder="Elemento 1&#10;Elemento 2&#10;Elemento 3"></textarea>
+                <div class="batch-textarea-wrapper">
+                    <div class="batch-line-numbers" id="batchLineNumbers">1</div>
+                    <textarea id="modalBatchTextarea" class="form-control form-control-sm" rows="8" placeholder="Elemento 1&#10;Elemento 2&#10;Elemento 3"></textarea>
+                </div>
                 <small id="modalBatchError" class="text-danger d-none mt-1"></small>
+                <div id="batchLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index:1055; border-radius:inherit;">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <small class="text-muted" id="batchLoadingText">Creando...</small>
+                </div>
             </div>
             <div class="modal-footer py-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -302,6 +309,12 @@
 /* Data cells right-aligned in datos mode */
 .mode-datos #dataset-table td[data-vertical-id] > div { text-align: right; }
 .mode-diseno #dataset-table td[data-vertical-id] > div { cursor: default; }
+
+/* Batch textarea with line numbers */
+.batch-textarea-wrapper { display: flex; border: 1px solid #dee2e6; border-radius: var(--bs-border-radius-sm); overflow: hidden; }
+.batch-textarea-wrapper .batch-line-numbers { padding: 0.25rem 0.35rem; background: #f8f9fa; color: #6c757d; font-family: var(--bs-font-monospace); font-size: 0.8rem; line-height: 1.5; text-align: right; user-select: none; overflow: hidden; min-width: 28px; border-right: 1px solid #dee2e6; white-space: pre; }
+.batch-textarea-wrapper textarea { flex: 1; border: none !important; border-radius: 0 !important; resize: vertical; padding: 0.25rem 0.35rem; font-family: var(--bs-font-monospace); font-size: 0.8rem; line-height: 1.5; }
+.batch-textarea-wrapper textarea:focus { box-shadow: none !important; }
 
 </style>
 
@@ -1251,54 +1264,98 @@
         }
 
         errEl.classList.add('d-none');
+        var overlay = document.getElementById('batchLoadingOverlay');
+        var btnConfirm = document.getElementById('modalBatchConfirm');
+        overlay.classList.remove('d-none');
+        btnConfirm.disabled = true;
+        document.getElementById('batchLoadingText').textContent = 'Creando 0 de ' + names.length + '...';
         var fn = _batchCreateFn;
-        bootstrap.Modal.getInstance(document.getElementById('modalBatch')).hide();
-        if (fn) fn(names);
+        fn(names, function(completed) {
+            document.getElementById('batchLoadingText').textContent = 'Creando ' + completed + ' de ' + names.length + '...';
+        }, function() {
+            overlay.classList.add('d-none');
+            btnConfirm.disabled = false;
+            bootstrap.Modal.getInstance(document.getElementById('modalBatch')).hide();
+        });
     });
 
     document.getElementById('modalBatch')?.addEventListener('hidden.bs.modal', function() {
         _batchCreateFn = null;
         _batchValidateFn = null;
+        document.getElementById('batchLoadingOverlay').classList.add('d-none');
+        document.getElementById('modalBatchConfirm').disabled = false;
     });
 
-    function batchCreateHijos(names) {
+    // Line numbers sync for batch textarea
+    function syncBatchLineNumbers() {
+        var ta = document.getElementById('modalBatchTextarea');
+        var ln = document.getElementById('batchLineNumbers');
+        if (!ta || !ln) return;
+        var lines = ta.value.split('\n').length;
+        var nums = '';
+        for (var i = 1; i <= lines; i++) {
+            nums += i + '\n';
+        }
+        ln.textContent = nums;
+    }
+    document.getElementById('modalBatchTextarea')?.addEventListener('input', syncBatchLineNumbers);
+    document.getElementById('modalBatch')?.addEventListener('shown.bs.modal', function() {
+        syncBatchLineNumbers();
+    });
+
+    function batchCreateHijos(names, onProgress, onDone) {
         var padreId = _batchContext;
         saveAllBeforeAction();
         var p = Promise.resolve();
+        var completed = 0;
         names.forEach(function(name) {
             p = p.then(function() {
                 return api('/hijo', { method: 'POST', body: { padre_id: padreId, nombre: name } })
-                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+                    .then(function(j) {
+                        if (!j.success) throw new Error(j.message);
+                        completed++;
+                        if (onProgress) onProgress(completed);
+                    });
             });
         });
-        p.then(function() { renderGrid(estado); status(names.length + ' hijos agregados'); })
-            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+        p.then(function() { renderGrid(estado); status(names.length + ' hijos agregados'); if (onDone) onDone(); })
+            .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
     }
 
-    function batchCreateFilas(names) {
+    function batchCreateFilas(names, onProgress, onDone) {
         saveAllBeforeAction();
         var p = Promise.resolve();
+        var completed = 0;
         names.forEach(function(name) {
             p = p.then(function() {
                 return api('/fila', { method: 'POST', body: { nombre: name } })
-                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+                    .then(function(j) {
+                        if (!j.success) throw new Error(j.message);
+                        completed++;
+                        if (onProgress) onProgress(completed);
+                    });
             });
         });
-        p.then(function() { renderGrid(estado); status(names.length + ' filas agregadas'); })
-            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+        p.then(function() { renderGrid(estado); status(names.length + ' filas agregadas'); if (onDone) onDone(); })
+            .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
     }
 
-    function batchCreateColumnas(names) {
+    function batchCreateColumnas(names, onProgress, onDone) {
         saveAllBeforeAction();
         var p = Promise.resolve();
+        var completed = 0;
         names.forEach(function(name) {
             p = p.then(function() {
                 return api('/columna', { method: 'POST', body: { nombre: name } })
-                    .then(function(j) { if (!j.success) throw new Error(j.message); });
+                    .then(function(j) {
+                        if (!j.success) throw new Error(j.message);
+                        completed++;
+                        if (onProgress) onProgress(completed);
+                    });
             });
         });
-        p.then(function() { renderGrid(estado); status(names.length + ' columnas agregadas'); })
-            .catch(function(e) { alerta('Error: ' + e.message); renderGrid(estado); });
+        p.then(function() { renderGrid(estado); status(names.length + ' columnas agregadas'); if (onDone) onDone(); })
+            .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
     }
 
     var _batchContext = null;
