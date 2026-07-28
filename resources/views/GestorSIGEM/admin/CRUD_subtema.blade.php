@@ -5,17 +5,6 @@
         <h5 class="mb-0"><i class="bi bi-bookmarks"></i> Panel CRUD de Subtemas</h5>
         <div>
             <span class="badge bg-light text-dark me-2">Total: <strong>{{ count($subtemas ?? []) }}</strong></span>
-            <div class="btn-group btn-group-sm me-2" role="group">
-                <button type="button" class="btn btn-outline-light btn-sm {{ !request('tema_id') ? 'active' : '' }}" onclick="filtroTemaSubtema('')">
-                    <i class="bi bi-funnel{{ request('tema_id') ? '' : '-fill' }}"></i>
-                </button>
-                <select class="form-select form-select-sm" id="filtroTemaSubtema" style="width:auto;min-width:140px" onchange="filtroTemaSubtema(this.value)">
-                    <option value="">Todos los temas</option>
-                    @foreach($temas as $tema)
-                        <option value="{{ $tema->tema_id }}" {{ request('tema_id') == $tema->tema_id ? 'selected' : '' }}>{{ $tema->tema_titulo }}</option>
-                    @endforeach
-                </select>
-            </div>
             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarSubtema">
                 <i class="bi bi-plus-circle"></i> Nuevo Subtema
             </button>
@@ -41,7 +30,7 @@
                         @php
                             $infoClave = $subtema->obtenerInfoClave();
                         @endphp
-                        <tr data-clave-subtema="{{ $subtema->clave_subtema }}" data-tema-id="{{ $subtema->tema_id }}">
+                        <tr data-clave-subtema="{{ $subtema->clave_subtema }}">
                             <td>
                                 <strong>{{ $subtema->subtema_titulo }}</strong>
                             </td>
@@ -447,32 +436,6 @@ $(document).ready(function() {
         }
     });
     @endif
-
-    // ============ FILTRO TEMA + URL STATE ============
-    window.filtroTemaSubtema = function(temaId) {
-        var url = new URL(window.location);
-        if (temaId) url.searchParams.set('tema_id', temaId);
-        else url.searchParams.delete('tema_id');
-        window.history.replaceState(null, '', url);
-
-        var dt = $('#tablaSubtemas').DataTable();
-        if (temaId) {
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                return $(dt.row(dataIndex).node()).data('tema-id') == temaId;
-            });
-        } else {
-            $.fn.dataTable.ext.search.pop();
-        }
-        dt.draw();
-    };
-    // Apply on load
-    (function() {
-        var tid = new URLSearchParams(window.location.search).get('tema_id');
-        if (tid) {
-            document.getElementById('filtroTemaSubtema').value = tid;
-            filtroTemaSubtema(tid);
-        }
-    })();
 
     // ========================================
     // EVENTOS PARA MODAL DE CREACIÓN

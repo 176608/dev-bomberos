@@ -66,6 +66,9 @@
                         <option value="0" {{ request('grafica') === '0' ? 'selected' : '' }}>Gráfica: No</option>
                     </select>
                 </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltrosCuadro()" title="Limpiar filtros"><i class="bi bi-x-lg"></i></button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table id="tablaCuadrosV2" class="table table-striped table-hover table-sm">
@@ -596,6 +599,15 @@ $(document).ready(function() {
         dt.draw();
     }
     window.aplicarFiltrosCuadro = aplicarFiltrosCuadro;
+
+    window.limpiarFiltrosCuadro = function() {
+        document.getElementById('filtroCuadroTema').value = '';
+        document.getElementById('filtroCuadroSubtema').innerHTML = '<option value="">Todos los subtemas</option>';
+        document.getElementById('filtroCuadroDataset').value = '';
+        document.getElementById('filtroCuadroPublicado').value = '';
+        document.getElementById('filtroCuadroGrafica').value = '';
+        aplicarFiltrosCuadro();
+    };
 
     function poblarSubtemasFiltro() {
         var temaId = document.getElementById('filtroCuadroTema').value;
