@@ -232,13 +232,17 @@
 
 <!-- Modal batch crear -->
 <div class="modal fade" id="modalBatch" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:450px">
         <div class="modal-content">
             <div class="modal-header py-2">
                 <h6 class="modal-title" id="modalBatchTitle"><i class="bi bi-list me-1"></i>Crear</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body py-2">
+                <div class="btn-group btn-group-sm mb-2 w-100" role="group">
+                    <button type="button" class="btn btn-outline-primary active" id="batchTabCantidad" onclick="batchSwitchTab('cantidad')"><i class="bi bi-123 me-1"></i>Por cantidad</button>
+                    <button type="button" class="btn btn-outline-primary" id="batchTabLista" onclick="batchSwitchTab('lista')"><i class="bi bi-clipboard me-1"></i>Pegar lista</button>
+                </div>
                 <div id="modalBatchStep1">
                     <label class="form-label small mb-1" id="modalBatchCountLabel">¿Cuántos va a añadir?</label>
                     <input type="number" id="modalBatchCount" class="form-control form-control-sm" value="2" min="1" max="20">
@@ -248,10 +252,16 @@
                     <div id="modalBatchInputs" class="d-flex flex-column gap-1"></div>
                     <small id="modalBatchError" class="text-danger d-none mt-1"></small>
                 </div>
+                <div id="modalBatchPaste" class="d-none">
+                    <label class="form-label small mb-1">Pegá la lista (un elemento por línea):</label>
+                    <textarea id="modalBatchTextarea" class="form-control form-control-sm" rows="8" placeholder="Municipio 1&#10;Municipio 2&#10;Municipio 3"></textarea>
+                    <small id="modalBatchPasteError" class="text-danger d-none mt-1"></small>
+                </div>
             </div>
             <div class="modal-footer py-1" id="modalBatchFooter">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-sm btn-primary d-none" id="modalBatchConfirm"><i class="bi bi-check-lg"></i> Crear todo</button>
+                <button type="button" class="btn btn-sm btn-success d-none" id="modalBatchPasteConfirm"><i class="bi bi-check-lg"></i> Crear todo</button>
             </div>
         </div>
     </div>
@@ -1259,6 +1269,46 @@
 
     document.getElementById('modalBatchCount')?.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') document.getElementById('modalBatchNext').click();
+    });
+
+    // ============ BATCH PASTE TAB ============
+    window.batchSwitchTab = function(tab) {
+        document.getElementById('batchTabCantidad').classList.toggle('active', tab === 'cantidad');
+        document.getElementById('batchTabLista').classList.toggle('active', tab === 'lista');
+        document.getElementById('modalBatchStep1').classList.toggle('d-none', tab !== 'cantidad');
+        document.getElementById('modalBatchStep2').classList.add('d-none');
+        document.getElementById('modalBatchPaste').classList.toggle('d-none', tab !== 'lista');
+        document.getElementById('modalBatchConfirm').classList.add('d-none');
+        document.getElementById('modalBatchPasteConfirm').classList.toggle('d-none', tab !== 'lista');
+    };
+
+    document.getElementById('modalBatchPasteConfirm')?.addEventListener('click', function() {
+        var raw = document.getElementById('modalBatchTextarea').value;
+        var names = raw.split('\n').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+        var errEl = document.getElementById('modalBatchPasteError');
+        if (!names.length) { errEl.textContent = 'Pegá al menos un elemento.'; errEl.classList.remove('d-none'); return; }
+
+        for (var i = 0; i < names.length; i++) {
+            if (_batchValidateFn) {
+                var err = _batchValidateFn(names[i]);
+                if (err) { errEl.textContent = 'Línea ' + (i + 1) + ': «' + names[i] + '» — ' + err; errEl.classList.remove('d-none'); return; }
+            }
+        }
+
+        for (var i = 0; i < names.length; i++) {
+            for (var j = i + 1; j < names.length; j++) {
+                if (names[i].toLowerCase() === names[j].toLowerCase()) {
+                    errEl.textContent = '«' + names[i] + '» está repetido en la lista (líneas ' + (i + 1) + ' y ' + (j + 1) + ').';
+                    errEl.classList.remove('d-none');
+                    return;
+                }
+            }
+        }
+
+        errEl.classList.add('d-none');
+        var fn = _batchCreateFn;
+        bootstrap.Modal.getInstance(document.getElementById('modalBatch')).hide();
+        if (fn) fn(names);
     });
 
     document.getElementById('modalBatchConfirm')?.addEventListener('click', function() {
