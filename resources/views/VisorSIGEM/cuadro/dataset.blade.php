@@ -37,11 +37,6 @@
             <i class="bi bi-check-all"></i> Activar todas
         </button>
         @endif
-        <div class="btn-group btn-group-sm" role="group" id="sortGroup">
-            <button type="button" class="btn btn-outline-secondary active" data-sort="default" title="Orden original"><i class="bi bi-arrow-up"></i></button>
-            <button type="button" class="btn btn-outline-secondary" data-sort="asc" title="Menor a mayor"><i class="bi bi-sort-numeric-down-alt"></i></button>
-            <button type="button" class="btn btn-outline-secondary" data-sort="desc" title="Mayor a menor"><i class="bi bi-sort-numeric-down"></i></button>
-        </div>
     </div>
 
     <div>
@@ -60,7 +55,7 @@
 #tables-container > .section-block { margin-bottom:1.5rem; overflow-x:auto; }
 #tables-container .section-block .section-title { font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
 #tables-container table { font-size:0.85rem; margin-bottom:0; }
-#tables-container table th { text-align:center; width:1%; white-space:normal; word-break:break-word; }
+#tables-container table th { white-space:nowrap; text-align:center; width:1%; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
 #app-dataset.show-cb .vis-cb { display:inline-block; }
@@ -85,8 +80,6 @@ var visibleV = {};
 var visibleH = {};
 var sectionsCache = {};
 var selectedSections = {};
-var _sortMode = 'default';
-var _colOrder = [];
 
 // ─── Utilities ───
 
@@ -118,49 +111,9 @@ function api(path, opts) {
     return fetch(BASE + path, opts).then(function(r) { return r.json(); });
 }
 
-// ─── Column sort ───
-
-function computeColOrder() {
-    if (_sortMode === 'default') {
-        _colOrder = [];
-        return;
-    }
-    var sums = {};
-    (estado.horizontales || []).forEach(function(h, i) { sums[i] = 0; });
-    Object.keys(sectionsCache).forEach(function(sid) {
-        var sec = sectionsCache[sid];
-        if (!sec || !sec.data) return;
-        sec.data.forEach(function(row) {
-            (row || []).forEach(function(cell, ci) {
-                if (cell && cell.valor !== undefined && cell.valor !== '') {
-                    var v = parseFloat(String(cell.valor).replace(/[,$]/g, ''));
-                    if (!isNaN(v)) sums[ci] = (sums[ci] || 0) + v;
-                }
-            });
-        });
-    });
-    var indices = Object.keys(sums).map(Number);
-    if (_sortMode === 'asc') indices.sort(function(a, b) { return (sums[a] || 0) - (sums[b] || 0); });
-    else if (_sortMode === 'desc') indices.sort(function(a, b) { return (sums[b] || 0) - (sums[a] || 0); });
-    _colOrder = indices;
-}
-
-document.getElementById('sortGroup')?.addEventListener('click', function(e) {
-    var btn = e.target.closest('[data-sort]');
-    if (!btn) return;
-    var mode = btn.dataset.sort;
-    if (mode === _sortMode) return;
-    _sortMode = mode;
-    this.querySelectorAll('[data-sort]').forEach(function(b) { b.classList.toggle('active', b.dataset.sort === mode); });
-    computeColOrder();
-    renderTables();
-    saveStateToURL();
-});
-
 // ─── Render tables (one table per active section) ───
 
 function renderTables() {
-    computeColOrder();
     var container = document.getElementById('tables-container');
     if (!container) return;
 
@@ -178,11 +131,6 @@ function renderTables() {
     (estado.horizontales || []).forEach(function(h, i) {
         if (visibleH[h.categoria_id] !== false || showDeselected) { visHIdx.push(i); if (visibleH[h.categoria_id] === false) deselH[h.categoria_id] = true; }
     });
-    if (_colOrder.length) {
-        var orderMap = {};
-        _colOrder.forEach(function(origIdx, newIdx) { orderMap[origIdx] = newIdx; });
-        visHIdx.sort(function(a, b) { return (orderMap[a] !== undefined ? orderMap[a] : a) - (orderMap[b] !== undefined ? orderMap[b] : b); });
-    }
 
     var numLabelCols = 1;
     if (headers.length && headers[0].length && headers[0][0].tipo === 'corner') {
@@ -274,14 +222,14 @@ function renderTables() {
                     var hsomeVis = hvis.length > 0;
                     var hpck = hallVis ? 'checked' : '';
                     var hindet = hsomeVis && !hallVis ? ' data-indet="1"' : '';
-                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small" style="white-space:nowrap">';
+                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + esc(cell.nombre) + '</label>';
                     h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
                     var ck = visibleH[cid] !== false ? 'checked' : '';
-                    h += '<th class="fw-semibold text-center small">';
+                    h += '<th class="fw-semibold text-center small" style="white-space:nowrap">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + esc(cell.nombre) + '</label>';
                     h += '</th>';
                 }
@@ -328,14 +276,14 @@ function renderTables() {
                     var someVis = visKids.length > 0;
                     var ck = allVis ? 'checked' : '';
                     var indet = someVis && !allVis ? ' data-indet="1"' : '';
-                    allHtml += '<th rowspan="' + span + '" class="fw-semibold align-middle small">';
+                    allHtml += '<th rowspan="' + span + '" class="fw-semibold text-nowrap align-middle small">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + indet + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
                     var cs2 = hasParentInRow && cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
                     var ck2 = visibleV[cell.categoria_id] !== false ? 'checked' : '';
-                    allHtml += '<th' + cs2 + ' class="fw-semibold small">';
+                    allHtml += '<th' + cs2 + ' class="fw-semibold text-nowrap small">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 }
@@ -449,8 +397,6 @@ function saveStateToURL() {
     save('h', estado.horizontales, visibleH);
     save('s', estado.secciones, selectedSections);
 
-    if (_sortMode !== 'default') p.set('o', _sortMode);
-
     var qs = p.toString();
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
     var lnk = document.getElementById('link-to-grafica');
@@ -475,9 +421,6 @@ function loadStateFromURL() {
     load('v', estado.verticales, visibleV);
     load('h', estado.horizontales, visibleH);
     load('s', estado.secciones, selectedSections);
-
-    var sortRaw = p.get('o');
-    if (sortRaw === 'asc' || sortRaw === 'desc') _sortMode = sortRaw;
 }
 
 // ─── Init ───
@@ -490,15 +433,6 @@ function init() {
         selectedSections[estado.secciones[0].seccion_id] = true;
     }
     loadStateFromURL();
-
-    // Apply sort mode from URL
-    if (_sortMode !== 'default') {
-        var sortGroup = document.getElementById('sortGroup');
-        if (sortGroup) {
-            sortGroup.querySelectorAll('[data-sort]').forEach(function(b) { b.classList.toggle('active', b.dataset.sort === _sortMode); });
-        }
-    }
-    computeColOrder();
 
     var pending = [];
     Object.keys(selectedSections).forEach(function(sid) {
