@@ -1260,12 +1260,6 @@
         _batchCreateFn = null;
         _batchValidateFn = null;
     });
-            var inputs = this.querySelectorAll('.batch-name-input');
-            var idx = Array.prototype.indexOf.call(inputs, e.target);
-            if (idx < inputs.length - 1) { inputs[idx + 1].focus(); }
-            else { document.getElementById('modalBatchConfirm').click(); }
-        }
-    });
 
     function batchCreateHijos(names) {
         var padreId = _batchContext;
