@@ -484,7 +484,7 @@ $(document).ready(function() {
             { targets: 1, width: "25%" },
             { targets: 2, width: "15%", className: "text-center" },
             { targets: 3, width: "18%", className: "text-center" },
-            { targets: 4, width: "5%", className: "text-center", searchable: false },
+            { targets: 4, width: "5%", className: "text-center", orderable: true, searchable: false },
             { targets: 5, width: "auto", className: "text-center", orderable: false, searchable: false }
         ],
         order: [[0, 'asc']],
