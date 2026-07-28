@@ -66,8 +66,8 @@
                         <option value="0" {{ request('grafica') === '0' ? 'selected' : '' }}>Gráfica: No</option>
                     </select>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltrosCuadro()" title="Limpiar filtros"><i class="bi bi-x-lg"></i></button>
+                <div class="col-auto d-flex align-items-end pb-1">
+                    <button class="btn btn-sm btn-outline-warning" onclick="limpiarFiltrosCuadro()" title="Limpiar filtros" style="height:31px"><i class="bi bi-x-lg"></i></button>
                 </div>
             </div>
             <div class="table-responsive">
