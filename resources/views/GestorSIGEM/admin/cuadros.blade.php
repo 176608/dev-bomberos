@@ -345,6 +345,18 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="edit_eliminar_dataset" name="eliminar_dataset" value="1">
+                                <label class="form-check-label text-danger" for="edit_eliminar_dataset">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Eliminar dataset completamente
+                                    <small class="d-block text-muted fw-normal">Borra todas las filas, columnas, categorías y datos. El cuadro quedará como recién creado, sin grilla.</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -375,6 +387,9 @@ $('#formEditarCuadro').on('submit', function(e) {
     e.preventDefault();
     const form = $(this);
     const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarCuadro'));
+    const eliminarDS = document.getElementById('edit_eliminar_dataset').checked;
+
+    if (eliminarDS && !confirm('¿Eliminar el dataset completamente? Se borrarán todas las filas, columnas, categorías y datos. Esta acción no se puede deshacer.')) return;
 
     $.ajax({
         url: form.attr('action'),
@@ -383,7 +398,8 @@ $('#formEditarCuadro').on('submit', function(e) {
         dataType: 'json',
         success: function(response) {
             modal.hide();
-            mostrarToast('success', 'Metadatos actualizados correctamente.');
+            var msg = eliminarDS ? 'Metadatos guardados. Dataset eliminado.' : 'Metadatos actualizados correctamente.';
+            mostrarToast('success', msg);
             setTimeout(function() { location.reload(); }, 1500);
         },
         error: function(xhr) {

@@ -1,3 +1,4 @@
+<script>document.title = 'Gráfica — {{ $cuadro->codigo_cuadro }} — {{ $cuadro->c_titulo }} — SGIEM';</script>
 <div class="container-fluid py-3" id="app-grafica">
 
     <div class="d-flex justify-content-between align-items-center mb-3">

@@ -155,6 +155,10 @@ class CuadroV2Controller extends Controller
         try {
             $this->cuadroV2Service->actualizar((int) $id, $request->validated());
 
+            if ($request->boolean('eliminar_dataset')) {
+                $this->datasetService->eliminarDataset((int) $id);
+            }
+
             if ($request->ajax()) {
                 return response()->json(['success' => true, 'message' => 'Metadatos actualizados correctamente.']);
             }

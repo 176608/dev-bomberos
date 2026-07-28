@@ -802,6 +802,19 @@ class DatasetService
 
     // ============ IMPORTAR ESTRUCTURA ============
 
+    public function eliminarDataset(int $cuadro_id): void
+    {
+        $cuadro = $this->cuadro->obtenerPorId($cuadro_id);
+        if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
+
+        DB::transaction(function () use ($cuadro_id, $cuadro) {
+            $this->dato->where('cuadro_id', $cuadro_id)->delete();
+            $this->deleteCategoriasSafe($cuadro);
+            $this->seccion->where('cuadro_id', $cuadro_id)->delete();
+            $cuadro->actualizar(['pivot_label' => 'PIVOTE', 'publicado' => false]);
+        });
+    }
+
     public function obtenerImportables(int $cuadroId, ?int $temaId = null, ?int $subtemaId = null): Collection
     {
         $query = Cuadro::with('subtema.tema')

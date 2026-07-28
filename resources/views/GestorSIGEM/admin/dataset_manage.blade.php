@@ -1,3 +1,4 @@
+<script>document.title = 'Dataset — {{ $cuadro->codigo_cuadro }} — {{ $cuadro->c_titulo }} — SGIEM';</script>
 <div class="container-fluid py-3" id="app-dataset">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
