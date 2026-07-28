@@ -36,6 +36,11 @@
             <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
                 <i class="bi bi-eraser me-1"></i>Limpiar datos
             </button>
+            @if(!$cuadro->publicado)
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openImportModal()" title="Importá la estructura de categorías desde otro cuadro no publicado">
+                    <i class="bi bi-upload me-1"></i>Importar configuración
+                </button>
+            @endif
             <div class="grafica-only d-none"></div>
         </div>
     </div>
@@ -64,6 +69,9 @@
                     </div>
                 </div>
                 <button class="btn btn-primary px-4" id="btn-generar"><i class="bi bi-plus-square me-1"></i>Generar</button>
+                @if(!$cuadro->publicado)
+                    <button class="btn btn-outline-secondary px-4 ms-2" onclick="openImportModal()"><i class="bi bi-upload me-1"></i>Importar configuración</button>
+                @endif
             </div>
         </div>
     @endif
@@ -108,6 +116,93 @@
             <div class="modal-footer py-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-sm btn-danger" id="btn-regenerar-confirm"><i class="bi bi-sliders me-1"></i>Regenerar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal importar configuración -->
+<div class="modal fade" id="modalImportarConfig" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title"><i class="bi bi-upload me-1"></i>Importar configuración</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3" id="importModalBody">
+                <div id="importStepList">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Tema</label>
+                            <select class="form-select form-select-sm" id="importFiltroTema">
+                                <option value="">Todos los temas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Subtema <small class="text-muted">(<span class="import-subtema-all-text">ver todos</span>)</small></label>
+                            <select class="form-select form-select-sm" id="importFiltroSubtema">
+                                <option value="">Todos los subtemas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="importLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando cuadros...
+                    </div>
+                    <div id="importError" class="alert alert-danger py-2 small d-none"></div>
+                    <div class="table-responsive" style="max-height:300px">
+                        <table class="table table-sm table-hover mb-0" id="importTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Título</th>
+                                    <th>Tema</th>
+                                    <th>Subtema</th>
+                                    <th style="width:90px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="importTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="importEmpty" class="text-center py-4 d-none">
+                        <i class="bi bi-inbox" style="font-size:2rem"></i>
+                        <p class="text-muted small mt-2">No hay cuadros con dataset definido para los filtros seleccionados.</p>
+                    </div>
+                </div>
+                <div id="importStepPreview" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong id="importPreviewTitle"></strong><br>
+                            <small class="text-muted" id="importPreviewMeta"></small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="importBackToList()"><i class="bi bi-arrow-left me-1"></i>Volver</button>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header py-1"><small class="fw-bold">Verticales (filas)</small></div>
+                                <div class="card-body py-2" id="importPreviewV">
+                                    <ul class="list-unstyled mb-0 small" id="importPreviewVList"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header py-1"><small class="fw-bold">Horizontales (columnas)</small></div>
+                                <div class="card-body py-2" id="importPreviewH">
+                                    <ul class="list-unstyled mb-0 small" id="importPreviewHList"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning py-2 small mt-3 mb-0">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Se reemplazará toda la estructura actual. Las categorías y datos existentes se perderán.
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button class="btn btn-sm btn-secondary" onclick="importBackToList()">Cancelar</button>
+                        <button class="btn btn-sm btn-success" id="btnImportConfirm"><i class="bi bi-check-lg me-1"></i>Importar configuración</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -246,6 +341,11 @@
     const CSRF = '{{ csrf_token() }}';
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
     const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
+    window._temasData = @json(\App\Models\SIGEM\TemaV2::with('subtemas')->get()->map(fn($t) => ['tema_id' => $t->tema_id, 'tema_titulo' => $t->tema_titulo]));
+    window._subtemasPorTema = {};
+    @foreach(\App\Models\SIGEM\TemaV2::with('subtemas')->get() as $tema)
+        window._subtemasPorTema[{{ $tema->tema_id }}] = @json($tema->subtemas->map(fn($s) => ['id' => $s->subtema_id, 'nombre' => $s->subtema_titulo]));
+    @endforeach
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
 
     window.togglePublicado = function(id) {
@@ -1413,6 +1513,230 @@
             }).catch(() => alerta('Error [' + ERR.IMPORT + ']'));
         input.value = '';
     }
+
+    // ============ IMPORTAR CONFIGURACIÓN ============
+    var _importOrigenId = null;
+
+    window.openImportModal = function() {
+        var modal = new bootstrap.Modal(document.getElementById('modalImportarConfig'));
+        document.getElementById('importStepList').classList.remove('d-none');
+        document.getElementById('importStepPreview').classList.add('d-none');
+        modal.show();
+        loadImportables();
+    };
+
+    function loadImportables() {
+        var temaId = document.getElementById('importFiltroTema').value;
+        var subtemaId = document.getElementById('importFiltroSubtema').value;
+        var params = new URLSearchParams();
+        if (temaId) params.set('tema_id', temaId);
+        if (subtemaId) params.set('subtema_id', subtemaId);
+
+        document.getElementById('importLoading').classList.remove('d-none');
+        document.getElementById('importError').classList.add('d-none');
+        document.getElementById('importEmpty').classList.add('d-none');
+        document.getElementById('importTableBody').innerHTML = '';
+
+        fetch(BASE + '/importables?' + params.toString(), { headers: { 'X-CSRF-TOKEN': CSRF } })
+            .then(r => r.json())
+            .then(j => {
+                document.getElementById('importLoading').classList.add('d-none');
+                if (!j.success) { showImportError(j.message); return; }
+                renderImportTable(j.data || []);
+            })
+            .catch(function() { document.getElementById('importLoading').classList.add('d-none'); showImportError('Error de red'); });
+    }
+
+    function renderImportTable(cuadros) {
+        window._importCuadrosData = cuadros;
+        var tbody = document.getElementById('importTableBody');
+        tbody.innerHTML = '';
+        if (!cuadros.length) {
+            document.getElementById('importEmpty').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('importEmpty').classList.add('d-none');
+        cuadros.forEach(function(c) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td><code class="text-primary">' + esc(c.codigo) + '</code></td>' +
+                '<td><strong>' + esc(c.titulo) + '</strong></td>' +
+                '<td>' + esc(c.tema || '-') + '</td>' +
+                '<td>' + esc(c.subtema || '-') + '</td>' +
+                '<td class="text-center"><button class="btn btn-sm btn-outline-primary" onclick="previewImport(' + c.cuadro_id + ')"><i class="bi bi-eye me-1"></i>Ver</button></td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    function showImportError(msg) {
+        var el = document.getElementById('importError');
+        el.textContent = msg;
+        el.classList.remove('d-none');
+    }
+
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    window.previewImport = function(origenId) {
+        _importOrigenId = origenId;
+        document.getElementById('importStepList').classList.add('d-none');
+        document.getElementById('importStepPreview').classList.remove('d-none');
+        document.getElementById('importPreviewVList').innerHTML = '<li class="text-muted">Cargando...</li>';
+        document.getElementById('importPreviewHList').innerHTML = '';
+
+        // Find the cuadro in loaded data to show title early
+        var cuadros = window._importCuadrosData || [];
+        var c = cuadros.find(function(x) { return x.cuadro_id === origenId; });
+        if (c) {
+            document.getElementById('importPreviewTitle').textContent = c.codigo + ' — ' + c.titulo;
+            document.getElementById('importPreviewMeta').textContent = (c.tema || '-') + ' / ' + (c.subtema || '-') + ' | Pivote: ' + (c.pivot_label || 'PIVOTE');
+        }
+
+        fetch('{{ url("/sgiem/admin/cuadros") }}/' + origenId + '/dataset/estado', { headers: { 'X-CSRF-TOKEN': CSRF } })
+            .then(function(r) { return r.json(); })
+            .then(function(j) {
+                if (!j.success) { document.getElementById('importPreviewVList').innerHTML = '<li class="text-danger">' + esc(j.message) + '</li>'; return; }
+                renderPreviewTree(j.data);
+            })
+            .catch(function() { document.getElementById('importPreviewVList').innerHTML = '<li class="text-danger">Error al cargar</li>'; });
+    };
+
+    function renderPreviewTree(estadoOrigen) {
+        var vList = document.getElementById('importPreviewVList');
+        var hList = document.getElementById('importPreviewHList');
+
+        if (!estadoOrigen.tiene_dataset || (!estadoOrigen.all_verticales || !estadoOrigen.all_verticales.length)) {
+            vList.innerHTML = '<li class="text-muted">Sin categorías verticales</li>';
+        } else {
+            var tree = buildTree(estadoOrigen.all_verticales);
+            vList.innerHTML = renderTreeItems(tree, 'vertical');
+        }
+
+        if (!estadoOrigen.tiene_dataset || (!estadoOrigen.all_horizontales || !estadoOrigen.all_horizontales.length)) {
+            hList.innerHTML = '<li class="text-muted">Sin categorías horizontales</li>';
+        } else {
+            var tree = buildTree(estadoOrigen.all_horizontales);
+            hList.innerHTML = renderTreeItems(tree, 'horizontal');
+        }
+
+        if (estadoOrigen.pivot_label) {
+            document.getElementById('importPreviewMeta').textContent = (document.getElementById('importPreviewMeta').textContent || '').replace(/Pivote:.*/, 'Pivote: ' + estadoOrigen.pivot_label);
+        }
+    }
+
+    function buildTree(items) {
+        var map = {};
+        var roots = [];
+        items.forEach(function(item) {
+            item._children = [];
+            map[item.categoria_id] = item;
+        });
+        items.forEach(function(item) {
+            if (item.padre_id && map[item.padre_id]) {
+                map[item.padre_id]._children.push(item);
+            } else if (!item.padre_id) {
+                roots.push(item);
+            }
+        });
+        roots.sort(function(a, b) { return a.orden - b.orden; });
+        roots.forEach(function(r) { r._children.sort(function(a, b) { return a.orden - b.orden; }); });
+        return roots;
+    }
+
+    function renderTreeItems(roots, eje) {
+        var html = '';
+        roots.forEach(function(r) {
+            html += '<li><span class="badge bg-' + (eje === 'vertical' ? 'info' : 'secondary') + ' me-1">' + esc(r.nombre) + '</span>';
+            if (r._children && r._children.length) {
+                html += '<ul class="list-unstyled ms-3 mb-0">';
+                r._children.forEach(function(ch) {
+                    html += '<li><span class="badge bg-light text-dark border me-1">' + esc(ch.nombre) + '</span></li>';
+                });
+                html += '</ul>';
+            }
+            html += '</li>';
+        });
+        return html;
+    }
+
+    document.getElementById('btnImportConfirm')?.addEventListener('click', function() {
+        if (!_importOrigenId) return;
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Importando...';
+        api('/importar-estructura', { method: 'POST', body: { origen_cuadro_id: _importOrigenId } })
+            .then(function(j) {
+                if (j.success) {
+                    estado = j.data;
+                    clearSelection();
+                    renderGrid(estado);
+                    bootstrap.Modal.getInstance(document.getElementById('modalImportarConfig')).hide();
+                    status('✓ Configuración importada desde cuadro origen');
+                } else {
+                    alerta('Error: ' + (j.message || 'Error desconocido'));
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Importar configuración';
+                }
+            })
+            .catch(function() {
+                alerta('Error de red');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Importar configuración';
+            });
+    });
+
+    window.importBackToList = function() {
+        _importOrigenId = null;
+        document.getElementById('importStepList').classList.remove('d-none');
+        document.getElementById('importStepPreview').classList.add('d-none');
+    };
+
+    document.getElementById('importFiltroTema')?.addEventListener('change', function() {
+        var temaId = this.value;
+        var subSelect = document.getElementById('importFiltroSubtema');
+        subSelect.innerHTML = '<option value="">Todos los subtemas</option>';
+        if (temaId && window._subtemasPorTema && window._subtemasPorTema[temaId]) {
+            window._subtemasPorTema[temaId].forEach(function(sub) {
+                var opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.nombre;
+                subSelect.appendChild(opt);
+            });
+        }
+        loadImportables();
+    });
+
+    document.getElementById('importFiltroSubtema')?.addEventListener('change', loadImportables);
+
+    // Reset modal state on hide
+    document.getElementById('modalImportarConfig')?.addEventListener('hidden.bs.modal', function() {
+        importBackToList();
+    });
+
+    // Populate tema select on modal show with all available temas
+    document.getElementById('modalImportarConfig')?.addEventListener('show.bs.modal', function() {
+        var temaSelect = document.getElementById('importFiltroTema');
+        if (temaSelect.options.length <= 1) {
+            var temas = window._temasData || [];
+            temas.forEach(function(t) {
+                var opt = document.createElement('option');
+                opt.value = t.tema_id;
+                opt.textContent = t.tema_titulo;
+                temaSelect.appendChild(opt);
+            });
+        }
+        // Set default to current cuadro's tema/subtema
+        var defaultTemaId = '{{ $cuadro->subtema?->tema?->tema_id }}';
+        var defaultSubtemaId = '{{ $cuadro->subtema?->subtema_id }}';
+        if (defaultTemaId && !temaSelect.value) {
+            temaSelect.value = defaultTemaId;
+            // Trigger change to populate subtemas
+            var evt = new Event('change');
+            temaSelect.dispatchEvent(evt);
+            var subSelect = document.getElementById('importFiltroSubtema');
+            if (defaultSubtemaId) subSelect.value = defaultSubtemaId;
+            loadImportables();
+        }
+    });
 
     function initLastCell() {
         if (estado.verticales?.length && estado.horizontales?.length)

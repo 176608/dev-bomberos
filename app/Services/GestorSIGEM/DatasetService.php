@@ -7,6 +7,8 @@ use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use App\Models\SIGEM\CuadroSeccion;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class DatasetService
 {
@@ -796,5 +798,126 @@ class DatasetService
         if (!empty($parentIds)) {
             $this->categoria->whereIn('categoria_id', $parentIds)->delete();
         }
+    }
+
+    // ============ IMPORTAR ESTRUCTURA ============
+
+    public function obtenerImportables(int $cuadroId, ?int $temaId = null, ?int $subtemaId = null): Collection
+    {
+        $query = Cuadro::with('subtema.tema')
+            ->where('cuadro_id', '!=', $cuadroId)
+            ->where('tipo_mapa_pdf', false)
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                  ->from('cuadro_categoria')
+                  ->whereColumn('cuadro_categoria.cuadro_id', 'cuadro_v2.cuadro_id')
+                  ->limit(1);
+            });
+
+        if ($subtemaId) {
+            $query->where('subtema_id', $subtemaId);
+        } elseif ($temaId) {
+            $query->whereHas('subtema', fn($q) => $q->where('tema_id', $temaId));
+        }
+
+        return $query->orderBy('codigo_cuadro')
+            ->get(['cuadro_id', 'subtema_id', 'codigo_cuadro', 'c_titulo', 'publicado', 'pivot_label']);
+    }
+
+    public function importarEstructura(int $destinoId, int $origenId): array
+    {
+        $origen = $this->cuadro->obtenerPorId($origenId);
+        if (!$origen) throw new \RuntimeException('Cuadro origen no encontrado');
+
+        $destino = $this->cuadro->obtenerPorId($destinoId);
+        if (!$destino) throw new \RuntimeException('Cuadro destino no encontrado');
+
+        $origenCats = $this->categoria->where('cuadro_id', $origenId)->orderBy('orden')->get();
+        $origenSecciones = $this->seccion->where('cuadro_id', $origenId)->orderBy('orden')->get();
+
+        if ($origenCats->isEmpty()) {
+            throw new \RuntimeException('El cuadro origen no tiene categorías definidas');
+        }
+
+        DB::transaction(function () use ($destinoId, $destino, $origenCats, $origenSecciones, $origen) {
+            // 1. Delete all existing data and categories in destino
+            $this->dato->where('cuadro_id', $destinoId)->delete();
+            $this->deleteCategoriasSafe($destino);
+            $this->seccion->where('cuadro_id', $destinoId)->delete();
+
+            // 2. Re-create sections from origen (or create default if origen has none)
+            $sectionIdMap = [];
+            if ($origenSecciones->isNotEmpty()) {
+                foreach ($origenSecciones as $sec) {
+                    $ns = $this->seccion->create([
+                        'cuadro_id' => $destinoId,
+                        'nombre' => $sec->nombre,
+                        'orden' => $sec->orden,
+                        'header' => $sec->header,
+                        'footer' => $sec->footer,
+                    ]);
+                    $sectionIdMap[$sec->seccion_id] = $ns->seccion_id;
+                }
+            } else {
+                $ns = $this->seccion->create([
+                    'cuadro_id' => $destinoId, 'nombre' => 'Serie única', 'orden' => 1,
+                ]);
+                $sectionIdMap[0] = $ns->seccion_id;
+            }
+
+            // 3. Re-create categories (parents first, then children)
+            $catIdMap = [];
+            $parents = $origenCats->whereNull('padre_id');
+            foreach ($parents as $cat) {
+                $nc = $this->categoria->create([
+                    'cuadro_id' => $destinoId,
+                    'eje' => $cat->eje,
+                    'padre_id' => null,
+                    'nombre' => $cat->nombre,
+                    'orden' => $cat->orden,
+                    'tipo' => $cat->tipo,
+                ]);
+                $catIdMap[$cat->categoria_id] = $nc->categoria_id;
+            }
+
+            $children = $origenCats->whereNotNull('padre_id');
+            foreach ($children as $cat) {
+                $newPadreId = $catIdMap[$cat->padre_id] ?? null;
+                $nc = $this->categoria->create([
+                    'cuadro_id' => $destinoId,
+                    'eje' => $cat->eje,
+                    'padre_id' => $newPadreId,
+                    'nombre' => $cat->nombre,
+                    'orden' => $cat->orden,
+                    'tipo' => $cat->tipo,
+                ]);
+                $catIdMap[$cat->categoria_id] = $nc->categoria_id;
+            }
+
+            // 4. Create empty CuadroDato for each leaf combination per section
+            $leafV = $this->getLeafCategories($destinoId, 'vertical');
+            $leafH = $this->getLeafCategories($destinoId, 'horizontal');
+
+            foreach ($sectionIdMap as $secId) {
+                foreach ($leafV as $f => $vCat) {
+                    foreach ($leafH as $c => $hCat) {
+                        $this->dato->create([
+                            'cuadro_id' => $destinoId,
+                            'seccion_id' => $secId,
+                            'cat_horizontal_id' => $hCat->categoria_id,
+                            'cat_vertical_id' => $vCat->categoria_id,
+                            'valor' => '',
+                            'fila' => $f + 1,
+                            'columna' => $c + 1,
+                        ]);
+                    }
+                }
+            }
+
+            // 5. Copy pivot_label
+            $destino->actualizar(['pivot_label' => $origen->pivot_label ?? 'PIVOTE']);
+        });
+
+        return $this->obtenerEstado($destinoId);
     }
 }

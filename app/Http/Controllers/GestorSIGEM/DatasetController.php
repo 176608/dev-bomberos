@@ -241,6 +241,43 @@ class DatasetController extends Controller
         }
     }
 
+    public function importables(Request $request, $id)
+    {
+        try {
+            $temaId = $request->integer('tema_id', null) ?: null;
+            $subtemaId = $request->integer('subtema_id', null) ?: null;
+
+            $cuadros = $this->datasetService->obtenerImportables((int) $id, $temaId, $subtemaId);
+
+            $result = $cuadros->map(fn($c) => [
+                'cuadro_id' => $c->cuadro_id,
+                'codigo' => $c->codigo_cuadro,
+                'titulo' => $c->c_titulo,
+                'publicado' => $c->publicado,
+                'tema' => $c->subtema?->tema?->tema_titulo,
+                'tema_id' => $c->subtema?->tema?->tema_id,
+                'subtema' => $c->subtema?->subtema_titulo,
+                'subtema_id' => $c->subtema?->subtema_id,
+                'pivot_label' => $c->pivot_label,
+            ]);
+
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function importarEstructura(Request $request, $id)
+    {
+        $request->validate(['origen_cuadro_id' => 'required|integer']);
+
+        try {
+            return response()->json(['success' => true, 'data' => $this->datasetService->importarEstructura((int) $id, (int) $request->origen_cuadro_id)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function reordenarCategoria(Request $request, $id, $categoria)
     {
         $request->validate(['direccion' => 'required|in:up,down']);

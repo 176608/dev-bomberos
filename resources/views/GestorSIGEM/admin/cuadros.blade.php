@@ -39,6 +39,7 @@
                             <th>Título</th>
                             <th>Tema</th>
                             <th>Subtema</th>
+                            <th>Dataset</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -70,6 +71,14 @@
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $tieneDS = $cuadro->categorias()->count() > 0;
+                                @endphp
+                                <span class="badge bg-{{ $tieneDS ? 'success' : 'secondary' }}">
+                                    <i class="bi bi-{{ $tieneDS ? 'check-lg' : 'x-lg' }}"></i>
+                                </span>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
@@ -474,8 +483,9 @@ $(document).ready(function() {
             { targets: 0, width: "10%", className: "text-center" },
             { targets: 1, width: "25%" },
             { targets: 2, width: "15%", className: "text-center" },
-            { targets: 3, width: "20%", className: "text-center" },
-            { targets: 4, width: "auto", className: "text-center", orderable: false, searchable: false }
+            { targets: 3, width: "18%", className: "text-center" },
+            { targets: 4, width: "5%", className: "text-center", searchable: false },
+            { targets: 5, width: "auto", className: "text-center", orderable: false, searchable: false }
         ],
         order: [[0, 'asc']],
         pageLength: 25,
