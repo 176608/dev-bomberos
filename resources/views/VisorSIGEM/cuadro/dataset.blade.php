@@ -247,19 +247,16 @@ function renderTables() {
     var singleSection = (estado.secciones || []).length <= 1;
     var allHtml = '';
     activeSids.forEach(function(sid) {
-        if (visHIdx.length <= 1) return;
         var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
         var secName = sec ? sec.nombre : ('Sección ' + sid);
 
         allHtml += '<div class="section-block">';
-        allHtml += '<div class="section-title">';
-        var secCk = selectedSections[sid] !== false ? 'checked' : '';
-        if (singleSection) {
-            allHtml += esc(secName);
-        } else {
+        if (!singleSection) {
+            allHtml += '<div class="section-title">';
+            var secCk = selectedSections[sid] !== false ? 'checked' : '';
             allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+            allHtml += '</div>';
         }
-        allHtml += '</div>';
 
         allHtml += '<table class="table table-bordered table-sm mb-0">';
         allHtml += '<thead class="table-light">' + headerHtml + '</thead>';
