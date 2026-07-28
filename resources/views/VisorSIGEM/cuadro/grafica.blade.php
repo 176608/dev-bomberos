@@ -19,11 +19,6 @@
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
                 <i class="bi bi-table me-1"></i> Dataset
             </a>
-            @if($esDesarrollador)
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de {{ $userRoleDisplay }} y consultor">
-                <i class="bi bi-person-badge"></i> <span id="devmode-label">{{ $userRoleDisplay }}</span>
-            </button>
-            @endif
         </div>
     </div>
 
@@ -32,11 +27,6 @@
         <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
             <i class="bi bi-list-check"></i> Categorías
         </button>
-        @if($esDesarrollador)
-        <button type="button" class="btn btn-sm btn-outline-secondary debug-toggle" title="Alternar debug">
-            <i class="bi bi-bug"></i> Debug
-        </button>
-        @endif
     </div>
 
     <div class="d-flex gap-2">
@@ -60,9 +50,6 @@
         </div>
         <div style="flex:1;min-width:0">
             <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
-            @if($esDesarrollador)
-            <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
-            @endif
         </div>
     </div>
 
@@ -92,9 +79,6 @@ const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
 
 let estado = @json($estadoInicial);
-const IS_DEV = @json($esDesarrollador);
-var userRoleLabel = @json($userRoleDisplay);
-var devMode = IS_DEV;
 
 function alerta(msg) {
     document.getElementById('status-text').textContent = '⚠ ' + msg;
@@ -151,8 +135,8 @@ function populateTipoSelect() {
     var html = '';
     allTypes.forEach(function(t) {
         var perm = tiposPermitidos.indexOf(t.value) >= 0;
-        if (!devMode && !perm) return;
-        html += '<option value="' + t.value + '">' + t.text + (!perm && devMode ? ' (No permitido)' : '') + '</option>';
+        if (!perm) return;
+        html += '<option value="' + t.value + '">' + t.text + '</option>';
     });
     sel.innerHTML = html;
 }
@@ -317,8 +301,7 @@ function renderChart(tipo) {
     if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
     if (!tipo) return;
     if (!estado.verticales?.length || !estado.horizontales?.length) {
-        var dbg = document.getElementById('chart-debug');
-        if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
+        status('No hay datos para graficar (0 filas o 0 columnas)');
         return;
     }
 
@@ -370,43 +353,6 @@ function renderChart(tipo) {
         window.chartInstance = null;
         console.warn('Chart render error:', e);
     }
-}
-
-function updateChartDebug() {
-    var el = document.getElementById('chart-debug');
-    if (!el) return;
-    el.style.display = devMode ? 'block' : 'none';
-    if (!devMode) return;
-    var parentsV = [], parentsH = [];
-    try {
-        (estado.labels || []).forEach(function(row) { (row || []).forEach(function(cell) { if (cell.tipo === 'parent') parentsV.push(cell.nombre); }); });
-        (estado.headers || []).forEach(function(row) { (row || []).forEach(function(cell) { if (cell.tipo === 'parent') parentsH.push(cell.nombre); }); });
-    } catch(e) {}
-    var labels, series;
-    if (chartAxis === 'vertical') {
-        labels = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).map(function(v) { return v.nombre; });
-        series = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).map(function(h) { return h.nombre; });
-    } else {
-        labels = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).map(function(h) { return h.nombre; });
-        series = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).map(function(v) { return v.nombre; });
-    }
-    var chartDataStr = 'null';
-    try {
-        var cd = buildChartData(estado, document.getElementById('select-tipo-grafica').value, { axis: chartAxis, visibleV: visibleV, visibleH: visibleH });
-        chartDataStr = JSON.stringify(cd, null, 2);
-    } catch(e) { chartDataStr = 'Error: ' + e.message; }
-    var selectedNames = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
-        return ((estado.secciones || []).find(function(s) { return s.seccion_id == sid; }) || {}).nombre || sid;
-    });
-    el.textContent = '── Debug Chart Data ──\n'
-        + 'Eje X: ' + chartAxis + '\n'
-        + 'Labels: ' + JSON.stringify(labels) + '\n'
-        + 'Cantidad labels: ' + labels.length + '\n'
-        + 'Series: ' + JSON.stringify(series) + '\n'
-        + 'Cantidad series: ' + series.length + '\n'
-        + 'Secciones seleccionadas: ' + (selectedNames.length ? selectedNames.join(', ') : '(ninguna)') + '\n'
-        + 'Secciones cacheadas: ' + Object.keys(sectionsCache).join(', ') + '\n'
-        + 'chartData = ' + chartDataStr;
 }
 
 function renderCategoryPanel() {
@@ -521,7 +467,7 @@ function renderCategoryPanel() {
             }
             syncTodoCheckboxes();
             renderChart(document.getElementById('select-tipo-grafica').value);
-            if (IS_DEV) updateChartDebug();
+
             updateEjeHelper();
             saveStateToURL();
         });
@@ -546,7 +492,7 @@ function renderCategoryPanel() {
                 visMap2[parseInt(pcb.dataset.id)] = on;
             });
             renderChart(document.getElementById('select-tipo-grafica').value);
-            if (IS_DEV) updateChartDebug();
+
             updateEjeHelper();
             saveStateToURL();
         });
@@ -742,7 +688,6 @@ function initGraficaPage() {
         enforceSingleSection(document.getElementById('select-tipo-grafica').value);
         renderChart(document.getElementById('select-tipo-grafica').value);
         updateEjeHelper();
-        if (IS_DEV) updateChartDebug();
         saveStateToURL();
         document.getElementById('chart-panel').style.display = 'block';
     }
@@ -757,14 +702,12 @@ function initGraficaPage() {
 document.getElementById('select-tipo-grafica')?.addEventListener('change', function() {
     enforceSingleSection(this.value);
     renderChart(this.value);
-    if (IS_DEV) updateChartDebug();
     saveStateToURL();
 });
 
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
     chartAxis = this.checked ? 'horizontal' : 'vertical';
     renderChart(selectTipoGrafica.value);
-    if (IS_DEV) updateChartDebug();
     updateEjeHelper();
     saveStateToURL();
 });
@@ -812,7 +755,7 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
                     var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
                     sectionsCache[sid] = { nombre: sName, data: j.data || [] };
                     renderChart(selectTipoGrafica.value);
-                    if (IS_DEV) updateChartDebug();
+        
                     updateEjeHelper();
                     saveStateToURL();
                     status('Sección: ' + (sName || sid) + ' cargada');
@@ -836,36 +779,12 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
             });
     } else {
         renderChart(selectTipoGrafica.value);
-        if (IS_DEV) updateChartDebug();
         updateEjeHelper();
         saveStateToURL();
     }
 });
 
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
-document.getElementById('btn-devmode')?.addEventListener('click', function() {
-    devMode = !devMode;
-    var label = document.getElementById('devmode-label');
-    if (label) label.textContent = devMode ? userRoleLabel : 'Consultor';
-    var dbgEl = document.getElementById('chart-debug');
-    if (dbgEl) dbgEl.style.display = devMode ? 'block' : 'none';
-    var dbgToggle = document.querySelector('.debug-toggle');
-    if (dbgToggle) dbgToggle.style.display = devMode ? '' : 'none';
-    populateTipoSelect();
-    var newTipo = selectTipoGrafica.value;
-    if (newTipo) { renderChart(newTipo); enforceSingleSection(newTipo); }
-    updateChartDebug();
-    saveStateToURL();
-});
-var dt = document.querySelector('.debug-toggle');
-if (dt) dt.addEventListener('click', function() {
-    var el = document.getElementById('chart-debug');
-    if (el) {
-        var vis = el.style.display !== 'none';
-        el.style.display = vis ? 'none' : 'block';
-        if (el.style.display === 'block') updateChartDebug();
-    }
-});
 initGraficaPage();
 </script>
 @endpush

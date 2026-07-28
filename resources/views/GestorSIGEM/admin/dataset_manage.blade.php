@@ -77,7 +77,7 @@
         </div>
     @endif
 
-    <div id="grid-container" @if(!$estadoInicial['tiene_dataset']) style="display:none" @endif>
+    <div id="grid-container" @if(!$estadoInicial['tiene_dataset']) style="display:none" @endif style="overflow-x:auto">
         <div class="card shadow-sm border-0">
             <div class="card-body p-2">
                 <div class="table-responsive" style="max-height:75vh">
@@ -282,8 +282,10 @@
 
 /* Category cell layout */
 .cat-cell .cat-inner { min-height: 30px; gap: 2px; }
-.cat-cell .cat-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: text; padding: 0.1rem 0.15rem; }
+.cat-cell .cat-name { min-width: 0; white-space: normal; word-break: break-word; cursor: text; padding: 0.1rem 0.15rem; }
 .cat-cell .cat-name:focus { box-shadow: inset 0 0 0 1px var(--bs-primary); background: #fff; border-radius: 2px; }
+#dataset-table thead .cat-cell .cat-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#dataset-table td > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mode-datos .cat-cell .cat-name { width: 100%; text-align: center; }
 .mode-datos .cat-actions { display: none !important; }
 .mode-diseno .cat-actions { display: flex !important; }

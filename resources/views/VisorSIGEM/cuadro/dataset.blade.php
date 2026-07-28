@@ -19,11 +19,6 @@
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
-            @if($esDesarrollador)
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-devmode" title="Alternar entre vista de {{ $userRoleDisplay }} y consultor">
-                <i class="bi bi-person-badge"></i> <span id="devmode-label">{{ $userRoleDisplay }}</span>
-            </button>
-            @endif
         </div>
     </div>
 
@@ -42,18 +37,15 @@
             <i class="bi bi-check-all"></i> Activar todas
         </button>
         @endif
-        @if($esDesarrollador)
-        <button type="button" class="btn btn-sm btn-outline-secondary debug-toggle" title="Alternar debug">
-            <i class="bi bi-bug"></i> Debug
-        </button>
-        @endif
+        <div class="btn-group btn-group-sm" role="group" id="sortGroup">
+            <button type="button" class="btn btn-outline-secondary active" data-sort="default" title="Orden original"><i class="bi bi-arrow-up"></i></button>
+            <button type="button" class="btn btn-outline-secondary" data-sort="asc" title="Menor a mayor"><i class="bi bi-sort-numeric-down-alt"></i></button>
+            <button type="button" class="btn btn-outline-secondary" data-sort="desc" title="Mayor a menor"><i class="bi bi-sort-numeric-down"></i></button>
+        </div>
     </div>
 
     <div>
         <div id="tables-container"></div>
-        @if($esDesarrollador)
-        <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
-        @endif
     </div>
 
     <div class="card-footer py-1 px-0 d-flex justify-content-between align-items-center mt-2" id="status-bar">
@@ -65,10 +57,10 @@
 <style>
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
-#tables-container > .section-block { margin-bottom:1.5rem; }
+#tables-container > .section-block { margin-bottom:1.5rem; overflow-x:auto; }
 #tables-container .section-block .section-title { font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
 #tables-container table { font-size:0.85rem; margin-bottom:0; }
-#tables-container table th { white-space:nowrap; text-align:center; width:1%; }
+#tables-container table th { text-align:center; width:1%; white-space:normal; word-break:break-word; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
 #app-dataset.show-cb .vis-cb { display:inline-block; }
@@ -85,9 +77,6 @@
 <script>
 const CUADRO_ID = {{ $cuadro->cuadro_id }};
 const BASE = '{{ url("/sigem-v2/cuadro") }}/' + CUADRO_ID;
-const IS_DEV = @json($esDesarrollador);
-var userRoleLabel = @json($userRoleDisplay);
-var devMode = IS_DEV;
 var showDeselected = false;
 
 let estado = @json($estadoInicial);
@@ -96,6 +85,8 @@ var visibleV = {};
 var visibleH = {};
 var sectionsCache = {};
 var selectedSections = {};
+var _sortMode = 'default';
+var _colOrder = [];
 
 // ─── Utilities ───
 
@@ -127,9 +118,49 @@ function api(path, opts) {
     return fetch(BASE + path, opts).then(function(r) { return r.json(); });
 }
 
+// ─── Column sort ───
+
+function computeColOrder() {
+    if (_sortMode === 'default') {
+        _colOrder = [];
+        return;
+    }
+    var sums = {};
+    (estado.horizontales || []).forEach(function(h, i) { sums[i] = 0; });
+    Object.keys(sectionsCache).forEach(function(sid) {
+        var sec = sectionsCache[sid];
+        if (!sec || !sec.data) return;
+        sec.data.forEach(function(row) {
+            (row || []).forEach(function(cell, ci) {
+                if (cell && cell.valor !== undefined && cell.valor !== '') {
+                    var v = parseFloat(String(cell.valor).replace(/[,$]/g, ''));
+                    if (!isNaN(v)) sums[ci] = (sums[ci] || 0) + v;
+                }
+            });
+        });
+    });
+    var indices = Object.keys(sums).map(Number);
+    if (_sortMode === 'asc') indices.sort(function(a, b) { return (sums[a] || 0) - (sums[b] || 0); });
+    else if (_sortMode === 'desc') indices.sort(function(a, b) { return (sums[b] || 0) - (sums[a] || 0); });
+    _colOrder = indices;
+}
+
+document.getElementById('sortGroup')?.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-sort]');
+    if (!btn) return;
+    var mode = btn.dataset.sort;
+    if (mode === _sortMode) return;
+    _sortMode = mode;
+    this.querySelectorAll('[data-sort]').forEach(function(b) { b.classList.toggle('active', b.dataset.sort === mode); });
+    computeColOrder();
+    renderTables();
+    saveStateToURL();
+});
+
 // ─── Render tables (one table per active section) ───
 
 function renderTables() {
+    computeColOrder();
     var container = document.getElementById('tables-container');
     if (!container) return;
 
@@ -147,6 +178,11 @@ function renderTables() {
     (estado.horizontales || []).forEach(function(h, i) {
         if (visibleH[h.categoria_id] !== false || showDeselected) { visHIdx.push(i); if (visibleH[h.categoria_id] === false) deselH[h.categoria_id] = true; }
     });
+    if (_colOrder.length) {
+        var orderMap = {};
+        _colOrder.forEach(function(origIdx, newIdx) { orderMap[origIdx] = newIdx; });
+        visHIdx.sort(function(a, b) { return (orderMap[a] !== undefined ? orderMap[a] : a) - (orderMap[b] !== undefined ? orderMap[b] : b); });
+    }
 
     var numLabelCols = 1;
     if (headers.length && headers[0].length && headers[0][0].tipo === 'corner') {
@@ -238,14 +274,14 @@ function renderTables() {
                     var hsomeVis = hvis.length > 0;
                     var hpck = hallVis ? 'checked' : '';
                     var hindet = hsomeVis && !hallVis ? ' data-indet="1"' : '';
-                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
+                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small" style="white-space:nowrap">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + esc(cell.nombre) + '</label>';
                     h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
                     var ck = visibleH[cid] !== false ? 'checked' : '';
-                    h += '<th class="fw-semibold text-center small" style="white-space:nowrap">';
+                    h += '<th class="fw-semibold text-center small">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + esc(cell.nombre) + '</label>';
                     h += '</th>';
                 }
@@ -292,14 +328,14 @@ function renderTables() {
                     var someVis = visKids.length > 0;
                     var ck = allVis ? 'checked' : '';
                     var indet = someVis && !allVis ? ' data-indet="1"' : '';
-                    allHtml += '<th rowspan="' + span + '" class="fw-semibold text-nowrap align-middle small">';
+                    allHtml += '<th rowspan="' + span + '" class="fw-semibold align-middle small">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + indet + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
                     var cs2 = hasParentInRow && cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
                     var ck2 = visibleV[cell.categoria_id] !== false ? 'checked' : '';
-                    allHtml += '<th' + cs2 + ' class="fw-semibold text-nowrap small">';
+                    allHtml += '<th' + cs2 + ' class="fw-semibold small">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + esc(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 }
@@ -361,13 +397,12 @@ function renderTables() {
                 this.disabled = true;
                 status('Cargando sección...');
                 loadSectionData(sid)
-                    .then(function() { renderTables(); saveStateToURL(); status(''); if (IS_DEV) updateDebug(); })
+                    .then(function() { renderTables(); saveStateToURL(); status(''); })
                     .catch(function(err) { selectedSections[sid] = false; cb.checked = false; alerta(err.message || 'Error'); })
                     .finally(function() { cb.disabled = false; });
             } else {
                 renderTables();
                 saveStateToURL();
-                if (IS_DEV) updateDebug();
             }
         });
     });
@@ -414,6 +449,8 @@ function saveStateToURL() {
     save('h', estado.horizontales, visibleH);
     save('s', estado.secciones, selectedSections);
 
+    if (_sortMode !== 'default') p.set('o', _sortMode);
+
     var qs = p.toString();
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
     var lnk = document.getElementById('link-to-grafica');
@@ -438,28 +475,9 @@ function loadStateFromURL() {
     load('v', estado.verticales, visibleV);
     load('h', estado.horizontales, visibleH);
     load('s', estado.secciones, selectedSections);
-}
 
-// ─── Debug ───
-
-function updateDebug() {
-    var el = document.getElementById('chart-debug');
-    if (!el) return;
-    el.style.display = devMode ? 'block' : 'none';
-    if (!devMode) return;
-    var vn = Object.keys(visibleV).filter(function(id) { return visibleV[id]; }).map(function(id) {
-        var c = (estado.verticales || []).find(function(v) { return v.categoria_id == id; }); return c ? c.nombre : id;
-    });
-    var hn = Object.keys(visibleH).filter(function(id) { return visibleH[id]; }).map(function(id) {
-        var c = (estado.horizontales || []).find(function(h) { return h.categoria_id == id; }); return c ? c.nombre : id;
-    });
-    var sn = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; }).map(function(sid) {
-        return ((estado.secciones || []).find(function(s) { return s.seccion_id == sid; }) || {}).nombre || sid;
-    });
-    el.textContent = '── Debug Dataset ──\n'
-        + 'Filas visibles: ' + (vn.length ? vn.join(', ') : '(ninguna)') + '\n'
-        + 'Columnas visibles: ' + (hn.length ? hn.join(', ') : '(ninguna)') + '\n'
-        + 'Secciones activas: ' + (sn.length ? sn.join(', ') : '(ninguna)');
+    var sortRaw = p.get('o');
+    if (sortRaw === 'asc' || sortRaw === 'desc') _sortMode = sortRaw;
 }
 
 // ─── Init ───
@@ -473,6 +491,15 @@ function init() {
     }
     loadStateFromURL();
 
+    // Apply sort mode from URL
+    if (_sortMode !== 'default') {
+        var sortGroup = document.getElementById('sortGroup');
+        if (sortGroup) {
+            sortGroup.querySelectorAll('[data-sort]').forEach(function(b) { b.classList.toggle('active', b.dataset.sort === _sortMode); });
+        }
+    }
+    computeColOrder();
+
     var pending = [];
     Object.keys(selectedSections).forEach(function(sid) {
         if (selectedSections[sid] && !sectionsCache[sid]) pending.push(loadSectionData(parseInt(sid)));
@@ -481,7 +508,6 @@ function init() {
     function done() {
         renderTables();
         saveStateToURL();
-        if (IS_DEV) updateDebug();
     }
     if (pending.length) Promise.all(pending).then(done).catch(done);
     else done();
@@ -520,27 +546,6 @@ document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', func
     renderTables();
     saveStateToURL();
     status('Selección restaurada');
-});
-var dt = document.querySelector('.debug-toggle');
-if (dt) dt.addEventListener('click', function() {
-    var el = document.getElementById('chart-debug');
-    if (el) {
-        var vis = el.style.display !== 'none';
-        el.style.display = vis ? 'none' : 'block';
-        if (el.style.display === 'block') updateDebug();
-    }
-});
-document.getElementById('btn-devmode')?.addEventListener('click', function() {
-    devMode = !devMode;
-    var label = document.getElementById('devmode-label');
-    if (label) label.textContent = devMode ? userRoleLabel : 'Consultor';
-    var dbgEl = document.getElementById('chart-debug');
-    if (dbgEl) {
-        dbgEl.style.display = devMode ? 'block' : 'none';
-        if (devMode) updateDebug();
-    }
-    var dbgToggle = document.querySelector('.debug-toggle');
-    if (dbgToggle) dbgToggle.style.display = devMode ? '' : 'none';
 });
 document.getElementById('btn-activar-todas')?.addEventListener('click', function() {
     var changed = false;
