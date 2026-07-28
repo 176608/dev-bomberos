@@ -101,6 +101,9 @@ function esc(s) {
     if (!s) return '';
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function e(s) {
+    return esc(s).replace(/\n/g, '<br>');
+}
 function api(path, opts) {
     opts = opts || {};
     opts.headers = opts.headers || {};
@@ -223,14 +226,14 @@ function renderTables() {
                     var hpck = hallVis ? 'checked' : '';
                     var hindet = hsomeVis && !hallVis ? ' data-indet="1"' : '';
                     h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
-                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + esc(cell.nombre) + '</label>';
+                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + e(cell.nombre) + '</label>';
                     h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
                     var ck = visibleH[cid] !== false ? 'checked' : '';
                     h += '<th class="fw-semibold text-center small" style="white-space:nowrap">';
-                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + esc(cell.nombre) + '</label>';
+                    h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + e(cell.nombre) + '</label>';
                     h += '</th>';
                 }
             }
@@ -244,6 +247,7 @@ function renderTables() {
     var singleSection = (estado.secciones || []).length <= 1;
     var allHtml = '';
     activeSids.forEach(function(sid) {
+        if (visHIdx.length <= 1) return;
         var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
         var secName = sec ? sec.nombre : ('Sección ' + sid);
 
@@ -277,14 +281,14 @@ function renderTables() {
                     var ck = allVis ? 'checked' : '';
                     var indet = someVis && !allVis ? ' data-indet="1"' : '';
                     allHtml += '<th rowspan="' + span + '" class="fw-semibold text-nowrap align-middle small">';
-                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + indet + '> ' + esc(cell.nombre) + '</label>';
+                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck + indet + '> ' + e(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
                     var cs2 = hasParentInRow && cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
                     var ck2 = visibleV[cell.categoria_id] !== false ? 'checked' : '';
                     allHtml += '<th' + cs2 + ' class="fw-semibold text-nowrap small">';
-                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + esc(cell.nombre) + '</label>';
+                    allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + e(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 }
             });

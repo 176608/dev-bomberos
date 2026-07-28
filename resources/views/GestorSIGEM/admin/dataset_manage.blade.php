@@ -411,6 +411,9 @@
         if (!s) return '';
         return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+    function e(s) {
+        return esc(s).replace(/\n/g, '<br>');
+    }
 
     function hexToRgba(hex, alpha) {
         if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
@@ -631,13 +634,13 @@
     };
 
     function renombrar(el, id) {
-        const nombre = el.textContent.trim();
+        const nombre = el.innerText.trim();
         if (!nombre) return;
         status('Guardando...');
         api('/categoria/' + id, { method: 'PUT', body: { nombre } })
             .then(j => {
                 if (j.success) {
-                    if (j.categoria?._renombrado) { el.textContent = j.categoria.nombre; alerta('Ya existía, se renombró a <strong>' + esc(j.categoria.nombre) + '</strong>', 'warning'); }
+                    if (j.categoria?._renombrado) { el.innerHTML = e(j.categoria.nombre); alerta('Ya existía, se renombró a <strong>' + e(j.categoria.nombre) + '</strong>', 'warning'); }
                     status('✓ Guardado');
                 } else { alerta(j.message); renderGrid(estado); }
             })
@@ -802,13 +805,13 @@
                     } else if (cell.tipo === 'parent') {
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#e2e6ea;font-weight:600">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + esc(cell.nombre) + '</div>'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(cell.nombre) + '</div>'
                             + catActionsHtml(cell.categoria_id, cell.es_hijo, cell.num_hijos || 0, true, false)
                             + '</div></th>';
                     } else {
                         theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f0f2f5">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
-                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1">' + esc(cell.nombre) + '</div>'
+                            + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1">' + e(cell.nombre) + '</div>'
                             + catActionsHtml(cell.categoria_id, cell.es_hijo, 0, false, false)
                             + '</div></th>';
                     }
@@ -827,19 +830,19 @@
                 if (label.tipo === 'parent' && label.rowspan > 1) {
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa;font-weight:600">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + esc(label.nombre) + '</div>'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(label.nombre) + '</div>'
                         + catActionsHtml(label.categoria_id, label.es_hijo, label.num_hijos || 0, true, true)
                         + '</div></th>';
                 } else if (label.tipo === 'parent') {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa;font-weight:600">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + esc(label.nombre) + '</div>'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(label.nombre) + '</div>'
                         + catActionsHtml(label.categoria_id, label.es_hijo, 0, false, true)
                         + '</div></th>';
                 } else {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1">' + esc(label.nombre) + '</div>'
+                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1">' + e(label.nombre) + '</div>'
                         + catActionsHtml(label.categoria_id, label.es_hijo, 0, false, true)
                         + '</div></th>';
                 }
@@ -1583,6 +1586,7 @@
     }
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function e(s) { return esc(s).replace(/\n/g, '<br>'); }
 
     window.previewImport = function(origenId) {
         _importOrigenId = origenId;
