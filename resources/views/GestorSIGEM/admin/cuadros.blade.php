@@ -72,7 +72,7 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" data-order="{{ $cuadro->categorias()->count() > 0 ? 1 : 0 }}">
                                 @php
                                     $tieneDS = $cuadro->categorias()->count() > 0;
                                 @endphp
