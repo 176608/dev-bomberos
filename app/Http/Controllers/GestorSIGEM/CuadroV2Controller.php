@@ -8,6 +8,7 @@ use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
 use App\Services\SecureFileUpload;
+use Illuminate\Support\Facades\Storage;
 
 class CuadroV2Controller extends Controller
 {
@@ -184,9 +185,8 @@ class CuadroV2Controller extends Controller
 
         $pdfUrl = null;
         if ($cuadro->pdf_file) {
-            $pdfPath = public_path('u_pdf/' . $cuadro->pdf_file);
-            if (file_exists($pdfPath)) {
-                $pdfUrl = asset('u_pdf/' . $cuadro->pdf_file);
+            if (Storage::disk('mapas')->exists($cuadro->pdf_file)) {
+                $pdfUrl = route('sgiem.admin.cuadros.documento.pdf', $cuadro->cuadro_id);
             }
         }
 
@@ -213,7 +213,7 @@ class CuadroV2Controller extends Controller
             'pdf_file' => 'required|file|mimes:pdf|max:10240',
         ]);
 
-        $filename = $fileUploader->uploadPDF(
+        $filename = $fileUploader->uploadPDFToMapas(
             $request->file('pdf_file'),
             $cuadro->pdf_file
         );
@@ -222,6 +222,32 @@ class CuadroV2Controller extends Controller
 
         return redirect()->route('sgiem.admin.cuadros.documento', $id)
             ->with('success', 'PDF ' . ($cuadro->pdf_file ? 'actualizado' : 'cargado') . ' correctamente.');
+    }
+
+    public function servirPdf($id, Request $request)
+    {
+        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
+
+        if (!$cuadro || !$cuadro->pdf_file) {
+            abort(404);
+        }
+
+        $filename = $cuadro->pdf_file;
+        if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('mapas');
+        if (!$disk->exists($filename)) {
+            abort(404);
+        }
+
+        if ($request->boolean('download')) {
+            $nombre = $cuadro->codigo_cuadro . '_' . now()->format('d_m_Y') . '.pdf';
+            return $disk->download($filename, $nombre);
+        }
+
+        return $disk->response($filename);
     }
 
     public function exportarDocumento($id)

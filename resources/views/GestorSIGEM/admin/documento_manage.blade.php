@@ -4,7 +4,7 @@
         <div>
             @if($esMapa)
                 @if($pdfUrl)
-                <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-success btn-sm">
+                <a href="{{ $pdfUrl }}?download=1" class="btn btn-success btn-sm">
                     <i class="bi bi-download me-1"></i>Descargar PDF
                 </a>
                 @endif

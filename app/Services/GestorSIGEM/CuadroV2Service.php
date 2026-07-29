@@ -5,6 +5,7 @@ namespace App\Services\GestorSIGEM;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\TemaV2;
+use Illuminate\Support\Facades\Storage;
 
 class CuadroV2Service
 {
@@ -68,6 +69,10 @@ class CuadroV2Service
 
         if (!$cuadro) {
             throw new \RuntimeException('Cuadro no encontrado');
+        }
+
+        if ($cuadro->pdf_file) {
+            Storage::disk('mapas')->delete($cuadro->pdf_file);
         }
 
         $codigo = $cuadro->codigo_cuadro;

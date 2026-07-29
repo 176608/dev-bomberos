@@ -40,6 +40,25 @@ class SecureFileUpload
         return $this->storeFile($file, 'u_pdf', $existingFile);
     }
 
+    public function uploadPDFToMapas(UploadedFile $file, ?string $existingFile = null): string
+    {
+        $this->validateOrFail($file, 'pdf', 'PDF');
+
+        $extension = $file->getClientOriginalExtension();
+        $safeFilename = $this->generateSafeFilename($extension);
+
+        if ($existingFile) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('mapas');
+            if ($disk->exists($existingFile)) {
+                $disk->delete($existingFile);
+            }
+        }
+
+        $file->storeAs('', $safeFilename, 'mapas');
+
+        return $safeFilename;
+    }
+
     public function uploadExcel(UploadedFile $file, ?string $existingFile = null): ?string
     {
         $extension = strtolower($file->getClientOriginalExtension());
