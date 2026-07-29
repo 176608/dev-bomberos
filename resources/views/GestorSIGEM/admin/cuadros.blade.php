@@ -160,15 +160,6 @@
                                         </a>
                                     @endif
 
-                                    {{-- Publicar/Restringir --}}
-                                    <button type="button"
-                                            class="btn btn-outline-{{ $estaPublicado ? 'secondary' : 'success' }} btn-toggle-pub"
-                                            onclick="togglePublicado({{ $cuadro->cuadro_id }}, this)"
-                                            title="{{ $estaPublicado ? 'Restringir (ocultar en SIGEM)' : 'Publicar (visible en SIGEM)' }}">
-                                        <i class="bi {{ $estaPublicado ? 'bi-eye-slash' : 'bi-eye' }}"></i>
-                                        {{ $estaPublicado ? 'Restringir' : 'Publicar' }}
-                                    </button>
-
                                     {{-- Eliminar --}}
                                     <button type="button" class="btn btn-outline-danger"
                                             onclick="eliminarCuadro({{ $cuadro->cuadro_id }}, '{{ addslashes($cuadro->c_titulo) }}')"
@@ -366,9 +357,30 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
-                                <label for="edit_pie_pagina" class="form-label"><i class="bi bi-journal-text me-1"></i>Pie de página</label>
-                                <textarea class="form-control form-control-sm" id="edit_pie_pagina" name="pie_pagina" rows="3" placeholder="Contenido del pie de página (soporta HTML básico)...">{!! old('pie_pagina', $cuadro->pie_pagina) !!}</textarea>
-                                <small class="form-text text-muted">Edita el contenido del pie de página del cuadro. Se usa tanto en el visor como en las exportaciones.</small>
+                                <label class="form-label"><i class="bi bi-journal-text me-1"></i>Pie de página</label>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">Editar contenido del pie de página (se usa en visor y exportaciones)</small>
+                                    <div class="btn-group btn-group-xs">
+                                        <button type="button" class="btn btn-outline-primary btn-sm active" id="edit-pp-btn-editor" onclick="toggleEditPP('editor')">Editar</button>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="edit-pp-btn-preview" onclick="toggleEditPP('preview')">Vista previa</button>
+                                    </div>
+                                </div>
+                                <div id="edit-pp-wrapper">
+                                    <div class="btn-toolbar mb-1 gap-1 flex-wrap" role="toolbar">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('bold')" title="Negrita"><strong>B</strong></button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('italic')" title="Cursiva"><em>I</em></button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('underline')" title="Subrayado"><u>U</u></button>
+                                        <div class="vr mx-1"></div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('insertUnorderedList')" title="Lista"><i class="bi bi-list-ul"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('insertOrderedList')" title="Lista ordenada"><i class="bi bi-list-ol"></i></button>
+                                        <div class="vr mx-1"></div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="var u=prompt('URL:');if(u)document.execCommand('createLink',false,u)" title="Enlace"><i class="bi bi-link-45deg"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('removeFormat')" title="Limpiar formato"><i class="bi bi-eraser"></i></button>
+                                    </div>
+                                    <div id="edit-pp-editor" contenteditable="true" class="form-control" style="min-height:100px;overflow-y:auto;font-size:0.9rem;line-height:1.5">{!! $cuadro->pie_pagina !!}</div>
+                                </div>
+                                <div id="edit-pp-preview" class="d-none border rounded p-2" style="min-height:100px;font-size:0.9rem;line-height:1.5;background:#f8f9fa">{!! $cuadro->pie_pagina !!}</div>
+                                <input type="hidden" id="edit_pie_pagina" name="pie_pagina" value="{{ old('pie_pagina', $cuadro->pie_pagina) }}">
                             </div>
                         </div>
                     </div>
@@ -408,12 +420,34 @@ const routesCuadros = {
     destroy: '{{ route("sgiem.admin.cuadros.destroy", ":id") }}'
 };
 
+function toggleEditPP(mode) {
+    var editor = document.getElementById('edit-pp-editor');
+    var preview = document.getElementById('edit-pp-preview');
+    var wrapper = document.getElementById('edit-pp-wrapper');
+    var btnE = document.getElementById('edit-pp-btn-editor');
+    var btnP = document.getElementById('edit-pp-btn-preview');
+    if (mode === 'preview') {
+        preview.innerHTML = editor.innerHTML;
+        wrapper.classList.add('d-none');
+        preview.classList.remove('d-none');
+        btnE.classList.remove('active');
+        btnP.classList.add('active');
+    } else {
+        wrapper.classList.remove('d-none');
+        preview.classList.add('d-none');
+        btnE.classList.add('active');
+        btnP.classList.remove('active');
+    }
+}
 
 $('#formEditarCuadro').on('submit', function(e) {
     e.preventDefault();
     const form = $(this);
     const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarCuadro'));
     const eliminarDS = document.getElementById('edit_eliminar_dataset').checked;
+
+    var ppEditor = document.getElementById('edit-pp-editor');
+    if (ppEditor) { document.getElementById('edit_pie_pagina').value = ppEditor.innerHTML; }
 
     if (eliminarDS && !confirm('¿Eliminar el dataset completamente? Se borrarán todas las filas, columnas, categorías y datos. Esta acción no se puede deshacer.')) return;
 
@@ -461,30 +495,6 @@ $('#formCrearCuadro').on('submit', function(e) {
                 msg = Object.values(xhr.responseJSON.errors).flat().join('\n');
             }
             mostrarToast('danger', msg);
-        }
-    });
-});
-
-function togglePublicado(id, btn) {
-    $.ajax({
-        url: routesCuadros.toggle.replace(':id', id),
-        method: 'PUT',
-        data: { _token: '{{ csrf_token() }}' },
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                const publicado = response.publicado;
-                btn.classList.remove('btn-outline-success', 'btn-outline-secondary');
-                btn.classList.add(publicado ? 'btn-outline-secondary' : 'btn-outline-success');
-                btn.title = publicado ? 'Restringir (ocultar en SIGEM)' : 'Publicar (visible en SIGEM)';
-                btn.innerHTML = publicado
-                    ? '<i class="bi bi-eye-slash"></i> Restringir'
-                    : '<i class="bi bi-eye"></i> Publicar';
-                mostrarToast('success', publicado ? 'Cuadro publicado.' : 'Cuadro restringido.');
-            }
-        },
-        error: function() {
-            mostrarToast('danger', 'Error al cambiar estado.');
         }
     });
 }
@@ -672,8 +682,13 @@ $(document).ready(function() {
             document.getElementById('edit_codigo_cuadro').value = data.codigo_cuadro;
             document.getElementById('edit_c_titulo').value = data.c_titulo;
             document.getElementById('edit_c_subtitulo').value = data.c_subtitulo || '';
-            document.getElementById('edit_pie_pagina').value = data.pie_pagina || '';
             document.getElementById('edit_publicado').checked = data.publicado ? true : false;
+
+            var ppEditor = document.getElementById('edit-pp-editor');
+            if (ppEditor) { ppEditor.innerHTML = data.pie_pagina || ''; }
+            var ppPreview = document.getElementById('edit-pp-preview');
+            if (ppPreview) { ppPreview.innerHTML = data.pie_pagina || ''; }
+            document.getElementById('edit_pie_pagina').value = data.pie_pagina || '';
             document.getElementById('edit_tipo_mapa_pdf').checked = data.tipo_mapa_pdf ? true : false;
             document.getElementById('edit_permite_grafica').checked = data.permite_grafica ? true : false;
 
