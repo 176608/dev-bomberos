@@ -4,19 +4,6 @@
         return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
 
-    function hexToIntensity($hex, $intensity) {
-        $hex = ltrim($hex ?? '', '#');
-        if (strlen($hex) !== 6) return null;
-        $r = hexdec(substr($hex, 0, 2));
-        $g = hexdec(substr($hex, 2, 2));
-        $b = hexdec(substr($hex, 4, 2));
-        $mix = 1 - $intensity;
-        $r = round($r * $intensity + 255 * $mix);
-        $g = round($g * $intensity + 255 * $mix);
-        $b = round($b * $intensity + 255 * $mix);
-        return 'rgb(' . $r . ',' . $g . ',' . $b . ')';
-    }
-
     $maxCols = 0;
     foreach ($seccionesData as $sd) {
         $est = $sd['estado'];
@@ -68,8 +55,8 @@
     $horizontales = $estado['horizontales'] ?? [];
     $verticales = $estado['verticales'] ?? [];
     $temaColor = $estado['tema_color'] ?? '';
-    $stripedBg = $temaColor ? hexToIntensity($temaColor, 0.2) : null;
-    $totalBg = $temaColor ? hexToIntensity($temaColor, 0.5) : null;
+    $stripedBg = '#f2f2f2';
+    $totalBg = '#bfbfbf';
     $pivotLabel = $estado['pivot_label'] ?? 'PIVOTE';
     $numLabelCols = 1;
     if (!empty($headers) && !empty($headers[0]) && ($headers[0][0]['tipo'] ?? '') === 'corner') {
@@ -189,8 +176,8 @@
             foreach ($rowCells as $c) { if ($c['tipo'] === 'leaf') $rowLeaf = $c; }
             $totalName = $rowLeaf ? ($rowLeaf['nombre'] ?? '') : '';
             $isTotal = preg_match('/^(Total|Totales|Sumatoria)$/', $totalName);
-            $dataBg = $isTotal ? $totalBg : ($isEven && $stripedBg ? $stripedBg : null);
-            $dataStyle = 'text-align:right;border:1px solid #000;' . ($dataBg ? 'background:' . $dataBg . ';' : '') . ($isTotal ? 'font-weight:700;' : '');
+            $dataBg = $isTotal ? $totalBg : ($isEven ? $stripedBg : '#ffffff');
+            $dataStyle = 'text-align:right;border:1px solid #000;background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
         @endphp
         <tr>
             @foreach ($rowCells as $cell)
