@@ -21,20 +21,26 @@
 
 @if($mostrarLogo)
 <table>
-    <tr><td colspan="{{ $maxCols }}" style="height:50px"></td></tr>
+    <tr><td style="height:45px"></td></tr>
 </table>
 @endif
 
+@php
+    $titleFull = $codigoCuadro . ' — ' . $tituloCuadro;
+    $titleLines = max(1, ceil(mb_strlen($titleFull) / 80)) + 1;
+    $titleH = ($titleLines * 18) . 'pt';
+    $subH = $subtituloCuadro ? max(1, ceil(mb_strlen($subtituloCuadro) / 90)) * 14 + 4 . 'pt' : 0;
+@endphp
 <table>
-    <tr><td colspan="{{ $maxCols }}"></td></tr>
+    <tr><td colspan="{{ $maxCols }}" style="height:8pt"></td></tr>
     <tr>
-        <td colspan="{{ $maxCols }}" style="font-size:14pt;font-weight:bold;white-space:normal;word-wrap:break-word;">
-            {{ $codigoCuadro }} — {{ $tituloCuadro }}
+        <td colspan="{{ $maxCols }}" style="font-size:14pt;font-weight:bold;white-space:normal;word-wrap:break-word;height:{{ $titleH }};">
+            {{ $titleFull }}
         </td>
     </tr>
     @if($subtituloCuadro)
     <tr>
-        <td colspan="{{ $maxCols }}" style="font-size:10pt;color:#666;white-space:normal;word-wrap:break-word;">{{ $subtituloCuadro }}</td>
+        <td colspan="{{ $maxCols }}" style="font-size:10pt;color:#666;white-space:normal;word-wrap:break-word;height:{{ $subH }};">{{ $subtituloCuadro }}</td>
     </tr>
     @endif
 </table>
