@@ -3,24 +3,38 @@
         if ($s === null || $s === false) return '';
         return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
+
+    $maxCols = 0;
+    foreach ($seccionesData as $sd) {
+        $est = $sd['estado'];
+        $h = $est['horizontales'] ?? [];
+        $hdrs = $est['headers'] ?? [];
+        $nl = 1;
+        if (!empty($hdrs) && !empty($hdrs[0]) && ($hdrs[0][0]['tipo'] ?? '') === 'corner') {
+            $nl = $hdrs[0][0]['colspan'] ?? 1;
+        }
+        $cols = $nl + count($h);
+        if ($cols > $maxCols) $maxCols = $cols;
+    }
+    if ($maxCols < 1) $maxCols = 100;
 @endphp
 
 @if($mostrarLogo)
 <table>
-    <tr><td colspan="100" style="height:50px"></td></tr>
+    <tr><td colspan="{{ $maxCols }}" style="height:50px"></td></tr>
 </table>
 @endif
 
 <table>
-    <tr><td colspan="100"></td></tr>
+    <tr><td colspan="{{ $maxCols }}"></td></tr>
     <tr>
-        <td colspan="100" style="font-size:14pt;font-weight:bold;">
+        <td colspan="{{ $maxCols }}" style="font-size:14pt;font-weight:bold;white-space:normal;word-wrap:break-word;">
             {{ $codigoCuadro }} — {{ $tituloCuadro }}
         </td>
     </tr>
     @if($subtituloCuadro)
     <tr>
-        <td colspan="100" style="font-size:10pt;color:#666;">{{ $subtituloCuadro }}</td>
+        <td colspan="{{ $maxCols }}" style="font-size:10pt;color:#666;white-space:normal;word-wrap:break-word;">{{ $subtituloCuadro }}</td>
     </tr>
     @endif
 </table>
@@ -106,7 +120,8 @@
     }
 @endphp
 
-@if(count($seccionesData) > 1)
+@php $showSecHeader = ($seccion['nombre'] ?? '') !== 'Serie única'; @endphp
+@if($showSecHeader)
     @if($secIdx > 0)
     <table><tr><td colspan="{{ $totalCols }}" style="border-top:1px solid #999;height:4px"></td></tr></table>
     @endif
@@ -184,6 +199,6 @@
 
 @if($piePagina)
 <table>
-    <tr><td colspan="100" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! $piePagina !!}</td></tr>
+    <tr><td colspan="{{ $maxCols }}" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! $piePagina !!}</td></tr>
 </table>
 @endif
