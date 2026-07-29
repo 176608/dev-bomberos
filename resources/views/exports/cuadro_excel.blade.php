@@ -30,12 +30,6 @@
             $childrenOfH[$h['padre_id']][] = $h;
         }
     }
-    $childrenOfV = [];
-    foreach ($verticales as $v) {
-        if (!empty($v['padre_id'])) {
-            $childrenOfV[$v['padre_id']][] = $v;
-        }
-    }
 
     $visHIdx = [];
     foreach ($horizontales as $i => $h) {
@@ -46,76 +40,54 @@
         $visVIdx[] = $i;
     }
 
-    $visLabelRows = [];
-    $parentSpan = [];
-    $parentGroupOfIdx = [];
+    // ─── Parent groups from original labels ───
     $parentGroups = [];
+    $parentGroupOfIdx = [];
+    foreach ($labels as $ri => $rowCells) {
+        $pc = null;
+        foreach ($rowCells as $c) { if ($c['tipo'] === 'parent') $pc = $c; }
+        if ($pc) {
+            $parentGroups[] = ['parentId' => $pc['categoria_id'], 'cell' => $pc, 'visibleCount' => 0];
+        }
+        $parentGroupOfIdx[$ri] = !empty($parentGroups) ? $parentGroups[count($parentGroups) - 1]['parentId'] : null;
+    }
+
+    // ─── Filter label rows, strip parent cells ───
+    $visLabelRows = [];
+    $seenParent = [];
+    $parentSpan = [];
     foreach ($labels as $ri => $rowCells) {
         $leaf = null;
-        $pc = null;
-        foreach ($rowCells as $c) {
-            if ($c['tipo'] === 'leaf') $leaf = $c;
-            if ($c['tipo'] === 'parent') $pc = $c;
-        }
+        foreach ($rowCells as $c) { if ($c['tipo'] === 'leaf') $leaf = $c; }
         if (!$leaf) continue;
         if (!in_array($leaf['row_index'], $visVIdx)) continue;
         $stripped = [];
-        foreach ($rowCells as $c) {
-            if ($c['tipo'] !== 'parent') $stripped[] = $c;
-        }
+        foreach ($rowCells as $c) { if ($c['tipo'] !== 'parent') $stripped[] = $c; }
         $visLabelRows[] = $stripped;
-        if ($pc) {
-            if (!isset($parentSpan[$pc['categoria_id']])) $parentSpan[$pc['categoria_id']] = 0;
-            $parentSpan[$pc['categoria_id']]++;
-            if (!isset($parentGroupOfIdx[$ri])) $parentGroupOfIdx[$ri] = $pc['categoria_id'];
-            if (!isset($seenParent[$pc['categoria_id']])) $seenParent[$pc['categoria_id']] = count($visLabelRows) - 1;
-        }
-    }
-
-    $parentSpanFinal = [];
-    $seenParent = [];
-    foreach ($labels as $ri => $rowCells) {
-        $leaf = null;
-        $pc = null;
-        foreach ($rowCells as $c) {
-            if ($c['tipo'] === 'leaf') $leaf = $c;
-            if ($c['tipo'] === 'parent') $pc = $c;
-        }
-        if (!$leaf || !in_array($leaf['row_index'], $visVIdx)) continue;
-        if ($pc) {
-            $pid = $pc['categoria_id'];
-            if (!isset($parentSpanFinal[$pid])) $parentSpanFinal[$pid] = 0;
-            $parentSpanFinal[$pid]++;
-            if (!isset($seenParent[$pid])) $seenParent[$pid] = count($visLabelRows) - 1;
-        }
-    }
-
-    $finalLabelRows = [];
-    foreach ($visLabelRows as $idx => $rowCells) {
-        $finalRow = [];
-        $hasParent = false;
-        foreach ($rowCells as $c) {
-            if ($c['tipo'] === 'parent') { $hasParent = true; break; }
-        }
-        if (!$hasParent) {
-            foreach ($parentSpanFinal as $pid => $span) {
-                if (isset($seenParent[$pid]) && $seenParent[$pid] === $idx) {
-                    array_unshift($rowCells, ['tipo' => 'parent', 'categoria_id' => $pid, 'nombre' => '']);
-                    $pidNombre = '';
-                    foreach ($labels as $r2) {
-                        foreach ($r2 as $c2) {
-                            if ($c2['tipo'] === 'parent' && $c2['categoria_id'] == $pid) {
-                                $pidNombre = $c2['nombre'];
-                                break 2;
-                            }
-                        }
-                    }
-                    $rowCells[0]['nombre'] = $pidNombre;
+        $pid = $parentGroupOfIdx[$ri] ?? null;
+        if ($pid !== null) {
+            foreach ($parentGroups as &$pg) {
+                if ($pg['parentId'] === $pid) {
+                    $pg['visibleCount']++;
+                    if (!isset($seenParent[$pid])) $seenParent[$pid] = count($visLabelRows) - 1;
                     break;
                 }
             }
+            unset($pg);
         }
-        $finalLabelRows[] = $rowCells;
+    }
+
+    // ─── Inject parent cell at first visible row of each group ───
+    foreach ($parentGroups as $pg) {
+        if ($pg['visibleCount'] > 0) {
+            $parentSpan[$pg['parentId']] = $pg['visibleCount'];
+            $insertAt = $seenParent[$pg['parentId']] ?? null;
+            if ($insertAt !== null) {
+                array_unshift($visLabelRows[$insertAt], [
+                    'tipo' => 'parent', 'categoria_id' => $pg['parentId'], 'nombre' => $pg['cell']['nombre']
+                ]);
+            }
+        }
     }
 
     function esc($s) {
@@ -160,11 +132,11 @@
         </tr>
     @endfor
 
-    @foreach ($finalLabelRows as $rowCells)
+    @foreach ($visLabelRows as $rowCells)
         <tr>
             @foreach ($rowCells as $cell)
                 @if ($cell['tipo'] === 'parent')
-                    <th rowspan="{{ $parentSpanFinal[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;">
+                    <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;">
                         {{ esc($cell['nombre']) }}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
