@@ -21,15 +21,9 @@
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
             @endif
-            <div class="dropdown">
-                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-file-earmark-excel me-1"></i>Excel
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/exportar/excel?todo=1') }}"><i class="bi bi-grid-3x3 me-2"></i>Todo el cuadro</a></li>
-                    <li><a class="dropdown-item" id="link-exportar-excel-seleccion" href="#"><i class="bi bi-check2-square me-2"></i>Solo selección</a></li>
-                </ul>
-            </div>
+            <button class="btn btn-outline-primary btn-sm" onclick="exportarExcel()" title="Descargar Excel del cuadro">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+            </button>
         </div>
     </div>
 
@@ -468,8 +462,6 @@ function saveStateToURL() {
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
     var lnk = document.getElementById('link-to-grafica');
     if (lnk) lnk.href = lnk.getAttribute('data-base') + (qs ? '?' + qs : '');
-    var lnkExcel = document.getElementById('link-exportar-excel-seleccion');
-    if (lnkExcel) lnkExcel.href = window.location.pathname.replace('/dataset', '/exportar/excel') + (qs ? '?' + qs : '');
 }
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
@@ -490,6 +482,23 @@ function loadStateFromURL() {
     load('v', estado.verticales, visibleV);
     load('h', estado.horizontales, visibleH);
     load('s', estado.secciones, selectedSections);
+}
+
+// ─── Export Excel ───
+
+var EXPORT_BASE = '{{ route('sigem.v2.cuadro.exportar.excel', $cuadro->cuadro_id) }}';
+
+function exportarExcel() {
+    var msg = '¿Descargar todo el cuadro o solo la selección actual?\n\n' +
+              '• Aceptar  = Todo el cuadro\n' +
+              '• Cancelar = Solo selección';
+    var todo = confirm(msg);
+    if (todo) {
+        window.location.href = EXPORT_BASE + '?todo=1';
+    } else {
+        var qs = window.location.search.replace('?', '');
+        window.location.href = EXPORT_BASE + (qs ? '?' + qs : '');
+    }
 }
 
 // ─── Init ───
@@ -564,13 +573,6 @@ document.getElementById('btn-activar-todas')?.addEventListener('click', function
     var finish = function() { renderTables(); saveStateToURL(); status('Todas las secciones activadas'); };
     if (pend.length) Promise.all(pend).then(finish).catch(finish);
     else finish();
-});
-
-document.querySelectorAll('.dropdown-item[href*="exportar/excel"]').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-        console.log('[Excel] href clicked:', this.href);
-        console.log('[Excel] target:', this.target);
-    });
 });
 
 init();

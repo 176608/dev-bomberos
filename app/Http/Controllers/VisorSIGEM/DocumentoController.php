@@ -27,12 +27,21 @@ class DocumentoController extends Controller
                 ->with('error', 'Los cuadros tipo mapa no tienen exportación Excel.');
         }
 
+        try {
+            $secciones = $cuadro->secciones()->orderBy('orden')->get();
+        } catch (\Throwable) {
+            abort(500, 'Error al cargar secciones');
+        }
+
         $todo = $request->boolean('todo', false);
 
-        $secciones = $cuadro->secciones()->orderBy('orden')->get();
         $seccionesData = [];
         if ($secciones->isEmpty()) {
-            $estado = $this->datasetService->obtenerEstado($id);
+            try {
+                $estado = $this->datasetService->obtenerEstado($id);
+            } catch (\RuntimeException) {
+                abort(500, 'El cuadro no tiene dataset.');
+            }
             if (!$todo) $estado = $this->aplicarFiltrosDesdeUrl($estado, $request);
             $seccionesData[] = [
                 'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
@@ -40,13 +49,21 @@ class DocumentoController extends Controller
             ];
         } else {
             foreach ($secciones as $sec) {
-                $estado = $this->datasetService->obtenerEstado($id, $sec->seccion_id);
+                try {
+                    $estado = $this->datasetService->obtenerEstado($id, $sec->seccion_id);
+                } catch (\RuntimeException) {
+                    continue;
+                }
                 if (!$todo) $estado = $this->aplicarFiltrosDesdeUrl($estado, $request);
                 $seccionesData[] = [
                     'seccion' => $sec->toArray(),
                     'estado' => $estado,
                 ];
             }
+        }
+
+        if (empty($seccionesData)) {
+            abort(500, 'No hay datos para exportar.');
         }
 
         $fecha = now()->format('d_m_Y');
@@ -61,7 +78,10 @@ class DocumentoController extends Controller
             mostrarLogo: true,
         );
 
-        return Excel::download($export, $nombre);
+        $storeName = 'excel_' . uniqid() . '.xlsx';
+        Excel::store($export, $storeName);
+        $fullPath = storage_path('app/' . $storeName);
+        return response()->download($fullPath, $nombre)->deleteFileAfterSend(true);
     }
 
     private function aplicarFiltrosDesdeUrl(array $estado, Request $request): array
