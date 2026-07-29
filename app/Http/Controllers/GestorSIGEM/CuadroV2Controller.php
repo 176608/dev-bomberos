@@ -8,6 +8,7 @@ use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
 use App\Services\SecureFileUpload;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CuadroV2Controller extends Controller
