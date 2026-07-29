@@ -95,18 +95,22 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         if ($parsedV !== null) {
             $ids = $parsedV['ids'];
             $isExceptions = $parsedV['isExceptions'];
-            $estado['verticales'] = array_values(array_filter(
-                $estado['verticales'],
-                fn($v) => $isExceptions ? !in_array($v['categoria_id'], $ids) : in_array($v['categoria_id'], $ids)
-            ));
+            $visibleIds = [];
+            foreach ($estado['verticales'] as $v) {
+                $visible = $isExceptions ? !in_array($v['categoria_id'], $ids) : in_array($v['categoria_id'], $ids);
+                if ($visible) $visibleIds[] = $v['categoria_id'];
+            }
+            $estado['_visibleVerticalIds'] = $visibleIds;
         }
         if ($parsedH !== null) {
             $ids = $parsedH['ids'];
             $isExceptions = $parsedH['isExceptions'];
-            $estado['horizontales'] = array_values(array_filter(
-                $estado['horizontales'],
-                fn($h) => $isExceptions ? !in_array($h['categoria_id'], $ids) : in_array($h['categoria_id'], $ids)
-            ));
+            $visibleIds = [];
+            foreach ($estado['horizontales'] as $h) {
+                $visible = $isExceptions ? !in_array($h['categoria_id'], $ids) : in_array($h['categoria_id'], $ids);
+                if ($visible) $visibleIds[] = $h['categoria_id'];
+            }
+            $estado['_visibleHorizontalIds'] = $visibleIds;
         }
 
         return $estado;

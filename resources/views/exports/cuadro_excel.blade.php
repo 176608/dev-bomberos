@@ -40,13 +40,20 @@
         $numLabelCols = $headers[0][0]['colspan'] ?? 1;
     }
 
-    $visHIdx = [];
-    foreach ($horizontales as $i => $h) {
-        $visHIdx[] = $i;
-    }
+    $visVIds = $estado['_visibleVerticalIds'] ?? null;
+    $visHIds = $estado['_visibleHorizontalIds'] ?? null;
+
     $visVIdx = [];
     foreach ($verticales as $i => $v) {
-        $visVIdx[] = $i;
+        if ($visVIds === null || in_array($v['categoria_id'], $visVIds)) {
+            $visVIdx[] = $i;
+        }
+    }
+    $visHIdx = [];
+    foreach ($horizontales as $i => $h) {
+        if ($visHIds === null || in_array($h['categoria_id'], $visHIds)) {
+            $visHIdx[] = $i;
+        }
     }
 
     $totalCols = $numLabelCols + count($visHIdx);
