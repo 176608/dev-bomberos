@@ -27,12 +27,40 @@ class VisorCuadroController extends Controller
         return null;
     }
 
+    private function tieneCredenciales(): bool
+    {
+        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
+    }
+
+    private function verificarAccesoCuadro(Cuadro $cuadro, int $id): ?array
+    {
+        if ($cuadro->publicado) return null;
+        if (!$this->tieneCredenciales()) {
+            abort(404);
+        }
+        try {
+            $this->datasetService->obtenerEstado($id);
+            return null;
+        } catch (\RuntimeException) {
+            return ['error' => 'El cuadro seleccionado no tiene un dataset asociado.'];
+        }
+    }
+
+    private function responderError(string $mensaje)
+    {
+        if (request()->expectsJson()) {
+            return response()->json(['error' => $mensaje], 404);
+        }
+        return response()->view('errors.custom', ['message' => $mensaje], 404);
+    }
+
     public function dataset(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
-            abort(404);
-        }
+        if (!$cuadro) abort(404);
+
+        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        if ($error) return $this->responderError($error['error']);
 
         if ($cuadro->tipo_mapa_pdf) {
             return redirect()->route('sigem.v2.cuadro.mapa', $id);
@@ -51,9 +79,11 @@ class VisorCuadroController extends Controller
     public function mapa(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
-            abort(404);
-        }
+        if (!$cuadro) abort(404);
+
+        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        if ($error) return $this->responderError($error['error']);
+
         if (!$cuadro->tipo_mapa_pdf) {
             return redirect()->route('sigem.v2.cuadro.dataset', $id);
         }
@@ -68,9 +98,11 @@ class VisorCuadroController extends Controller
     public function descargarMapa(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
-            abort(404);
-        }
+        if (!$cuadro) abort(404);
+
+        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        if ($error) return $this->responderError($error['error']);
+
         if (!$cuadro->tipo_mapa_pdf || !$cuadro->pdf_file) {
             abort(404);
         }
@@ -92,9 +124,10 @@ class VisorCuadroController extends Controller
     public function grafica(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
-            abort(404);
-        }
+        if (!$cuadro) abort(404);
+
+        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        if ($error) return $this->responderError($error['error']);
 
         $estadoInicial = $this->cachedEstado($id);
 
@@ -109,9 +142,12 @@ class VisorCuadroController extends Controller
     public function seccionData(int $id, int $seccion)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
+        if (!$cuadro) {
             return response()->json(['error' => 'Cuadro no encontrado'], 404);
         }
+
+        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        if ($error) return response()->json($error, 404);
 
         $cacheKey = "visor_cuadro_{$id}_seccion_{$seccion}";
         $data = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($id, $seccion) {

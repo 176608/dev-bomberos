@@ -14,11 +14,26 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         private DatasetService $datasetService,
     ) {}
 
+    private function tieneCredenciales(): bool
+    {
+        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
+    }
+
     public function exportarExcel(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
-        if (!$cuadro || !$cuadro->publicado) {
+        if (!$cuadro) abort(404);
+
+        if (!$cuadro->publicado && !$this->tieneCredenciales()) {
             abort(404);
+        }
+
+        if (!$cuadro->publicado) {
+            try {
+                $this->datasetService->obtenerEstado($id);
+            } catch (\RuntimeException) {
+                abort(404, 'El cuadro seleccionado no tiene un dataset asociado.');
+            }
         }
 
         if ($cuadro->tipo_mapa_pdf) {
