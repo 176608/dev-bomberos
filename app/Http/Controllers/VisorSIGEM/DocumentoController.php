@@ -34,6 +34,13 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
 
         $todo = $request->boolean('todo', false);
 
+        $parsedS = $this->parseIdListSigned($request->query('s', ''));
+        if ($parsedS !== null) {
+            $secIds = $parsedS['ids'];
+            $isExceptions = $parsedS['isExceptions'];
+            $secciones = $secciones->filter(fn($s) => $isExceptions ? !in_array($s->seccion_id, $secIds) : in_array($s->seccion_id, $secIds));
+        }
+
         $seccionesData = [];
         if ($secciones->isEmpty()) {
             try {
@@ -82,28 +89,45 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
 
     private function aplicarFiltrosDesdeUrl(array $estado, Request $request): array
     {
-        $visiblesV = $this->parseIdList($request->query('v', ''));
-        $visiblesH = $this->parseIdList($request->query('h', ''));
-        $visiblesS = $this->parseIdList($request->query('s', ''));
+        $parsedV = $this->parseIdListSigned($request->query('v', ''));
+        $parsedH = $this->parseIdListSigned($request->query('h', ''));
 
-        if (!empty($visiblesV)) {
-            $estado['verticales'] = array_values(array_filter($estado['verticales'], fn($v) => in_array($v['categoria_id'], $visiblesV)));
+        if ($parsedV !== null) {
+            $ids = $parsedV['ids'];
+            $isExceptions = $parsedV['isExceptions'];
+            $estado['verticales'] = array_values(array_filter(
+                $estado['verticales'],
+                fn($v) => $isExceptions ? !in_array($v['categoria_id'], $ids) : in_array($v['categoria_id'], $ids)
+            ));
         }
-        if (!empty($visiblesH)) {
-            $estado['horizontales'] = array_values(array_filter($estado['horizontales'], fn($h) => in_array($h['categoria_id'], $visiblesH)));
+        if ($parsedH !== null) {
+            $ids = $parsedH['ids'];
+            $isExceptions = $parsedH['isExceptions'];
+            $estado['horizontales'] = array_values(array_filter(
+                $estado['horizontales'],
+                fn($h) => $isExceptions ? !in_array($h['categoria_id'], $ids) : in_array($h['categoria_id'], $ids)
+            ));
         }
 
         return $estado;
     }
 
-    private function parseIdList(?string $raw): array
+    private function parseIdListSigned(?string $raw): ?array
     {
-        if (!$raw) return [];
+        if (!$raw) return null;
         $ids = [];
+        $isExceptions = false;
         foreach (explode(',', $raw) as $part) {
-            $id = (int) ltrim($part, '-');
-            if ($id > 0) $ids[] = $id;
+            $part = trim($part);
+            if ($part === '') continue;
+            if ($part[0] === '-') {
+                $isExceptions = true;
+                $ids[] = (int) substr($part, 1);
+            } else {
+                $ids[] = (int) $part;
+            }
         }
-        return $ids;
+        if (empty($ids)) return null;
+        return ['ids' => $ids, 'isExceptions' => $isExceptions];
     }
 }

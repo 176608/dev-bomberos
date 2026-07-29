@@ -78,6 +78,64 @@
 #tables-container table tbody tr:hover td.valor { background:#f0f0f0; }
 .pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; }
 </style>
+</div>
+
+{{-- Modal export: elegir tipo --}}
+<div class="modal fade" id="modal-export-tipo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title"><i class="bi bi-file-earmark-excel me-2"></i>Exportar Excel</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3">¿Qué deseas descargar?</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary" onclick="seleccionarExportType('todo')">
+                        <i class="bi bi-grid-3x3 me-2"></i>Todo el cuadro
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="seleccionarExportType('seleccion')">
+                        <i class="bi bi-check2-square me-2"></i>Solo selección
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Loading overlay --}}
+<div id="loading-export" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);z-index:10000;align-items:center;justify-content:center;">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-2" role="status"><span class="visually-hidden">Generando...</span></div>
+        <p class="text-muted">Generando archivo...</p>
+    </div>
+</div>
+
+{{-- Modal export: confirmar descarga --}}
+<div class="modal fade" id="modal-export-confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title"><i class="bi bi-question-circle me-2"></i>Confirmar descarga</h6>
+            </div>
+            <div class="modal-body text-center">
+                <p><i class="bi bi-file-earmark-excel" style="font-size:2.5rem;color:#198754;"></i></p>
+                <p class="mb-1"><strong id="export-filename"></strong></p>
+                <p class="text-muted small" id="export-filesize"></p>
+                <p class="mt-2">¿Descargar este archivo?</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-primary" onclick="confirmarExport()">
+                        <i class="bi bi-download me-1"></i>Descargar
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="cancelarExport()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('visor_scripts')
@@ -487,18 +545,77 @@ function loadStateFromURL() {
 // ─── Export Excel ───
 
 var EXPORT_BASE = '{{ route('sigem.v2.cuadro.exportar.excel', $cuadro->cuadro_id) }}';
+var _exportBlob = null;
+var _exportFilename = '';
+
+function _modal(id, action) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var inst = bootstrap.Modal.getOrCreateInstance(el);
+    if (action === 'show') inst.show();
+    else inst.hide();
+}
 
 function exportarExcel() {
-    var msg = '¿Descargar todo el cuadro o solo la selección actual?\n\n' +
-              '• Aceptar  = Todo el cuadro\n' +
-              '• Cancelar = Solo selección';
-    var todo = confirm(msg);
-    if (todo) {
-        window.location.href = EXPORT_BASE + '?todo=1';
-    } else {
-        var qs = window.location.search.replace('?', '');
-        window.location.href = EXPORT_BASE + (qs ? '?' + qs : '');
-    }
+    _exportBlob = null;
+    _exportFilename = '';
+    _modal('modal-export-tipo', 'show');
+}
+
+function seleccionarExportType(tipo) {
+    _modal('modal-export-tipo', 'hide');
+
+    var url = tipo === 'todo'
+        ? EXPORT_BASE + '?todo=1'
+        : EXPORT_BASE + window.location.search;
+
+    var loading = document.getElementById('loading-export');
+    loading.style.display = 'flex';
+
+    fetch(url)
+        .then(function(res) {
+            if (!res.ok) throw new Error('Error ' + res.status);
+            var disposition = res.headers.get('Content-Disposition') || '';
+            var match = disposition.match(/filename[*]?=(?:UTF-8'')?["']?([^"';]+)["']?/);
+            _exportFilename = match ? decodeURIComponent(match[1].trim()) : 'export.xlsx';
+            return res.blob();
+        })
+        .then(function(blob) {
+            _exportBlob = blob;
+            loading.style.display = 'none';
+
+            var size = blob.size;
+            var sizeStr = size >= 1048576
+                ? (size / 1048576).toFixed(1) + ' MB'
+                : (size / 1024).toFixed(1) + ' KB';
+
+            document.getElementById('export-filename').textContent = _exportFilename;
+            document.getElementById('export-filesize').textContent = sizeStr;
+            _modal('modal-export-confirm', 'show');
+        })
+        .catch(function(err) {
+            loading.style.display = 'none';
+            alert('Error al generar el archivo: ' + err.message);
+        });
+}
+
+function confirmarExport() {
+    _modal('modal-export-confirm', 'hide');
+    if (!_exportBlob) return;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(_exportBlob);
+    a.download = _exportFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 10000);
+    _exportBlob = null;
+}
+
+function cancelarExport() {
+    _modal('modal-export-confirm', 'hide');
+    _exportBlob = null;
+    _exportFilename = '';
 }
 
 // ─── Init ───
