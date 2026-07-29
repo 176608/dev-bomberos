@@ -5,6 +5,8 @@ namespace App\Http\Controllers\GestorSIGEM;
 use App\Http\Requests\GestorSIGEM\StoreCuadroV2Request;
 use App\Services\GestorSIGEM\CuadroV2Service;
 use App\Services\GestorSIGEM\DatasetService;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CuadroExcelExport;
 
 class CuadroV2Controller extends Controller
 {
@@ -141,6 +143,60 @@ class CuadroV2Controller extends Controller
             'cuadro' => $cuadro,
             'estadoInicial' => $estado,
         ]);
+    }
+
+    public function documentoManage($id)
+    {
+        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
+
+        if (!$cuadro) {
+            return redirect()->route('sgiem.admin.cuadros.index')
+                ->with('error', 'Cuadro no encontrado.');
+        }
+
+        try {
+            $estado = $this->datasetService->obtenerEstado((int) $id);
+        } catch (\RuntimeException) {
+            return redirect()->route('sgiem.admin.cuadros.index')
+                ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de gestionar el documento.');
+        }
+
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.documento_manage',
+            'cuadro' => $cuadro,
+            'estadoInicial' => $estado,
+        ]);
+    }
+
+    public function exportarDocumento($id)
+    {
+        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
+
+        if (!$cuadro) {
+            return redirect()->route('sgiem.admin.cuadros.index')
+                ->with('error', 'Cuadro no encontrado.');
+        }
+
+        try {
+            $secciones = $cuadro->secciones()->orderBy('orden')->get();
+            $estado = $this->datasetService->obtenerEstado((int) $id, $secciones->isNotEmpty() ? $secciones->first()->seccion_id : null);
+        } catch (\RuntimeException) {
+            return redirect()->route('sgiem.admin.cuadros.documento', $id)
+                ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de exportar.');
+        }
+
+        $fecha = now()->format('d_m_Y');
+        $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
+
+        $export = new CuadroExcelExport(
+            estado: $estado,
+            codigoCuadro: $cuadro->codigo_cuadro,
+            tituloCuadro: $cuadro->c_titulo,
+            subtituloCuadro: $cuadro->c_subtitulo ?? '',
+            piePagina: $cuadro->pie_pagina,
+        );
+
+        return Excel::download($export, $nombre);
     }
 
     public function edit($id)

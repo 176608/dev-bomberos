@@ -38,6 +38,8 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
             Route::get('/{id}/datos', [CuadroV2Controller::class, 'datosJson'])->name('datos-json');
             Route::get('/{id}/dataset', [CuadroV2Controller::class, 'datasetManage'])->name('dataset');
             Route::get('/{id}/grafica', [CuadroV2Controller::class, 'graficaManage'])->name('grafica');
+            Route::get('/{id}/documento', [CuadroV2Controller::class, 'documentoManage'])->name('documento');
+            Route::get('/{id}/documento/exportar', [CuadroV2Controller::class, 'exportarDocumento'])->name('documento.exportar');
             Route::prefix('{id}/dataset')->name('dataset.')->group(function () {
                 Route::get('/estado', [DatasetController::class, 'estado'])->name('estado');
                 Route::post('/generar', [DatasetController::class, 'generar'])->name('generar');

@@ -160,6 +160,15 @@
                                         </a>
                                     @endif
 
+                                    {{-- Gestor de Documentos — solo si tiene dataset --}}
+                                    @if($tieneDS)
+                                        <a href="{{ route('sgiem.admin.cuadros.documento', $cuadro->cuadro_id) }}"
+                                           class="btn btn-outline-primary btn-sm"
+                                           title="Gestionar Documento">
+                                            <i class="bi bi-file-earmark-text"></i> Documento
+                                        </a>
+                                    @endif
+
                                     {{-- Eliminar --}}
                                     <button type="button" class="btn btn-outline-danger"
                                             onclick="eliminarCuadro({{ $cuadro->cuadro_id }}, '{{ addslashes($cuadro->c_titulo) }}')"
