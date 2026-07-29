@@ -12,6 +12,7 @@
 @endif
 
 <table>
+    <tr><td colspan="100"></td></tr>
     <tr>
         <td colspan="100" style="font-size:14pt;font-weight:bold;">
             {{ $codigoCuadro }} — {{ $tituloCuadro }}
@@ -22,7 +23,6 @@
         <td colspan="100" style="font-size:10pt;color:#666;">{{ $subtituloCuadro }}</td>
     </tr>
     @endif
-    <tr><td colspan="100"></td></tr>
 </table>
 
 @foreach($seccionesData as $secIdx => $secData)
@@ -48,6 +48,8 @@
     foreach ($verticales as $i => $v) {
         $visVIdx[] = $i;
     }
+
+    $totalCols = $numLabelCols + count($visHIdx);
 
     $parentGroups = [];
     $parentGroupOfIdx = [];
@@ -99,10 +101,10 @@
 
 @if(count($seccionesData) > 1)
     @if($secIdx > 0)
-    <table><tr><td colspan="100" style="border-top:1px solid #999;height:4px"></td></tr></table>
+    <table><tr><td colspan="{{ $totalCols }}" style="border-top:1px solid #999;height:4px"></td></tr></table>
     @endif
     <table>
-        <tr><td colspan="100" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
+        <tr><td colspan="{{ $totalCols }}" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;text-align:center;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
     </table>
 @endif
 
