@@ -365,6 +365,15 @@
                     <hr>
                     <div class="row">
                         <div class="col-12">
+                            <div class="mb-3">
+                                <label for="edit_pie_pagina" class="form-label"><i class="bi bi-journal-text me-1"></i>Pie de página</label>
+                                <textarea class="form-control form-control-sm" id="edit_pie_pagina" name="pie_pagina" rows="3" placeholder="Contenido del pie de página (soporta HTML básico)...">{!! old('pie_pagina', $cuadro->pie_pagina) !!}</textarea>
+                                <small class="form-text text-muted">Edita el contenido del pie de página del cuadro. Se usa tanto en el visor como en las exportaciones.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="edit_eliminar_dataset" name="eliminar_dataset" value="1">
                                 <label class="form-check-label text-danger" for="edit_eliminar_dataset">
@@ -663,6 +672,7 @@ $(document).ready(function() {
             document.getElementById('edit_codigo_cuadro').value = data.codigo_cuadro;
             document.getElementById('edit_c_titulo').value = data.c_titulo;
             document.getElementById('edit_c_subtitulo').value = data.c_subtitulo || '';
+            document.getElementById('edit_pie_pagina').value = data.pie_pagina || '';
             document.getElementById('edit_publicado').checked = data.publicado ? true : false;
             document.getElementById('edit_tipo_mapa_pdf').checked = data.tipo_mapa_pdf ? true : false;
             document.getElementById('edit_permite_grafica').checked = data.permite_grafica ? true : false;

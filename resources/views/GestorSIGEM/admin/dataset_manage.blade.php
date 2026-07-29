@@ -338,7 +338,8 @@
 .mode-diseno .edit-only { display: inline-flex !important; }
 
 #pp-card { display: none; }
-.mode-datos #pp-card { display: block; }
+.mode-datos #pp-card,
+.mode-diseno #pp-card { display: block; }
 
 /* Data cells right-aligned in datos mode */
 .mode-datos #dataset-table td[data-vertical-id] > div { text-align: right; }
