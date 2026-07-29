@@ -1,13 +1,13 @@
 @extends('VisorSIGEM.layouts.visor')
 
-@section('visor_title', 'Dataset — ' . ($cuadro->codigo_cuadro ?? ''))
+@section('visor_title', 'Cuadro — ' . ($cuadro->codigo_cuadro ?? ''))
 
 @section('visor_content')
 <div class="container-fluid py-3 show-cb" id="app-dataset">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Dataset</h5>
+            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadro</h5>
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>
                 <strong>{{ $cuadro->c_titulo }}</strong>
@@ -15,7 +15,7 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-info btn-sm" id="link-to-grafica"
+               class="btn btn-outline-success btn-sm" id="link-to-grafica"
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
@@ -26,10 +26,10 @@
         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar u ocultar los checkboxes de la tabla">
             <i class="bi bi-check2-square"></i> Ocultar
         </button>
-        <button type="button" class="btn btn-sm btn-outline-warning" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
+        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
         </button>
-        <button type="button" class="btn btn-sm btn-outline-warning" id="btn-show-desel" title="Mostrar temporalmente las categorías deseleccionadas para poder reactivarlas">
+        <button type="button" class="btn btn-sm btn-outline-success" id="btn-show-desel" title="Mostrar temporalmente las categorías deseleccionadas para poder reactivarlas">
             <i class="bi bi-eye-slash"></i> <span id="show-desel-label">Ver deselecciones</span>
         </button>
         @if(count($estadoInicial['secciones'] ?? []) > 1)
@@ -54,7 +54,8 @@
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 #tables-container > .section-block { margin-bottom:1.5rem; overflow-x:auto; }
 #tables-container .section-block .section-title { font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
-#tables-container table { font-size:0.85rem; margin-bottom:0; }
+#tables-container .section-block table { font-size:0.85rem; margin-bottom:0; border-radius:0 0 4px 4px; overflow:hidden; }
+#tables-container .section-block table thead tr:first-child th:first-child { border-top-left-radius:0; }
 #tables-container table th { white-space:nowrap; text-align:center; width:1%; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
@@ -65,6 +66,8 @@
 #tables-container .desel-row { opacity:0.5; }
 #tables-container .desel-row td,
 #tables-container .desel-row th { opacity:0.5; }
+#tables-container .total-row td.valor { font-weight:700; }
+#tables-container table tbody tr:hover td.valor { background:#f0f0f0; }
 </style>
 @endsection
 
@@ -103,6 +106,34 @@ function esc(s) {
 }
 function e(s) {
     return esc(s).replace(/\n/g, '<br>');
+}
+function hexToRgba(hex, opacity) {
+    hex = (hex || '').replace('#', '');
+    if (hex.length !== 6) return null;
+    var r = parseInt(hex.substring(0,2), 16);
+    var g = parseInt(hex.substring(2,4), 16);
+    var b = parseInt(hex.substring(4,6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
+}
+function applyTheme(hexColor) {
+    if (!hexColor) return;
+    var old = document.getElementById('theme-style');
+    if (old) old.remove();
+    var s = document.createElement('style');
+    s.id = 'theme-style';
+    s.textContent = '' +
+        '#tables-container table thead tr:first-child th:first-child{background:' + hexToRgba(hexColor, 1) + ';color:#000;border-bottom:2px solid ' + hexColor + '}' +
+        '#tables-container table thead tr:first-child th[colspan]:not(:first-child){background:' + hexToRgba(hexColor, 0.75) + '}' +
+        '#tables-container table thead tr:first-child th:not([colspan]):not(:first-child){background:' + hexToRgba(hexColor, 0.5) + '}' +
+        '#tables-container table thead tr:not(:first-child) th[colspan]{background:' + hexToRgba(hexColor, 0.75) + '}' +
+        '#tables-container table thead tr:not(:first-child) th:not([colspan]){background:' + hexToRgba(hexColor, 0.5) + '}' +
+        '#tables-container table tbody tr th[rowspan]{background:' + hexToRgba(hexColor, 0.75) + '}' +
+        '#tables-container table tbody tr th:not([rowspan]):not(.sub-cat){background:' + hexToRgba(hexColor, 0.5) + '}' +
+        '#tables-container table tbody tr th.sub-cat{background:' + hexToRgba(hexColor, 0.25) + '}' +
+        '#tables-container table tbody tr:nth-child(odd) td.valor{background:' + hexToRgba(hexColor, 0.125) + '}' +
+        '#tables-container table tbody tr:hover td.valor{background:' + hexToRgba(hexColor, 0.25) + '}' +
+        '#tables-container .total-row td.valor{background:' + hexToRgba(hexColor, 0.75) + '!important;font-weight:700}';
+    document.head.appendChild(s);
 }
 function api(path, opts) {
     opts = opts || {};
@@ -156,6 +187,12 @@ function renderTables() {
     (estado.horizontales || []).forEach(function(h) {
         if (h.padre_id) { if (!childrenOfH[h.padre_id]) childrenOfH[h.padre_id] = []; childrenOfH[h.padre_id].push(h); }
     });
+
+    // ─── Child detection maps for sub-cat styling ───
+    var isChildV = {};
+    (estado.verticales || []).forEach(function(v) { if (v.padre_id) isChildV[v.categoria_id] = true; });
+    var isChildH = {};
+    (estado.horizontales || []).forEach(function(h) { if (h.padre_id) isChildH[h.categoria_id] = true; });
 
     // ─── Parent group boundaries from original labels ───
     var parentGroups = []; // [{parentId, cell, visibleCount}]
@@ -232,7 +269,8 @@ function renderTables() {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
                     var ck = visibleH[cid] !== false ? 'checked' : '';
-                    h += '<th class="fw-semibold text-center small" style="white-space:nowrap">';
+                    var hClasses = 'fw-semibold text-center small' + (isChildH[cid] ? ' sub-cat' : '');
+                    h += '<th class="' + hClasses + '" style="white-space:nowrap">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + e(cell.nombre) + '</label>';
                     h += '</th>';
                 }
@@ -265,9 +303,12 @@ function renderTables() {
         var secData = sectionsCache[sid] ? sectionsCache[sid].data : [];
 
         visLabelRows.forEach(function(rowCells) {
-            var rowLeaf = null; rowCells.forEach(function(c) { if (c.tipo === 'leaf') rowLeaf = c; });
+            var rowLeaf = null; var rowParent = null;
+            rowCells.forEach(function(c) { if (c.tipo === 'leaf') rowLeaf = c; if (c.tipo === 'parent') rowParent = c; });
             var isRowDesel = rowLeaf && deselV[rowLeaf.categoria_id];
-            allHtml += '<tr' + (isRowDesel ? ' class="desel-row"' : '') + '>';
+            var totalName = rowLeaf ? rowLeaf.nombre : (rowParent ? rowParent.nombre : '');
+            var isTotal = /^(Total|Totales|Sumatoria)$/i.test(totalName);
+            allHtml += '<tr' + (isRowDesel ? ' class="desel-row"' : isTotal ? ' class="total-row"' : '') + '>';
             rowCells.forEach(function(cell) {
                 if (cell.tipo === 'parent') {
                     var span = parentSpan[cell.categoria_id] || 1;
@@ -284,7 +325,8 @@ function renderTables() {
                     var hasParentInRow = rowCells.some(function(c) { return c.tipo === 'parent'; });
                     var cs2 = hasParentInRow && cell.colspan ? ' colspan="' + cell.colspan + '"' : '';
                     var ck2 = visibleV[cell.categoria_id] !== false ? 'checked' : '';
-                    allHtml += '<th' + cs2 + ' class="fw-semibold text-nowrap small">';
+                    var vClasses = 'fw-semibold text-nowrap small' + (isChildV[cell.categoria_id] ? ' sub-cat' : '');
+                    allHtml += '<th' + cs2 + ' class="' + vClasses + '">';
                     allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb row-cb" data-cid="' + cell.categoria_id + '" ' + ck2 + '> ' + e(cell.nombre) + '</label>';
                     allHtml += '</th>';
                 }
@@ -442,6 +484,7 @@ function init() {
 
     function done() {
         renderTables();
+        applyTheme(estado.tema_color);
         saveStateToURL();
     }
     if (pending.length) Promise.all(pending).then(done).catch(done);
@@ -465,7 +508,7 @@ document.getElementById('btn-show-desel')?.addEventListener('click', function() 
     if (label) label.textContent = showDeselected ? 'Ocultar deselecciones' : 'Ver deselecciones';
     this.className = showDeselected
         ? 'btn btn-sm btn-outline-secondary'
-        : 'btn btn-sm btn-outline-warning';
+        : 'btn btn-sm btn-outline-success';
     renderTables();
     saveStateToURL();
 });
