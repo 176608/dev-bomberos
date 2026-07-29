@@ -78,10 +78,7 @@ class DocumentoController extends Controller
             mostrarLogo: true,
         );
 
-        $storeName = 'excel_' . uniqid() . '.xlsx';
-        Excel::store($export, $storeName);
-        $fullPath = storage_path('app/' . $storeName);
-        return response()->download($fullPath, $nombre)->deleteFileAfterSend(true);
+        return Excel::download($export, $nombre);
     }
 
     private function aplicarFiltrosDesdeUrl(array $estado, Request $request): array
