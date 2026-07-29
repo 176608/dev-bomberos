@@ -14,22 +14,12 @@ class VisorCuadroController extends Controller
         private DatasetService $datasetService,
     ) {}
 
-    private function esDesarrollador(): bool
-    {
-        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
-    }
-
     private function getUserRoleDisplay(): ?string
     {
         if (!auth()->check()) return null;
         if (auth()->user()->hasRole('Desarrollador')) return 'Desarrollador';
         if (auth()->user()->hasRole('Estadistico')) return 'Estadístico';
         return null;
-    }
-
-    private function tieneCredenciales(): bool
-    {
-        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
     }
 
     private function verificarAccesoCuadro(Cuadro $cuadro, int $id): ?array
@@ -107,7 +97,12 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
-        $path = public_path('u_pdf/' . $cuadro->pdf_file);
+        $filename = $cuadro->pdf_file;
+        if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+            abort(404);
+        }
+
+        $path = public_path('u_pdf/' . $filename);
         if (!file_exists($path)) {
             abort(404);
         }

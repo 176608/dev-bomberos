@@ -14,11 +14,6 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         private DatasetService $datasetService,
     ) {}
 
-    private function tieneCredenciales(): bool
-    {
-        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
-    }
-
     public function exportarExcel(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);

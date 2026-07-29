@@ -12,7 +12,8 @@ class DebugByRole
 
     public function handle(Request $request, Closure $next): Response
     {
-        $isDebugEnabled = auth()->check() && 
+        $isDebugEnabled = !app()->environment('production') &&
+            auth()->check() &&
             in_array(auth()->user()->role, $this->debugRoles);
 
         config(['app.debug' => $isDebugEnabled]);

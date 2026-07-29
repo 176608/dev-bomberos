@@ -8,6 +8,7 @@ use App\Models\SIGEM\AuditoriaAcceso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -26,27 +27,29 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $key = 'login:' . $request->ip();
-        
+        $email = $request->input('email');
+        $ip = $request->ip();
+
+        $key = 'login-email:' . $email;
+
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
+            Log::warning('Login bloqueado por email', compact('email', 'ip'));
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['password' => 'Demasiados intentos. Intenta de nuevo en ' . ceil($seconds / 60) . ' minuto(s).']);
         }
 
-        $email = $request->input('email');
         $user = User::where('email', $email)->first();
-        
+
         if (!$user) {
             RateLimiter::hit($key, 300);
+            Log::info('Login: usuario no encontrado', compact('email', 'ip'));
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Usuario no encontrado.']);
         }
 
-        // USUARIOS CON log_in_status = 1 o 2 (Nuevos o Cambio forzado)
-        // Redirigir directo a password-reset donde se validará el PIN
         if (in_array($user->log_in_status, [1, 2])) {
             RateLimiter::clear($key);
 
@@ -54,19 +57,15 @@ class LoginController extends Controller
                 ->with('message', 'Crea tu contraseña segura.');
         }
 
-        // USUARIOS CON log_in_status = 0 (Normal)
-        // Necesitan contraseña normal
         $request->validate([
             'password' => ['required'],
         ]);
 
-        $credentials = [
-            'email' => $email,
-            'password' => $request->input('password'),
-        ];
+        $credentials = compact('email') + ['password' => $request->input('password')];
 
         if (!Auth::attempt($credentials)) {
             RateLimiter::hit($key, 300);
+            Log::info('Login: contraseña incorrecta', compact('email', 'ip'));
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['password' => 'Contraseña incorrecta.']);
@@ -78,6 +77,7 @@ class LoginController extends Controller
 
         if (!$user->status) {
             Auth::logout();
+            Log::warning('Login: cuenta desactivada', compact('email', 'ip'));
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Tu cuenta está desactivada.']);
@@ -88,7 +88,7 @@ class LoginController extends Controller
         AuditoriaAcceso::create([
             'user_id' => $user->id,
             'accion' => 'login',
-            'ip' => $request->ip(),
+            'ip' => $ip,
         ]);
 
         return $this->redirectBasedOnRole();
@@ -97,22 +97,23 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $user = Auth::user();
+        $ip = $request->ip();
 
         if ($user) {
             AuditoriaAcceso::create([
                 'user_id' => $user->id,
                 'accion' => 'logout',
-                'ip' => $request->ip(),
+                'ip' => $ip,
             ]);
         }
 
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
-        RateLimiter::clear('login:' . $request->ip());
-        
+
+        RateLimiter::clear('login-flood:' . $ip);
+
         return redirect()->route('login')
             ->with('success', 'Sesión cerrada exitosamente')
             ->withHeaders([
@@ -128,19 +129,24 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $key = 'check-email:' . $request->ip();
-        
-        if (RateLimiter::tooManyAttempts($key, 10)) {
+        $email = $request->email;
+        $ip = $request->ip();
+
+        $key = 'check-email:' . $email;
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            Log::warning('checkEmail bloqueado por email', compact('email', 'ip'));
             return response()->json([
                 'message' => 'Demasiadas solicitudes. Intenta de nuevo más tarde.'
             ], 429);
         }
-        
-        RateLimiter::hit($key, 60);
 
-        $user = User::where('email', $request->email)->first();
+        RateLimiter::hit($key, 300);
+
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
+            Log::info('checkEmail: email no encontrado', compact('email', 'ip'));
             return response()->json([
                 'exists' => false,
                 'log_in_status' => null,

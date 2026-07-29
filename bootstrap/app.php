@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'debug.role' => \App\Http\Middleware\DebugByRole::class,
+            'login.throttle' => \App\Http\Middleware\LoginRateLimiter::class,
         ]);
         
         // Middleware global para debug por rol (se ejecuta en todas las rutas)

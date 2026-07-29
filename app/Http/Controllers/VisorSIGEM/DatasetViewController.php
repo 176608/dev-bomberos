@@ -20,11 +20,6 @@ class DatasetViewController extends Controller
         });
     }
 
-    private function esDesarrollador(): bool
-    {
-        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
-    }
-
     public function show(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);

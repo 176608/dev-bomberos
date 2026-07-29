@@ -16,10 +16,10 @@ Route::get('/hidrante-pdf/{id}', [DashboardController::class, 'generarPDF'])->na
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('login.throttle');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Rutas de registro
-Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail');
+Route::post('/login/check-email', [LoginController::class, 'checkEmail'])->name('login.checkEmail')->middleware('login.throttle');
 
 // Verificar email en el login
 Route::get('/check-session', function () {

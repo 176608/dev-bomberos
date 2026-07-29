@@ -23,11 +23,6 @@ class SIGEMV2Controller extends Controller
         });
     }
 
-    private function esDesarrollador(): bool
-    {
-        return auth()->check() && (auth()->user()->hasRole('Desarrollador') || auth()->user()->hasRole('Estadistico'));
-    }
-
     public function index()
     {
         return view('VisorSIGEM.inicio');
