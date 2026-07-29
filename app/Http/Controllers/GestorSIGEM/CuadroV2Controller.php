@@ -7,6 +7,7 @@ use App\Services\GestorSIGEM\CuadroV2Service;
 use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
+use App\Services\SecureFileUpload;
 
 class CuadroV2Controller extends Controller
 {
@@ -154,35 +155,73 @@ class CuadroV2Controller extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
-        try {
-            $secciones = $cuadro->secciones()->orderBy('orden')->get();
-            $seccionesData = [];
-            if ($secciones->isEmpty()) {
-                $estado = $this->datasetService->obtenerEstado((int) $id);
-                $seccionesData[] = [
-                    'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
-                    'estado' => $estado,
-                ];
-            } else {
-                foreach ($secciones as $sec) {
-                    $estado = $this->datasetService->obtenerEstado((int) $id, $sec->seccion_id);
+        $esMapa = $cuadro->tipo_mapa_pdf;
+        $seccionesData = [];
+
+        if (!$esMapa) {
+            try {
+                $secciones = $cuadro->secciones()->orderBy('orden')->get();
+                if ($secciones->isEmpty()) {
+                    $estado = $this->datasetService->obtenerEstado((int) $id);
                     $seccionesData[] = [
-                        'seccion' => $sec->toArray(),
+                        'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
                         'estado' => $estado,
                     ];
+                } else {
+                    foreach ($secciones as $sec) {
+                        $estado = $this->datasetService->obtenerEstado((int) $id, $sec->seccion_id);
+                        $seccionesData[] = [
+                            'seccion' => $sec->toArray(),
+                            'estado' => $estado,
+                        ];
+                    }
                 }
+            } catch (\RuntimeException) {
+                return redirect()->route('sgiem.admin.cuadros.index')
+                    ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de gestionar el documento.');
             }
-        } catch (\RuntimeException) {
-            return redirect()->route('sgiem.admin.cuadros.index')
-                ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de gestionar el documento.');
+        }
+
+        $pdfUrl = null;
+        if ($cuadro->pdf_file) {
+            $pdfPath = public_path('u_pdf/' . $cuadro->pdf_file);
+            if (file_exists($pdfPath)) {
+                $pdfUrl = asset('u_pdf/' . $cuadro->pdf_file);
+            }
         }
 
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.documento_manage',
             'cuadro' => $cuadro,
             'seccionesData' => $seccionesData,
-            'pageTitle' => 'Excel ' . $cuadro->codigo_cuadro,
+            'esMapa' => $esMapa,
+            'pdfUrl' => $pdfUrl,
+            'pageTitle' => ($esMapa ? 'Mapa' : 'Excel') . ' ' . $cuadro->codigo_cuadro,
         ]);
+    }
+
+    public function uploadPdf($id, Request $request, SecureFileUpload $fileUploader)
+    {
+        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
+
+        if (!$cuadro) {
+            return redirect()->route('sgiem.admin.cuadros.index')
+                ->with('error', 'Cuadro no encontrado.');
+        }
+
+        $request->validate([
+            'pdf_file' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $filename = $fileUploader->uploadPDF(
+            $request->file('pdf_file'),
+            $cuadro->pdf_file
+        );
+
+        $cuadro->actualizar(['pdf_file' => $filename]);
+
+        return redirect()->route('sgiem.admin.cuadros.documento', $id)
+            ->with('success', 'PDF ' . ($cuadro->pdf_file ? 'actualizado' : 'cargado') . ' correctamente.');
     }
 
     public function exportarDocumento($id)
@@ -192,6 +231,11 @@ class CuadroV2Controller extends Controller
         if (!$cuadro) {
             return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'Cuadro no encontrado.');
+        }
+
+        if ($cuadro->tipo_mapa_pdf) {
+            return redirect()->route('sgiem.admin.cuadros.documento', $id)
+                ->with('error', 'Los cuadros tipo mapa no tienen exportación Excel.');
         }
 
         try {

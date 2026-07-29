@@ -97,14 +97,13 @@
     }
 @endphp
 
-@if($secIdx > 0)
-<table><tr><td colspan="100" style="height:10px"></td></tr></table>
-@endif
-
 @if(count($seccionesData) > 1)
-<table>
-    <tr><td colspan="100" style="font-size:11pt;font-weight:bold;color:#333;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
-</table>
+    @if($secIdx > 0)
+    <table><tr><td colspan="100" style="border-top:1px solid #999;height:4px"></td></tr></table>
+    @endif
+    <table>
+        <tr><td colspan="100" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
+    </table>
 @endif
 
 <table>

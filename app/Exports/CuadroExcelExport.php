@@ -11,7 +11,7 @@ use Illuminate\Contracts\View\View;
 
 class CuadroExcelExport implements FromView, ShouldAutoSize, WithTitle, WithDrawings
 {
-    private const LOGO_PATH = 'imagenes/logoadmin.png';
+    private const LOGO_PATH = 'imagenes/IMIP_icon_text.png';
 
     public function __construct(
         private string $codigoCuadro,
@@ -48,7 +48,7 @@ class CuadroExcelExport implements FromView, ShouldAutoSize, WithTitle, WithDraw
         $drawing->setName('Logo');
         $drawing->setDescription('Logo');
         $drawing->setPath($path);
-        $drawing->setHeight(45);
+        $drawing->setHeight(90);
         $drawing->setCoordinates('A1');
 
         return [$drawing];

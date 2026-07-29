@@ -23,7 +23,8 @@ class Cuadro extends Model
         'cabecera_gen',
         'piepagina_gen',
         'pie_pagina',
-        'pivot_label'
+        'pivot_label',
+        'pdf_file'
     ];
 
     protected $casts = [

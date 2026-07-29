@@ -160,10 +160,10 @@
                                         </a>
                                     @endif
 
-                                    {{-- Gestor de Documentos — solo si tiene dataset --}}
-                                    @if($tieneDS)
+                                    {{-- Gestor de Documentos — dataset normal o mapa PDF --}}
+                                    @if($tieneDS || $esMapa)
                                         <a href="{{ route('sgiem.admin.cuadros.documento', $cuadro->cuadro_id) }}"
-                                           class="btn btn-outline-primary btn-sm"
+                                           class="btn btn-outline-{{ $esMapa ? 'danger' : 'success' }} btn-sm"
                                            title="Gestionar Documento">
                                             <i class="bi bi-file-earmark-text"></i> Documento
                                         </a>
