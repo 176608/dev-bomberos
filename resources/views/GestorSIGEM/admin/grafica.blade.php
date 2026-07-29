@@ -72,7 +72,7 @@
         </div>
         <div style="flex:1;min-width:0">
             <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
-            <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div>
+            {{-- <div id="chart-debug" class="mt-2 small" style="display:none;background:#1e1e1e;color:#d4d4d4;font-family:Consolas,monospace;padding:0.6rem;border-radius:6px;white-space:pre-wrap;overflow-x:auto;max-height:250px;overflow-y:auto"></div> --}}
         </div>
     </div>
 
@@ -330,8 +330,8 @@ function renderChart(tipo) {
     if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }
     if (!tipo) return;
     if (!estado.verticales?.length || !estado.horizontales?.length) {
-        var dbg = document.getElementById('chart-debug');
-        if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; }
+        /* var dbg = document.getElementById('chart-debug');
+        if (dbg) { dbg.style.display = 'block'; dbg.textContent = 'No hay datos para graficar (0 filas o 0 columnas)'; } */
         return;
     }
 
@@ -385,6 +385,7 @@ function renderChart(tipo) {
     }
 }
 
+/*
 function updateChartDebug() {
     var el = document.getElementById('chart-debug');
     if (!el) return;
@@ -422,6 +423,7 @@ function updateChartDebug() {
         + 'Secciones cacheadas: ' + Object.keys(sectionsCache).join(', ') + '\n'
         + 'chartData = ' + chartDataStr;
 }
+*/
 
 function renderCategoryPanel() {
     var container = document.getElementById('panel-items');
@@ -533,7 +535,7 @@ function renderCategoryPanel() {
             }
             syncTodoCheckboxes();
             renderChart(document.getElementById('select-tipo-grafica').value);
-            updateChartDebug();
+            // updateChartDebug();
             updateEjeHelper();
             saveStateToURL();
         });
@@ -560,7 +562,7 @@ function renderCategoryPanel() {
                 visMap2[parseInt(pcb.dataset.id)] = on;
             });
             renderChart(document.getElementById('select-tipo-grafica').value);
-            updateChartDebug();
+            // updateChartDebug();
             updateEjeHelper();
             saveStateToURL();
         });
@@ -830,7 +832,7 @@ function initGraficaPage() {
         enforceSingleSection(document.getElementById('select-tipo-grafica').value);
         renderChart(document.getElementById('select-tipo-grafica').value);
         updateEjeHelper();
-        updateChartDebug();
+        // updateChartDebug();
         saveStateToURL();
         document.getElementById('chart-panel').style.display = 'block';
     }
@@ -872,7 +874,7 @@ if (selectTipoGrafica) {
     selectTipoGrafica.addEventListener('change', function() {
         enforceSingleSection(this.value);
         renderChart(this.value);
-        updateChartDebug();
+        // updateChartDebug();
         saveStateToURL();
     });
 }
@@ -910,7 +912,7 @@ document.getElementById('btn-cerrar-panel')?.addEventListener('click', function(
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
     chartAxis = this.checked ? 'horizontal' : 'vertical';
     renderChart(selectTipoGrafica.value);
-    updateChartDebug();
+    // updateChartDebug();
     updateEjeHelper();
     saveStateToURL();
 });
@@ -949,7 +951,7 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
                     var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
                     sectionsCache[sid] = { nombre: sName, data: j.data.data || [] };
                     renderChart(selectTipoGrafica.value);
-                    updateChartDebug();
+                    // updateChartDebug();
                     updateEjeHelper();
                     saveStateToURL();
                     status('Sección: ' + (sName || sid) + ' cargada');
@@ -973,7 +975,7 @@ document.getElementById('panel-items')?.addEventListener('change', function(e) {
             });
     } else {
         renderChart(selectTipoGrafica.value);
-        updateChartDebug();
+        // updateChartDebug();
         updateEjeHelper();
         saveStateToURL();
     }

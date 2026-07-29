@@ -256,7 +256,7 @@
         </div>
     </div>
 <!-- Pie de página del cuadro -->
-<div class="card mt-3 border shadow-sm">
+<div class="card mt-3 border shadow-sm" id="pp-card">
     <div class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
         <strong class="small"><i class="bi bi-journal-text me-1"></i>Pie de página</strong>
         <div class="btn-group btn-group-sm">
@@ -336,6 +336,9 @@
 .mode-datos .datos-only { display: inline-flex !important; }
 .mode-diseno .datos-only { display: none !important; }
 .mode-diseno .edit-only { display: inline-flex !important; }
+
+#pp-card { display: none; }
+.mode-datos #pp-card { display: block; }
 
 /* Data cells right-aligned in datos mode */
 .mode-datos #dataset-table td[data-vertical-id] > div { text-align: right; }
