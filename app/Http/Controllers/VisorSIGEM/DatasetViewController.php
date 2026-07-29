@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\VisorSIGEM;
 
+use App\Models\SIGEM\Cuadro;
 use App\Services\VisorSIGEM\DatasetViewService;
 
 class DatasetViewController extends Controller
@@ -26,6 +27,11 @@ class DatasetViewController extends Controller
 
     public function show(int $id)
     {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if ($cuadro && $cuadro->tipo_mapa_pdf) {
+            return redirect()->route('sigem.v2.cuadro.mapa', $id);
+        }
+
         $data = $this->datasetViewService->datosCuadro($id, $this->esDesarrollador());
         if (!$data) {
             abort(404);

@@ -27,6 +27,8 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
         Route::get('/grafica', [VisorCuadroController::class, 'grafica'])->name('grafica');
         Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data');
         Route::get('/exportar/excel', [DocumentoController::class, 'exportarExcel'])->name('exportar.excel');
+        Route::get('/mapa', [VisorCuadroController::class, 'mapa'])->name('mapa');
+        Route::get('/mapa/descargar', [VisorCuadroController::class, 'descargarMapa'])->name('mapa.descargar');
     });
 
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {

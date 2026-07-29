@@ -22,6 +22,11 @@ class DocumentoController extends Controller
             abort(404);
         }
 
+        if ($cuadro->tipo_mapa_pdf) {
+            return redirect()->route('sigem.v2.cuadro.mapa', $id)
+                ->with('error', 'Los cuadros tipo mapa no tienen exportación Excel.');
+        }
+
         $todo = $request->boolean('todo', false);
 
         $secciones = $cuadro->secciones()->orderBy('orden')->get();

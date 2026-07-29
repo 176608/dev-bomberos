@@ -34,6 +34,10 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
+        if ($cuadro->tipo_mapa_pdf) {
+            return redirect()->route('sigem.v2.cuadro.mapa', $id);
+        }
+
         $estadoInicial = $this->cachedEstado($id);
 
         return view('VisorSIGEM.cuadro.dataset', [
@@ -41,6 +45,47 @@ class VisorCuadroController extends Controller
             'estadoInicial' => $estadoInicial,
             'esDesarrollador' => $this->esDesarrollador(),
             'userRoleDisplay' => $this->getUserRoleDisplay(),
+        ]);
+    }
+
+    public function mapa(int $id)
+    {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if (!$cuadro || !$cuadro->publicado) {
+            abort(404);
+        }
+        if (!$cuadro->tipo_mapa_pdf) {
+            return redirect()->route('sigem.v2.cuadro.dataset', $id);
+        }
+
+        return view('VisorSIGEM.cuadro.mapa', [
+            'cuadro' => $cuadro,
+            'esDesarrollador' => $this->esDesarrollador(),
+            'userRoleDisplay' => $this->getUserRoleDisplay(),
+        ]);
+    }
+
+    public function descargarMapa(int $id)
+    {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if (!$cuadro || !$cuadro->publicado) {
+            abort(404);
+        }
+        if (!$cuadro->tipo_mapa_pdf || !$cuadro->pdf_file) {
+            abort(404);
+        }
+
+        $path = public_path('u_pdf/' . $cuadro->pdf_file);
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        $fecha = now()->format('d_m_Y');
+        $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.pdf';
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $nombre . '"',
         ]);
     }
 
