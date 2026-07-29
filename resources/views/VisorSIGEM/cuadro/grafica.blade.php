@@ -754,9 +754,16 @@ document.getElementById('btn-toggle-config')?.addEventListener('click', function
 document.getElementById('btn-download-png')?.addEventListener('click', function() {
     var canvas = document.getElementById('chart-canvas');
     if (!canvas) return;
+    var tmp = document.createElement('canvas');
+    tmp.width = canvas.width;
+    tmp.height = canvas.height;
+    var ctx = tmp.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, tmp.width, tmp.height);
+    ctx.drawImage(canvas, 0, 0);
     var link = document.createElement('a');
     link.download = 'grafica_' + CUADRO_ID + '.png';
-    link.href = canvas.toDataURL('image/png');
+    link.href = tmp.toDataURL('image/png');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
