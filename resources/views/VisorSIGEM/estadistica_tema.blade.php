@@ -357,11 +357,9 @@
                             <div class="cuadros-lista">
                                 @foreach($cuadros as $cuadro)
                                     @php
-                                        $targetUrl = (!$cuadro['publicado'] && $esDesarrollador)
-                                            ? route('sigem.v2.cuadro.show', $cuadro['cuadro_id'])
-                                            : (!empty($cuadro['tipo_mapa_pdf'])
-                                                ? route('sigem.v2.cuadro.mapa', $cuadro['cuadro_id'])
-                                                : route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']));
+                                        $targetUrl = !empty($cuadro['tipo_mapa_pdf'])
+                                            ? route('sigem.v2.cuadro.mapa', $cuadro['cuadro_id'])
+                                            : route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']);
                                     @endphp
                                     <a href="{{ $targetUrl }}" target="_blank"
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
