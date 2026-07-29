@@ -53,6 +53,10 @@
         </div>
     </div>
 
+    @if($cuadro->pie_pagina)
+    <div class="mt-3 small text-muted pie-pagina">{!! $cuadro->pie_pagina !!}</div>
+    @endif
+
     <div class="card-footer py-1 px-0 d-flex justify-content-between align-items-center mt-2" id="status-bar">
         <small id="status-text"></small>
     </div>
@@ -69,6 +73,7 @@
 #status-bar .badge { font-size: 0.7rem; }
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
+.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; }
 </style>
 @endsection
 

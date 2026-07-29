@@ -14,11 +14,13 @@
             </small>
         </div>
         <div class="d-flex gap-2">
+            @if($cuadro->permite_grafica)
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
                class="btn btn-outline-success btn-sm" id="link-to-grafica"
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
+            @endif
         </div>
     </div>
 
@@ -41,6 +43,9 @@
 
     <div>
         <div id="tables-container"></div>
+        @if($cuadro->pie_pagina)
+        <div class="mt-3 small text-muted pie-pagina">{!! $cuadro->pie_pagina !!}</div>
+        @endif
     </div>
 
     <div class="card-footer py-1 px-0 d-flex justify-content-between align-items-center mt-2" id="status-bar">
@@ -68,6 +73,7 @@
 #tables-container .desel-row th { opacity:0.5; }
 #tables-container .total-row td.valor { font-weight:700; }
 #tables-container table tbody tr:hover td.valor { background:#f0f0f0; }
+.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; }
 </style>
 @endsection
 
@@ -107,13 +113,17 @@ function esc(s) {
 function e(s) {
     return esc(s).replace(/\n/g, '<br>');
 }
-function hexToRgba(hex, opacity) {
+function hexToIntensity(hex, intensity) {
     hex = (hex || '').replace('#', '');
     if (hex.length !== 6) return null;
     var r = parseInt(hex.substring(0,2), 16);
     var g = parseInt(hex.substring(2,4), 16);
     var b = parseInt(hex.substring(4,6), 16);
-    return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
+    var mix = 1 - intensity;
+    r = Math.round(r * intensity + 255 * mix);
+    g = Math.round(g * intensity + 255 * mix);
+    b = Math.round(b * intensity + 255 * mix);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
 }
 function applyTheme(hexColor) {
     if (!hexColor) return;
@@ -121,18 +131,23 @@ function applyTheme(hexColor) {
     if (old) old.remove();
     var s = document.createElement('style');
     s.id = 'theme-style';
+    var bg75 = hexToIntensity(hexColor, 0.75);
+    var bg50 = hexToIntensity(hexColor, 0.5);
+    var bg25 = hexToIntensity(hexColor, 0.25);
+    var bg125 = hexToIntensity(hexColor, 0.125);
+    var bg60 = hexToIntensity(hexColor, 0.6);
     s.textContent = '' +
-        '#tables-container table thead tr:first-child th:first-child{background:' + hexToRgba(hexColor, 1) + ';color:#000;border-bottom:2px solid ' + hexColor + '}' +
-        '#tables-container table thead tr:first-child th[colspan]:not(:first-child){background:' + hexToRgba(hexColor, 0.75) + '}' +
-        '#tables-container table thead tr:first-child th:not([colspan]):not(:first-child){background:' + hexToRgba(hexColor, 0.5) + '}' +
-        '#tables-container table thead tr:not(:first-child) th[colspan]{background:' + hexToRgba(hexColor, 0.75) + '}' +
-        '#tables-container table thead tr:not(:first-child) th:not([colspan]){background:' + hexToRgba(hexColor, 0.5) + '}' +
-        '#tables-container table tbody tr th[rowspan]{background:' + hexToRgba(hexColor, 0.75) + '}' +
-        '#tables-container table tbody tr th:not([rowspan]):not(.sub-cat){background:' + hexToRgba(hexColor, 0.5) + '}' +
-        '#tables-container table tbody tr th.sub-cat{background:' + hexToRgba(hexColor, 0.25) + '}' +
-        '#tables-container table tbody tr:nth-child(odd) td.valor{background:' + hexToRgba(hexColor, 0.125) + '}' +
-        '#tables-container table tbody tr:hover td.valor{background:' + hexToRgba(hexColor, 0.25) + '}' +
-        '#tables-container .total-row td.valor{background:' + hexToRgba(hexColor, 0.75) + '!important;font-weight:700}';
+        '#tables-container table thead tr:first-child th:first-child{background:' + hexToIntensity(hexColor, 1) + ';color:#fff;border-bottom:2px solid ' + hexColor + '}' +
+        '#tables-container table thead tr:first-child th[colspan]:not(:first-child){background:' + bg75 + '}' +
+        '#tables-container table thead tr:first-child th:not([colspan]):not(:first-child){background:' + bg50 + '}' +
+        '#tables-container table thead tr:not(:first-child) th[colspan]{background:' + bg75 + '}' +
+        '#tables-container table thead tr:not(:first-child) th:not([colspan]){background:' + bg50 + '}' +
+        '#tables-container table tbody tr th[rowspan]{background:' + bg75 + '}' +
+        '#tables-container table tbody tr th:not([rowspan]):not(.sub-cat){background:' + bg50 + '}' +
+        '#tables-container table tbody tr th.sub-cat{background:' + bg25 + '}' +
+        '#tables-container table tbody tr:nth-child(odd) td.valor{background:' + bg125 + '}' +
+        '#tables-container table tbody tr:hover td.valor{background:' + bg50 + '}' +
+        '#tables-container .total-row td.valor{background:' + bg60 + '!important;font-weight:700}';
     document.head.appendChild(s);
 }
 function api(path, opts) {

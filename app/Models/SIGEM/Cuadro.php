@@ -22,6 +22,7 @@ class Cuadro extends Model
         'tipos_grafica_permitida',
         'cabecera_gen',
         'piepagina_gen',
+        'pie_pagina',
         'pivot_label'
     ];
 
