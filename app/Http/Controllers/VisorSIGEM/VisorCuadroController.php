@@ -22,14 +22,14 @@ class VisorCuadroController extends Controller
         return null;
     }
 
-    protected function verificarAccesoCuadro(Cuadro $cuadro, int $id): ?array
+    protected function verificarAccesoCuadro(Cuadro $cuadro): ?array
     {
         if ($cuadro->publicado) return null;
         if (!$this->tieneCredenciales()) {
             abort(404);
         }
         try {
-            $this->datasetService->obtenerEstado($id);
+            $this->datasetService->obtenerEstado($cuadro->cuadro_id);
             return null;
         } catch (\RuntimeException) {
             return ['error' => 'El cuadro seleccionado no tiene un dataset asociado.'];
@@ -49,7 +49,7 @@ class VisorCuadroController extends Controller
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
 
-        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        $error = $this->verificarAccesoCuadro($cuadro);
         if ($error) return $this->responderError($error['error']);
 
         if ($cuadro->tipo_mapa_pdf) {
@@ -71,7 +71,7 @@ class VisorCuadroController extends Controller
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
 
-        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        $error = $this->verificarAccesoCuadro($cuadro);
         if ($error) return $this->responderError($error['error']);
 
         if (!$cuadro->tipo_mapa_pdf) {
@@ -90,7 +90,7 @@ class VisorCuadroController extends Controller
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
 
-        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        $error = $this->verificarAccesoCuadro($cuadro);
         if ($error) return $this->responderError($error['error']);
 
         if (!$cuadro->tipo_mapa_pdf || !$cuadro->pdf_file) {
@@ -121,7 +121,7 @@ class VisorCuadroController extends Controller
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
 
-        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        $error = $this->verificarAccesoCuadro($cuadro);
         if ($error) return $this->responderError($error['error']);
 
         $estadoInicial = $this->cachedEstado($id);
@@ -141,7 +141,7 @@ class VisorCuadroController extends Controller
             return response()->json(['error' => 'Cuadro no encontrado'], 404);
         }
 
-        $error = $this->verificarAccesoCuadro($cuadro, $id);
+        $error = $this->verificarAccesoCuadro($cuadro);
         if ($error) return response()->json($error, 404);
 
         $cacheKey = "visor_cuadro_{$id}_seccion_{$seccion}";
