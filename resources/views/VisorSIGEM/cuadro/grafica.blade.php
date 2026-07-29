@@ -15,38 +15,49 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-info btn-sm" id="link-to-dataset"
+               class="btn btn-outline-success btn-sm" id="link-to-dataset"
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
-                <i class="bi bi-table me-1"></i> Dataset
+                <i class="bi bi-table me-1"></i> Volver al Cuadro
             </a>
         </div>
     </div>
 
-    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-        <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-        <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
-            <i class="bi bi-list-check"></i> Categorías
-        </button>
+    <div class="row mb-2 align-items-start" id="top-controls">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
+                <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-panel" title="Mostrar/ocultar paneles de categorías">
+                    <i class="bi bi-list-check"></i> <span id="btn-toggle-text">Esconder categorías</span>
+                </button>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <label class="small text-muted mb-0">Secciones</label>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
+                    <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
+                </div>
+            </div>
+            <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
+            <div id="panel-sections" class="small mt-1"></div>
+        </div>
+        <div class="col-md-8">
+            <div id="panel-horizontal" class="border rounded p-2" style="overflow-y:auto;max-height:220px;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías Horizontales</small>
+                    <button type="button" class="btn-close btn-sm" id="btn-cerrar-horizontal" aria-label="Cerrar"></button>
+                </div>
+                <div id="panel-horizontal-items" class="small"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex gap-2">
-        <div id="chart-panel" class="border rounded p-2" style="width:240px;flex-shrink:0;overflow-y:auto;max-height:500px;display:none">
+    <div class="d-flex gap-2" id="main-chart-area">
+        <div id="panel-vertical" class="border rounded p-2" style="width:240px;flex-shrink:0;overflow-y:auto;max-height:500px;">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías</small>
-                <button type="button" class="btn-close btn-sm" id="btn-cerrar-panel" aria-label="Cerrar panel"></button>
+                <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías Verticales</small>
+                <button type="button" class="btn-close btn-sm" id="btn-cerrar-vertical" aria-label="Cerrar"></button>
             </div>
-            <div class="mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <label class="small text-muted mb-0">Eje X</label>
-                    <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
-                        <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
-                    </div>
-                </div>
-                <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
-            </div>
-            <hr class="my-1">
-            <div id="panel-items" class="small"></div>
+            <div id="panel-vertical-items" class="small"></div>
         </div>
         <div style="flex:1;min-width:0">
             <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
@@ -64,12 +75,11 @@
 </div>
 
 <style>
-#chart-panel label.checked { font-weight:600; }
-#chart-panel .panel-parent { cursor:pointer; user-select:none; }
-#chart-panel .panel-parent:hover { background:#f0f2f5; border-radius:2px; }
-#chart-panel .panel-child { padding-left:1.2rem; }
-#chart-panel .panel-child label { cursor:pointer; }
-#chart-panel .panel-child label:hover { color:var(--bs-primary); }
+.panel-parent { cursor:pointer; user-select:none; }
+.panel-parent:hover { background:#f0f2f5; border-radius:2px; }
+.panel-child { padding-left:1.2rem; }
+.panel-child label { cursor:pointer; }
+.panel-child label:hover { color:var(--bs-primary); }
 #status-bar .badge { font-size: 0.7rem; }
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
@@ -360,100 +370,83 @@ function renderChart(tipo) {
     }
 }
 
-function renderCategoryPanel() {
-    var container = document.getElementById('panel-items');
+function renderCategoryPanelAxis(container, leaves, layers, axis) {
     if (!container) return;
-    var html = '';
+    var visMap = axis === 'vertical' ? visibleV : visibleH;
+    var allIds = (leaves || []).map(function(l) { return l.categoria_id; });
+    var allVisible = allIds.length > 0 && allIds.every(function(id) { return visMap[id] !== false; });
+    var anyVisible = allIds.some(function(id) { return visMap[id] !== false; });
 
-    html += '<div class="mb-2"><label class="small text-muted fw-semibold">Secciones</label></div>';
-    (estado.secciones || []).forEach(function(s) {
-        var isChecked = selectedSections[s.seccion_id] !== false;
-        var loading = !sectionsCache[s.seccion_id] && isChecked;
+    var html = '';
+    html += '<div class="mb-1 mt-1">';
+    html += '<label style="cursor:pointer;font-weight:600" class="small">';
+    html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
+    html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
+        + (axis === 'vertical' ? 'Todas las verticales' : 'Todas las horizontales');
+    html += '</label></div>';
+    var parentIds = {}, parentToChildren = {};
+    (leaves || []).forEach(function(l) {
+        if (l.padre_id) {
+            parentIds[l.padre_id] = true;
+            if (!parentToChildren[l.padre_id]) parentToChildren[l.padre_id] = [];
+            parentToChildren[l.padre_id].push(l);
+        }
+    });
+    var parentNames = {};
+    (layers || []).forEach(function(row) {
+        (row || []).forEach(function(cell) {
+            if (cell.tipo === 'parent' && parentIds[cell.categoria_id])
+                parentNames[cell.categoria_id] = cell.nombre;
+        });
+    });
+    Object.keys(parentToChildren).forEach(function(pid) {
+        pid = parseInt(pid);
+        var pName = parentNames[pid] || ('ID ' + pid);
+        var children = parentToChildren[pid] || [];
+        if (visMap[pid] === undefined) {
+            visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
+        }
+        var visKids = children.filter(function(ch) { return visMap[ch.categoria_id] !== false; });
+        var allVis = visKids.length === children.length;
+        var someVis = visKids.length > 0;
+        var isChecked = visMap[pid] !== false;
         var checked = isChecked ? 'checked' : '';
-        html += '<div class="panel-child mb-1">';
+        html += '<div class="panel-parent">';
+        html += '<label style="cursor:pointer;font-weight:600">';
+        html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
+        html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
+        html += '</label></div>';
+        children.forEach(function(ch) {
+            var childChecked = visMap[ch.categoria_id] !== false;
+            var chk = childChecked ? 'checked' : '';
+            html += '<div class="panel-child" style="padding-left:1.5rem">';
+            html += '<label style="cursor:pointer">';
+            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
+            html += esc(ch.nombre);
+            html += '</label></div>';
+        });
+    });
+    var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
+    flatLeaves.forEach(function(l) {
+        var isChecked = visMap[l.categoria_id] !== false;
+        var checked = isChecked ? 'checked' : '';
+        html += '<div class="panel-child" style="padding-left:0.3rem">';
         html += '<label style="cursor:pointer">';
-        html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + checked + '>';
-        if (loading) html += '<span class="spinner-border spinner-border-sm me-1" role="status"></span>';
-        html += esc(s.nombre);
+        html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
+        html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
         html += '</label></div>';
     });
-    html += '<hr class="my-1">';
+    if (!Object.keys(parentToChildren).length && !flatLeaves.length)
+        html += '<small class="text-muted">(sin categorías)</small>';
 
-    function buildAxisTree(leaves, layers, axis) {
-        var visMap = axis === 'vertical' ? visibleV : visibleH;
-        var allIds = (leaves || []).map(function(l) { return l.categoria_id; });
-        var allVisible = allIds.length > 0 && allIds.every(function(id) { return visMap[id] !== false; });
-        var anyVisible = allIds.some(function(id) { return visMap[id] !== false; });
-
-        html += '<div class="mb-1 mt-1">';
-        html += '<label style="cursor:pointer;font-weight:600" class="small">';
-        html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
-        html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
-            + (axis === 'vertical' ? 'Verticales' : 'Horizontales');
-        html += '</label></div>';
-        var parentIds = {}, parentToChildren = {};
-        (leaves || []).forEach(function(l) {
-            if (l.padre_id) {
-                parentIds[l.padre_id] = true;
-                if (!parentToChildren[l.padre_id]) parentToChildren[l.padre_id] = [];
-                parentToChildren[l.padre_id].push(l);
-            }
-        });
-        var parentNames = {};
-        (layers || []).forEach(function(row) {
-            (row || []).forEach(function(cell) {
-                if (cell.tipo === 'parent' && parentIds[cell.categoria_id])
-                    parentNames[cell.categoria_id] = cell.nombre;
-            });
-        });
-        Object.keys(parentToChildren).forEach(function(pid) {
-            pid = parseInt(pid);
-            var pName = parentNames[pid] || ('ID ' + pid);
-            var children = parentToChildren[pid] || [];
-            if (visMap[pid] === undefined) {
-                visMap[pid] = children.some(function(ch) { return visMap[ch.categoria_id] !== false; });
-            }
-            var visKids = children.filter(function(ch) { return visMap[ch.categoria_id] !== false; });
-            var allVis = visKids.length === children.length;
-            var someVis = visKids.length > 0;
-            var isChecked = visMap[pid] !== false;
-            var checked = isChecked ? 'checked' : '';
-            html += '<div class="panel-parent">';
-            html += '<label style="cursor:pointer;font-weight:600">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
-            html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
-            html += '</label></div>';
-            children.forEach(function(ch) {
-                var childChecked = visMap[ch.categoria_id] !== false;
-                var chk = childChecked ? 'checked' : '';
-                html += '<div class="panel-child" style="padding-left:1.5rem">';
-                html += '<label style="cursor:pointer">';
-                html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
-                html += esc(ch.nombre);
-                html += '</label></div>';
-            });
-        });
-        var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
-        flatLeaves.forEach(function(l) {
-            var isChecked = visMap[l.categoria_id] !== false;
-            var checked = isChecked ? 'checked' : '';
-            html += '<div class="panel-child" style="padding-left:0.3rem">';
-            html += '<label style="cursor:pointer">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
-            html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
-            html += '</label></div>';
-        });
-        if (!Object.keys(parentToChildren).length && !flatLeaves.length)
-            html += '<small class="text-muted">(sin categorías)</small>';
-    }
-
-    buildAxisTree(estado.verticales, estado.labels, 'vertical');
-    html += '<hr class="my-1">';
-    buildAxisTree(estado.horizontales, estado.headers, 'horizontal');
     container.innerHTML = html;
 
     container.querySelectorAll('.cat-check[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
-    syncTodoCheckboxes();
+    syncTodoCheckboxes(container);
+    setupCategoryCheckboxListeners(container);
+}
+
+function setupCategoryCheckboxListeners(container) {
     container.querySelectorAll('.cat-check').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var axis = this.dataset.axis;
@@ -463,16 +456,15 @@ function renderCategoryPanel() {
             visMap[id] = this.checked;
 
             if (parent) {
-                updateParentCheckState(axis, parent);
+                updateParentCheckState(container, axis, parent);
             } else {
                 container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + id + '"]').forEach(function(ch) {
                     ch.checked = this.checked;
                     visMap[parseInt(ch.dataset.id)] = this.checked;
                 }, this);
             }
-            syncTodoCheckboxes();
+            syncTodoCheckboxes(container);
             renderChart(document.getElementById('select-tipo-grafica').value);
-
             updateEjeHelper();
             saveStateToURL();
         });
@@ -497,15 +489,13 @@ function renderCategoryPanel() {
                 visMap2[parseInt(pcb.dataset.id)] = on;
             });
             renderChart(document.getElementById('select-tipo-grafica').value);
-
             updateEjeHelper();
             saveStateToURL();
         });
     });
 }
 
-function updateParentCheckState(axis, parentId) {
-    var container = document.getElementById('panel-items');
+function updateParentCheckState(container, axis, parentId) {
     if (!container) return;
     var children = container.querySelectorAll('.cat-check[data-axis="' + axis + '"][data-parent="' + parentId + '"]');
     var allChecked = true, anyChecked = false;
@@ -532,8 +522,7 @@ function updateParentCheckState(axis, parentId) {
     }
 }
 
-function syncTodoCheckboxes() {
-    var container = document.getElementById('panel-items');
+function syncTodoCheckboxes(container) {
     if (!container) return;
     container.querySelectorAll('.todo-check').forEach(function(cb) {
         var axis = cb.dataset.axis;
@@ -549,9 +538,41 @@ function syncTodoCheckboxes() {
     });
 }
 
+function renderSections() {
+    var container = document.getElementById('panel-sections');
+    if (!container) return;
+    var html = '';
+    (estado.secciones || []).forEach(function(s) {
+        var isChecked = selectedSections[s.seccion_id] !== false;
+        var loading = !sectionsCache[s.seccion_id] && isChecked;
+        var checked = isChecked ? 'checked' : '';
+        html += '<div class="panel-child mb-1">';
+        html += '<label style="cursor:pointer">';
+        html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + checked + '>';
+        if (loading) html += '<span class="spinner-border spinner-border-sm me-1" role="status"></span>';
+        html += esc(s.nombre);
+        html += '</label></div>';
+    });
+    container.innerHTML = html;
+}
+
+function renderVerticalPanel() {
+    renderCategoryPanelAxis(
+        document.getElementById('panel-vertical-items'),
+        estado.verticales, estado.labels, 'vertical'
+    );
+}
+
+function renderHorizontalPanel() {
+    renderCategoryPanelAxis(
+        document.getElementById('panel-horizontal-items'),
+        estado.horizontales, estado.headers, 'horizontal'
+    );
+}
+
 function enforceSingleSection(tipo) {
     var isSingle = multiSectionUnsupported.indexOf(tipo) >= 0;
-    var container = document.getElementById('panel-items');
+    var container = document.getElementById('panel-sections');
     if (!container) return;
     if (isSingle) {
         var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
@@ -689,12 +710,13 @@ function initGraficaPage() {
                 selTipo.value = window._urlTipo;
             }
         }
-        renderCategoryPanel();
+        renderSections();
+        renderVerticalPanel();
+        renderHorizontalPanel();
         enforceSingleSection(document.getElementById('select-tipo-grafica').value);
         renderChart(document.getElementById('select-tipo-grafica').value);
         updateEjeHelper();
         saveStateToURL();
-        document.getElementById('chart-panel').style.display = 'block';
     }
 
     if (pendingLoads.length) {
@@ -717,16 +739,43 @@ document.getElementById('switch-invertir-ejes')?.addEventListener('change', func
     saveStateToURL();
 });
 
+function updateToggleButtonText() {
+    var hPanel = document.getElementById('panel-horizontal');
+    var vPanel = document.getElementById('panel-vertical');
+    var hVisible = hPanel && hPanel.style.display !== 'none';
+    var vVisible = vPanel && vPanel.style.display !== 'none';
+    var textEl = document.getElementById('btn-toggle-text');
+    if (!textEl) return;
+    if (hVisible || vVisible) {
+        textEl.textContent = 'Esconder categorías';
+    } else {
+        textEl.textContent = 'Ver categorías';
+    }
+}
+
 document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
-    var panel = document.getElementById('chart-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    var hPanel = document.getElementById('panel-horizontal');
+    var vPanel = document.getElementById('panel-vertical');
+    var isVisible = (hPanel && hPanel.style.display !== 'none') || (vPanel && vPanel.style.display !== 'none');
+    var newDisplay = isVisible ? 'none' : 'block';
+    if (hPanel) hPanel.style.display = newDisplay;
+    if (vPanel) vPanel.style.display = newDisplay;
+    updateToggleButtonText();
 });
 
-document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
-    document.getElementById('chart-panel').style.display = 'none';
+document.getElementById('btn-cerrar-horizontal')?.addEventListener('click', function() {
+    var el = document.getElementById('panel-horizontal');
+    if (el) el.style.display = 'none';
+    updateToggleButtonText();
 });
 
-document.getElementById('panel-items')?.addEventListener('change', function(e) {
+document.getElementById('btn-cerrar-vertical')?.addEventListener('click', function() {
+    var el = document.getElementById('panel-vertical');
+    if (el) el.style.display = 'none';
+    updateToggleButtonText();
+});
+
+document.getElementById('panel-sections')?.addEventListener('change', function(e) {
     var cb = e.target;
     if (!cb.classList.contains('sec-check')) return;
     var sid = parseInt(cb.dataset.seccionId);
