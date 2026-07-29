@@ -76,7 +76,7 @@
 #tables-container .desel-row th { opacity:0.5; }
 #tables-container .total-row td.valor { font-weight:700; }
 #tables-container table tbody tr:hover td.valor { background:#f0f0f0; }
-.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; }
+.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; text-align:center; }
 </style>
 </div>
 

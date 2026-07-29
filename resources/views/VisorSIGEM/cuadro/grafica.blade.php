@@ -13,55 +13,56 @@
                 <strong>{{ $cuadro->c_titulo }}</strong>
             </small>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
                class="btn btn-outline-success btn-sm" id="link-to-dataset"
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
                 <i class="bi bi-table me-1"></i> Volver al Cuadro
             </a>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
+                <i class="bi bi-gear me-1"></i>Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
+            </button>
         </div>
     </div>
 
-    <div class="row mb-2 align-items-start" id="top-controls">
-        <div class="col-md-4">
-            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>
-                <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-panel" title="Mostrar/ocultar paneles de categorías">
-                    <i class="bi bi-list-check"></i> <span id="btn-toggle-text">Esconder categorías</span>
-                </button>
-            </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <label class="small text-muted mb-0">Secciones</label>
-                <div class="form-check form-switch mb-0">
-                    <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
-                    <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
-                </div>
-            </div>
-            <div id="eje-helper" class="small text-muted mt-1" style="line-height:1.2"></div>
-            <div id="panel-sections" class="small mt-1"></div>
+    <div class="mb-2" id="row-tipo-grafica">
+        <label class="small fw-semibold me-2">Tipo de gráfica:</label>
+        <select id="select-tipo-grafica" class="form-select form-select-sm d-inline-block" style="width:auto"></select>
+    </div>
+
+    <div id="config-panel" class="border rounded p-2 mb-2" style="display:none">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <small class="fw-semibold"><i class="bi bi-gear me-1"></i>Configuración de gráfica</small>
+            <button type="button" class="btn-close btn-sm" id="btn-cerrar-config" aria-label="Cerrar"></button>
         </div>
-        <div class="col-md-8">
-            <div id="panel-horizontal" class="border rounded p-2" style="overflow-y:auto;max-height:220px;">
+        <div class="mb-2 d-flex align-items-center gap-3 flex-wrap" id="panel-sections"></div>
+        <hr class="my-1">
+        <div class="row">
+            <div class="col-6" id="panel-horizontal">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías Horizontales</small>
-                    <button type="button" class="btn-close btn-sm" id="btn-cerrar-horizontal" aria-label="Cerrar"></button>
+                    <small class="fw-semibold">Categorías Horizontales</small>
                 </div>
-                <div id="panel-horizontal-items" class="small"></div>
+                <div id="panel-horizontal-items" class="small" style="overflow-y:auto;max-height:300px"></div>
             </div>
+            <div class="col-6" id="panel-vertical">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="fw-semibold">Categorías Verticales</small>
+                </div>
+                <div id="panel-vertical-items" class="small" style="overflow-y:auto;max-height:300px"></div>
+            </div>
+        </div>
+        <hr class="my-1">
+        <div class="d-flex align-items-center justify-content-between mt-1">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
+                <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
+            </div>
+            <div id="eje-helper" class="small text-muted" style="line-height:1.2"></div>
         </div>
     </div>
 
-    <div class="d-flex gap-2" id="main-chart-area">
-        <div id="panel-vertical" class="border rounded p-2" style="width:240px;flex-shrink:0;overflow-y:auto;max-height:500px;">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <small class="fw-semibold"><i class="bi bi-list-check me-1"></i>Categorías Verticales</small>
-                <button type="button" class="btn-close btn-sm" id="btn-cerrar-vertical" aria-label="Cerrar"></button>
-            </div>
-            <div id="panel-vertical-items" class="small"></div>
-        </div>
-        <div style="flex:1;min-width:0">
-            <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
-        </div>
+    <div id="main-chart-area">
+        <canvas id="chart-canvas" style="max-height:500px;width:100%"></canvas>
     </div>
 
     @if($cuadro->pie_pagina)
@@ -83,7 +84,7 @@
 #status-bar .badge { font-size: 0.7rem; }
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
-.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; }
+.pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; text-align:center; }
 </style>
 @endsection
 
@@ -542,16 +543,16 @@ function renderSections() {
     var container = document.getElementById('panel-sections');
     if (!container) return;
     var html = '';
+    html += '<label class="small fw-semibold me-2">Secciones:</label>';
     (estado.secciones || []).forEach(function(s) {
         var isChecked = selectedSections[s.seccion_id] !== false;
         var loading = !sectionsCache[s.seccion_id] && isChecked;
         var checked = isChecked ? 'checked' : '';
-        html += '<div class="panel-child mb-1">';
-        html += '<label style="cursor:pointer">';
+        html += '<label class="me-2" style="cursor:pointer;white-space:nowrap">';
         html += '<input type="checkbox" class="me-1 sec-check" data-seccion-id="' + s.seccion_id + '" ' + checked + '>';
         if (loading) html += '<span class="spinner-border spinner-border-sm me-1" role="status"></span>';
         html += esc(s.nombre);
-        html += '</label></div>';
+        html += '</label>';
     });
     container.innerHTML = html;
 }
@@ -739,40 +740,20 @@ document.getElementById('switch-invertir-ejes')?.addEventListener('change', func
     saveStateToURL();
 });
 
-function updateToggleButtonText() {
-    var hPanel = document.getElementById('panel-horizontal');
-    var vPanel = document.getElementById('panel-vertical');
-    var hVisible = hPanel && hPanel.style.display !== 'none';
-    var vVisible = vPanel && vPanel.style.display !== 'none';
-    var textEl = document.getElementById('btn-toggle-text');
-    if (!textEl) return;
-    if (hVisible || vVisible) {
-        textEl.textContent = 'Esconder categorías';
-    } else {
-        textEl.textContent = 'Ver categorías';
-    }
-}
-
-document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
-    var hPanel = document.getElementById('panel-horizontal');
-    var vPanel = document.getElementById('panel-vertical');
-    var isVisible = (hPanel && hPanel.style.display !== 'none') || (vPanel && vPanel.style.display !== 'none');
-    var newDisplay = isVisible ? 'none' : 'block';
-    if (hPanel) hPanel.style.display = newDisplay;
-    if (vPanel) vPanel.style.display = newDisplay;
-    updateToggleButtonText();
+document.getElementById('btn-toggle-config')?.addEventListener('click', function() {
+    var panel = document.getElementById('config-panel');
+    var eye = document.getElementById('config-eye-icon');
+    if (!panel) return;
+    var isVisible = panel.style.display !== 'none';
+    panel.style.display = isVisible ? 'none' : 'block';
+    if (eye) eye.className = 'bi ' + (isVisible ? 'bi-eye' : 'bi-eye-slash') + ' ms-1';
 });
 
-document.getElementById('btn-cerrar-horizontal')?.addEventListener('click', function() {
-    var el = document.getElementById('panel-horizontal');
-    if (el) el.style.display = 'none';
-    updateToggleButtonText();
-});
-
-document.getElementById('btn-cerrar-vertical')?.addEventListener('click', function() {
-    var el = document.getElementById('panel-vertical');
-    if (el) el.style.display = 'none';
-    updateToggleButtonText();
+document.getElementById('btn-cerrar-config')?.addEventListener('click', function() {
+    var panel = document.getElementById('config-panel');
+    var eye = document.getElementById('config-eye-icon');
+    if (panel) panel.style.display = 'none';
+    if (eye) eye.className = 'bi bi-eye ms-1';
 });
 
 document.getElementById('panel-sections')?.addEventListener('change', function(e) {
