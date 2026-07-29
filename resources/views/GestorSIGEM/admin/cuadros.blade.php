@@ -497,7 +497,7 @@ $('#formCrearCuadro').on('submit', function(e) {
             mostrarToast('danger', msg);
         }
     });
-}
+});
 
 function eliminarCuadro(id, titulo) {
     if (!confirm('¿Eliminar el cuadro "' + titulo + '"?\n\nEsta acción no se puede deshacer.')) return;
