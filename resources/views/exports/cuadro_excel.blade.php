@@ -122,9 +122,6 @@
         if ($s === null || $s === false) return '';
         return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
-    function e($s) {
-        return esc($s);
-    }
 @endphp
 
 <table>
@@ -136,7 +133,7 @@
             @foreach ($headers[$ri] as $cell)
                 @if ($cell['tipo'] === 'corner')
                     <th rowspan="{{ $cell['rowspan'] ?? $hDepth }}" colspan="{{ $numLabelCols }}" style="text-align:center;font-weight:bold;background:#e8edf2;border:1px solid #000;">
-                        {{ e($pivotLabel) }}
+                        {{ esc($pivotLabel) }}
                     </th>
                 @elseif ($cell['tipo'] === 'parent')
                     @php
@@ -149,14 +146,14 @@
                         if ($cnt === 0) continue;
                     @endphp
                     <th colspan="{{ $cnt }}" style="text-align:center;font-weight:bold;background:#d4e6f1;border:1px solid #000;">
-                        {{ e($cell['nombre']) }}
+                        {{ esc($cell['nombre']) }}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
                     @php
                         if (!in_array($cell['col_index'], $visHIdx)) continue;
                     @endphp
                     <th style="text-align:center;font-weight:bold;background:#eaf2f8;border:1px solid #000;white-space:nowrap;">
-                        {{ e($cell['nombre']) }}
+                        {{ esc($cell['nombre']) }}
                     </th>
                 @endif
             @endforeach
@@ -168,7 +165,7 @@
             @foreach ($rowCells as $cell)
                 @if ($cell['tipo'] === 'parent')
                     <th rowspan="{{ $parentSpanFinal[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;">
-                        {{ e($cell['nombre']) }}
+                        {{ esc($cell['nombre']) }}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
                     @php
@@ -177,7 +174,7 @@
                         $cs = $hasParent && !empty($cell['colspan']) ? ' colspan="'.$cell['colspan'].'"' : '';
                     @endphp
                     <th{{ $cs }} style="text-align:left;font-weight:bold;background:#fef9e7;border:1px solid #000;">
-                        {{ e($cell['nombre']) }}
+                        {{ esc($cell['nombre']) }}
                     </th>
                 @endif
             @endforeach
