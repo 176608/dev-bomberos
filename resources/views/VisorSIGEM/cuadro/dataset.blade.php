@@ -566,6 +566,13 @@ document.getElementById('btn-activar-todas')?.addEventListener('click', function
     else finish();
 });
 
+document.querySelectorAll('.dropdown-item[href*="exportar/excel"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+        console.log('[Excel] href clicked:', this.href);
+        console.log('[Excel] target:', this.target);
+    });
+});
+
 init();
 </script>
 @endpush
