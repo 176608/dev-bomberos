@@ -24,7 +24,7 @@
 
     @if($cuadro->pdf_file)
     <div class="mb-3" style="height:calc(100vh - 120px);">
-        <iframe src="{{ asset('u_pdf/' . $cuadro->pdf_file) }}#view=FitW" type="application/pdf" style="width:100%;height:100%;border:1px solid #dee2e6;border-radius:4px;">
+        <iframe src="{{ route('sigem.v2.cuadro.mapa.ver', $cuadro->cuadro_id) }}" type="application/pdf" style="width:100%;height:100%;border:1px solid #dee2e6;border-radius:4px;">
             <p class="text-muted py-5 text-center">
                 <i class="bi bi-filetype-pdf me-2" style="font-size:2rem;"></i><br>
                 El navegador no puede mostrar el PDF. 

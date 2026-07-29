@@ -29,6 +29,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
         Route::get('/exportar/excel', [DocumentoController::class, 'exportarExcel'])->name('exportar.excel');
         Route::get('/mapa', [VisorCuadroController::class, 'mapa'])->name('mapa');
         Route::get('/mapa/descargar', [VisorCuadroController::class, 'descargarMapa'])->name('mapa.descargar');
+        Route::get('/mapa/ver', [VisorCuadroController::class, 'verMapa'])->name('mapa.ver');
     });
 
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VisorSIGEM;
 use App\Models\SIGEM\Cuadro;
 use App\Services\GestorSIGEM\DatasetService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class VisorCuadroController extends Controller
 {
@@ -102,18 +103,40 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
-        $path = public_path('u_pdf/' . $filename);
-        if (!file_exists($path)) {
+        $disk = Storage::disk('mapas');
+        if (!$disk->exists($filename)) {
             abort(404);
         }
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.pdf';
 
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $nombre . '"',
-        ]);
+        return $disk->download($filename, $nombre);
+    }
+
+    public function verMapa(int $id)
+    {
+        $cuadro = Cuadro::obtenerPorId($id);
+        if (!$cuadro) abort(404);
+
+        $error = $this->verificarAccesoCuadro($cuadro);
+        if ($error) return $this->responderError($error['error']);
+
+        if (!$cuadro->tipo_mapa_pdf || !$cuadro->pdf_file) {
+            abort(404);
+        }
+
+        $filename = $cuadro->pdf_file;
+        if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('mapas');
+        if (!$disk->exists($filename)) {
+            abort(404);
+        }
+
+        return $disk->response($filename);
     }
 
     public function grafica(int $id)
