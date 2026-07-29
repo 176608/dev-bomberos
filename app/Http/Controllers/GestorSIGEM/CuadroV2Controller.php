@@ -18,10 +18,20 @@ class CuadroV2Controller extends Controller
     public function index()
     {
         $data = $this->cuadroV2Service->listar();
+        $maxSecciones = \App\Models\SIGEM\CuadroSeccion::selectRaw('cuadro_id, COUNT(*) as total')
+            ->groupBy('cuadro_id')
+            ->orderBy('total', 'desc')
+            ->limit(1)
+            ->value('total') ?? 0;
+        $seccionCounts = \App\Models\SIGEM\CuadroSeccion::selectRaw('cuadro_id, COUNT(*) as total')
+            ->groupBy('cuadro_id')
+            ->pluck('total', 'cuadro_id');
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.cuadros',
             'cuadros' => $data['cuadros'],
             'temas' => $data['temas'],
+            'maxSecciones' => $maxSecciones,
+            'seccionCounts' => $seccionCounts,
         ]);
     }
 

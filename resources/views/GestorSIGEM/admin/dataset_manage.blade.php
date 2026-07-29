@@ -255,6 +255,37 @@
             </div>
         </div>
     </div>
+<!-- Pie de página del cuadro -->
+<div class="card mt-3 border shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
+        <strong class="small"><i class="bi bi-journal-text me-1"></i>Pie de página</strong>
+        <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-primary active" id="btn-pp-editar" onclick="togglePPMode('editor')">Editar</button>
+            <button type="button" class="btn btn-outline-primary" id="btn-pp-previsualizar" onclick="togglePPMode('preview')">Vista previa</button>
+        </div>
+    </div>
+    <div class="card-body p-2">
+        <div id="pp-editor-wrapper">
+            <div class="btn-toolbar mb-1 gap-1 flex-wrap" id="pp-toolbar" role="toolbar">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('bold')" title="Negrita"><strong>B</strong></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('italic')" title="Cursiva"><em>I</em></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('underline')" title="Subrayado"><u>U</u></button>
+                <div class="vr mx-1"></div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('insertUnorderedList')" title="Lista"><i class="bi bi-list-ul"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('insertOrderedList')" title="Lista ordenada"><i class="bi bi-list-ol"></i></button>
+                <div class="vr mx-1"></div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="var u=prompt('URL:');if(u)document.execCommand('createLink',false,u)" title="Enlace"><i class="bi bi-link-45deg"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('removeFormat')" title="Limpiar formato"><i class="bi bi-eraser"></i></button>
+            </div>
+            <div id="pp-editor" contenteditable="true" class="form-control" style="min-height:120px;overflow-y:auto;font-size:0.9rem;line-height:1.5">{!! $cuadro->pie_pagina !!}</div>
+        </div>
+        <div id="pp-preview-wrapper" class="d-none border rounded p-2" style="min-height:120px;font-size:0.9rem;line-height:1.5;background:#f8f9fa">{!! $cuadro->pie_pagina !!}</div>
+    </div>
+    <div class="card-footer py-1 text-end bg-light">
+        <button type="button" class="btn btn-sm btn-success" onclick="guardarPiePagina()"><i class="bi bi-save me-1"></i>Guardar</button>
+    </div>
+</div>
+
 </div>
 
 <!-- Keyboard shortcut prompt -->
@@ -1814,5 +1845,56 @@
         switchMode('diseno');
     }
 })();
+</script>
+<script>
+function togglePPMode(mode) {
+    var editor = document.getElementById('pp-editor-wrapper');
+    var preview = document.getElementById('pp-preview-wrapper');
+    var btnE = document.getElementById('btn-pp-editar');
+    var btnP = document.getElementById('btn-pp-previsualizar');
+    if (mode === 'preview') {
+        preview.innerHTML = editor.querySelector('#pp-editor').innerHTML;
+        editor.classList.add('d-none');
+        preview.classList.remove('d-none');
+        btnE.classList.remove('active');
+        btnP.classList.add('active');
+    } else {
+        editor.classList.remove('d-none');
+        preview.classList.add('d-none');
+        btnE.classList.add('active');
+        btnP.classList.remove('active');
+    }
+}
+function guardarPiePagina() {
+    var content = document.getElementById('pp-editor').innerHTML;
+    var btn = document.querySelector('.card-footer .btn-success');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando...';
+    $.ajax({
+        url: '{{ route("sgiem.admin.cuadros.update", $cuadro->cuadro_id) }}',
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            _method: 'PUT',
+            pie_pagina: content,
+            subtema_id: {{ $cuadro->subtema_id }},
+            codigo_cuadro: '{{ $cuadro->codigo_cuadro }}',
+            c_titulo: '{{ addslashes($cuadro->c_titulo) }}',
+        },
+        dataType: 'json',
+        success: function() {
+            mostrarToast('success', 'Pie de página guardado.');
+        },
+        error: function(xhr) {
+            var msg = 'Error al guardar.';
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            mostrarToast('danger', msg);
+        },
+        complete: function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-save me-1"></i>Guardar';
+        }
+    });
+}
 </script>
 

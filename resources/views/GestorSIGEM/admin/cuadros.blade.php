@@ -66,6 +66,14 @@
                         <option value="0" {{ request('grafica') === '0' ? 'selected' : '' }}>Gráfica: No</option>
                     </select>
                 </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm" id="filtroCuadroSecciones" onchange="aplicarFiltrosCuadro()" style="min-width:100px">
+                        <option value="">Secciones: Todas</option>
+                        @for($s = 1; $s <= $maxSecciones; $s++)
+                            <option value="{{ $s }}" {{ request('secciones') == $s ? 'selected' : '' }}>{{ $s }} {{ $s === 1 ? 'sección' : 'secciones' }}</option>
+                        @endfor
+                    </select>
+                </div>
                 <div class="col-auto d-flex align-items-end">
                     <button class="btn btn-sm btn-warning" onclick="limpiarFiltrosCuadro()" title="Limpiar filtros" style="height:31px"><i class="bi bi-x-lg"></i><i class="bi bi-funnel-fill"></i></button>
                 </div>
@@ -95,7 +103,8 @@
                             data-subtema-id="{{ $cuadro->subtema?->subtema_id }}"
                             data-publicado="{{ $cuadro->publicado ? '1' : '0' }}"
                             data-grafica="{{ $cuadro->permite_grafica ? '1' : '0' }}"
-                            data-dataset="{{ $cuadro->categorias()->count() > 0 ? '1' : '0' }}">
+                            data-dataset="{{ $cuadro->categorias()->count() > 0 ? '1' : '0' }}"
+                            data-secciones="{{ $seccionCounts[$cuadro->cuadro_id] ?? 0 }}">
                             <td class="text-center" data-order="{{ naturalSortKey($cuadro->codigo_cuadro) }}"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
                             <td><strong>{{ $cuadro->c_titulo }}</strong></td>
                             <td>
@@ -243,24 +252,6 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="cabecera_gen" class="form-label">Cabecera general</label>
-                                <textarea class="form-control" id="cabecera_gen" name="cabecera_gen" rows="2"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="piepagina_gen" class="form-label">Pie de página</label>
-                                <textarea class="form-control" id="piepagina_gen" name="piepagina_gen" rows="2"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3 form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="crear_publicado" name="publicado" value="1">
@@ -347,24 +338,6 @@
                             <div class="mb-3">
                                 <label for="edit_c_subtitulo" class="form-label">Subtítulo</label>
                                 <input type="text" class="form-control" id="edit_c_subtitulo" name="c_subtitulo" maxlength="255">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="edit_cabecera_gen" class="form-label">Cabecera general</label>
-                                <textarea class="form-control" id="edit_cabecera_gen" name="cabecera_gen" rows="2"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="edit_piepagina_gen" class="form-label">Pie de página</label>
-                                <textarea class="form-control" id="edit_piepagina_gen" name="piepagina_gen" rows="2"></textarea>
                             </div>
                         </div>
                     </div>
@@ -568,14 +541,16 @@ $(document).ready(function() {
         var ds = document.getElementById('filtroCuadroDataset').value;
         var pub = document.getElementById('filtroCuadroPublicado').value;
         var graf = document.getElementById('filtroCuadroGrafica').value;
+        var sec = document.getElementById('filtroCuadroSecciones').value;
 
         var url = new URL(window.location);
-        ['tema_id','subtema_id','dataset','publicado','grafica'].forEach(function(k) { url.searchParams.delete(k); });
+        ['tema_id','subtema_id','dataset','publicado','grafica','secciones'].forEach(function(k) { url.searchParams.delete(k); });
         if (temaId) url.searchParams.set('tema_id', temaId);
         if (subId) url.searchParams.set('subtema_id', subId);
         if (ds) url.searchParams.set('dataset', ds);
         if (pub) url.searchParams.set('publicado', pub);
         if (graf) url.searchParams.set('grafica', graf);
+        if (sec) url.searchParams.set('secciones', sec);
         window.history.replaceState(null, '', url);
 
         var dt = $('#tablaCuadrosV2').DataTable();
@@ -592,6 +567,7 @@ $(document).ready(function() {
             if (ds !== '' && $(row).data('dataset') != ds) return false;
             if (pub !== '' && $(row).data('publicado') != pub) return false;
             if (graf !== '' && $(row).data('grafica') != graf) return false;
+            if (sec !== '' && $(row).data('secciones') != sec) return false;
             return true;
         };
         filtroCuadroCallbacks.push(fn);
@@ -606,6 +582,7 @@ $(document).ready(function() {
         document.getElementById('filtroCuadroDataset').value = '';
         document.getElementById('filtroCuadroPublicado').value = '';
         document.getElementById('filtroCuadroGrafica').value = '';
+        document.getElementById('filtroCuadroSecciones').value = '';
         aplicarFiltrosCuadro();
     };
 
@@ -686,8 +663,6 @@ $(document).ready(function() {
             document.getElementById('edit_codigo_cuadro').value = data.codigo_cuadro;
             document.getElementById('edit_c_titulo').value = data.c_titulo;
             document.getElementById('edit_c_subtitulo').value = data.c_subtitulo || '';
-            document.getElementById('edit_cabecera_gen').value = data.cabecera_gen || '';
-            document.getElementById('edit_piepagina_gen').value = data.piepagina_gen || '';
             document.getElementById('edit_publicado').checked = data.publicado ? true : false;
             document.getElementById('edit_tipo_mapa_pdf').checked = data.tipo_mapa_pdf ? true : false;
             document.getElementById('edit_permite_grafica').checked = data.permite_grafica ? true : false;

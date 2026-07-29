@@ -137,7 +137,7 @@ function applyTheme(hexColor) {
     var bg125 = hexToIntensity(hexColor, 0.125);
     var bg60 = hexToIntensity(hexColor, 0.6);
     s.textContent = '' +
-        '#tables-container table thead tr:first-child th:first-child{background:' + hexToIntensity(hexColor, 1) + ';color:#fff;border-bottom:2px solid ' + hexColor + '}' +
+        '#tables-container table thead tr:first-child th:first-child{background:' + hexToIntensity(hexColor, 1) + ';color:#000;border-bottom:2px solid ' + hexColor + '}' +
         '#tables-container table thead tr:first-child th[colspan]:not(:first-child){background:' + bg75 + '}' +
         '#tables-container table thead tr:first-child th:not([colspan]):not(:first-child){background:' + bg50 + '}' +
         '#tables-container table thead tr:not(:first-child) th[colspan]{background:' + bg75 + '}' +

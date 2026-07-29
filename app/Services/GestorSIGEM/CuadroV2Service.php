@@ -15,7 +15,7 @@ class CuadroV2Service
     public function listar(): array
     {
         $cuadros = $this->cuadro->obtenerTodos();
-        $temas = TemaV2::with('subtemas')->orderBy('tema_titulo', 'asc')->get();
+        $temas = TemaV2::with('subtemas')->orderBy('orden_indice', 'asc')->get();
 
         return [
             'cuadros' => $cuadros,

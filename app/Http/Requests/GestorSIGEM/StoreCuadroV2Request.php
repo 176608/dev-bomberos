@@ -24,6 +24,7 @@ class StoreCuadroV2Request extends FormRequest
             'tipos_grafica_permitida' => 'nullable|json',
             'cabecera_gen' => 'nullable|string',
             'piepagina_gen' => 'nullable|string',
+            'pie_pagina' => 'nullable|string',
         ];
 
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
