@@ -1,5 +1,5 @@
 @extends('layouts.app')
-<title>@yield('title', 'SGIEM')</title>
+@section('title', $pageTitle ?? 'SGIEM')
 @section('content')
 <div class="container-fluid bg-fonde pb-4">
     <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4">

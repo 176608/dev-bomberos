@@ -25,25 +25,35 @@ class DocumentoController extends Controller
         $todo = $request->boolean('todo', false);
 
         $secciones = $cuadro->secciones()->orderBy('orden')->get();
+        $seccionesData = [];
         if ($secciones->isEmpty()) {
             $estado = $this->datasetService->obtenerEstado($id);
+            if (!$todo) $estado = $this->aplicarFiltrosDesdeUrl($estado, $request);
+            $seccionesData[] = [
+                'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
+                'estado' => $estado,
+            ];
         } else {
-            $estado = $this->datasetService->obtenerEstado($id, $secciones->first()->seccion_id);
-        }
-
-        if (!$todo) {
-            $estado = $this->aplicarFiltrosDesdeUrl($estado, $request);
+            foreach ($secciones as $sec) {
+                $estado = $this->datasetService->obtenerEstado($id, $sec->seccion_id);
+                if (!$todo) $estado = $this->aplicarFiltrosDesdeUrl($estado, $request);
+                $seccionesData[] = [
+                    'seccion' => $sec->toArray(),
+                    'estado' => $estado,
+                ];
+            }
         }
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
 
         $export = new CuadroExcelExport(
-            estado: $estado,
             codigoCuadro: $cuadro->codigo_cuadro,
             tituloCuadro: $cuadro->c_titulo,
             subtituloCuadro: $cuadro->c_subtitulo ?? '',
             piePagina: $cuadro->pie_pagina,
+            seccionesData: $seccionesData,
+            mostrarLogo: true,
         );
 
         return Excel::download($export, $nombre);

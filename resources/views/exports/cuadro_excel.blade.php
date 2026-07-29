@@ -1,3 +1,16 @@
+@php
+    function esc($s) {
+        if ($s === null || $s === false) return '';
+        return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+    }
+@endphp
+
+@if($mostrarLogo)
+<table>
+    <tr><td colspan="100" style="height:50px"></td></tr>
+</table>
+@endif
+
 <table>
     <tr>
         <td colspan="100" style="font-size:14pt;font-weight:bold;">
@@ -12,7 +25,10 @@
     <tr><td colspan="100"></td></tr>
 </table>
 
+@foreach($seccionesData as $secIdx => $secData)
 @php
+    $estado = $secData['estado'];
+    $seccion = $secData['seccion'];
     $headers = $estado['headers'] ?? [];
     $labels = $estado['labels'] ?? [];
     $data = $estado['data'] ?? [];
@@ -24,13 +40,6 @@
         $numLabelCols = $headers[0][0]['colspan'] ?? 1;
     }
 
-    $childrenOfH = [];
-    foreach ($horizontales as $h) {
-        if (!empty($h['padre_id'])) {
-            $childrenOfH[$h['padre_id']][] = $h;
-        }
-    }
-
     $visHIdx = [];
     foreach ($horizontales as $i => $h) {
         $visHIdx[] = $i;
@@ -40,7 +49,6 @@
         $visVIdx[] = $i;
     }
 
-    // ─── Parent groups from original labels ───
     $parentGroups = [];
     $parentGroupOfIdx = [];
     foreach ($labels as $ri => $rowCells) {
@@ -52,7 +60,6 @@
         $parentGroupOfIdx[$ri] = !empty($parentGroups) ? $parentGroups[count($parentGroups) - 1]['parentId'] : null;
     }
 
-    // ─── Filter label rows, strip parent cells ───
     $visLabelRows = [];
     $seenParent = [];
     $parentSpan = [];
@@ -77,7 +84,6 @@
         }
     }
 
-    // ─── Inject parent cell at first visible row of each group ───
     foreach ($parentGroups as $pg) {
         if ($pg['visibleCount'] > 0) {
             $parentSpan[$pg['parentId']] = $pg['visibleCount'];
@@ -89,17 +95,20 @@
             }
         }
     }
-
-    function esc($s) {
-        if ($s === null || $s === false) return '';
-        return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
-    }
 @endphp
 
+@if($secIdx > 0)
+<table><tr><td colspan="100" style="height:10px"></td></tr></table>
+@endif
+
+@if(count($seccionesData) > 1)
 <table>
-    @php
-        $hDepth = count($headers);
-    @endphp
+    <tr><td colspan="100" style="font-size:11pt;font-weight:bold;color:#333;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
+</table>
+@endif
+
+<table>
+    @php $hDepth = count($headers); @endphp
     @for ($ri = 0; $ri < $hDepth; $ri++)
         <tr>
             @foreach ($headers[$ri] as $cell)
@@ -112,18 +121,14 @@
                         $start = $cell['col_index'];
                         $end = $start + $cell['colspan'];
                         $cnt = 0;
-                        foreach ($visHIdx as $hidx) {
-                            if ($hidx >= $start && $hidx < $end) $cnt++;
-                        }
+                        foreach ($visHIdx as $hidx) { if ($hidx >= $start && $hidx < $end) $cnt++; }
                         if ($cnt === 0) continue;
                     @endphp
                     <th colspan="{{ $cnt }}" style="text-align:center;font-weight:bold;background:#d4e6f1;border:1px solid #000;">
                         {{ esc($cell['nombre']) }}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
-                    @php
-                        if (!in_array($cell['col_index'], $visHIdx)) continue;
-                    @endphp
+                    @php if (!in_array($cell['col_index'], $visHIdx)) continue; @endphp
                     <th style="text-align:center;font-weight:bold;background:#eaf2f8;border:1px solid #000;white-space:nowrap;">
                         {{ esc($cell['nombre']) }}
                     </th>
@@ -167,6 +172,7 @@
         </tr>
     @endforeach
 </table>
+@endforeach
 
 @if($piePagina)
 <table>

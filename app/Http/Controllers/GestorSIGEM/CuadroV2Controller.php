@@ -155,7 +155,23 @@ class CuadroV2Controller extends Controller
         }
 
         try {
-            $estado = $this->datasetService->obtenerEstado((int) $id);
+            $secciones = $cuadro->secciones()->orderBy('orden')->get();
+            $seccionesData = [];
+            if ($secciones->isEmpty()) {
+                $estado = $this->datasetService->obtenerEstado((int) $id);
+                $seccionesData[] = [
+                    'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
+                    'estado' => $estado,
+                ];
+            } else {
+                foreach ($secciones as $sec) {
+                    $estado = $this->datasetService->obtenerEstado((int) $id, $sec->seccion_id);
+                    $seccionesData[] = [
+                        'seccion' => $sec->toArray(),
+                        'estado' => $estado,
+                    ];
+                }
+            }
         } catch (\RuntimeException) {
             return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de gestionar el documento.');
@@ -164,7 +180,8 @@ class CuadroV2Controller extends Controller
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.documento_manage',
             'cuadro' => $cuadro,
-            'estadoInicial' => $estado,
+            'seccionesData' => $seccionesData,
+            'pageTitle' => 'Excel ' . $cuadro->codigo_cuadro,
         ]);
     }
 
@@ -179,7 +196,22 @@ class CuadroV2Controller extends Controller
 
         try {
             $secciones = $cuadro->secciones()->orderBy('orden')->get();
-            $estado = $this->datasetService->obtenerEstado((int) $id, $secciones->isNotEmpty() ? $secciones->first()->seccion_id : null);
+            $seccionesData = [];
+            if ($secciones->isEmpty()) {
+                $estado = $this->datasetService->obtenerEstado((int) $id);
+                $seccionesData[] = [
+                    'seccion' => ['seccion_id' => null, 'nombre' => 'Serie única'],
+                    'estado' => $estado,
+                ];
+            } else {
+                foreach ($secciones as $sec) {
+                    $estado = $this->datasetService->obtenerEstado((int) $id, $sec->seccion_id);
+                    $seccionesData[] = [
+                        'seccion' => $sec->toArray(),
+                        'estado' => $estado,
+                    ];
+                }
+            }
         } catch (\RuntimeException) {
             return redirect()->route('sgiem.admin.cuadros.documento', $id)
                 ->with('error', 'El cuadro no tiene dataset. Debes generar uno antes de exportar.');
@@ -189,11 +221,12 @@ class CuadroV2Controller extends Controller
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
 
         $export = new CuadroExcelExport(
-            estado: $estado,
             codigoCuadro: $cuadro->codigo_cuadro,
             tituloCuadro: $cuadro->c_titulo,
             subtituloCuadro: $cuadro->c_subtitulo ?? '',
             piePagina: $cuadro->pie_pagina,
+            seccionesData: $seccionesData,
+            mostrarLogo: true,
         );
 
         return Excel::download($export, $nombre);

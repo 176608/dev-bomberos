@@ -6,6 +6,10 @@
                class="btn btn-success btn-sm">
                 <i class="bi bi-download me-1"></i>Descargar Excel
             </a>
+            <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}"
+               class="btn btn-outline-info btn-sm ms-2">
+                <i class="bi bi-table me-1"></i>Dataset
+            </a>
             <a href="{{ route('sgiem.admin.cuadros.index') }}"
                class="btn btn-outline-light btn-sm ms-2">
                 <i class="bi bi-arrow-left me-1"></i>Volver
@@ -37,11 +41,12 @@
 
         <div class="document-preview border rounded bg-white p-3 overflow-auto" style="max-height:75vh;">
             @include('exports.cuadro_excel', [
-                'estado' => $estadoInicial,
                 'codigoCuadro' => $cuadro->codigo_cuadro,
                 'tituloCuadro' => $cuadro->c_titulo,
                 'subtituloCuadro' => $cuadro->c_subtitulo ?? '',
                 'piePagina' => $cuadro->pie_pagina,
+                'seccionesData' => $seccionesData,
+                'mostrarLogo' => false,
             ])
         </div>
     </div>
