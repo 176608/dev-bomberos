@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\VisorSIGEM;
 
-use App\Http\Controllers\Controller;
 use App\Models\SIGEM\Cuadro;
 use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
 use Illuminate\Http\Request;
 
-class DocumentoController extends Controller
+class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
 {
     public function __construct(
         private DatasetService $datasetService,
