@@ -3,6 +3,7 @@
 use App\Http\Controllers\VisorSIGEM\SIGEMV2Controller;
 use App\Http\Controllers\VisorSIGEM\DatasetViewController;
 use App\Http\Controllers\VisorSIGEM\VisorCuadroController;
+use App\Http\Controllers\VisorSIGEM\DocumentoController;
 
 Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/', [SIGEMV2Controller::class, 'index'])->name('index');
@@ -25,6 +26,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
         Route::get('/dataset', [VisorCuadroController::class, 'dataset'])->name('dataset');
         Route::get('/grafica', [VisorCuadroController::class, 'grafica'])->name('grafica');
         Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data');
+        Route::get('/exportar/excel', [DocumentoController::class, 'exportarExcel'])->name('exportar.excel');
     });
 
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {

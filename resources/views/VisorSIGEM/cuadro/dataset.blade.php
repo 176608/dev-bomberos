@@ -21,6 +21,15 @@
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
             @endif
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Excel
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/exportar/excel?todo=1') }}"><i class="bi bi-grid-3x3 me-2"></i>Todo el cuadro</a></li>
+                    <li><a class="dropdown-item" id="link-exportar-excel-seleccion" href="#"><i class="bi bi-check2-square me-2"></i>Solo selección</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -459,6 +468,8 @@ function saveStateToURL() {
     try { window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '')); } catch(e) {}
     var lnk = document.getElementById('link-to-grafica');
     if (lnk) lnk.href = lnk.getAttribute('data-base') + (qs ? '?' + qs : '');
+    var lnkExcel = document.getElementById('link-exportar-excel-seleccion');
+    if (lnkExcel) lnkExcel.href = window.location.pathname.replace('/dataset', '/exportar/excel') + (qs ? '?' + qs : '');
 }
 function loadStateFromURL() {
     var p = new URLSearchParams(window.location.search);
