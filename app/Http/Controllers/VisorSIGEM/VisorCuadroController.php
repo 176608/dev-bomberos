@@ -22,7 +22,7 @@ class VisorCuadroController extends Controller
         return null;
     }
 
-    private function verificarAccesoCuadro(Cuadro $cuadro, int $id): ?array
+    protected function verificarAccesoCuadro(Cuadro $cuadro, int $id): ?array
     {
         if ($cuadro->publicado) return null;
         if (!$this->tieneCredenciales()) {
