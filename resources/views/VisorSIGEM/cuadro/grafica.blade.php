@@ -22,12 +22,22 @@
             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
                 <i class="bi bi-gear me-1"></i>Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
             </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-download-png" title="Descargar gráfica como PNG">
+                <i class="bi bi-download me-1"></i>PNG
+            </button>
         </div>
     </div>
 
-    <div class="mb-2" id="row-tipo-grafica">
-        <label class="small fw-semibold me-2">Tipo de gráfica:</label>
-        <select id="select-tipo-grafica" class="form-select form-select-sm d-inline-block" style="width:auto"></select>
+    <div class="mb-2 d-flex align-items-center gap-3 flex-wrap" id="row-tipo-grafica">
+        <div>
+            <label class="small fw-semibold me-2">Tipo de gráfica:</label>
+            <select id="select-tipo-grafica" class="form-select form-select-sm d-inline-block" style="width:auto"></select>
+        </div>
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
+            <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
+        </div>
+        <div id="eje-helper" class="small text-muted" style="line-height:1.2"></div>
     </div>
 
     <div id="config-panel" class="border rounded p-2 mb-2" style="display:none">
@@ -50,14 +60,6 @@
                 </div>
                 <div id="panel-vertical-items" class="small" style="overflow-y:auto;max-height:300px"></div>
             </div>
-        </div>
-        <hr class="my-1">
-        <div class="d-flex align-items-center justify-content-between mt-1">
-            <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
-                <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
-            </div>
-            <div id="eje-helper" class="small text-muted" style="line-height:1.2"></div>
         </div>
     </div>
 
@@ -747,6 +749,17 @@ document.getElementById('btn-toggle-config')?.addEventListener('click', function
     var isVisible = panel.style.display !== 'none';
     panel.style.display = isVisible ? 'none' : 'block';
     if (eye) eye.className = 'bi ' + (isVisible ? 'bi-eye' : 'bi-eye-slash') + ' ms-1';
+});
+
+document.getElementById('btn-download-png')?.addEventListener('click', function() {
+    var canvas = document.getElementById('chart-canvas');
+    if (!canvas) return;
+    var link = document.createElement('a');
+    link.download = 'grafica_' + CUADRO_ID + '.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 });
 
 document.getElementById('btn-cerrar-config')?.addEventListener('click', function() {
