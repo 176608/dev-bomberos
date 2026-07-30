@@ -1,59 +1,70 @@
 <?php
-// Este middleware pertenece a una funcionalidad restringida del sistema SIGEM/BOMBEROS.
-// Controla el acceso a rutas según el rol del usuario autenticado.
 
-/*ARCHIVO BOMBEROS - NO ELIMINAR COMENTARIO */
 namespace App\Http\Middleware;
 
+use App\Models\SIGEM\AuditoriaAcceso;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Debug logging
-        Log::info('CheckRole middleware executed', [
-            'user_authenticated' => auth()->check(),
-            'user_role' => auth()->check() ? auth()->user()->role : 'not authenticated',
-            'required_roles' => $roles,
-            'url' => $request->url()
-        ]);
-
         if (!auth()->check()) {
-            Log::info('User not authenticated, redirecting to login');
             return redirect()->route('login');
         }
 
         $user = auth()->user();
-        
-        // CAMBIO: Desarrollador tiene acceso a todo
+
+        if (!$user->status) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Tu cuenta está desactivada.');
+        }
+
         if ($user->hasRole('Desarrollador')) {
-            Log::info('Desarrollador access granted');
+            Log::warning('CheckRole: Desarrollador bypass', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip' => $request->ip(),
+                'route' => $request->route()?->getName(),
+                'url' => $request->url(),
+                'required_roles' => $roles,
+            ]);
+
+            AuditoriaAcceso::create([
+                'user_id' => $user->id,
+                'accion' => 'dev_bypass',
+                'ip' => $request->ip(),
+                'created_at' => now(),
+            ]);
+
             return $next($request);
         }
-        
-        // Para otros roles, verificar permisos normalmente
+
         foreach ($roles as $role) {
             if ($user->hasRole($role)) {
-                Log::info('Role access granted', ['role' => $role]);
                 return $next($request);
             }
         }
 
-        // Si llegamos aquí, no tiene permisos
-        //Log::info('Access denied, redirecting based on role');
+        $redirects = [
+            'Administrador'             => 'sigem.admin.index',
+            'Desarrollador'             => 'admin.panel',
+            'Capturista'                => 'capturista.panel',
+            'Registrador'               => 'registrador.panel',
+            'Administrador Dictamenes'  => 'sg-dictamen.index',
+            'Editor Dictamenes'         => 'sg-dictamen.index',
+            'Estadistico'               => 'sgiem.admin.index',
+        ];
 
-        // Redirigir según su rol actual
-        if ($user->hasRole('Administrador')) {
-            return redirect()->route('admin.panel');
-        } elseif ($user->hasRole('Capturista')) {
-            return redirect()->route('capturista.panel');
-        } elseif ($user->hasRole('Estadistico')) {
-            return redirect()->route('sgiem.admin.index');
-        } elseif ($user->hasRole('Desarrollador')) {
-            return redirect()->route('dev.panel');
+        foreach ($redirects as $role => $route) {
+            if ($user->hasRole($role)) {
+                return redirect()->route($route);
+            }
         }
 
         return redirect()->route('login')->with('error', 'No tienes permisos para acceder a esta página.');
