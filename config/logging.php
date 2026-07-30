@@ -123,6 +123,13 @@ return [
             'handler' => NullHandler::class,
         ],
 
+        'suspicious404' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/suspicious404.log'),
+            'level' => 'warning',
+            'replace_placeholders' => true,
+        ],
+
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],

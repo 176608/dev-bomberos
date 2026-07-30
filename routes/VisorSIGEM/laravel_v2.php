@@ -18,14 +18,14 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
 
     Route::prefix('cuadro')->name('cuadro.')->group(function () {
-        Route::get('/api/cuadro/{id}', [DatasetViewController::class, 'cuadroApi'])->name('api');
-        Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show');
+        Route::get('/api/cuadro/{id}', [DatasetViewController::class, 'cuadroApi'])->name('api')->whereNumber('id');
+        Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show')->whereNumber('id');
     });
 
-    Route::prefix('cuadro/{id}')->middleware('throttle:120,1')->name('cuadro.')->group(function () {
+    Route::prefix('cuadro/{id}')->middleware(['throttle:60,1', 'log.404'])->whereNumber('id')->name('cuadro.')->group(function () {
         Route::get('/dataset', [VisorCuadroController::class, 'dataset'])->name('dataset');
         Route::get('/grafica', [VisorCuadroController::class, 'grafica'])->name('grafica');
-        Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data');
+        Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data')->whereNumber('seccion');
         Route::get('/exportar/excel', [DocumentoController::class, 'exportarExcel'])->name('exportar.excel');
         Route::get('/mapa', [VisorCuadroController::class, 'mapa'])->name('mapa');
         Route::get('/mapa/descargar', [VisorCuadroController::class, 'descargarMapa'])->name('mapa.descargar');

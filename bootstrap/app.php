@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'debug.role' => \App\Http\Middleware\DebugByRole::class,
             'login.throttle' => \App\Http\Middleware\LoginRateLimiter::class,
+            'log.404' => \App\Http\Middleware\LogSuspicious404::class,
         ]);
         
         // Middleware global para debug por rol (se ejecuta en todas las rutas)
