@@ -4,13 +4,29 @@ namespace App\Http\Controllers\Bomberos\Auth;
 
 use App\Http\Controllers\Bomberos\Controller;
 use App\Models\Bomberos\User;
+use App\Models\SIGEM\AuditoriaAcceso;
+use App\Traits\HashIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 
 class PasswordResetController extends Controller
 {
+    use HashIp;
+
     protected int $tokenExpiryMinutes = 15;
+
+    private function registrarAcceso(?int $userId, string $accion, string $ip, ?string $detalle = null, bool $ipBruta = false): void
+    {
+        AuditoriaAcceso::create([
+            'user_id'    => $userId,
+            'accion'     => $accion,
+            'detalle'    => $detalle,
+            'ip'         => $this->hashIp($ip),
+            'ip_bruta'   => $ipBruta ? $ip : null,
+            'created_at' => now(),
+        ]);
+    }
 
     public function showResetForm(Request $request)
     {
@@ -77,6 +93,7 @@ class PasswordResetController extends Controller
             }
 
             if (!Hash::check($request->pin, $user->initial_token)) {
+                $this->registrarAcceso($user->id, 'intento_fallido', $request->ip(), 'pin_incorrecto', true);
                 return back()->withInput()->withErrors(['pin' => 'PIN incorrecto.']);
             }
         }
@@ -92,7 +109,9 @@ class PasswordResetController extends Controller
         $user->log_in_status = 0;
         $user->initial_token = null;
         $user->save();
-        
+
+        $this->registrarAcceso($user->id, 'restauracion_password', $request->ip());
+
         return redirect()->route('login')->with('success', 'Contraseña actualizada exitosamente. Inicia sesión.');
     }
 }

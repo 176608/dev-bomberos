@@ -13,7 +13,9 @@ class AuditoriaAcceso extends Model
     protected $fillable = [
         'user_id',
         'accion',
+        'detalle',
         'ip',
+        'ip_bruta',
         'created_at',
     ];
 

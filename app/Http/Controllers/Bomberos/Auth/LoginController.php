@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bomberos\Auth;
 use App\Http\Controllers\Bomberos\Controller;
 use App\Models\Bomberos\User;
 use App\Models\SIGEM\AuditoriaAcceso;
+use App\Traits\HashIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +15,21 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    use HashIp;
+
     protected $redirectTo = '/dashboard';
+
+    private function registrarAcceso(?int $userId, string $accion, string $ip, ?string $detalle = null, bool $ipBruta = false): void
+    {
+        AuditoriaAcceso::create([
+            'user_id'    => $userId,
+            'accion'     => $accion,
+            'detalle'    => $detalle,
+            'ip'         => $this->hashIp($ip),
+            'ip_bruta'   => $ipBruta ? $ip : null,
+            'created_at' => now(),
+        ]);
+    }
 
     public function showLoginForm()
     {
@@ -35,6 +50,7 @@ class LoginController extends Controller
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             Log::warning('Login bloqueado por email', compact('email', 'ip'));
+            $this->registrarAcceso(null, 'intento_fallido', $ip, 'bloqueado_rate_limit', true);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['password' => 'Demasiados intentos. Intenta de nuevo en ' . ceil($seconds / 60) . ' minuto(s).']);
@@ -45,6 +61,7 @@ class LoginController extends Controller
         if (!$user) {
             RateLimiter::hit($key, 300);
             Log::info('Login: usuario no encontrado', compact('email', 'ip'));
+            $this->registrarAcceso(null, 'intento_fallido', $ip, 'usuario_no_encontrado', true);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Usuario no encontrado.']);
@@ -52,6 +69,7 @@ class LoginController extends Controller
 
         if (in_array($user->log_in_status, [1, 2])) {
             RateLimiter::clear($key);
+            $this->registrarAcceso($user->id, 'primer_acceso', $ip, 'requiere_restauracion_password');
 
             return redirect()->route('password.reset.form', ['email' => $email])
                 ->with('message', 'Crea tu contraseña segura.');
@@ -66,6 +84,7 @@ class LoginController extends Controller
         if (!Auth::attempt($credentials)) {
             RateLimiter::hit($key, 300);
             Log::info('Login: contraseña incorrecta', compact('email', 'ip'));
+            $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'contrasena_incorrecta', true);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['password' => 'Contraseña incorrecta.']);
@@ -78,6 +97,7 @@ class LoginController extends Controller
         if (!$user->status) {
             Auth::logout();
             Log::warning('Login: cuenta desactivada', compact('email', 'ip'));
+            $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'cuenta_desactivada', true);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Tu cuenta está desactivada.']);
@@ -85,11 +105,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        AuditoriaAcceso::create([
-            'user_id' => $user->id,
-            'accion' => 'login',
-            'ip' => $ip,
-        ]);
+        $this->registrarAcceso($user->id, 'login', $ip);
 
         return $this->redirectBasedOnRole();
     }
@@ -100,11 +116,7 @@ class LoginController extends Controller
         $ip = $request->ip();
 
         if ($user) {
-            AuditoriaAcceso::create([
-                'user_id' => $user->id,
-                'accion' => 'logout',
-                'ip' => $ip,
-            ]);
+            $this->registrarAcceso($user->id, 'logout', $ip);
         }
 
         Auth::logout();

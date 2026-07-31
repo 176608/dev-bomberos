@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\SIGEM\AuditoriaAcceso;
+use App\Traits\HashIp;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
+    use HashIp;
+
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!auth()->check()) {
@@ -36,9 +39,10 @@ class CheckRole
             ]);
 
             AuditoriaAcceso::create([
-                'user_id' => $user->id,
-                'accion' => 'dev_bypass',
-                'ip' => $request->ip(),
+                'user_id'    => $user->id,
+                'accion'     => 'dev_bypass',
+                'ip'         => $this->hashIp($request->ip()),
+                'ip_bruta'   => null,
                 'created_at' => now(),
             ]);
 

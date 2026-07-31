@@ -5,9 +5,12 @@ namespace App\Http\Controllers\VisorSIGEM;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\PubVisitante;
 use App\Models\SIGEM\PubVisita;
+use App\Traits\HashIp;
 
 abstract class Controller extends \Illuminate\Routing\Controller
 {
+    use HashIp;
+
     protected function tieneCredenciales(): bool
     {
         return auth()->check() && (
@@ -50,12 +53,15 @@ abstract class Controller extends \Illuminate\Routing\Controller
             }
         }
 
+        $esBot = $this->detectarBot();
+
         $visitante = PubVisitante::firstOrCreate(
             ['vuid' => $vuid],
             [
-                'es_bot' => $this->detectarBot(),
+                'es_bot' => $esBot,
                 'user_id' => auth()->id(),
                 'ip_hash' => $this->hashIp(request()->ip()),
+                'ip_bruta' => $esBot ? request()->ip() : null,
                 'primer_visita' => now(),
                 'ultima_visita' => now(),
                 'total_visitas' => 0,
@@ -67,6 +73,7 @@ abstract class Controller extends \Illuminate\Routing\Controller
             'ultima_visita' => now(),
             'user_id' => auth()->id(),
             'ip_hash' => $this->hashIp(request()->ip()),
+            'ip_bruta' => $esBot ? request()->ip() : null,
         ])->save();
 
         PubVisita::create([
@@ -95,13 +102,5 @@ abstract class Controller extends \Illuminate\Routing\Controller
             if (str_contains($ua, $bot)) return true;
         }
         return false;
-    }
-
-    protected function hashIp(?string $ip): ?string
-    {
-        if (!$ip) return null;
-        $salt = config('app.ip_hash_salt');
-        if (!$salt) $salt = config('app.key');
-        return hash_hmac('sha256', $ip, $salt);
     }
 }

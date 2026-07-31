@@ -32,12 +32,14 @@ class SIGEMV2Controller extends Controller
     public function catalogo()
     {
         $data = $this->catalogoService->obtenerCatalogo($this->esDesarrollador());
+        $this->registrarEvento('vista', 'catalogo');
         return view('VisorSIGEM.catalogo', $data);
     }
 
     public function estadistica()
     {
         $data = $this->estadisticaService->obtenerTemas($this->esDesarrollador());
+        $this->registrarEvento('vista', 'estadistica');
         return view('VisorSIGEM.estadistica', $data);
     }
 
@@ -59,6 +61,7 @@ class SIGEMV2Controller extends Controller
 
     public function cartografia()
     {
+        $this->registrarEvento('vista', 'cartografia');
         return view('VisorSIGEM.cartografia');
     }
 
@@ -70,6 +73,7 @@ class SIGEMV2Controller extends Controller
 
     public function productos()
     {
+        $this->registrarEvento('vista', 'productos');
         return view('VisorSIGEM.productos');
     }
 

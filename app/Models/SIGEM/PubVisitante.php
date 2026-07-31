@@ -15,6 +15,7 @@ class PubVisitante extends Model
         'es_bot',
         'user_id',
         'ip_hash',
+        'ip_bruta',
         'primer_visita',
         'ultima_visita',
         'total_visitas',
