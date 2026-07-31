@@ -5,7 +5,6 @@ namespace App\Http\Controllers\VisorSIGEM;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\VisorMetrica;
 use App\Services\GestorSIGEM\DatasetService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,11 +46,18 @@ class VisorCuadroController extends Controller
         abort(404, $mensaje);
     }
 
-    private function registrarMetrica(Cuadro $cuadro, string $accion, string $origen = 'directo'): void
+    private function registrarMetrica(Cuadro $cuadro, string $accion): void
     {
-        $origenesPermitidos = ['catalogo', 'estadistica', 'directo'];
-        if (!in_array($origen, $origenesPermitidos)) {
-            $origen = 'directo';
+        $referer = request()->header('referer');
+        $origen = 'directo';
+
+        if ($referer) {
+            $path = parse_url($referer, PHP_URL_PATH);
+            if (str_contains($path, '/sigem-v2/catalogo')) {
+                $origen = 'catalogo';
+            } elseif (str_contains($path, '/sigem-v2/estadistica')) {
+                $origen = 'estadistica';
+            }
         }
 
         VisorMetrica::create([
@@ -64,7 +70,7 @@ class VisorCuadroController extends Controller
         ]);
     }
 
-    public function dataset(int $id, Request $request)
+    public function dataset(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -78,7 +84,7 @@ class VisorCuadroController extends Controller
 
         $estadoInicial = $this->cachedEstado($id);
 
-        $this->registrarMetrica($cuadro, 'dataset', $request->query('from', 'directo'));
+        $this->registrarMetrica($cuadro, 'dataset');
 
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
@@ -88,7 +94,7 @@ class VisorCuadroController extends Controller
         ]);
     }
 
-    public function mapa(int $id, Request $request)
+    public function mapa(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -100,7 +106,7 @@ class VisorCuadroController extends Controller
             return redirect()->route('sigem.v2.cuadro.dataset', $id);
         }
 
-        $this->registrarMetrica($cuadro, 'mapa', $request->query('from', 'directo'));
+        $this->registrarMetrica($cuadro, 'mapa');
 
         return view('VisorSIGEM.cuadro.mapa', [
             'cuadro' => $cuadro,
@@ -109,7 +115,7 @@ class VisorCuadroController extends Controller
         ]);
     }
 
-    public function descargarMapa(int $id, Request $request)
+    public function descargarMapa(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -131,7 +137,7 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
-        $this->registrarMetrica($cuadro, 'mapa_pdf', $request->query('from', 'directo'));
+        $this->registrarMetrica($cuadro, 'mapa_pdf');
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.pdf';
@@ -139,7 +145,7 @@ class VisorCuadroController extends Controller
         return $disk->download($filename, $nombre);
     }
 
-    public function verMapa(int $id, Request $request)
+    public function verMapa(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -161,12 +167,12 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
-        $this->registrarMetrica($cuadro, 'mapa_pdf', $request->query('from', 'directo'));
+        $this->registrarMetrica($cuadro, 'mapa_pdf');
 
         return $disk->response($filename);
     }
 
-    public function grafica(int $id, Request $request)
+    public function grafica(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -176,7 +182,7 @@ class VisorCuadroController extends Controller
 
         $estadoInicial = $this->cachedEstado($id);
 
-        $this->registrarMetrica($cuadro, 'grafica', $request->query('from', 'directo'));
+        $this->registrarMetrica($cuadro, 'grafica');
 
         return view('VisorSIGEM.cuadro.grafica', [
             'cuadro' => $cuadro,

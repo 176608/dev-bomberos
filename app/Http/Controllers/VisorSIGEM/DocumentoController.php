@@ -86,9 +86,15 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
 
-        $origen = $request->query('from', 'directo');
-        if (!in_array($origen, ['catalogo', 'estadistica', 'directo'])) {
-            $origen = 'directo';
+        $referer = $request->header('referer');
+        $origen = 'directo';
+        if ($referer) {
+            $path = parse_url($referer, PHP_URL_PATH);
+            if (str_contains($path, '/sigem-v2/catalogo')) {
+                $origen = 'catalogo';
+            } elseif (str_contains($path, '/sigem-v2/estadistica')) {
+                $origen = 'estadistica';
+            }
         }
 
         VisorMetrica::create([
