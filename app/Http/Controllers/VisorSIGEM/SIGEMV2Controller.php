@@ -26,6 +26,7 @@ class SIGEMV2Controller extends Controller
 
     public function index()
     {
+        $this->registrarEvento('vista', 'inicio');
         return view('VisorSIGEM.inicio');
     }
 
@@ -46,6 +47,7 @@ class SIGEMV2Controller extends Controller
     public function estadisticaTema($tema_id)
     {
         $data = $this->estadisticaService->obtenerDatosTema($tema_id, $this->esDesarrollador());
+        $this->registrarEvento('vista', 'estadistica_tema:' . $tema_id);
         return view('VisorSIGEM.estadistica_tema', $data);
     }
 
@@ -93,7 +95,8 @@ class SIGEMV2Controller extends Controller
     {
         $data = $this->consultaExpressService->obtenerContenido($subtema_id);
         if ($data['success'] ?? false) {
-            $this->registrarEvento('consulta_express', 'subtema:' . $subtema_id);
+            $tema_id = $data['subtema']['tema']['ce_tema_id'] ?? null;
+            $this->registrarEvento('consulta_express', 'tema:' . $tema_id . '|subtema:' . $subtema_id);
         }
         return response()->json($data);
     }
@@ -103,7 +106,7 @@ class SIGEMV2Controller extends Controller
         $accion = $request->input('accion');
         $detalle = $request->input('detalle');
 
-        $accionesPermitidas = ['inicio_card', 'cartografia_link', 'producto_link'];
+        $accionesPermitidas = ['inicio_card', 'cartografia_link', 'producto_link', 'grafica_tipo', 'grafica_png'];
         if (!in_array($accion, $accionesPermitidas)) {
             return response()->json(['success' => false, 'message' => 'Acción no válida'], 422);
         }

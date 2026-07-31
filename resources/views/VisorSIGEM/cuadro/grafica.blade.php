@@ -733,6 +733,7 @@ document.getElementById('select-tipo-grafica')?.addEventListener('change', funct
     enforceSingleSection(this.value);
     renderChart(this.value);
     saveStateToURL();
+    sendTrack('grafica_tipo', this.value);
 });
 
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
@@ -754,6 +755,7 @@ document.getElementById('btn-toggle-config')?.addEventListener('click', function
 document.getElementById('btn-download-png')?.addEventListener('click', function() {
     var canvas = document.getElementById('chart-canvas');
     if (!canvas) return;
+    sendTrack('grafica_png', document.getElementById('select-tipo-grafica')?.value || null);
     var tmp = document.createElement('canvas');
     tmp.width = canvas.width;
     tmp.height = canvas.height;
@@ -840,6 +842,22 @@ document.getElementById('panel-sections')?.addEventListener('change', function(e
 });
 
 var selectTipoGrafica = document.getElementById('select-tipo-grafica');
+var TRACK_URL = '{{ route('sigem.v2.track') }}';
+var csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+function sendTrack(accion, detalle) {
+    if (!csrfToken) return;
+    fetch(TRACK_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ accion: accion, detalle: detalle || null }),
+    }).catch(function() {});
+}
+
 initGraficaPage();
 </script>
 @endpush

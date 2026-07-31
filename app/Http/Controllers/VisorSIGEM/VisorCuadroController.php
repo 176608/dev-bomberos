@@ -59,7 +59,7 @@ class VisorCuadroController extends Controller
 
         $estadoInicial = $this->cachedEstado($id);
 
-        $this->registrarMetrica($cuadro, 'dataset');
+        $this->registrarMetrica($cuadro, 'dataset', null, 'secciones:' . count($estadoInicial['secciones'] ?? []));
 
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
@@ -157,7 +157,7 @@ class VisorCuadroController extends Controller
 
         $estadoInicial = $this->cachedEstado($id);
 
-        $this->registrarMetrica($cuadro, 'grafica');
+        $this->registrarMetrica($cuadro, 'grafica', null, 'secciones:' . count($estadoInicial['secciones'] ?? []));
 
         return view('VisorSIGEM.cuadro.grafica', [
             'cuadro' => $cuadro,
