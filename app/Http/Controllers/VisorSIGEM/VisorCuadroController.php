@@ -45,11 +45,6 @@ class VisorCuadroController extends Controller
         abort(404, $mensaje);
     }
 
-    private function registrarMetrica(Cuadro $cuadro, string $accion): void
-    {
-        $this->registrarEvento($accion, null, $cuadro);
-    }
-
     public function dataset(int $id)
     {
         $cuadro = Cuadro::obtenerPorId($id);
