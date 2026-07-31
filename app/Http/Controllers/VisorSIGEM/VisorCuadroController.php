@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\VisorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
+use App\Models\SIGEM\VisorMetrica;
 use App\Services\GestorSIGEM\DatasetService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -45,7 +47,24 @@ class VisorCuadroController extends Controller
         abort(404, $mensaje);
     }
 
-    public function dataset(int $id)
+    private function registrarMetrica(Cuadro $cuadro, string $accion, string $origen = 'directo'): void
+    {
+        $origenesPermitidos = ['catalogo', 'estadistica', 'directo'];
+        if (!in_array($origen, $origenesPermitidos)) {
+            $origen = 'directo';
+        }
+
+        VisorMetrica::create([
+            'cuadro_id'  => $cuadro->cuadro_id,
+            'accion'     => $accion,
+            'origen'     => $origen,
+            'user_id'    => auth()->id(),
+            'ip'         => request()->ip(),
+            'created_at' => now(),
+        ]);
+    }
+
+    public function dataset(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -59,6 +78,8 @@ class VisorCuadroController extends Controller
 
         $estadoInicial = $this->cachedEstado($id);
 
+        $this->registrarMetrica($cuadro, 'dataset', $request->query('from', 'directo'));
+
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
@@ -67,7 +88,7 @@ class VisorCuadroController extends Controller
         ]);
     }
 
-    public function mapa(int $id)
+    public function mapa(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -79,6 +100,8 @@ class VisorCuadroController extends Controller
             return redirect()->route('sigem.v2.cuadro.dataset', $id);
         }
 
+        $this->registrarMetrica($cuadro, 'mapa', $request->query('from', 'directo'));
+
         return view('VisorSIGEM.cuadro.mapa', [
             'cuadro' => $cuadro,
             'esDesarrollador' => $this->esDesarrollador(),
@@ -86,7 +109,7 @@ class VisorCuadroController extends Controller
         ]);
     }
 
-    public function descargarMapa(int $id)
+    public function descargarMapa(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -107,6 +130,8 @@ class VisorCuadroController extends Controller
         if (!$disk->exists($filename)) {
             abort(404);
         }
+
+        $this->registrarMetrica($cuadro, 'mapa_pdf', $request->query('from', 'directo'));
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.pdf';
@@ -114,7 +139,7 @@ class VisorCuadroController extends Controller
         return $disk->download($filename, $nombre);
     }
 
-    public function verMapa(int $id)
+    public function verMapa(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -136,10 +161,12 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
+        $this->registrarMetrica($cuadro, 'mapa_pdf', $request->query('from', 'directo'));
+
         return $disk->response($filename);
     }
 
-    public function grafica(int $id)
+    public function grafica(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
         if (!$cuadro) abort(404);
@@ -148,6 +175,8 @@ class VisorCuadroController extends Controller
         if ($error) return $this->responderError($error['error']);
 
         $estadoInicial = $this->cachedEstado($id);
+
+        $this->registrarMetrica($cuadro, 'grafica', $request->query('from', 'directo'));
 
         return view('VisorSIGEM.cuadro.grafica', [
             'cuadro' => $cuadro,

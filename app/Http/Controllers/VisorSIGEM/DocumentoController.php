@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\VisorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
+use App\Models\SIGEM\VisorMetrica;
 use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
@@ -84,6 +85,20 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
+
+        $origen = $request->query('from', 'directo');
+        if (!in_array($origen, ['catalogo', 'estadistica', 'directo'])) {
+            $origen = 'directo';
+        }
+
+        VisorMetrica::create([
+            'cuadro_id'  => $cuadro->cuadro_id,
+            'accion'     => 'excel',
+            'origen'     => $origen,
+            'user_id'    => auth()->id(),
+            'ip'         => $request->ip(),
+            'created_at' => now(),
+        ]);
 
         $export = new CuadroExcelExport(
             codigoCuadro: $cuadro->codigo_cuadro,

@@ -193,7 +193,7 @@
                                                 @php
                                                     $cClase = (!$cuadro->publicado && $esDesarrollador) ? 'opacity-50' : '';
                                                     $cBorde = (!$cuadro->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
-                                                    $targetUrl = route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id);
+                                                    $targetUrl = route('sigem.v2.cuadro.dataset', ['id' => $cuadro->cuadro_id, 'from' => 'catalogo']);
                                                 @endphp
                                                  <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.open('{{ $targetUrl }}', '_blank')">
                                                     <span class="codigo">{{ $cuadro->codigo_cuadro }}</span>
