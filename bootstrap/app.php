@@ -21,6 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(prepend: [
             \App\Http\Middleware\DebugByRole::class,
         ]);
+
+        // Middleware del grupo web
+        $middleware->web(append: [
+            \App\Http\Middleware\PreventBackHistory::class,
+            \App\Http\Middleware\SecurityHeaders::class,
+            \App\Http\Middleware\SetVisitorUuid::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
