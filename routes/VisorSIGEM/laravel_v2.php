@@ -17,6 +17,8 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
 
     Route::get('/productos', [SIGEMV2Controller::class, 'productos'])->name('productos');
 
+    Route::post('/track', [SIGEMV2Controller::class, 'trackEvent'])->name('track')->middleware('throttle:30,1');
+
     Route::prefix('cuadro')->name('cuadro.')->group(function () {
         Route::get('/api/cuadro/{id}', [DatasetViewController::class, 'cuadroApi'])->name('api')->whereNumber('id');
         Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show')->whereNumber('id');

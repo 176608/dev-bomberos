@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\VisorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
-use App\Models\SIGEM\VisorMetrica;
 use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
@@ -14,32 +13,6 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
     public function __construct(
         private DatasetService $datasetService,
     ) {}
-
-    private function hashIp(?string $ip): ?string
-    {
-        if (!$ip) return null;
-        $salt = config('app.ip_hash_salt');
-        if (!$salt) $salt = config('app.key');
-        return hash_hmac('sha256', $ip, $salt);
-    }
-
-    private function detectarBot(Request $request): bool
-    {
-        $ua = $request->userAgent();
-        if (!$ua) return false;
-
-        $bots = ['googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
-                 'yandexbot', 'facebot', 'twitterbot', 'whatsapp', 'linkedin',
-                 'telegrambot', 'chatgpt', 'gptbot', 'claude', 'anthropic',
-                 'perplexity', 'bytespider', 'semrush', 'ahrefsbot',
-                 'mj12bot', 'dotbot', 'applebot', 'ccbot'];
-
-        $ua = mb_strtolower($ua);
-        foreach ($bots as $bot) {
-            if (str_contains($ua, $bot)) return true;
-        }
-        return false;
-    }
 
     public function exportarExcel(int $id, Request $request)
     {
@@ -112,27 +85,7 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
 
-        $referer = $request->header('referer');
-        $origen = 'directo';
-        if ($referer) {
-            $path = parse_url($referer, PHP_URL_PATH);
-            if (str_contains($path, '/sigem-v2/catalogo')) {
-                $origen = 'catalogo';
-            } elseif (str_contains($path, '/sigem-v2/estadistica')) {
-                $origen = 'estadistica';
-            }
-        }
-
-        VisorMetrica::create([
-            'cuadro_id'  => $cuadro->cuadro_id,
-            'accion'     => 'excel',
-            'origen'     => $origen,
-            'es_bot'     => $this->detectarBot($request),
-            'vuid'       => $request->attributes->get('_vuid'),
-            'user_id'    => auth()->id(),
-            'ip_hash'    => $this->hashIp($request->ip()),
-            'created_at' => now(),
-        ]);
+        $this->registrarMetrica($cuadro, 'excel');
 
         $export = new CuadroExcelExport(
             codigoCuadro: $cuadro->codigo_cuadro,

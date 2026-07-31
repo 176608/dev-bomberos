@@ -341,3 +341,38 @@
 
 @include('VisorSIGEM.inicio_consulta_express')
 @endsection
+
+@push('visor_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const TRACK_URL = '{{ route('sigem.v2.track') }}';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+    function sendTrack(accion, detalle) {
+        if (!csrfToken) return;
+        fetch(TRACK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ accion: accion, detalle: detalle }),
+        }).catch(function () {});
+    }
+
+    const cards = document.querySelectorAll('.module-card');
+    cards.forEach(function (card) {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('a') || e.target.closest('.module-image-container')) {
+                sendTrack('inicio_card', card.querySelector('.card-header h5')?.textContent.trim() || '');
+            }
+        });
+    });
+
+    document.querySelector('.consulta-express-container')?.addEventListener('click', function () {
+        sendTrack('inicio_card', 'Consulta Express');
+    });
+});
+</script>
+@endpush

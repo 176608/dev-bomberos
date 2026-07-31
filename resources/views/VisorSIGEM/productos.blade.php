@@ -295,3 +295,40 @@
     </div>
 </div>
 @endsection
+
+@push('visor_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const TRACK_URL = '{{ route('sigem.v2.track') }}';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+    function sendTrack(detalle) {
+        if (!csrfToken) return;
+        fetch(TRACK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ accion: 'producto_link', detalle: detalle }),
+        }).catch(function () {});
+    }
+
+    document.querySelectorAll('.product-card').forEach(function (card) {
+        const titulo = card.querySelector('.product-text h5')?.textContent.trim() || 'Producto';
+        card.querySelectorAll('a[target="_blank"]').forEach(function (link) {
+            link.addEventListener('click', function () {
+                sendTrack(titulo);
+            });
+        });
+    });
+
+    document.querySelectorAll('.alert a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            sendTrack('Publicaciones en línea IMIP');
+        });
+    });
+});
+</script>
+@endpush

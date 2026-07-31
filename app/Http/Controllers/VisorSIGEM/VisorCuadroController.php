@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\VisorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
-use App\Models\SIGEM\VisorMetrica;
 use App\Services\GestorSIGEM\DatasetService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -46,56 +45,9 @@ class VisorCuadroController extends Controller
         abort(404, $mensaje);
     }
 
-    private function detectarBot(): bool
-    {
-        $ua = request()->userAgent();
-        if (!$ua) return false;
-
-        $bots = ['googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
-                 'yandexbot', 'facebot', 'twitterbot', 'whatsapp', 'linkedin',
-                 'telegrambot', 'chatgpt', 'gptbot', 'claude', 'anthropic',
-                 'perplexity', 'bytespider', 'semrush', 'ahrefsbot',
-                 'mj12bot', 'dotbot', 'applebot', 'ccbot'];
-
-        $ua = mb_strtolower($ua);
-        foreach ($bots as $bot) {
-            if (str_contains($ua, $bot)) return true;
-        }
-        return false;
-    }
-
-    private function hashIp(?string $ip): ?string
-    {
-        if (!$ip) return null;
-        $salt = config('app.ip_hash_salt');
-        if (!$salt) $salt = config('app.key');
-        return hash_hmac('sha256', $ip, $salt);
-    }
-
     private function registrarMetrica(Cuadro $cuadro, string $accion): void
     {
-        $referer = request()->header('referer');
-        $origen = 'directo';
-
-        if ($referer) {
-            $path = parse_url($referer, PHP_URL_PATH);
-            if (str_contains($path, '/sigem-v2/catalogo')) {
-                $origen = 'catalogo';
-            } elseif (str_contains($path, '/sigem-v2/estadistica')) {
-                $origen = 'estadistica';
-            }
-        }
-
-        VisorMetrica::create([
-            'cuadro_id'  => $cuadro->cuadro_id,
-            'accion'     => $accion,
-            'origen'     => $origen,
-            'es_bot'     => $this->detectarBot(),
-            'vuid'       => request()->attributes->get('_vuid'),
-            'user_id'    => auth()->id(),
-            'ip_hash'    => $this->hashIp(request()->ip()),
-            'created_at' => now(),
-        ]);
+        $this->registrarEvento($accion, null, $cuadro);
     }
 
     public function dataset(int $id)

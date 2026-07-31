@@ -14,6 +14,7 @@ class VisorMetrica extends Model
         'cuadro_id',
         'accion',
         'origen',
+        'detalle',
         'es_bot',
         'vuid',
         'user_id',

@@ -178,3 +178,37 @@
     </div>
 </div>
 @endsection
+
+@push('visor_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const TRACK_URL = '{{ route('sigem.v2.track') }}';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+    function sendTrack(detalle) {
+        if (!csrfToken) return;
+        fetch(TRACK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ accion: 'cartografia_link', detalle: detalle }),
+        }).catch(function () {});
+    }
+
+    document.querySelectorAll('.info-section-image-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            sendTrack('SIGMUN - Imagen');
+        });
+    });
+
+    document.querySelectorAll('.btn-sigmun').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            sendTrack('SIGMUN - Botón');
+        });
+    });
+});
+</script>
+@endpush

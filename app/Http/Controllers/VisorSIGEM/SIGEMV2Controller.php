@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VisorSIGEM;
 use App\Services\VisorSIGEM\CatalogoService;
 use App\Services\VisorSIGEM\EstadisticaService;
 use App\Services\VisorSIGEM\ConsultaExpressService;
+use Illuminate\Http\Request;
 
 class SIGEMV2Controller extends Controller
 {
@@ -87,6 +88,28 @@ class SIGEMV2Controller extends Controller
     public function ajaxContenido($subtema_id)
     {
         $data = $this->consultaExpressService->obtenerContenido($subtema_id);
+        if ($data['success'] ?? false) {
+            $this->registrarEvento('consulta_express', 'subtema:' . $subtema_id);
+        }
         return response()->json($data);
+    }
+
+    public function trackEvent(Request $request)
+    {
+        $accion = $request->input('accion');
+        $detalle = $request->input('detalle');
+
+        $accionesPermitidas = ['inicio_card', 'cartografia_link', 'producto_link'];
+        if (!in_array($accion, $accionesPermitidas)) {
+            return response()->json(['success' => false, 'message' => 'Acción no válida'], 422);
+        }
+
+        if (is_string($detalle) && mb_strlen($detalle) > 255) {
+            $detalle = mb_substr($detalle, 0, 255);
+        }
+
+        $this->registrarEvento($accion, is_string($detalle) ? $detalle : null);
+
+        return response()->json(['success' => true]);
     }
 }
