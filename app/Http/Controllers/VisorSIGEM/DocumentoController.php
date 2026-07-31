@@ -15,6 +15,24 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         private DatasetService $datasetService,
     ) {}
 
+    private function detectarBot(Request $request): bool
+    {
+        $ua = $request->userAgent();
+        if (!$ua) return false;
+
+        $bots = ['googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+                 'yandexbot', 'facebot', 'twitterbot', 'whatsapp', 'linkedin',
+                 'telegrambot', 'chatgpt', 'gptbot', 'claude', 'anthropic',
+                 'perplexity', 'bytespider', 'semrush', 'ahrefsbot',
+                 'mj12bot', 'dotbot', 'applebot', 'ccbot'];
+
+        $ua = mb_strtolower($ua);
+        foreach ($bots as $bot) {
+            if (str_contains($ua, $bot)) return true;
+        }
+        return false;
+    }
+
     public function exportarExcel(int $id, Request $request)
     {
         $cuadro = Cuadro::obtenerPorId($id);
@@ -103,7 +121,7 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
             'cuadro_id'  => $cuadro->cuadro_id,
             'accion'     => 'excel',
             'origen'     => $origen,
-            'es_bot'     => $request->isBot(),
+            'es_bot'     => $this->detectarBot($request),
             'vuid'       => $request->attributes->get('_vuid'),
             'user_id'    => $userId,
             'ip'         => $userId ? $request->ip() : null,

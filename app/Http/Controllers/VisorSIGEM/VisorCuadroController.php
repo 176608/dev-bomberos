@@ -46,6 +46,24 @@ class VisorCuadroController extends Controller
         abort(404, $mensaje);
     }
 
+    private function detectarBot(): bool
+    {
+        $ua = request()->userAgent();
+        if (!$ua) return false;
+
+        $bots = ['googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+                 'yandexbot', 'facebot', 'twitterbot', 'whatsapp', 'linkedin',
+                 'telegrambot', 'chatgpt', 'gptbot', 'claude', 'anthropic',
+                 'perplexity', 'bytespider', 'semrush', 'ahrefsbot',
+                 'mj12bot', 'dotbot', 'applebot', 'ccbot'];
+
+        $ua = mb_strtolower($ua);
+        foreach ($bots as $bot) {
+            if (str_contains($ua, $bot)) return true;
+        }
+        return false;
+    }
+
     private function registrarMetrica(Cuadro $cuadro, string $accion): void
     {
         $referer = request()->header('referer');
@@ -66,7 +84,7 @@ class VisorCuadroController extends Controller
             'cuadro_id'  => $cuadro->cuadro_id,
             'accion'     => $accion,
             'origen'     => $origen,
-            'es_bot'     => request()->isBot(),
+            'es_bot'     => $this->detectarBot(),
             'vuid'       => request()->attributes->get('_vuid'),
             'user_id'    => $userId,
             'ip'         => $userId ? request()->ip() : null,
