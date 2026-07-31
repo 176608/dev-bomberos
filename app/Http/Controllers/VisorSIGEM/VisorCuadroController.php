@@ -64,6 +64,14 @@ class VisorCuadroController extends Controller
         return false;
     }
 
+    private function hashIp(?string $ip): ?string
+    {
+        if (!$ip) return null;
+        $salt = config('app.ip_hash_salt');
+        if (!$salt) $salt = config('app.key');
+        return hash_hmac('sha256', $ip, $salt);
+    }
+
     private function registrarMetrica(Cuadro $cuadro, string $accion): void
     {
         $referer = request()->header('referer');
@@ -78,16 +86,14 @@ class VisorCuadroController extends Controller
             }
         }
 
-        $userId = auth()->id();
-
         VisorMetrica::create([
             'cuadro_id'  => $cuadro->cuadro_id,
             'accion'     => $accion,
             'origen'     => $origen,
             'es_bot'     => $this->detectarBot(),
             'vuid'       => request()->attributes->get('_vuid'),
-            'user_id'    => $userId,
-            'ip'         => $userId ? request()->ip() : null,
+            'user_id'    => auth()->id(),
+            'ip_hash'    => $this->hashIp(request()->ip()),
             'created_at' => now(),
         ]);
     }

@@ -17,7 +17,7 @@ class VisorMetrica extends Model
         'es_bot',
         'vuid',
         'user_id',
-        'ip',
+        'ip_hash',
         'created_at',
     ];
 

@@ -15,6 +15,14 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         private DatasetService $datasetService,
     ) {}
 
+    private function hashIp(?string $ip): ?string
+    {
+        if (!$ip) return null;
+        $salt = config('app.ip_hash_salt');
+        if (!$salt) $salt = config('app.key');
+        return hash_hmac('sha256', $ip, $salt);
+    }
+
     private function detectarBot(Request $request): bool
     {
         $ua = $request->userAgent();
@@ -115,16 +123,14 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
             }
         }
 
-        $userId = auth()->id();
-
         VisorMetrica::create([
             'cuadro_id'  => $cuadro->cuadro_id,
             'accion'     => 'excel',
             'origen'     => $origen,
             'es_bot'     => $this->detectarBot($request),
             'vuid'       => $request->attributes->get('_vuid'),
-            'user_id'    => $userId,
-            'ip'         => $userId ? $request->ip() : null,
+            'user_id'    => auth()->id(),
+            'ip_hash'    => $this->hashIp($request->ip()),
             'created_at' => now(),
         ]);
 
