@@ -755,7 +755,7 @@ document.getElementById('btn-toggle-config')?.addEventListener('click', function
 document.getElementById('btn-download-png')?.addEventListener('click', function() {
     var canvas = document.getElementById('chart-canvas');
     if (!canvas) return;
-    sendTrack('grafica_png', document.getElementById('select-tipo-grafica')?.value || null);
+    sendTrack('grafica_png', 'tipo:' + (document.getElementById('select-tipo-grafica')?.value || '') + '|cuadro:' + CUADRO_ID);
     var tmp = document.createElement('canvas');
     tmp.width = canvas.width;
     tmp.height = canvas.height;
