@@ -14,6 +14,8 @@ class VisorMetrica extends Model
         'cuadro_id',
         'accion',
         'origen',
+        'es_bot',
+        'vuid',
         'user_id',
         'ip',
         'created_at',
@@ -24,6 +26,7 @@ class VisorMetrica extends Model
         return [
             'cuadro_id' => 'int',
             'user_id' => 'int',
+            'es_bot' => 'bool',
         ];
     }
 

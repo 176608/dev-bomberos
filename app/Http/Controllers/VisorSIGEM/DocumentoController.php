@@ -97,12 +97,16 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
             }
         }
 
+        $userId = auth()->id();
+
         VisorMetrica::create([
             'cuadro_id'  => $cuadro->cuadro_id,
             'accion'     => 'excel',
             'origen'     => $origen,
-            'user_id'    => auth()->id(),
-            'ip'         => $request->ip(),
+            'es_bot'     => $request->isBot(),
+            'vuid'       => $request->attributes->get('_vuid'),
+            'user_id'    => $userId,
+            'ip'         => $userId ? $request->ip() : null,
             'created_at' => now(),
         ]);
 
