@@ -31,9 +31,9 @@ abstract class Controller extends \Illuminate\Routing\Controller
         return ['error' => 'No tienes permiso para acceder a este cuadro.'];
     }
 
-    protected function registrarMetrica(Cuadro $cuadro, string $accion, ?string $origenForzado = null): void
+    protected function registrarMetrica(Cuadro $cuadro, string $accion, ?string $origenForzado = null, ?string $detalle = null): void
     {
-        $this->registrarEvento($accion, null, $cuadro, $origenForzado);
+        $this->registrarEvento($accion, $detalle, $cuadro, $origenForzado);
     }
 
     protected function registrarEvento(string $accion, ?string $detalle = null, ?Cuadro $cuadro = null, ?string $origenForzado = null): void
