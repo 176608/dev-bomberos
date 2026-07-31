@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\VisorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
-use App\Models\SIGEM\VisorMetrica;
+use App\Models\SIGEM\PubVisitante;
+use App\Models\SIGEM\PubVisita;
 
 abstract class Controller extends \Illuminate\Routing\Controller
 {
@@ -34,6 +35,9 @@ abstract class Controller extends \Illuminate\Routing\Controller
 
     protected function registrarEvento(string $accion, ?string $detalle = null, ?Cuadro $cuadro = null): void
     {
+        $vuid = request()->attributes->get('_vuid');
+        if (!$vuid) return;
+
         $referer = request()->header('referer');
         $origen = 'directo';
 
@@ -46,16 +50,32 @@ abstract class Controller extends \Illuminate\Routing\Controller
             }
         }
 
-        VisorMetrica::create([
-            'cuadro_id'  => $cuadro?->cuadro_id,
-            'accion'     => $accion,
-            'origen'     => $origen,
-            'detalle'    => $detalle,
-            'es_bot'     => $this->detectarBot(),
-            'vuid'       => request()->attributes->get('_vuid'),
-            'user_id'    => auth()->id(),
-            'ip_hash'    => $this->hashIp(request()->ip()),
-            'created_at' => now(),
+        $visitante = PubVisitante::firstOrCreate(
+            ['vuid' => $vuid],
+            [
+                'es_bot' => $this->detectarBot(),
+                'user_id' => auth()->id(),
+                'ip_hash' => $this->hashIp(request()->ip()),
+                'primer_visita' => now(),
+                'ultima_visita' => now(),
+                'total_visitas' => 0,
+            ]
+        );
+
+        $visitante->increment('total_visitas');
+        $visitante->forceFill([
+            'ultima_visita' => now(),
+            'user_id' => auth()->id(),
+            'ip_hash' => $this->hashIp(request()->ip()),
+        ])->save();
+
+        PubVisita::create([
+            'visitante_id' => $visitante->visitante_id,
+            'cuadro_id'    => $cuadro?->cuadro_id,
+            'accion'       => $accion,
+            'detalle'      => $detalle,
+            'origen'       => $origen,
+            'created_at'   => now(),
         ]);
     }
 

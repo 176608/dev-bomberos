@@ -4,31 +4,32 @@ namespace App\Models\SIGEM;
 
 use Illuminate\Database\Eloquent\Model;
 
-class VisorMetrica extends Model
+class PubVisita extends Model
 {
-    protected $table = 'visor_metricas';
-    protected $primaryKey = 'metrica_id';
+    protected $table = 'pub_visita';
+    protected $primaryKey = 'visita_id';
     public $timestamps = false;
 
     protected $fillable = [
+        'visitante_id',
         'cuadro_id',
         'accion',
-        'origen',
         'detalle',
-        'es_bot',
-        'vuid',
-        'user_id',
-        'ip_hash',
+        'origen',
         'created_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'visitante_id' => 'int',
             'cuadro_id' => 'int',
-            'user_id' => 'int',
-            'es_bot' => 'bool',
         ];
+    }
+
+    public function visitante()
+    {
+        return $this->belongsTo(PubVisitante::class, 'visitante_id');
     }
 
     public function cuadro()
