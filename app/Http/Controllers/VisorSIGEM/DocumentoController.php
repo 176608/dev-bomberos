@@ -85,7 +85,7 @@ class DocumentoController extends \App\Http\Controllers\VisorSIGEM\Controller
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.xlsx';
 
-        $this->registrarMetrica($cuadro, 'excel');
+        $this->registrarMetrica($cuadro, 'excel', $this->tieneRefererVisor() ? 'boton' : 'directo');
 
         $export = new CuadroExcelExport(
             codigoCuadro: $cuadro->codigo_cuadro,

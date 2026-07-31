@@ -112,7 +112,7 @@ class VisorCuadroController extends Controller
             abort(404);
         }
 
-        $this->registrarMetrica($cuadro, 'mapa_pdf');
+        $this->registrarMetrica($cuadro, 'mapa_pdf', $this->tieneRefererVisor() ? 'boton' : 'directo');
 
         $fecha = now()->format('d_m_Y');
         $nombre = $cuadro->codigo_cuadro . '_' . $fecha . '.pdf';

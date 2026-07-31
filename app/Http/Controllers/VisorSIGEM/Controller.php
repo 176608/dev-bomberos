@@ -31,27 +31,17 @@ abstract class Controller extends \Illuminate\Routing\Controller
         return ['error' => 'No tienes permiso para acceder a este cuadro.'];
     }
 
-    protected function registrarMetrica(Cuadro $cuadro, string $accion): void
+    protected function registrarMetrica(Cuadro $cuadro, string $accion, ?string $origenForzado = null): void
     {
-        $this->registrarEvento($accion, null, $cuadro);
+        $this->registrarEvento($accion, null, $cuadro, $origenForzado);
     }
 
-    protected function registrarEvento(string $accion, ?string $detalle = null, ?Cuadro $cuadro = null): void
+    protected function registrarEvento(string $accion, ?string $detalle = null, ?Cuadro $cuadro = null, ?string $origenForzado = null): void
     {
         $vuid = request()->attributes->get('_vuid');
         if (!$vuid) return;
 
-        $referer = request()->header('referer');
-        $origen = 'directo';
-
-        if ($referer) {
-            $path = parse_url($referer, PHP_URL_PATH);
-            if (str_contains($path, '/sigem-v2/catalogo')) {
-                $origen = 'catalogo';
-            } elseif (str_contains($path, '/sigem-v2/estadistica')) {
-                $origen = 'estadistica';
-            }
-        }
+        $origen = $origenForzado ?? $this->detectarOrigen();
 
         $esBot = $this->detectarBot();
 
@@ -84,6 +74,29 @@ abstract class Controller extends \Illuminate\Routing\Controller
             'origen'       => $origen,
             'created_at'   => now(),
         ]);
+    }
+
+    protected function detectarOrigen(): string
+    {
+        $referer = request()->header('referer');
+        if (!$referer) return 'directo';
+
+        $path = parse_url($referer, PHP_URL_PATH) ?? '';
+
+        if (str_contains($path, '/sigem-v2/catalogo')) return 'catalogo';
+        if (str_contains($path, '/sigem-v2/estadistica')) return 'estadistica';
+        if (preg_match('#/sigem-v2/cuadro/\d+/dataset#', $path)) return 'dataset';
+        if (preg_match('#/sigem-v2/cuadro/\d+/grafica#', $path)) return 'grafica';
+        if (preg_match('#/sigem-v2/cuadro/\d+/mapa#', $path)) return 'mapa';
+
+        return 'directo';
+    }
+
+    protected function tieneRefererVisor(): bool
+    {
+        $referer = request()->header('referer');
+        if (!$referer) return false;
+        return str_contains(parse_url($referer, PHP_URL_PATH) ?? '', '/sigem-v2/');
     }
 
     protected function detectarBot(): bool
