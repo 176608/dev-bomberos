@@ -57,11 +57,11 @@ class DictamenController extends Controller
             ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
 
         $datosGrafica = Dictamen::where('estatus', 'ENVIADO')
-            ->get(['fecha', 'revisado_por', 'dependencia', 'nombre_puesto'])
+            ->get(['fecha', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
             ->map(fn ($d) => [
                 'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
                 'r' => $d->revisado_por,
-                'd' => $d->dependencia,
+                'd' => $d->dependencia_empres,
                 'n' => $d->nombre_puesto,
             ])->values();
 

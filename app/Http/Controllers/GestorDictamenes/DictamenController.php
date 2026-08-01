@@ -74,12 +74,12 @@ class DictamenController extends Controller
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
             ->unique()->sort()->values();
 
-        $datosGrafica = Dictamen::get(['fecha', 'estatus', 'revisado_por', 'dependencia', 'nombre_puesto'])
+        $datosGrafica = Dictamen::get(['fecha', 'estatus', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
             ->map(fn ($d) => [
                 'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
                 'e' => $d->estatus,
                 'r' => $d->revisado_por,
-                'd' => $d->dependencia,
+                'd' => $d->dependencia_empres,
                 'n' => $d->nombre_puesto,
             ])->values();
 
