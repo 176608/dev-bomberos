@@ -134,7 +134,7 @@ tr:hover td {
                     <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio">
                         <option value="">Todos</option>
                         @foreach($anios as $a)
                             <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
@@ -145,7 +145,7 @@ tr:hover td {
                     <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus">
                         <option value="">Todos</option>
                         @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
                             <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
@@ -156,7 +156,7 @@ tr:hover td {
                     <label class="form-label mb-0 me-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
                         <option value="">Todos</option>
                         @foreach($revisadosPor as $r)
                             <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
@@ -167,7 +167,7 @@ tr:hover td {
                     <label class="form-label mb-0 me-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
                         <option value="">Todas</option>
                         @foreach($dependencias as $dep)
                             <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
@@ -178,7 +178,7 @@ tr:hover td {
                     <label class="form-label mb-0 me-2" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
                         <option value="">Todos</option>
                         @foreach($nombresPuestos as $np)
                             <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
@@ -603,6 +603,11 @@ $(document).ready(function() {
         dropdownAutoWidth: true
     });
 
+    // Los filtros se aplican al cambiar la selección (POST; no se ven en la URL)
+    $('.filter-select').on('change', function () {
+        this.form.submit();
+    });
+
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
     $('#dictamenes-table').on('click', '.edit-btn', function() {
         const $row = $(this).closest('tr');
@@ -630,7 +635,7 @@ $(document).ready(function() {
     });
 
     // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes)
-    const DATOS_GRAFICA = {!! json_encode($datosGrafica ?? []) !!};
+    const DATOS_GRAFICA = @json($datosGrafica ?? []);
     const ORDEN_ESTATUS = ['ENVIADO', 'BORRADOR PARA FIRMA', 'EN REVISION', 'INFORMATIVO', 'S/D', 'DESHABILITADO'];
     const COLORES_ESTATUS = {
         'ENVIADO': '#28a745',

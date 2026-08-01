@@ -56,13 +56,17 @@ class DictamenController extends Controller
             ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
             ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
 
+        $sanitizar = fn ($v) => is_string($v)
+            ? preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $v)
+            : $v;
+
         $datosGrafica = Dictamen::where('estatus', 'ENVIADO')
             ->get(['fecha', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
             ->map(fn ($d) => [
                 'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
-                'r' => $d->revisado_por,
-                'd' => $d->dependencia_empres,
-                'n' => $d->nombre_puesto,
+                'r' => $sanitizar($d->revisado_por),
+                'd' => $sanitizar($d->dependencia_empres),
+                'n' => $sanitizar($d->nombre_puesto),
             ])->values();
 
         return view('visor-dictamenes.public', compact(

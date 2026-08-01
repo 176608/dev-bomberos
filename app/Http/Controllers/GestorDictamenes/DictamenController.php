@@ -74,13 +74,17 @@ class DictamenController extends Controller
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
             ->unique()->sort()->values();
 
+        $sanitizar = fn ($v) => is_string($v)
+            ? preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $v)
+            : $v;
+
         $datosGrafica = Dictamen::get(['fecha', 'estatus', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
             ->map(fn ($d) => [
                 'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
-                'e' => $d->estatus,
-                'r' => $d->revisado_por,
-                'd' => $d->dependencia_empres,
-                'n' => $d->nombre_puesto,
+                'e' => $sanitizar($d->estatus),
+                'r' => $sanitizar($d->revisado_por),
+                'd' => $sanitizar($d->dependencia_empres),
+                'n' => $sanitizar($d->nombre_puesto),
             ])->values();
 
         return view('gestor-dictamenes.index', compact(
