@@ -61,7 +61,7 @@ class DictamenController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $fechaInicio = now()->subMonths($i)->startOfMonth();
             $fechaFin = now()->subMonths($i)->endOfMonth();
-            $meses[] = self::MESES_ESP[$fechaInicio->format('n') - 1];
+            $meses[] = self::MESES_ESP[$fechaInicio->format('n') - 1] . ' ' . $fechaInicio->format('Y');
             $solicitudes[] = Dictamen::whereBetween('fecha', [$fechaInicio, $fechaFin])
                 ->where('estatus', 'ENVIADO')
                 ->count();

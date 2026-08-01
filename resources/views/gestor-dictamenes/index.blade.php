@@ -112,21 +112,24 @@ tr:hover td {
     </div>
 
     <!-- Gráfica -->
-    <div class="mb-4">
-        <div class="chart-wrapper">
-            <div class="chart-container-sm">
-                <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
-                <div style="height: 250px; position: relative; overflow: hidden;">
-                    <canvas id="chartMeses"></canvas>
-                </div>
+    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Dictámenes por mes y estatus</h5>
+                <span class="text-muted small">Toca un estatus para mostrarlo/ocultarlo (todos activados)</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3" id="chartToggles"></div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="chartMeses"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Filtros (server-side, se aplican al seleccionar) -->
+    <!-- Filtros (POST, no se guardan en la URL; se aplican al seleccionar) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
+            <form method="POST" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
+                @csrf
                 <div class="col-auto">
                     <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
                 </div>
@@ -626,32 +629,72 @@ $(document).ready(function() {
         $('#editModal').modal('show');
     });
 
-    // Gráfica de Chart.js
+    // Gráfica de Chart.js (una serie por estatus, toggles para activar/desactivar)
     const ctx = document.getElementById('chartMeses');
     if (ctx) {
-        new Chart(ctx.getContext('2d'), {
+        const seriesGrafica = {!! json_encode($seriesGrafica ?? []) !!};
+        const chart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: {!! json_encode($meses ?? []) !!},
-                datasets: [
-                    {
-                        label: 'Solicitudes',
-                        data: {!! json_encode($solicitudes ?? []) !!},
-                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                        borderColor: 'rgba(40, 167, 69, 1)',
-                        borderWidth: 1
-                    }
-                ]
+                labels: {!! json_encode($etiquetas ?? []) !!},
+                datasets: seriesGrafica.map(function (s) {
+                    return {
+                        label: s.label,
+                        data: s.data,
+                        backgroundColor: s.color + 'cc',
+                        borderColor: s.color,
+                        borderWidth: 1,
+                        stack: 'estatus'
+                    };
+                })
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            footer: function (items) {
+                                let total = 0;
+                                items.forEach(function (i) { total += i.parsed.y || 0; });
+                                return 'Total: ' + total;
+                            }
+                        }
+                    }
+                },
                 scales: {
+                    x: {
+                        stacked: true
+                    },
                     y: {
-                        beginAtZero: true
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
                     }
                 }
             }
+        });
+
+        const togglesContainer = document.getElementById('chartToggles');
+        seriesGrafica.forEach(function (s, i) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm chart-toggle-btn';
+            btn.style.backgroundColor = s.color + 'cc';
+            btn.style.borderColor = s.color;
+            btn.style.color = '#fff';
+            btn.dataset.serie = i;
+            btn.textContent = s.label;
+            btn.addEventListener('click', function () {
+                const meta = chart.getDatasetMeta(i);
+                meta.hidden = !meta.hidden;
+                btn.style.opacity = meta.hidden ? '0.35' : '1';
+                chart.update();
+            });
+            togglesContainer.appendChild(btn);
         });
     }
 

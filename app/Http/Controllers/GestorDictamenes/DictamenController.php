@@ -74,16 +74,49 @@ class DictamenController extends Controller
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
             ->unique()->sort()->values();
 
-        $meses = [];
-        $solicitudes = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $fechaInicio = now()->subMonths($i)->startOfMonth();
-            $fechaFin = now()->subMonths($i)->endOfMonth();
+        $coloresEstatus = [
+            'ENVIADO' => '#28a745',
+            'BORRADOR PARA FIRMA' => '#ffc107',
+            'EN REVISION' => '#007bff',
+            'INFORMATIVO' => '#8a2be2',
+            'S/D' => '#6c757d',
+            'DESHABILITADO' => '#dc3545',
+        ];
 
-            $meses[] = self::MESES_ESP[$fechaInicio->format('n') - 1];
-            $solicitudes[] = Dictamen::whereBetween('fecha', [$fechaInicio, $fechaFin])
-                ->where('estatus', '!=', Dictamen::DESHABILITADO)
-                ->count();
+        $estatusGrafica = array_merge(Dictamen::STATUSES, [Dictamen::DESHABILITADO]);
+
+        $buckets = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = now()->subMonths($i);
+            $buckets[$m->format('Y-m')] = [
+                'label' => self::MESES_ESP[$m->format('n') - 1] . ' ' . $m->format('Y'),
+                'datos' => array_fill_keys($estatusGrafica, 0),
+            ];
+        }
+
+        $filas = Dictamen::whereBetween('fecha', [
+            now()->subMonths(5)->startOfMonth(),
+            now()->endOfMonth(),
+        ])->get(['fecha', 'estatus']);
+
+        foreach ($filas as $f) {
+            if (!$f->fecha) {
+                continue;
+            }
+            $key = \Carbon\Carbon::parse($f->fecha)->format('Y-m');
+            if (isset($buckets[$key], $buckets[$key]['datos'][$f->estatus])) {
+                $buckets[$key]['datos'][$f->estatus]++;
+            }
+        }
+
+        $etiquetas = array_values(array_column($buckets, 'label'));
+        $seriesGrafica = [];
+        foreach ($estatusGrafica as $s) {
+            $seriesGrafica[] = [
+                'label' => $s,
+                'color' => $coloresEstatus[$s],
+                'data' => array_values(array_map(fn ($b) => $b['datos'][$s], $buckets)),
+            ];
         }
 
         return view('gestor-dictamenes.index', compact(
@@ -96,8 +129,8 @@ class DictamenController extends Controller
             'revisadosPor',
             'dependencias',
             'nombresPuestos',
-            'meses',
-            'solicitudes'
+            'etiquetas',
+            'seriesGrafica'
         ));
     }
 

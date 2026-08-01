@@ -110,21 +110,20 @@ tr:hover td {
     </div>
 
     <!-- Gráfica -->
-    <div class="mb-4">
-        <div class="chart-wrapper">
-            <div class="chart-container-sm">
-                <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
-                <div style="height: 250px; position: relative; overflow: hidden;">
-                    <canvas id="chartMeses"></canvas>
-                </div>
+    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+        <div class="card-body">
+            <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="chartMeses"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Filtros (server-side, se aplican al seleccionar; solo dictámenes ENVIADOS) -->
+    <!-- Filtros (POST, no se guardan en la URL; se aplican al seleccionar; solo dictámenes ENVIADOS) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form method="GET" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
+            <form method="POST" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
+                @csrf
                 <div class="col-auto">
                     <span class="badge bg-success me-2">Solo estatus: ENVIADO</span>
                 </div>
