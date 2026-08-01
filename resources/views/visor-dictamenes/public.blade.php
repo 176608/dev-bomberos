@@ -281,16 +281,20 @@ $(document).ready(function() {
         dropdownAutoWidth: true
     });
 
+    // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes ENVIADOS)
+    const DATOS_GRAFICA = {!! json_encode($datosGrafica ?? []) !!};
+    const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
     const ctx = document.getElementById('chartMeses');
     if (ctx) {
-        new Chart(ctx.getContext('2d'), {
+        const chart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: {!! json_encode($meses ?? []) !!},
+                labels: [],
                 datasets: [
                     {
                         label: 'Solicitudes',
-                        data: {!! json_encode($solicitudes ?? []) !!},
+                        data: [],
                         backgroundColor: 'rgba(40, 167, 69, 0.7)',
                         borderColor: 'rgba(40, 167, 69, 1)',
                         borderWidth: 1
@@ -300,13 +304,55 @@ $(document).ready(function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
                     }
                 }
             }
         });
+
+        function aplicarGrafica() {
+            const flt = {
+                anio: ($('#anioFilter').val() || ''),
+                revisado: ($('#revisadoFilter').val() || ''),
+                dependencia: ($('#dependenciaFilter').val() || ''),
+                nombrePuesto: ($('#nombrePuestoFilter').val() || '')
+            };
+
+            const datos = DATOS_GRAFICA.filter(function (d) {
+                return d.f && (!flt.anio || d.f.substring(0, 4) === flt.anio) &&
+                    (!flt.revisado || d.r === flt.revisado) &&
+                    (!flt.dependencia || d.d === flt.dependencia) &&
+                    (!flt.nombrePuesto || d.n === flt.nombrePuesto);
+            });
+
+            const buckets = {};
+            const llaves = [];
+            datos.forEach(function (d) {
+                const k = d.f.substring(0, 7);
+                buckets[k] = (buckets[k] || 0) + 1;
+                if (llaves.indexOf(k) === -1) {
+                    llaves.push(k);
+                }
+            });
+            llaves.sort();
+
+            chart.data.labels = llaves.map(function (k) {
+                const partes = k.split('-');
+                return MESES_ESP[parseInt(partes[1], 10) - 1] + ' ' + partes[0];
+            });
+            chart.data.datasets[0].data = llaves.map(function (k) {
+                return buckets[k] || 0;
+            });
+            chart.update();
+        }
+
+        aplicarGrafica();
     }
 });
 </script>

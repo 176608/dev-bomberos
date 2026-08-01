@@ -56,16 +56,14 @@ class DictamenController extends Controller
             ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
             ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
 
-        $meses = [];
-        $solicitudes = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $fechaInicio = now()->subMonths($i)->startOfMonth();
-            $fechaFin = now()->subMonths($i)->endOfMonth();
-            $meses[] = self::MESES_ESP[$fechaInicio->format('n') - 1] . ' ' . $fechaInicio->format('Y');
-            $solicitudes[] = Dictamen::whereBetween('fecha', [$fechaInicio, $fechaFin])
-                ->where('estatus', 'ENVIADO')
-                ->count();
-        }
+        $datosGrafica = Dictamen::where('estatus', 'ENVIADO')
+            ->get(['fecha', 'revisado_por', 'dependencia', 'nombre_puesto'])
+            ->map(fn ($d) => [
+                'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
+                'r' => $d->revisado_por,
+                'd' => $d->dependencia,
+                'n' => $d->nombre_puesto,
+            ])->values();
 
         return view('visor-dictamenes.public', compact(
             'dictamenes',
@@ -75,8 +73,7 @@ class DictamenController extends Controller
             'revisadosPor',
             'dependencias',
             'nombresPuestos',
-            'meses',
-            'solicitudes'
+            'datosGrafica'
         ));
     }
 

@@ -629,20 +629,31 @@ $(document).ready(function() {
         $('#editModal').modal('show');
     });
 
-    // Gráfica de Chart.js (una serie por estatus, toggles para activar/desactivar)
+    // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes)
+    const DATOS_GRAFICA = {!! json_encode($datosGrafica ?? []) !!};
+    const ORDEN_ESTATUS = ['ENVIADO', 'BORRADOR PARA FIRMA', 'EN REVISION', 'INFORMATIVO', 'S/D', 'DESHABILITADO'];
+    const COLORES_ESTATUS = {
+        'ENVIADO': '#28a745',
+        'BORRADOR PARA FIRMA': '#ffc107',
+        'EN REVISION': '#007bff',
+        'INFORMATIVO': '#8a2be2',
+        'S/D': '#6c757d',
+        'DESHABILITADO': '#dc3545'
+    };
+    const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
     const ctx = document.getElementById('chartMeses');
     if (ctx) {
-        const seriesGrafica = {!! json_encode($seriesGrafica ?? []) !!};
         const chart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: {!! json_encode($etiquetas ?? []) !!},
-                datasets: seriesGrafica.map(function (s) {
+                labels: [],
+                datasets: ORDEN_ESTATUS.map(function (s) {
                     return {
-                        label: s.label,
-                        data: s.data,
-                        backgroundColor: s.color + 'cc',
-                        borderColor: s.color,
+                        label: s,
+                        data: [],
+                        backgroundColor: COLORES_ESTATUS[s] + 'cc',
+                        borderColor: COLORES_ESTATUS[s],
                         borderWidth: 1,
                         stack: 'estatus'
                     };
@@ -652,9 +663,7 @@ $(document).ready(function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             footer: function (items) {
@@ -666,9 +675,7 @@ $(document).ready(function() {
                     }
                 },
                 scales: {
-                    x: {
-                        stacked: true
-                    },
+                    x: { stacked: true },
                     y: {
                         stacked: true,
                         beginAtZero: true,
@@ -678,16 +685,17 @@ $(document).ready(function() {
             }
         });
 
+        // Toggles de estatus (todos activados por defecto)
         const togglesContainer = document.getElementById('chartToggles');
-        seriesGrafica.forEach(function (s, i) {
+        ORDEN_ESTATUS.forEach(function (s, i) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-sm chart-toggle-btn';
-            btn.style.backgroundColor = s.color + 'cc';
-            btn.style.borderColor = s.color;
+            btn.style.backgroundColor = COLORES_ESTATUS[s] + 'cc';
+            btn.style.borderColor = COLORES_ESTATUS[s];
             btn.style.color = '#fff';
             btn.dataset.serie = i;
-            btn.textContent = s.label;
+            btn.textContent = s;
             btn.addEventListener('click', function () {
                 const meta = chart.getDatasetMeta(i);
                 meta.hidden = !meta.hidden;
@@ -696,6 +704,50 @@ $(document).ready(function() {
             });
             togglesContainer.appendChild(btn);
         });
+
+        // Recalcula la gráfica según los valores actuales de los filtros select
+        function aplicarGrafica() {
+            const flt = {
+                anio: ($('#anioFilter').val() || ''),
+                estatus: ($('#estatusFilter').val() || ''),
+                revisado: ($('#revisadoFilter').val() || ''),
+                dependencia: ($('#dependenciaFilter').val() || ''),
+                nombrePuesto: ($('#nombrePuestoFilter').val() || '')
+            };
+
+            const datos = DATOS_GRAFICA.filter(function (d) {
+                return d.f && (!flt.anio || d.f.substring(0, 4) === flt.anio) &&
+                    (!flt.estatus || d.e === flt.estatus) &&
+                    (!flt.revisado || d.r === flt.revisado) &&
+                    (!flt.dependencia || d.d === flt.dependencia) &&
+                    (!flt.nombrePuesto || d.n === flt.nombrePuesto);
+            });
+
+            const buckets = {};
+            const llaves = [];
+            datos.forEach(function (d) {
+                const k = d.f.substring(0, 7);
+                if (!(k in buckets)) {
+                    buckets[k] = {};
+                    llaves.push(k);
+                }
+                buckets[k][d.e] = (buckets[k][d.e] || 0) + 1;
+            });
+            llaves.sort();
+
+            chart.data.labels = llaves.map(function (k) {
+                const partes = k.split('-');
+                return MESES_ESP[parseInt(partes[1], 10) - 1] + ' ' + partes[0];
+            });
+            ORDEN_ESTATUS.forEach(function (s, i) {
+                chart.data.datasets[i].data = llaves.map(function (k) {
+                    return buckets[k][s] || 0;
+                });
+            });
+            chart.update();
+        }
+
+        aplicarGrafica();
     }
 
     // ============ Gestor de Archivos ============

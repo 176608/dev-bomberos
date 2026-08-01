@@ -74,50 +74,14 @@ class DictamenController extends Controller
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
             ->unique()->sort()->values();
 
-        $coloresEstatus = [
-            'ENVIADO' => '#28a745',
-            'BORRADOR PARA FIRMA' => '#ffc107',
-            'EN REVISION' => '#007bff',
-            'INFORMATIVO' => '#8a2be2',
-            'S/D' => '#6c757d',
-            'DESHABILITADO' => '#dc3545',
-        ];
-
-        $estatusGrafica = array_merge(Dictamen::STATUSES, [Dictamen::DESHABILITADO]);
-
-        $buckets = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $m = now()->subMonths($i);
-            $buckets[$m->format('Y-m')] = [
-                'label' => self::MESES_ESP[$m->format('n') - 1] . ' ' . $m->format('Y'),
-                'datos' => array_fill_keys($estatusGrafica, 0),
-            ];
-        }
-
-        $filas = Dictamen::whereBetween('fecha', [
-            now()->subMonths(5)->startOfMonth(),
-            now()->endOfMonth(),
-        ])->get(['fecha', 'estatus']);
-
-        foreach ($filas as $f) {
-            if (!$f->fecha) {
-                continue;
-            }
-            $key = \Carbon\Carbon::parse($f->fecha)->format('Y-m');
-            if (isset($buckets[$key], $buckets[$key]['datos'][$f->estatus])) {
-                $buckets[$key]['datos'][$f->estatus]++;
-            }
-        }
-
-        $etiquetas = array_values(array_column($buckets, 'label'));
-        $seriesGrafica = [];
-        foreach ($estatusGrafica as $s) {
-            $seriesGrafica[] = [
-                'label' => $s,
-                'color' => $coloresEstatus[$s],
-                'data' => array_values(array_map(fn ($b) => $b['datos'][$s], $buckets)),
-            ];
-        }
+        $datosGrafica = Dictamen::get(['fecha', 'estatus', 'revisado_por', 'dependencia', 'nombre_puesto'])
+            ->map(fn ($d) => [
+                'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
+                'e' => $d->estatus,
+                'r' => $d->revisado_por,
+                'd' => $d->dependencia,
+                'n' => $d->nombre_puesto,
+            ])->values();
 
         return view('gestor-dictamenes.index', compact(
             'dictamenes',
@@ -129,8 +93,7 @@ class DictamenController extends Controller
             'revisadosPor',
             'dependencias',
             'nombresPuestos',
-            'etiquetas',
-            'seriesGrafica'
+            'datosGrafica'
         ));
     }
 
