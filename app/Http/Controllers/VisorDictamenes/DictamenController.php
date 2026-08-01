@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\VisorDictamenes;
 
 use App\Models\GestorDictamenes\Dictamen;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
 
 class DictamenController extends Controller
