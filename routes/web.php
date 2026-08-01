@@ -13,8 +13,14 @@ require __DIR__.'/VisorSIGEM/laravel_v2.php';
 // Incluir rutas GestorSIGEM (SGIEM - administración)
 require __DIR__.'/GestorSIGEM/web.php';
 
-// Incluir rutas SGDictamen (Dictámenes)
+// Incluir rutas SGDictamen (Dictámenes - legacy)
 require __DIR__.'/SGDictamen/web.php';
+
+// Incluir rutas GestorDictamenes (nuevo backend SGD)
+require __DIR__.'/GestorDictamenes/web.php';
+
+// Incluir rutas VisorDictamenes (nuevo frontend público SGD)
+require __DIR__.'/VisorDictamenes/web.php';
 
 // Incluir rutas Biblioteca (Catalogo)
 require __DIR__.'/Biblioteca/web.php';

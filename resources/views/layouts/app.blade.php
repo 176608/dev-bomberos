@@ -257,8 +257,8 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
-                                        href="{{ route('sg-dictamen.index') }}" 
+                                    <a class="nav-link {{ request()->routeIs('gestor-dictamenes.*') ? 'active' : '' }}" 
+                                        href="{{ route('gestor-dictamenes.index') }}" 
                                         title="Módulo de Gestión y Consulta de Dictámenes">
                                         <i class="bi bi-file-earmark-text-fill"></i> SGD
                                     </a>
@@ -306,8 +306,8 @@
                                 </li>
                             @elseif(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes']))
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sg-dictamen.*') ? 'active' : '' }}" 
-                                       href="{{ route('sg-dictamen.index') }}" 
+                                    <a class="nav-link {{ request()->routeIs('gestor-dictamenes.*') ? 'active' : '' }}" 
+                                       href="{{ route('gestor-dictamenes.index') }}" 
                                        title="Módulo de Gestión y Consulta de Dictámenes">
                                         <i class="bi bi-file-earmark-text-fill"></i> SGD
                                     </a>

@@ -60,8 +60,8 @@ class CheckRole
             'Desarrollador'             => 'admin.panel',
             'Capturista'                => 'capturista.panel',
             'Registrador'               => 'registrador.panel',
-            'Administrador Dictamenes'  => 'sg-dictamen.index',
-            'Editor Dictamenes'         => 'sg-dictamen.index',
+            'Administrador Dictamenes'  => 'gestor-dictamenes.index',
+            'Editor Dictamenes'         => 'gestor-dictamenes.index',
             'Estadistico'               => 'sgiem.admin.index',
         ];
 
