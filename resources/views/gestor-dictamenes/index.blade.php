@@ -125,11 +125,10 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Filtros (POST, no se guardan en la URL; se aplican al seleccionar) -->
+    <!-- Filtros (GET, se guardan en la URL; se aplican al seleccionar) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form method="POST" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
-                @csrf
+            <form method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
                     <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
                 </div>
@@ -603,7 +602,7 @@ $(document).ready(function() {
         dropdownAutoWidth: true
     });
 
-    // Los filtros se aplican al cambiar la selección (POST; no se ven en la URL)
+    // Los filtros se aplican al cambiar la selección (GET; se guardan en la URL)
     $('.filter-select').on('change', function () {
         this.form.submit();
     });
