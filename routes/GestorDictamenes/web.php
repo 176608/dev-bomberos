@@ -37,10 +37,11 @@ Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
     Route::post('/archivos/desvincular', [DictamenController::class, 'desvincularArchivo'])->name('archivo-desvincular')
         ->middleware('role:Administrador Dictamenes,Desarrollador');
 
-    // Deshabilitar (soft delete por estatus) + Ver Eliminados + Restaurar - Admin Dictamenes y Desarrollador
+    // Deshabilitar (soft delete por estatus) + Ver Deshabilitados + Restaurar + Historial - Admin Dictamenes y Desarrollador
     Route::middleware('role:Administrador Dictamenes,Desarrollador')->group(function () {
         Route::delete('/{dictamen}', [DictamenController::class, 'destroy'])->name('destroy');
         Route::get('/deleted', [DictamenController::class, 'deletedDictamenes'])->name('deleted');
         Route::post('/{dictamen}/restore', [DictamenController::class, 'restore'])->name('restore');
+        Route::get('/historial', [DictamenController::class, 'historialCambios'])->name('historial');
     });
 });

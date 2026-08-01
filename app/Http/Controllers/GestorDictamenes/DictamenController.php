@@ -12,6 +12,8 @@ use Illuminate\Validation\Rule;
 
 class DictamenController extends Controller
 {
+    private const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
     public function index(Request $request)
     {
         $query = Dictamen::query();
@@ -20,6 +22,10 @@ class DictamenController extends Controller
             $query->where('estatus', $request->estatus);
         } else {
             $query->where('estatus', '!=', Dictamen::DESHABILITADO);
+        }
+
+        if ($request->filled('anio') && preg_match('/^\d{4}$/', $request->anio)) {
+            $query->where('anio', $request->anio);
         }
 
         if ($request->filled('revisado_por')) {
@@ -46,6 +52,12 @@ class DictamenController extends Controller
         }
         $enviados = $conteoEstatus['ENVIADO'];
 
+        $anios = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('anio')
+            ->distinct()
+            ->orderBy('anio')
+            ->pluck('anio');
+
         $revisadosPor = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
             ->whereNotNull('revisado_por')->where('revisado_por', '!=', '')
             ->distinct()->orderBy('revisado_por')->pluck('revisado_por');
@@ -58,13 +70,17 @@ class DictamenController extends Controller
             ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
             ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
 
+        $aniosDisponibles = collect($anios)
+            ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
+            ->unique()->sort()->values();
+
         $meses = [];
         $solicitudes = [];
         for ($i = 5; $i >= 0; $i--) {
             $fechaInicio = now()->subMonths($i)->startOfMonth();
             $fechaFin = now()->subMonths($i)->endOfMonth();
 
-            $meses[] = $fechaInicio->format('M');
+            $meses[] = self::MESES_ESP[$fechaInicio->format('n') - 1];
             $solicitudes[] = Dictamen::whereBetween('fecha', [$fechaInicio, $fechaFin])
                 ->where('estatus', '!=', Dictamen::DESHABILITADO)
                 ->count();
@@ -75,6 +91,8 @@ class DictamenController extends Controller
             'total',
             'conteoEstatus',
             'enviados',
+            'anios',
+            'aniosDisponibles',
             'revisadosPor',
             'dependencias',
             'nombresPuestos',
@@ -88,7 +106,7 @@ class DictamenController extends Controller
         $request->validate([
             'fecha' => 'required|date',
             'numero_oficio_raw' => 'required|string|max:255',
-            'archivo_raw' => 'nullable|string|max:255',
+            'clave_documento' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
             'estatus' => ['required', Rule::in(Dictamen::STATUSES)],
@@ -100,7 +118,7 @@ class DictamenController extends Controller
         $dictamen = Dictamen::create([
             'fecha' => $request->fecha,
             'numero_oficio_raw' => $request->numero_oficio_raw,
-            'archivo_raw' => $request->archivo_raw,
+            'clave_documento' => $request->clave_documento,
             'dependencia_empres' => $request->dependencia_empres,
             'asunto' => $request->asunto,
             'estatus' => $request->estatus,
@@ -111,7 +129,7 @@ class DictamenController extends Controller
         ]);
         $dictamen->refresh();
 
-        $this->auditar($dictamen, deleted: false);
+        $this->auditar($dictamen, 'CREAR');
 
         return back()->with('success', 'Dictamen creado correctamente.');
     }
@@ -121,7 +139,7 @@ class DictamenController extends Controller
         $request->validate([
             'fecha' => 'required|date',
             'numero_oficio_raw' => 'required|string|max:255',
-            'archivo_raw' => 'nullable|string|max:255',
+            'clave_documento' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
             'estatus' => ['required', Rule::in(Dictamen::STATUSES)],
@@ -133,7 +151,7 @@ class DictamenController extends Controller
         $dictamen->update([
             'fecha' => $request->fecha,
             'numero_oficio_raw' => $request->numero_oficio_raw,
-            'archivo_raw' => $request->archivo_raw,
+            'clave_documento' => $request->clave_documento,
             'dependencia_empres' => $request->dependencia_empres,
             'asunto' => $request->asunto,
             'estatus' => $request->estatus,
@@ -144,7 +162,7 @@ class DictamenController extends Controller
         ]);
         $dictamen->refresh();
 
-        $this->auditar($dictamen, deleted: false);
+        $this->auditar($dictamen, 'MODIFICAR');
 
         return back()->with('success', 'Dictamen actualizado correctamente.');
     }
@@ -155,7 +173,7 @@ class DictamenController extends Controller
             return back()->with('error', 'El dictamen ya está deshabilitado.');
         }
 
-        $this->auditar($dictamen, deleted: true);
+        $this->auditar($dictamen, 'DESHABILITAR', deleted: true);
 
         $dictamen->update([
             'estatus' => Dictamen::DESHABILITADO,
@@ -183,6 +201,9 @@ class DictamenController extends Controller
             'estatus' => $estatusAnterior,
             'updated_by' => auth()->id(),
         ]);
+        $dictamen->refresh();
+
+        $this->auditar($dictamen, 'RESTAURAR');
 
         return back()->with('success', "Dictamen restaurado correctamente (estatus: {$estatusAnterior}).");
     }
@@ -195,6 +216,16 @@ class DictamenController extends Controller
             ->get();
 
         return view('gestor-dictamenes.deleted', compact('dictamenes'));
+    }
+
+    public function historialCambios()
+    {
+        $cambios = DB::table('dictamenes_audit_log')
+            ->orderByDesc('id')
+            ->limit(1000)
+            ->get();
+
+        return view('gestor-dictamenes.historial', compact('cambios'));
     }
 
     // ==================== Gestión de archivos ====================
@@ -217,17 +248,23 @@ class DictamenController extends Controller
 
     private function normalizarClave(?string $clave): string
     {
-        return strtoupper(str_replace([' ', '-', '_'], '', trim((string) $clave)));
+        return strtoupper(str_replace([' ', '-', '_', '.', ',', '/'], '', trim((string) $clave)));
+    }
+
+    private function claveCoincide(string $claveNorm, string $nombreNorm): bool
+    {
+        return $claveNorm !== '' && $nombreNorm !== ''
+            && ($nombreNorm === $claveNorm || str_starts_with($nombreNorm, $claveNorm));
     }
 
     private function anotarEstadoArchivo($dictamenes, array $archivosPorAnio): void
     {
         foreach ($dictamenes as $d) {
-            $clave = trim((string) $d->archivo_raw);
+            $clave = trim((string) $d->clave_documento);
             $d->estado_archivo = 'sin_clave';
             $d->archivos_encontrados = [];
 
-            if ($clave === '' || strtoupper($clave) === 'S/N' || strtoupper($clave) === 'S/D' || $d->anio === null) {
+            if ($clave === '' || in_array(strtoupper($clave), ['S/N', 'S/D'], true)) {
                 continue;
             }
 
@@ -237,14 +274,9 @@ class DictamenController extends Controller
             }
 
             $coincidencias = [];
-            $aniosBuscar = [$d->anio, ''];
-            foreach ($aniosBuscar as $anio) {
-                if (!isset($archivosPorAnio[$anio])) {
-                    continue;
-                }
-                foreach ($archivosPorAnio[$anio] as $nombre) {
-                    if ($this->normalizarClave($nombre) === $claveNorm
-                        || preg_match('/^' . preg_quote($claveNorm, '/') . '/i', $this->normalizarClave($nombre))) {
+            foreach ($archivosPorAnio as $anio => $nombres) {
+                foreach ($nombres as $nombre) {
+                    if ($this->claveCoincide($claveNorm, $this->normalizarClave($nombre))) {
                         $coincidencias[] = $anio !== '' ? $anio . '/' . $nombre : $nombre;
                     }
                 }
@@ -259,20 +291,31 @@ class DictamenController extends Controller
 
     public function archivosIndex(Request $request)
     {
+        $porAnio = $this->archivosDiscoPorAnio();
+
+        $dictamenesPorAnio = Dictamen::whereNotNull('anio')->get()->groupBy('anio');
+
         $archivos = [];
-        foreach ($this->archivosDiscoPorAnio() as $anio => $nombres) {
+        foreach ($porAnio as $anio => $nombres) {
             foreach ($nombres as $nombre) {
                 if (!preg_match('/\.(doc|docx)$/i', $nombre)) {
                     continue;
                 }
                 $ruta = $anio !== '' ? $anio . '/' . $nombre : $nombre;
+                $ligado = 0;
+                if ($anio !== '' && isset($dictamenesPorAnio[$anio])) {
+                    $nombreNorm = $this->normalizarClave($nombre);
+                    foreach ($dictamenesPorAnio[$anio] as $d) {
+                        if ($this->claveCoincide($this->normalizarClave($d->clave_documento), $nombreNorm)) {
+                            $ligado++;
+                        }
+                    }
+                }
                 $archivos[] = [
                     'ruta' => $ruta,
                     'anio' => $anio !== '' ? $anio : null,
                     'nombre' => $nombre,
-                    'ligado' => DictamenArchivo::where('anio', $anio !== '' ? (int) $anio : null)
-                        ->where('nombre_archivo', $nombre)
-                        ->count(),
+                    'ligado' => $ligado,
                 ];
             }
         }
@@ -331,8 +374,7 @@ class DictamenController extends Controller
         $archivoNorm = $this->normalizarClave($nombre);
 
         $candidatos = Dictamen::where('anio', (int) $anio)->get()->filter(function ($d) use ($archivoNorm) {
-            $claveNorm = $this->normalizarClave($d->archivo_raw);
-            return $claveNorm !== '' && ($claveNorm === $archivoNorm || preg_match('/^' . preg_quote($claveNorm, '/') . '/i', $archivoNorm));
+            return $this->claveCoincide($this->normalizarClave($d->clave_documento), $archivoNorm);
         });
 
         $contador = 0;
@@ -435,10 +477,11 @@ class DictamenController extends Controller
         ]);
     }
 
-    private function auditar(Dictamen $dictamen, bool $deleted = false)
+    private function auditar(Dictamen $dictamen, string $accion, bool $deleted = false)
     {
         DB::table('dictamenes_audit_log')->insert([
             'dictamen_id' => $dictamen->id,
+            'accion' => $accion,
             'anio' => $dictamen->anio,
             'dia' => $dictamen->dia,
             'mes' => $dictamen->mes,
@@ -449,11 +492,11 @@ class DictamenController extends Controller
             'asunto' => $dictamen->asunto,
             'estatus' => $dictamen->estatus,
             'numero_oficio_raw' => $dictamen->numero_oficio_raw,
-            'archivo_raw' => $dictamen->archivo_raw,
+            'archivo_raw' => $dictamen->clave_documento,
             'revisado_por' => $dictamen->revisado_por,
             'observaciones' => $dictamen->observaciones,
             'fecha' => $dictamen->fecha,
-            'archivo' => $dictamen->archivo_raw,
+            'archivo' => $dictamen->clave_documento,
             'created_by' => $dictamen->created_by,
             'updated_by' => $dictamen->updated_by,
             'deleted_by' => $deleted ? auth()->id() : null,

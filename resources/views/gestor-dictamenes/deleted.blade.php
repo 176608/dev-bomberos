@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Historial de Eliminados - Gestor de Dictámenes')
+@section('title', 'Dictámenes Deshabilitados - Gestor de Dictámenes')
 
 @section('content')
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-clock-history"></i> Historial de Dictámenes Eliminados</h2>
+        <h2><i class="bi bi-eye-slash"></i> Dictámenes Deshabilitados</h2>
         <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>

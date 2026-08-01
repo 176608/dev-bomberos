@@ -121,18 +121,21 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Filtros (server-side) -->
+    <!-- Filtros (server-side, se aplican al seleccionar; solo dictámenes ENVIADOS) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
             <form method="GET" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
+                    <span class="badge bg-success me-2">Solo estatus: ENVIADO</span>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus" onchange="this.form.submit()">
+                    <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio" onchange="this.form.submit()">
                         <option value="">Todos</option>
-                        @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
-                            <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
+                        @foreach($anios as $a)
+                            <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -169,12 +172,13 @@ tr:hover td {
                         @endforeach
                     </select>
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
-                    @if(request()->hasAny(['estatus', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                        <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-link">Limpiar</a>
-                    @endif
-                </div>
+                @if(request()->hasAny(['anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
+                    <div class="col-auto">
+                        <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </a>
+                    </div>
+                @endif
             </form>
         </div>
     </div>
@@ -185,6 +189,7 @@ tr:hover td {
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
+                    <th>Año</th>
                     <th># Oficio</th>
                     <th>Dependencia</th>
                     <th>Asunto</th>
@@ -197,6 +202,13 @@ tr:hover td {
                 <tr>
                     <td data-order="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '0000-00-00' }}">
                         {{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}
+                    </td>
+                    <td>
+                        @if($d->anio)
+                            <span class="badge bg-dark">{{ $d->anio }}</span>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
                     </td>
                     <td>{{ $d->oficio ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
@@ -216,7 +228,7 @@ tr:hover td {
                                 <i class="bi bi-check-circle"></i> Encontrado
                             </span>
                         @elseif($estadoA === 'no_encontrado')
-                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->archivo_raw }} en el servidor">
+                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
                                 <i class="bi bi-x-circle"></i> No encontrado
                             </span>
                         @elseif($estadoA === 'multiples')

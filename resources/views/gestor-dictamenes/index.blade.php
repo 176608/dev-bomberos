@@ -123,10 +123,21 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Filtros (server-side) -->
+    <!-- Filtros (server-side, se aplican al seleccionar) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
             <form method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        @foreach($anios as $a)
+                            <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-auto">
                     <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
                 </div>
@@ -171,12 +182,13 @@ tr:hover td {
                         @endforeach
                     </select>
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
-                    @if(request()->hasAny(['estatus', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-link">Limpiar</a>
-                    @endif
-                </div>
+                @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
+                    <div class="col-auto">
+                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </a>
+                    </div>
+                @endif
             </form>
         </div>
     </div>
@@ -193,7 +205,10 @@ tr:hover td {
         </button>
         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
             <a href="{{ route('gestor-dictamenes.deleted') }}" class="btn btn-outline-danger">
-                <i class="bi bi-trash"></i> Ver Eliminados
+                <i class="bi bi-eye-slash"></i> Ver Deshabilitados
+            </a>
+            <a href="{{ route('gestor-dictamenes.historial') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-clock-history"></i> Ver últimos cambios
             </a>
         @endif
     </div>
@@ -204,6 +219,7 @@ tr:hover td {
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
+                    <th>Año</th>
                     <th># Oficio</th>
                     <th>Dependencia</th>
                     <th>Asunto</th>
@@ -211,7 +227,6 @@ tr:hover td {
                     <th>Nombre / Puesto</th>
                     <th>Revisado por</th>
                     <th>Núm. Oficio</th>
-                    <th>Observaciones</th>
                     <th>Archivo</th>
                     <th>Acciones</th>
                 </tr>
@@ -225,12 +240,19 @@ tr:hover td {
                     data-dependencia="{{ $d->dependencia_empres ?? '' }}"
                     data-asunto="{{ $d->asunto ?? '' }}"
                     data-numero-oficio="{{ $d->numero_oficio_raw ?? '' }}"
-                    data-archivo-raw="{{ $d->archivo_raw ?? '' }}"
+                    data-clave-documento="{{ $d->clave_documento ?? '' }}"
                     data-revisado-por="{{ $d->revisado_por ?? '' }}"
                     data-estatus="{{ $d->estatus ?? '' }}"
                     data-observaciones="{{ $d->observaciones ?? '' }}"
                 >
                     <td>{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
+                    <td>
+                        @if($d->anio)
+                            <span class="badge bg-dark">{{ $d->anio }}</span>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
+                    </td>
                     <td>{{ $d->oficio ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
@@ -242,7 +264,6 @@ tr:hover td {
                     <td>{{ $d->nombre_puesto ?? '—' }}</td>
                     <td>{{ $d->revisado_por ?? '—' }}</td>
                     <td>{{ $d->numero_oficio_raw ?? '—' }}</td>
-                    <td>{{ $d->observaciones ?? '—' }}</td>
                     <td>
                         @php
                             $estadoA = $d->estado_archivo ?? 'sin_clave';
@@ -254,7 +275,7 @@ tr:hover td {
                                 <i class="bi bi-check-circle"></i> {{ basename($encontradosA[0] ?? '') }}
                             </span>
                         @elseif($estadoA === 'no_encontrado')
-                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->archivo_raw }} en el servidor">
+                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
                                 <i class="bi bi-x-circle"></i> No encontrado
                             </span>
                         @elseif($estadoA === 'multiples')
@@ -266,7 +287,7 @@ tr:hover td {
                         @endif
                         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
                             <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#linkModal"
-                                    title="Ligar / desligar archivos ({{ $d->archivo_raw }} @ {{ $d->anio }})">
+                                    title="Ligar / desligar archivos ({{ $d->clave_documento }} @ {{ $d->anio }})">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
                         @endif
@@ -331,8 +352,8 @@ tr:hover td {
                         <input type="text" class="form-control" name="oficio">
                     </div>
                     <div class="mb-3">
-                        <label>Clave de archivo</label>
-                        <input type="text" class="form-control" name="archivo_raw" placeholder="Ej. PYP024, DIR143">
+                        <label>Clave de documento</label>
+                        <input type="text" class="form-control" name="clave_documento" placeholder="Ej. PYP024, DIR143">
                     </div>
                     <div class="mb-3">
                         <label>Nombre / Puesto</label>
@@ -399,8 +420,8 @@ tr:hover td {
                             <input type="text" class="form-control" id="oficio_edit" name="oficio">
                         </div>
                         <div class="col-md-4">
-                            <label>Clave de archivo</label>
-                            <input type="text" class="form-control" id="archivo_raw_edit" name="archivo_raw" placeholder="Ej. PYP024, DIR143">
+                            <label>Clave de documento</label>
+                            <input type="text" class="form-control" id="clave_documento_edit" name="clave_documento" placeholder="Ej. PYP024, DIR143">
                         </div>
                         <div class="col-md-4">
                             <label>Estatus</label>
@@ -453,12 +474,18 @@ tr:hover td {
             <div class="modal-body">
                 <div class="d-flex gap-2 mb-3">
                     <input type="text" id="archivosSearch" class="form-control" placeholder="Buscar por nombre...">
+                    <select id="archivosFiltroAnio" class="form-select form-select-sm text-nowrap" style="width: 110px;">
+                        <option value="">Todos</option>
+                        @foreach($aniosDisponibles as $a)
+                            <option value="{{ $a }}">{{ $a }}</option>
+                        @endforeach
+                    </select>
                     <input type="file" id="archivoInput" accept=".doc,.docx" hidden>
                     <select id="archivoAnio" class="form-select form-select-sm text-nowrap" style="width: 110px;">
                         <option value="">Sin año</option>
-                        <option>2025</option>
-                        <option>2026</option>
-                        <option>2027</option>
+                        @foreach($aniosDisponibles as $a)
+                            <option value="{{ $a }}">{{ $a }}</option>
+                        @endforeach
                     </select>
                     <button class="btn btn-success text-nowrap" id="btnSubirArchivo">
                         <i class="bi bi-upload"></i> Subir nuevo archivo
@@ -590,7 +617,7 @@ $(document).ready(function() {
         $('#dependencia_empres_edit').val($row.data('dependencia') || '');
         $('#asunto_edit').val($row.data('asunto') || '');
         $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
-        $('#archivo_raw_edit').val($row.data('archivo-raw') || '');
+        $('#clave_documento_edit').val($row.data('clave-documento') || '');
         $('#revisado_por_edit').val($row.data('revisado-por') || '');
         $('#estatus_edit').val($row.data('estatus') || '');
         $('#observaciones_edit').val($row.data('observaciones') || '');
@@ -659,8 +686,12 @@ $(document).ready(function() {
 
     function renderArchivos() {
         const q = ($('#archivosSearch').val() || '').toLowerCase();
+        const anioFiltro = $('#archivosFiltroAnio').val();
         const $tbody = $('#archivosLista').empty();
-        const lista = (window.__archivos || []).filter(a => a.nombre.toLowerCase().includes(q));
+        const lista = (window.__archivos || []).filter(a =>
+            a.nombre.toLowerCase().includes(q) &&
+            (anioFiltro === '' || (a.anio !== null && String(a.anio) === anioFiltro))
+        );
 
         if (!lista.length) {
             $tbody.html('<tr><td colspan="4" class="text-center text-muted">No se encontraron archivos.</td></tr>');
@@ -688,12 +719,14 @@ $(document).ready(function() {
     $('#archivosModal').on('show.bs.modal', function() {
         $('#archivoConflicto').addClass('d-none');
         $('#archivosSearch').val('');
+        $('#archivosFiltroAnio').val('');
         $('#archivoInput').val('');
         archivoPendiente = null;
         cargarArchivos();
     });
 
     $('#archivosSearch').on('input', renderArchivos);
+    $('#archivosFiltroAnio').on('change', renderArchivos);
 
     $('#btnSubirArchivo').on('click', function() {
         $('#archivoInput').trigger('click');

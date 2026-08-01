@@ -39,7 +39,7 @@ class Dictamen extends Model
         'asunto',
         'estatus',
         'numero_oficio_raw',
-        'archivo_raw',
+        'clave_documento',
         'revisado_por',
         'observaciones',
         'fecha',
