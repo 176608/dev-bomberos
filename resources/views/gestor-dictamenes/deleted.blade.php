@@ -51,7 +51,7 @@
                     <td>{{ $log->deleted_by }}</td>
                     <td>{{ $log->deleted_at ? \Carbon\Carbon::parse($log->deleted_at)->format('d/m/Y H:i') : 'N/A' }}</td>
                     <td>
-                        <form action="{{ route('gestor-dictamenes.restore', $log->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('gestor-dictamenes.restore', $log->dictamen_id) }}" method="POST" style="display:inline;">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Estás seguro que deseas restaurar este dictamen?');">
                                 <i class="bi bi-arrow-counterclockwise"></i> Restaurar

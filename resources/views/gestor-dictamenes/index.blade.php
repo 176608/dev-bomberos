@@ -87,6 +87,7 @@ tr:hover td {
         'EN REVISION' => '#007bff',
         'INFORMATIVO' => '#8a2be2',
         'S/D' => '#6c757d',
+        'DESHABILITADO' => '#dc3545',
     ];
 @endphp
 
@@ -122,27 +123,57 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Filtro por estatus (server-side) -->
+    <!-- Filtros (server-side) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
             <form method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Filtrar por estatus:</strong></label>
+                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm" id="estatusFilter" name="estatus" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus" onchange="this.form.submit()">
                         <option value="">Todos</option>
-                        @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
+                        @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
                             <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input type="text" class="form-control form-control-sm" name="search" placeholder="Buscar..." value="{{ request('search') }}" style="min-width: 260px;">
+                    <label class="form-label mb-0 me-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        @foreach($revisadosPor as $r)
+                            <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-0 me-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia" onchange="this.form.submit()">
+                        <option value="">Todas</option>
+                        @foreach($dependencias as $dep)
+                            <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-0 me-2" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        @foreach($nombresPuestos as $np)
+                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
-                    @if(request()->hasAny(['estatus', 'search']))
+                    @if(request()->hasAny(['estatus', 'revisado_por', 'dependencia', 'nombre_puesto']))
                         <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-link">Limpiar</a>
                     @endif
                 </div>
@@ -150,15 +181,22 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Botón Agregar + Ver Eliminados (solo Administrador Dictamenes y Desarrollador) -->
-    @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
-            <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
+    <!-- Botones superiores -->
+    <div class="mb-3">
+        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
+            </button>
+        @endif
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#archivosModal">
+            <i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes
         </button>
-        <a href="{{ route('gestor-dictamenes.deleted') }}" class="btn btn-outline-danger mb-3">
-            <i class="bi bi-trash"></i> Ver Eliminados
-        </a>
-    @endif
+        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+            <a href="{{ route('gestor-dictamenes.deleted') }}" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Ver Eliminados
+            </a>
+        @endif
+    </div>
 
     <!-- Tabla -->
     <div class="table-responsive">
@@ -186,7 +224,8 @@ tr:hover td {
                     data-nombre-puesto="{{ $d->nombre_puesto ?? '' }}"
                     data-dependencia="{{ $d->dependencia_empres ?? '' }}"
                     data-asunto="{{ $d->asunto ?? '' }}"
-                    data-numero-oficio="{{ $d->numero_oficio ?? '' }}"
+                    data-numero-oficio="{{ $d->numero_oficio_raw ?? '' }}"
+                    data-archivo-raw="{{ $d->archivo_raw ?? '' }}"
                     data-revisado-por="{{ $d->revisado_por ?? '' }}"
                     data-estatus="{{ $d->estatus ?? '' }}"
                     data-observaciones="{{ $d->observaciones ?? '' }}"
@@ -196,37 +235,69 @@ tr:hover td {
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
                     <td>
-                        <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ ($d->estatus ?? '') === 'BORRADOR PARA FIRMA' ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
+                        <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ in_array($d->estatus ?? '', ['BORRADOR PARA FIRMA']) ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ $d->estatus ?? 'S/D' }}
                         </span>
                     </td>
                     <td>{{ $d->nombre_puesto ?? '—' }}</td>
                     <td>{{ $d->revisado_por ?? '—' }}</td>
-                    <td>{{ $d->numero_oficio ?? '—' }}</td>
+                    <td>{{ $d->numero_oficio_raw ?? '—' }}</td>
                     <td>{{ $d->observaciones ?? '—' }}</td>
                     <td>
-                        @if(!empty($d->archivo))
-                            <span class="badge bg-info text-dark" title="Nombre físico en servidor">{{ $d->archivo }}</span>
+                        @php
+                            $estadoA = $d->estado_archivo ?? 'sin_clave';
+                            $encontradosA = $d->archivos_encontrados ?? [];
+                            $ligadosA = $d->archivosLigados ?? collect();
+                        @endphp
+                        @if($estadoA === 'encontrado')
+                            <span class="badge bg-primary" title="Encontrado en el servidor: {{ $encontradosA[0] ?? '' }}">
+                                <i class="bi bi-check-circle"></i> {{ basename($encontradosA[0] ?? '') }}
+                            </span>
+                        @elseif($estadoA === 'no_encontrado')
+                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->archivo_raw }} en el servidor">
+                                <i class="bi bi-x-circle"></i> No encontrado
+                            </span>
+                        @elseif($estadoA === 'multiples')
+                            <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
+                                <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
+                            </span>
                         @else
                             <span class="text-muted">—</span>
                         @endif
-                    </td>
-                    <td>
-                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
-                            <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
-                                <i class="bi bi-pencil"></i> Editar
+                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
+                            <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#linkModal"
+                                    title="Ligar / desligar archivos ({{ $d->archivo_raw }} @ {{ $d->anio }})">
+                                <i class="bi bi-link-45deg"></i>
                             </button>
                         @endif
+                    </td>
+                    <td>
+                        @if(($d->estatus ?? '') === \App\Models\GestorDictamenes\Dictamen::DESHABILITADO)
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+                                <form action="{{ route('gestor-dictamenes.restore', $d->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button class="btn btn-sm btn-outline-success" onclick="return confirm('¿Deseas restaurar este dictamen?');">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                                    </button>
+                                </form>
+                            @endif
+                        @else
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
+                                <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                            @endif
 
-                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-                            <form id="delete-form-{{ $d->id }}" action="{{ route('gestor-dictamenes.destroy', $d->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                            <button class="btn btn-sm btn-danger delete-btn"
-                                    onclick="if(confirm('¿Estás seguro que deseas eliminar este dictamen?')) document.getElementById('delete-form-{{ $d->id }}').submit();">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+                                <form id="delete-form-{{ $d->id }}" action="{{ route('gestor-dictamenes.destroy', $d->id) }}" method="POST" style="display: none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                <button class="btn btn-sm btn-danger delete-btn"
+                                        onclick="if(confirm('¿Estás seguro que deseas deshabilitar este dictamen?')) document.getElementById('delete-form-{{ $d->id }}').submit();">
+                                    <i class="bi bi-trash"></i> Deshabilitar
+                                </button>
+                            @endif
                         @endif
                     </td>
                 </tr>
@@ -253,11 +324,15 @@ tr:hover td {
                     </div>
                     <div class="mb-3">
                         <label>Núm. Oficio</label>
-                        <input type="text" class="form-control" name="numero_oficio" required>
+                        <input type="text" class="form-control" name="numero_oficio_raw" required>
                     </div>
                     <div class="mb-3">
                         <label># Oficio</label>
                         <input type="text" class="form-control" name="oficio">
+                    </div>
+                    <div class="mb-3">
+                        <label>Clave de archivo</label>
+                        <input type="text" class="form-control" name="archivo_raw" placeholder="Ej. PYP024, DIR143">
                     </div>
                     <div class="mb-3">
                         <label>Nombre / Puesto</label>
@@ -298,9 +373,9 @@ tr:hover td {
     </div>
 </div>
 
-<!-- Modal Editar -->
+<!-- Modal Editar (extendido horizontalmente) -->
 <div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Editar Dictamen</h5>
@@ -310,46 +385,52 @@ tr:hover td {
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Fecha</label>
-                        <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Núm. Oficio</label>
-                        <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio" required>
-                    </div>
-                    <div class="mb-3">
-                        <label># Oficio</label>
-                        <input type="text" class="form-control" id="oficio_edit" name="oficio">
-                    </div>
-                    <div class="mb-3">
-                        <label>Nombre / Puesto</label>
-                        <input type="text" class="form-control" id="nombre_puesto_edit" name="nombre_puesto">
-                    </div>
-                    <div class="mb-3">
-                        <label>Dependencia</label>
-                        <input type="text" class="form-control" id="dependencia_empres_edit" name="dependencia_empres">
-                    </div>
-                    <div class="mb-3">
-                        <label>Asunto</label>
-                        <textarea class="form-control" id="asunto_edit" name="asunto" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label>Revisado por</label>
-                        <input type="text" class="form-control" id="revisado_por_edit" name="revisado_por">
-                    </div>
-                    <div class="mb-3">
-                        <label>Estatus</label>
-                        <select class="form-control" id="estatus_edit" name="estatus" required>
-                            <option value="">Seleccione un estatus...</option>
-                            @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
-                                <option value="{{ $estatus }}">{{ $estatus }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Observaciones</label>
-                        <textarea class="form-control" id="observaciones_edit" name="observaciones"></textarea>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Fecha</label>
+                            <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Núm. Oficio</label>
+                            <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio_raw" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label># Oficio</label>
+                            <input type="text" class="form-control" id="oficio_edit" name="oficio">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Clave de archivo</label>
+                            <input type="text" class="form-control" id="archivo_raw_edit" name="archivo_raw" placeholder="Ej. PYP024, DIR143">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Estatus</label>
+                            <select class="form-control" id="estatus_edit" name="estatus" required>
+                                <option value="">Seleccione un estatus...</option>
+                                @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
+                                    <option value="{{ $estatus }}">{{ $estatus }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Dependencia</label>
+                            <input type="text" class="form-control" id="dependencia_empres_edit" name="dependencia_empres">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre / Puesto</label>
+                            <input type="text" class="form-control" id="nombre_puesto_edit" name="nombre_puesto">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Revisado por</label>
+                            <input type="text" class="form-control" id="revisado_por_edit" name="revisado_por">
+                        </div>
+                        <div class="col-md-12">
+                            <label>Asunto</label>
+                            <textarea class="form-control" id="asunto_edit" name="asunto" required rows="2"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Observaciones</label>
+                            <textarea class="form-control" id="observaciones_edit" name="observaciones" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -357,6 +438,98 @@ tr:hover td {
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gestionar Archivos de Dictámenes -->
+<div class="modal fade" id="archivosModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex gap-2 mb-3">
+                    <input type="text" id="archivosSearch" class="form-control" placeholder="Buscar por nombre...">
+                    <input type="file" id="archivoInput" accept=".doc,.docx" hidden>
+                    <select id="archivoAnio" class="form-select form-select-sm text-nowrap" style="width: 110px;">
+                        <option value="">Sin año</option>
+                        <option>2025</option>
+                        <option>2026</option>
+                        <option>2027</option>
+                    </select>
+                    <button class="btn btn-success text-nowrap" id="btnSubirArchivo">
+                        <i class="bi bi-upload"></i> Subir nuevo archivo
+                    </button>
+                </div>
+
+                <div id="archivosMsg"></div>
+
+                <div id="archivoConflicto" class="alert alert-warning d-none">
+                    <strong><i class="bi bi-exclamation-triangle"></i> Ya existe un archivo con ese nombre:</strong>
+                    <span id="conflictoNombre" class="fw-bold"></span>
+                    <p class="mb-0 mt-1">¿Deseas revisar el archivo con el mismo nombre (descargarlo) o reemplazar el archivo existente?</p>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <a id="btnDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank">
+                            <i class="bi bi-download"></i> Revisar (descargar) existente
+                        </a>
+                        <button id="btnReemplazarArchivo" class="btn btn-sm btn-warning">
+                            <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
+                        </button>
+                        <button id="btnCancelarConflicto" class="btn btn-sm btn-link">Dejar como está</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="max-height: 420px;">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Carpeta</th>
+                                <th>Archivo</th>
+                                <th class="text-center" style="width: 120px;">Ligado a</th>
+                                <th class="text-center" style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="archivosLista">
+                            <tr><td colspan="4" class="text-center text-muted">Cargando archivos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ligar Archivos a un Dictamen -->
+<div class="modal fade" id="linkModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-link-45deg"></i> Ligar archivos
+                    <span id="linkClave" class="badge bg-primary ms-1"></span>
+                    <span id="linkAnio" class="badge bg-secondary ms-1"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="linkMsg"></div>
+
+                <h6 class="text-muted">Coincidencias detectadas en el servidor (por clave):</h6>
+                <div id="linkCoincidencias" class="mb-3"></div>
+
+                <h6 class="text-muted">Archivos ligados a este dictamen:</h6>
+                <div id="linkLigados" class="mb-3"></div>
+
+                <div class="d-flex gap-2">
+                    <input type="text" id="linkRutaManual" class="form-control" placeholder="Ruta manual (ej. 2026/DIR143 OTRO.docx)">
+                    <button id="btnLinkManual" class="btn btn-sm btn-outline-primary text-nowrap">
+                        <i class="bi bi-link-45deg"></i> Ligar manual
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -383,6 +556,8 @@ $(document).ready(function() {
         "order": [],
         "scrollX": true,
         "autoWidth": false,
+        "stateSave": true,
+        "stateDuration": 60 * 60 * 24 * 30,
         "language": {
             "search": "Buscar:",
             "paginate": { "previous": "‹", "next": "›" },
@@ -392,6 +567,11 @@ $(document).ready(function() {
     });
 
     $('#dictamenes-table_length').addClass('mb-3');
+
+    $('.filter-select').select2({
+        width: '200px',
+        dropdownAutoWidth: true
+    });
 
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
     $('#dictamenes-table').on('click', '.edit-btn', function() {
@@ -410,6 +590,7 @@ $(document).ready(function() {
         $('#dependencia_empres_edit').val($row.data('dependencia') || '');
         $('#asunto_edit').val($row.data('asunto') || '');
         $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
+        $('#archivo_raw_edit').val($row.data('archivo-raw') || '');
         $('#revisado_por_edit').val($row.data('revisado-por') || '');
         $('#estatus_edit').val($row.data('estatus') || '');
         $('#observaciones_edit').val($row.data('observaciones') || '');
@@ -432,15 +613,6 @@ $(document).ready(function() {
                         backgroundColor: 'rgba(40, 167, 69, 0.7)',
                         borderColor: 'rgba(40, 167, 69, 1)',
                         borderWidth: 1
-                    },
-                    {
-                        label: 'Días hábiles',
-                        data: {!! json_encode($diasHabiles ?? []) !!},
-                        type: 'line',
-                        borderColor: 'rgb(28, 32, 34)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.4
                     }
                 ]
             },
@@ -455,6 +627,227 @@ $(document).ready(function() {
             }
         });
     }
+
+    // ============ Gestor de Archivos ============
+    const URL_ARCHIVOS = '{{ route('gestor-dictamenes.archivos') }}';
+    const URL_SUBIR = '{{ route('gestor-dictamenes.archivo-subir') }}';
+    const URL_DESCARGAR = '{{ route('gestor-dictamenes.archivo-descargar') }}';
+    const URL_VINCULAR = '{{ route('gestor-dictamenes.archivo-vincular') }}';
+    const URL_DESVINCULAR = '{{ route('gestor-dictamenes.archivo-desvincular') }}';
+
+    let archivoPendiente = null;
+
+    function urlDescarga(ruta) {
+        return URL_DESCARGAR + '?archivo=' + encodeURIComponent(ruta);
+    }
+
+    function mostrarMsg(tipo, texto) {
+        const $msg = $('#archivosMsg');
+        $msg.html('<div class="alert alert-' + tipo + ' py-2 mb-3">' + texto + '</div>');
+        setTimeout(() => $msg.empty(), 6000);
+    }
+
+    function cargarArchivos() {
+        $('#archivosLista').html('<tr><td colspan="4" class="text-center text-muted">Cargando archivos...</td></tr>');
+        $.get(URL_ARCHIVOS, function(res) {
+            window.__archivos = res.archivos || [];
+            renderArchivos();
+        }).fail(function() {
+            $('#archivosLista').html('<tr><td colspan="4" class="text-center text-danger">No se pudo cargar la lista de archivos.</td></tr>');
+        });
+    }
+
+    function renderArchivos() {
+        const q = ($('#archivosSearch').val() || '').toLowerCase();
+        const $tbody = $('#archivosLista').empty();
+        const lista = (window.__archivos || []).filter(a => a.nombre.toLowerCase().includes(q));
+
+        if (!lista.length) {
+            $tbody.html('<tr><td colspan="4" class="text-center text-muted">No se encontraron archivos.</td></tr>');
+            return;
+        }
+
+        lista.forEach(a => {
+            const badge = a.ligado > 0
+                ? '<span class="badge bg-success">' + a.ligado + '</span>'
+                : '<span class="badge bg-secondary">0</span>';
+            const anio = a.anio
+                ? '<span class="badge bg-dark">' + a.anio + '</span>'
+                : '<span class="badge bg-secondary">raíz</span>';
+            $tbody.append(
+                '<tr>' +
+                    '<td>' + anio + '</td>' +
+                    '<td><a href="' + urlDescarga(a.ruta) + '" title="Descargar"><i class="bi bi-download me-2 text-primary"></i></a>' + $('<span>').text(a.nombre).html() + '</td>' +
+                    '<td class="text-center">' + badge + '</td>' +
+                    '<td class="text-center"><a href="' + urlDescarga(a.ruta) + '" class="text-primary" title="Descargar"><i class="bi bi-download"></i></a></td>' +
+                '</tr>'
+            );
+        });
+    }
+
+    $('#archivosModal').on('show.bs.modal', function() {
+        $('#archivoConflicto').addClass('d-none');
+        $('#archivosSearch').val('');
+        $('#archivoInput').val('');
+        archivoPendiente = null;
+        cargarArchivos();
+    });
+
+    $('#archivosSearch').on('input', renderArchivos);
+
+    $('#btnSubirArchivo').on('click', function() {
+        $('#archivoInput').trigger('click');
+    });
+
+    $('#archivoInput').on('change', function() {
+        if (!this.files.length) return;
+        archivoPendiente = this.files[0];
+        subirArchivo(false);
+    });
+
+    function subirArchivo(reemplazar) {
+        if (!archivoPendiente) return;
+
+        const fd = new FormData();
+        fd.append('archivo', archivoPendiente);
+        fd.append('anio', $('#archivoAnio').val() || '');
+        if (reemplazar) fd.append('reemplazar', '1');
+
+        $.ajax({
+            url: URL_SUBIR,
+            method: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                $('#archivoConflicto').addClass('d-none');
+                mostrarMsg('success', res.mensaje);
+                $('#archivoInput').val('');
+                archivoPendiente = null;
+                cargarArchivos();
+            },
+            error: function(xhr) {
+                const res = xhr.responseJSON || {};
+                if (res.existe) {
+                    $('#conflictoNombre').text(res.ruta || res.nombre);
+                    $('#btnDescargarExistente').attr('href', urlDescarga(res.ruta || res.nombre));
+                    $('#archivoConflicto').removeClass('d-none');
+                } else {
+                    mostrarMsg('danger', res.mensaje || 'Error al subir el archivo.');
+                    $('#archivoInput').val('');
+                    archivoPendiente = null;
+                }
+            }
+        });
+    }
+
+    $('#btnReemplazarArchivo').on('click', function() {
+        subirArchivo(true);
+    });
+
+    $('#btnCancelarConflicto').on('click', function() {
+        $('#archivoConflicto').addClass('d-none');
+        $('#archivoInput').val('');
+        archivoPendiente = null;
+    });
+
+    // ============ Ligar / Desligar archivos a un dictamen ============
+    const DATOS_ARCHIVOS_DICTAMEN = {!! json_encode($dictamenes->mapWithKeys(function ($d) {
+        return [$d->id => [
+            'encontrados' => $d->archivos_encontrados ?? [],
+            'ligados' => $d->archivosLigados->map(fn ($a) => ($a->anio ? $a->anio . '/' . $a->nombre_archivo : $a->nombre_archivo))->all(),
+        ]];
+    })->all()) !!};
+
+    let linkDictamenId = null;
+
+    function mostrarLinkMsg(tipo, texto) {
+        const $msg = $('#linkMsg');
+        $msg.html('<div class="alert alert-' + tipo + ' py-2 mb-3">' + texto + '</div>');
+        setTimeout(() => $msg.empty(), 6000);
+    }
+
+    function renderLink() {
+        const data = DATOS_ARCHIVOS_DICTAMEN[linkDictamenId] || { encontrados: [], ligados: [] };
+        const $c = $('#linkCoincidencias').empty();
+        const $l = $('#linkLigados').empty();
+
+        if (!data.encontrados.length) {
+            $c.html('<p class="text-muted small mb-0">Sin coincidencias en el servidor para esta clave/año.</p>');
+        }
+        data.encontrados.forEach(ruta => {
+            const ligado = data.ligados.includes(ruta);
+            $c.append(
+                '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
+                    '<span><i class="bi bi-file-earmark-text me-2"></i>' + $('<span>').text(ruta).html() + '</span>' +
+                    (ligado
+                        ? '<span class="badge bg-success">Ligado</span>'
+                        : '<button class="btn btn-sm btn-outline-success btn-link-archivo" data-ruta="' + ruta + '"><i class="bi bi-link-45deg"></i> Ligar</button>') +
+                '</div>'
+            );
+        });
+
+        if (!data.ligados.length) {
+            $l.html('<p class="text-muted small mb-0">Este dictamen no tiene archivos ligados.</p>');
+        }
+        data.ligados.forEach(ruta => {
+            $l.append(
+                '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
+                    '<span><i class="bi bi-file-earmark-lock me-2"></i>' + $('<span>').text(ruta).html() +
+                    ' <a href="' + urlDescarga(ruta) + '" class="ms-2" title="Descargar"><i class="bi bi-download text-primary"></i></a></span>' +
+                    '<button class="btn btn-sm btn-outline-danger btn-desligar-archivo" data-ruta="' + ruta + '"><i class="bi bi-unlink"></i> Desligar</button>' +
+                '</div>'
+            );
+        });
+    }
+
+    $('#linkModal').on('show.bs.modal', function() {
+        const btn = $(this).data('triggerBtn');
+        if (!btn) return;
+        linkDictamenId = btn.data('id');
+        $('#linkClave').text(btn.closest('tr').find('td').eq(0).length ? (btn.data('clave') || '') : '');
+        renderLink();
+    });
+
+    $('#dictamenes-table').on('click', '.link-btn', function() {
+        $('#linkModal').data('triggerBtn', $(this));
+    });
+
+    $('#linkModal').on('click', '.btn-link-archivo', function() {
+        const ruta = $(this).data('ruta');
+        $.post(URL_VINCULAR, { dictamen_id: linkDictamenId, ruta: ruta }, function(res) {
+            mostrarLinkMsg('success', res.mensaje);
+            DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.push(ruta);
+            renderLink();
+        }).fail(function(xhr) {
+            mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al ligar.');
+        });
+    });
+
+    $('#linkModal').on('click', '.btn-desligar-archivo', function() {
+        const ruta = $(this).data('ruta');
+        if (!confirm('¿Desligar este archivo del dictamen?')) return;
+        $.post(URL_DESVINCULAR, { dictamen_id: linkDictamenId, ruta: ruta }, function(res) {
+            mostrarLinkMsg('success', res.mensaje);
+            DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados = DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.filter(r => r !== ruta);
+            renderLink();
+        }).fail(function(xhr) {
+            mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al desligar.');
+        });
+    });
+
+    $('#btnLinkManual').on('click', function() {
+        const ruta = $('#linkRutaManual').val().trim();
+        if (!ruta) return;
+        $.post(URL_VINCULAR, { dictamen_id: linkDictamenId, ruta: ruta }, function(res) {
+            mostrarLinkMsg('success', res.mensaje);
+            DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.push(ruta);
+            renderLink();
+            $('#linkRutaManual').val('');
+        }).fail(function(xhr) {
+            mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al ligar.');
+        });
+    });
 });
 </script>
 @endsection

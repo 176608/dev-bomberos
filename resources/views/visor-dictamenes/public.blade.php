@@ -121,27 +121,57 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Filtro por estatus (server-side) -->
+    <!-- Filtros (server-side) -->
     <div class="card mb-3" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
             <form method="GET" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Filtrar por estatus:</strong></label>
+                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm" id="estatusFilter" name="estatus" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus" onchange="this.form.submit()">
                         <option value="">Todos</option>
-                        @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
+                        @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
                             <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input type="text" class="form-control form-control-sm" name="search" placeholder="Buscar..." value="{{ request('search') }}" style="min-width: 260px;">
+                    <label class="form-label mb-0 me-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        @foreach($revisadosPor as $r)
+                            <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-0 me-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia" onchange="this.form.submit()">
+                        <option value="">Todas</option>
+                        @foreach($dependencias as $dep)
+                            <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-0 me-2" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        @foreach($nombresPuestos as $np)
+                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
-                    @if(request()->hasAny(['estatus', 'search']))
+                    @if(request()->hasAny(['estatus', 'revisado_por', 'dependencia', 'nombre_puesto']))
                         <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-link">Limpiar</a>
                     @endif
                 </div>
@@ -159,6 +189,7 @@ tr:hover td {
                     <th>Dependencia</th>
                     <th>Asunto</th>
                     <th>Estatus</th>
+                    <th>Archivo</th>
                 </tr>
             </thead>
             <tbody>
@@ -174,6 +205,27 @@ tr:hover td {
                         <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ ($d->estatus ?? '') === 'BORRADOR PARA FIRMA' ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ $d->estatus ?? 'S/D' }}
                         </span>
+                    </td>
+                    <td>
+                        @php
+                            $estadoA = $d->estado_archivo ?? 'sin_clave';
+                            $encontradosA = $d->archivos_encontrados ?? [];
+                        @endphp
+                        @if($estadoA === 'encontrado')
+                            <span class="badge bg-primary" title="Encontrado en el servidor: {{ $encontradosA[0] ?? '' }}">
+                                <i class="bi bi-check-circle"></i> Encontrado
+                            </span>
+                        @elseif($estadoA === 'no_encontrado')
+                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->archivo_raw }} en el servidor">
+                                <i class="bi bi-x-circle"></i> No encontrado
+                            </span>
+                        @elseif($estadoA === 'multiples')
+                            <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
+                                <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
+                            </span>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -201,6 +253,8 @@ $(document).ready(function() {
         "order": [[0, 'desc']],
         "scrollX": true,
         "autoWidth": false,
+        "stateSave": true,
+        "stateDuration": 60 * 60 * 24 * 30,
         "language": {
             "search": "Buscar:",
             "paginate": { "previous": "‹", "next": "›" },
@@ -210,6 +264,11 @@ $(document).ready(function() {
     });
 
     $('#dictamenes-table_length').addClass('mb-3');
+
+    $('.filter-select').select2({
+        width: '200px',
+        dropdownAutoWidth: true
+    });
 
     const ctx = document.getElementById('chartMeses');
     if (ctx) {

@@ -21,10 +21,26 @@ Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
     Route::put('/{dictamen}', [DictamenController::class, 'update'])->name('update')
         ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
 
-    // Eliminar + Ver Eliminados + Restaurar - Admin Dictamenes y Desarrollador
+    // Gestión de archivos (disco storage/app/dictamenes)
+    Route::get('/archivos', [DictamenController::class, 'archivosIndex'])->name('archivos')
+        ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
+
+    Route::post('/archivos/subir', [DictamenController::class, 'archivoSubir'])->name('archivo-subir')
+        ->middleware('role:Administrador Dictamenes,Desarrollador');
+
+    Route::get('/archivos/descargar', [DictamenController::class, 'archivoDescargar'])->name('archivo-descargar')
+        ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
+
+    Route::post('/archivos/vincular', [DictamenController::class, 'vincularArchivo'])->name('archivo-vincular')
+        ->middleware('role:Administrador Dictamenes,Desarrollador');
+
+    Route::post('/archivos/desvincular', [DictamenController::class, 'desvincularArchivo'])->name('archivo-desvincular')
+        ->middleware('role:Administrador Dictamenes,Desarrollador');
+
+    // Deshabilitar (soft delete por estatus) + Ver Eliminados + Restaurar - Admin Dictamenes y Desarrollador
     Route::middleware('role:Administrador Dictamenes,Desarrollador')->group(function () {
         Route::delete('/{dictamen}', [DictamenController::class, 'destroy'])->name('destroy');
         Route::get('/deleted', [DictamenController::class, 'deletedDictamenes'])->name('deleted');
-        Route::post('/deleted/{id}/restore', [DictamenController::class, 'restoreDeleted'])->name('restore');
+        Route::post('/{dictamen}/restore', [DictamenController::class, 'restore'])->name('restore');
     });
 });

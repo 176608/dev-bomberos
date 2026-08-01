@@ -17,6 +17,17 @@ class Dictamen extends Model
         'S/D',
     ];
 
+    public const DESHABILITADO = 'DESHABILITADO';
+
+    public const FILTERABLE_STATUSES = [
+        'ENVIADO',
+        'BORRADOR PARA FIRMA',
+        'EN REVISION',
+        'INFORMATIVO',
+        'S/D',
+        'DESHABILITADO',
+    ];
+
     protected $fillable = [
         'anio',
         'dia',
@@ -32,10 +43,6 @@ class Dictamen extends Model
         'revisado_por',
         'observaciones',
         'fecha',
-        'numero_oficio',
-        'archivo',
-        'legacy_id',
-        'fecha_cierre',
         'created_by',
         'updated_by',
     ];
@@ -48,5 +55,10 @@ class Dictamen extends Model
     public function actualizador()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function archivosLigados()
+    {
+        return $this->hasMany(DictamenArchivo::class, 'dictamen_id');
     }
 }
