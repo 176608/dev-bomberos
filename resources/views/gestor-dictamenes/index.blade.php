@@ -75,6 +75,48 @@ th {
 tr:hover td {
     background-color: #f8fafd;
 }
+
+/* Overlay de carga global */
+.ui-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(15, 15, 20, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.ui-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Placeholder mientras se dibuja la gráfica */
+.chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.25s ease;
+}
+
+.chart-loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Transición suave al reemplazar stats/tabla tras un filtro */
+.fade-swap {
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+}
 </style>
 @endpush
 
@@ -93,8 +135,14 @@ tr:hover td {
 
 <div class="container mt-4">
 
+    <!-- Overlay de carga (spinner global durante peticiones parciales) -->
+    <div id="uiOverlay" class="ui-overlay">
+        <div class="spinner-border text-light" role="status"></div>
+        <div class="mt-2 text-light fw-semibold">Cargando datos…</div>
+    </div>
+
     <!-- Estadísticas -->
-    <div class="row mb-3 g-2">
+    <div class="row mb-3 g-2" id="statsCards">
         <div class="col-6 col-md-2">
             <div class="stat-card">
                 <div class="stat-number" style="color:#6c757d;">{{ $total }}</div>
@@ -112,7 +160,7 @@ tr:hover td {
     </div>
 
     <!-- Gráfica -->
-    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+    <div class="card mb-3" id="graficaCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
                 <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Dictámenes por mes y estatus</h5>
@@ -121,14 +169,18 @@ tr:hover td {
             <div class="d-flex flex-wrap gap-2 mb-3" id="chartToggles"></div>
             <div style="height: 280px; position: relative;">
                 <canvas id="chartMeses"></canvas>
+                <div class="chart-loading" id="chartLoading">
+                    <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                    <span class="ms-2 text-muted">Generando gráfica…</span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Filtros (GET, se guardan en la URL; se aplican al seleccionar) -->
-    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+    <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
+            <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
                     <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
                 </div>
@@ -186,7 +238,7 @@ tr:hover td {
                 </div>
                 @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
                     <div class="col-auto">
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger">
+                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger" data-limpiar>
                             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
                     </div>
@@ -216,7 +268,7 @@ tr:hover td {
     </div>
 
     <!-- Tabla -->
-    <div class="table-responsive">
+    <div class="table-responsive" id="tablaCard">
         <table id="dictamenes-table" class="table table-hover nowrap">
             <thead class="table-dark">
                 <tr>
@@ -572,43 +624,110 @@ tr:hover td {
 
 <script>
 $(document).ready(function() {
-    $('#dictamenes-table').DataTable({
-        "paging": true,
-        "lengthMenu": [
-            [10, 25, 50, 100, 150, -1],
-            ['10', '25', '50', '100', '150', 'Todas']
-        ],
-        "pageLength": -1,
-        "searching": true,
-        "info": false,
-        "ordering": true,
-        "order": [],
-        "scrollX": true,
-        "autoWidth": false,
-        "stateSave": true,
-        "stateDuration": 60 * 60 * 24 * 30,
-        "language": {
-            "search": "Buscar:",
-            "paginate": { "previous": "‹", "next": "›" },
-            "emptyTable": "No hay dictámenes",
-            "zeroRecords": "No se encontró nada"
+    let filtrando = false;
+
+    function initDataTable() {
+        if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
+            $('#dictamenes-table').DataTable().destroy();
         }
+        $('#dictamenes-table').DataTable({
+            "paging": true,
+            "lengthMenu": [
+                [10, 25, 50, 100, 150, -1],
+                ['10', '25', '50', '100', '150', 'Todas']
+            ],
+            "pageLength": -1,
+            "searching": true,
+            "info": false,
+            "ordering": true,
+            "order": [],
+            "scrollX": true,
+            "autoWidth": false,
+            "stateSave": true,
+            "stateDuration": 60 * 60 * 24 * 30,
+            "language": {
+                "search": "Buscar:",
+                "paginate": { "previous": "‹", "next": "›" },
+                "emptyTable": "No hay dictámenes",
+                "zeroRecords": "No se encontró nada"
+            }
+        });
+        $('#dictamenes-table_length').addClass('mb-3');
+    }
+
+    // Petición parcial: reemplaza stats + tabla y recalcula la gráfica, sin recargar la página
+    function aplicarFiltros(url, metodo, body) {
+        if (filtrando) return;
+        filtrando = true;
+        $('#uiOverlay').addClass('visible');
+        $('#statsCards, #tablaCard').addClass('fade-swap');
+
+        const opts = {
+            method: metodo || 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        };
+        if (body) {
+            opts.body = body;
+        }
+
+        fetch(url, opts)
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            })
+            .then(function (html) {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                $('#statsCards').html(doc.getElementById('statsCards').innerHTML);
+                $('#tablaCard').html(doc.getElementById('tablaCard').innerHTML);
+                $('#filtrosCard').html(doc.getElementById('filtrosCard').innerHTML);
+
+                $('.filter-select').select2({
+                    width: '200px',
+                    dropdownAutoWidth: true
+                });
+
+                initDataTable();
+                aplicarGrafica();
+
+                if (history && metodo !== 'POST') {
+                    history.pushState(null, '', url);
+                }
+            })
+            .catch(function () {
+                window.location.href = url;
+            })
+            .finally(function () {
+                filtrando = false;
+                $('#uiOverlay').removeClass('visible');
+                $('#statsCards, #tablaCard').removeClass('fade-swap');
+            });
+    }
+
+    // Filtros: se aplican al cambiar la selección (GET con query string en la URL)
+    $(document).on('change', '.filter-select', function () {
+        if (!$(this).closest('#filtrosForm').length) return;
+        const form = document.getElementById('filtrosForm');
+        aplicarFiltros(form.action + '?' + $(form).serialize(), 'GET');
     });
 
-    $('#dictamenes-table_length').addClass('mb-3');
+    // Limpiar filtros sin recarga
+    $(document).on('click', '#filtrosForm a[data-limpiar]', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('filtrosForm');
+        form.reset();
+        $('.filter-select').val('').trigger('change.select2');
+        aplicarFiltros(form.action, 'GET');
+    });
+
+    initDataTable();
 
     $('.filter-select').select2({
         width: '200px',
         dropdownAutoWidth: true
     });
 
-    // Los filtros se aplican al cambiar la selección (GET; se guardan en la URL)
-    $('.filter-select').on('change', function () {
-        this.form.submit();
-    });
-
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
-    $('#dictamenes-table').on('click', '.edit-btn', function() {
+    $(document).on('click', '.edit-btn', function() {
         const $row = $(this).closest('tr');
         const id = $(this).data('id');
         const route = $(this).data('route');
@@ -749,6 +868,7 @@ $(document).ready(function() {
                 });
             });
             chart.update();
+            document.getElementById('chartLoading').classList.add('hidden');
         }
 
         aplicarGrafica();
@@ -941,7 +1061,7 @@ $(document).ready(function() {
         renderLink();
     });
 
-    $('#dictamenes-table').on('click', '.link-btn', function() {
+    $(document).on('click', '.link-btn', function() {
         $('#linkModal').data('triggerBtn', $(this));
     });
 

@@ -71,6 +71,48 @@ th {
 tr:hover td {
     background-color: #f8fafd;
 }
+
+/* Overlay de carga global */
+.ui-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(15, 15, 20, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.ui-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Placeholder mientras se dibuja la gráfica */
+.chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.25s ease;
+}
+
+.chart-loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Transición suave al reemplazar stats/tabla tras un filtro */
+.fade-swap {
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+}
 </style>
 @endpush
 
@@ -87,8 +129,15 @@ tr:hover td {
 @endphp
 
 <div class="container mt-4">
+
+    <!-- Overlay de carga (spinner global durante peticiones parciales) -->
+    <div id="uiOverlay" class="ui-overlay">
+        <div class="spinner-border text-light" role="status"></div>
+        <div class="mt-2 text-light fw-semibold">Cargando datos…</div>
+    </div>
+
     <!-- Estadísticas -->
-    <div class="row mb-3 g-2">
+    <div class="row mb-3 g-2" id="statsCards">
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-number">{{ $enviados }}</div>
@@ -110,19 +159,23 @@ tr:hover td {
     </div>
 
     <!-- Gráfica -->
-    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+    <div class="card mb-3" id="graficaCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body">
             <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Número de dictámenes recibidos por mes</h5>
             <div style="height: 250px; position: relative;">
                 <canvas id="chartMeses"></canvas>
+                <div class="chart-loading" id="chartLoading">
+                    <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                    <span class="ms-2 text-muted">Generando gráfica…</span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Filtros (POST, no se guardan en la URL; se aplican al seleccionar; solo dictámenes ENVIADOS) -->
-    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+    <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form method="POST" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
+            <form id="filtrosForm" method="POST" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
                 @csrf
                 <div class="col-auto">
                     <span class="badge bg-success me-2">Solo estatus: ENVIADO</span>
@@ -173,7 +226,7 @@ tr:hover td {
                 </div>
                 @if(request()->hasAny(['anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
                     <div class="col-auto">
-                        <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-outline-danger">
+                        <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-outline-danger" data-limpiar>
                             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
                     </div>
@@ -183,7 +236,7 @@ tr:hover td {
     </div>
 
     <!-- Tabla -->
-    <div class="table-responsive">
+    <div class="table-responsive" id="tablaCard">
         <table id="dictamenes-table" class="table table-hover nowrap">
             <thead class="table-dark">
                 <tr>
@@ -254,36 +307,99 @@ tr:hover td {
 
 <script>
 $(document).ready(function() {
-    $('#dictamenes-table').DataTable({
-        "paging": true,
-        "lengthMenu": [[5, 10, 15, 20, 50, 100, -1], ['5', '10', '15', '20', '50', '100', 'Todas']],
-        "pageLength": 10,
-        "searching": true,
-        "info": false,
-        "ordering": true,
-        "order": [[0, 'desc']],
-        "scrollX": true,
-        "autoWidth": false,
-        "stateSave": true,
-        "stateDuration": 60 * 60 * 24 * 30,
-        "language": {
-            "search": "Buscar:",
-            "paginate": { "previous": "‹", "next": "›" },
-            "emptyTable": "No hay dictámenes",
-            "zeroRecords": "No se encontró nada"
+    let filtrando = false;
+
+    function initDataTable() {
+        if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
+            $('#dictamenes-table').DataTable().destroy();
         }
+        $('#dictamenes-table').DataTable({
+            "paging": true,
+            "lengthMenu": [[5, 10, 15, 20, 50, 100, -1], ['5', '10', '15', '20', '50', '100', 'Todas']],
+            "pageLength": 10,
+            "searching": true,
+            "info": false,
+            "ordering": true,
+            "order": [[0, 'desc']],
+            "scrollX": true,
+            "autoWidth": false,
+            "stateSave": true,
+            "stateDuration": 60 * 60 * 24 * 30,
+            "language": {
+                "search": "Buscar:",
+                "paginate": { "previous": "‹", "next": "›" },
+                "emptyTable": "No hay dictámenes",
+                "zeroRecords": "No se encontró nada"
+            }
+        });
+        $('#dictamenes-table_length').addClass('mb-3');
+    }
+
+    // Petición parcial: reemplaza stats + tabla y recalcula la gráfica, sin recargar la página
+    function aplicarFiltros(url, metodo, body) {
+        if (filtrando) return;
+        filtrando = true;
+        $('#uiOverlay').addClass('visible');
+        $('#statsCards, #tablaCard').addClass('fade-swap');
+
+        const opts = {
+            method: metodo || 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        };
+        if (body) {
+            opts.body = body;
+        }
+
+        fetch(url, opts)
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            })
+            .then(function (html) {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                $('#statsCards').html(doc.getElementById('statsCards').innerHTML);
+                $('#tablaCard').html(doc.getElementById('tablaCard').innerHTML);
+                $('#filtrosCard').html(doc.getElementById('filtrosCard').innerHTML);
+
+                $('.filter-select').select2({
+                    width: '200px',
+                    dropdownAutoWidth: true
+                });
+
+                initDataTable();
+                aplicarGrafica();
+            })
+            .catch(function () {
+                window.location.href = url;
+            })
+            .finally(function () {
+                filtrando = false;
+                $('#uiOverlay').removeClass('visible');
+                $('#statsCards, #tablaCard').removeClass('fade-swap');
+            });
+    }
+
+    // Filtros: se aplican al cambiar la selección (POST; no se ven en la URL)
+    $(document).on('change', '.filter-select', function () {
+        if (!$(this).closest('#filtrosForm').length) return;
+        const form = document.getElementById('filtrosForm');
+        aplicarFiltros(form.action, 'POST', $(form).serialize());
     });
 
-    $('#dictamenes-table_length').addClass('mb-3');
+    // Limpiar filtros sin recarga
+    $(document).on('click', '#filtrosForm a[data-limpiar]', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('filtrosForm');
+        form.reset();
+        $('.filter-select').val('').trigger('change.select2');
+        aplicarFiltros(form.action, 'POST', $(form).serialize());
+    });
+
+    initDataTable();
 
     $('.filter-select').select2({
         width: '200px',
         dropdownAutoWidth: true
-    });
-
-    // Los filtros se aplican al cambiar la selección (POST; no se ven en la URL)
-    $('.filter-select').on('change', function () {
-        this.form.submit();
     });
 
     // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes ENVIADOS)
@@ -355,6 +471,7 @@ $(document).ready(function() {
                 return buckets[k] || 0;
             });
             chart.update();
+            document.getElementById('chartLoading').classList.add('hidden');
         }
 
         aplicarGrafica();
