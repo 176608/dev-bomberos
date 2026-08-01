@@ -687,7 +687,9 @@ $(document).ready(function() {
                 });
 
                 initDataTable();
-                aplicarGrafica();
+                if (window.aplicarGrafica) {
+                    window.aplicarGrafica();
+                }
 
                 if (history && metodo !== 'POST') {
                     history.pushState(null, '', url);
@@ -868,10 +870,21 @@ $(document).ready(function() {
                 });
             });
             chart.update();
-            document.getElementById('chartLoading').classList.add('hidden');
+            ocultarCargaGrafica();
         }
 
         aplicarGrafica();
+        window.aplicarGrafica = aplicarGrafica;
+    } else {
+        ocultarCargaGrafica();
+    }
+
+    function ocultarCargaGrafica() {
+        const loadingEl = document.getElementById('chartLoading');
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
+            loadingEl.classList.add('d-none');
+        }
     }
 
     // ============ Gestor de Archivos ============

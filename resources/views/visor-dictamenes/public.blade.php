@@ -367,7 +367,9 @@ $(document).ready(function() {
                 });
 
                 initDataTable();
-                aplicarGrafica();
+                if (window.aplicarGrafica) {
+                    window.aplicarGrafica();
+                }
             })
             .catch(function () {
                 window.location.href = url;
@@ -471,10 +473,21 @@ $(document).ready(function() {
                 return buckets[k] || 0;
             });
             chart.update();
-            document.getElementById('chartLoading').classList.add('hidden');
+            ocultarCargaGrafica();
         }
 
         aplicarGrafica();
+        window.aplicarGrafica = aplicarGrafica;
+    } else {
+        ocultarCargaGrafica();
+    }
+
+    function ocultarCargaGrafica() {
+        const loadingEl = document.getElementById('chartLoading');
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
+            loadingEl.classList.add('d-none');
+        }
     }
 });
 </script>
