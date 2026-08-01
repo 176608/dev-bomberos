@@ -85,6 +85,29 @@ tr:hover td {
 
 
 <div class="container mt-4">
+    <!-- Switch V1/V2: solo en la ruta admin de SGDictamen (revisión de import) -->
+    <div class="card mb-3" style="border-left: 4px solid #2f7064;">
+        <div class="card-body py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <strong>Fuente de datos:</strong>
+                @if(($tablaActiva ?? 'v1') === 'v2')
+                    <span class="badge bg-primary ms-1">dictamenes (V2)</span>
+                    <span class="text-muted ms-2"><i class="bi bi-eye"></i> Modo revisión de importación — acciones deshabilitadas</span>
+                @else
+                    <span class="badge bg-secondary ms-1">datos_dictamen (V1)</span>
+                @endif
+            </div>
+            <form method="POST" action="{{ route('sg-dictamen.toggle-tabla') }}" class="m-0">
+                @csrf
+                <input type="hidden" name="tabla" value="{{ ($tablaActiva ?? 'v1') === 'v2' ? 'v1' : 'v2' }}">
+                <button type="submit" class="btn btn-sm {{ ($tablaActiva ?? 'v1') === 'v2' ? 'btn-outline-secondary' : 'btn-outline-primary' }}">
+                    <i class="bi bi-arrow-left-right"></i>
+                    Cambiar a {{ ($tablaActiva ?? 'v1') === 'v2' ? 'V1 (datos_dictamen)' : 'V2 (dictamenes)' }}
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Estadísticas -->
     <div class="row mb-4">
         <div class="col-md-6">
@@ -113,8 +136,8 @@ tr:hover td {
         </div>
     </div>
 
-    <!-- Botón Agregar (solo Administrador Dictamenes y Desarrollador) -->
-    @if(auth()->check() && auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+    <!-- Botón Agregar + Ver Eliminados (solo Administrador Dictamenes y Desarrollador, en V1) -->
+    @if(($tablaActiva ?? 'v1') === 'v1' && auth()->check() && auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
     <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">
         <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
     </button>
@@ -140,7 +163,12 @@ tr:hover td {
                         <th>Revisado por</th>
                         <th>Núm. Oficio</th>
                         <th>Observaciones</th>
-                        <th>Acciones</th>
+                        @if(($tablaActiva ?? 'v1') === 'v2')
+                            <th>Archivo</th>
+                        @endif
+                        @if(($tablaActiva ?? 'v1') === 'v1')
+                            <th>Acciones</th>
+                        @endif
                     @endif
                 </tr>
             </thead>
@@ -186,6 +214,16 @@ tr:hover td {
                         <td>{{ $d->revisado_por ?? '—' }}</td>
                         <td>{{ $d->numero_oficio ?? '—' }}</td>
                         <td>{{ $d->observaciones ?? '—' }}</td>
+                        @if(($tablaActiva ?? 'v1') === 'v2')
+                            <td>
+                                @if(!empty($d->archivo))
+                                    <span class="badge bg-info text-dark" title="Nombre físico en servidor">{{ $d->archivo }}</span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                        @endif
+                        @if(($tablaActiva ?? 'v1') === 'v1')
                         <td>
                             <!-- Editar: Admin Dictamenes, Editor Dictamenes y Desarrollador -->
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
@@ -206,6 +244,7 @@ tr:hover td {
                                 </button>
                             @endif
                         </td>
+                        @endif
                     @endif
                 </tr>
                 @endforeach

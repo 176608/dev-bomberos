@@ -3,15 +3,28 @@ namespace App\Http\Controllers\SGDictamen;
 
 use App\Http\Controllers\Bomberos\Controller;
 use App\Models\SGDictamen\Dictamen;
+use App\Models\SGDictamen\DictamenV2;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class DictamenController extends Controller
 {
+    /**
+     * Tabla activa para la vista admin (V1 = datos_dictamen, V2 = dictamenes).
+     * El switch vive en la sesión y solo existe en la ruta admin de SGDictamen.
+     */
+    protected function modeloActivo()
+    {
+        return session('sg_dictamen_tabla', 'v1') === 'v2' ? DictamenV2::class : Dictamen::class;
+    }
+
     public function index(Request $request)
     {
+        $modelo = $this->modeloActivo();
+        $tablaActiva = session('sg_dictamen_tabla', 'v1');
+
         // Búsqueda
-        $query = Dictamen::query();
+        $query = $modelo::query();
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where('oficio', 'like', "%$search%")
@@ -24,13 +37,13 @@ class DictamenController extends Controller
         $dictamenes = $query->orderBy('fecha', 'DESC')->get();
 
         // Estadísticas
-        $total = Dictamen::count();
-        $nuevo = Dictamen::where('estatus', 'ENVIADO')->count();
+        $total = $modelo::count();
+        $nuevo = $modelo::where('estatus', 'ENVIADO')->count();
 
         // Gráfica: conteo por mes
         $meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         $solicitudes = array_fill(0, 12, 0);
-        $registros = Dictamen::select('fecha')->get();
+        $registros = $modelo::select('fecha')->get();
 
         foreach ($registros as $r) {
             if ($r->fecha) {
@@ -77,8 +90,23 @@ class DictamenController extends Controller
         }
 
         return view('sg-dictamen.index', compact(
-            'dictamenes', 'total', 'nuevo', 'meses', 'solicitudes', 'diasHabiles'
+            'dictamenes', 'total', 'nuevo', 'meses', 'solicitudes', 'diasHabiles', 'tablaActiva'
         ));
+    }
+
+    /**
+     * Switch V1/V2: cambia la tabla que se imprime en el DataTables
+     * de la vista admin (solo para revisar integridad del import).
+     */
+    public function toggleTabla(Request $request)
+    {
+        $tabla = $request->input('tabla') === 'v2' ? 'v2' : 'v1';
+        session(['sg_dictamen_tabla' => $tabla]);
+
+        return redirect()->route('sg-dictamen.index')
+            ->with('success', $tabla === 'v2'
+                ? 'Mostrando tabla V2 (dictamenes) — modo revisión, acciones deshabilitadas.'
+                : 'Mostrando tabla V1 (datos_dictamen).');
     }
 
     public function edit(Dictamen $dictamen)

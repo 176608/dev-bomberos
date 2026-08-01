@@ -17,6 +17,10 @@ Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
     Route::get('/', [DictamenController::class, 'index'])->name('index')
         ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
     
+    // Switch V1/V2: cambia la tabla que se imprime en el DataTables (solo revisión)
+    Route::post('/toggle-tabla', [DictamenController::class, 'toggleTabla'])->name('toggle-tabla')
+        ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
+    
     // Ver detalle
     Route::get('/{dictamen}/view', [DictamenController::class, 'view'])->name('view')
         ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
