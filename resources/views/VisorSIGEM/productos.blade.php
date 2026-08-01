@@ -149,7 +149,8 @@
 
         <div class="row g-4">
 
-            <div class="col-12">
+            
+            <!--<div class="col-12">
                 <div class="card h-100 product-card">
                     <div class="card-body">
                         <div class="product-section">
@@ -174,7 +175,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
             <div class="col-12">
                 <div class="card h-100 product-card">
