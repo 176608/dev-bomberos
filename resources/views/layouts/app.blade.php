@@ -388,7 +388,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-    
+
+    {{-- Idioma español por defecto para todas las DataTables --}}
+    <script>
+        if (window.jQuery && $.fn.dataTable) {
+            $.extend(true, $.fn.dataTable.defaults, {
+                language: {
+                    "lengthMenu": "Mostrar _MENU_ registros",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "Mostrando 0 registros",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "›",
+                        "previous": "‹"
+                    },
+                    "emptyTable": "No hay datos disponibles",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando..."
+                }
+            });
+        }
+    </script>
+
     @yield('scripts')
     @stack('scripts')
 

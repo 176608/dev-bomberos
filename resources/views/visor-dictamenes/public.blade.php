@@ -178,9 +178,6 @@ tr:hover td {
             <form id="filtrosForm" method="POST" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
                 @csrf
                 <div class="col-auto">
-                    <span class="badge bg-success me-2">Solo estatus: ENVIADO</span>
-                </div>
-                <div class="col-auto">
                     <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
                 </div>
                 <div class="col-auto">
