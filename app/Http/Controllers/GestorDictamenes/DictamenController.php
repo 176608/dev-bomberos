@@ -13,7 +13,21 @@ use Illuminate\Validation\Rule;
 
 class DictamenController extends Controller
 {
-    private const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    private const MESES_ESP = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+    private const MESES_ABREV = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+
+    private function camposDesdeFecha(string $fecha): array
+    {
+        $f = \Carbon\Carbon::parse($fecha);
+        $m = (int) $f->format('m') - 1;
+
+        return [
+            'anio' => (int) $f->format('Y'),
+            'dia' => (string) (int) $f->format('d'),
+            'mes' => self::MESES_ABREV[$m],
+            'fecha_raw' => (string) (int) $f->format('d') . ' ' . self::MESES_ESP[$m],
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -116,7 +130,7 @@ class DictamenController extends Controller
             'observaciones' => 'nullable|string',
         ]);
 
-        $dictamen = Dictamen::create([
+        $dictamen = Dictamen::create(array_merge([
             'fecha' => $request->fecha,
             'numero_oficio_raw' => $request->numero_oficio_raw,
             'clave_documento' => $request->clave_documento,
@@ -127,7 +141,7 @@ class DictamenController extends Controller
             'revisado_por' => $request->revisado_por,
             'observaciones' => $request->observaciones,
             'created_by' => auth()->id(),
-        ]);
+        ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();
 
         $this->auditar($dictamen, 'CREAR');
@@ -149,7 +163,7 @@ class DictamenController extends Controller
             'observaciones' => 'nullable|string',
         ]);
 
-        $dictamen->update([
+        $dictamen->update(array_merge([
             'fecha' => $request->fecha,
             'numero_oficio_raw' => $request->numero_oficio_raw,
             'clave_documento' => $request->clave_documento,
@@ -160,7 +174,7 @@ class DictamenController extends Controller
             'revisado_por' => $request->revisado_por,
             'observaciones' => $request->observaciones,
             'updated_by' => auth()->id(),
-        ]);
+        ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();
 
         $this->auditar($dictamen, 'MODIFICAR');

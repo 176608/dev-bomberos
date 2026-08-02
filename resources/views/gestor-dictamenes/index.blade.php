@@ -158,6 +158,7 @@ tr:hover td {
         </div>
         @endforeach
     </div>
+</div>
 
     <!-- Gráfica -->
     <div class="card mb-3" id="graficaCard" style="border-left: 4px solid #2f7064;">
@@ -245,12 +246,9 @@ tr:hover td {
             <i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes
         </button>
         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-            <a href="{{ route('gestor-dictamenes.deleted') }}" class="btn btn-outline-danger">
-                <i class="bi bi-eye-slash"></i> Ver Deshabilitados
-            </a>
-            <a href="{{ route('gestor-dictamenes.historial') }}" class="btn btn-outline-secondary">
+            <button class="btn btn-outline-secondary" disabled title="Próximamente">
                 <i class="bi bi-clock-history"></i> Ver últimos cambios
-            </a>
+            </button>
             <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success">
                 <i class="bi bi-eye"></i> Ver Visor de Dictámenes
             </a>
@@ -319,9 +317,17 @@ tr:hover td {
                                 <i class="bi bi-check-circle"></i> {{ basename($encontradosA[0] ?? '') }}
                             </span>
                         @elseif($estadoA === 'no_encontrado')
-                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
-                                <i class="bi bi-x-circle"></i> No encontrado
-                            </span>
+                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+                                <button type="button" class="btn btn-sm btn-outline-danger subir-btn"
+                                        data-id="{{ $d->id }}" data-clave="{{ $d->clave_documento }}" data-anio="{{ $d->anio }}"
+                                        title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor. Clic para subirlo.">
+                                    <i class="bi bi-x-circle"></i> No encontrado
+                                </button>
+                            @else
+                                <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
+                                    <i class="bi bi-x-circle"></i> No encontrado
+                                </span>
+                            @endif
                         @elseif($estadoA === 'multiples')
                             <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
                                 <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
@@ -561,6 +567,43 @@ tr:hover td {
                             <tr><td colspan="4" class="text-center text-muted">Cargando archivos...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Subir archivo faltante (badge "No encontrado") -->
+<div class="modal fade" id="subirArchivoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-cloud-upload"></i> Subir archivo del dictamen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">
+                    Clave: <strong id="subirClave"></strong><br>
+                    Se guardará en la carpeta: <strong id="subirCarpeta"></strong>
+                </p>
+                <div id="subirMsg"></div>
+                <input type="file" id="subirArchivoInput" accept=".doc,.docx" hidden>
+                <button class="btn btn-success w-100" id="btnElegirSubir">
+                    <i class="bi bi-upload"></i> Seleccionar archivo (.doc / .docx)
+                </button>
+                <div id="subirConflicto" class="alert alert-warning d-none mt-3">
+                    <strong><i class="bi bi-exclamation-triangle"></i> Ya existe un archivo con ese nombre:</strong>
+                    <span id="subirConflictoNombre" class="fw-bold"></span>
+                    <p class="mb-0 mt-1">¿Revisar (descargar) el existente o reemplazarlo?</p>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <a id="btnSubirDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank">
+                            <i class="bi bi-download"></i> Revisar existente
+                        </a>
+                        <button id="btnSubirReemplazar" class="btn btn-sm btn-warning">
+                            <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
+                        </button>
+                        <button id="btnSubirCancelarConflicto" class="btn btn-sm btn-link">Dejar como está</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1101,6 +1144,81 @@ $(document).ready(function() {
         }).fail(function(xhr) {
             mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al ligar.');
         });
+    });
+
+    // ============ Subir archivo faltante desde el badge "No encontrado" ============
+    let subirPendiente = null;
+    let subirAnio = '';
+
+    function mostrarSubirMsg(tipo, texto) {
+        $('#subirMsg').html('<div class="alert alert-' + tipo + ' py-2 mb-2">' + texto + '</div>');
+    }
+
+    $(document).on('click', '.subir-btn', function() {
+        const btn = $(this);
+        subirAnio = String(btn.data('anio') || '');
+        $('#subirClave').text(btn.data('clave') || '—');
+        $('#subirCarpeta').text(subirAnio ? subirAnio + '/' : '(raíz)');
+        $('#subirMsg').empty();
+        $('#subirConflicto').addClass('d-none');
+        $('#subirArchivoInput').val('');
+        subirPendiente = null;
+        $('#subirArchivoModal').modal('show');
+    });
+
+    $('#btnElegirSubir').on('click', function() {
+        $('#subirArchivoInput').trigger('click');
+    });
+
+    $('#subirArchivoInput').on('change', function() {
+        if (!this.files.length) return;
+        subirPendiente = this.files[0];
+        subirSubida(false);
+    });
+
+    function subirSubida(reemplazar) {
+        if (!subirPendiente) return;
+
+        const fd = new FormData();
+        fd.append('archivo', subirPendiente);
+        fd.append('anio', subirAnio);
+        if (reemplazar) fd.append('reemplazar', '1');
+
+        $.ajax({
+            url: URL_SUBIR,
+            method: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                mostrarSubirMsg('success', res.mensaje);
+                $('#subirArchivoInput').val('');
+                subirPendiente = null;
+                setTimeout(function() { window.location.reload(); }, 900);
+            },
+            error: function(xhr) {
+                const res = xhr.responseJSON || {};
+                if (res.existe) {
+                    $('#subirConflictoNombre').text(res.ruta || res.nombre);
+                    $('#btnSubirDescargarExistente').attr('href', urlDescarga(res.ruta || res.nombre));
+                    $('#subirConflicto').removeClass('d-none');
+                } else {
+                    mostrarSubirMsg('danger', res.mensaje || 'Error al subir el archivo.');
+                    $('#subirArchivoInput').val('');
+                    subirPendiente = null;
+                }
+            }
+        });
+    }
+
+    $('#btnSubirReemplazar').on('click', function() {
+        subirSubida(true);
+    });
+
+    $('#btnSubirCancelarConflicto').on('click', function() {
+        $('#subirConflicto').addClass('d-none');
+        $('#subirArchivoInput').val('');
+        subirPendiente = null;
     });
 });
 </script>
