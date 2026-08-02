@@ -72,26 +72,6 @@ tr:hover td {
     background-color: #f8fafd;
 }
 
-/* Overlay de carga global */
-.ui-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    background: rgba(15, 15, 20, 0.55);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-
-.ui-overlay.visible {
-    opacity: 1;
-    pointer-events: all;
-}
-
 /* Placeholder mientras se dibuja la gráfica */
 .chart-loading {
     position: absolute;
@@ -106,12 +86,6 @@ tr:hover td {
 .chart-loading.hidden {
     opacity: 0;
     pointer-events: none;
-}
-
-/* Transición suave al reemplazar stats/tabla tras un filtro */
-.fade-swap {
-    opacity: 0.45;
-    transition: opacity 0.15s ease;
 }
 </style>
 @endpush
@@ -129,12 +103,6 @@ tr:hover td {
 @endphp
 
 <div class="container mt-4">
-
-    <!-- Overlay de carga (spinner global durante peticiones parciales) -->
-    <div id="uiOverlay" class="ui-overlay">
-        <div class="spinner-border text-light" role="status"></div>
-        <div class="mt-2 text-light fw-semibold">Cargando datos…</div>
-    </div>
 
     <!-- Estadísticas -->
     <div class="row mb-3 g-2" id="statsCards">
@@ -169,66 +137,6 @@ tr:hover td {
                     <span class="ms-2 text-muted">Generando gráfica…</span>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Filtros (POST, no se guardan en la URL; se aplican al seleccionar; solo dictámenes ENVIADOS) -->
-    <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
-        <div class="card-body py-2">
-            <form id="filtrosForm" method="POST" action="{{ route('visor-dictamenes.public') }}" class="row g-2 align-items-center">
-                @csrf
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio">
-                        <option value="">Todos</option>
-                        @foreach($anios as $a)
-                            <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
-                        <option value="">Todos</option>
-                        @foreach($revisadosPor as $r)
-                            <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
-                        <option value="">Todas</option>
-                        @foreach($dependencias as $dep)
-                            <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
-                        <option value="">Todos</option>
-                        @foreach($nombresPuestos as $np)
-                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @if(request()->hasAny(['anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                    <div class="col-auto">
-                        <a href="{{ route('visor-dictamenes.public') }}" class="btn btn-sm btn-outline-danger" data-limpiar>
-                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
-                        </a>
-                    </div>
-                @endif
-            </form>
         </div>
     </div>
 
@@ -282,8 +190,6 @@ tr:hover td {
 
 <script>
 $(document).ready(function() {
-    let filtrando = false;
-
     function initDataTable() {
         if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
             $('#dictamenes-table').DataTable().destroy();
@@ -310,76 +216,9 @@ $(document).ready(function() {
         $('#dictamenes-table_length').addClass('mb-3');
     }
 
-    // Petición parcial: reemplaza stats + tabla y recalcula la gráfica, sin recargar la página
-    function aplicarFiltros(url, metodo, body) {
-        if (filtrando) return;
-        filtrando = true;
-        $('#uiOverlay').addClass('visible');
-        $('#statsCards, #tablaCard').addClass('fade-swap');
-
-        const opts = {
-            method: metodo || 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        };
-        if (body) {
-            opts.body = body;
-        }
-
-        fetch(url, opts)
-            .then(function (r) {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.text();
-            })
-            .then(function (html) {
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                $('#statsCards').html(doc.getElementById('statsCards').innerHTML);
-                $('#tablaCard').html(doc.getElementById('tablaCard').innerHTML);
-                $('#filtrosCard').html(doc.getElementById('filtrosCard').innerHTML);
-
-                $('.filter-select').select2({
-                    width: '200px',
-                    dropdownAutoWidth: true
-                });
-
-                initDataTable();
-                if (window.aplicarGrafica) {
-                    window.aplicarGrafica();
-                }
-            })
-            .catch(function () {
-                window.location.href = url;
-            })
-            .finally(function () {
-                filtrando = false;
-                $('#uiOverlay').removeClass('visible');
-                $('#statsCards, #tablaCard').removeClass('fade-swap');
-            });
-    }
-
-    // Filtros: se aplican al cambiar la selección (POST; no se ven en la URL)
-    $(document).on('change', '.filter-select', function () {
-        if (!$(this).closest('#filtrosForm').length) return;
-        const form = document.getElementById('filtrosForm');
-        aplicarFiltros(form.action, 'POST', $(form).serialize());
-    });
-
-    // Limpiar filtros sin recarga
-    $(document).on('click', '#filtrosForm a[data-limpiar]', function (e) {
-        e.preventDefault();
-        const form = document.getElementById('filtrosForm');
-        form.reset();
-        $('.filter-select').val('').trigger('change.select2');
-        aplicarFiltros(form.action, 'POST', $(form).serialize());
-    });
-
     initDataTable();
 
-    $('.filter-select').select2({
-        width: '200px',
-        dropdownAutoWidth: true
-    });
-
-    // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes ENVIADOS)
+    // Gráfica de Chart.js (client-side; todos los dictámenes ENVIADOS)
     const DATOS_GRAFICA = @json($datosGrafica ?? []);
     const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -415,18 +254,8 @@ $(document).ready(function() {
         });
 
         function aplicarGrafica() {
-            const flt = {
-                anio: ($('#anioFilter').val() || ''),
-                revisado: ($('#revisadoFilter').val() || ''),
-                dependencia: ($('#dependenciaFilter').val() || ''),
-                nombrePuesto: ($('#nombrePuestoFilter').val() || '')
-            };
-
             const datos = DATOS_GRAFICA.filter(function (d) {
-                return d.f && (!flt.anio || d.f.substring(0, 4) === flt.anio) &&
-                    (!flt.revisado || d.r === flt.revisado) &&
-                    (!flt.dependencia || d.d === flt.dependencia) &&
-                    (!flt.nombrePuesto || d.n === flt.nombrePuesto);
+                return d.f;
             });
 
             const buckets = {};

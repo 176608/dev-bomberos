@@ -180,69 +180,68 @@ tr:hover td {
     <!-- Filtros (GET, se guardan en la URL; se aplican al seleccionar) -->
     <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-center">
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="anioFilter"><strong>Año:</strong></label>
-                </div>
-                <div class="col-auto">
+            <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-end">
+                <!-- Sección 1: Año + Limpiar -->
+                <div class="col-2">
+                    <label class="form-label mb-1" for="anioFilter"><strong>Año:</strong></label>
                     <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio">
                         <option value="">Todos</option>
                         @foreach($anios as $a)
                             <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
                         @endforeach
                     </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="estatusFilter"><strong>Estatus:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus">
-                        <option value="">Todos</option>
-                        @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
-                            <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
-                        <option value="">Todos</option>
-                        @foreach($revisadosPor as $r)
-                            <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
-                        <option value="">Todas</option>
-                        @foreach($dependencias as $dep)
-                            <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label mb-0 me-2" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
-                </div>
-                <div class="col-auto">
-                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
-                        <option value="">Todos</option>
-                        @foreach($nombresPuestos as $np)
-                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                    <div class="col-auto">
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger" data-limpiar>
+                    @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
+                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-2" data-limpiar>
                             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
+                    @endif
+                </div>
+                <!-- Sección 2: Estatus + Revisado por -->
+                <div class="col-5">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label mb-1" for="estatusFilter"><strong>Estatus:</strong></label>
+                            <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus">
+                                <option value="">Todos</option>
+                                @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
+                                    <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1" for="revisadoFilter"><strong>Revisado por:</strong></label>
+                            <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
+                                <option value="">Todos</option>
+                                @foreach($revisadosPor as $r)
+                                    <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                @endif
+                </div>
+                <!-- Sección 3: Nombre/Puesto + Dependencia -->
+                <div class="col-5">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label mb-1" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
+                            <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
+                                <option value="">Todos</option>
+                                @foreach($nombresPuestos as $np)
+                                    <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1" for="dependenciaFilter"><strong>Dependencia:</strong></label>
+                            <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
+                                <option value="">Todas</option>
+                                @foreach($dependencias as $dep)
+                                    <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -679,8 +678,8 @@ $(document).ready(function() {
                 $('#filtrosCard').html(doc.getElementById('filtrosCard').innerHTML);
 
                 $('.filter-select').select2({
-                    width: '200px',
-                    dropdownAutoWidth: true
+                    width: '100%',
+                    dropdownAutoWidth: false
                 });
 
                 initDataTable();
@@ -721,8 +720,8 @@ $(document).ready(function() {
     initDataTable();
 
     $('.filter-select').select2({
-        width: '200px',
-        dropdownAutoWidth: true
+        width: '100%',
+        dropdownAutoWidth: false
     });
 
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
