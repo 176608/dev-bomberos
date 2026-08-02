@@ -14,29 +14,6 @@ body {
     color: #333;
 }
 
-.stat-card {
-    background: white !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-    text-align: center !important;
-    padding: 16px 10px !important;
-    height: 100%;
-}
-
-.stat-number {
-    font-size: 2rem !important;
-    font-weight: 700 !important;
-    color: var(--imip-blue) !important;
-    margin: 6px 0 !important;
-}
-
-.stat-label {
-    font-size: 0.85rem !important;
-    color: #666 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
 .chart-wrapper {
     display: flex;
     justify-content: center;
@@ -136,21 +113,37 @@ tr:hover td {
 <div class="container mt-4">
 
     <!-- Estadísticas -->
-    <div class="row mb-3 g-2" id="statsCards">
-        <div class="col-6 col-md-2">
-            <div class="stat-card">
-                <div class="stat-number" style="color:#6c757d;">{{ $total }}</div>
-                <div class="stat-label">Total</div>
+    <div class="row mb-4" id="statsCards">
+        <div class="col-md-6">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 20px 10px; height: 100%;">
+                        <div style="font-size: 2.8rem; font-weight: 700; color: #2f7064; margin: 10px 0;">{{ $total }}</div>
+                        <div style="font-size: 0.9rem; color: #666;">Total de dictámenes</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 20px 10px; height: 100%;">
+                        <div style="font-size: 2.8rem; font-weight: 700; color: #28a745; margin: 10px 0;">{{ $enviados }}</div>
+                        <div style="font-size: 0.9rem; color: #666;">Dictámenes Enviados</div>
+                    </div>
+                </div>
             </div>
         </div>
-        @foreach($conteoEstatus as $estatus => $count)
-        <div class="col-6 col-md-2">
-            <div class="stat-card">
-                <div class="stat-number" style="color: {{ $badgeColores[$estatus] ?? '#6c757d' }};">{{ $count }}</div>
-                <div class="stat-label">{{ $estatus }}</div>
+        <div class="col-md-6">
+            <div class="row g-3">
+                @foreach($conteoEstatus as $estatus => $count)
+                @if($estatus !== 'ENVIADO')
+                <div class="col-6">
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 18px 10px; height: 100%;">
+                        <div style="font-size: 1.6rem; font-weight: 700; color: {{ $badgeColores[$estatus] ?? '#6c757d' }}; margin: 6px 0;">{{ $count }}</div>
+                        <div style="font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.3px;">{{ $estatus }}</div>
+                    </div>
+                </div>
+                @endif
+                @endforeach
             </div>
         </div>
-        @endforeach
     </div>
 
 
