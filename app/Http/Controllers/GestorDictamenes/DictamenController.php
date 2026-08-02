@@ -7,6 +7,7 @@ use App\Models\GestorDictamenes\DictamenArchivo;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -210,7 +211,14 @@ class DictamenController extends Controller
 
     public function deletedDictamenes()
     {
+        $cols = ['dictamen_id', 'fecha', 'oficio', 'dependencia_empres', 'nombre_puesto', 'asunto',
+            'numero_oficio', 'revisado_por', 'observaciones', 'archivo', 'estatus', 'deleted_by', 'deleted_at'];
+        if (Schema::hasColumn('dictamenes_audit_log', 'accion')) {
+            $cols[] = 'accion';
+        }
+
         $dictamenes = DB::table('dictamenes_audit_log')
+            ->select($cols)
             ->whereNotNull('deleted_at')
             ->orderByDesc('deleted_at')
             ->get();
@@ -220,7 +228,14 @@ class DictamenController extends Controller
 
     public function historialCambios()
     {
+        $cols = ['id', 'dictamen_id', 'created_at', 'estatus', 'numero_oficio_raw',
+            'dependencia_empres', 'asunto', 'created_by', 'updated_by', 'deleted_by'];
+        if (Schema::hasColumn('dictamenes_audit_log', 'accion')) {
+            $cols[] = 'accion';
+        }
+
         $cambios = DB::table('dictamenes_audit_log')
+            ->select($cols)
             ->orderByDesc('id')
             ->limit(1000)
             ->get();

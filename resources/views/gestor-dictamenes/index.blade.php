@@ -264,6 +264,9 @@ tr:hover td {
             <a href="{{ route('gestor-dictamenes.historial') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-clock-history"></i> Ver últimos cambios
             </a>
+            <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success">
+                <i class="bi bi-eye"></i> Ver Visor de Dictámenes
+            </a>
         @endif
     </div>
 
@@ -535,12 +538,6 @@ tr:hover td {
                         @endforeach
                     </select>
                     <input type="file" id="archivoInput" accept=".doc,.docx" hidden>
-                    <select id="archivoAnio" class="form-select form-select-sm text-nowrap" style="width: 110px;">
-                        <option value="">Sin año</option>
-                        @foreach($aniosDisponibles as $a)
-                            <option value="{{ $a }}">{{ $a }}</option>
-                        @endforeach
-                    </select>
                     <button class="btn btn-success text-nowrap" id="btnSubirArchivo">
                         <i class="bi bi-upload"></i> Subir nuevo archivo
                     </button>
@@ -973,9 +970,10 @@ $(document).ready(function() {
     function subirArchivo(reemplazar) {
         if (!archivoPendiente) return;
 
+        const anioSubida = $('#archivosFiltroAnio').val() || String(new Date().getFullYear());
         const fd = new FormData();
         fd.append('archivo', archivoPendiente);
-        fd.append('anio', $('#archivoAnio').val() || '');
+        fd.append('anio', anioSubida);
         if (reemplazar) fd.append('reemplazar', '1');
 
         $.ajax({

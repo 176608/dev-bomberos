@@ -2,6 +2,14 @@
 
 @section('title', 'Dictámenes Deshabilitados - Gestor de Dictámenes')
 
+@push('styles')
+<style>
+table {
+    font-size: 0.85rem;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="container mt-4">
 
@@ -13,7 +21,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-bordered">
+        <table id="deleted-table" class="table table-hover table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th># Registro</th>
@@ -68,4 +76,32 @@
         </table>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+@parent
+<script>
+$(document).ready(function() {
+    $('#deleted-table').DataTable({
+        "paging": true,
+        "lengthMenu": [[10, 25, 50, 100, -1], ['10', '25', '50', '100', 'Todas']],
+        "pageLength": 25,
+        "searching": true,
+        "info": false,
+        "ordering": true,
+        "order": [[12, 'desc']],
+        "scrollX": true,
+        "autoWidth": false,
+        "stateSave": true,
+        "language": {
+            "search": "Buscar:",
+            "paginate": { "previous": "‹", "next": "›" },
+            "emptyTable": "No hay dictámenes deshabilitados",
+            "zeroRecords": "No se encontró nada"
+        }
+    });
+
+    $('#deleted-table_length').addClass('mb-3');
+});
+</script>
 @endsection
