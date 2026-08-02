@@ -131,10 +131,10 @@ tr:hover td {
             </div>
         </div>
         <div class="col-md-6">
-            <div class="row h-100 g-3">
+            <div class="row g-3">
                 @foreach($conteoEstatus as $estatus => $count)
                 @if($estatus !== 'ENVIADO')
-                <div class="col-6 h-100">
+                <div class="col-6">
                     <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 18px 10px; height: 100%;">
                         <div style="font-size: 1.6rem; font-weight: 700; color: {{ $badgeColores[$estatus] ?? '#6c757d' }}; margin: 6px 0;">{{ $count }}</div>
                         <div style="font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.3px;">{{ $estatus }}</div>
