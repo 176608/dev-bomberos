@@ -109,11 +109,11 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container-fluid mt-4 p-0 bg-fonde" style="min-height: 100vh;">
+<div class="container-fluid p-0 bg-fonde" style="min-height: 100vh;">
   <div class="container pb-5">
 
     <!-- Estadísticas -->
-    <div class="row mb-4" id="statsCards">
+    <div class="row m-2" id="statsCards">
         <div class="col-md-6">
             <div class="row h-100 g-3">
                 <div class="col-6 h-100">
