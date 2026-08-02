@@ -120,7 +120,7 @@ class DictamenController extends Controller
     {
         $request->validate([
             'fecha' => 'required|date',
-            'numero_oficio_raw' => 'required|string|max:255',
+            'oficio' => 'required|string|max:50',
             'clave_documento' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
@@ -132,7 +132,7 @@ class DictamenController extends Controller
 
         $dictamen = Dictamen::create(array_merge([
             'fecha' => $request->fecha,
-            'numero_oficio_raw' => $request->numero_oficio_raw,
+            'oficio' => $request->oficio,
             'clave_documento' => $request->clave_documento,
             'dependencia_empres' => $request->dependencia_empres,
             'asunto' => $request->asunto,
@@ -153,7 +153,7 @@ class DictamenController extends Controller
     {
         $request->validate([
             'fecha' => 'required|date',
-            'numero_oficio_raw' => 'required|string|max:255',
+            'oficio' => 'required|string|max:50',
             'clave_documento' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
@@ -165,7 +165,7 @@ class DictamenController extends Controller
 
         $dictamen->update(array_merge([
             'fecha' => $request->fecha,
-            'numero_oficio_raw' => $request->numero_oficio_raw,
+            'oficio' => $request->oficio,
             'clave_documento' => $request->clave_documento,
             'dependencia_empres' => $request->dependencia_empres,
             'asunto' => $request->asunto,
@@ -518,6 +518,33 @@ class DictamenController extends Controller
             'ok' => $eliminadas > 0,
             'mensaje' => $eliminadas > 0 ? 'Archivo desligado correctamente.' : 'El archivo no estaba ligado.',
         ]);
+    }
+
+    public function archivoEliminar(Request $request)
+    {
+        $request->validate([
+            'ruta' => 'required|string',
+        ]);
+
+        $ruta = trim($request->ruta);
+
+        if ($ruta === '' || str_contains($ruta, '..') || str_contains($ruta, '\\')) {
+            return response()->json(['ok' => false, 'mensaje' => 'Ruta de archivo inválida.'], 422);
+        }
+
+        if (!Storage::disk('dictamenes')->exists($ruta)) {
+            return response()->json(['ok' => false, 'mensaje' => 'El archivo no existe en el servidor.'], 422);
+        }
+
+        if (preg_match('#^(\d{4})/([^/]+)$#', $ruta, $m)) {
+            DictamenArchivo::where('anio', (int) $m[1])
+                ->where('nombre_archivo', $m[2])
+                ->delete();
+        }
+
+        Storage::disk('dictamenes')->delete($ruta);
+
+        return response()->json(['ok' => true, 'mensaje' => "El archivo {$ruta} fue eliminado del servidor."]);
     }
 
     private function auditar(Dictamen $dictamen, string $accion, bool $deleted = false)

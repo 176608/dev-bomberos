@@ -262,13 +262,12 @@ tr:hover td {
                 <tr>
                     <th>Fecha</th>
                     <th>Año</th>
-                    <th># Oficio</th>
+                    <th>Núm. Oficio</th>
                     <th>Dependencia</th>
                     <th>Asunto</th>
                     <th>Estatus</th>
                     <th>Nombre / Puesto</th>
                     <th>Revisado por</th>
-                    <th>Núm. Oficio</th>
                     <th>Archivo</th>
                     <th>Acciones</th>
                 </tr>
@@ -281,7 +280,6 @@ tr:hover td {
                     data-nombre-puesto="{{ $d->nombre_puesto ?? '' }}"
                     data-dependencia="{{ $d->dependencia_empres ?? '' }}"
                     data-asunto="{{ $d->asunto ?? '' }}"
-                    data-numero-oficio="{{ $d->numero_oficio_raw ?? '' }}"
                     data-clave-documento="{{ $d->clave_documento ?? '' }}"
                     data-revisado-por="{{ $d->revisado_por ?? '' }}"
                     data-estatus="{{ $d->estatus ?? '' }}"
@@ -305,7 +303,6 @@ tr:hover td {
                     </td>
                     <td>{{ $d->nombre_puesto ?? '—' }}</td>
                     <td>{{ $d->revisado_por ?? '—' }}</td>
-                    <td>{{ $d->numero_oficio_raw ?? '—' }}</td>
                     <td>
                         @php
                             $estadoA = $d->estado_archivo ?? 'sin_clave';
@@ -395,11 +392,7 @@ tr:hover td {
                     </div>
                     <div class="mb-3">
                         <label>Núm. Oficio</label>
-                        <input type="text" class="form-control" name="numero_oficio_raw" required>
-                    </div>
-                    <div class="mb-3">
-                        <label># Oficio</label>
-                        <input type="text" class="form-control" name="oficio">
+                        <input type="text" class="form-control" name="oficio" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
                     </div>
                     <div class="mb-3">
                         <label>Clave de documento</label>
@@ -463,11 +456,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-6">
                             <label>Núm. Oficio</label>
-                            <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio_raw" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label># Oficio</label>
-                            <input type="text" class="form-control" id="oficio_edit" name="oficio">
+                            <input type="text" class="form-control" id="oficio_edit" name="oficio" required>
                         </div>
                         <div class="col-md-4">
                             <label>Clave de documento</label>
@@ -653,6 +642,16 @@ tr:hover td {
 $(document).ready(function() {
     let filtrando = false;
 
+    // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada)
+    if (!sessionStorage.getItem('dictamenes_state_v9')) {
+        Object.keys(localStorage).forEach(function(k) {
+            if (k.indexOf('DataTables_dictamenes-table') === 0) {
+                localStorage.removeItem(k);
+            }
+        });
+        sessionStorage.setItem('dictamenes_state_v9', '1');
+    }
+
     function initDataTable() {
         if ($.fn.DataTable.isDataTable('#dictamenes-table')) {
             $('#dictamenes-table').DataTable().destroy();
@@ -771,7 +770,6 @@ $(document).ready(function() {
         $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
         $('#dependencia_empres_edit').val($row.data('dependencia') || '');
         $('#asunto_edit').val($row.data('asunto') || '');
-        $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
         $('#clave_documento_edit').val($row.data('clave-documento') || '');
         $('#revisado_por_edit').val($row.data('revisado-por') || '');
         $('#estatus_edit').val($row.data('estatus') || '');
@@ -920,6 +918,8 @@ $(document).ready(function() {
     const URL_DESCARGAR = '{{ route('gestor-dictamenes.archivo-descargar') }}';
     const URL_VINCULAR = '{{ route('gestor-dictamenes.archivo-vincular') }}';
     const URL_DESVINCULAR = '{{ route('gestor-dictamenes.archivo-desvincular') }}';
+    const URL_ELIMINAR = '{{ route('gestor-dictamenes.archivo-eliminar') }}';
+    const PUEDE_BORRAR = {{ auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']) ? 'true' : 'false' }};
 
     let archivoPendiente = null;
 
@@ -969,7 +969,9 @@ $(document).ready(function() {
                     '<td>' + anio + '</td>' +
                     '<td><a href="' + urlDescarga(a.ruta) + '" title="Descargar"><i class="bi bi-download me-2 text-primary"></i></a>' + $('<span>').text(a.nombre).html() + '</td>' +
                     '<td class="text-center">' + badge + '</td>' +
-                    '<td class="text-center"><a href="' + urlDescarga(a.ruta) + '" class="text-primary" title="Descargar"><i class="bi bi-download"></i></a></td>' +
+                    '<td class="text-center">' + (PUEDE_BORRAR
+                        ? '<button class="btn btn-sm btn-outline-danger btn-eliminar-archivo" data-ruta="' + a.ruta + '" title="Eliminar del servidor"><i class="bi bi-trash"></i></button>'
+                        : '<a href="' + urlDescarga(a.ruta) + '" class="text-primary" title="Descargar"><i class="bi bi-download"></i></a>') + '</td>' +
                 '</tr>'
             );
         });
@@ -1219,6 +1221,19 @@ $(document).ready(function() {
         $('#subirConflicto').addClass('d-none');
         $('#subirArchivoInput').val('');
         subirPendiente = null;
+    });
+
+    // Eliminar archivo del servidor (modal Gestionar Archivos)
+    $(document).on('click', '.btn-eliminar-archivo', function() {
+        const ruta = $(this).data('ruta');
+        if (!confirm('¿Eliminar el archivo "' + ruta + '" del servidor? Se desligará de los dictámenes que lo referencien.')) return;
+
+        $.post(URL_ELIMINAR, { ruta: ruta }, function(res) {
+            mostrarMsg('success', res.mensaje);
+            cargarArchivos();
+        }).fail(function(xhr) {
+            mostrarMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al eliminar el archivo.');
+        });
     });
 });
 </script>
