@@ -79,8 +79,8 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container mt-4 bg-fonde img-fluid" style="background-color: transparent;">
-
+<div class="container-fluid p-0 mt-4 bg-fonde img-fluid" style="background-color: transparent;">
+ <div class="container">
     <!-- Estadísticas -->
     <div class="row mb-4" id="statsCards">
         <div class="col-md-6">
@@ -142,6 +142,7 @@ tr:hover td {
             </tbody>
         </table>
     </div>
+ </div>
 </div>
 
 @endsection
