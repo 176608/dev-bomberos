@@ -212,8 +212,11 @@ class DictamenController extends Controller
     public function deletedDictamenes()
     {
         $cols = ['dictamen_id', 'fecha', 'oficio', 'dependencia_empres', 'nombre_puesto', 'asunto',
-            'numero_oficio', 'revisado_por', 'observaciones', 'archivo', 'estatus', 'deleted_by', 'deleted_at'];
-        if (Schema::hasColumn('dictamen_audit_log', 'accion')) {
+            'numero_oficio', 'revisado_por', 'observaciones', 'estatus', 'deleted_by', 'deleted_at'];
+        if ($this->columnaAudit('archivo')) {
+            $cols[] = 'archivo';
+        }
+        if ($this->columnaAudit('accion')) {
             $cols[] = 'accion';
         }
 
@@ -228,9 +231,10 @@ class DictamenController extends Controller
 
     public function historialCambios()
     {
-        $cols = ['id', 'dictamen_id', 'created_at', 'estatus', 'numero_oficio_raw',
-            'dependencia_empres', 'asunto', 'created_by', 'updated_by', 'deleted_by'];
-        if (Schema::hasColumn('dictamen_audit_log', 'accion')) {
+        $cols = ['id', 'dictamen_id', 'estatus', 'dependencia_empres', 'asunto', 'created_by', 'updated_by', 'deleted_by'];
+        $cols[] = $this->columnaAudit('created_at') ? 'created_at' : 'deleted_at AS created_at';
+        $cols[] = ($this->columnaAudit('numero_oficio_raw') ? 'numero_oficio_raw' : 'numero_oficio') . ' AS numero_oficio_raw';
+        if ($this->columnaAudit('accion')) {
             $cols[] = 'accion';
         }
 
@@ -241,6 +245,11 @@ class DictamenController extends Controller
             ->get();
 
         return view('gestor-dictamenes.historial', compact('cambios'));
+    }
+
+    private function columnaAudit(string $col): bool
+    {
+        return Schema::hasColumn('dictamen_audit_log', $col);
     }
 
     // ==================== Gestión de archivos ====================
@@ -494,7 +503,7 @@ class DictamenController extends Controller
 
     private function auditar(Dictamen $dictamen, string $accion, bool $deleted = false)
     {
-        DB::table('dictamen_audit_log')->insert([
+        $mapa = [
             'dictamen_id' => $dictamen->id,
             'accion' => $accion,
             'anio' => $dictamen->anio,
@@ -516,6 +525,15 @@ class DictamenController extends Controller
             'updated_by' => $dictamen->updated_by,
             'deleted_by' => $deleted ? auth()->id() : null,
             'deleted_at' => $deleted ? now() : null,
-        ]);
+        ];
+
+        $data = [];
+        foreach ($mapa as $col => $valor) {
+            if (Schema::hasColumn('dictamen_audit_log', $col)) {
+                $data[$col] = $valor;
+            }
+        }
+
+        DB::table('dictamen_audit_log')->insert($data);
     }
 }

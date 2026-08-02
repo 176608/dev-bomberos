@@ -180,9 +180,9 @@ tr:hover td {
     <!-- Filtros (GET, se guardan en la URL; se aplican al seleccionar) -->
     <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
         <div class="card-body py-2">
-            <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2 align-items-end">
-                <!-- Sección 1: Año + Limpiar -->
-                <div class="col-2">
+            <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2">
+                <!-- Sección 1: Año arriba + Limpiar abajo -->
+                <div class="col-2 d-flex flex-column">
                     <label class="form-label mb-1" for="anioFilter"><strong>Año:</strong></label>
                     <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio">
                         <option value="">Todos</option>
@@ -191,7 +191,7 @@ tr:hover td {
                         @endforeach
                     </select>
                     @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-2" data-limpiar>
+                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-auto" data-limpiar>
                             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
                     @endif
@@ -330,7 +330,7 @@ tr:hover td {
                             <span class="text-muted">—</span>
                         @endif
                         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
-                            <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#linkModal"
+                            <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-clave="{{ $d->clave_documento }}" data-bs-toggle="modal" data-bs-target="#linkModal"
                                     title="Ligar / desligar archivos ({{ $d->clave_documento }} @ {{ $d->anio }})">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
@@ -1002,12 +1002,12 @@ $(document).ready(function() {
     });
 
     // ============ Ligar / Desligar archivos a un dictamen ============
-    const DATOS_ARCHIVOS_DICTAMEN = {!! json_encode($dictamenes->mapWithKeys(function ($d) {
+    const DATOS_ARCHIVOS_DICTAMEN = @json($dictamenes->mapWithKeys(function ($d) {
         return [$d->id => [
             'encontrados' => $d->archivos_encontrados ?? [],
             'ligados' => $d->archivosLigados->map(fn ($a) => ($a->anio ? $a->anio . '/' . $a->nombre_archivo : $a->nombre_archivo))->all(),
         ]];
-    })->all()) !!};
+    })->all());
 
     let linkDictamenId = null;
 
@@ -1051,11 +1051,15 @@ $(document).ready(function() {
         });
     }
 
-    $('#linkModal').on('show.bs.modal', function() {
-        const btn = $(this).data('triggerBtn');
-        if (!btn) return;
-        linkDictamenId = btn.data('id');
-        $('#linkClave').text(btn.closest('tr').find('td').eq(0).length ? (btn.data('clave') || '') : '');
+    $('#linkModal').on('show.bs.modal', function(e) {
+        const btn = e.relatedTarget || $(this).data('triggerBtn');
+        if (!btn) {
+            $('#linkCoincidencias').html('<p class="text-muted small mb-0">Selecciona un dictamen para ligar archivos.</p>');
+            $('#linkLigados').html('<p class="text-muted small mb-0">Este dictamen no tiene archivos ligados.</p>');
+            return;
+        }
+        linkDictamenId = $(btn).data('id');
+        $('#linkClave').text($(btn).data('clave') || '');
         renderLink();
     });
 
