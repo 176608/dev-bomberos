@@ -80,7 +80,7 @@ tr:hover td {
 <div class="container-fluid p-0 bg-fonde" style="min-height: 100vh;">
  <div class="container pb-5">
     <!-- Estadísticas -->
-    <div class="row m-2" id="statsCards">
+    <div class="row mb-4" id="statsCards">
         <div class="col-md-6">
             <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 20px 10px;">
                 <div style="font-size: 2.8rem; font-weight: 700; color: #2f7064; margin: 10px 0;">{{ $total }}</div>
