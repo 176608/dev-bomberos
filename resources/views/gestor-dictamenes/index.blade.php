@@ -636,6 +636,13 @@ tr:hover td {
 $(document).ready(function() {
     let filtrando = false;
 
+    // Limpieza defensiva del overlay al cargar la página y al restaurarla desde la
+    // caché del navegador (bfcache), donde .ready no se vuelve a ejecutar
+    $('#uiOverlay').removeClass('visible');
+    $(window).on('pageshow', function (e) {
+        if (e.persisted) $('#uiOverlay').removeClass('visible');
+    });
+
     // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada)
     if (!sessionStorage.getItem('dictamenes_state_v9')) {
         Object.keys(localStorage).forEach(function(k) {
@@ -690,6 +697,14 @@ $(document).ready(function() {
             opts.body = body;
         }
 
+        // Cierra el overlay y restaura el estado. Se llama tanto en éxito como en error;
+        // no se usa Promise.finally para no dejar el spinner pegado en navegadores que no lo soportan.
+        function ocultarOverlay() {
+            filtrando = false;
+            $('#uiOverlay').removeClass('visible');
+            $('#statsCards, #tablaCard').removeClass('fade-swap');
+        }
+
         fetch(url, opts)
             .then(function (r) {
                 if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -714,14 +729,11 @@ $(document).ready(function() {
                 if (history && metodo !== 'POST') {
                     history.pushState(null, '', url);
                 }
+                ocultarOverlay();
             })
             .catch(function () {
+                ocultarOverlay();
                 window.location.href = url;
-            })
-            .finally(function () {
-                filtrando = false;
-                $('#uiOverlay').removeClass('visible');
-                $('#statsCards, #tablaCard').removeClass('fade-swap');
             });
     }
 
