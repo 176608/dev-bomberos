@@ -1026,6 +1026,7 @@ $(document).ready(function() {
                 $('#archivoInput').val('');
                 archivoPendiente = null;
                 cargarArchivos();
+                recargarTablaConFiltros();
             },
             error: function(xhr) {
                 const res = xhr.responseJSON || {};
