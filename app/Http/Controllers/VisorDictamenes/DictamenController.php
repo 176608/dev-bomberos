@@ -5,7 +5,6 @@ namespace App\Http\Controllers\VisorDictamenes;
 use App\Models\GestorDictamenes\Dictamen;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class DictamenController extends Controller
 {
@@ -33,10 +32,8 @@ class DictamenController extends Controller
 
         $dictamenes = $query->orderByDesc('fecha')->get();
 
-        $this->anotarEstadoArchivo($dictamenes, $this->archivosDiscoPorAnio());
-
-        $total = Dictamen::where('estatus', 'ENVIADO')->count();
-        $enviados = $total;
+        $total = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)->count();
+        $enviados = Dictamen::where('estatus', 'ENVIADO')->count();
 
         $anios = Dictamen::where('estatus', 'ENVIADO')
             ->whereNotNull('anio')
@@ -79,64 +76,5 @@ class DictamenController extends Controller
             'nombresPuestos',
             'datosGrafica'
         ));
-    }
-
-    private function archivosDiscoPorAnio(): array
-    {
-        $disco = Storage::disk('dictamenes');
-        $porAnio = [];
-
-        foreach ($disco->directories() as $dir) {
-            if (preg_match('/^\d{4}$/', basename($dir))) {
-                $porAnio[basename($dir)] = array_map('basename', $disco->files($dir));
-            }
-        }
-
-        $porAnio[''] = array_map('basename', $disco->files());
-
-        return $porAnio;
-    }
-
-    private function normalizarClave(?string $clave): string
-    {
-        return strtoupper(str_replace([' ', '-', '_', '.', ',', '/'], '', trim((string) $clave)));
-    }
-
-    private function claveCoincide(string $claveNorm, string $nombreNorm): bool
-    {
-        return $claveNorm !== '' && $nombreNorm !== ''
-            && ($nombreNorm === $claveNorm || str_starts_with($nombreNorm, $claveNorm));
-    }
-
-    private function anotarEstadoArchivo($dictamenes, array $archivosPorAnio): void
-    {
-        foreach ($dictamenes as $d) {
-            $clave = trim((string) $d->clave_documento);
-            $d->estado_archivo = 'sin_clave';
-            $d->archivos_encontrados = [];
-
-            if ($clave === '' || in_array(strtoupper($clave), ['S/N', 'S/D'], true)) {
-                continue;
-            }
-
-            $claveNorm = $this->normalizarClave($clave);
-            if ($claveNorm === '') {
-                continue;
-            }
-
-            $coincidencias = [];
-            foreach ($archivosPorAnio as $anio => $nombres) {
-                foreach ($nombres as $nombre) {
-                    if ($this->claveCoincide($claveNorm, $this->normalizarClave($nombre))) {
-                        $coincidencias[] = $anio !== '' ? $anio . '/' . $nombre : $nombre;
-                    }
-                }
-            }
-
-            $coincidencias = array_values(array_unique($coincidencias));
-            $d->archivos_encontrados = $coincidencias;
-            $n = count($coincidencias);
-            $d->estado_archivo = $n === 0 ? 'no_encontrado' : ($n === 1 ? 'encontrado' : 'multiples');
-        }
     }
 }

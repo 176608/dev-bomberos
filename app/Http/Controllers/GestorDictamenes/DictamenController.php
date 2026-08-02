@@ -190,7 +190,7 @@ class DictamenController extends Controller
             return back()->with('error', 'El dictamen no está deshabilitado.');
         }
 
-        $snapshot = DB::table('dictamenes_audit_log')
+        $snapshot = DB::table('dictamen_audit_log')
             ->where('dictamen_id', $dictamen->id)
             ->whereNotNull('deleted_at')
             ->latest('id')
@@ -213,11 +213,11 @@ class DictamenController extends Controller
     {
         $cols = ['dictamen_id', 'fecha', 'oficio', 'dependencia_empres', 'nombre_puesto', 'asunto',
             'numero_oficio', 'revisado_por', 'observaciones', 'archivo', 'estatus', 'deleted_by', 'deleted_at'];
-        if (Schema::hasColumn('dictamenes_audit_log', 'accion')) {
+        if (Schema::hasColumn('dictamen_audit_log', 'accion')) {
             $cols[] = 'accion';
         }
 
-        $dictamenes = DB::table('dictamenes_audit_log')
+        $dictamenes = DB::table('dictamen_audit_log')
             ->select($cols)
             ->whereNotNull('deleted_at')
             ->orderByDesc('deleted_at')
@@ -230,11 +230,11 @@ class DictamenController extends Controller
     {
         $cols = ['id', 'dictamen_id', 'created_at', 'estatus', 'numero_oficio_raw',
             'dependencia_empres', 'asunto', 'created_by', 'updated_by', 'deleted_by'];
-        if (Schema::hasColumn('dictamenes_audit_log', 'accion')) {
+        if (Schema::hasColumn('dictamen_audit_log', 'accion')) {
             $cols[] = 'accion';
         }
 
-        $cambios = DB::table('dictamenes_audit_log')
+        $cambios = DB::table('dictamen_audit_log')
             ->select($cols)
             ->orderByDesc('id')
             ->limit(1000)
@@ -494,7 +494,7 @@ class DictamenController extends Controller
 
     private function auditar(Dictamen $dictamen, string $accion, bool $deleted = false)
     {
-        DB::table('dictamenes_audit_log')->insert([
+        DB::table('dictamen_audit_log')->insert([
             'dictamen_id' => $dictamen->id,
             'accion' => $accion,
             'anio' => $dictamen->anio,

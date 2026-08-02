@@ -246,7 +246,6 @@ tr:hover td {
                     <th>Dependencia</th>
                     <th>Asunto</th>
                     <th>Estatus</th>
-                    <th>Archivo</th>
                 </tr>
             </thead>
             <tbody>
@@ -269,27 +268,6 @@ tr:hover td {
                         <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ ($d->estatus ?? '') === 'BORRADOR PARA FIRMA' ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ $d->estatus ?? 'S/D' }}
                         </span>
-                    </td>
-                    <td>
-                        @php
-                            $estadoA = $d->estado_archivo ?? 'sin_clave';
-                            $encontradosA = $d->archivos_encontrados ?? [];
-                        @endphp
-                        @if($estadoA === 'encontrado')
-                            <span class="badge bg-primary" title="Encontrado en el servidor: {{ $encontradosA[0] ?? '' }}">
-                                <i class="bi bi-check-circle"></i> Encontrado
-                            </span>
-                        @elseif($estadoA === 'no_encontrado')
-                            <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
-                                <i class="bi bi-x-circle"></i> No encontrado
-                            </span>
-                        @elseif($estadoA === 'multiples')
-                            <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
-                                <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
-                            </span>
-                        @else
-                            <span class="text-muted">—</span>
-                        @endif
                     </td>
                 </tr>
                 @endforeach
