@@ -102,7 +102,7 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container mt-4">
+<div class="mt-4">
 
     <!-- Estadísticas -->
     <div class="row mb-3 g-2" id="statsCards">

@@ -377,7 +377,7 @@ class DictamenController extends Controller
 
         $file = $request->file('archivo');
         $nombre = $file->getClientOriginalName();
-        $anio = $request->filled('anio') ? $request->anio : '';
+        $anio = $request->filled('anio') ? $request->anio : (string) date('Y');
         $reemplazar = $request->boolean('reemplazar');
 
         $rutaDestino = $anio !== '' ? $anio . '/' . $nombre : $nombre;

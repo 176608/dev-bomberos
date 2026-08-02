@@ -133,7 +133,7 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container mt-4">
+<div class="mt-4">
 
     <!-- Overlay de carga (spinner global durante peticiones parciales) -->
     <div id="uiOverlay" class="ui-overlay">
@@ -1158,9 +1158,9 @@ $(document).ready(function() {
 
     $(document).on('click', '.subir-btn', function() {
         const btn = $(this);
-        subirAnio = String(btn.data('anio') || '');
+        subirAnio = String(btn.data('anio') || new Date().getFullYear());
         $('#subirClave').text(btn.data('clave') || '—');
-        $('#subirCarpeta').text(subirAnio ? subirAnio + '/' : '(raíz)');
+        $('#subirCarpeta').text(subirAnio + '/');
         $('#subirMsg').empty();
         $('#subirConflicto').addClass('d-none');
         $('#subirArchivoInput').val('');
