@@ -20,10 +20,10 @@ body {
 }
 
 .stat-number {
-    font-size: 2rem !important;
+    font-size: 2.8rem !important;
     font-weight: 700 !important;
     color: #2f7064 !important;
-    margin: 6px 0 !important;
+    margin: 10px 0 !important;
 }
 
 .stat-label {
@@ -106,22 +106,16 @@ tr:hover td {
 
     <!-- Estadísticas -->
     <div class="row mb-3 g-2" id="statsCards">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card">
                 <div class="stat-number">{{ $enviados }}</div>
                 <div class="stat-label">Dictámenes Enviados</div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card">
                 <div class="stat-number">{{ $total }}</div>
                 <div class="stat-label">Total de dictámenes</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-number" style="color:#8a2be2;">{{ $enviados ? round($enviados * 100 / $total, 1) : 0 }}%</div>
-                <div class="stat-label">Enviados / Total</div>
             </div>
         </div>
     </div>
