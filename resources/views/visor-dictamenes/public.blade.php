@@ -77,8 +77,8 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container-fluid p-0 bg-fonde" style="min-height: 100vh;">
- <div class="container mt-2 pb-5">
+<div class="container-fluid pt-4 bg-fonde" style="min-height: 100vh;">
+ <div class="container pb-5">
     <!-- Estadísticas -->
     <div class="row mb-4" id="statsCards">
         <div class="col-md-6">
