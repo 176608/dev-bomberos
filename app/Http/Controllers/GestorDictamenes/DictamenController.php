@@ -29,6 +29,11 @@ class DictamenController extends Controller
         ];
     }
 
+    private function mayus(?string $valor): ?string
+    {
+        return $valor === null ? null : mb_strtoupper(trim($valor));
+    }
+
     public function index(Request $request)
     {
         $query = Dictamen::query();
@@ -132,14 +137,14 @@ class DictamenController extends Controller
 
         $dictamen = Dictamen::create(array_merge([
             'fecha' => $request->fecha,
-            'oficio' => $request->oficio,
-            'clave_documento' => $request->clave_documento,
-            'dependencia_empres' => $request->dependencia_empres,
-            'asunto' => $request->asunto,
-            'estatus' => $request->estatus,
-            'nombre_puesto' => $request->nombre_puesto,
-            'revisado_por' => $request->revisado_por,
-            'observaciones' => $request->observaciones,
+            'oficio' => $this->mayus($request->oficio),
+            'clave_documento' => $this->mayus($request->clave_documento),
+            'dependencia_empres' => $this->mayus($request->dependencia_empres),
+            'asunto' => $this->mayus($request->asunto),
+            'estatus' => $this->mayus($request->estatus),
+            'nombre_puesto' => $this->mayus($request->nombre_puesto),
+            'revisado_por' => $this->mayus($request->revisado_por),
+            'observaciones' => $this->mayus($request->observaciones),
             'created_by' => auth()->id(),
         ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();
@@ -165,14 +170,14 @@ class DictamenController extends Controller
 
         $dictamen->update(array_merge([
             'fecha' => $request->fecha,
-            'oficio' => $request->oficio,
-            'clave_documento' => $request->clave_documento,
-            'dependencia_empres' => $request->dependencia_empres,
-            'asunto' => $request->asunto,
-            'estatus' => $request->estatus,
-            'nombre_puesto' => $request->nombre_puesto,
-            'revisado_por' => $request->revisado_por,
-            'observaciones' => $request->observaciones,
+            'oficio' => $this->mayus($request->oficio),
+            'clave_documento' => $this->mayus($request->clave_documento),
+            'dependencia_empres' => $this->mayus($request->dependencia_empres),
+            'asunto' => $this->mayus($request->asunto),
+            'estatus' => $this->mayus($request->estatus),
+            'nombre_puesto' => $this->mayus($request->nombre_puesto),
+            'revisado_por' => $this->mayus($request->revisado_por),
+            'observaciones' => $this->mayus($request->observaciones),
             'updated_by' => auth()->id(),
         ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();

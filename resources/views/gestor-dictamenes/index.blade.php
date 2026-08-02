@@ -364,7 +364,7 @@ tr:hover td {
 
 <!-- Modal Crear -->
 <div class="modal fade" id="createModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Crear Nuevo Dictamen</h5>
@@ -373,46 +373,48 @@ tr:hover td {
             <form method="POST" action="{{ route('gestor-dictamenes.store') }}">
                 @csrf
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Fecha</label>
-                        <input type="date" class="form-control" name="fecha" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Núm. Oficio</label>
-                        <input type="text" class="form-control" name="oficio" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
-                    </div>
-                    <div class="mb-3">
-                        <label>Clave de documento</label>
-                        <input type="text" class="form-control" name="clave_documento" placeholder="Ej. PYP024, DIR143">
-                    </div>
-                    <div class="mb-3">
-                        <label>Nombre / Puesto</label>
-                        <input type="text" class="form-control" name="nombre_puesto">
-                    </div>
-                    <div class="mb-3">
-                        <label>Dependencia</label>
-                        <input type="text" class="form-control" name="dependencia_empres">
-                    </div>
-                    <div class="mb-3">
-                        <label>Asunto</label>
-                        <textarea class="form-control" name="asunto" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label>Revisado por</label>
-                        <input type="text" class="form-control" name="revisado_por">
-                    </div>
-                    <div class="mb-3">
-                        <label>Estatus</label>
-                        <select class="form-control" name="estatus" required>
-                            <option value="">Seleccione un estatus...</option>
-                            @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
-                                <option value="{{ $estatus }}">{{ $estatus }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Observaciones</label>
-                        <textarea class="form-control" name="observaciones"></textarea>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <input type="date" class="form-control" name="fecha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Núm. Oficio <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <input type="text" class="form-control" name="oficio" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Clave de documento</label>
+                            <input type="text" class="form-control" name="clave_documento" placeholder="Ej. PYP024, DIR143">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Nombre / Puesto</label>
+                            <input type="text" class="form-control" name="nombre_puesto">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Dependencia</label>
+                            <input type="text" class="form-control" name="dependencia_empres">
+                        </div>
+                        <div class="col-md-12">
+                            <label>Asunto <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <textarea class="form-control" name="asunto" required rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Revisado por</label>
+                            <input type="text" class="form-control" name="revisado_por">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <select class="form-control" name="estatus" required>
+                                <option value="">Seleccione un estatus...</option>
+                                @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
+                                    <option value="{{ $estatus }}">{{ $estatus }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Observaciones</label>
+                            <textarea class="form-control" name="observaciones" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
