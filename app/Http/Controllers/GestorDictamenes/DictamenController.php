@@ -231,9 +231,14 @@ class DictamenController extends Controller
 
     public function historialCambios()
     {
-        $cols = ['id', 'dictamen_id', 'estatus', 'dependencia_empres', 'asunto', 'created_by', 'updated_by', 'deleted_by'];
+        $cols = ['id', 'dictamen_id', 'estatus', 'dependencia_empres', 'asunto'];
         $cols[] = $this->columnaAudit('created_at') ? 'created_at' : 'deleted_at AS created_at';
         $cols[] = ($this->columnaAudit('numero_oficio_raw') ? 'numero_oficio_raw' : 'numero_oficio') . ' AS numero_oficio_raw';
+        foreach (['created_by', 'updated_by', 'deleted_by'] as $colUsuario) {
+            if ($this->columnaAudit($colUsuario)) {
+                $cols[] = $colUsuario;
+            }
+        }
         if ($this->columnaAudit('accion')) {
             $cols[] = 'accion';
         }

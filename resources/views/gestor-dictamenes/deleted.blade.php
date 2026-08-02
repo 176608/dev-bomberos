@@ -92,7 +92,6 @@ $(document).ready(function() {
         "order": [[12, 'desc']],
         "scrollX": true,
         "autoWidth": false,
-        "stateSave": true,
         "language": {
             "search": "Buscar:",
             "paginate": { "previous": "‹", "next": "›" },
