@@ -10,7 +10,6 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
     color: #333;
 }
 
@@ -110,7 +109,8 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container mt-4">
+<div class="container-fluid p-0 bg-fonde" style="min-height: 100vh;">
+  <div class="container mt-4 pb-5">
 
     <!-- Estadísticas -->
     <div class="row mb-4" id="statsCards">
@@ -604,6 +604,7 @@ tr:hover td {
             </div>
         </div>
     </div>
+  </div>
 </div>
 
 @endsection
