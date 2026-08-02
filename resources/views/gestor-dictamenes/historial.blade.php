@@ -11,7 +11,7 @@ table {
 @endpush
 
 @section('content')
-<div class="mt-4">
+<div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-clock-history"></i> Historial de Cambios</h2>

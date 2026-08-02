@@ -133,7 +133,7 @@ tr:hover td {
     ];
 @endphp
 
-<div class="mt-4">
+<div class="container mt-4">
 
     <!-- Overlay de carga (spinner global durante peticiones parciales) -->
     <div id="uiOverlay" class="ui-overlay">
