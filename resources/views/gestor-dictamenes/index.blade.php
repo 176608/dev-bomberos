@@ -383,8 +383,8 @@ tr:hover td {
                             <input type="text" class="form-control" name="oficio" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
                         </div>
                         <div class="col-md-4">
-                            <label>Clave de documento</label>
-                            <input type="text" class="form-control" name="clave_documento" placeholder="Ej. PYP024, DIR143">
+                            <label>Clave de archivo</label>
+                            <input type="text" class="form-control" name="claved_documento" placeholder="Ej. PYP024, DIR143">
                         </div>
                         <div class="col-md-4">
                             <label>Nombre / Puesto</label>
@@ -448,7 +448,7 @@ tr:hover td {
                             <input type="text" class="form-control" id="oficio_edit" name="oficio" required>
                         </div>
                         <div class="col-md-4">
-                            <label>Clave de documento</label>
+                            <label>Clave de archivo</label>
                             <input type="text" class="form-control" id="clave_documento_edit" name="clave_documento" placeholder="Ej. PYP024, DIR143">
                         </div>
                         <div class="col-md-4">
@@ -741,6 +741,16 @@ $(document).ready(function() {
         $('.filter-select').val('').trigger('change.select2');
         aplicarFiltros(form.action, 'GET');
     });
+
+    // Recarga la tabla manteniendo los filtros/búsqueda actuales del formulario de filtros
+    function recargarTablaConFiltros() {
+        const form = document.getElementById('filtrosForm');
+        if (form) {
+            aplicarFiltros(form.action + '?' + $(form).serialize(), 'GET');
+        } else {
+            window.location.reload();
+        }
+    }
 
     initDataTable();
 
@@ -1115,6 +1125,7 @@ $(document).ready(function() {
             mostrarLinkMsg('success', res.mensaje);
             DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.push(ruta);
             renderLink();
+            recargarTablaConFiltros();
         }).fail(function(xhr) {
             mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al ligar.');
         });
@@ -1127,6 +1138,7 @@ $(document).ready(function() {
             mostrarLinkMsg('success', res.mensaje);
             DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados = DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.filter(r => r !== ruta);
             renderLink();
+            recargarTablaConFiltros();
         }).fail(function(xhr) {
             mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al desligar.');
         });
@@ -1215,6 +1227,7 @@ $(document).ready(function() {
         $.post(URL_ELIMINAR, { ruta: ruta }, function(res) {
             mostrarMsg('success', res.mensaje);
             cargarArchivos();
+            recargarTablaConFiltros();
         }).fail(function(xhr) {
             mostrarMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al eliminar el archivo.');
         });
