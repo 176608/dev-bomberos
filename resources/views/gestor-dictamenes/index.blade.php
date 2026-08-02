@@ -278,7 +278,7 @@ tr:hover td {
                     data-estatus="{{ $d->estatus ?? '' }}"
                     data-observaciones="{{ $d->observaciones ?? '' }}"
                 >
-                    <td>{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
+                    <td data-order="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '0000-00-00' }}">{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
                     <td>{{ $d->oficio ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
