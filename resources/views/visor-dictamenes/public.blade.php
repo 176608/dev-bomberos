@@ -85,14 +85,14 @@ tr:hover td {
     <div class="row mb-4" id="statsCards">
         <div class="col-md-6">
             <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 20px 10px;">
-                <div style="font-size: 2.8rem; font-weight: 700; color: #2f7064; margin: 10px 0;">{{ $enviados }}</div>
-                <div style="font-size: 0.9rem; color: #666;">Dictámenes Enviados</div>
+                <div style="font-size: 2.8rem; font-weight: 700; color: #2f7064; margin: 10px 0;">{{ $total }}</div>
+                <div style="font-size: 0.9rem; color: #666;">Total de dictámenes</div>
             </div>
         </div>
         <div class="col-md-6">
             <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; padding: 20px 10px;">
-                <div style="font-size: 2.8rem; font-weight: 700; color: #2f7064; margin: 10px 0;">{{ $total }}</div>
-                <div style="font-size: 0.9rem; color: #666;">Total de dictámenes</div>
+                <div style="font-size: 2.8rem; font-weight: 700; color: #28a745; margin: 10px 0;">{{ $enviados }}</div>
+                <div style="font-size: 0.9rem; color: #666;">Dictámenes Enviados</div>
             </div>
         </div>
     </div>
