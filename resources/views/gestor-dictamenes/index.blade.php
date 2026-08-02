@@ -1192,7 +1192,7 @@ $(document).ready(function() {
                 mostrarSubirMsg('success', res.mensaje);
                 $('#subirArchivoInput').val('');
                 subirPendiente = null;
-                setTimeout(function() { window.location.reload(); }, 900);
+                recargarTablaConFiltros();
             },
             error: function(xhr) {
                 const res = xhr.responseJSON || {};
