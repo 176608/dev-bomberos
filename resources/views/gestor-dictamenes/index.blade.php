@@ -255,7 +255,6 @@ tr:hover td {
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
-                    <th>Año</th>
                     <th>Núm. Oficio</th>
                     <th>Dependencia</th>
                     <th>Asunto</th>
@@ -280,13 +279,6 @@ tr:hover td {
                     data-observaciones="{{ $d->observaciones ?? '' }}"
                 >
                     <td>{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
-                    <td>
-                        @if($d->anio)
-                            <span class="badge bg-dark">{{ $d->anio }}</span>
-                        @else
-                            <span class="text-muted">—</span>
-                        @endif
-                    </td>
                     <td>{{ $d->oficio ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
@@ -638,13 +630,13 @@ $(document).ready(function() {
     });
 
     // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada)
-    if (!sessionStorage.getItem('dictamenes_state_v9')) {
+    if (!sessionStorage.getItem('dictamenes_state_v10')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v9', '1');
+        sessionStorage.setItem('dictamenes_state_v10', '1');
     }
 
     function initDataTable() {
@@ -659,7 +651,7 @@ $(document).ready(function() {
             ],
             "pageLength": -1,
             "searching": true,
-            "info": false,
+            "info": true,
             "ordering": true,
             "order": [],
             "scrollX": true,
@@ -669,6 +661,7 @@ $(document).ready(function() {
             "language": {
                 "search": "Buscar:",
                 "paginate": { "previous": "‹", "next": "›" },
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros (_MAX_ en total)",
                 "emptyTable": "No hay dictámenes",
                 "zeroRecords": "No se encontró nada"
             }
