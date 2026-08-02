@@ -196,51 +196,39 @@ tr:hover td {
                         </a>
                     @endif
                 </div>
-                <!-- Sección 2: Estatus + Revisado por -->
+                <!-- Sección 2: Estatus + Revisado por (una fila cada uno) -->
                 <div class="col-5">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <label class="form-label mb-1" for="estatusFilter"><strong>Estatus:</strong></label>
-                            <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus">
-                                <option value="">Todos</option>
-                                @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
-                                    <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label mb-1" for="revisadoFilter"><strong>Revisado por:</strong></label>
-                            <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
-                                <option value="">Todos</option>
-                                @foreach($revisadosPor as $r)
-                                    <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                    <label class="form-label mb-1" for="estatusFilter"><strong>Estatus:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="estatusFilter" name="estatus">
+                        <option value="">Todos</option>
+                        @foreach(\App\Models\GestorDictamenes\Dictamen::FILTERABLE_STATUSES as $estatus)
+                            <option value="{{ $estatus }}" @selected(request('estatus') === $estatus)>{{ $estatus }}</option>
+                        @endforeach
+                    </select>
+                    <label class="form-label mb-1 mt-2" for="revisadoFilter"><strong>Revisado por:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="revisadoFilter" name="revisado_por">
+                        <option value="">Todos</option>
+                        @foreach($revisadosPor as $r)
+                            <option value="{{ $r }}" @selected(request('revisado_por') === $r)>{{ $r }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <!-- Sección 3: Nombre/Puesto + Dependencia -->
+                <!-- Sección 3: Nombre/Puesto + Dependencia (una fila cada uno) -->
                 <div class="col-5">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <label class="form-label mb-1" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
-                            <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
-                                <option value="">Todos</option>
-                                @foreach($nombresPuestos as $np)
-                                    <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label mb-1" for="dependenciaFilter"><strong>Dependencia:</strong></label>
-                            <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
-                                <option value="">Todas</option>
-                                @foreach($dependencias as $dep)
-                                    <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                    <label class="form-label mb-1" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
+                        <option value="">Todos</option>
+                        @foreach($nombresPuestos as $np)
+                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
+                        @endforeach
+                    </select>
+                    <label class="form-label mb-1 mt-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="dependenciaFilter" name="dependencia">
+                        <option value="">Todas</option>
+                        @foreach($dependencias as $dep)
+                            <option value="{{ $dep }}" @selected(request('dependencia') === $dep)>{{ $dep }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </form>
         </div>
