@@ -32,10 +32,10 @@ Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
         ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
 
     Route::post('/archivos/vincular', [DictamenController::class, 'vincularArchivo'])->name('archivo-vincular')
-        ->middleware('role:Administrador Dictamenes,Desarrollador');
+        ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
 
     Route::post('/archivos/desvincular', [DictamenController::class, 'desvincularArchivo'])->name('archivo-desvincular')
-        ->middleware('role:Administrador Dictamenes,Desarrollador');
+        ->middleware('role:Administrador Dictamenes,Editor Dictamenes,Desarrollador');
 
     Route::post('/archivos/eliminar', [DictamenController::class, 'archivoEliminar'])->name('archivo-eliminar')
         ->middleware('role:Administrador Dictamenes,Desarrollador');

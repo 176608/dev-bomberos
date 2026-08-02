@@ -192,7 +192,7 @@ tr:hover td {
                         @endforeach
                     </select>
                     @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-auto" data-limpiar>
+                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-auto" data-limpiar title="Limpiar los filtros activos">
                             <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </a>
                     @endif
@@ -238,18 +238,18 @@ tr:hover td {
     <!-- Botones superiores -->
     <div class="mb-3">
         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal" title="Crear un nuevo dictamen">
                 <i class="bi bi-plus-circle"></i> Agregar nuevo dictamen
             </button>
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#archivosModal" title="Gestionar los archivos subidos al servidor (subir, reemplazar, eliminar y descargar)">
+                <i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes
+            </button>
         @endif
-        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#archivosModal">
-            <i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes
-        </button>
-        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-            <button class="btn btn-outline-secondary" disabled title="Próximamente">
+        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
+            <button class="btn btn-outline-secondary" disabled title="Historial de cambios (próximamente)">
                 <i class="bi bi-clock-history"></i> Ver últimos cambios
             </button>
-            <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success">
+            <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success" title="Abrir el visor público de dictámenes">
                 <i class="bi bi-eye"></i> Ver Visor de Dictámenes
             </a>
         @endif
@@ -332,9 +332,9 @@ tr:hover td {
                         @else
                             <span class="text-muted">—</span>
                         @endif
-                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
+                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
                             <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-clave="{{ $d->clave_documento }}" data-bs-toggle="modal" data-bs-target="#linkModal"
-                                    title="Ligar / desligar archivos ({{ $d->clave_documento }} @ {{ $d->anio }})">
+                                    title="Descargar y ligar archivos ({{ $d->clave_documento }} @ {{ $d->anio }})">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
                         @endif
@@ -344,14 +344,14 @@ tr:hover td {
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
                                 <form action="{{ route('gestor-dictamenes.restore', $d->id) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button class="btn btn-sm btn-outline-success" onclick="return confirm('¿Deseas restaurar este dictamen?');">
+                                    <button class="btn btn-sm btn-outline-success" title="Restaurar este dictamen deshabilitado" onclick="return confirm('¿Deseas restaurar este dictamen?');">
                                         <i class="bi bi-arrow-counterclockwise"></i> Restaurar
                                     </button>
                                 </form>
                             @endif
                         @else
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
-                                <button class="btn btn-sm btn-primary edit-btn" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                                <button class="btn btn-sm btn-primary edit-btn" title="Editar este dictamen" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
                                     <i class="bi bi-pencil"></i> Editar
                                 </button>
                             @endif
@@ -361,7 +361,7 @@ tr:hover td {
                                     @csrf
                                     @method('DELETE')
                                 </form>
-                                <button class="btn btn-sm btn-danger delete-btn"
+                                <button class="btn btn-sm btn-danger delete-btn" title="Deshabilitar este dictamen"
                                         onclick="if(confirm('¿Estás seguro que deseas deshabilitar este dictamen?')) document.getElementById('delete-form-{{ $d->id }}').submit();">
                                     <i class="bi bi-trash"></i> Deshabilitar
                                 </button>
@@ -382,7 +382,7 @@ tr:hover td {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Crear Nuevo Dictamen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <form method="POST" action="{{ route('gestor-dictamenes.store') }}">
                 @csrf
@@ -430,8 +430,8 @@ tr:hover td {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar sin guardar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" title="Guardar el nuevo dictamen">Guardar</button>
                 </div>
             </form>
         </div>
@@ -444,7 +444,7 @@ tr:hover td {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Editar Dictamen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <form id="editForm" method="POST" onsubmit="return confirm('¿Seguro que deseas editar este dictamen?');">
                 @csrf
@@ -495,8 +495,8 @@ tr:hover td {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar sin guardar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" title="Guardar los cambios del dictamen">Guardar</button>
                 </div>
             </form>
         </div>
@@ -509,7 +509,7 @@ tr:hover td {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-folder2-open"></i> Gestionar Archivos de Dictámenes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="d-flex gap-2 mb-3">
@@ -521,7 +521,7 @@ tr:hover td {
                         @endforeach
                     </select>
                     <input type="file" id="archivoInput" accept=".doc,.docx" hidden>
-                    <button class="btn btn-success text-nowrap" id="btnSubirArchivo">
+                    <button class="btn btn-success text-nowrap" id="btnSubirArchivo" title="Subir un archivo al servidor (se ubicará en la carpeta del año seleccionado)">
                         <i class="bi bi-upload"></i> Subir nuevo archivo
                     </button>
                 </div>
@@ -533,13 +533,13 @@ tr:hover td {
                     <span id="conflictoNombre" class="fw-bold"></span>
                     <p class="mb-0 mt-1">¿Deseas revisar el archivo con el mismo nombre (descargarlo) o reemplazar el archivo existente?</p>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <a id="btnDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank">
+                        <a id="btnDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank" title="Descargar el archivo que ya existe con ese nombre">
                             <i class="bi bi-download"></i> Revisar (descargar) existente
                         </a>
-                        <button id="btnReemplazarArchivo" class="btn btn-sm btn-warning">
+                        <button id="btnReemplazarArchivo" class="btn btn-sm btn-warning" title="Sobrescribir el archivo existente con el nuevo">
                             <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
                         </button>
-                        <button id="btnCancelarConflicto" class="btn btn-sm btn-link">Dejar como está</button>
+                        <button id="btnCancelarConflicto" class="btn btn-sm btn-link" title="Cancelar la subida y dejar el archivo existente">Dejar como está</button>
                     </div>
                 </div>
 
@@ -569,7 +569,7 @@ tr:hover td {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-cloud-upload"></i> Subir archivo del dictamen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <p class="mb-2">
@@ -578,7 +578,7 @@ tr:hover td {
                 </p>
                 <div id="subirMsg"></div>
                 <input type="file" id="subirArchivoInput" accept=".doc,.docx" hidden>
-                <button class="btn btn-success w-100" id="btnElegirSubir">
+                <button class="btn btn-success w-100" id="btnElegirSubir" title="Elegir el archivo .doc/.docx a subir">
                     <i class="bi bi-upload"></i> Seleccionar archivo (.doc / .docx)
                 </button>
                 <div id="subirConflicto" class="alert alert-warning d-none mt-3">
@@ -586,13 +586,13 @@ tr:hover td {
                     <span id="subirConflictoNombre" class="fw-bold"></span>
                     <p class="mb-0 mt-1">¿Revisar (descargar) el existente o reemplazarlo?</p>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <a id="btnSubirDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank">
+                        <a id="btnSubirDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank" title="Descargar el archivo que ya existe con ese nombre">
                             <i class="bi bi-download"></i> Revisar existente
                         </a>
-                        <button id="btnSubirReemplazar" class="btn btn-sm btn-warning">
+                        <button id="btnSubirReemplazar" class="btn btn-sm btn-warning" title="Sobrescribir el archivo existente con el nuevo">
                             <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
                         </button>
-                        <button id="btnSubirCancelarConflicto" class="btn btn-sm btn-link">Dejar como está</button>
+                        <button id="btnSubirCancelarConflicto" class="btn btn-sm btn-link" title="Cancelar la subida y dejar el archivo existente">Dejar como está</button>
                     </div>
                 </div>
             </div>
@@ -610,7 +610,7 @@ tr:hover td {
                     <span id="linkClave" class="badge bg-primary ms-1"></span>
                     <span id="linkAnio" class="badge bg-secondary ms-1"></span>
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div id="linkMsg"></div>
@@ -620,13 +620,6 @@ tr:hover td {
 
                 <h6 class="text-muted">Archivos ligados a este dictamen:</h6>
                 <div id="linkLigados" class="mb-3"></div>
-
-                <div class="d-flex gap-2">
-                    <input type="text" id="linkRutaManual" class="form-control" placeholder="Ruta manual (ej. 2026/DIR143 OTRO.docx)">
-                    <button id="btnLinkManual" class="btn btn-sm btn-outline-primary text-nowrap">
-                        <i class="bi bi-link-45deg"></i> Ligar manual
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -842,6 +835,7 @@ $(document).ready(function() {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-sm chart-toggle-btn';
+            btn.title = 'Mostrar / ocultar la serie ' + s;
             btn.style.backgroundColor = COLORES_ESTATUS[s] + 'cc';
             btn.style.borderColor = COLORES_ESTATUS[s];
             btn.style.color = '#fff';
@@ -1075,10 +1069,11 @@ $(document).ready(function() {
             const ligado = data.ligados.includes(ruta);
             $c.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
-                    '<span><i class="bi bi-file-earmark-text me-2"></i>' + $('<span>').text(ruta).html() + '</span>' +
+                    '<span><i class="bi bi-file-earmark-text me-2"></i>' + $('<span>').text(ruta).html() +
+                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
                     (ligado
                         ? '<span class="badge bg-success">Ligado</span>'
-                        : '<button class="btn btn-sm btn-outline-success btn-link-archivo" data-ruta="' + ruta + '"><i class="bi bi-link-45deg"></i> Ligar</button>') +
+                        : '<button class="btn btn-sm btn-outline-success btn-link-archivo" data-ruta="' + ruta + '" title="Ligar este archivo al dictamen"><i class="bi bi-link-45deg"></i> Ligar</button>') +
                 '</div>'
             );
         });
@@ -1090,8 +1085,8 @@ $(document).ready(function() {
             $l.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
                     '<span><i class="bi bi-file-earmark-lock me-2"></i>' + $('<span>').text(ruta).html() +
-                    ' <a href="' + urlDescarga(ruta) + '" class="ms-2" title="Descargar"><i class="bi bi-download text-primary"></i></a></span>' +
-                    '<button class="btn btn-sm btn-outline-danger btn-desligar-archivo" data-ruta="' + ruta + '"><i class="bi bi-unlink"></i> Desligar</button>' +
+                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
+                    '<button class="btn btn-sm btn-outline-danger btn-desligar-archivo" data-ruta="' + ruta + '" title="Quitar el vínculo de este archivo al dictamen"><i class="bi bi-unlink"></i> Desligar</button>' +
                 '</div>'
             );
         });
@@ -1133,19 +1128,6 @@ $(document).ready(function() {
             renderLink();
         }).fail(function(xhr) {
             mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al desligar.');
-        });
-    });
-
-    $('#btnLinkManual').on('click', function() {
-        const ruta = $('#linkRutaManual').val().trim();
-        if (!ruta) return;
-        $.post(URL_VINCULAR, { dictamen_id: linkDictamenId, ruta: ruta }, function(res) {
-            mostrarLinkMsg('success', res.mensaje);
-            DATOS_ARCHIVOS_DICTAMEN[linkDictamenId].ligados.push(ruta);
-            renderLink();
-            $('#linkRutaManual').val('');
-        }).fail(function(xhr) {
-            mostrarLinkMsg('danger', (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al ligar.');
         });
     });
 
