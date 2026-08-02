@@ -79,7 +79,7 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container mt-4">
+<div class="container mt-4 bg-fonde img-fluid" style="background-color: transparent;">
 
     <!-- Estadísticas -->
     <div class="row mb-4" id="statsCards">
