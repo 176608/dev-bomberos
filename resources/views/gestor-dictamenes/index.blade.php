@@ -158,7 +158,7 @@ tr:hover td {
         </div>
         @endforeach
     </div>
-</div>
+
 
     <!-- Gráfica -->
     <div class="card mb-3" id="graficaCard" style="border-left: 4px solid #2f7064;">
@@ -373,6 +373,7 @@ tr:hover td {
             </tbody>
         </table>
     </div>
+</div>
 </div>
 
 <!-- Modal Crear -->
