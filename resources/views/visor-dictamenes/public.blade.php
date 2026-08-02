@@ -7,6 +7,11 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
+    background-image: linear-gradient(rgba(250, 250, 250, 0.85), rgba(250, 250, 250, 0.85)),
+        url('{{ asset('imagenes/fondo.png') }}');
+    background-size: auto, cover;
+    background-repeat: repeat, no-repeat;
+    background-attachment: scroll, fixed;
     color: #333;
 }
 
@@ -49,7 +54,6 @@ tr:hover td {
     background-color: #f8fafd;
 }
 
-/* Placeholder mientras se dibuja la gráfica */
 .chart-loading {
     position: absolute;
     inset: 0;
@@ -79,8 +83,8 @@ tr:hover td {
     ];
 @endphp
 
-<div class="container-fluid p-0 mt-4 bg-fonde img-fluid" style="background-color: transparent;">
- <div class="container">
+<div class="container-fluid p-0">
+ <div class="container mt-4">
     <!-- Estadísticas -->
     <div class="row mb-4" id="statsCards">
         <div class="col-md-6">
