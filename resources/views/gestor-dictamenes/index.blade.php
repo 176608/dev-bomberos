@@ -135,12 +135,6 @@ tr:hover td {
 
 <div class="container mt-4">
 
-    <!-- Overlay de carga (spinner global durante peticiones parciales) -->
-    <div id="uiOverlay" class="ui-overlay">
-        <div class="spinner-border text-light" role="status"></div>
-        <div class="mt-2 text-light fw-semibold">Cargando datos…</div>
-    </div>
-
     <!-- Estadísticas -->
     <div class="row mb-3 g-2" id="statsCards">
         <div class="col-6 col-md-2">
