@@ -99,6 +99,14 @@ class DashboardController
 
         $pngDescargas = (clone $visitas)->where('accion', 'grafica_png')->count();
 
+        $diasLabels = $eventosPorDia->keys()->map(fn ($f) => \Carbon\Carbon::parse($f)->format('d/m'))->values();
+        $diasData = $eventosPorDia->values();
+
+        $cuadrosChart = $topCuadros->map(fn ($c) => [
+            'label' => $c->codigo_cuadro . ' — ' . mb_strimwidth($c->c_titulo ?? '', 0, 40, '…'),
+            'total' => (int) $c->total,
+        ])->reverse()->values();
+
         $visitantesTotales = PubVisitante::count();
         $visitantesNuevos = PubVisitante::whereDate('primer_visita', '>=', $desde)
             ->whereDate('primer_visita', '<=', $hasta)->count();
@@ -113,7 +121,8 @@ class DashboardController
         return view('sgu.admin.dashboard', compact(
             'desde', 'hasta', 'eventos', 'visitantesTotales', 'visitantesNuevos',
             'visitantesActivos', 'bots', 'humanos', 'eventosPorDia', 'topAcciones',
-            'topCuadros', 'origenes', 'tiposGrafica', 'pngDescargas', 'paginas', 'ultimasVisitas'
+            'topCuadros', 'origenes', 'tiposGrafica', 'pngDescargas', 'paginas', 'ultimasVisitas',
+            'diasLabels', 'diasData', 'cuadrosChart'
         ));
     }
 }

@@ -161,8 +161,8 @@
 $(document).ready(function () {
     const paleta = ['#2c5f4a', '#4a7c63', '#e9a03a', '#5b8def', '#8e6fbf', '#d95d5d', '#4fb8b8', '#9a9a9a'];
 
-    const diasLabels = @json($eventosPorDia->keys()->map(fn ($f) => \Carbon\Carbon::parse($f)->format('d/m'))->values());
-    const diasData = @json($eventosPorDia->values());
+    const diasLabels = @json($diasLabels);
+    const diasData = @json($diasData);
 
     if (diasLabels.length) {
         new Chart(document.getElementById('chartDias'), {
@@ -238,7 +238,7 @@ $(document).ready(function () {
         });
     }
 
-    const cuadros = @json($topCuadros->map(fn ($c) => ['label' => $c->codigo_cuadro . ' — ' . mb_strimwidth($c->c_titulo ?? '', 0, 40, '…'), 'total' => (int) $c->total])->reverse()->values());
+    const cuadros = @json($cuadrosChart);
     if (cuadros.length) {
         new Chart(document.getElementById('chartCuadros'), {
             type: 'bar',
