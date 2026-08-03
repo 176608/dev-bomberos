@@ -98,7 +98,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white">Últimas visitas (50)</div>
     <div class="card-body table-responsive">
-        <table class="table table-striped table-sm table-bordered">
+        <table id="visitasTable" class="table table-striped table-sm table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
@@ -110,18 +110,16 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($ultimasVisitas as $visita)
+                @foreach($ultimasVisitas as $visita)
                 <tr>
-                    <td class="text-nowrap">{{ \Carbon\Carbon::parse($visita->created_at)->format('d/m/Y H:i:s') }}</td>
+                    <td class="text-nowrap" data-order="{{ $visita->created_at }}">{{ \Carbon\Carbon::parse($visita->created_at)->format('d/m/Y H:i:s') }}</td>
                     <td title="{{ $visita->visitante?->vuid }}">{{ $visita->visitante_id }}</td>
                     <td>{{ $visita->cuadro?->codigo_cuadro ?? '—' }}</td>
                     <td>{{ \App\Http\Controllers\SGU\DashboardController::ETIQUETAS_ACCION[$visita->accion] ?? $visita->accion }}</td>
                     <td>{{ $visita->detalle ?? '—' }}</td>
                     <td>{{ $visita->origen ?? '—' }}</td>
                 </tr>
-                @empty
-                <tr><td colspan="6" class="text-center text-muted">Sin eventos en el periodo</td></tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -132,6 +130,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 $(document).ready(function () {
+    $('#visitasTable').DataTable({
+        order: [[0, 'desc']],
+        stateSave: true,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50], [10, 25, 50]]
+    });
+
     const paleta = ['#2c5f4a', '#4a7c63', '#e9a03a', '#5b8def', '#8e6fbf', '#d95d5d', '#4fb8b8', '#9a9a9a'];
 
     const base = {

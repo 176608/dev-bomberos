@@ -41,7 +41,7 @@
             <tbody>
                 @foreach($accesos as $acceso)
                 <tr>
-                    <td class="text-nowrap">{{ \Carbon\Carbon::parse($acceso->created_at)->format('d/m/Y H:i:s') }}</td>
+                    <td class="text-nowrap" data-order="{{ $acceso->created_at }}">{{ \Carbon\Carbon::parse($acceso->created_at)->format('d/m/Y H:i:s') }}</td>
                     <td>{{ $acceso->usuario?->name ?? '—' }}</td>
                     <td>
                         @php($info = $etiquetas[$acceso->accion] ?? [$acceso->accion, 'secondary'])
@@ -64,6 +64,7 @@
 $(document).ready(function () {
     const tabla = $('#accesosTable').DataTable({
         order: [[0, 'desc']],
+        stateSave: true,
         language: { url: '{{ asset('js/datatables/i18n/es-ES.json') }}' }
     });
 
