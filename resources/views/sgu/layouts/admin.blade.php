@@ -26,7 +26,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true" tabindex="-1" title="Próximamente">
+                    <a class="nav-link {{ request()->routeIs('sgu.admin.auditor*') ? 'active' : '' }}"
+                       href="{{ route('sgu.admin.auditor.accesos') }}">
                         <i class="bi bi-shield-lock-fill"></i> Auditor
                     </a>
                 </li>

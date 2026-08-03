@@ -32,7 +32,7 @@
                 <i class="bi bi-shield-lock-fill display-4 text-danger"></i>
                 <h5 class="card-title mt-3">Auditor</h5>
                 <p class="card-text text-muted">Historial de cambios en usuarios y accesos al sistema (login, logout, intentos).</p>
-                <span class="btn btn-danger disabled" aria-disabled="true">Próximamente</span>
+                <a href="{{ route('sgu.admin.auditor.accesos') }}" class="btn btn-danger">Entrar al Auditor</a>
             </div>
         </div>
     </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SGU\AuditorController;
 use App\Http\Controllers\SGU\DashboardController;
 use App\Http\Controllers\SGU\GestorController;
 use Illuminate\Support\Facades\Route;
@@ -18,5 +19,9 @@ Route::prefix('sgu')->name('sgu.')->group(function () {
         Route::put('/gestor/usuarios/{user}', [GestorController::class, 'update'])->name('gestor.usuarios.update');
         Route::post('/gestor/usuarios/{user}/generar-pin', [GestorController::class, 'generarPin'])
             ->name('gestor.usuarios.generar-pin');
+
+        // ============ AUDITOR (accesos y cambios en usuarios) ============
+        Route::get('/auditor/accesos', [AuditorController::class, 'accesos'])->name('auditor.accesos');
+        Route::get('/auditor/usuarios', [AuditorController::class, 'usuarios'])->name('auditor.usuarios');
     });
 });
