@@ -2,33 +2,47 @@
 @section('title', $pageTitle ?? 'SGIEM')
 @section('content')
 <div class="container-fluid bg-fonde pb-4">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4" style="background-color: #2c5f4a;">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('sgiem.admin.index') }}">
-                <i class="bi bi-gear"></i> Panel de Navegación del SGIEM
+                <i class="bi bi-gear-wide-connected"></i> SGIEM v2
             </a>
-
-            <div class="navbar-nav">
-                <a class="nav-link {{ request()->is('sgiem/admin') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.index') }}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-                <a class="nav-link {{ request()->is('sgiem/admin/temas') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.temas') }}">
-                    <i class="bi bi-bookmark"></i> Temas
-                </a>
-                <a class="nav-link {{ request()->is('sgiem/admin/subtemas') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.subtemas') }}">
-                    <i class="bi bi-bookmarks"></i> Subtemas
-                </a>
-                <a class="nav-link {{ request()->is('sgiem/admin/cuadros*') && !request()->is('sgiem/admin/cuadros/subtemas*') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.cuadros.index') }}">
-                    <i class="bi bi-table"></i> Cuadros
-                </a>
-                <a class="nav-link {{ request()->is('sgiem/admin/consultas') ? 'active' : '' }}"
-                   href="{{ route('sgiem.admin.consultas') }}">
-                    <i class="bi bi-search"></i> Consultas Exprés
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sgiemNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="sgiemNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('sgiem/admin') ? 'active' : '' }}"
+                           href="{{ route('sgiem.admin.index') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('sgiem/admin/temas') ? 'active' : '' }}"
+                           href="{{ route('sgiem.admin.temas') }}">
+                            <i class="bi bi-bookmark"></i> Temas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('sgiem/admin/subtemas') ? 'active' : '' }}"
+                           href="{{ route('sgiem.admin.subtemas') }}">
+                            <i class="bi bi-bookmarks"></i> Subtemas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('sgiem/admin/cuadros*') && !request()->is('sgiem/admin/cuadros/subtemas*') ? 'active' : '' }}"
+                           href="{{ route('sgiem.admin.cuadros.index') }}">
+                            <i class="bi bi-table"></i> Cuadros
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('sgiem/admin/consultas') ? 'active' : '' }}"
+                           href="{{ route('sgiem.admin.consultas') }}">
+                            <i class="bi bi-search"></i> Consultas Exprés
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
