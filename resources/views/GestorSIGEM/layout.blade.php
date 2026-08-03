@@ -46,7 +46,7 @@
     </div>
 </nav>
 
-<div class="container-fluid bg-fonde pb-4">
+<div class="container-fluid bg-fonde pt-4 pb-4">
 
     @if(isset($crud_view))
         @include($crud_view)
