@@ -74,7 +74,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white">Eventos por día</div>
             <div class="card-body">
-                <canvas id="chartDias" height="140"></canvas>
+                <div style="height:300px"><canvas id="chartDias"></canvas></div>
             </div>
         </div>
     </div>
@@ -82,34 +82,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white">Top acciones</div>
             <div class="card-body">
-                <canvas id="chartAcciones" height="140"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white">Páginas visitadas</div>
-            <div class="card-body">
-                <canvas id="chartPaginas" height="150"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white">Origen de las visitas</div>
-            <div class="card-body">
-                <canvas id="chartOrigenes" height="150"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white">Tipos de gráfica</div>
-            <div class="card-body">
-                <canvas id="chartTipos" height="150"></canvas>
+                <div style="height:300px"><canvas id="chartAcciones"></canvas></div>
             </div>
         </div>
     </div>
@@ -118,7 +91,7 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white">Top cuadros consultados</div>
     <div class="card-body">
-        <canvas id="chartCuadros" height="110"></canvas>
+        <div style="height:280px"><canvas id="chartCuadros"></canvas></div>
     </div>
 </div>
 
@@ -161,6 +134,13 @@
 $(document).ready(function () {
     const paleta = ['#2c5f4a', '#4a7c63', '#e9a03a', '#5b8def', '#8e6fbf', '#d95d5d', '#4fb8b8', '#9a9a9a'];
 
+    const base = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: { legend: { display: false } }
+    };
+
     const diasLabels = @json($diasLabels);
     const diasData = @json($diasData);
 
@@ -178,7 +158,7 @@ $(document).ready(function () {
                     tension: 0.3
                 }]
             },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            options: Object.assign({}, base, { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } })
         });
     }
 
@@ -194,47 +174,7 @@ $(document).ready(function () {
                     backgroundColor: paleta
                 }]
             },
-            options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
-        });
-    }
-
-    const paginas = @json($paginas);
-    if (paginas.length) {
-        new Chart(document.getElementById('chartPaginas'), {
-            type: 'bar',
-            data: {
-                labels: paginas.map(p => p.label),
-                datasets: [{
-                    label: 'Visitas',
-                    data: paginas.map(p => p.total),
-                    backgroundColor: '#4a7c63'
-                }]
-            },
-            options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
-        });
-    }
-
-    const origenes = @json($origenes);
-    if (origenes.length) {
-        new Chart(document.getElementById('chartOrigenes'), {
-            type: 'pie',
-            data: {
-                labels: origenes.map(o => o.origen),
-                datasets: [{ data: origenes.map(o => o.total), backgroundColor: paleta }]
-            },
-            options: { plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-
-    const tipos = @json($tiposGrafica);
-    if (tipos.length) {
-        new Chart(document.getElementById('chartTipos'), {
-            type: 'pie',
-            data: {
-                labels: tipos.map(t => t.detalle),
-                datasets: [{ data: tipos.map(t => t.total), backgroundColor: paleta }]
-            },
-            options: { plugins: { legend: { position: 'bottom' } } }
+            options: Object.assign({}, base, { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } })
         });
     }
 
@@ -250,7 +190,7 @@ $(document).ready(function () {
                     backgroundColor: '#5b8def'
                 }]
             },
-            options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
+            options: Object.assign({}, base, { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } })
         });
     }
 });
