@@ -14,7 +14,6 @@ class AuditorController
         'intento_fallido' => ['Intento fallido', 'danger'],
         'primer_acceso' => ['Primer acceso', 'warning'],
         'restauracion_password' => ['Restauración de contraseña', 'info'],
-        'dev_bypass' => ['Bypass desarrollador', 'dark'],
     ];
 
     private const ETIQUETAS_DETALLE = [
