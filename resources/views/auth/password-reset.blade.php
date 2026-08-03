@@ -40,7 +40,7 @@
                             </div>
                         @endif
 
-                        @if($requirePin || $user->initial_token)
+                        @if($requirePin)
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control @error('pin') is-invalid @enderror"
                                     id="pin" name="pin" placeholder="PIN de Acceso" required

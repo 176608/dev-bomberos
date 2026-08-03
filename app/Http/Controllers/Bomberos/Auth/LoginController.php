@@ -197,7 +197,7 @@ class LoginController extends Controller
         $user = Auth::user();
         
         if ($user->role === 'Administrador') {
-            return redirect()->route('sigem.admin.index');
+            return redirect()->route('sgu.admin.index');
         } elseif ($user->role === 'Desarrollador') {
             return redirect()->route('admin.panel');
         } elseif ($user->role === 'Capturista') {
