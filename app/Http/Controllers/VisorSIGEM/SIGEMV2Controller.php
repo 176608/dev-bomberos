@@ -26,7 +26,6 @@ class SIGEMV2Controller extends Controller
 
     public function index()
     {
-        $this->registrarEvento('vista', 'inicio');
         return view('VisorSIGEM.inicio');
     }
 
