@@ -69,6 +69,22 @@ class LoginController extends Controller
 
         if (in_array($user->log_in_status, [1, 2])) {
             RateLimiter::clear($key);
+
+            if ($user->initial_token && session('pin_verificado') !== $user->id) {
+                $request->validate([
+                    'password' => ['required', 'string'],
+                ]);
+
+                if (!Hash::check($request->input('password'), $user->initial_token)) {
+                    $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'pin_incorrecto', true);
+                    return back()
+                        ->withInput($request->only('email'))
+                        ->withErrors(['password' => 'PIN incorrecto.']);
+                }
+
+                session(['pin_verificado' => $user->id]);
+            }
+
             $this->registrarAcceso($user->id, 'primer_acceso', $ip, 'requiere_restauracion_password');
 
             return redirect()->route('password.reset.form', ['email' => $email])

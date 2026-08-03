@@ -38,6 +38,10 @@ abstract class Controller extends \Illuminate\Routing\Controller
 
     protected function registrarEvento(string $accion, ?string $detalle = null, ?Cuadro $cuadro = null, ?string $origenForzado = null): void
     {
+        if (auth()->check()) {
+            return;
+        }
+
         $vuid = request()->attributes->get('_vuid');
         if (!$vuid) return;
 

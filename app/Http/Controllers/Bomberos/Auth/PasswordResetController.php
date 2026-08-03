@@ -56,7 +56,7 @@ class PasswordResetController extends Controller
             return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
         }
 
-        $requirePin = $user->initial_token ? true : false;
+        $requirePin = $user->initial_token && session('pin_verificado') !== $user->id;
 
         return view('auth.password-reset', compact('user', 'requirePin'));
     }
@@ -87,7 +87,7 @@ class PasswordResetController extends Controller
             return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
         }
 
-        if ($user->initial_token) {
+        if ($user->initial_token && session('pin_verificado') !== $user->id) {
             if (!$request->filled('pin')) {
                 return back()->withInput()->withErrors(['pin' => 'Ingresa el PIN proporcionado por el administrador.']);
             }
@@ -109,6 +109,8 @@ class PasswordResetController extends Controller
         $user->log_in_status = 0;
         $user->initial_token = null;
         $user->save();
+
+        $request->session()->forget('pin_verificado');
 
         $this->registrarAcceso($user->id, 'restauracion_password', $request->ip());
 

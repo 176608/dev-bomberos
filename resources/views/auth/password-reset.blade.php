@@ -67,6 +67,13 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @endif
                             </div>
+                            <ul class="list-unstyled small mt-2 mb-1" id="pw-checklist">
+                                <li id="chk-length"><i class="bi bi-x-circle text-danger"></i> Mínimo 12 caracteres</li>
+                                <li id="chk-minus"><i class="bi bi-x-circle text-danger"></i> Una letra minúscula</li>
+                                <li id="chk-mayus"><i class="bi bi-x-circle text-danger"></i> Una letra mayúscula</li>
+                                <li id="chk-num"><i class="bi bi-x-circle text-danger"></i> Un número</li>
+                                <li id="chk-sym"><i class="bi bi-x-circle text-danger"></i> Un símbolo</li>
+                            </ul>
                         </div>
 
                         <div class="mb-3">
@@ -81,6 +88,7 @@
                                     <i class="bi bi-eye-slash"></i>
                                 </button>
                             </div>
+                            <small id="pw-confirm-msg" class="d-none"></small>
                         </div>
 
                         <input type="hidden" name="email" value="{{ $user->email }}">
@@ -137,6 +145,61 @@
                 this.value = this.value.replace(/\D/g, '').slice(0, 10);
             });
         }
+
+        const reglas = [
+            { id: 'chk-length', test: v => v.length >= 12 },
+            { id: 'chk-minus', test: v => /[a-z]/.test(v) },
+            { id: 'chk-mayus', test: v => /[A-Z]/.test(v) },
+            { id: 'chk-num', test: v => /[0-9]/.test(v) },
+            { id: 'chk-sym', test: v => /[^A-Za-z0-9]/.test(v) },
+        ];
+
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('password_confirmation');
+        const confirmMsg = document.getElementById('pw-confirm-msg');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        function evaluar() {
+            const v = passwordInput.value;
+            let todasOk = true;
+            reglas.forEach(r => {
+                const ok = r.test(v);
+                if (!ok) todasOk = false;
+                const icono = document.querySelector('#' + r.id + ' i');
+                icono.className = ok ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle text-danger';
+            });
+            return todasOk;
+        }
+
+        function evaluarConfirmacion() {
+            if (!confirmInput.value) {
+                confirmMsg.classList.add('d-none');
+                return false;
+            }
+            confirmMsg.classList.remove('d-none');
+            const coincide = confirmInput.value === passwordInput.value;
+            confirmMsg.textContent = coincide
+                ? 'Las contraseñas coinciden.'
+                : 'Las contraseñas no coinciden.';
+            confirmMsg.className = coincide
+                ? 'small text-success'
+                : 'small text-danger';
+            return coincide;
+        }
+
+        passwordInput.addEventListener('input', function () {
+            evaluar();
+            evaluarConfirmacion();
+        });
+
+        confirmInput.addEventListener('input', evaluarConfirmacion);
+
+        submitBtn.addEventListener('click', function (e) {
+            if (!evaluar() || !evaluarConfirmacion()) {
+                e.preventDefault();
+                return;
+            }
+        });
     });
 </script>
 @endsection
