@@ -35,8 +35,8 @@ class DashboardController
         }
 
         $visitas = PubVisita::query()
-            ->when($desde, fn ($q) => $q->whereDate('created_at', '>=', $desde))
-            ->when($hasta, fn ($q) => $q->whereDate('created_at', '<=', $hasta));
+            ->when($desde, fn ($q) => $q->whereDate('pub_visita.created_at', '>=', $desde))
+            ->when($hasta, fn ($q) => $q->whereDate('pub_visita.created_at', '<=', $hasta));
 
         $eventos = (clone $visitas)->count();
 
