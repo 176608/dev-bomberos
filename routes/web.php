@@ -13,6 +13,9 @@ require __DIR__.'/VisorSIGEM/laravel_v2.php';
 // Incluir rutas GestorSIGEM (SGIEM - administración)
 require __DIR__.'/GestorSIGEM/web.php';
 
+// Incluir rutas SGU v2 (Sistema de Gestión de Usuarios)
+require __DIR__.'/SGU/web.php';
+
 // Incluir rutas SGDictamen (Dictámenes - legacy)
 require __DIR__.'/SGDictamen/web.php';
 

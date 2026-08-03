@@ -273,6 +273,14 @@
                                 </li>
 
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sgu.*') ? 'active' : '' }}"
+                                        href="{{ route('sgu.admin.index') }}"
+                                        title="Sistema de Gestión de Usuarios v2 — Gestor, Auditor y Dashboard de Métricas">
+                                        <i class="bi bi-people-fill"></i> SGU V2
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('sgiem.*') ? 'active' : '' }}"
                                         href="{{ route('sgiem.admin.index') }}"
                                         title="Sistema de Gestión de Información Estadística Municipal">
@@ -286,6 +294,14 @@
                                     <a class="nav-link {{ request()->routeIs('admin.panel') ? 'active' : '' }}" 
                                        href="{{ route('admin.panel') }}" title="Sistema de Gestión de Usuarios">
                                         <i class="bi bi-gear"></i> SGU V1
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sgu.*') ? 'active' : '' }}"
+                                        href="{{ route('sgu.admin.index') }}"
+                                        title="Sistema de Gestión de Usuarios v2 — Gestor, Auditor y Dashboard de Métricas">
+                                        <i class="bi bi-people-fill"></i> SGU V2
                                     </a>
                                 </li>
 
