@@ -1,47 +1,44 @@
 <?php
-/* <!-- Archivo Bomberos - NO ELIMINAR COMENTARIO --> */
-namespace App\Http\Controllers\Bomberos;
+/* <!-- Archivo SGU - NO ELIMINAR COMENTARIO --> */
+namespace App\Http\Controllers\SGU;
 
 use App\Models\SGU\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Bomberos\Controller;
 
-class AdminController extends Controller
+class GestorController
 {
-    public function index(Request $request)
+    public function usuarios(Request $request)
     {
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
         if (!auth()->user()->hasRole('Administrador') && !auth()->user()->hasRole('Desarrollador')) {
-            return redirect()->route('dashboard');
+            return redirect()->route('sgu.admin.index');
         }
 
         $status = $request->get('status', 'active');
-        
-        $users = User::when($status !== 'all', function($query) use ($status) {
+
+        $users = User::when($status !== 'all', function ($query) use ($status) {
             return $query->where('status', $status === 'active' ? 1 : 0);
         })->get();
 
-        return view('roles.admin', compact('users', 'status'));
+        return view('sgu.gestor.usuarios', compact('users', 'status'));
     }
 
     public function store(Request $request)
     {
-        \Log::info('Admin store llamado', $request->all());
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes', 'Estadistico'])],
+            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes', 'Estadistico'])],
         ]);
 
         $randomPassword = bin2hex(random_bytes(16));
         $initialToken = $this->generateInitialToken();
-        
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -52,17 +49,16 @@ class AdminController extends Controller
             'initial_token' => Hash::make($initialToken),
         ]);
 
-        \Log::info('Usuario creado', ['user_id' => $user->id, 'email' => $user->email]);
-
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => "Usuario creado exitosamente. PIN de acceso: {$initialToken}",
-                'pin' => $initialToken
+                'pin' => $initialToken,
             ]);
         }
 
-        return redirect()->route('admin.panel')->with('success', "Usuario creado exitosamente. PIN de acceso: {$initialToken}");
+        return redirect()->route('sgu.admin.gestor.usuarios')
+            ->with('success', "Usuario creado exitosamente. PIN de acceso: {$initialToken}");
     }
 
     public function update(Request $request, User $user)
@@ -71,7 +67,7 @@ class AdminController extends Controller
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes', 'Estadistico'])],
+                'role' => ['required', Rule::in(['Administrador', 'Desarrollador', 'Capturista', 'Registrador', 'Administrador Dictamenes', 'Editor Dictamenes', 'Estadistico'])],
                 'status' => ['required', 'boolean'],
             ]);
 
@@ -91,53 +87,41 @@ class AdminController extends Controller
 
             $user->update($updateData);
 
-            \Log::info('Usuario actualizado', ['user_id' => $user->id]);
-
             $pinGenerado = $newPin;
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $request->has('reset_password') 
-                        ? 'Usuario actualizado y contraseña reseteada. Se generó un nuevo PIN.' 
+                    'message' => $request->has('reset_password')
+                        ? 'Usuario actualizado y contraseña reseteada. Se generó un nuevo PIN.'
                         : 'Usuario actualizado exitosamente',
                     'pin' => $pinGenerado,
-                    'data' => $user
+                    'data' => $user,
                 ]);
             }
 
             if ($pinGenerado) {
-                return redirect()->route('admin.panel')
+                return redirect()->route('sgu.admin.gestor.usuarios')
                     ->with('success', "Usuario actualizado. PIN de acceso: {$pinGenerado}");
             }
 
-            return redirect()->route('admin.panel')
+            return redirect()->route('sgu.admin.gestor.usuarios')
                 ->with('success', 'Usuario actualizado exitosamente');
         } catch (\Exception $e) {
-            \Log::error('Error actualizando usuario', ['error' => $e->getMessage()]);
-            
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar usuario: ' . $e->getMessage()
+                    'message' => 'Error al actualizar usuario: ' . $e->getMessage(),
                 ], 422);
             }
 
-            return redirect()->route('admin.panel')
+            return redirect()->route('sgu.admin.gestor.usuarios')
                 ->with('error', 'Error al actualizar usuario: ' . $e->getMessage());
         }
     }
 
     public function generarPin(Request $request, User $user)
     {
-        \Log::info('generarPin llamado', [
-            'user_id' => $user->id,
-            'log_in_status' => $user->log_in_status,
-            'ajax' => $request->ajax(),
-            'auth' => auth()->check(),
-            'user_role' => auth()->check() ? auth()->user()->role : null
-        ]);
-
         if (!$request->ajax()) {
             return response()->json(['error' => 'Solicitud inválida'], 400);
         }
@@ -145,22 +129,20 @@ class AdminController extends Controller
         if (!in_array($user->log_in_status, [1, 2])) {
             return response()->json([
                 'success' => false,
-                'message' => 'El usuario no requiere PIN de acceso. Estado actual: ' . $user->log_in_status
+                'message' => 'El usuario no requiere PIN de acceso. Estado actual: ' . $user->log_in_status,
             ], 422);
         }
 
         $newPin = $this->generateInitialToken();
-        
-        $user->update([
-            'initial_token' => Hash::make($newPin)
-        ]);
 
-        \Log::info('PIN generado para usuario', ['user_id' => $user->id]);
+        $user->update([
+            'initial_token' => Hash::make($newPin),
+        ]);
 
         return response()->json([
             'success' => true,
             'pin' => $newPin,
-            'message' => 'PIN generado exitosamente'
+            'message' => 'PIN generado exitosamente',
         ]);
     }
 
@@ -176,34 +158,34 @@ class AdminController extends Controller
         if (!$user) {
             return response()->json([
                 'valid' => false,
-                'message' => 'Usuario no encontrado'
+                'message' => 'Usuario no encontrado',
             ], 404);
         }
 
         if (!in_array($user->log_in_status, [1, 2])) {
             return response()->json([
                 'valid' => false,
-                'message' => 'El usuario no requiere PIN'
+                'message' => 'El usuario no requiere PIN',
             ], 400);
         }
 
         if (!$user->initial_token) {
             return response()->json([
                 'valid' => false,
-                'message' => 'PIN no configurado. Contacta al administrador.'
+                'message' => 'PIN no configurado. Contacta al administrador.',
             ], 400);
         }
 
         if (!Hash::check($request->pin, $user->initial_token)) {
             return response()->json([
                 'valid' => false,
-                'message' => 'PIN incorrecto'
+                'message' => 'PIN incorrecto',
             ], 401);
         }
 
         return response()->json([
             'valid' => true,
-            'message' => 'PIN válido'
+            'message' => 'PIN válido',
         ]);
     }
 

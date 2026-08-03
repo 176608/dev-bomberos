@@ -20,7 +20,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true" tabindex="-1" title="Próximamente">
+                    <a class="nav-link {{ request()->routeIs('sgu.admin.gestor*') ? 'active' : '' }}"
+                       href="{{ route('sgu.admin.gestor.usuarios') }}">
                         <i class="bi bi-person-gear"></i> Gestor
                     </a>
                 </li>

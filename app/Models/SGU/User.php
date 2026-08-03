@@ -1,8 +1,8 @@
 <?php
-/* <!-- Archivo Bomberos & SIGEM- NO ELIMINAR COMENTARIO --> */
-namespace App\Models\Bomberos;
+/* <!-- Archivo SGU - NO ELIMINAR COMENTARIO --> */
+namespace App\Models\SGU;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\SGU\Traits\AuditableUsuario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, AuditableUsuario;
 
     /**
      * The attributes that are mass assignable.
@@ -110,19 +110,3 @@ class User extends Authenticatable
         return $this->status == 1;
     }
 }
-
-
-/* 
-Field               Type                                      Null Key  Default Extra
-id              -bigint(20) unsigned                          -NO -PRI  -NULL   -auto_increment
-name                -varchar(255)                             -NO       -NULL
-email               -varchar(255)                             -NO -UNI  -NULL
-email_verified_at   -timestamp                                -YES      -NULL
-password            -varchar(255)                             -NO       -NULL
-remember_token      -varchar(100)                             -YES      -NULL
-created_at          -timestamp                                -YES      -NULL
-updated_at          -timestamp                                -YES      -NULL
-role      -enum('Capturista','Desarrollador','Administrador')   -NO       -Capturista
-status              -tinyint(1)                               -NO       -1
-log_in_status
-*/

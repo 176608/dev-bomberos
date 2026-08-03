@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Bomberos\Auth;
 
 use App\Http\Controllers\Bomberos\Controller;
-use App\Models\Bomberos\User;
+use App\Models\SGU\User;
 use App\Models\SIGEM\AuditoriaAcceso;
 use App\Traits\HashIp;
 use Illuminate\Http\Request;

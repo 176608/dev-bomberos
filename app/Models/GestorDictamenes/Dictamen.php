@@ -3,7 +3,7 @@
 namespace App\Models\GestorDictamenes;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Bomberos\User;
+use App\Models\SGU\User;
 
 class Dictamen extends Model
 {

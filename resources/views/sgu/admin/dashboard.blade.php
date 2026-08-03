@@ -22,7 +22,7 @@
                 <i class="bi bi-person-gear display-4 text-primary"></i>
                 <h5 class="card-title mt-3">Gestor</h5>
                 <p class="card-text text-muted">Gestión de usuarios del sistema: alta, edición, roles, estado y PIN de acceso.</p>
-                <span class="btn btn-primary disabled" aria-disabled="true">Próximamente</span>
+                <a href="{{ route('sgu.admin.gestor.usuarios') }}" class="btn btn-primary">Entrar al Gestor</a>
             </div>
         </div>
     </div>

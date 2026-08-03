@@ -1,7 +1,7 @@
 <?php
 namespace App\Models\SGDictamen;
 
-use App\Models\Bomberos\User;
+use App\Models\SGU\User;
 use Illuminate\Database\Eloquent\Model;
 
 class DictamenV2 extends Model

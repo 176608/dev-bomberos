@@ -21,6 +21,6 @@ class AuditoriaAcceso extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(\App\Models\Bomberos\User::class, 'user_id');
+        return $this->belongsTo(\App\Models\SGU\User::class, 'user_id');
     }
 }

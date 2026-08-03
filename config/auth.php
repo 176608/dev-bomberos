@@ -62,7 +62,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Bomberos\User::class, // ← CAMBIO: Agregar Bomberos
+            'model' => App\Models\SGU\User::class, // SGU v2 (antes Bomberos\User)
         ],
 
         // Si tienes otros providers, mantenerlos igual

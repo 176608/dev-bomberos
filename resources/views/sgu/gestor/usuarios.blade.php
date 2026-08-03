@@ -1,0 +1,359 @@
+<!-- Archivo de SGU v2 - Gestor de Usuarios (portado de roles/admin) -->
+@extends('sgu.layouts.admin')
+
+@section('title', 'SGU v2 — Gestor de Usuarios')
+
+@section('sgu_content')
+<div class="card py-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <h2>Panel de Administrador</h2>
+            <select class="form-select" style="width: auto;" onchange="window.location.href='{{ route('sgu.admin.gestor.usuarios') }}?status=' + this.value">
+                <option value="active" {{ $status == 'active' ? 'selected' : '' }}>Usuarios Activos</option>
+                <option value="inactive" {{ $status == 'inactive' ? 'selected' : '' }}>Usuarios Inactivos</option>
+                <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Todos los Usuarios</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            Crear Usuario
+        </button>
+    </div>
+    <div class="card-body">
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+        <div class="table-responsive">
+            <table id="usersTable" class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acceso</th>
+                        <th>PIN</th>
+                        <th>Fecha Registro</th>
+                        <th>Última Edición</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                        <tr>
+                            <td>{{ $user->id }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->role }}</td>
+                            <td>
+                                <span class="badge bg-{{ $user->status ? 'success' : 'danger' }}">
+                                    {{ $user->status ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td>
+                                @switch($user->log_in_status)
+                                    @case(0)
+                                        <span class="badge bg-success">Normal</span>
+                                        @break
+                                    @case(1)
+                                        <span class="badge bg-warning">Nueva</span>
+                                        @break
+                                    @case(2)
+                                        <span class="badge bg-info">Cambio</span>
+                                        @break
+                                @endswitch
+                            </td>
+                            <td>
+                                @if(in_array($user->log_in_status, [1, 2]))
+                                    @if($user->initial_token)
+                                        <span class="badge bg-success">Activo</span>
+                                    @else
+                                        <span class="badge bg-danger">Sin PIN</span>
+                                    @endif
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $user->updated_at->format('d/m/Y H:i') }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('sgu.admin.gestor.usuarios.store') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Alta de Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" name="role" required>
+                            <option value="Capturista">Capturista</option>
+                            <option value="Registrador">Registrador</option>
+                            <option value="Desarrollador">Desarrollador</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Administrador Dictamenes">Administrador Dictamenes</option>
+                            <option value="Editor Dictamenes">Editor Dictamenes</option>
+                            <option value="Estadistico">Estadístico</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modals -->
+@foreach($users as $user)
+    <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('sgu.admin.gestor.usuarios.update', $user->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                   name="name" value="{{ old('name', $user->name) }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo</label>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                   name="email" value="{{ old('email', $user->email) }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select @error('role') is-invalid @enderror" name="role" required>
+                                <option value="Capturista" {{ $user->role === 'Capturista' ? 'selected' : '' }}>Capturista</option>
+                                <option value="Registrador" {{ $user->role === 'Registrador' ? 'selected' : '' }}>Registrador</option>
+                                <option value="Desarrollador" {{ $user->role === 'Desarrollador' ? 'selected' : '' }}>Desarrollador</option>
+                                <option value="Administrador" {{ $user->role === 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                <option value="Administrador Dictamenes" {{ $user->role === 'Administrador Dictamenes' ? 'selected' : '' }}>Administrador Dictamenes</option>
+                                <option value="Editor Dictamenes" {{ $user->role === 'Editor Dictamenes' ? 'selected' : '' }}>Editor Dictamenes</option>
+                                <option value="Estadistico" {{ $user->role === 'Estadistico' ? 'selected' : '' }}>Estadístico</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select @error('status') is-invalid @enderror" name="status" required>
+                                <option value="1" {{ $user->status ? 'selected' : '' }}>Activo</option>
+                                <option value="0" {{ !$user->status ? 'selected' : '' }}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="resetPassword{{ $user->id }}"
+                                       name="reset_password">
+                                <label class="form-check-label" for="resetPassword{{ $user->id }}">
+                                    Resetear contraseña de usuario
+                                </label>
+                            </div>
+                        </div>
+                        @if(in_array($user->log_in_status, [1, 2]))
+                        <div class="mb-3">
+                            <label class="form-label">PIN de Acceso</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="pinDisplay{{ $user->id }}"
+                                       value="{{ $user->initial_token ? '**********' : 'Sin PIN generado' }}"
+                                       readonly>
+                                <button type="button" class="btn btn-warning" onclick="generarPin({{ $user->id }})">
+                                    <i class="bi bi-key"></i> {{ $user->initial_token ? 'Regenerar' : 'Generar' }}
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                @if($user->initial_token)
+                                    El PIN está activo. El usuario puede usarlo para acceder.
+                                @else
+                                    Genera un PIN para que el usuario pueda acceder por primera vez.
+                                @endif
+                            </small>
+                        </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
+@endsection
+
+@section('scripts')
+<script>
+function generarPin(userId) {
+    if (!confirm('¿Generar un nuevo PIN de acceso? El PIN anterior quedará invalido.')) {
+        return;
+    }
+
+    const url = "{{ route('sgu.admin.gestor.usuarios.generar-pin', ['user' => ':userId']) }}".replace(':userId', userId);
+
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                alert('PIN generado: ' + response.pin + '\n\nEste PIN es de un solo uso. Proporcionarlo al usuario.');
+                $('#pinDisplay' + userId).val('**********');
+                window.location.reload();
+            } else {
+                alert(response.message || 'Error al generar PIN');
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Error al generar PIN';
+            if (xhr.status === 401) {
+                errorMessage = 'Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente.';
+            } else if (xhr.status === 422) {
+                errorMessage = 'El usuario no requiere PIN de acceso.';
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMessage = xhr.responseJSON.error;
+            }
+            alert(errorMessage);
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Initialize DataTable
+    const table = $('#usersTable').DataTable({
+        language: {
+            url: "{{ asset('js/datatables/i18n/es-ES.json') }}"
+        },
+        processing: true,
+        order: [[0, 'desc']],
+        columnDefs: [
+            {
+                targets: '_all',
+                defaultContent: ''
+            }
+        ]
+    });
+
+    // Handle create user form submission
+    $('form[action="{{ route('sgu.admin.gestor.usuarios.store') }}"]').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const modal = form.closest('.modal');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                modal.modal('hide');
+                if (response.pin) {
+                    alert(response.message + '\n\nPIN: ' + response.pin);
+                } else {
+                    alert(response.message || 'Usuario creado exitosamente');
+                }
+                window.location.reload();
+            },
+            error: function(xhr) {
+                let errorMessage = 'Error al crear usuario';
+                if (xhr.status === 401) {
+                    errorMessage = 'Sesión expirada. Por favor, recarga la página.';
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors);
+                    errorMessage = errors.flat().join('\n');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                alert(errorMessage);
+            }
+        });
+    });
+
+    // Handle edit user form submission
+    $('form[action*="/gestor/usuarios/"]').not('[action$="/store"]').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const modal = form.closest('.modal');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    modal.modal('hide');
+                    if (response.pin) {
+                        alert(response.message + '\n\nPIN: ' + response.pin);
+                    } else {
+                        alert(response.message);
+                    }
+                    window.location.reload();
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Error al actualizar usuario';
+                if (xhr.status === 401) {
+                    errorMessage = 'Sesión expirada. Por favor, recarga la página.';
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors);
+                    errorMessage = errors.flat().join('\n');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                alert(errorMessage);
+            }
+        });
+    });
+
+    $.fn.dataTable.ext.errMode = 'none';
+
+    table.on('error.dt', function(e, settings, techNote, message) {
+        console.error('DataTables error:', message);
+    });
+});
+</script>
+@endsection
