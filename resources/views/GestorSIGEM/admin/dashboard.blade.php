@@ -123,7 +123,7 @@ $(document).ready(function() {
     var dt = $('#tablaAuditoria').DataTable({
         stateSave: true,
         stateDuration: -1,
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json', emptyTable: 'No hay eventos en este período.' },
+        language: { url: "{{ asset('js/datatables/i18n/es-ES.json') }}", emptyTable: 'No hay eventos en este período.' },
         order: [[0, 'desc']],
         pageLength: 25,
         responsive: true,
