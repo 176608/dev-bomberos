@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Historial de Cambios - Gestor de Dictámenes')
 
@@ -76,7 +76,7 @@ table {
 $(document).ready(function() {
     $('#historial-table').DataTable({
         "paging": true,
-        "lengthMenu": [[10, 25, 50, 100, -1], ['10', '25', '50', '100', 'Todas']],
+        "lengthMenu": [[10, 25, 50, 100, -1], ['10', '25', '50', '100', 'Todos los registros']],
         "pageLength": 25,
         "searching": true,
         "info": false,

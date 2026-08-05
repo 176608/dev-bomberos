@@ -200,9 +200,17 @@ tr:hover td {
 
     <!-- Filtros (GET, se guardan en la URL; se aplican al seleccionar) -->
     <div class="card mb-3" id="filtrosCard" style="border-left: 4px solid #2f7064;">
+        <div class="card-header py-2 position-relative">
+            <h6 class="text-center mb-0">Filtros para dictámenes</h6>
+            @if(request()->hasAny(['estatus', 'anio', 'mes', 'revisado_por', 'dependencia', 'tipo_dictamen']))
+                <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-primary position-absolute top-50 end-0 translate-middle-y me-2" data-limpiar title="Limpiar los filtros activos">
+                    <i class="bi bi-arrow-counterclockwise"></i> Limpiar selección
+                </a>
+            @endif
+        </div>
         <div class="card-body py-2">
             <form id="filtrosForm" method="GET" action="{{ route('gestor-dictamenes.index') }}" class="row g-2">
-                <!-- Sección 1: Año arriba + Limpiar abajo -->
+                <!-- Sección 1: Año arriba + Mes abajo -->
                 <div class="col-2 d-flex flex-column">
                     <label class="form-label mb-1" for="anioFilter"><strong>Año:</strong></label>
                     <select class="form-select form-select-sm filter-select" id="anioFilter" name="anio">
@@ -211,11 +219,13 @@ tr:hover td {
                             <option value="{{ $a }}" @selected(request('anio') === (string) $a)>{{ $a }}</option>
                         @endforeach
                     </select>
-                    @if(request()->hasAny(['estatus', 'anio', 'revisado_por', 'dependencia', 'nombre_puesto']))
-                        <a href="{{ route('gestor-dictamenes.index') }}" class="btn btn-sm btn-outline-danger w-100 mt-auto" data-limpiar title="Limpiar los filtros activos">
-                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
-                        </a>
-                    @endif
+                    <label class="form-label mb-1 mt-2" for="mesFilter"><strong>Mes:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="mesFilter" name="mes">
+                        <option value="">Todos</option>
+                        @foreach(\App\Models\GestorDictamenes\Dictamen::MESES as $mesNum => $mesNombre)
+                            <option value="{{ $mesNum }}" @selected(request('mes') === (string) $mesNum)>{{ $mesNombre }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <!-- Sección 2: Estatus + Revisado por (una fila cada uno) -->
                 <div class="col-5">
@@ -234,13 +244,13 @@ tr:hover td {
                         @endforeach
                     </select>
                 </div>
-                <!-- Sección 3: Nombre/Puesto + Dependencia (una fila cada uno) -->
+                <!-- Sección 3: Tipo de Dictamen + Dependencia (una fila cada uno) -->
                 <div class="col-5">
-                    <label class="form-label mb-1" for="nombrePuestoFilter"><strong>Nombre/Puesto:</strong></label>
-                    <select class="form-select form-select-sm filter-select" id="nombrePuestoFilter" name="nombre_puesto">
+                    <label class="form-label mb-1" for="tipoDictamenFilter"><strong>Tipo de Dictamen:</strong></label>
+                    <select class="form-select form-select-sm filter-select" id="tipoDictamenFilter" name="tipo_dictamen">
                         <option value="">Todos</option>
-                        @foreach($nombresPuestos as $np)
-                            <option value="{{ $np }}" @selected(request('nombre_puesto') === $np)>{{ $np }}</option>
+                        @foreach($tiposDictamen as $td)
+                            <option value="{{ $td }}" @selected(request('tipo_dictamen') === $td)>{{ $td }}</option>
                         @endforeach
                     </select>
                     <label class="form-label mb-1 mt-2" for="dependenciaFilter"><strong>Dependencia:</strong></label>
@@ -276,8 +286,8 @@ tr:hover td {
     </div>
 
     <!-- Tabla -->
-    <div class="table-responsive" id="tablaCard">
-        <table id="dictamenes-table" class="table table-hover nowrap">
+    <div id="tablaCard">
+        <table id="dictamenes-table" class="table table-hover">
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
@@ -701,14 +711,14 @@ $(document).ready(function() {
         if (e.persisted) $('#uiOverlay').removeClass('visible');
     });
 
-    // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada)
-    if (!sessionStorage.getItem('dictamenes_state_v11')) {
+    // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada, sin scroll lateral, 50 por página)
+    if (!sessionStorage.getItem('dictamenes_state_v12')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v11', '1');
+        sessionStorage.setItem('dictamenes_state_v12', '1');
     }
 
     function initDataTable() {
@@ -719,15 +729,13 @@ $(document).ready(function() {
             "paging": true,
             "lengthMenu": [
                 [10, 25, 50, 100, 150, -1],
-                ['10', '25', '50', '100', '150', 'Todas']
+                ['10', '25', '50', '100', '150', 'Todos los registros']
             ],
-            "pageLength": -1,
+            "pageLength": 50,
             "searching": true,
             "info": true,
             "ordering": true,
             "order": [],
-            "scrollX": true,
-            "autoWidth": false,
             "stateSave": true,
             "stateDuration": 60 * 60 * 24 * 30,
             "language": {

@@ -48,6 +48,10 @@ class DictamenController extends Controller
             $query->where('anio', $request->anio);
         }
 
+        if ($request->filled('mes') && (int) $request->mes >= 1 && (int) $request->mes <= 12) {
+            $query->whereMonth('fecha', (int) $request->mes);
+        }
+
         if ($request->filled('revisado_por')) {
             $query->where('revisado_por', $request->revisado_por);
         }
@@ -56,8 +60,8 @@ class DictamenController extends Controller
             $query->where('dependencia_empres', $request->dependencia);
         }
 
-        if ($request->filled('nombre_puesto')) {
-            $query->where('nombre_puesto', $request->nombre_puesto);
+        if ($request->filled('tipo_dictamen')) {
+            $query->where('tipo_dictamen', $request->tipo_dictamen);
         }
 
         $dictamenes = $query->with('archivosLigados')->orderByDesc('fecha')->get();
@@ -86,9 +90,9 @@ class DictamenController extends Controller
             ->whereNotNull('dependencia_empres')->where('dependencia_empres', '!=', '')
             ->distinct()->orderBy('dependencia_empres')->pluck('dependencia_empres');
 
-        $nombresPuestos = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
-            ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
-            ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
+        $tiposDictamen = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('tipo_dictamen')->where('tipo_dictamen', '!=', '')
+            ->distinct()->orderBy('tipo_dictamen')->pluck('tipo_dictamen');
 
         $aniosDisponibles = collect($anios)
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
@@ -116,7 +120,7 @@ class DictamenController extends Controller
             'aniosDisponibles',
             'revisadosPor',
             'dependencias',
-            'nombresPuestos',
+            'tiposDictamen',
             'datosGrafica'
         ));
     }
