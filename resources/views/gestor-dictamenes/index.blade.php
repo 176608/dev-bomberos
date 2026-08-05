@@ -55,6 +55,21 @@ body {
     height: auto;
 }
 
+.estado-badge {
+    border: 0;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    display: inline-block;
+    text-align: left;
+}
+
+#dictamenes-table tbody tr {
+    user-select: none;
+}
+
 table {
     font-size: 0.85rem;
 }
@@ -270,7 +285,7 @@ tr:hover td {
                     <th>Asunto</th>
                     <th>Estatus</th>
                     <th>Número Oficio</th>
-                    <th>Acciones</th>
+                    <th class="d-none">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -296,67 +311,66 @@ tr:hover td {
                         </span>
                     </td>
                     <td>
-                        <div>
-                            <span class="fw-semibold">{{ $d->numero_oficio ?? '—' }}</span>
-                        </div>
                         @php
                             $estadoA = $d->estado_archivo ?? 'sin_clave';
                             $encontradosA = $d->archivos_encontrados ?? [];
                             $ligadosA = $d->archivosLigados ?? collect();
+                            $numFolio = trim((string) ($d->numero_oficio ?? ''));
+                            $numDefinido = $numFolio !== '' && !in_array(strtoupper($numFolio), ['S/N', 'S/D'], true);
+                            $nCoinc = count($encontradosA);
+                            $esAdmin = auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']);
+                            $esEditor = auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']);
                         @endphp
-                        @if($estadoA === 'encontrado')
-                            <div class="mt-1">
-                                <button type="button" class="btn btn-sm btn-outline-success ver-btn" data-ruta="{{ $encontradosA[0] ?? '' }}" title="Visualizar contenido de {{ basename($encontradosA[0] ?? '') }}">
-                                    <i class="bi bi-eye"></i> Ver
-                                </button>
-                                <a class="btn btn-sm btn-outline-secondary" href="{{ route('gestor-dictamenes.archivo-descargar', ['archivo' => $encontradosA[0] ?? '']) }}" title="Descargar {{ basename($encontradosA[0] ?? '') }}">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </div>
-                        @elseif($estadoA === 'no_encontrado')
-                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-                                <div class="mt-1">
-                                    <button type="button" class="btn btn-sm btn-outline-danger subir-btn"
-                                            data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}" data-anio="{{ $d->anio }}"
-                                            title="No se encontró ningún archivo con la clave {{ $d->numero_oficio }} en el servidor. Clic para subirlo.">
-                                        <i class="bi bi-x-circle"></i> No encontrado
-                                    </button>
-                                </div>
+                        @if(!$numDefinido)
+                            {{-- Caso D: sin definir --}}
+                            @if($esEditor)
+                                <button type="button" class="badge bg-secondary estado-badge badge-sin-definir" data-id="{{ $d->id }}"
+                                        title="Sin definir. Clic para editar el dictamen.">Sin definir</button>
                             @else
-                                <span class="badge bg-danger mt-1" title="No se encontró ningún archivo con la clave {{ $d->numero_oficio }} en el servidor">
-                                    <i class="bi bi-x-circle"></i> No encontrado
+                                <span class="badge bg-secondary" title="Sin definir">Sin definir</span>
+                            @endif
+                        @elseif($nCoinc > 1)
+                            {{-- Caso A: más de una coincidencia --}}
+                            <button type="button" class="badge bg-warning text-dark estado-badge link-btn"
+                                    data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}"
+                                    data-bs-toggle="modal" data-bs-target="#linkModal"
+                                    title="{{ $numFolio }}: {{ $nCoinc }} coincidencias en el servidor. Clic para visualizar, descargar o ligar archivos.">
+                                {{ $numFolio }} · {{ $nCoinc }} coincidencias
+                            </button>
+                        @elseif($nCoinc === 1)
+                            {{-- Caso B: una coincidencia --}}
+                            <button type="button" class="badge bg-success estado-badge link-btn"
+                                    data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}"
+                                    data-bs-toggle="modal" data-bs-target="#linkModal"
+                                    title="{{ $numFolio }}: 1 coincidencia en el servidor. Clic para visualizar, descargar o ligar archivos.">
+                                {{ $numFolio }} · coincidencia
+                            </button>
+                        @else
+                            {{-- Caso C: definido pero no encontrado --}}
+                            @if($esAdmin)
+                                <button type="button" class="badge bg-danger estado-badge subir-btn"
+                                        data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}" data-anio="{{ $d->anio }}"
+                                        title="{{ $numFolio }}: no se encontró en el servidor. Clic para subir el archivo.">
+                                    {{ $numFolio }} · No encontrado
+                                </button>
+                            @else
+                                <span class="badge bg-danger" title="{{ $numFolio }}: no se encontró en el servidor.">
+                                    {{ $numFolio }} · No encontrado
                                 </span>
                             @endif
-                        @elseif($estadoA === 'multiples')
-                            <div class="mt-1">
-                                <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
-                                    <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
-                                </span>
-                            </div>
-                        @else
-                            <span class="text-muted">—</span>
                         @endif
-                        @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
-                            <button class="btn btn-sm btn-outline-info link-btn ms-1 mt-1" data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}" data-bs-toggle="modal" data-bs-target="#linkModal"
-                                    title="Descargar y ligar archivos ({{ $d->numero_oficio }} @ {{ $d->anio }})">
-                                <i class="bi bi-link-45deg"></i>
-                            </button>
+                        @if($ligadosA->count() > 0 && $numDefinido && $estadoA !== 'encontrado' && $estadoA !== 'multiples')
+                            <span class="badge bg-info text-dark mt-1" title="Tiene {{ $ligadosA->count() }} archivo(s) ligado(s)">
+                                <i class="bi bi-link-45deg"></i> {{ $ligadosA->count() }} ligado(s)
+                            </span>
                         @endif
                     </td>
-                    <td>
+                    <td class="d-none">
                         @if(($d->estatus ?? '') === \App\Models\GestorDictamenes\Dictamen::DESHABILITADO)
-                            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-                                <form action="{{ route('gestor-dictamenes.restore', $d->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button class="btn btn-sm btn-outline-success" title="Restaurar este dictamen deshabilitado" onclick="return confirm('¿Deseas restaurar este dictamen?');">
-                                        <i class="bi bi-arrow-counterclockwise"></i> Restaurar
-                                    </button>
-                                </form>
-                            @endif
                         @else
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
-                                <button class="btn btn-sm btn-primary edit-btn" title="Editar este dictamen" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
-                                    <i class="bi bi-pencil"></i> Editar
+                                <button class="btn btn-sm btn-primary edit-btn d-none" title="Editar este dictamen" data-id="{{ $d->id }}" data-route="{{ route('gestor-dictamenes.update', $d->id) }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                                    <i class="bi bi-pencil"></i>
                                 </button>
                             @endif
 
@@ -365,10 +379,6 @@ tr:hover td {
                                     @csrf
                                     @method('DELETE')
                                 </form>
-                                <button class="btn btn-sm btn-danger delete-btn" title="Deshabilitar este dictamen"
-                                        onclick="if(confirm('¿Estás seguro que deseas deshabilitar este dictamen?')) document.getElementById('delete-form-{{ $d->id }}').submit();">
-                                    <i class="bi bi-trash"></i> Deshabilitar
-                                </button>
                             @endif
                         @endif
                     </td>
@@ -509,6 +519,9 @@ tr:hover td {
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger d-none" id="btnDeshabilitarModal" title="Deshabilitar este dictamen">
+                        <i class="bi bi-trash"></i> Deshabilitar
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar sin guardar">Cancelar</button>
                     <button type="submit" class="btn btn-primary" title="Guardar los cambios del dictamen">Guardar</button>
                 </div>
@@ -640,9 +653,9 @@ tr:hover td {
   </div>
 </div>
 
-<!-- Modal Visualizar Archivo (DOCX/DOC) -->
+<!-- Modal Visualizar Archivo (DOCX/DOC) - pantalla completa -->
 <div class="modal fade" id="verArchivoModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -839,7 +852,29 @@ $(document).ready(function() {
         $('#observaciones_edit').val($row.data('observaciones') || '');
 
         $('#editForm').attr('action', route);
+        editDictamenId = id;
+        $('#btnDeshabilitarModal').addClass('d-none');
         $('#editModal').modal('show');
+    });
+
+    // Doble click en una fila: abre el modal de edición (sin interferir con botones/enlaces de la fila)
+    $(document).on('dblclick', '#dictamenes-table tbody tr', function(e) {
+        if ($(e.target).closest('button, a, input, select, textarea').length) return;
+        const $editBtn = $(this).find('.edit-btn');
+        if ($editBtn.length) {
+            $editBtn.trigger('click');
+        }
+    });
+
+    // Deshabilitar desde el modal de edición
+    $(document).on('click', '#btnDeshabilitarModal', function() {
+        if (!editDictamenId) return;
+        if (confirm('¿Estás seguro que deseas deshabilitar este dictamen?')) {
+            const $form = $('#delete-form-' + editDictamenId);
+            if ($form.length) {
+                $form.submit();
+            }
+        }
     });
 
     // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes)
@@ -977,6 +1012,7 @@ $(document).ready(function() {
     }
 
     // ============ Gestor de Archivos ============
+    let editDictamenId = null;
     const URL_ARCHIVOS = '{{ route('gestor-dictamenes.archivos') }}';
     const URL_SUBIR = '{{ route('gestor-dictamenes.archivo-subir') }}';
     const URL_DESCARGAR = '{{ route('gestor-dictamenes.archivo-descargar') }}';
@@ -1058,6 +1094,14 @@ $(document).ready(function() {
 
     $(document).on('click', '#btnDescargarExistente, #btnSubirDescargarExistente', function() {
         verArchivo($(this).data('ruta') || '');
+    });
+
+    // Caso D: badge "Sin definir" abre el modal de edición (admin y editor)
+    $(document).on('click', '.badge-sin-definir', function() {
+        const $editBtn = $(this).closest('tr').find('.edit-btn');
+        if ($editBtn.length) {
+            $editBtn.trigger('click');
+        }
     });
 
     function mostrarMsg(tipo, texto) {
@@ -1209,7 +1253,8 @@ $(document).ready(function() {
             $c.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
                     '<span><i class="bi bi-file-earmark-text me-2"></i>' + $('<span>').text(ruta).html() +
-                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button></span>' +
+                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button>' +
+                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
                     (ligado
                         ? '<span class="badge bg-success">Ligado</span>'
                         : '<button class="btn btn-sm btn-outline-success btn-link-archivo" data-ruta="' + ruta + '" title="Ligar este archivo al dictamen"><i class="bi bi-link-45deg"></i> Ligar</button>') +
@@ -1224,7 +1269,8 @@ $(document).ready(function() {
             $l.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
                     '<span><i class="bi bi-file-earmark-lock me-2"></i>' + $('<span>').text(ruta).html() +
-                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button></span>' +
+                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button>' +
+                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
                     '<button class="btn btn-sm btn-outline-danger btn-desligar-archivo" data-ruta="' + ruta + '" title="Quitar el vínculo de este archivo al dictamen"><i class="bi bi-unlink"></i> Desligar</button>' +
                 '</div>'
             );
