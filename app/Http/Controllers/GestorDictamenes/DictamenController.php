@@ -125,8 +125,9 @@ class DictamenController extends Controller
     {
         $request->validate([
             'fecha' => 'required|date',
-            'oficio' => 'required|string|max:50',
-            'clave_documento' => 'nullable|string|max:100',
+            'oficio_recibido' => 'required|string|max:50',
+            'tipo_dictamen' => 'nullable|string|max:100',
+            'numero_oficio' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
             'estatus' => ['required', Rule::in(Dictamen::STATUSES)],
@@ -137,8 +138,9 @@ class DictamenController extends Controller
 
         $dictamen = Dictamen::create(array_merge([
             'fecha' => $request->fecha,
-            'oficio' => $this->mayus($request->oficio),
-            'clave_documento' => $this->mayus($request->clave_documento),
+            'oficio_recibido' => $this->mayus($request->oficio_recibido),
+            'tipo_dictamen' => $this->mayus($request->tipo_dictamen),
+            'numero_oficio' => $this->mayus($request->numero_oficio),
             'dependencia_empres' => $this->mayus($request->dependencia_empres),
             'asunto' => $this->mayus($request->asunto),
             'estatus' => $this->mayus($request->estatus),
@@ -158,8 +160,9 @@ class DictamenController extends Controller
     {
         $request->validate([
             'fecha' => 'required|date',
-            'oficio' => 'required|string|max:50',
-            'clave_documento' => 'nullable|string|max:100',
+            'oficio_recibido' => 'required|string|max:50',
+            'tipo_dictamen' => 'nullable|string|max:100',
+            'numero_oficio' => 'nullable|string|max:100',
             'dependencia_empres' => 'nullable|string|max:255',
             'asunto' => 'required|string|max:255',
             'estatus' => ['required', Rule::in(Dictamen::STATUSES)],
@@ -170,8 +173,9 @@ class DictamenController extends Controller
 
         $dictamen->update(array_merge([
             'fecha' => $request->fecha,
-            'oficio' => $this->mayus($request->oficio),
-            'clave_documento' => $this->mayus($request->clave_documento),
+            'oficio_recibido' => $this->mayus($request->oficio_recibido),
+            'tipo_dictamen' => $this->mayus($request->tipo_dictamen),
+            'numero_oficio' => $this->mayus($request->numero_oficio),
             'dependencia_empres' => $this->mayus($request->dependencia_empres),
             'asunto' => $this->mayus($request->asunto),
             'estatus' => $this->mayus($request->estatus),
@@ -308,7 +312,7 @@ class DictamenController extends Controller
     private function anotarEstadoArchivo($dictamenes, array $archivosPorAnio): void
     {
         foreach ($dictamenes as $d) {
-            $clave = trim((string) $d->clave_documento);
+            $clave = trim((string) $d->numero_oficio);
             $d->estado_archivo = 'sin_clave';
             $d->archivos_encontrados = [];
 
@@ -354,7 +358,7 @@ class DictamenController extends Controller
                 if ($anio !== '' && isset($dictamenesPorAnio[$anio])) {
                     $nombreNorm = $this->normalizarClave($nombre);
                     foreach ($dictamenesPorAnio[$anio] as $d) {
-                        if ($this->claveCoincide($this->normalizarClave($d->clave_documento), $nombreNorm)) {
+                        if ($this->claveCoincide($this->normalizarClave($d->numero_oficio), $nombreNorm)) {
                             $ligado++;
                         }
                     }
@@ -422,7 +426,7 @@ class DictamenController extends Controller
         $archivoNorm = $this->normalizarClave($nombre);
 
         $candidatos = Dictamen::where('anio', (int) $anio)->get()->filter(function ($d) use ($archivoNorm) {
-            return $this->claveCoincide($this->normalizarClave($d->clave_documento), $archivoNorm);
+            return $this->claveCoincide($this->normalizarClave($d->numero_oficio), $archivoNorm);
         });
 
         $contador = 0;
@@ -561,17 +565,17 @@ class DictamenController extends Controller
             'dia' => $dictamen->dia,
             'mes' => $dictamen->mes,
             'fecha_raw' => $dictamen->fecha_raw,
-            'oficio' => $dictamen->oficio,
+            'oficio' => $dictamen->oficio_recibido,
             'nombre_puesto' => $dictamen->nombre_puesto,
             'dependencia_empres' => $dictamen->dependencia_empres,
             'asunto' => $dictamen->asunto,
             'estatus' => $dictamen->estatus,
             'numero_oficio_raw' => $dictamen->numero_oficio_raw,
-            'archivo_raw' => $dictamen->clave_documento,
+            'archivo_raw' => $dictamen->numero_oficio,
             'revisado_por' => $dictamen->revisado_por,
             'observaciones' => $dictamen->observaciones,
             'fecha' => $dictamen->fecha,
-            'archivo' => $dictamen->clave_documento,
+            'archivo' => $dictamen->numero_oficio,
             'created_by' => $dictamen->created_by,
             'updated_by' => $dictamen->updated_by,
             'deleted_by' => $deleted ? auth()->id() : null,

@@ -37,6 +37,24 @@ body {
     height: 100% !important;
 }
 
+.docx-preview {
+    max-height: 70vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.docx-preview h1, .docx-preview h2, .docx-preview h3 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.docx-preview img {
+    max-width: 100%;
+    height: auto;
+}
+
 table {
     font-size: 0.85rem;
 }
@@ -248,13 +266,10 @@ tr:hover td {
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
-                    <th>Núm. Oficio</th>
-                    <th>Dependencia</th>
+                    <th>Oficio Recibido</th>
                     <th>Asunto</th>
                     <th>Estatus</th>
-                    <th>Nombre / Puesto</th>
-                    <th>Revisado por</th>
-                    <th>Archivo</th>
+                    <th>Número Oficio</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -262,58 +277,68 @@ tr:hover td {
                 @foreach($dictamenes as $d)
                 <tr
                     data-fecha="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '' }}"
-                    data-oficio="{{ $d->oficio ?? '' }}"
+                    data-oficio-recibido="{{ $d->oficio_recibido ?? '' }}"
+                    data-tipo-dictamen="{{ $d->tipo_dictamen ?? '' }}"
                     data-nombre-puesto="{{ $d->nombre_puesto ?? '' }}"
                     data-dependencia="{{ $d->dependencia_empres ?? '' }}"
                     data-asunto="{{ $d->asunto ?? '' }}"
-                    data-clave-documento="{{ $d->clave_documento ?? '' }}"
+                    data-numero-oficio="{{ $d->numero_oficio ?? '' }}"
                     data-revisado-por="{{ $d->revisado_por ?? '' }}"
                     data-estatus="{{ $d->estatus ?? '' }}"
                     data-observaciones="{{ $d->observaciones ?? '' }}"
                 >
                     <td data-order="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '0000-00-00' }}">{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}</td>
-                    <td>{{ $d->oficio ?? '—' }}</td>
-                    <td>{{ $d->dependencia_empres ?? '—' }}</td>
-                    <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
+                    <td>{{ $d->oficio_recibido ?? '—' }}</td>
+                    <td data-search="{{ trim(($d->asunto ?? '') . ' ' . ($d->observaciones ?? '') . ' ' . ($d->tipo_dictamen ?? '') . ' ' . ($d->dependencia_empres ?? '') . ' ' . ($d->nombre_puesto ?? '') . ' ' . ($d->revisado_por ?? '') . ' ' . ($d->numero_oficio ?? '') . ' ' . ($d->oficio_recibido ?? '')) }}" title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
                     <td>
                         <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ in_array($d->estatus ?? '', ['BORRADOR PARA FIRMA']) ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ $d->estatus ?? 'S/D' }}
                         </span>
                     </td>
-                    <td>{{ $d->nombre_puesto ?? '—' }}</td>
-                    <td>{{ $d->revisado_por ?? '—' }}</td>
                     <td>
+                        <div>
+                            <span class="fw-semibold">{{ $d->numero_oficio ?? '—' }}</span>
+                        </div>
                         @php
                             $estadoA = $d->estado_archivo ?? 'sin_clave';
                             $encontradosA = $d->archivos_encontrados ?? [];
                             $ligadosA = $d->archivosLigados ?? collect();
                         @endphp
                         @if($estadoA === 'encontrado')
-                            <span class="badge bg-primary" title="Encontrado en el servidor: {{ $encontradosA[0] ?? '' }}">
-                                <i class="bi bi-check-circle"></i> {{ basename($encontradosA[0] ?? '') }}
-                            </span>
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-sm btn-outline-success ver-btn" data-ruta="{{ $encontradosA[0] ?? '' }}" title="Visualizar contenido de {{ basename($encontradosA[0] ?? '') }}">
+                                    <i class="bi bi-eye"></i> Ver
+                                </button>
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ route('gestor-dictamenes.archivo-descargar', ['archivo' => $encontradosA[0] ?? '']) }}" title="Descargar {{ basename($encontradosA[0] ?? '') }}">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
                         @elseif($estadoA === 'no_encontrado')
                             @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
-                                <button type="button" class="btn btn-sm btn-outline-danger subir-btn"
-                                        data-id="{{ $d->id }}" data-clave="{{ $d->clave_documento }}" data-anio="{{ $d->anio }}"
-                                        title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor. Clic para subirlo.">
-                                    <i class="bi bi-x-circle"></i> No encontrado
-                                </button>
+                                <div class="mt-1">
+                                    <button type="button" class="btn btn-sm btn-outline-danger subir-btn"
+                                            data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}" data-anio="{{ $d->anio }}"
+                                            title="No se encontró ningún archivo con la clave {{ $d->numero_oficio }} en el servidor. Clic para subirlo.">
+                                        <i class="bi bi-x-circle"></i> No encontrado
+                                    </button>
+                                </div>
                             @else
-                                <span class="badge bg-danger" title="No se encontró ningún archivo con la clave {{ $d->clave_documento }} en el servidor">
+                                <span class="badge bg-danger mt-1" title="No se encontró ningún archivo con la clave {{ $d->numero_oficio }} en el servidor">
                                     <i class="bi bi-x-circle"></i> No encontrado
                                 </span>
                             @endif
                         @elseif($estadoA === 'multiples')
-                            <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
-                                <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
-                            </span>
+                            <div class="mt-1">
+                                <span class="badge bg-warning text-dark" title="{{ implode(PHP_EOL, $encontradosA) }}">
+                                    <i class="bi bi-exclamation-triangle"></i> {{ count($encontradosA) }} coincidencias
+                                </span>
+                            </div>
                         @else
                             <span class="text-muted">—</span>
                         @endif
                         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']) && ($estadoA === 'encontrado' || $estadoA === 'multiples' || $ligadosA->count() > 0))
-                            <button class="btn btn-sm btn-outline-info link-btn ms-1" data-id="{{ $d->id }}" data-clave="{{ $d->clave_documento }}" data-bs-toggle="modal" data-bs-target="#linkModal"
-                                    title="Descargar y ligar archivos ({{ $d->clave_documento }} @ {{ $d->anio }})">
+                            <button class="btn btn-sm btn-outline-info link-btn ms-1 mt-1" data-id="{{ $d->id }}" data-clave="{{ $d->numero_oficio }}" data-bs-toggle="modal" data-bs-target="#linkModal"
+                                    title="Descargar y ligar archivos ({{ $d->numero_oficio }} @ {{ $d->anio }})">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
                         @endif
@@ -372,12 +397,16 @@ tr:hover td {
                             <input type="date" class="form-control" name="fecha" required>
                         </div>
                         <div class="col-md-6">
-                            <label>Núm. Oficio <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <input type="text" class="form-control" name="oficio" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
+                            <label>Núm. Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <input type="text" class="form-control" name="oficio_recibido" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
                         </div>
                         <div class="col-md-4">
-                            <label>Clave de archivo</label>
-                            <input type="text" class="form-control" name="claved_documento" placeholder="Ej. PYP024, DIR143">
+                            <label>Número de oficio</label>
+                            <input type="text" class="form-control" name="numero_oficio" placeholder="Ej. PYP024, DIR143">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Tipo de dictamen</label>
+                            <input type="text" class="form-control" name="tipo_dictamen" placeholder="Ej. URBANO, RURAL">
                         </div>
                         <div class="col-md-4">
                             <label>Nombre / Puesto</label>
@@ -437,12 +466,16 @@ tr:hover td {
                             <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
                         </div>
                         <div class="col-md-6">
-                            <label>Núm. Oficio</label>
-                            <input type="text" class="form-control" id="oficio_edit" name="oficio" required>
+                            <label>Núm. Oficio Recibido</label>
+                            <input type="text" class="form-control" id="oficio_recibido_edit" name="oficio_recibido" required>
                         </div>
                         <div class="col-md-4">
-                            <label>Clave de archivo</label>
-                            <input type="text" class="form-control" id="clave_documento_edit" name="clave_documento" placeholder="Ej. PYP024, DIR143">
+                            <label>Número de oficio</label>
+                            <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio" placeholder="Ej. PYP024, DIR143">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Tipo de dictamen</label>
+                            <input type="text" class="form-control" id="tipo_dictamen_edit" name="tipo_dictamen" placeholder="Ej. URBANO, RURAL">
                         </div>
                         <div class="col-md-4">
                             <label>Estatus</label>
@@ -514,9 +547,9 @@ tr:hover td {
                     <span id="conflictoNombre" class="fw-bold"></span>
                     <p class="mb-0 mt-1">¿Deseas revisar el archivo con el mismo nombre (descargarlo) o reemplazar el archivo existente?</p>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <a id="btnDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank" title="Descargar el archivo que ya existe con ese nombre">
-                            <i class="bi bi-download"></i> Revisar (descargar) existente
-                        </a>
+                        <button type="button" id="btnDescargarExistente" class="btn btn-sm btn-outline-secondary" title="Visualizar el archivo que ya existe con ese nombre">
+                            <i class="bi bi-eye"></i> Revisar existente
+                        </button>
                         <button id="btnReemplazarArchivo" class="btn btn-sm btn-warning" title="Sobrescribir el archivo existente con el nuevo">
                             <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
                         </button>
@@ -567,9 +600,9 @@ tr:hover td {
                     <span id="subirConflictoNombre" class="fw-bold"></span>
                     <p class="mb-0 mt-1">¿Revisar (descargar) el existente o reemplazarlo?</p>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <a id="btnSubirDescargarExistente" class="btn btn-sm btn-outline-secondary" href="#" target="_blank" title="Descargar el archivo que ya existe con ese nombre">
-                            <i class="bi bi-download"></i> Revisar existente
-                        </a>
+                        <button type="button" id="btnSubirDescargarExistente" class="btn btn-sm btn-outline-secondary" title="Visualizar el archivo que ya existe con ese nombre">
+                            <i class="bi bi-eye"></i> Revisar existente
+                        </button>
                         <button id="btnSubirReemplazar" class="btn btn-sm btn-warning" title="Sobrescribir el archivo existente con el nuevo">
                             <i class="bi bi-arrow-repeat"></i> Reemplazar archivo
                         </button>
@@ -607,12 +640,42 @@ tr:hover td {
   </div>
 </div>
 
+<!-- Modal Visualizar Archivo (DOCX/DOC) -->
+<div class="modal fade" id="verArchivoModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-text"></i> Visualizar archivo
+                    <span id="verArchivoNombre" class="badge bg-secondary ms-1"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="verArchivoLoading" class="text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                    <p class="mt-2 text-muted">Convirtiendo documento…</p>
+                </div>
+                <div id="verArchivoContenido" class="docx-preview"></div>
+                <div id="verArchivoError" class="d-none text-center py-4"></div>
+            </div>
+            <div class="modal-footer">
+                <a id="verArchivoDescargar" class="btn btn-outline-primary" href="#" title="Descargar este archivo">
+                    <i class="bi bi-download"></i> Descargar
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 @parent
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -626,13 +689,13 @@ $(document).ready(function() {
     });
 
     // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada)
-    if (!sessionStorage.getItem('dictamenes_state_v10')) {
+    if (!sessionStorage.getItem('dictamenes_state_v11')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v10', '1');
+        sessionStorage.setItem('dictamenes_state_v11', '1');
     }
 
     function initDataTable() {
@@ -765,11 +828,12 @@ $(document).ready(function() {
         }
 
         $('#fecha_edit').val($row.data('fecha') || '');
-        $('#oficio_edit').val($row.data('oficio') || '');
+        $('#oficio_recibido_edit').val($row.data('oficio-recibido') || '');
+        $('#tipo_dictamen_edit').val($row.data('tipo-dictamen') || '');
         $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
         $('#dependencia_empres_edit').val($row.data('dependencia') || '');
         $('#asunto_edit').val($row.data('asunto') || '');
-        $('#clave_documento_edit').val($row.data('clave-documento') || '');
+        $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
         $('#revisado_por_edit').val($row.data('revisado-por') || '');
         $('#estatus_edit').val($row.data('estatus') || '');
         $('#observaciones_edit').val($row.data('observaciones') || '');
@@ -927,6 +991,75 @@ $(document).ready(function() {
         return URL_DESCARGAR + '?archivo=' + encodeURIComponent(ruta);
     }
 
+    // ============ Visualizar archivo (DOCX/DOC) en modal ============
+    function verArchivo(ruta) {
+        const $nombre = $('#verArchivoNombre');
+        const $loading = $('#verArchivoLoading');
+        const $contenido = $('#verArchivoContenido');
+        const $error = $('#verArchivoError');
+        const $descargar = $('#verArchivoDescargar');
+
+        $nombre.text(ruta || '');
+        $descargar.attr('href', urlDescarga(ruta || ''));
+        $contenido.empty();
+        $error.addClass('d-none');
+        $loading.removeClass('d-none');
+        $('#verArchivoModal').modal('show');
+
+        if (!ruta) {
+            mostrarVerError('Ruta de archivo inválida.');
+            return;
+        }
+
+        const ext = (ruta.split('.').pop() || '').toLowerCase();
+
+        if (ext !== 'docx' && ext !== 'doc') {
+            mostrarVerError('Este tipo de archivo no se puede previsualizar. Usa el botón Descargar.');
+            return;
+        }
+
+        fetch(urlDescarga(ruta))
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.arrayBuffer();
+            })
+            .then(function (buffer) {
+                if (ext === 'docx' && typeof mammoth !== 'undefined') {
+                    return mammoth.convertToHtml({ arrayBuffer: buffer });
+                }
+                throw new Error('DOC_LEGACY');
+            })
+            .then(function (result) {
+                $loading.addClass('d-none');
+                $contenido.html(result.value);
+            })
+            .catch(function (err) {
+                if (err.message === 'DOC_LEGACY' || !err.message || err.message.indexOf('HTTP') === 0) {
+                    mostrarVerError(
+                        ext === 'doc'
+                            ? 'Los archivos .doc antiguos no se pueden previsualizar. Usa el botón Descargar.'
+                            : 'No se pudo cargar el archivo desde el servidor. Usa el botón Descargar.'
+                    );
+                } else {
+                    mostrarVerError('No se pudo convertir el documento. Usa el botón Descargar.');
+                }
+            });
+    }
+
+    function mostrarVerError(texto) {
+        $('#verArchivoLoading').addClass('d-none');
+        $('#verArchivoContenido').empty();
+        $('#verArchivoError').html('<p class="text-muted mb-0">' + texto + '</p>').removeClass('d-none');
+    }
+
+    $(document).on('click', '.ver-btn', function() {
+        verArchivo($(this).data('ruta') || '');
+    });
+
+    $(document).on('click', '#btnDescargarExistente, #btnSubirDescargarExistente', function() {
+        verArchivo($(this).data('ruta') || '');
+    });
+
     function mostrarMsg(tipo, texto) {
         const $msg = $('#archivosMsg');
         $msg.html('<div class="alert alert-' + tipo + ' py-2 mb-3">' + texto + '</div>');
@@ -967,11 +1100,11 @@ $(document).ready(function() {
             $tbody.append(
                 '<tr>' +
                     '<td>' + anio + '</td>' +
-                    '<td><a href="' + urlDescarga(a.ruta) + '" title="Descargar"><i class="bi bi-download me-2 text-primary"></i></a>' + $('<span>').text(a.nombre).html() + '</td>' +
+                    '<td><button type="button" class="btn btn-link btn-sm p-0 ver-btn me-1" data-ruta="' + a.ruta + '" title="Visualizar contenido"><i class="bi bi-eye text-primary"></i></button>' + $('<span>').text(a.nombre).html() + '</td>' +
                     '<td class="text-center">' + badge + '</td>' +
                     '<td class="text-center">' + (PUEDE_BORRAR
                         ? '<button class="btn btn-sm btn-outline-danger btn-eliminar-archivo" data-ruta="' + a.ruta + '" title="Eliminar del servidor"><i class="bi bi-trash"></i></button>'
-                        : '<a href="' + urlDescarga(a.ruta) + '" class="text-primary" title="Descargar"><i class="bi bi-download"></i></a>') + '</td>' +
+                        : '<button type="button" class="btn btn-link btn-sm p-0 ver-btn" data-ruta="' + a.ruta + '" title="Visualizar contenido"><i class="bi bi-eye text-primary"></i></button>') + '</td>' +
                 '</tr>'
             );
         });
@@ -1026,7 +1159,7 @@ $(document).ready(function() {
                 const res = xhr.responseJSON || {};
                 if (res.existe) {
                     $('#conflictoNombre').text(res.ruta || res.nombre);
-                    $('#btnDescargarExistente').attr('href', urlDescarga(res.ruta || res.nombre));
+                    $('#btnDescargarExistente').data('ruta', res.ruta || res.nombre);
                     $('#archivoConflicto').removeClass('d-none');
                 } else {
                     mostrarMsg('danger', res.mensaje || 'Error al subir el archivo.');
@@ -1076,7 +1209,7 @@ $(document).ready(function() {
             $c.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
                     '<span><i class="bi bi-file-earmark-text me-2"></i>' + $('<span>').text(ruta).html() +
-                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
+                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button></span>' +
                     (ligado
                         ? '<span class="badge bg-success">Ligado</span>'
                         : '<button class="btn btn-sm btn-outline-success btn-link-archivo" data-ruta="' + ruta + '" title="Ligar este archivo al dictamen"><i class="bi bi-link-45deg"></i> Ligar</button>') +
@@ -1091,7 +1224,7 @@ $(document).ready(function() {
             $l.append(
                 '<div class="d-flex justify-content-between align-items-center border-bottom py-1">' +
                     '<span><i class="bi bi-file-earmark-lock me-2"></i>' + $('<span>').text(ruta).html() +
-                    ' <a href="' + urlDescarga(ruta) + '" title="Descargar este archivo"><i class="bi bi-download ms-1 text-primary"></i></a></span>' +
+                    ' <button type="button" class="btn btn-link btn-sm p-0 ver-btn ms-1" data-ruta="' + ruta + '" title="Visualizar este archivo"><i class="bi bi-eye text-primary"></i></button></span>' +
                     '<button class="btn btn-sm btn-outline-danger btn-desligar-archivo" data-ruta="' + ruta + '" title="Quitar el vínculo de este archivo al dictamen"><i class="bi bi-unlink"></i> Desligar</button>' +
                 '</div>'
             );
@@ -1193,7 +1326,7 @@ $(document).ready(function() {
                 const res = xhr.responseJSON || {};
                 if (res.existe) {
                     $('#subirConflictoNombre').text(res.ruta || res.nombre);
-                    $('#btnSubirDescargarExistente').attr('href', urlDescarga(res.ruta || res.nombre));
+                    $('#btnSubirDescargarExistente').data('ruta', res.ruta || res.nombre);
                     $('#subirConflicto').removeClass('d-none');
                 } else {
                     mostrarSubirMsg('danger', res.mensaje || 'Error al subir el archivo.');

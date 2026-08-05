@@ -127,9 +127,9 @@ tr:hover td {
                     <td data-order="{{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : '0000-00-00' }}">
                         {{ $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') : '—' }}
                     </td>
-                    <td>{{ $d->oficio ?? '—' }}</td>
+                    <td>{{ $d->oficio_recibido ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
-                    <td title="{{ $d->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
+                    <td title="{{ $d->asunto ?? '' }}" data-search="{{ trim(($d->asunto ?? '') . ' ' . ($d->observaciones ?? '') . ' ' . ($d->tipo_dictamen ?? '') . ' ' . ($d->dependencia_empres ?? '') . ' ' . ($d->nombre_puesto ?? '') . ' ' . ($d->revisado_por ?? '') . ' ' . ($d->numero_oficio ?? '') . ' ' . ($d->oficio_recibido ?? '')) }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
                     <td>
                         <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ ($d->estatus ?? '') === 'BORRADOR PARA FIRMA' ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
                             {{ $d->estatus ?? 'S/D' }}
@@ -154,13 +154,13 @@ tr:hover td {
 $(document).ready(function() {
 
     // Limpieza de estado DataTables viejo al cambiar la estructura de columnas (se quitó la columna Año)
-    if (!sessionStorage.getItem('dictamenes_state_v10')) {
+    if (!sessionStorage.getItem('dictamenes_state_v11')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v10', '1');
+        sessionStorage.setItem('dictamenes_state_v11', '1');
     }
 
     function initDataTable() {
