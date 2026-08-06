@@ -879,14 +879,27 @@ $(document).ready(function() {
         dropdownAutoWidth: false
     });
 
-    // Select2 de los modales (crear/editar): se puede elegir un valor existente o escribir uno nuevo (tags)
-    $('.select2-tags').select2({
-        tags: true,
-        width: '100%',
-        dropdownAutoWidth: false,
-        placeholder: 'Seleccione o escriba...',
-        allowClear: true
-    });
+    // Select2 de los modales (crear/editar): se puede elegir un valor existente o escribir uno nuevo (tags).
+    // Se inicializan con dropdownParent apuntando al modal y se re-inicializan al ABRIR el modal:
+    // al cargar la página el modal está display:none y select2 no calcula bien anchos ni posiciona el dropdown.
+    function initSelect2Tags($scope) {
+        $scope.find('.select2-tags').each(function () {
+            const $sel = $(this);
+            if ($sel.data('select2')) {
+                $sel.select2('destroy');
+            }
+            $sel.select2({
+                tags: true,
+                width: '100%',
+                dropdownAutoWidth: false,
+                placeholder: 'Seleccione o escriba...',
+                allowClear: true,
+                dropdownParent: $sel.closest('.modal')
+            });
+        });
+    }
+
+    initSelect2Tags($('body'));
 
     // Autorelleno de "Oficio Recibido" según el tipo de dictamen (mapa definido en el modelo)
     const AUTOFILL_OFICIO_RECIBIDO = @json(\App\Models\GestorDictamenes\Dictamen::AUTOFILL_OFICIO_RECIBIDO);
@@ -909,10 +922,16 @@ $(document).ready(function() {
         aplicarAutofillOficio($(this), $form.find('input[name="oficio_recibido"]'));
     });
 
-    // Reset del modal de creación al abrirlo (incluye los select2)
+    // Reset + re-inicialización de select2 al abrir el modal de creación
     $('#createModal').on('shown.bs.modal', function () {
+        initSelect2Tags($(this));
         this.querySelector('form').reset();
         $(this).find('.select2-tags').val('').trigger('change');
+    });
+
+    // Re-inicialización de select2 al abrir el modal de edición (los valores ya cargados en el select se conservan)
+    $('#editModal').on('shown.bs.modal', function () {
+        initSelect2Tags($(this));
     });
 
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
