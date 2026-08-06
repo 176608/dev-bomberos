@@ -43,6 +43,13 @@ class Dictamen extends Model
         12 => 'Diciembre',
     ];
 
+    // Pre-relleno de "Oficio recibido" según el tipo de dictamen seleccionado.
+    // Para agregar más autorellenos basta añadir una entrada aquí (clave = tipo en MAYÚSCULAS).
+    public const AUTOFILL_OFICIO_RECIBIDO = [
+        'REVISION DE ANTEPROYECTOS FRACCIONAMIENTOS' => 'PLATAFORMA FRACCIONAMIENTOS FOLIO:',
+        'GENERAL' => 'PARTICULAR',
+    ];
+
     protected $fillable = [
         'anio',
         'dia',

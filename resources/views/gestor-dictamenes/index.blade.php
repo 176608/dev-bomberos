@@ -412,46 +412,66 @@ tr:hover td {
                 @csrf
                 <div class="modal-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label>Fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
+                        <div class="col-md-2">
+                            <label>Recibido en fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <input type="date" class="form-control" name="fecha" required>
                         </div>
-                        <div class="col-md-6">
-                            <label>Núm. Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
+                        <div class="col-md-5">
+                            <label>Tipo de dictamen</label>
+                            <select class="form-select select2-tags" id="tipo_dictamen_create" name="tipo_dictamen" title="Seleccione un tipo existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($tiposDictamen as $td)
+                                    <option value="{{ $td }}">{{ $td }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label>Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <input type="text" class="form-control" name="oficio_recibido" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Dependencia</label>
+                            <select class="form-select select2-tags" name="dependencia_empres" title="Seleccione una dependencia existente o escriba una nueva">
+                                <option value=""></option>
+                                @foreach($dependencias as $dep)
+                                    <option value="{{ $dep }}">{{ $dep }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre / Puesto</label>
+                            <select class="form-select select2-tags" name="nombre_puesto" title="Seleccione un nombre/puesto existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($nombresPuestos as $np)
+                                    <option value="{{ $np }}">{{ $np }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <select class="form-select" name="estatus" required>
+                                <option value="">Seleccione un estatus...</option>
+                                @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
+                                    <option value="{{ $estatus }}">{{ $estatus }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-4">
                             <label>Número de oficio</label>
                             <input type="text" class="form-control" name="numero_oficio" placeholder="Ej. PYP024, DIR143">
                         </div>
                         <div class="col-md-4">
-                            <label>Tipo de dictamen</label>
-                            <input type="text" class="form-control" name="tipo_dictamen" placeholder="Ej. URBANO, RURAL">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Nombre / Puesto</label>
-                            <input type="text" class="form-control" name="nombre_puesto">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Dependencia</label>
-                            <input type="text" class="form-control" name="dependencia_empres">
+                            <label>Revisado por</label>
+                            <select class="form-select select2-tags" name="revisado_por" title="Seleccione un nombre existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($revisadosPor as $r)
+                                    <option value="{{ $r }}">{{ $r }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-12">
                             <label>Asunto <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <textarea class="form-control" name="asunto" required rows="2"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label>Revisado por</label>
-                            <input type="text" class="form-control" name="revisado_por">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <select class="form-control" name="estatus" required>
-                                <option value="">Seleccione un estatus...</option>
-                                @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
-                                    <option value="{{ $estatus }}">{{ $estatus }}</option>
-                                @endforeach
-                            </select>
                         </div>
                         <div class="col-md-12">
                             <label>Observaciones</label>
@@ -481,25 +501,44 @@ tr:hover td {
                 @method('PUT')
                 <div class="modal-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label>Fecha</label>
+                        <div class="col-md-2">
+                            <label>Recibido en fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
                         </div>
-                        <div class="col-md-6">
-                            <label>Núm. Oficio Recibido</label>
+                        <div class="col-md-5">
+                            <label>Tipo de dictamen</label>
+                            <select class="form-select select2-tags" id="tipo_dictamen_edit" name="tipo_dictamen" title="Seleccione un tipo existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($tiposDictamen as $td)
+                                    <option value="{{ $td }}">{{ $td }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label>Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <input type="text" class="form-control" id="oficio_recibido_edit" name="oficio_recibido" required>
                         </div>
-                        <div class="col-md-4">
-                            <label>Número de oficio</label>
-                            <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio" placeholder="Ej. PYP024, DIR143">
+                        <div class="col-md-6">
+                            <label>Dependencia</label>
+                            <select class="form-select select2-tags" id="dependencia_empres_edit" name="dependencia_empres" title="Seleccione una dependencia existente o escriba una nueva">
+                                <option value=""></option>
+                                @foreach($dependencias as $dep)
+                                    <option value="{{ $dep }}">{{ $dep }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre / Puesto</label>
+                            <select class="form-select select2-tags" id="nombre_puesto_edit" name="nombre_puesto" title="Seleccione un nombre/puesto existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($nombresPuestos as $np)
+                                    <option value="{{ $np }}">{{ $np }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-4">
-                            <label>Tipo de dictamen</label>
-                            <input type="text" class="form-control" id="tipo_dictamen_edit" name="tipo_dictamen" placeholder="Ej. URBANO, RURAL">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Estatus</label>
-                            <select class="form-control" id="estatus_edit" name="estatus" required>
+                            <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
+                            <select class="form-select" id="estatus_edit" name="estatus" required>
                                 <option value="">Seleccione un estatus...</option>
                                 @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
                                     <option value="{{ $estatus }}">{{ $estatus }}</option>
@@ -507,19 +546,20 @@ tr:hover td {
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label>Dependencia</label>
-                            <input type="text" class="form-control" id="dependencia_empres_edit" name="dependencia_empres">
+                            <label>Número de oficio</label>
+                            <input type="text" class="form-control" id="numero_oficio_edit" name="numero_oficio" placeholder="Ej. PYP024, DIR143">
                         </div>
-                        <div class="col-md-6">
-                            <label>Nombre / Puesto</label>
-                            <input type="text" class="form-control" id="nombre_puesto_edit" name="nombre_puesto">
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label>Revisado por</label>
-                            <input type="text" class="form-control" id="revisado_por_edit" name="revisado_por">
+                            <select class="form-select select2-tags" id="revisado_por_edit" name="revisado_por" title="Seleccione un nombre existente o escriba uno nuevo">
+                                <option value=""></option>
+                                @foreach($revisadosPor as $r)
+                                    <option value="{{ $r }}">{{ $r }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-12">
-                            <label>Asunto</label>
+                            <label>Asunto <span class="text-danger" title="Campo obligatorio">*</span></label>
                             <textarea class="form-control" id="asunto_edit" name="asunto" required rows="2"></textarea>
                         </div>
                         <div class="col-md-12">
@@ -529,9 +569,11 @@ tr:hover td {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger d-none" id="btnDeshabilitarModal" title="Deshabilitar este dictamen">
-                        <i class="bi bi-trash"></i> Deshabilitar
-                    </button>
+                    @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+                        <button type="button" class="btn btn-danger" id="btnDeshabilitarModal" title="Deshabilitar este dictamen">
+                            <i class="bi bi-trash"></i> Deshabilitar
+                        </button>
+                    @endif
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar sin guardar">Cancelar</button>
                     <button type="submit" class="btn btn-primary" title="Guardar los cambios del dictamen">Guardar</button>
                 </div>
@@ -837,6 +879,42 @@ $(document).ready(function() {
         dropdownAutoWidth: false
     });
 
+    // Select2 de los modales (crear/editar): se puede elegir un valor existente o escribir uno nuevo (tags)
+    $('.select2-tags').select2({
+        tags: true,
+        width: '100%',
+        dropdownAutoWidth: false,
+        placeholder: 'Seleccione o escriba...',
+        allowClear: true
+    });
+
+    // Autorelleno de "Oficio Recibido" según el tipo de dictamen (mapa definido en el modelo)
+    const AUTOFILL_OFICIO_RECIBIDO = @json(\App\Models\GestorDictamenes\Dictamen::AUTOFILL_OFICIO_RECIBIDO);
+
+    function aplicarAutofillOficio($tipoSelect, $input) {
+        const tipo = String($tipoSelect.val() || '').toUpperCase().trim();
+        const prefijo = AUTOFILL_OFICIO_RECIBIDO[tipo];
+        if (!prefijo) return;
+        const actual = String($input.val() || '');
+        const conPrefijoAnterior = Object.values(AUTOFILL_OFICIO_RECIBIDO).some(function (p) {
+            return actual.startsWith(p);
+        });
+        if (!actual.trim() || conPrefijoAnterior) {
+            $input.val(prefijo);
+        }
+    }
+
+    $(document).on('change', '#tipo_dictamen_create, #tipo_dictamen_edit', function () {
+        const $form = $(this).closest('form');
+        aplicarAutofillOficio($(this), $form.find('input[name="oficio_recibido"]'));
+    });
+
+    // Reset del modal de creación al abrirlo (incluye los select2)
+    $('#createModal').on('shown.bs.modal', function () {
+        this.querySelector('form').reset();
+        $(this).find('.select2-tags').val('').trigger('change');
+    });
+
     // EDITAR - Cargar datos desde atributos de la fila (SIN AJAX)
     $(document).on('click', '.edit-btn', function() {
         const $row = $(this).closest('tr');
@@ -850,18 +928,17 @@ $(document).ready(function() {
 
         $('#fecha_edit').val($row.data('fecha') || '');
         $('#oficio_recibido_edit').val($row.data('oficio-recibido') || '');
-        $('#tipo_dictamen_edit').val($row.data('tipo-dictamen') || '');
-        $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '');
-        $('#dependencia_empres_edit').val($row.data('dependencia') || '');
+        $('#tipo_dictamen_edit').val($row.data('tipo-dictamen') || '').trigger('change');
+        $('#nombre_puesto_edit').val($row.data('nombre-puesto') || '').trigger('change');
+        $('#dependencia_empres_edit').val($row.data('dependencia') || '').trigger('change');
         $('#asunto_edit').val($row.data('asunto') || '');
         $('#numero_oficio_edit').val($row.data('numero-oficio') || '');
-        $('#revisado_por_edit').val($row.data('revisado-por') || '');
+        $('#revisado_por_edit').val($row.data('revisado-por') || '').trigger('change');
         $('#estatus_edit').val($row.data('estatus') || '');
         $('#observaciones_edit').val($row.data('observaciones') || '');
 
         $('#editForm').attr('action', route);
         editDictamenId = id;
-        $('#btnDeshabilitarModal').addClass('d-none');
         $('#editModal').modal('show');
     });
 

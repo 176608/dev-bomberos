@@ -94,6 +94,10 @@ class DictamenController extends Controller
             ->whereNotNull('tipo_dictamen')->where('tipo_dictamen', '!=', '')
             ->distinct()->orderBy('tipo_dictamen')->pluck('tipo_dictamen');
 
+        $nombresPuestos = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
+            ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
+
         $aniosDisponibles = collect($anios)
             ->merge(collect(array_keys($archivosPorAnio))->filter(fn ($a) => $a !== ''))
             ->unique()->sort()->values();
@@ -121,6 +125,7 @@ class DictamenController extends Controller
             'revisadosPor',
             'dependencias',
             'tiposDictamen',
+            'nombresPuestos',
             'datosGrafica'
         ));
     }
