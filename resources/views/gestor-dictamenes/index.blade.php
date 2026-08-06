@@ -759,13 +759,13 @@ $(document).ready(function() {
     });
 
     // Limpieza única de estado DataTables viejo (estructura de columnas cambió: columna Núm. Oficio unificada, sin scroll lateral, 50 por página)
-    if (!sessionStorage.getItem('dictamenes_state_v12')) {
+    if (!sessionStorage.getItem('dictamenes_state_v13')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v12', '1');
+        sessionStorage.setItem('dictamenes_state_v13', '1');
     }
 
     function initDataTable() {
@@ -782,7 +782,7 @@ $(document).ready(function() {
             "searching": true,
             "info": true,
             "ordering": true,
-            "order": [],
+            "order": [[0, 'desc']],
             "stateSave": true,
             "stateDuration": 60 * 60 * 24 * 30,
             "language": {
