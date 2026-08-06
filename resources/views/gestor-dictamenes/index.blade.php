@@ -279,6 +279,11 @@ tr:hover td {
             <a href="{{ route('gestor-dictamenes.historial') }}" target="_blank" class="btn btn-outline-secondary" title="Abrir el historial de cambios en una pestaña nueva">
                 <i class="bi bi-clock-history"></i> Ver últimos cambios
             </a>
+            @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Desarrollador']))
+                <a href="{{ route('gestor-dictamenes.deleted') }}" target="_blank" class="btn btn-outline-danger" title="Ver los dictámenes deshabilitados y rehabilitarlos (nueva pestaña)">
+                    <i class="bi bi-eye-slash"></i> Ver deshabilitados
+                </a>
+            @endif
             <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success" title="Abrir el visor público de dictámenes">
                 <i class="bi bi-eye"></i> Ver Visor de Dictámenes
             </a>
