@@ -16,9 +16,6 @@ require __DIR__.'/GestorSIGEM/web.php';
 // Incluir rutas SGU v2 (Sistema de Gestión de Usuarios)
 require __DIR__.'/SGU/web.php';
 
-// Incluir rutas SGDictamen (Dictámenes - legacy)
-require __DIR__.'/SGDictamen/web.php';
-
 // Incluir rutas GestorDictamenes (nuevo backend SGD)
 require __DIR__.'/GestorDictamenes/web.php';
 
@@ -27,7 +24,3 @@ require __DIR__.'/VisorDictamenes/web.php';
 
 // Incluir rutas Biblioteca (Catalogo)
 require __DIR__.'/Biblioteca/web.php';
-
-//  Ruta pública para dictamenes (SIN autenticación)
-Route::get('/dictamenes', [\App\Http\Controllers\SGDictamen\DictamenController::class, 'publicIndex'])
-    ->name('dictamenes.public');
