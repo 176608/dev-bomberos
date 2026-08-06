@@ -67,16 +67,6 @@ tr:hover td {
 
 @section('content')
 
-@php
-    $badgeColores = [
-        'ENVIADO' => '#28a745',
-        'BORRADOR PARA FIRMA' => '#ffc107',
-        'EN REVISION' => '#007bff',
-        'INFORMATIVO' => '#8a2be2',
-        'S/D' => '#6c757d',
-    ];
-@endphp
-
 <div class="container-fluid pt-4 bg-fonde" style="min-height: 100vh;">
  <div class="container pb-5">
     <!-- Estadísticas -->
@@ -110,15 +100,14 @@ tr:hover td {
     </div>
 
     <!-- Tabla -->
-    <div class="table-responsive" id="tablaCard">
-        <table id="dictamenes-table" class="table table-hover nowrap">
+    <div id="tablaCard">
+        <table id="dictamenes-table" class="table table-hover">
             <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
                     <th># Oficio</th>
                     <th>Dependencia</th>
                     <th>Asunto</th>
-                    <th>Estatus</th>
                 </tr>
             </thead>
             <tbody>
@@ -130,11 +119,6 @@ tr:hover td {
                     <td>{{ $d->oficio_recibido ?? '—' }}</td>
                     <td>{{ $d->dependencia_empres ?? '—' }}</td>
                     <td title="{{ $d->asunto ?? '' }}" data-search="{{ trim(($d->asunto ?? '') . ' ' . ($d->observaciones ?? '') . ' ' . ($d->tipo_dictamen ?? '') . ' ' . ($d->dependencia_empres ?? '') . ' ' . ($d->nombre_puesto ?? '') . ' ' . ($d->revisado_por ?? '') . ' ' . ($d->numero_oficio ?? '') . ' ' . ($d->oficio_recibido ?? '')) }}">{{ \Illuminate\Support\Str::limit($d->asunto ?? '', 60) }}</td>
-                    <td>
-                        <span class="badge" style="background-color: {{ $badgeColores[$d->estatus ?? ''] ?? '#6c757d' }}; color: {{ ($d->estatus ?? '') === 'BORRADOR PARA FIRMA' ? '#212529' : 'white' }}; font-weight: 500; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block;">
-                            {{ $d->estatus ?? 'S/D' }}
-                        </span>
-                    </td>
                 </tr>
                 @endforeach
             </tbody>
@@ -153,14 +137,14 @@ tr:hover td {
 <script>
 $(document).ready(function() {
 
-    // Limpieza de estado DataTables viejo al cambiar la estructura de columnas (se quitó la columna Año)
-    if (!sessionStorage.getItem('dictamenes_state_v11')) {
+    // Limpieza de estado DataTables viejo al cambiar la estructura de columnas (se quitó la columna Estatus)
+    if (!sessionStorage.getItem('dictamenes_state_v12')) {
         Object.keys(localStorage).forEach(function(k) {
             if (k.indexOf('DataTables_dictamenes-table') === 0) {
                 localStorage.removeItem(k);
             }
         });
-        sessionStorage.setItem('dictamenes_state_v11', '1');
+        sessionStorage.setItem('dictamenes_state_v12', '1');
     }
 
     function initDataTable() {
@@ -175,8 +159,6 @@ $(document).ready(function() {
             "info": true,
             "ordering": true,
             "order": [[0, 'desc']],
-            "scrollX": true,
-            "autoWidth": false,
             "stateSave": true,
             "stateDuration": 60 * 60 * 24 * 30,
             "language": {

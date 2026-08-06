@@ -82,7 +82,7 @@
         </div> -->
 
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ url('/dictamenes') }}">
+            <div class="card shadow-sm border-0 h-100 panel-link" data-href="{{ route('visor-dictamenes.public') }}">
                 <div class="card-body text-center">
                     <i class="bi bi-file-earmark-text-fill display-4 text-success mb-3"></i>
                     <h5 class="card-title">Acceso a Dictámenes</h5>
