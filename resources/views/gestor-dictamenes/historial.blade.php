@@ -229,8 +229,10 @@ $(document).ready(function() {
     // Doble click en una fila: comparar datos previos vs nuevos
     $(document).on('dblclick', '#historial-table tbody tr', function () {
         const $row = $(this);
-        const previos = JSON.parse($row.data('previos') || 'null');
-        const nuevos = JSON.parse($row.data('nuevos') || 'null');
+
+        // attr() (no data()): jQuery data() auto-convierte los atributos JSON a objeto y JSON.parse fallaría
+        const previos = JSON.parse($row.attr('data-previos') || 'null');
+        const nuevos = JSON.parse($row.attr('data-nuevos') || 'null');
 
         const $contenido = $('#detalleHistorialContenido');
         $contenido.empty();
