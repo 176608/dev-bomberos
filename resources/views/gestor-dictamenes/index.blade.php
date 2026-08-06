@@ -986,14 +986,13 @@ $(document).ready(function() {
 
     // Gráfica de Chart.js (client-side, reactiva a los filtros select; todos los dictámenes)
     const DATOS_GRAFICA = @json($datosGrafica ?? []);
-    const ORDEN_ESTATUS = ['ENVIADO', 'BORRADOR PARA FIRMA', 'EN REVISION', 'INFORMATIVO', 'S/D', 'DESHABILITADO'];
+    const ORDEN_ESTATUS = ['ENVIADO', 'BORRADOR PARA FIRMA', 'EN REVISION', 'INFORMATIVO', 'S/D'];
     const COLORES_ESTATUS = {
         'ENVIADO': '#28a745',
         'BORRADOR PARA FIRMA': '#ffc107',
         'EN REVISION': '#007bff',
         'INFORMATIVO': '#8a2be2',
-        'S/D': '#6c757d',
-        'DESHABILITADO': '#dc3545'
+        'S/D': '#6c757d'
     };
     const MESES_ESP = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 

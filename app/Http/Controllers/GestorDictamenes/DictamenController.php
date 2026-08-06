@@ -106,7 +106,8 @@ class DictamenController extends Controller
             ? preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $v)
             : $v;
 
-        $datosGrafica = Dictamen::get(['fecha', 'estatus', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
+        $datosGrafica = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->get(['fecha', 'estatus', 'revisado_por', 'dependencia_empres', 'nombre_puesto'])
             ->map(fn ($d) => [
                 'f' => $d->fecha ? \Carbon\Carbon::parse($d->fecha)->format('Y-m-d') : null,
                 'e' => $sanitizar($d->estatus),
@@ -264,6 +265,8 @@ class DictamenController extends Controller
                     'dictamen_id' => $d->id,
                     'fecha' => $d->fecha,
                     'oficio' => $d->oficio_recibido,
+                    'oficio_recibido' => $d->oficio_recibido,
+                    'tipo_dictamen' => $d->tipo_dictamen,
                     'dependencia_empres' => $d->dependencia_empres,
                     'nombre_puesto' => $d->nombre_puesto,
                     'asunto' => $d->asunto,
@@ -278,7 +281,29 @@ class DictamenController extends Controller
             })
             ->values();
 
-        return view('gestor-dictamenes.deleted', compact('dictamenes'));
+        $tiposDictamen = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('tipo_dictamen')->where('tipo_dictamen', '!=', '')
+            ->distinct()->orderBy('tipo_dictamen')->pluck('tipo_dictamen');
+
+        $dependencias = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('dependencia_empres')->where('dependencia_empres', '!=', '')
+            ->distinct()->orderBy('dependencia_empres')->pluck('dependencia_empres');
+
+        $nombresPuestos = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
+            ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
+
+        $revisadosPor = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
+            ->whereNotNull('revisado_por')->where('revisado_por', '!=', '')
+            ->distinct()->orderBy('revisado_por')->pluck('revisado_por');
+
+        return view('gestor-dictamenes.deleted', compact(
+            'dictamenes',
+            'tiposDictamen',
+            'dependencias',
+            'nombresPuestos',
+            'revisadosPor'
+        ));
     }
 
     public function historialCambios()

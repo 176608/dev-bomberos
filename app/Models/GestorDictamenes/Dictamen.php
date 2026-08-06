@@ -25,7 +25,6 @@ class Dictamen extends Model
         'EN REVISION',
         'INFORMATIVO',
         'S/D',
-        'DESHABILITADO',
     ];
 
     public const MESES = [
