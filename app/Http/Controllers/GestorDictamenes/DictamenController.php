@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\GestorDictamenes;
 
+use App\Models\GestorDictamenes\AuditoriaDictamen;
 use App\Models\GestorDictamenes\Dictamen;
 use App\Models\GestorDictamenes\DictamenArchivo;
 use App\Http\Controllers\Bomberos\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -160,7 +160,7 @@ class DictamenController extends Controller
         ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();
 
-        $this->auditar($dictamen, 'CREAR');
+        $this->auditar($dictamen, 'CREAR', null, $this->snapshotDictamen($dictamen));
 
         return back()->with('success', 'Dictamen creado correctamente.');
     }
@@ -180,6 +180,8 @@ class DictamenController extends Controller
             'observaciones' => 'nullable|string',
         ]);
 
+        $previos = $this->snapshotDictamen($dictamen);
+
         $dictamen->update(array_merge([
             'fecha' => $request->fecha,
             'oficio_recibido' => $this->mayus($request->oficio_recibido),
@@ -195,7 +197,7 @@ class DictamenController extends Controller
         ], $this->camposDesdeFecha($request->fecha)));
         $dictamen->refresh();
 
-        $this->auditar($dictamen, 'MODIFICAR');
+        $this->auditar($dictamen, 'MODIFICAR', $previos, $this->snapshotDictamen($dictamen));
 
         return back()->with('success', 'Dictamen actualizado correctamente.');
     }
@@ -206,12 +208,14 @@ class DictamenController extends Controller
             return back()->with('error', 'El dictamen ya está deshabilitado.');
         }
 
-        $this->auditar($dictamen, 'DESHABILITAR', deleted: true);
+        $previos = $this->snapshotDictamen($dictamen);
 
         $dictamen->update([
             'estatus' => Dictamen::DESHABILITADO,
             'updated_by' => auth()->id(),
         ]);
+
+        $this->auditar($dictamen, 'DESHABILITAR', $previos, null);
 
         return back()->with('success', 'Dictamen deshabilitado correctamente.');
     }
@@ -222,19 +226,22 @@ class DictamenController extends Controller
             return back()->with('error', 'El dictamen no está deshabilitado.');
         }
 
-        $snapshot = DB::table('dictamen_audit_log')
-            ->where('dictamen_id', $dictamen->id)
-            ->whereNotNull('deleted_at')
-            ->latest('id')
+        $auditoria = AuditoriaDictamen::where('dictamen_id', $dictamen->id)
+            ->where('accion', 'DESHABILITAR')
+            ->latest('auditoria_id')
             ->first();
 
-        $estatusAnterior = $snapshot?->estatus ?: 'ENVIADO';
+        $estatusAnterior = $auditoria?->datos_previos['estatus'] ?? 'ENVIADO';
+
+        $previos = $this->snapshotDictamen($dictamen);
 
         $dictamen->update([
             'estatus' => $estatusAnterior,
             'updated_by' => auth()->id(),
         ]);
         $dictamen->refresh();
+
+        $this->auditar($dictamen, 'RESTAURAR', $previos, $this->snapshotDictamen($dictamen));
 
         $this->auditar($dictamen, 'RESTAURAR');
 
@@ -243,50 +250,61 @@ class DictamenController extends Controller
 
     public function deletedDictamenes()
     {
-        $cols = ['dictamen_id', 'fecha', 'oficio', 'dependencia_empres', 'nombre_puesto', 'asunto',
-            'numero_oficio', 'revisado_por', 'observaciones', 'estatus', 'deleted_by', 'deleted_at'];
-        if ($this->columnaAudit('archivo')) {
-            $cols[] = 'archivo';
-        }
-        if ($this->columnaAudit('accion')) {
-            $cols[] = 'accion';
-        }
+        $dictamenes = Dictamen::where('estatus', Dictamen::DESHABILITADO)
+            ->with('archivosLigados')
+            ->orderByDesc('fecha')
+            ->get()
+            ->map(function (Dictamen $d) {
+                $auditoria = AuditoriaDictamen::where('dictamen_id', $d->id)
+                    ->where('accion', 'DESHABILITAR')
+                    ->latest('auditoria_id')
+                    ->first();
 
-        $dictamenes = DB::table('dictamen_audit_log')
-            ->select($cols)
-            ->whereNotNull('deleted_at')
-            ->orderByDesc('deleted_at')
-            ->get();
+                return (object) [
+                    'dictamen_id' => $d->id,
+                    'fecha' => $d->fecha,
+                    'oficio' => $d->oficio_recibido,
+                    'dependencia_empres' => $d->dependencia_empres,
+                    'nombre_puesto' => $d->nombre_puesto,
+                    'asunto' => $d->asunto,
+                    'numero_oficio' => $d->numero_oficio,
+                    'revisado_por' => $d->revisado_por,
+                    'observaciones' => $d->observaciones,
+                    'archivo' => $d->archivosLigados->count(),
+                    'estatus' => $auditoria?->datos_previos['estatus'] ?? 'ENVIADO',
+                    'deleted_by' => $auditoria?->user_id,
+                    'deleted_at' => $auditoria?->created_at,
+                ];
+            })
+            ->values();
 
         return view('gestor-dictamenes.deleted', compact('dictamenes'));
     }
 
     public function historialCambios()
     {
-        $cols = ['id', 'dictamen_id', 'estatus', 'dependencia_empres', 'asunto'];
-        $cols[] = $this->columnaAudit('created_at') ? 'created_at' : 'deleted_at AS created_at';
-        $cols[] = ($this->columnaAudit('numero_oficio_raw') ? 'numero_oficio_raw' : 'numero_oficio') . ' AS numero_oficio_raw';
-        foreach (['created_by', 'updated_by', 'deleted_by'] as $colUsuario) {
-            if ($this->columnaAudit($colUsuario)) {
-                $cols[] = $colUsuario;
-            }
-        }
-        if ($this->columnaAudit('accion')) {
-            $cols[] = 'accion';
-        }
-
-        $cambios = DB::table('dictamen_audit_log')
-            ->select($cols)
-            ->orderByDesc('id')
+        $cambios = AuditoriaDictamen::with('usuario')
+            ->latest('auditoria_id')
             ->limit(1000)
             ->get();
 
         return view('gestor-dictamenes.historial', compact('cambios'));
     }
 
-    private function columnaAudit(string $col): bool
+    private function snapshotDictamen(Dictamen $dictamen): array
     {
-        return Schema::hasColumn('dictamen_audit_log', $col);
+        return [
+            'fecha' => $dictamen->fecha ? \Carbon\Carbon::parse($dictamen->fecha)->format('Y-m-d') : null,
+            'oficio_recibido' => $dictamen->oficio_recibido,
+            'tipo_dictamen' => $dictamen->tipo_dictamen,
+            'numero_oficio' => $dictamen->numero_oficio,
+            'dependencia_empres' => $dictamen->dependencia_empres,
+            'nombre_puesto' => $dictamen->nombre_puesto,
+            'asunto' => $dictamen->asunto,
+            'estatus' => $dictamen->estatus,
+            'revisado_por' => $dictamen->revisado_por,
+            'observaciones' => $dictamen->observaciones,
+        ];
     }
 
     // ==================== Gestión de archivos ====================
@@ -565,39 +583,14 @@ class DictamenController extends Controller
         return response()->json(['ok' => true, 'mensaje' => "El archivo {$ruta} fue eliminado del servidor."]);
     }
 
-    private function auditar(Dictamen $dictamen, string $accion, bool $deleted = false)
+    private function auditar(Dictamen $dictamen, string $accion, ?array $previos = null, ?array $nuevos = null)
     {
-        $mapa = [
+        AuditoriaDictamen::create([
+            'user_id' => auth()->id(),
             'dictamen_id' => $dictamen->id,
             'accion' => $accion,
-            'anio' => $dictamen->anio,
-            'dia' => $dictamen->dia,
-            'mes' => $dictamen->mes,
-            'fecha_raw' => $dictamen->fecha_raw,
-            'oficio' => $dictamen->oficio_recibido,
-            'nombre_puesto' => $dictamen->nombre_puesto,
-            'dependencia_empres' => $dictamen->dependencia_empres,
-            'asunto' => $dictamen->asunto,
-            'estatus' => $dictamen->estatus,
-            'numero_oficio_raw' => $dictamen->numero_oficio_raw,
-            'archivo_raw' => $dictamen->numero_oficio,
-            'revisado_por' => $dictamen->revisado_por,
-            'observaciones' => $dictamen->observaciones,
-            'fecha' => $dictamen->fecha,
-            'archivo' => $dictamen->numero_oficio,
-            'created_by' => $dictamen->created_by,
-            'updated_by' => $dictamen->updated_by,
-            'deleted_by' => $deleted ? auth()->id() : null,
-            'deleted_at' => $deleted ? now() : null,
-        ];
-
-        $data = [];
-        foreach ($mapa as $col => $valor) {
-            if (Schema::hasColumn('dictamen_audit_log', $col)) {
-                $data[$col] = $valor;
-            }
-        }
-
-        DB::table('dictamen_audit_log')->insert($data);
+            'datos_previos' => $previos,
+            'datos_nuevos' => $nuevos,
+        ]);
     }
 }

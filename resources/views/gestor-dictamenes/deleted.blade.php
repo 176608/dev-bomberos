@@ -52,7 +52,13 @@ table {
                     <td>{{ $log->numero_oficio ?? 'N/A' }}</td>
                     <td>{{ $log->revisado_por ?? 'N/A' }}</td>
                     <td>{{ $log->observaciones ? \Illuminate\Support\Str::limit($log->observaciones, 30) : 'N/A' }}</td>
-                    <td>{{ $log->archivo ?? '—' }}</td>
+                    <td>
+                        @if($log->archivo)
+                            <span class="badge bg-info text-dark">{{ $log->archivo }} archivo(s) ligado(s)</span>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
+                    </td>
                     <td>
                         <span class="badge bg-danger">{{ $log->estatus }}</span>
                     </td>

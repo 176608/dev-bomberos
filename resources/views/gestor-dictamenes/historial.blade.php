@@ -77,15 +77,16 @@ table {
             </thead>
             <tbody>
                 @forelse($cambios as $c)
+                @php
+                    $ultimos = $c->datos_nuevos ?? $c->datos_previos ?? [];
+                @endphp
                 <tr
                     data-fecha="{{ $c->created_at ? \Carbon\Carbon::parse($c->created_at)->format('d/m/Y H:i') : 'N/A' }}"
                     data-accion="{{ $c->accion ?? '—' }}"
                     data-dictamen="#{{ $c->dictamen_id }}"
-                    data-estatus="{{ $c->estatus ?? '—' }}"
-                    data-oficio="{{ $c->numero_oficio_raw ?? '—' }}"
-                    data-dependencia="{{ $c->dependencia_empres ?? '—' }}"
-                    data-asunto="{{ $c->asunto ?? '—' }}"
-                    data-usuario="{{ $c->deleted_by ?? $c->updated_by ?? $c->created_by ?? '—' }}"
+                    data-usuario="{{ $c->usuario?->name ? $c->usuario->name . ' (#' . $c->user_id . ')' : ('Usuario #' . $c->user_id) }}"
+                    data-previos='@json($c->datos_previos)'
+                    data-nuevos='@json($c->datos_nuevos)'
                 >
                     <td data-order="{{ $c->created_at }}">{{ $c->created_at ? \Carbon\Carbon::parse($c->created_at)->format('d/m/Y H:i') : 'N/A' }}</td>
                     <td>
@@ -94,11 +95,11 @@ table {
                         </span>
                     </td>
                     <td>#{{ $c->dictamen_id }}</td>
-                    <td>{{ $c->estatus ?? '—' }}</td>
-                    <td>{{ $c->numero_oficio_raw ?? '—' }}</td>
-                    <td>{{ $c->dependencia_empres ?? '—' }}</td>
-                    <td title="{{ $c->asunto ?? '' }}">{{ \Illuminate\Support\Str::limit($c->asunto ?? '', 60) }}</td>
-                    <td>{{ $c->deleted_by ?? $c->updated_by ?? $c->created_by ?? '—' }}</td>
+                    <td>{{ $ultimos['estatus'] ?? '—' }}</td>
+                    <td>{{ $ultimos['numero_oficio'] ?? '—' }}</td>
+                    <td>{{ $ultimos['dependencia_empres'] ?? '—' }}</td>
+                    <td title="{{ $ultimos['asunto'] ?? '' }}">{{ \Illuminate\Support\Str::limit($ultimos['asunto'] ?? '—', 60) }}</td>
+                    <td>{{ $c->usuario?->name ? $c->usuario->name . ' (#' . $c->user_id . ')' : ('Usuario #' . $c->user_id) }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -111,16 +112,16 @@ table {
   </div>
 </div>
 
-<!-- Modal Detalles del cambio -->
+<!-- Modal Detalle del cambio (comparación previos vs nuevos, estilo SIGEM v2) -->
 <div class="modal fade" id="detalleHistorialModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detalle del cambio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" title="Cerrar"></button>
             </div>
             <div class="modal-body" id="detalleHistorialContenido">
-                <!-- Se llena por JS con los datos de la fila -->
+                <!-- Se llena por JS: encabezado + tabla de diferencias -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cerrar">Cerrar</button>
@@ -134,6 +135,52 @@ table {
 @parent
 <script>
 $(document).ready(function() {
+    const LABELS = {
+        fecha: 'Fecha',
+        oficio_recibido: 'Oficio recibido',
+        tipo_dictamen: 'Tipo de dictamen',
+        numero_oficio: 'Número de oficio',
+        dependencia_empres: 'Dependencia',
+        nombre_puesto: 'Nombre / Puesto',
+        asunto: 'Asunto',
+        estatus: 'Estatus',
+        revisado_por: 'Revisado por',
+        observaciones: 'Observaciones'
+    };
+
+    function esc(s) {
+        return $('<div>').text(s).html();
+    }
+
+    // Comparación de datos previos vs nuevos (mismo estilo que SIGEM v2):
+    // solo muestra los campos que cambiaron, en tabla Campo | Antes | Después
+    function renderDiff(prev, next) {
+        if (!prev && !next) return '<p class="text-muted">Sin datos</p>';
+
+        const allKeys = {};
+        if (prev) Object.keys(prev).forEach(function (k) { allKeys[k] = true; });
+        if (next) Object.keys(next).forEach(function (k) { allKeys[k] = true; });
+        const keys = Object.keys(allKeys);
+
+        let html = '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:25%">Campo</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
+        let changes = 0;
+        keys.forEach(function (key) {
+            const oldVal = prev ? JSON.stringify(prev[key], null, 2) : null;
+            const newVal = next ? JSON.stringify(next[key], null, 2) : null;
+            if (oldVal === newVal) return;
+            changes++;
+            const label = LABELS[key] || key;
+            html += '<tr><td><code>' + esc(label) + '</code></td>';
+            html += '<td class="text-danger" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(oldVal != null ? oldVal : '—') + '</pre></td>';
+            html += '<td class="text-success" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(newVal != null ? newVal : '—') + '</pre></td></tr>';
+        });
+        if (changes === 0) {
+            html += '<tr><td colspan="3" class="text-muted text-center">Sin cambios</td></tr>';
+        }
+        html += '</tbody></table>';
+        return html;
+    }
+
     function initHistorialTable() {
         if ($.fn.DataTable.isDataTable('#historial-table')) {
             $('#historial-table').DataTable().destroy();
@@ -183,17 +230,11 @@ $(document).ready(function() {
             });
     });
 
-    // Doble click en una fila: ver detalles del cambio
+    // Doble click en una fila: comparar datos previos vs nuevos
     $(document).on('dblclick', '#historial-table tbody tr', function () {
         const $row = $(this);
-        const fecha = $row.data('fecha');
-        const accion = $row.data('accion');
-        const dictamen = $row.data('dictamen');
-        const estatus = $row.data('estatus');
-        const oficio = $row.data('oficio');
-        const dependencia = $row.data('dependencia');
-        const asunto = $row.data('asunto');
-        const usuario = $row.data('usuario');
+        const previos = JSON.parse($row.data('previos') || 'null');
+        const nuevos = JSON.parse($row.data('nuevos') || 'null');
 
         const $contenido = $('#detalleHistorialContenido');
         $contenido.empty();
@@ -202,14 +243,14 @@ $(document).ready(function() {
             return '<div class="detalle-item"><span class="detalle-label">' + label + ':</span><span>' + $('<span>').text(valor).html() + '</span></div>';
         }
 
-        $contenido.append(item('Fecha', fecha));
-        $contenido.append(item('Acción', accion));
-        $contenido.append(item('Dictamen', dictamen));
-        $contenido.append(item('Estatus', estatus));
-        $contenido.append(item('Núm. Oficio', oficio));
-        $contenido.append(item('Dependencia', dependencia));
-        $contenido.append(item('Asunto', asunto));
-        $contenido.append(item('Usuario', usuario));
+        $contenido.append('<div class="mb-3">' +
+            item('Fecha', $row.data('fecha')) +
+            item('Acción', $row.data('accion')) +
+            item('Dictamen', $row.data('dictamen')) +
+            item('Usuario', $row.data('usuario')) +
+            '</div>');
+
+        $contenido.append(renderDiff(previos, nuevos));
 
         $('#detalleHistorialModal').modal('show');
     });
