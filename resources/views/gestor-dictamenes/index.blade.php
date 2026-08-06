@@ -812,7 +812,7 @@ $(document).ready(function() {
     });
 
     // Limpiar filtros sin recarga
-    $(document).on('click', '#filtrosForm a[data-limpiar]', function (e) {
+    $(document).on('click', '#filtrosCard a[data-limpiar]', function (e) {
         e.preventDefault();
         const form = document.getElementById('filtrosForm');
         form.reset();
