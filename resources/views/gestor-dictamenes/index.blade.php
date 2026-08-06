@@ -276,9 +276,9 @@ tr:hover td {
             </button>
         @endif
         @if(auth()->user()->hasAnyRole(['Administrador Dictamenes', 'Editor Dictamenes', 'Desarrollador']))
-            <button class="btn btn-outline-secondary" disabled title="Historial de cambios (próximamente)">
+            <a href="{{ route('gestor-dictamenes.historial') }}" target="_blank" class="btn btn-outline-secondary" title="Abrir el historial de cambios en una pestaña nueva">
                 <i class="bi bi-clock-history"></i> Ver últimos cambios
-            </button>
+            </a>
             <a href="{{ route('visor-dictamenes.public') }}" target="_blank" class="btn btn-outline-success" title="Abrir el visor público de dictámenes">
                 <i class="bi bi-eye"></i> Ver Visor de Dictámenes
             </a>
