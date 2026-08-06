@@ -41,7 +41,7 @@ table {
                 </tr>
             </thead>
             <tbody>
-                @forelse($dictamenes as $log)
+                @foreach($dictamenes as $log)
                 <tr>
                     <td>{{ $log->dictamen_id }}</td>
                     <td>{{ $log->fecha ? \Carbon\Carbon::parse($log->fecha)->format('d/m/Y') : 'N/A' }}</td>
@@ -73,11 +73,7 @@ table {
                         </form>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="14" class="text-center text-muted">No hay registros eliminados.</td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>

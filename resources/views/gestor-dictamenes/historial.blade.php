@@ -76,7 +76,7 @@ table {
                 </tr>
             </thead>
             <tbody>
-                @forelse($cambios as $c)
+                @foreach($cambios as $c)
                 @php
                     $ultimos = $c->datos_nuevos ?? $c->datos_previos ?? [];
                 @endphp
@@ -101,11 +101,7 @@ table {
                     <td title="{{ $ultimos['asunto'] ?? '' }}">{{ \Illuminate\Support\Str::limit($ultimos['asunto'] ?? '—', 60) }}</td>
                     <td>{{ $c->usuario?->name ? $c->usuario->name . ' (#' . $c->user_id . ')' : ('Usuario #' . $c->user_id) }}</td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="text-center text-muted">No hay cambios registrados.</td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
