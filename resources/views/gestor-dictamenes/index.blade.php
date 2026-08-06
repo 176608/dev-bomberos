@@ -827,7 +827,8 @@ $(document).ready(function() {
 
                 $('.filter-select').select2({
                     width: '100%',
-                    dropdownAutoWidth: false
+                    dropdownAutoWidth: false,
+                    theme: 'bootstrap-5'
                 });
 
                 initDataTable();
@@ -876,7 +877,8 @@ $(document).ready(function() {
 
     $('.filter-select').select2({
         width: '100%',
-        dropdownAutoWidth: false
+        dropdownAutoWidth: false,
+        theme: 'bootstrap-5'
     });
 
     // Select2 de los modales (crear/editar): se puede elegir un valor existente o escribir uno nuevo (tags).
@@ -894,6 +896,7 @@ $(document).ready(function() {
                 dropdownAutoWidth: false,
                 placeholder: 'Seleccione o escriba...',
                 allowClear: true,
+                theme: 'bootstrap-5',
                 dropdownParent: $sel.closest('.modal')
             });
         });
