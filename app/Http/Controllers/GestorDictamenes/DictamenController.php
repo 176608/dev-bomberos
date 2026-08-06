@@ -227,32 +227,22 @@ class DictamenController extends Controller
             return back()->with('error', 'El dictamen no está deshabilitado.');
         }
 
-        $auditoria = AuditoriaDictamen::where('dictamen_id', $dictamen->id)
-            ->where('accion', 'DESHABILITAR')
-            ->latest('auditoria_id')
-            ->first();
-
-        $estatusAnterior = $auditoria?->datos_previos['estatus'] ?? 'ENVIADO';
-
         $previos = $this->snapshotDictamen($dictamen);
 
         $dictamen->update([
-            'estatus' => $estatusAnterior,
+            'estatus' => 'S/D',
             'updated_by' => auth()->id(),
         ]);
         $dictamen->refresh();
 
         $this->auditar($dictamen, 'RESTAURAR', $previos, $this->snapshotDictamen($dictamen));
 
-        $this->auditar($dictamen, 'RESTAURAR');
-
-        return back()->with('success', "Dictamen restaurado correctamente (estatus: {$estatusAnterior}).");
+        return back()->with('success', 'Dictamen restaurado correctamente (estatus: S/D).');
     }
 
     public function deletedDictamenes()
     {
         $dictamenes = Dictamen::where('estatus', Dictamen::DESHABILITADO)
-            ->with('archivosLigados')
             ->orderByDesc('fecha')
             ->get()
             ->map(function (Dictamen $d) {
@@ -265,45 +255,13 @@ class DictamenController extends Controller
                     'dictamen_id' => $d->id,
                     'fecha' => $d->fecha,
                     'oficio' => $d->oficio_recibido,
-                    'oficio_recibido' => $d->oficio_recibido,
-                    'tipo_dictamen' => $d->tipo_dictamen,
-                    'dependencia_empres' => $d->dependencia_empres,
-                    'nombre_puesto' => $d->nombre_puesto,
-                    'asunto' => $d->asunto,
-                    'numero_oficio' => $d->numero_oficio,
-                    'revisado_por' => $d->revisado_por,
-                    'observaciones' => $d->observaciones,
-                    'archivo' => $d->archivosLigados->count(),
-                    'estatus' => $auditoria?->datos_previos['estatus'] ?? 'ENVIADO',
-                    'deleted_by' => $auditoria?->user_id,
-                    'deleted_at' => $auditoria?->created_at,
+                    'deleted_by' => $auditoria?->usuario?->name
+                        ?: ('Usuario #' . ($auditoria?->user_id ?? '?')),
                 ];
             })
             ->values();
 
-        $tiposDictamen = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
-            ->whereNotNull('tipo_dictamen')->where('tipo_dictamen', '!=', '')
-            ->distinct()->orderBy('tipo_dictamen')->pluck('tipo_dictamen');
-
-        $dependencias = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
-            ->whereNotNull('dependencia_empres')->where('dependencia_empres', '!=', '')
-            ->distinct()->orderBy('dependencia_empres')->pluck('dependencia_empres');
-
-        $nombresPuestos = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
-            ->whereNotNull('nombre_puesto')->where('nombre_puesto', '!=', '')
-            ->distinct()->orderBy('nombre_puesto')->pluck('nombre_puesto');
-
-        $revisadosPor = Dictamen::where('estatus', '!=', Dictamen::DESHABILITADO)
-            ->whereNotNull('revisado_por')->where('revisado_por', '!=', '')
-            ->distinct()->orderBy('revisado_por')->pluck('revisado_por');
-
-        return view('gestor-dictamenes.deleted', compact(
-            'dictamenes',
-            'tiposDictamen',
-            'dependencias',
-            'nombresPuestos',
-            'revisadosPor'
-        ));
+        return view('gestor-dictamenes.deleted', compact('dictamenes'));
     }
 
     public function historialCambios()
