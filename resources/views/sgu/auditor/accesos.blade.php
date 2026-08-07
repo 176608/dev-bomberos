@@ -40,7 +40,7 @@
             </thead>
             <tbody>
                 @foreach($accesos as $acceso)
-                <tr>
+                <tr data-accion="{{ $acceso->accion }}">
                     <td class="text-nowrap" data-order="{{ $acceso->created_at }}">{{ \Carbon\Carbon::parse($acceso->created_at)->format('d/m/Y H:i:s') }}</td>
                     <td>{{ $acceso->usuario?->name ?? '—' }}</td>
                     <td>
@@ -65,14 +65,21 @@
 @section('scripts')
 <script>
 $(document).ready(function () {
-    if ($.fn.dataTable.isDataTable('#accesosTable')) return;
-    const tabla = $('#accesosTable').DataTable({
+    var filtroActual = '';
+    $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex) {
+        if (!filtroActual) return true;
+        var fila = $(this.api().row(dataIndex).node());
+        return fila.data('accion') === filtroActual;
+    });
+
+    var tabla = $('#accesosTable').DataTable({
         order: [[0, 'desc']],
         language: { url: '{{ asset('js/datatables/i18n/es-ES.json') }}' }
     });
 
     $('#filtroAccion').on('change', function () {
-        tabla.column(2).search(this.value ? '^' + this.value + '$' : '', true, false).draw();
+        filtroActual = $(this).val();
+        tabla.draw();
     });
 });
 </script>

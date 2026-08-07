@@ -34,29 +34,6 @@ class AdminController extends Controller
             return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 
-        $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'hoy';
-
-        $query = AuditoriaSgiem::with('usuario');
-
-        if ($rango === 'hoy') {
-            $query->whereDate('created_at', today());
-        } elseif ($rango === 'semanal') {
-            $query->where('created_at', '>=', now()->subWeek());
-        } elseif ($rango === 'mensual') {
-            $query->where('created_at', '>=', now()->subDays(30));
-        }
-
-        $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
-
-        $modelos = AuditoriaSgiem::distinct()->pluck('modelo')->sort()->values();
-
-        $resumen = [
-            'total_temas' => TemaV2::count(),
-            'total_subtemas' => SubtemaV2::count(),
-            'total_cuadros' => Cuadro::count(),
-            'total_auditoria' => AuditoriaSgiem::count(),
-        ];
-
         $desde = $request->input('desde');
         $hasta = $request->input('hasta');
 
@@ -111,11 +88,7 @@ class AdminController extends Controller
 
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.dashboard',
-            'auditoria' => $auditoria,
-            'resumen' => $resumen,
-            'modelos' => $modelos,
             'esAdmin' => $user->hasRole('Administrador'),
-            'rangoActual' => $rango,
             'desde' => $desde,
             'hasta' => $hasta,
             'audEventos' => $audEventos,
@@ -133,6 +106,51 @@ class AdminController extends Controller
                 'label' => $c->codigo_cuadro . ' — ' . mb_strimwidth($c->c_titulo ?? '', 0, 40, '…'),
                 'total' => (int) $c->total,
             ])->reverse()->values(),
+        ]);
+    }
+
+    public function cambios(Request $request)
+    {
+        // Verificar permisos de administrador
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+        if (!$user->hasRole('Administrador') && !$user->hasRole('Desarrollador') && !$user->hasRole('Estadistico')) {
+            return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
+        }
+
+        $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'hoy';
+
+        $query = AuditoriaSgiem::with('usuario');
+
+        if ($rango === 'hoy') {
+            $query->whereDate('created_at', today());
+        } elseif ($rango === 'semanal') {
+            $query->where('created_at', '>=', now()->subWeek());
+        } elseif ($rango === 'mensual') {
+            $query->where('created_at', '>=', now()->subDays(30));
+        }
+
+        $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
+
+        $modelos = AuditoriaSgiem::distinct()->pluck('modelo')->sort()->values();
+
+        $resumen = [
+            'total_temas' => TemaV2::count(),
+            'total_subtemas' => SubtemaV2::count(),
+            'total_cuadros' => Cuadro::count(),
+            'total_auditoria' => AuditoriaSgiem::count(),
+        ];
+
+        return view('GestorSIGEM.layout')->with([
+            'crud_view' => 'GestorSIGEM.admin.cambios',
+            'auditoria' => $auditoria,
+            'resumen' => $resumen,
+            'modelos' => $modelos,
+            'esAdmin' => $user->hasRole('Administrador'),
+            'rangoActual' => $rango,
         ]);
     }
 

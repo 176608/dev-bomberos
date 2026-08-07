@@ -41,6 +41,12 @@
                         <i class="bi bi-search"></i> Consultas Exprés
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('sgiem/admin/cambios') ? 'active' : '' }}"
+                       href="{{ route('sgiem.admin.cambios') }}">
+                        <i class="bi bi-clock-history"></i> Cambios en Contenidos
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

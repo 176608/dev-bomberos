@@ -81,6 +81,9 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         Route::delete('/consultas/contenido/{id}/eliminar', [ConsultaExpressController::class, 'destroyContenido'])->name('consultas.contenido.eliminar');
         Route::get('/consultas/contenido/{id}', [ConsultaExpressController::class, 'contenido']);
 
+        // ============ CAMBIOS EN CONTENIDOS ============
+        Route::get('/cambios', [AdminController::class, 'cambios'])->name('cambios');
+
         // ============ AUDITORÍA ============
         Route::get('/auditoria/{id}', [AdminController::class, 'detalleAuditoria'])->name('auditoria.detalle');
     });
