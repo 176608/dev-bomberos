@@ -121,7 +121,7 @@ class AdminController extends Controller
             return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 
-        $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'hoy';
+        $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'semanal';
 
         $query = AuditoriaSgiem::with('usuario');
 
@@ -133,7 +133,7 @@ class AdminController extends Controller
             $query->where('created_at', '>=', now()->subDays(30));
         }
 
-        $auditoria = $query->orderBy('created_at', 'desc')->take(200)->get();
+        $auditoria = $query->orderBy('created_at', 'desc')->get();
 
         $modelos = AuditoriaSgiem::distinct()->pluck('modelo')->sort()->values();
 

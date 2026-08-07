@@ -14,7 +14,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('sgiem/admin') ? 'active' : '' }}"
                        href="{{ route('sgiem.admin.index') }}">
-                        <i class="bi bi-speedometer2"></i> Dashboard
+                        <i class="bi bi-bar-chart-fill"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">

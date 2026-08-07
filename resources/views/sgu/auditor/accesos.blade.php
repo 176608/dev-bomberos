@@ -68,8 +68,8 @@ $(document).ready(function () {
     var filtroActual = '';
     $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex) {
         if (!filtroActual) return true;
-        var fila = $(this.api().row(dataIndex).node());
-        return fila.data('accion') === filtroActual;
+        var tr = settings.aoData[dataIndex] ? settings.aoData[dataIndex].nTr : null;
+        return tr ? $(tr).attr('data-accion') === filtroActual : true;
     });
 
     var tabla = $('#accesosTable').DataTable({
