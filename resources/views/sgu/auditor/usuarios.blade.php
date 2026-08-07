@@ -41,7 +41,7 @@
             <tbody>
                 @foreach($auditorias as $auditoria)
                 <tr>
-                    <td class="text-nowrap">{{ $auditoria->created_at->format('d/m/Y H:i:s') }}</td>
+                    <td class="text-nowrap" data-order="{{ $auditoria->created_at }}">{{ $auditoria->created_at->format('d/m/Y H:i:s') }}</td>
                     <td>{{ $auditoria->actor?->name ?? '—' }}</td>
                     <td>{{ $auditoria->usuario?->name ?? ('ID ' . $auditoria->usuario_id) }}</td>
                     <td>
@@ -147,13 +147,14 @@ function verCambios(id) {
 
 <script>
 $(document).ready(function () {
+    if ($.fn.dataTable.isDataTable('#auditoriaTable')) return;
     const tabla = $('#auditoriaTable').DataTable({
         order: [[0, 'desc']],
         language: { url: '{{ asset('js/datatables/i18n/es-ES.json') }}' }
     });
 
     $('#filtroAccion').on('change', function () {
-        tabla.column(3).search(this.value).draw();
+        tabla.column(3).search(this.value ? '^' + this.value + '$' : '', true, false).draw();
     });
 });
 </script>

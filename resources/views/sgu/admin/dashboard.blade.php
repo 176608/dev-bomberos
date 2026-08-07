@@ -96,7 +96,7 @@
 </div>
 
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white">Últimas visitas (50)</div>
+    <div class="card-header bg-white">Visitas del periodo</div>
     <div class="card-body table-responsive">
         <table id="visitasTable" class="table table-striped table-sm table-bordered">
             <thead class="table-dark">

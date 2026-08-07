@@ -326,6 +326,10 @@ function renderChart(tipo) {
     var opts = { axis: chartAxis, visibleV: visibleV, visibleH: visibleH };
 
     var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    if (activeSids.length === 0) {
+        status('Sin secciones activas. Actívalas en Configuración.');
+        return;
+    }
     var isMultiUnsupported = multiSectionUnsupported.indexOf(tipo) >= 0;
     var useMulti = activeSids.length > 0 && !isMultiUnsupported;
 
@@ -544,9 +548,15 @@ function syncTodoCheckboxes(container) {
 function renderSections() {
     var container = document.getElementById('panel-sections');
     if (!container) return;
+    var secList = estado.secciones || [];
+    var lockedSerieUnica = secList.length === 1 && /serie[\s-]*unica/i.test((secList[0].nombre || '').trim());
     var html = '';
     html += '<label class="small fw-semibold me-2">Secciones:</label>';
     (estado.secciones || []).forEach(function(s) {
+        if (lockedSerieUnica) {
+            html += '<span class="me-2 small">' + esc(s.nombre) + ' <span class="badge bg-secondary">Sección fija</span></span>';
+            return;
+        }
         var isChecked = selectedSections[s.seccion_id] !== false;
         var loading = !sectionsCache[s.seccion_id] && isChecked;
         var checked = isChecked ? 'checked' : '';
@@ -578,6 +588,7 @@ function enforceSingleSection(tipo) {
     var container = document.getElementById('panel-sections');
     if (!container) return;
     if (isSingle) {
+        var totalSecs = (estado.secciones || []).length;
         var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
         if (activeSids.length > 1) {
             var keep = activeSids[0];
@@ -585,7 +596,7 @@ function enforceSingleSection(tipo) {
             container.querySelectorAll('.sec-check').forEach(function(cb) {
                 cb.checked = parseInt(cb.dataset.seccionId) === keep;
             });
-        } else if (activeSids.length === 0) {
+        } else if (activeSids.length === 0 && totalSecs > 1) {
             var first = container.querySelector('.sec-check');
             if (first) {
                 var sid = parseInt(first.dataset.seccionId);
@@ -682,6 +693,11 @@ function initGraficaPage() {
     }
 
     loadStateFromURL();
+
+    var secs = estado.secciones || [];
+    if (secs.length === 1 && /serie[\s-]*unica/i.test((secs[0].nombre || '').trim())) {
+        selectedSections[secs[0].seccion_id] = true;
+    }
 
     var pendingLoads = [];
     Object.keys(selectedSections).forEach(function(sid) {
@@ -786,9 +802,16 @@ document.getElementById('panel-sections')?.addEventListener('change', function(e
 
     var tipo = document.getElementById('select-tipo-grafica').value;
     var isSingle = multiSectionUnsupported.indexOf(tipo) >= 0;
+    var totalSecs = (estado.secciones || []).length;
+    var lockedSerieUnica = totalSecs === 1 && /serie[\s-]*unica/i.test(((estado.secciones || [])[0].nombre || '').trim());
+
+    if (lockedSerieUnica) {
+        cb.checked = true;
+        return;
+    }
 
     if (isSingle) {
-        if (!cb.checked) {
+        if (!cb.checked && totalSecs > 1) {
             cb.checked = true;
             return;
         }

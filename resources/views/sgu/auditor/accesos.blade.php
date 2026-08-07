@@ -65,14 +65,14 @@
 @section('scripts')
 <script>
 $(document).ready(function () {
+    if ($.fn.dataTable.isDataTable('#accesosTable')) return;
     const tabla = $('#accesosTable').DataTable({
         order: [[0, 'desc']],
-        stateSave: true,
         language: { url: '{{ asset('js/datatables/i18n/es-ES.json') }}' }
     });
 
     $('#filtroAccion').on('change', function () {
-        tabla.column(2).search(this.value).draw();
+        tabla.column(2).search(this.value ? '^' + this.value + '$' : '', true, false).draw();
     });
 });
 </script>

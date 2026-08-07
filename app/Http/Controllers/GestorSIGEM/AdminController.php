@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use App\Http\Controllers\GestorSIGEM\Controller;
+use App\Http\Controllers\SGU\DashboardController as SguDashboardController;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\AuditoriaSgiem;
+use App\Models\SIGEM\PubVisitante;
+use App\Models\SIGEM\PubVisita;
 use App\Services\SecureFileUpload;
 use Illuminate\Http\Request;
 
@@ -54,6 +57,58 @@ class AdminController extends Controller
             'total_auditoria' => AuditoriaSgiem::count(),
         ];
 
+        $desde = $request->input('desde');
+        $hasta = $request->input('hasta');
+
+        if (!$desde && !$hasta) {
+            $desde = now()->subDays(30)->format('Y-m-d');
+            $hasta = now()->format('Y-m-d');
+        }
+
+        $visitas = PubVisita::query()
+            ->when($desde, fn ($q) => $q->whereDate('pub_visita.created_at', '>=', $desde))
+            ->when($hasta, fn ($q) => $q->whereDate('pub_visita.created_at', '<=', $hasta));
+
+        $audEventos = (clone $visitas)->count();
+
+        $audEventosPorDia = (clone $visitas)
+            ->selectRaw('DATE(created_at) as fecha, COUNT(*) as total')
+            ->groupBy('fecha')
+            ->orderBy('fecha')
+            ->pluck('total', 'fecha');
+
+        $audTopAcciones = (clone $visitas)
+            ->selectRaw('accion, COUNT(*) as total')
+            ->groupBy('accion')
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn ($a) => [
+                'label' => SguDashboardController::ETIQUETAS_ACCION[$a->accion] ?? $a->accion,
+                'total' => (int) $a->total,
+            ]);
+
+        $audTopCuadros = (clone $visitas)
+            ->selectRaw('pub_visita.cuadro_id, cuadro_v2.codigo_cuadro, cuadro_v2.c_titulo, COUNT(*) as total')
+            ->leftJoin('cuadro_v2', 'cuadro_v2.cuadro_id', '=', 'pub_visita.cuadro_id')
+            ->whereNotNull('pub_visita.cuadro_id')
+            ->groupBy('pub_visita.cuadro_id', 'cuadro_v2.codigo_cuadro', 'cuadro_v2.c_titulo')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $audPngDescargas = (clone $visitas)->where('accion', 'grafica_png')->count();
+
+        $audVisitantesTotales = PubVisitante::count();
+        $audVisitantesNuevos = PubVisitante::whereDate('primer_visita', '>=', $desde)
+            ->whereDate('primer_visita', '<=', $hasta)->count();
+        $audVisitantesActivos = PubVisitante::whereDate('ultima_visita', '>=', $desde)
+            ->whereDate('ultima_visita', '<=', $hasta)->count();
+        $audBots = PubVisitante::where('es_bot', true)->count();
+        $audHumanos = PubVisitante::where('es_bot', false)->count();
+
+        $audUltimasVisitas = (clone $visitas)->with(['visitante', 'cuadro'])
+            ->orderByDesc('created_at')->get();
+
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.dashboard',
             'auditoria' => $auditoria,
@@ -61,6 +116,23 @@ class AdminController extends Controller
             'modelos' => $modelos,
             'esAdmin' => $user->hasRole('Administrador'),
             'rangoActual' => $rango,
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'audEventos' => $audEventos,
+            'audVisitantesTotales' => $audVisitantesTotales,
+            'audVisitantesNuevos' => $audVisitantesNuevos,
+            'audVisitantesActivos' => $audVisitantesActivos,
+            'audBots' => $audBots,
+            'audHumanos' => $audHumanos,
+            'audTopAcciones' => $audTopAcciones,
+            'audPngDescargas' => $audPngDescargas,
+            'audUltimasVisitas' => $audUltimasVisitas,
+            'audDiasLabels' => $audEventosPorDia->keys()->map(fn ($f) => \Carbon\Carbon::parse($f)->format('d/m'))->values(),
+            'audDiasData' => $audEventosPorDia->values(),
+            'audCuadrosChart' => $audTopCuadros->map(fn ($c) => [
+                'label' => $c->codigo_cuadro . ' — ' . mb_strimwidth($c->c_titulo ?? '', 0, 40, '…'),
+                'total' => (int) $c->total,
+            ])->reverse()->values(),
         ]);
     }
 

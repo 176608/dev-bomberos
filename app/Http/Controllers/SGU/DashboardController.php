@@ -84,7 +84,7 @@ class DashboardController
         $humanos = PubVisitante::where('es_bot', false)->count();
 
         $ultimasVisitas = (clone $visitas)->with(['visitante', 'cuadro'])
-            ->orderByDesc('created_at')->limit(50)->get();
+            ->orderByDesc('created_at')->get();
 
         return view('sgu.admin.dashboard', compact(
             'desde', 'hasta', 'eventos', 'visitantesTotales', 'visitantesNuevos',

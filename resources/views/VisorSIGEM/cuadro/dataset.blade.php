@@ -247,9 +247,7 @@ function renderTables() {
         numLabelCols = headers[0][0].colspan || 1;
     }
 
-    var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
-
-    if (!visHIdx.length || !visVIdx.length || !activeSids.length) {
+    if (!visHIdx.length || !visVIdx.length) {
         container.innerHTML = '<div class="text-muted small p-3">Sin datos disponibles. Seleccioná al menos una sección, fila y columna.</div>';
         return;
     }
@@ -358,18 +356,30 @@ function renderTables() {
 
     var headerHtml = buildHeaderRow();
 
-    var singleSection = (estado.secciones || []).length <= 1;
+    var secList = estado.secciones || [];
+    var lockedSerieUnica = secList.length === 1 && /serie[\s-]*unica/i.test((secList[0].nombre || '').trim());
+
     var allHtml = '';
-    activeSids.forEach(function(sid) {
-        var sec = (estado.secciones || []).find(function(s) { return s.seccion_id == sid; });
-        var secName = sec ? sec.nombre : ('Sección ' + sid);
+    (estado.secciones || []).forEach(function(sec) {
+        var sid = sec.seccion_id;
+        var secName = sec.nombre || ('Sección ' + sid);
+        var locked = lockedSerieUnica;
+        var isActive = locked || selectedSections[sid] !== false;
 
         allHtml += '<div class="section-block">';
-        if (!singleSection) {
-            allHtml += '<div class="section-title">';
-            var secCk = selectedSections[sid] !== false ? 'checked' : '';
+        allHtml += '<div class="section-title">';
+        if (locked) {
+            allHtml += esc(secName);
+        } else {
+            var secCk = isActive ? 'checked' : '';
             allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+        }
+        allHtml += '</div>';
+
+        if (!isActive) {
+            allHtml += '<div class="text-muted small px-2 py-2" style="border:1px solid #dee2e6;border-top:none;">Sección desactivada.</div>';
             allHtml += '</div>';
+            return;
         }
 
         allHtml += '<table class="table table-bordered table-sm mb-0">';
@@ -628,6 +638,11 @@ function init() {
         selectedSections[estado.secciones[0].seccion_id] = true;
     }
     loadStateFromURL();
+
+    var secs = estado.secciones || [];
+    if (secs.length === 1 && /serie[\s-]*unica/i.test((secs[0].nombre || '').trim())) {
+        selectedSections[secs[0].seccion_id] = true;
+    }
 
     var pending = [];
     Object.keys(selectedSections).forEach(function(sid) {

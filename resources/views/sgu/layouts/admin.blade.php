@@ -39,4 +39,13 @@
 <div class="container-fluid p-4">
     @yield('sgu_content')
 </div>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 12px;
+    }
+    .dataTables_wrapper .dataTables_length {
+        margin-bottom: 12px;
+    }
+</style>
 @endsection
