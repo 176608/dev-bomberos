@@ -56,6 +56,9 @@
             </tbody>
         </table>
     </div>
+    <div class="card-footer d-flex justify-content-end">
+        {{ $accesos->links() }}
+    </div>
 </div>
 @endsection
 

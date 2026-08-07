@@ -3,7 +3,7 @@
 namespace App\Services\GestorSIGEM;
 
 use App\Models\SIGEM\SubtemaV2;
-use App\Models\SIGEM\CuadroEstadistico;
+use App\Models\SIGEM\Cuadro;
 use App\Services\SecureFileUpload;
 use Illuminate\Http\UploadedFile;
 
@@ -86,11 +86,11 @@ class SubtemaService
             throw new \RuntimeException('Subtema no encontrado');
         }
 
-        $cuadrosCount = CuadroEstadistico::where('subtema_id', $id)->count();
+        $cuadrosCount = Cuadro::where('subtema_id', $id)->count();
 
         if ($cuadrosCount > 0) {
             throw new \RuntimeException(
-                "No se puede eliminar el subtema '{$subtema->subtema_titulo}' porque tiene {$cuadrosCount} cuadro(s) estadístico(s) asociado(s)."
+                "No se puede eliminar el subtema '{$subtema->subtema_titulo}' porque tiene {$cuadrosCount} cuadro(s) asociado(s)."
             );
         }
 

@@ -8,7 +8,7 @@ use App\Http\Controllers\GestorSIGEM\DatasetController;
 
 Route::prefix('sgiem')->name('sgiem.')->group(function () {
 
-    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'role:Administrador,Desarrollador,Estadistico'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
 
         // ============ TEMAS V2 ============

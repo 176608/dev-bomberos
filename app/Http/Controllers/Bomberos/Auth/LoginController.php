@@ -82,6 +82,7 @@ class LoginController extends Controller
                         ->withErrors(['password' => 'PIN incorrecto.']);
                 }
 
+                $request->session()->regenerate();
                 session(['pin_verificado' => $user->id]);
             }
 
@@ -213,6 +214,6 @@ class LoginController extends Controller
             return redirect()->route('sgiem.admin.index');
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('sgu.admin.index');
     }
 }

@@ -8,7 +8,9 @@ class StoreCuadroV2Request extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check();
+        $user = auth()->user();
+
+        return $user !== null && $user->hasAnyRole(['Administrador', 'Desarrollador', 'Estadistico']);
     }
 
     public function rules(): array

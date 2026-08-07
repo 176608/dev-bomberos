@@ -14,14 +14,8 @@ class SIGEMV2Controller extends Controller
         private EstadisticaService $estadisticaService,
         private ConsultaExpressService $consultaExpressService,
     ) {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            $user = auth()->user();
-            if (!$user->hasRole('Desarrollador') && !$user->hasRole('Administrador') && !$user->hasRole('Estadistico')) {
-                return redirect('/sigem');
-            }
-            return $next($request);
-        });
+        // Visor público: las páginas principales no requieren autenticación.
+        // El acceso a cuadros no publicados se controla en VisorCuadroController::verificarAccesoCuadro.
     }
 
     public function index()
@@ -80,8 +74,10 @@ class SIGEMV2Controller extends Controller
 
     public function consultaExpress()
     {
-        $temas = $this->consultaExpressService->obtenerTemas();
-        return view('VisorSIGEM.consulta_express', compact('temas'));
+        // La consulta express pública vive en el modal incluido en la página de inicio
+        // (VisorSIGEM.inicio_consulta_express), consumiendo los endpoints públicos
+        // sigem.v2.consulta-express.*
+        return view('VisorSIGEM.inicio');
     }
 
     public function ajaxSubtemas($tema_id)

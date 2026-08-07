@@ -5,6 +5,7 @@ namespace App\Services\GestorSIGEM;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\TemaV2;
+use App\Services\HtmlSanitizer;
 use Illuminate\Support\Facades\Storage;
 
 class CuadroV2Service
@@ -30,6 +31,13 @@ class CuadroV2Service
         $datos['tipo_mapa_pdf'] = $datos['tipo_mapa_pdf'] ?? false;
         $datos['permite_grafica'] = $datos['permite_grafica'] ?? false;
 
+        if (isset($datos['pie_pagina'])) {
+            $datos['pie_pagina'] = HtmlSanitizer::sanitize($datos['pie_pagina']);
+        }
+        if (isset($datos['piepagina_gen'])) {
+            $datos['piepagina_gen'] = HtmlSanitizer::sanitize($datos['piepagina_gen']);
+        }
+
         if (isset($datos['tipos_grafica_permitida']) && is_array($datos['tipos_grafica_permitida'])) {
             $datos['tipos_grafica_permitida'] = json_encode($datos['tipos_grafica_permitida']);
         }
@@ -53,6 +61,13 @@ class CuadroV2Service
         $datos['publicado'] = $datos['publicado'] ?? $cuadro->publicado;
         $datos['tipo_mapa_pdf'] = $datos['tipo_mapa_pdf'] ?? $cuadro->tipo_mapa_pdf;
         $datos['permite_grafica'] = $datos['permite_grafica'] ?? $cuadro->permite_grafica;
+
+        if (array_key_exists('pie_pagina', $datos)) {
+            $datos['pie_pagina'] = HtmlSanitizer::sanitize($datos['pie_pagina']);
+        }
+        if (array_key_exists('piepagina_gen', $datos)) {
+            $datos['piepagina_gen'] = HtmlSanitizer::sanitize($datos['piepagina_gen']);
+        }
 
         if (isset($datos['tipos_grafica_permitida']) && is_array($datos['tipos_grafica_permitida'])) {
             $datos['tipos_grafica_permitida'] = json_encode($datos['tipos_grafica_permitida']);

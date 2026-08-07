@@ -448,6 +448,16 @@ function cambiarTema(tema_id) {
     window.location.href = '{{ url("/sigem-v2/estadistica/tema") }}/' + tema_id;
 }
 
+function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function cargarCuadros(subtema_id) {
     var container = document.getElementById('cuadros-container');
     container.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-success"><span class="visually-hidden">Cargando...</span></div><p class="mt-3">Cargando cuadros...</p></div>';
@@ -466,23 +476,12 @@ function cargarCuadros(subtema_id) {
             if (data.success) {
                 renderizarCuadros(data.cuadros);
             } else {
-                container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>' + (data.message || 'Error al cargar cuadros') + '</div>';
+                container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>' + esc(data.message || 'Error al cargar cuadros') + '</div>';
             }
         })
         .catch(function () {
             container.innerHTML = '<div class="alert alert-danger m-3"><i class="bi bi-exclamation-triangle me-2"></i>Error de conexión al cargar cuadros</div>';
         });
-}
-
-function actualizarInfoSubtema(subtema_id) {
-    fetch('{{ url("/sigem/obtener-info-subtema") }}/' + subtema_id)
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            if (data.success) {
-                document.getElementById('subtema-header').innerHTML = '<h5 class="mb-0">' + data.subtema.subtema_titulo + '</h5><p class="text-muted small mb-0">' + (data.subtema.tema ? data.subtema.tema.tema_titulo : '') + '</p>';
-            }
-        })
-        .catch(function () {});
 }
 
 function renderizarCuadros(cuadros) {
@@ -515,13 +514,13 @@ function renderizarCuadros(cuadros) {
             html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
         }
         html += '<div class="row align-items-center"><div class="col-12">';
-        html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + (ind.codigo_cuadro || 'N/A') + '</span> ' + (ind.c_titulo || 'Sin título');
+        html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + esc(ind.codigo_cuadro || 'N/A') + '</span> ' + esc(ind.c_titulo || 'Sin título');
         if (ind.tipo_mapa_pdf) {
             html += ' <span class="badge bg-warning text-dark ms-2"><i class="bi bi-map-fill me-1"></i>Mapa PDF</span>';
         }
         html += '</span>';
         if (ind.c_subtitulo) {
-            html += '<small class="text-muted d-block">' + ind.c_subtitulo + '</small>';
+            html += '<small class="text-muted d-block">' + esc(ind.c_subtitulo) + '</small>';
         }
         html += '</div></div></a>';
     });

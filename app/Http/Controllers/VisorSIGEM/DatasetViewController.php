@@ -10,14 +10,8 @@ class DatasetViewController extends Controller
     public function __construct(
         private DatasetViewService $datasetViewService,
     ) {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            $user = auth()->user();
-            if (!$user->hasRole('Desarrollador') && !$user->hasRole('Administrador') && !$user->hasRole('Estadistico')) {
-                return redirect('/sigem');
-            }
-            return $next($request);
-        });
+        // Visor público: sin middleware de autenticación.
+        // El acceso a cuadros no publicados se controla en VisorCuadroController::verificarAccesoCuadro.
     }
 
     public function show(int $id)

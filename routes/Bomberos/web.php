@@ -30,7 +30,8 @@ Route::get('/check-session', function () {
 Route::get('/password/reset', [PasswordResetController::class, 'showResetForm'])
     ->name('password.reset.form');
 Route::post('/password/reset', [PasswordResetController::class, 'update'])
-    ->name('password.reset.update');
+    ->name('password.reset.update')
+    ->middleware('throttle:5,30');
 
 // Rutas protegidas por autenticación
 Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->group(function () {

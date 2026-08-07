@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CuadroExcelExport;
 use App\Services\SecureFileUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class CuadroV2Controller extends Controller
@@ -18,6 +19,16 @@ class CuadroV2Controller extends Controller
         private DatasetService $datasetService,
     ) {
         $this->middleware('auth');
+    }
+
+    private function invalidarCacheVisor(int $cuadroId): void
+    {
+        Cache::forget("visor_cuadro_estado_{$cuadroId}");
+
+        $seccionIds = \App\Models\SIGEM\CuadroSeccion::where('cuadro_id', $cuadroId)->pluck('seccion_id');
+        foreach ($seccionIds as $seccionId) {
+            Cache::forget("visor_cuadro_{$cuadroId}_seccion_{$seccionId}");
+        }
     }
 
     public function index()
@@ -324,6 +335,7 @@ class CuadroV2Controller extends Controller
     {
         try {
             $this->cuadroV2Service->actualizar((int) $id, $request->validated());
+            $this->invalidarCacheVisor((int) $id);
 
             if ($request->boolean('eliminar_dataset')) {
                 $this->datasetService->eliminarDataset((int) $id);
@@ -363,6 +375,7 @@ class CuadroV2Controller extends Controller
     {
         try {
             $publicado = $this->cuadroV2Service->togglePublicado((int) $id);
+            $this->invalidarCacheVisor((int) $id);
 
             return response()->json([
                 'success' => true,

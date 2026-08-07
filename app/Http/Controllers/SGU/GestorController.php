@@ -108,15 +108,16 @@ class GestorController
             return redirect()->route('sgu.admin.gestor.usuarios')
                 ->with('success', 'Usuario actualizado exitosamente');
         } catch (\Exception $e) {
+            \Log::error('SGU: error al actualizar usuario', ['user_id' => $user->id ?? null, 'error' => $e->getMessage()]);
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar usuario: ' . $e->getMessage(),
+                    'message' => 'Error al actualizar usuario.',
                 ], 422);
             }
 
             return redirect()->route('sgu.admin.gestor.usuarios')
-                ->with('error', 'Error al actualizar usuario: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar usuario.');
         }
     }
 

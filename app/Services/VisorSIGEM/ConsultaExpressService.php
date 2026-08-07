@@ -31,9 +31,10 @@ class ConsultaExpressService
                 'subtemas' => $subtemas,
             ];
         } catch (\Exception $e) {
+            \Log::error('SIGEM: error al cargar subtemas CE', ['ce_tema_id' => $tema_id, 'error' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => 'Error al cargar subtemas: ' . $e->getMessage(),
+                'message' => 'Error al cargar subtemas.',
             ];
         }
     }
@@ -78,9 +79,10 @@ class ConsultaExpressService
                 'actualizado' => $contenido->updated_at ? $contenido->updated_at->format('d/m/Y H:i:s') : null,
             ];
         } catch (\Exception $e) {
+            \Log::error('SIGEM: error al cargar contenido CE', ['ce_subtema_id' => $subtema_id, 'error' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => 'Error al cargar contenido: ' . $e->getMessage(),
+                'message' => 'Error al cargar contenido.',
             ];
         }
     }

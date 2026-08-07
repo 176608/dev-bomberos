@@ -16,6 +16,16 @@ class DatasetController extends Controller
         $this->middleware('auth');
     }
 
+    private function invalidarCacheVisor(int $cuadroId): void
+    {
+        Cache::forget("visor_cuadro_estado_{$cuadroId}");
+
+        $seccionIds = \App\Models\SIGEM\CuadroSeccion::where('cuadro_id', $cuadroId)->pluck('seccion_id');
+        foreach ($seccionIds as $seccionId) {
+            Cache::forget("visor_cuadro_{$cuadroId}_seccion_{$seccionId}");
+        }
+    }
+
     public function estado($id)
     {
         try {
@@ -30,6 +40,7 @@ class DatasetController extends Controller
         $request->validate(['filas' => 'required|integer|min:1|max:50', 'columnas' => 'required|integer|min:1|max:50']);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->generarGrilla((int) $id, (int) $request->filas, (int) $request->columnas)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -40,6 +51,7 @@ class DatasetController extends Controller
     {
         $nombre = $request->input('nombre');
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->agregarFila((int) $id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -49,6 +61,7 @@ class DatasetController extends Controller
     public function destroyFila($id, $categoria)
     {
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->eliminarFila((int) $id, (int) $categoria)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -59,6 +72,7 @@ class DatasetController extends Controller
     {
         $nombre = $request->input('nombre');
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->agregarColumna((int) $id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -68,6 +82,7 @@ class DatasetController extends Controller
     public function destroyColumna($id, $categoria)
     {
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->eliminarColumna((int) $id, (int) $categoria)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
@@ -79,7 +94,8 @@ class DatasetController extends Controller
         $request->validate(['valor' => 'nullable|string']);
 
         try {
-            return response()->json(['success' => true, 'dato' => $this->datasetService->actualizarCelda((int) $dato, $request->valor ?? '')]);
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'dato' => $this->datasetService->actualizarCelda((int) $id, (int) $dato, $request->valor ?? '')]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
@@ -90,7 +106,8 @@ class DatasetController extends Controller
         $request->validate(['nombre' => 'required|string|max:255']);
 
         try {
-            return response()->json(['success' => true, 'categoria' => $this->datasetService->renombrarCategoria((int) $categoria, $request->nombre)]);
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'categoria' => $this->datasetService->renombrarCategoria((int) $id, (int) $categoria, $request->nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
@@ -111,6 +128,7 @@ class DatasetController extends Controller
         ]);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->pasteGrid(
                 (int) $id, $request->grid,
                 $request->start_vertical_id, $request->start_horizontal_id,
@@ -126,6 +144,7 @@ class DatasetController extends Controller
     {
         $nombre = $request->input('nombre');
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->clonarCategoria((int) $id, (int) $categoria, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -138,6 +157,7 @@ class DatasetController extends Controller
 
         $nombre = $request->input('nombre');
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->agregarHijo((int) $id, (int) $request->padre_id, $nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -154,6 +174,7 @@ class DatasetController extends Controller
         ]);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->pasteCategorias(
                 (int) $id, $request->eje, (int) $request->start_categoria_id, $request->valores
             )]);
@@ -169,6 +190,7 @@ class DatasetController extends Controller
             $ext = strtolower($file->getClientOriginalExtension());
 
             if (in_array($ext, ['csv', 'txt'])) {
+                $this->invalidarCacheVisor((int) $id);
                 return response()->json(['success' => true, 'data' => $this->datasetService->importarCsv((int) $id, $file)]);
             }
             throw new \RuntimeException('Solo CSV por ahora');
@@ -182,6 +204,7 @@ class DatasetController extends Controller
         try {
             $seccion_id = (int) ($request->query('seccion_id', $request->input('seccion_id', 0)));
             if (!$seccion_id) throw new \RuntimeException('seccion_id requerido');
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->limpiarDatos((int) $id, $seccion_id)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -193,6 +216,7 @@ class DatasetController extends Controller
         $request->validate(['nombre' => 'required|string|max:255']);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->agregarSeccion((int) $id, $request->nombre)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -204,8 +228,9 @@ class DatasetController extends Controller
         $request->validate(['nombre' => 'required|string|max:255']);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->actualizarSeccion(
-                (int) $seccion, $request->nombre, $request->header, $request->footer
+                (int) $id, (int) $seccion, $request->nombre, $request->header, $request->footer
             )]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -215,7 +240,8 @@ class DatasetController extends Controller
     public function destroySeccion($id, $seccion)
     {
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->eliminarSeccion((int) $seccion)]);
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'data' => $this->datasetService->eliminarSeccion((int) $id, (int) $seccion)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
@@ -235,7 +261,8 @@ class DatasetController extends Controller
         $request->validate(['direccion' => 'required|in:up,down']);
 
         try {
-            return response()->json(['success' => true, 'data' => $this->datasetService->reordenarSeccion((int) $seccion, $request->direccion)]);
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'data' => $this->datasetService->reordenarSeccion((int) $id, (int) $seccion, $request->direccion)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
@@ -272,6 +299,7 @@ class DatasetController extends Controller
         $request->validate(['origen_cuadro_id' => 'required|integer']);
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->importarEstructura((int) $id, (int) $request->origen_cuadro_id)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -283,8 +311,8 @@ class DatasetController extends Controller
         $request->validate(['direccion' => 'required|in:up,down']);
 
         try {
-            Cache::forget("visor_cuadro_estado_{$id}");
-            return response()->json(['success' => true, 'data' => $this->datasetService->reordenarCategoria((int) $categoria, $request->direccion)]);
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'data' => $this->datasetService->reordenarCategoria((int) $id, (int) $categoria, $request->direccion)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
@@ -299,6 +327,7 @@ class DatasetController extends Controller
             if (!$cuadro) throw new \RuntimeException('Cuadro no encontrado');
 
             $cuadro->actualizar(['pivot_label' => $request->label]);
+            $this->invalidarCacheVisor((int) $id);
 
             return response()->json(['success' => true]);
         } catch (\RuntimeException $e) {
@@ -311,6 +340,7 @@ class DatasetController extends Controller
         $pivot = $request->input('pivot_label', 'PIVOTE');
 
         try {
+            $this->invalidarCacheVisor((int) $id);
             return response()->json(['success' => true, 'data' => $this->datasetService->regenerarDataset((int) $id, $pivot)]);
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -328,7 +358,7 @@ class DatasetController extends Controller
 
             $cuadro->actualizar(['tipos_grafica_permitida' => $request->tipos]);
 
-            Cache::forget("visor_cuadro_estado_{$id}");
+            $this->invalidarCacheVisor((int) $id);
 
             return response()->json(['success' => true, 'tipos' => $request->tipos]);
         } catch (\RuntimeException $e) {

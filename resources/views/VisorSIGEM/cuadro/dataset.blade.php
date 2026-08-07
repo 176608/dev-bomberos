@@ -47,7 +47,7 @@
     <div>
         <div id="tables-container"></div>
         @if($cuadro->pie_pagina)
-        <div class="mt-3 small text-muted pie-pagina">{!! $cuadro->pie_pagina !!}</div>
+        <div class="mt-3 small text-muted pie-pagina">{!! App\Services\HtmlSanitizer::sanitize($cuadro->pie_pagina) !!}</div>
         @endif
     </div>
 

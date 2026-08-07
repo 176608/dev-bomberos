@@ -74,6 +74,9 @@
             </tbody>
         </table>
     </div>
+    <div class="card-footer d-flex justify-content-end">
+        {{ $auditorias->links() }}
+    </div>
 </div>
 
 <div class="modal fade" id="modalCambios" tabindex="-1" aria-hidden="true">
@@ -106,6 +109,14 @@
 <script>
 function verCambios(id) {
     const btn = document.getElementById('btnCambios' + id) || document.getElementById('btnCrear' + id);
+    const esc = function (s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
     let previos = {};
     let nuevos = {};
     try { previos = JSON.parse(btn.dataset.previos || '{}'); } catch (e) {}
@@ -126,9 +137,9 @@ function verCambios(id) {
             return (typeof valor === 'object') ? JSON.stringify(valor) : String(valor);
         };
         cuerpo.innerHTML += '<tr>'
-            + '<td><code>' + clave + '</code></td>'
-            + '<td>' + formato(previos[clave]) + '</td>'
-            + '<td>' + formato(nuevos[clave]) + '</td>'
+            + '<td><code>' + esc(clave) + '</code></td>'
+            + '<td>' + esc(formato(previos[clave])) + '</td>'
+            + '<td>' + esc(formato(nuevos[clave])) + '</td>'
             + '</tr>';
     });
 }

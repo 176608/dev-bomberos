@@ -810,6 +810,14 @@ function validarTabla() {
 }
 
 function verTablaContenidoCE(id) {
+    const esc = function (s) {
+        return String(s ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
     // Mostrar loading con mejor diseño
     document.getElementById('tabla-vista-completa').innerHTML = `
         <div class="text-center py-5 tabla-loading">
@@ -839,7 +847,7 @@ function verTablaContenidoCE(id) {
             if (data.error) {
                 document.getElementById('tabla-vista-completa').innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle"></i> <strong>Error:</strong> ${data.error}
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Error:</strong> ${esc(data.error)}
                     </div>
                 `;
                 return;
@@ -868,16 +876,16 @@ function verTablaContenidoCE(id) {
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h4 class="text-primary mb-2">
-                                <i class="bi bi-table me-2"></i>${contenido.titulo_tabla || 'Tabla sin título'}
+                                <i class="bi bi-table me-2"></i>${esc(contenido.titulo_tabla) || 'Tabla sin título'}
                             </h4>
                             <div class="d-flex flex-wrap gap-3">
                                 <span class="badge bg-primary fs-6">
                                     <i class="bi bi-bookmark-fill me-1"></i>
-                                    ${contenido.subtema?.tema?.tema || 'Sin tema'}
+                                    ${esc(contenido.subtema?.tema?.tema) || 'Sin tema'}
                                 </span>
                                 <span class="badge bg-success fs-6">
                                     <i class="bi bi-bookmarks-fill me-1"></i>
-                                    ${contenido.subtema?.ce_subtema || 'Sin subtema'}
+                                    ${esc(contenido.subtema?.ce_subtema) || 'Sin subtema'}
                                 </span>
                                 <span class="badge bg-info fs-6">
                                     <i class="bi bi-grid-3x3 me-1"></i>
@@ -911,7 +919,7 @@ function verTablaContenidoCE(id) {
                     <div class="mt-3">
                         <small class="text-muted">
                             <i class="bi bi-info-circle me-1"></i>
-                            <em>${contenido.pie_tabla}</em>
+                            <em>${esc(contenido.pie_tabla)}</em>
                         </small>
                     </div>
                 `;
@@ -924,7 +932,7 @@ function verTablaContenidoCE(id) {
             document.getElementById('tabla-vista-completa').innerHTML = `
                 <div class="alert alert-danger">
                     <h5><i class="bi bi-exclamation-triangle"></i> Error al cargar la tabla</h5>
-                    <p class="mb-2"><strong>Detalles:</strong> ${error.message}</p>
+                    <p class="mb-2"><strong>Detalles:</strong> ${esc(error.message)}</p>
                     <small class="text-muted">
                         Verifica la consola del navegador para más información o contacta al administrador del sistema.
                     </small>

@@ -32,9 +32,10 @@ class ConsultaExpressController extends Controller
                 ->with('success', "Tema CE '{$temaCE->tema}' creado exitosamente");
 
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al crear el tema CE', ['error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al crear el tema CE: ' . $e->getMessage());
+                ->with('error', 'Error al crear el tema CE.');
         }
     }
 
@@ -52,9 +53,10 @@ class ConsultaExpressController extends Controller
                 ->route('sgiem.admin.consultas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al actualizar el tema CE', ['ce_tema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al actualizar el tema CE: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el tema CE.');
         }
     }
 
@@ -72,9 +74,10 @@ class ConsultaExpressController extends Controller
                 ->route('sgiem.admin.consultas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al eliminar el tema CE', ['ce_tema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al eliminar el tema CE: ' . $e->getMessage());
+                ->with('error', 'Error al eliminar el tema CE.');
         }
     }
 
@@ -88,9 +91,10 @@ class ConsultaExpressController extends Controller
                 ->with('success', "Contenido CE '{$contenidoCE->titulo_tabla}' creado exitosamente con tabla de {$contenidoCE->tabla_filas}x{$contenidoCE->tabla_columnas}");
 
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al crear el contenido CE', ['error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al crear el contenido CE: ' . $e->getMessage())
+                ->with('error', 'Error al crear el contenido CE.')
                 ->withInput();
         }
     }
@@ -109,9 +113,10 @@ class ConsultaExpressController extends Controller
                 ->route('sgiem.admin.consultas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al actualizar el contenido CE', ['ce_contenido_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al actualizar el contenido CE: ' . $e->getMessage())
+                ->with('error', 'Error al actualizar el contenido CE.')
                 ->withInput();
         }
     }
@@ -130,9 +135,10 @@ class ConsultaExpressController extends Controller
                 ->route('sgiem.admin.consultas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al eliminar el contenido CE', ['ce_contenido_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.consultas')
-                ->with('error', 'Error al eliminar el contenido CE: ' . $e->getMessage());
+                ->with('error', 'Error al eliminar el contenido CE.');
         }
     }
 
@@ -172,8 +178,9 @@ class ConsultaExpressController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al obtener el contenido CE', ['ce_contenido_id' => $id, 'error' => $e->getMessage()]);
             return response()->json([
-                'error' => 'Error interno del servidor: ' . $e->getMessage(),
+                'error' => 'Error interno del servidor',
             ], 500);
         }
     }

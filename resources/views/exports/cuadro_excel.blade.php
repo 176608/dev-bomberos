@@ -4,26 +4,6 @@
         return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
 
-    function tidyHtml($html) {
-        $html = (string)$html;
-        if (trim($html) === '') return '';
-        libxml_use_internal_errors(true);
-        $doc = new \DOMDocument();
-        $doc->loadHTML(
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $html,
-            LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING
-        );
-        libxml_clear_errors();
-        $out = '';
-        $body = $doc->getElementsByTagName('body')->item(0);
-        if ($body) {
-            foreach ($body->childNodes as $node) {
-                $out .= $doc->saveHTML($node);
-            }
-        }
-        return $out;
-    }
-
     $maxCols = 0;
     foreach ($seccionesData as $sd) {
         $est = $sd['estado'];
@@ -237,6 +217,6 @@
 
 @if($piePagina)
 <table>
-    <tr><td colspan="{{ $maxCols }}" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! tidyHtml($piePagina) !!}</td></tr>
+    <tr><td colspan="{{ $maxCols }}" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! App\Services\HtmlSanitizer::sanitize($piePagina) !!}</td></tr>
 </table>
 @endif

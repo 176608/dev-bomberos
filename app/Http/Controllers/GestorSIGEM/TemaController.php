@@ -34,9 +34,10 @@ class TemaController extends Controller
                 ->with('success', "Tema '{$tema->tema_titulo}' creado exitosamente");
 
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al crear el tema', ['error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.temas')
-                ->with('error', 'Error al crear el tema: ' . $e->getMessage());
+                ->with('error', 'Error al crear el tema.');
         }
     }
 
@@ -54,9 +55,10 @@ class TemaController extends Controller
                 ->route('sgiem.admin.temas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al actualizar el tema', ['tema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.temas')
-                ->with('error', 'Error al actualizar el tema: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el tema.');
         }
     }
 
@@ -74,9 +76,10 @@ class TemaController extends Controller
                 ->route('sgiem.admin.temas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al eliminar el tema', ['tema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.temas')
-                ->with('error', 'Error al eliminar el tema: ' . $e->getMessage());
+                ->with('error', 'Error al eliminar el tema.');
         }
     }
 
@@ -108,9 +111,10 @@ class TemaController extends Controller
                 ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
                 ->withInput();
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al crear el subtema', ['error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.subtemas')
-                ->with('error', 'Error al crear el subtema: ' . $e->getMessage());
+                ->with('error', 'Error al crear el subtema.');
         }
     }
 
@@ -138,9 +142,10 @@ class TemaController extends Controller
                 ->with('error', 'Error de seguridad en el archivo: ' . $e->getMessage())
                 ->withInput();
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al actualizar el subtema', ['subtema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.subtemas')
-                ->with('error', 'Error al actualizar el subtema: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el subtema.');
         }
     }
 
@@ -158,9 +163,10 @@ class TemaController extends Controller
                 ->route('sgiem.admin.subtemas')
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            \Log::error('SGIEM: error al eliminar el subtema', ['subtema_id' => $id, 'error' => $e->getMessage()]);
             return redirect()
                 ->route('sgiem.admin.subtemas')
-                ->with('error', 'Error al eliminar el subtema: ' . $e->getMessage());
+                ->with('error', 'Error al eliminar el subtema.');
         }
     }
 

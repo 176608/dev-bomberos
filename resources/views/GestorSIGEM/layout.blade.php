@@ -108,10 +108,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     @if(session('success'))
-        mostrarToast('success', '{{ session('success') }}');
+        mostrarToast('success', {!! Js::from(session('success')) !!});
     @endif
     @if(session('error'))
-        mostrarToast('danger', '{{ session('error') }}');
+        mostrarToast('danger', {!! Js::from(session('error')) !!});
     @endif
     @if($errors->any())
         mostrarToast('warning', 'Errores de validación: Corrige los campos marcados.');
@@ -120,6 +120,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function mostrarToast(type, message) {
     const container = document.getElementById('sgiemToastContainer');
+    const esc = function (s) {
+        return String(s ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
     const icons = {
         success: 'bi-check-circle-fill',
         danger: 'bi-exclamation-circle-fill',
@@ -147,7 +155,7 @@ function mostrarToast(type, message) {
             <small>ahora</small>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
         </div>
-        <div class="toast-body">${message}</div>
+        <div class="toast-body">${esc(message)}</div>
     `;
     container.appendChild(toast);
     const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 60000 });
