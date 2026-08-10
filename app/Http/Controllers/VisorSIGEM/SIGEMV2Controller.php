@@ -49,11 +49,6 @@ class SIGEMV2Controller extends Controller
         return redirect()->route('sigem.v2.cuadro.dataset', ['id' => $id]);
     }
 
-    public function datosCuadroJson($id)
-    {
-        return response()->json(['success' => false, 'message' => 'No implementado']);
-    }
-
     public function cartografia()
     {
         $this->registrarEvento('vista', 'cartografia');

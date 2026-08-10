@@ -22,7 +22,7 @@ class SetVisitorUuid
         $response = $next($request);
 
         if (!$request->cookie('_vuid')) {
-            $response->cookie('_vuid', $vuid, 365 * 10, '/', null, false, true);
+            $response->cookie('_vuid', $vuid, 365 * 10, '/', null, $request->isSecure(), true);
         }
 
         return $response;
