@@ -32,7 +32,7 @@ class StoreCuadroV2Request extends FormRequest
 
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
             $rules['subtema_id'] = 'sometimes|integer|exists:subtema_v2,subtema_id';
-            $rules['codigo_cuadro'] = ['sometimes', 'string', 'max:50', Rule::unique('cuadro_v2', 'codigo_cuadro')->ignore($this->route('id'))];
+            $rules['codigo_cuadro'] = ['sometimes', 'string', 'max:50', Rule::unique('cuadro_v2', 'codigo_cuadro')->ignore($this->route('id'), 'cuadro_id')];
             $rules['c_titulo'] = 'sometimes|string|max:255';
         }
 
