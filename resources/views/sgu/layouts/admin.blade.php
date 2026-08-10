@@ -36,7 +36,7 @@
     </div>
 </nav>
 
-<div class="container-fluid p-4">
+<div class="container-fluid bg-fonde pt-4 pb-4">
     @yield('sgu_content')
 </div>
 
