@@ -51,15 +51,6 @@ class CuadroV2Controller extends Controller
         ]);
     }
 
-    public function create()
-    {
-        $subtemas = $this->cuadroV2Service->obtenerSubtemasParaFormulario();
-        return view('GestorSIGEM.layout')->with([
-            'crud_view' => 'GestorSIGEM.admin.cuadro_form',
-            'subtemas' => $subtemas,
-        ]);
-    }
-
     public function store(StoreCuadroV2Request $request)
     {
         $cuadro = $this->cuadroV2Service->crear($request->validated());
@@ -70,21 +61,6 @@ class CuadroV2Controller extends Controller
 
         return redirect()->route('sgiem.admin.cuadros.index')
             ->with('success', "Cuadro {$cuadro->codigo_cuadro} creado correctamente.");
-    }
-
-    public function show($id)
-    {
-        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
-
-        if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros.index')
-                ->with('error', 'Cuadro no encontrado.');
-        }
-
-        return view('GestorSIGEM.layout')->with([
-            'crud_view' => 'GestorSIGEM.admin.cuadro_show',
-            'cuadro' => $cuadro,
-        ]);
     }
 
     public function datasetManage($id)
@@ -312,23 +288,6 @@ class CuadroV2Controller extends Controller
         );
 
         return Excel::download($export, $nombre);
-    }
-
-    public function edit($id)
-    {
-        $cuadro = $this->cuadroV2Service->obtenerPorId((int) $id);
-
-        if (!$cuadro) {
-            return redirect()->route('sgiem.admin.cuadros.index')
-                ->with('error', 'Cuadro no encontrado.');
-        }
-
-        $subtemas = $this->cuadroV2Service->obtenerSubtemasParaFormulario();
-        return view('GestorSIGEM.layout')->with([
-            'crud_view' => 'GestorSIGEM.admin.cuadro_form',
-            'cuadro' => $cuadro,
-            'subtemas' => $subtemas,
-        ]);
     }
 
     public function update(StoreCuadroV2Request $request, $id)

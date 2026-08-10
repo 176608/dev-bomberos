@@ -31,7 +31,7 @@ class AdminController extends Controller
 
         $user = auth()->user();
         if (!$user->hasRole('Administrador') && !$user->hasRole('Desarrollador') && !$user->hasRole('Estadistico')) {
-            return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
+            return redirect()->route('sgu.admin.index')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 
         $desde = $request->input('desde');
@@ -118,7 +118,7 @@ class AdminController extends Controller
 
         $user = auth()->user();
         if (!$user->hasRole('Administrador') && !$user->hasRole('Desarrollador') && !$user->hasRole('Estadistico')) {
-            return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
+            return redirect()->route('sgu.admin.index')->with('error', 'No tienes permisos para acceder al panel SIGEM.');
         }
 
         $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'semanal';

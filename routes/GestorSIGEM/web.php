@@ -28,10 +28,7 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
         // ============ CUADROS ============
         Route::prefix('cuadros')->name('cuadros.')->group(function () {
             Route::get('/', [CuadroV2Controller::class, 'index'])->name('index');
-            Route::get('/crear', [CuadroV2Controller::class, 'create'])->name('create');
             Route::post('/', [CuadroV2Controller::class, 'store'])->name('store');
-            Route::get('/{id}', [CuadroV2Controller::class, 'show'])->name('show');
-            Route::get('/{id}/editar', [CuadroV2Controller::class, 'edit'])->name('edit');
             Route::put('/{id}', [CuadroV2Controller::class, 'update'])->name('update');
             Route::delete('/{id}', [CuadroV2Controller::class, 'destroy'])->name('destroy');
             Route::put('/{id}/toggle-publicado', [CuadroV2Controller::class, 'togglePublicado'])->name('toggle-publicado');
@@ -56,7 +53,6 @@ Route::prefix('sgiem')->name('sgiem.')->group(function () {
                 Route::post('/paste-categorias', [DatasetController::class, 'pasteCategorias'])->name('paste-categorias');
                 Route::post('/hijo', [DatasetController::class, 'storeHijo'])->name('hijo.store');
                 Route::post('/clonar/{categoria}', [DatasetController::class, 'cloneCategoria'])->name('clonar');
-                Route::post('/importar', [DatasetController::class, 'importar'])->name('importar');
                 Route::put('/pivot', [DatasetController::class, 'updatePivot'])->name('pivot.update');
                 Route::post('/regenerar', [DatasetController::class, 'regenerar'])->name('regenerar');
                 Route::put('/tipos-grafica', [DatasetController::class, 'updateTiposGrafica'])->name('tipos-grafica');

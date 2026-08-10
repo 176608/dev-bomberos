@@ -3,6 +3,7 @@
 namespace App\Http\Requests\GestorSIGEM;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCuadroV2Request extends FormRequest
 {
@@ -17,7 +18,7 @@ class StoreCuadroV2Request extends FormRequest
     {
         $rules = [
             'subtema_id' => 'required|integer|exists:subtema_v2,subtema_id',
-            'codigo_cuadro' => 'required|string|max:50',
+            'codigo_cuadro' => 'required|string|max:50|unique:cuadro_v2,codigo_cuadro',
             'c_titulo' => 'required|string|max:255',
             'c_subtitulo' => 'nullable|string|max:255',
             'publicado' => 'nullable|boolean',
@@ -31,7 +32,7 @@ class StoreCuadroV2Request extends FormRequest
 
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
             $rules['subtema_id'] = 'sometimes|integer|exists:subtema_v2,subtema_id';
-            $rules['codigo_cuadro'] = 'sometimes|string|max:50';
+            $rules['codigo_cuadro'] = ['sometimes', 'string', 'max:50', Rule::unique('cuadro_v2', 'codigo_cuadro')->ignore($this->route('id'))];
             $rules['c_titulo'] = 'sometimes|string|max:255';
         }
 

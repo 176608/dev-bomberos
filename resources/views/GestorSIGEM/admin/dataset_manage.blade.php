@@ -339,7 +339,6 @@
         PIVOT: 'ERR-PVT',
         GENERAR: 'ERR-GEN',
         REGEN: 'ERR-RGN',
-        IMPORT: 'ERR-IMP',
         SECCION: 'ERR-SEC',
     };
 
@@ -1510,20 +1509,6 @@
             })
             .catch(() => alerta('Error [' + ERR.REGEN + ']'));
     });
-
-    function importarFile(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const fd = new FormData();
-        fd.append('dataset', file);
-        status('Importando...');
-        fetch(BASE + '/importar', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF }, body: fd })
-            .then(r => r.json()).then(j => {
-                if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('✓ Importado'); }
-                else alerta(j.message);
-            }).catch(() => alerta('Error [' + ERR.IMPORT + ']'));
-        input.value = '';
-    }
 
     // ============ IMPORTAR CONFIGURACIÓN ============
     var _importOrigenId = null;

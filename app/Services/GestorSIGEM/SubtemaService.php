@@ -103,7 +103,7 @@ class SubtemaService
 
         $subtema->eliminar();
 
-        return "{$nombreSubtema}' del tema '{$nombreTema}";
+        return "'{$nombreSubtema}' del tema '{$nombreTema}'";
     }
 
     public function siguienteOrden(int $tema_id): int

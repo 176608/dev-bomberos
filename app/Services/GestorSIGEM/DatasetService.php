@@ -7,7 +7,6 @@ use App\Models\SIGEM\CuadroCategoria;
 use App\Models\SIGEM\CuadroDato;
 use App\Models\SIGEM\CuadroSeccion;
 use App\Services\HtmlSanitizer;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
@@ -602,27 +601,6 @@ class DatasetService
         }
 
         return $this->obtenerEstado($cuadro_id, $seccionId);
-    }
-
-    public function importarCsv(int $cuadro_id, UploadedFile $file): array
-    {
-        $handle = fopen($file->getRealPath(), 'r');
-        if (!$handle) throw new \RuntimeException('No se pudo abrir el archivo');
-        $grid = [];
-        while (($row = fgetcsv($handle)) !== false) {
-            $grid[] = $row;
-            if (count($grid) > 2000) {
-                fclose($handle);
-                throw new \InvalidArgumentException('El archivo supera el límite de 2000 filas');
-            }
-            if (count($row) > 50) {
-                fclose($handle);
-                throw new \InvalidArgumentException('El archivo supera el límite de 50 columnas');
-            }
-        }
-        fclose($handle);
-        if (empty($grid)) throw new \InvalidArgumentException('Archivo vacío');
-        return $this->pasteGrid($cuadro_id, $grid);
     }
 
     public function pasteCategorias(int $cuadro_id, string $eje, int $startCategoriaId, array $valores): array

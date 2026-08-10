@@ -3,7 +3,6 @@
 namespace App\Services\GestorSIGEM;
 
 use App\Models\SIGEM\Cuadro;
-use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\TemaV2;
 use App\Services\HtmlSanitizer;
 use Illuminate\Support\Facades\Storage;
@@ -122,10 +121,5 @@ class CuadroV2Service
         $data['tema_id'] = $cuadro->subtema ? $cuadro->subtema->tema_id : null;
 
         return $data;
-    }
-
-    public function obtenerSubtemasParaFormulario(): array
-    {
-        return SubtemaV2::obtenerTodos()->toArray();
     }
 }

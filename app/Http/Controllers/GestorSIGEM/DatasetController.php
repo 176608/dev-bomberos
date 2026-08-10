@@ -4,7 +4,6 @@ namespace App\Http\Controllers\GestorSIGEM;
 
 use Illuminate\Http\Request;
 use App\Services\GestorSIGEM\DatasetService;
-use App\Http\Requests\GestorSIGEM\ProcesarDatasetRequest;
 
 use Illuminate\Support\Facades\Cache;
 
@@ -178,22 +177,6 @@ class DatasetController extends Controller
             return response()->json(['success' => true, 'data' => $this->datasetService->pasteCategorias(
                 (int) $id, $request->eje, (int) $request->start_categoria_id, $request->valores
             )]);
-        } catch (\RuntimeException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
-        }
-    }
-
-    public function importar(ProcesarDatasetRequest $request, $id)
-    {
-        try {
-            $file = $request->file('dataset');
-            $ext = strtolower($file->getClientOriginalExtension());
-
-            if (in_array($ext, ['csv', 'txt'])) {
-                $this->invalidarCacheVisor((int) $id);
-                return response()->json(['success' => true, 'data' => $this->datasetService->importarCsv((int) $id, $file)]);
-            }
-            throw new \RuntimeException('Solo CSV por ahora');
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
