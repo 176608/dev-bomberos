@@ -64,9 +64,9 @@
                         <th>Fecha</th>
                         <th>Usuario</th>
                         <th>Modelo</th>
-                        <th>ID</th>
+                        <th>Título</th>
                         <th>Acción</th>
-                        <th>Detalle</th>
+                        <th class="text-center">Detalle</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,7 +91,14 @@
                             <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
                             <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
                             <td><code>{{ $log->modelo }}</code></td>
-                            <td><span class="badge bg-secondary">{{ $log->modelo_id }}</span></td>
+                            <td>
+                                @php $titulo = $titulos[$log->modelo][$log->modelo_id] ?? null; @endphp
+                                @if($titulo)
+                                    <span class="small" title="ID {{ $log->modelo_id }}">{{ $titulo }}</span>
+                                @else
+                                    <span class="badge bg-secondary text-muted">{{ $log->modelo_id }}</span>
+                                @endif
+                            </td>
                             <td>
                                 @if(in_array($log->accion, ['crear', 'crear_dataset']))
                                     <span class="badge bg-success">Crear</span>
@@ -147,6 +154,10 @@ $(document).ready(function () {
     var dt = $('#tablaAuditoria').DataTable({
         stateSave: true,
         stateDuration: -1,
+        autoWidth: false,
+        columnDefs: [
+            { targets: 5, width: '1%', className: 'text-center text-nowrap' }
+        ],
         language: { url: "{{ asset('js/datatables/i18n/es-ES.json') }}", emptyTable: 'No hay eventos en este período.' },
         order: [[0, 'desc']],
         pageLength: 25,

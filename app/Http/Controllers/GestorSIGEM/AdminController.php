@@ -7,6 +7,9 @@ use App\Http\Controllers\SGU\DashboardController as SguDashboardController;
 use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
+use App\Models\SIGEM\ce_tema;
+use App\Models\SIGEM\ce_subtema;
+use App\Models\SIGEM\ce_contenido;
 use App\Models\SIGEM\AuditoriaSgiem;
 use App\Models\SIGEM\AuditoriaDataset;
 use App\Models\SIGEM\PubVisitante;
@@ -153,6 +156,8 @@ class AdminController extends Controller
             $modelos = $modelos->concat(['Dataset'])->unique()->sort()->values();
         }
 
+        $titulos = $this->resolverTitulos($auditoria);
+
         $resumen = [
             'total_temas' => TemaV2::count(),
             'total_subtemas' => SubtemaV2::count(),
@@ -165,9 +170,34 @@ class AdminController extends Controller
             'auditoria' => $auditoria,
             'resumen' => $resumen,
             'modelos' => $modelos,
+            'titulos' => $titulos,
             'esAdmin' => $user->hasRole('Administrador'),
             'rangoActual' => $rango,
         ]);
+    }
+
+    private function resolverTitulos($auditoria): array
+    {
+        $porModelo = [];
+        foreach ($auditoria as $log) {
+            $porModelo[$log->modelo][$log->modelo_id] = true;
+        }
+
+        $titulos = [];
+        foreach ($porModelo as $modelo => $ids) {
+            $ids = array_keys($ids);
+
+            $titulos[$modelo] = match ($modelo) {
+                'TemaV2' => TemaV2::whereIn('tema_id', $ids)->pluck('tema_titulo', 'tema_id')->all(),
+                'SubtemaV2' => SubtemaV2::whereIn('subtema_id', $ids)->pluck('subtema_titulo', 'subtema_id')->all(),
+                'Cuadro', 'Dataset' => Cuadro::whereIn('cuadro_id', $ids)->pluck('c_titulo', 'cuadro_id')->all(),
+                'ce_tema' => ce_tema::whereIn('ce_tema_id', $ids)->pluck('tema', 'ce_tema_id')->all(),
+                'ce_subtema' => ce_subtema::whereIn('ce_subtema_id', $ids)->pluck('ce_subtema', 'ce_subtema_id')->all(),
+                'ce_contenido' => ce_contenido::whereIn('ce_contenido_id', $ids)->pluck('titulo_tabla', 'ce_contenido_id')->all(),
+                default => [],
+            };
+        }
+        return $titulos;
     }
 
     public function detalleAuditoria(Request $request, $id)
