@@ -11,7 +11,7 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}" class="btn btn-outline-info btn-sm">
-                <i class="bi bi-table me-1"></i> Dataset
+                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Cuadro
             </a>
             <button type="button" class="btn btn-sm {{ $cuadro->publicado ? 'btn-success' : 'btn-secondary' }}" id="btn-toggle-publicado" onclick="togglePublicado({{ $cuadro->cuadro_id }})">
                 <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>

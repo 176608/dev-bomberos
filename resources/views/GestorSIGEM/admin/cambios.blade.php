@@ -73,17 +73,29 @@
                     @foreach($auditoria as $log)
                         @php
                             $ds = $log->datos_nuevos;
-                            $accionTexto = $ds['accion'] ?? ($log->accion === 'crear' ? 'Creación' : ($log->accion === 'eliminar' ? 'Eliminación' : 'Actualización'));
+                            $esDataset = $log instanceof \App\Models\SIGEM\AuditoriaDataset;
+                            if ($esDataset) {
+                                $rc = $log->resumen_cambios ?? [];
+                                if (!empty($rc['dataset_creado'])) {
+                                    $accionTexto = 'Dataset creado';
+                                } elseif (($rc['celdas_modificadas'] ?? 0) > 0) {
+                                    $accionTexto = ($rc['celdas_modificadas'] ?? 0) . ' celdas modificadas · V ' . ($rc['categorias_verticales']['antes'] ?? 0) . '→' . ($rc['categorias_verticales']['despues'] ?? 0) . ' · H ' . ($rc['categorias_horizontales']['antes'] ?? 0) . '→' . ($rc['categorias_horizontales']['despues'] ?? 0);
+                                } else {
+                                    $accionTexto = 'Actualización de dataset';
+                                }
+                            } else {
+                                $accionTexto = $ds['accion'] ?? ($log->accion === 'crear' ? 'Creación' : ($log->accion === 'eliminar' ? 'Eliminación' : 'Actualización'));
+                            }
                         @endphp
-                        <tr data-sesion-id="{{ $log->sesion_id ?? '' }}">
+                        <tr data-sesion-id="{{ $log->sesion_id ?? '' }}" data-tipo="{{ $esDataset ? 'dataset' : 'sgiem' }}">
                             <td><small>{{ $log->created_at->format('d/m/Y H:i') }}</small></td>
                             <td><small>{{ $log->usuario->name ?? '—' }}</small></td>
                             <td><code>{{ $log->modelo }}</code></td>
                             <td><span class="badge bg-secondary">{{ $log->modelo_id }}</span></td>
                             <td>
-                                @if($log->accion === 'crear')
+                                @if(in_array($log->accion, ['crear', 'crear_dataset']))
                                     <span class="badge bg-success">Crear</span>
-                                @elseif($log->accion === 'actualizar')
+                                @elseif(in_array($log->accion, ['actualizar', 'actualizar_dataset']))
                                     <span class="badge bg-warning text-dark">Actualizar</span>
                                 @else
                                     <span class="badge bg-danger">Eliminar</span>
@@ -93,7 +105,7 @@
                                 <small class="text-muted me-2">{{ $accionTexto }}</small>
                                 @if($log->datos_previos || $log->datos_nuevos)
                                     <button class="btn btn-sm btn-outline-info py-0 px-1"
-                                            onclick="verDiff({{ $log->auditoria_id }})" title="Ver detalle">
+                                            onclick="verDiff({{ $log->auditoria_id }}, '{{ $esDataset ? 'dataset' : 'sgiem' }}')" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 @endif
@@ -184,7 +196,9 @@ $(document).ready(function () {
     });
 
     $('#filtro-modelo').on('change', function() {
-        dt.column(2).search($(this).val()).draw();
+        var v = $(this).val();
+        if (!v) { dt.column(2).search('').draw(); return; }
+        dt.column(2).search('^' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', true, false).draw();
     });
 });
 
@@ -213,7 +227,31 @@ function renderActions(acciones) {
     return html;
 }
 
-function renderDiff(prev, next) {
+function renderResumenDataset(rc, accion) {
+    if (!rc) return '<p class="text-muted">Sin resumen</p>';
+    var filas = [];
+    filas.push(['Acción', accion === 'crear_dataset' ? 'Creación de dataset' : 'Actualización de dataset']);
+    filas.push(['Dataset creado', rc.dataset_creado ? 'Sí' : 'No']);
+    var v = rc.categorias_verticales || {}, h = rc.categorias_horizontales || {}, c = rc.celdas || {};
+    filas.push(['Categorías verticales', v.antes + ' → ' + v.despues]);
+    filas.push(['Categorías horizontales', h.antes + ' → ' + h.despues]);
+    filas.push(['Celdas', c.antes + ' → ' + c.despues]);
+    filas.push(['Celdas modificadas', (rc.celdas_modificadas || 0)]);
+    var html = '<table class="table table-sm table-bordered mb-0"><tbody>';
+    filas.forEach(function(f) {
+        html += '<tr><td class="text-muted" style="width:50%"><code>' + esc(f[0]) + '</code></td><td>' + esc(f[1]) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    return html;
+}
+
+function renderDiff(data) {
+    if (!data) return '<p class="text-muted">Sin datos</p>';
+
+    if (data.resumen_cambios) return renderResumenDataset(data.resumen_cambios, data.accion);
+
+    var prev = data.datos_previos;
+    var next = data.datos_nuevos;
     if (!prev && !next) return '<p class="text-muted">Sin datos</p>';
 
     if (next && next.acciones) return renderActions(next.acciones);
@@ -243,11 +281,11 @@ function renderDiff(prev, next) {
     return html;
 }
 
-function verDiff(id) {
-    fetch('{{ route("sgiem.admin.auditoria.detalle", ":id") }}'.replace(':id', id))
+function verDiff(id, tipo) {
+    fetch('{{ route("sgiem.admin.auditoria.detalle", ":id") }}'.replace(':id', id) + (tipo === 'dataset' ? '?tipo=dataset' : ''))
         .then(r => r.json())
         .then(data => {
-            document.getElementById('diff-content').innerHTML = renderDiff(data.datos_previos, data.datos_nuevos);
+            document.getElementById('diff-content').innerHTML = renderDiff(data);
             new bootstrap.Modal(document.getElementById('modalDiff')).show();
         })
         .catch(function() {

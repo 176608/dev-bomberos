@@ -8,10 +8,12 @@ use App\Models\SIGEM\Cuadro;
 use App\Models\SIGEM\TemaV2;
 use App\Models\SIGEM\SubtemaV2;
 use App\Models\SIGEM\AuditoriaSgiem;
+use App\Models\SIGEM\AuditoriaDataset;
 use App\Models\SIGEM\PubVisitante;
 use App\Models\SIGEM\PubVisita;
 use App\Services\SecureFileUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
@@ -123,25 +125,39 @@ class AdminController extends Controller
 
         $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'semanal';
 
-        $query = AuditoriaSgiem::with('usuario');
+        $querySgiem = AuditoriaSgiem::with('usuario');
+        $queryDataset = Schema::hasTable('auditoria_datasets')
+            ? AuditoriaDataset::with('usuario')
+            : null;
 
         if ($rango === 'hoy') {
-            $query->whereDate('created_at', today());
+            $querySgiem->whereDate('created_at', today());
+            if ($queryDataset) $queryDataset->whereDate('created_at', today());
         } elseif ($rango === 'semanal') {
-            $query->where('created_at', '>=', now()->subWeek());
+            $querySgiem->where('created_at', '>=', now()->subWeek());
+            if ($queryDataset) $queryDataset->where('created_at', '>=', now()->subWeek());
         } elseif ($rango === 'mensual') {
-            $query->where('created_at', '>=', now()->subDays(30));
+            $querySgiem->where('created_at', '>=', now()->subDays(30));
+            if ($queryDataset) $queryDataset->where('created_at', '>=', now()->subDays(30));
         }
 
-        $auditoria = $query->orderBy('created_at', 'desc')->get();
+        $auditoria = $querySgiem->orderBy('created_at', 'desc')->get();
+        if ($queryDataset) {
+            $auditoria = $auditoria->concat($queryDataset->orderBy('created_at', 'desc')->get())
+                ->sortByDesc('created_at')
+                ->values();
+        }
 
         $modelos = AuditoriaSgiem::distinct()->pluck('modelo')->sort()->values();
+        if ($queryDataset && AuditoriaDataset::exists()) {
+            $modelos = $modelos->concat(['Dataset'])->unique()->sort()->values();
+        }
 
         $resumen = [
             'total_temas' => TemaV2::count(),
             'total_subtemas' => SubtemaV2::count(),
             'total_cuadros' => Cuadro::count(),
-            'total_auditoria' => AuditoriaSgiem::count(),
+            'total_auditoria' => AuditoriaSgiem::count() + ($queryDataset ? AuditoriaDataset::count() : 0),
         ];
 
         return view('GestorSIGEM.layout')->with([
@@ -154,8 +170,26 @@ class AdminController extends Controller
         ]);
     }
 
-    public function detalleAuditoria($id)
+    public function detalleAuditoria(Request $request, $id)
     {
+        $tipo = $request->query('tipo');
+
+        if ($tipo === 'dataset') {
+            $log = Schema::hasTable('auditoria_datasets') ? AuditoriaDataset::find($id) : null;
+
+            if (!$log) {
+                return response()->json(['error' => 'No encontrado'], 404);
+            }
+
+            return response()->json([
+                'datos_previos' => $log->estado_anterior,
+                'datos_nuevos' => $log->estado_nuevo,
+                'resumen_cambios' => $log->resumen_cambios,
+                'modelo' => 'Dataset',
+                'accion' => $log->accion,
+            ]);
+        }
+
         $log = AuditoriaSgiem::find($id);
 
         if (!$log) {

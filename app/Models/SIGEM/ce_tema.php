@@ -4,8 +4,12 @@ namespace App\Models\SIGEM;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\SIGEM\Traits\AuditableSgiem;
+
 class ce_tema extends Model
 {
+    use AuditableSgiem;
+
     /**
      * La tabla asociada con el modelo.
      */

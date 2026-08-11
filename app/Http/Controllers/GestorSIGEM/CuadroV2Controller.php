@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\GestorSIGEM;
 
 use App\Http\Requests\GestorSIGEM\StoreCuadroV2Request;
+use App\Services\GestorSIGEM\AuditoriaDatasetService;
 use App\Services\GestorSIGEM\CuadroV2Service;
 use App\Services\GestorSIGEM\DatasetService;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,6 +18,7 @@ class CuadroV2Controller extends Controller
     public function __construct(
         private CuadroV2Service $cuadroV2Service,
         private DatasetService $datasetService,
+        private AuditoriaDatasetService $auditoriaDatasetService,
     ) {
         $this->middleware('auth');
     }
@@ -72,6 +74,8 @@ class CuadroV2Controller extends Controller
                 ->with('error', 'Cuadro no encontrado.');
         }
 
+        $this->auditoriaDatasetService->abrirSesion((int) $id);
+
         try {
             $estado = $this->datasetService->obtenerEstado((int) $id);
         } catch (\RuntimeException) {
@@ -107,6 +111,8 @@ class CuadroV2Controller extends Controller
             return redirect()->route('sgiem.admin.cuadros.index')
                 ->with('error', 'Cuadro no encontrado.');
         }
+
+        $this->auditoriaDatasetService->cerrarSesion((int) $id);
 
         try {
             $estado = $this->datasetService->obtenerEstado((int) $id);
