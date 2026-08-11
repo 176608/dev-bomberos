@@ -227,28 +227,104 @@ function renderActions(acciones) {
     return html;
 }
 
-function renderResumenDataset(rc, accion) {
-    if (!rc) return '<p class="text-muted">Sin resumen</p>';
-    var filas = [];
-    filas.push(['Acción', accion === 'crear_dataset' ? 'Creación de dataset' : 'Actualización de dataset']);
-    filas.push(['Dataset creado', rc.dataset_creado ? 'Sí' : 'No']);
-    var v = rc.categorias_verticales || {}, h = rc.categorias_horizontales || {}, c = rc.celdas || {};
-    filas.push(['Categorías verticales', v.antes + ' → ' + v.despues]);
-    filas.push(['Categorías horizontales', h.antes + ' → ' + h.despues]);
-    filas.push(['Celdas', c.antes + ' → ' + c.despues]);
-    filas.push(['Celdas modificadas', (rc.celdas_modificadas || 0)]);
-    var html = '<table class="table table-sm table-bordered mb-0"><tbody>';
-    filas.forEach(function(f) {
-        html += '<tr><td class="text-muted" style="width:50%"><code>' + esc(f[0]) + '</code></td><td>' + esc(f[1]) + '</td></tr>';
+function filaResumen(label, antes, despues, extraCls) {
+    return '<tr' + (extraCls ? ' class="' + extraCls + '"' : '') + '><td><code>' + esc(label) + '</code></td>' +
+        '<td class="text-danger">' + esc(antes) + '</td>' +
+        '<td class="text-success">' + esc(despues) + '</td></tr>';
+}
+
+function nombresCategorias(estado) {
+    var m = {};
+    (estado.verticales || []).forEach(function(c) { if (c.categoria_id != null) m[c.categoria_id] = c.nombre; });
+    (estado.horizontales || []).forEach(function(c) { if (c.categoria_id != null) m[c.categoria_id] = c.nombre; });
+    return m;
+}
+
+function celdasDeEstado(estado) {
+    var m = {};
+    (estado.data || []).forEach(function(fila) {
+        fila.forEach(function(c) {
+            if (c && c.cat_vertical_id != null) m[c.cat_vertical_id + '|' + c.cat_horizontal_id] = c.valor;
+        });
     });
+    return m;
+}
+
+function diffCategorias(antes, despues) {
+    var idsA = {}, idsB = {};
+    antes.forEach(function(c) { idsA[c.categoria_id] = c.nombre; });
+    despues.forEach(function(c) { idsB[c.categoria_id] = c.nombre; });
+    var agregadas = [], eliminadas = [];
+    Object.keys(idsB).forEach(function(id) { if (!(id in idsA)) agregadas.push(idsB[id]); });
+    Object.keys(idsA).forEach(function(id) { if (!(id in idsB)) eliminadas.push(idsA[id]); });
+    return { agregadas: agregadas, eliminadas: eliminadas };
+}
+
+function renderDiffDataset(data) {
+    var prev = data.datos_previos || {};
+    var next = data.datos_nuevos || {};
+    var rc = data.resumen_cambios || {};
+
+    var html = '<h6 class="text-muted">Resumen</h6>';
+    html += '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:30%">Bloque</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
+    var v = rc.categorias_verticales || {}, h = rc.categorias_horizontales || {}, c = rc.celdas || {};
+    html += filaResumen('Dataset creado', rc.dataset_creado ? 'No' : '—', rc.dataset_creado ? 'Sí' : '—');
+    html += filaResumen('Categorías verticales', v.antes, v.despues);
+    html += filaResumen('Categorías horizontales', h.antes, h.despues);
+    html += filaResumen('Celdas', c.antes, c.despues);
+    if ((rc.celdas_modificadas || 0) > 0) html += filaResumen('Celdas modificadas', '—', rc.celdas_modificadas, 'table-warning');
     html += '</tbody></table>';
+
+    var difV = diffCategorias(prev.verticales || [], next.verticales || []);
+    var difH = diffCategorias(prev.horizontales || [], next.horizontales || []);
+
+    if (difV.agregadas.length || difV.eliminadas.length || difH.agregadas.length || difH.eliminadas.length) {
+        html += '<h6 class="mt-3 text-muted">Categorías</h6><table class="table table-sm table-bordered mb-0"><tbody>';
+        if (difV.agregadas.length) html += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Verticales agregadas</td><td>' + esc(difV.agregadas.join(', ')) + '</td></tr>';
+        if (difV.eliminadas.length) html += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Verticales eliminadas</td><td>' + esc(difV.eliminadas.join(', ')) + '</td></tr>';
+        if (difH.agregadas.length) html += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Horizontales agregadas</td><td>' + esc(difH.agregadas.join(', ')) + '</td></tr>';
+        if (difH.eliminadas.length) html += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Horizontales eliminadas</td><td>' + esc(difH.eliminadas.join(', ')) + '</td></tr>';
+        html += '</tbody></table>';
+    }
+
+    var celdasPrev = celdasDeEstado(prev);
+    var celdasNext = celdasDeEstado(next);
+    var nombres = nombresCategorias(next);
+    var nombresPrev = nombresCategorias(prev);
+    var keys = {};
+    Object.keys(celdasPrev).forEach(function(k) { keys[k] = 1; });
+    Object.keys(celdasNext).forEach(function(k) { keys[k] = 1; });
+    var cambios = [];
+    Object.keys(keys).forEach(function(k) {
+        var a = celdasPrev[k], b = celdasNext[k];
+        if (a === b) return;
+        cambios.push({ k: k, a: a === undefined ? '' : a, b: b === undefined ? '' : b });
+    });
+
+    if (cambios.length) {
+        html += '<h6 class="mt-3 text-muted">Celdas modificadas (' + cambios.length + ')</h6>';
+        html += '<div class="table-responsive" style="max-height:320px;overflow:auto">';
+        html += '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th>Vertical</th><th>Horizontal</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
+        cambios.forEach(function(cel) {
+            var p = cel.k.split('|');
+            var vNom = nombres[p[0]] || nombresPrev[p[0]] || p[0];
+            var hNom = nombres[p[1]] || nombresPrev[p[1]] || p[1];
+            html += '<tr><td>' + esc(vNom) + '</td><td>' + esc(hNom) + '</td>' +
+                '<td class="text-danger">' + esc(cel.a) + '</td>' +
+                '<td class="text-success">' + (cel.b === '' ? '<em class="text-danger">(borrada)</em>' : esc(cel.b)) + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+    } else {
+        html += '<p class="text-muted mt-3 mb-0">Sin cambios en celdas</p>';
+    }
+
     return html;
 }
 
 function renderDiff(data) {
     if (!data) return '<p class="text-muted">Sin datos</p>';
 
-    if (data.resumen_cambios) return renderResumenDataset(data.resumen_cambios, data.accion);
+    if (data.resumen_cambios) return renderDiffDataset(data);
 
     var prev = data.datos_previos;
     var next = data.datos_nuevos;

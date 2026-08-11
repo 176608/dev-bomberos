@@ -21,7 +21,7 @@ class AuditoriaDataset extends Model
         'resumen_cambios',
     ];
 
-    protected $appends = ['modelo', 'modelo_id', 'sesion_id'];
+    protected $appends = ['modelo', 'modelo_id', 'sesion_id', 'datos_previos', 'datos_nuevos'];
 
     protected function casts(): array
     {
@@ -45,6 +45,16 @@ class AuditoriaDataset extends Model
     public function getSesionIdAttribute(): ?string
     {
         return null;
+    }
+
+    public function getDatosPreviosAttribute(): ?array
+    {
+        return $this->estado_anterior;
+    }
+
+    public function getDatosNuevosAttribute(): ?array
+    {
+        return $this->estado_nuevo;
     }
 
     public function usuario(): BelongsTo
