@@ -3,6 +3,7 @@
 namespace App\Services\GestorSIGEM;
 
 use App\Models\SIGEM\AuditoriaDataset;
+use App\Models\SIGEM\CuadroDato;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -38,6 +39,7 @@ class AuditoriaDatasetService
         Cache::put(self::SESION_KEY . $cuadroId, [
             'user_id' => Auth::id(),
             'estado_apertura' => $estado,
+            'datos_secciones' => $this->capturarDatosSecciones($cuadroId),
         ], now()->addHours(8));
     }
 
@@ -61,8 +63,21 @@ class AuditoriaDatasetService
             'accion' => 'actualizar_dataset',
             'estado_anterior' => $estadoApertura,
             'estado_nuevo' => $estadoActual,
-            'resumen_cambios' => $this->resumenCambios($estadoApertura, $estadoActual),
+            'resumen_cambios' => $this->resumenCambios($estadoApertura, $estadoActual, $cuadroId, $sesion['datos_secciones'] ?? []),
         ]);
+    }
+
+    private function capturarDatosSecciones(int $cuadroId): array
+    {
+        $mapa = [];
+        $datos = CuadroDato::where('cuadro_id', $cuadroId)
+            ->select('seccion_id', 'cat_vertical_id', 'cat_horizontal_id', 'valor')
+            ->get();
+
+        foreach ($datos as $d) {
+            $mapa[$d->seccion_id][$d->cat_vertical_id . '|' . $d->cat_horizontal_id] = $d->valor;
+        }
+        return $mapa;
     }
 
     private function obtenerEstadoSeguro(int $cuadroId): array
@@ -97,6 +112,7 @@ class AuditoriaDatasetService
             'verticales' => $this->firmaCategorias($estado['all_verticales'] ?? []),
             'horizontales' => $this->firmaCategorias($estado['all_horizontales'] ?? []),
             'celdas' => $this->firmaCeldas($estado['data'] ?? []),
+            'secciones' => $this->firmaSecciones($estado['secciones'] ?? []),
         ];
 
         if (array_key_exists('tipos_grafica_permitida', $estado)) {
@@ -106,6 +122,13 @@ class AuditoriaDatasetService
         return json_encode($firma);
     }
 
+    private function firmaSecciones(array $secciones): array
+    {
+        $ids = array_map(fn($s) => $s['seccion_id'] ?? null, $secciones);
+        sort($ids);
+        return $ids;
+    }
+
     private function firmaCategorias(array $categorias): array
     {
         return array_map(fn($c) => [
@@ -113,7 +136,7 @@ class AuditoriaDatasetService
             'nombre' => $c['nombre'] ?? null,
             'orden' => $c['orden'] ?? null,
             'tipo' => $c['tipo'] ?? null,
-            'padre' => $c['categoria_padre_id'] ?? null,
+            'padre' => $c['padre_id'] ?? null,
         ], $categorias);
     }
 
@@ -132,7 +155,7 @@ class AuditoriaDatasetService
         return $celdas;
     }
 
-    private function resumenCambios(array $antes, array $despues): array
+    private function resumenCambios(array $antes, array $despues, int $cuadroId, array $datosApertura): array
     {
         $aCeldas = $this->mapaCeldas($antes['data'] ?? []);
         $dCeldas = $this->mapaCeldas($despues['data'] ?? []);
@@ -144,22 +167,110 @@ class AuditoriaDatasetService
             }
         }
 
+        $mapaCat = $this->mapaCategorias(
+            $antes['all_verticales'] ?? [],
+            $despues['all_verticales'] ?? [],
+            $antes['all_horizontales'] ?? [],
+            $despues['all_horizontales'] ?? [],
+        );
+
         return [
             'dataset_creado' => empty($antes['tiene_dataset']) && !empty($despues['tiene_dataset']),
-            'categorias_verticales' => [
-                'antes' => count($antes['all_verticales'] ?? []),
-                'despues' => count($despues['all_verticales'] ?? []),
-            ],
-            'categorias_horizontales' => [
-                'antes' => count($antes['all_horizontales'] ?? []),
-                'despues' => count($despues['all_horizontales'] ?? []),
-            ],
+            'categorias_verticales' => $this->resumenCategorias($antes['verticales'] ?? [], $despues['verticales'] ?? [], $mapaCat),
+            'categorias_horizontales' => $this->resumenCategorias($antes['horizontales'] ?? [], $despues['horizontales'] ?? [], $mapaCat),
+            'secciones' => $this->resumenSecciones(
+                $antes['secciones'] ?? [],
+                $despues['secciones'] ?? [],
+                $datosApertura,
+                $this->capturarDatosSecciones($cuadroId),
+            ),
             'celdas' => [
                 'antes' => count($aCeldas),
                 'despues' => count($dCeldas),
             ],
             'celdas_modificadas' => $celdasModificadas,
         ];
+    }
+
+    private function resumenSecciones(array $antes, array $despues, array $datosApertura, array $datosActuales): array
+    {
+        $idsA = array_column($antes, 'seccion_id');
+        $idsB = array_column($despues, 'seccion_id');
+
+        $agregadas = [];
+        foreach ($despues as $s) {
+            if (!in_array($s['seccion_id'], $idsA)) {
+                $agregadas[] = [
+                    'nombre' => $s['nombre'] ?? (string) $s['seccion_id'],
+                    'datos' => $datosActuales[$s['seccion_id']] ?? [],
+                ];
+            }
+        }
+
+        $eliminadas = [];
+        foreach ($antes as $s) {
+            if (!in_array($s['seccion_id'], $idsB)) {
+                $eliminadas[] = [
+                    'nombre' => $s['nombre'] ?? (string) $s['seccion_id'],
+                    'datos' => $datosApertura[$s['seccion_id']] ?? [],
+                ];
+            }
+        }
+
+        return [
+            'antes' => count($idsA),
+            'despues' => count($idsB),
+            'agregadas' => $agregadas,
+            'eliminadas' => $eliminadas,
+        ];
+    }
+
+    private function mapaCategorias(array ...$listas): array
+    {
+        $mapa = [];
+        foreach ($listas as $lista) {
+            foreach ($lista as $c) {
+                $mapa[$c['categoria_id']] = $c;
+            }
+        }
+        return $mapa;
+    }
+
+    private function resumenCategorias(array $antes, array $despues, array $mapa): array
+    {
+        $idsA = array_column($antes, 'categoria_id');
+        $idsB = array_column($despues, 'categoria_id');
+
+        return [
+            'antes' => count($idsA),
+            'despues' => count($idsB),
+            'agregadas' => $this->agruparPorPadre(array_diff($idsB, $idsA), $mapa),
+            'eliminadas' => $this->agruparPorPadre(array_diff($idsA, $idsB), $mapa),
+        ];
+    }
+
+    private function agruparPorPadre(array $ids, array $mapa): array
+    {
+        $grupos = [];
+        foreach ($ids as $id) {
+            $c = $mapa[$id] ?? null;
+            $nombre = $c['nombre'] ?? (string) $id;
+
+            if (empty($c['padre_id'])) {
+                $grupos[] = ['padre' => null, 'nombre' => $nombre];
+                continue;
+            }
+
+            $padre = $mapa[$c['padre_id']] ?? null;
+            $nombrePadre = $padre['nombre'] ?? (string) $c['padre_id'];
+            $key = 'p_' . $c['padre_id'];
+
+            if (!isset($grupos[$key])) {
+                $grupos[$key] = ['padre' => $nombrePadre, 'hijos' => []];
+            }
+            $grupos[$key]['hijos'][] = $nombre;
+        }
+        return array_values($grupos);
     }
 
     private function mapaCeldas(array $data): array

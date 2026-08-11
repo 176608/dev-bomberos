@@ -250,14 +250,52 @@ function celdasDeEstado(estado) {
     return m;
 }
 
-function diffCategorias(antes, despues) {
-    var idsA = {}, idsB = {};
-    antes.forEach(function(c) { idsA[c.categoria_id] = c.nombre; });
-    despues.forEach(function(c) { idsB[c.categoria_id] = c.nombre; });
-    var agregadas = [], eliminadas = [];
-    Object.keys(idsB).forEach(function(id) { if (!(id in idsA)) agregadas.push(idsB[id]); });
-    Object.keys(idsA).forEach(function(id) { if (!(id in idsB)) eliminadas.push(idsA[id]); });
-    return { agregadas: agregadas, eliminadas: eliminadas };
+function textoGruposCategorias(grupos) {
+    if (!grupos || !grupos.length) return '';
+    return grupos.map(function(g) {
+        if (g.padre) {
+            if (g.hijos.length > 6) return g.padre + ' (' + g.hijos.length + ' hijos)';
+            return g.padre + ': ' + g.hijos.join(', ');
+        }
+        return g.nombre;
+    }).join('; ');
+}
+
+function nombresJerarquia(estado) {
+    var simples = {};
+    var listas = (estado.all_verticales || []).concat(estado.all_horizontales || []);
+    listas.forEach(function(c) {
+        if (c.categoria_id != null) simples[c.categoria_id] = c.nombre || c.categoria_id;
+    });
+    var etiquetas = {};
+    listas.forEach(function(c) {
+        if (c.categoria_id == null) return;
+        if (c.padre_id != null && simples[c.padre_id] != null) etiquetas[c.categoria_id] = simples[c.padre_id] + ':' + simples[c.categoria_id];
+        else etiquetas[c.categoria_id] = simples[c.categoria_id];
+    });
+    return etiquetas;
+}
+
+function renderDatosSeccion(datos, nombres) {
+    var claves = Object.keys(datos || {});
+    if (!claves.length) return '<p class="text-muted mb-0">Sin datos</p>';
+    var html = '<div class="table-responsive" style="max-height:240px;overflow:auto"><table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th>Vertical</th><th>Horizontal</th><th>Valor</th></tr></thead><tbody>';
+    claves.forEach(function(k) {
+        var p = k.split('|');
+        html += '<tr><td>' + esc(nombres[p[0]] || p[0]) + '</td><td>' + esc(nombres[p[1]] || p[1]) + '</td><td>' + esc(datos[k]) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+}
+
+function filaSeccion(label, secciones, cls, nombres) {
+    var html = '<div class="mb-2"><span class="' + cls + '"><i class="bi bi-diagram-3 me-1"></i>' + esc(label) + '</span>';
+    secciones.forEach(function(sec) {
+        var n = Object.keys(sec.datos || {}).length;
+        html += '<details class="mb-1 ms-3"><summary class="small">' + esc(sec.nombre) + ' <span class="badge bg-secondary">' + n + ' celdas</span></summary><div class="mt-1">' + renderDatosSeccion(sec.datos, nombres) + '</div></details>';
+    });
+    html += '</div>';
+    return html;
 }
 
 function renderDiffDataset(data) {
@@ -267,24 +305,33 @@ function renderDiffDataset(data) {
 
     var html = '<h6 class="text-muted">Resumen</h6>';
     html += '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:30%">Bloque</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
-    var v = rc.categorias_verticales || {}, h = rc.categorias_horizontales || {}, c = rc.celdas || {};
+    var v = rc.categorias_verticales || {}, h = rc.categorias_horizontales || {}, c = rc.celdas || {}, s = rc.secciones || {};
     html += filaResumen('Dataset creado', rc.dataset_creado ? 'No' : '—', rc.dataset_creado ? 'Sí' : '—');
     html += filaResumen('Categorías verticales', v.antes, v.despues);
     html += filaResumen('Categorías horizontales', h.antes, h.despues);
+    html += filaResumen('Secciones', s.antes, s.despues);
     html += filaResumen('Celdas', c.antes, c.despues);
     if ((rc.celdas_modificadas || 0) > 0) html += filaResumen('Celdas modificadas', '—', rc.celdas_modificadas, 'table-warning');
     html += '</tbody></table>';
 
-    var difV = diffCategorias(prev.verticales || [], next.verticales || []);
-    var difH = diffCategorias(prev.horizontales || [], next.horizontales || []);
+    var seccionCategorias = '';
+    if (v.agregadas && v.agregadas.length) seccionCategorias += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Verticales agregadas</td><td>' + esc(textoGruposCategorias(v.agregadas)) + '</td></tr>';
+    if (v.eliminadas && v.eliminadas.length) seccionCategorias += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Verticales eliminadas</td><td>' + esc(textoGruposCategorias(v.eliminadas)) + '</td></tr>';
+    if (h.agregadas && h.agregadas.length) seccionCategorias += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Horizontales agregadas</td><td>' + esc(textoGruposCategorias(h.agregadas)) + '</td></tr>';
+    if (h.eliminadas && h.eliminadas.length) seccionCategorias += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Horizontales eliminadas</td><td>' + esc(textoGruposCategorias(h.eliminadas)) + '</td></tr>';
+    if (seccionCategorias) {
+        html += '<h6 class="mt-3 text-muted">Categorías</h6><table class="table table-sm table-bordered mb-0"><tbody>' + seccionCategorias + '</tbody></table>';
+    }
 
-    if (difV.agregadas.length || difV.eliminadas.length || difH.agregadas.length || difH.eliminadas.length) {
-        html += '<h6 class="mt-3 text-muted">Categorías</h6><table class="table table-sm table-bordered mb-0"><tbody>';
-        if (difV.agregadas.length) html += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Verticales agregadas</td><td>' + esc(difV.agregadas.join(', ')) + '</td></tr>';
-        if (difV.eliminadas.length) html += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Verticales eliminadas</td><td>' + esc(difV.eliminadas.join(', ')) + '</td></tr>';
-        if (difH.agregadas.length) html += '<tr><td class="text-success"><i class="bi bi-plus-circle me-1"></i>Horizontales agregadas</td><td>' + esc(difH.agregadas.join(', ')) + '</td></tr>';
-        if (difH.eliminadas.length) html += '<tr><td class="text-danger"><i class="bi bi-dash-circle me-1"></i>Horizontales eliminadas</td><td>' + esc(difH.eliminadas.join(', ')) + '</td></tr>';
-        html += '</tbody></table>';
+    var seccionSecciones = '';
+    var nombresSec = {};
+    var n1 = nombresJerarquia(next), n2 = nombresJerarquia(prev);
+    Object.keys(n1).forEach(function(k) { nombresSec[k] = n1[k]; });
+    Object.keys(n2).forEach(function(k) { if (!nombresSec[k]) nombresSec[k] = n2[k]; });
+    if (s.agregadas && s.agregadas.length) seccionSecciones += filaSeccion('Secciones agregadas', s.agregadas, 'text-success', nombresSec);
+    if (s.eliminadas && s.eliminadas.length) seccionSecciones += filaSeccion('Secciones eliminadas', s.eliminadas, 'text-danger', nombresSec);
+    if (seccionSecciones) {
+        html += '<h6 class="mt-3 text-muted">Secciones</h6>' + seccionSecciones;
     }
 
     var celdasPrev = celdasDeEstado(prev);
