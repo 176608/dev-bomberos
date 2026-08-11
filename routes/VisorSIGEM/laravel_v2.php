@@ -34,7 +34,10 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
     });
 
     Route::prefix('consulta-express')->name('consulta-express.')->group(function () {
-        Route::get('/', [SIGEMV2Controller::class, 'consultaExpress'])->name('index');
+        // V6 (2026-08-10): ruta index comentada — sin uso; la consulta express pública
+        // vive en el modal de la página de inicio (inicio_consulta_express), que consume
+        // únicamente los endpoints subtemas/contenido.
+        //Route::get('/', [SIGEMV2Controller::class, 'consultaExpress'])->name('index');
         Route::get('/subtemas/{tema_id}', [SIGEMV2Controller::class, 'ajaxSubtemas'])->name('subtemas');
         Route::get('/contenido/{subtema_id}', [SIGEMV2Controller::class, 'ajaxContenido'])->name('contenido');
     });

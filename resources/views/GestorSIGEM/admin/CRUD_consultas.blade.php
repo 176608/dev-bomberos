@@ -700,6 +700,9 @@ function eliminarTemaCE(id, nombre) {
 }
 
 // ============ FUNCIONES DE CONTENIDOS CE ============
+// G9 (2026-08-10): "Modal de vista completa" comentado — nunca se implementó
+// (solo mostraba un alert placeholder) y la función no tenía invocaciones.
+/*
 function verContenidoCE(id) {
     // Buscar el contenido en la tabla y mostrar en modal
     const fila = event.target.closest('tr');
@@ -709,6 +712,7 @@ function verContenidoCE(id) {
     
     alert('Contenido CE ID: ' + id + '\n\nPreview:\n' + contenidoPreview + '\n\n(Modal de vista completa pendiente)');
 }
+*/
 
 function eliminarContenidoCE(id) {
     const fila = event.target.closest('tr');

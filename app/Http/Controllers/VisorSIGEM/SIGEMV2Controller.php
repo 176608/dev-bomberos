@@ -67,6 +67,10 @@ class SIGEMV2Controller extends Controller
         return view('VisorSIGEM.productos');
     }
 
+    // V6 (2026-08-10): método sin ruta activa (consulta-express.index comentada) —
+    // la consulta express pública es un modal de la página de inicio que usa los
+    // endpoints subtemas/contenido. Se conserva comentado por referencia.
+    /*
     public function consultaExpress()
     {
         // La consulta express pública vive en el modal incluido en la página de inicio
@@ -74,6 +78,7 @@ class SIGEMV2Controller extends Controller
         // sigem.v2.consulta-express.*
         return view('VisorSIGEM.inicio');
     }
+    */
 
     public function ajaxSubtemas($tema_id)
     {
