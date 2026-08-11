@@ -9,24 +9,20 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Registrar el middleware de roles
+        // Alias registrados
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'debug.role' => \App\Http\Middleware\DebugByRole::class,
             'login.throttle' => \App\Http\Middleware\LoginRateLimiter::class,
             'log.404' => \App\Http\Middleware\LogSuspicious404::class,
         ]);
-        
-        // Middleware global para debug por rol (se ejecuta en todas las rutas)
-        $middleware->web(prepend: [
-            \App\Http\Middleware\DebugByRole::class,
-        ]);
 
-        // Middleware del grupo web
+        // Middleware del grupo web (append: sesión ya disponible para auth()->check())
         $middleware->web(append: [
             \App\Http\Middleware\PreventBackHistory::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\SetVisitorUuid::class,
+            \App\Http\Middleware\DebugByRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

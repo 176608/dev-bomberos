@@ -24,10 +24,16 @@ class LoginRateLimiter
                 'retry_after' => $seconds,
             ]);
 
-            return response()->json([
-                'message' => 'Demasiadas solicitudes. Intenta de nuevo en ' . $seconds . ' segundos.',
-                'retry_after' => $seconds,
-            ], 429)->header('Retry-After', $seconds);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Demasiadas solicitudes. Intenta de nuevo en ' . $seconds . ' segundos.',
+                    'retry_after' => $seconds,
+                ], 429)->header('Retry-After', $seconds);
+            }
+
+            return response()
+                ->view('errors.429', [], 429)
+                ->header('Retry-After', $seconds);
         }
 
         RateLimiter::hit($key, $decaySeconds);
