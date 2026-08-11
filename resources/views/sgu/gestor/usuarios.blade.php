@@ -218,10 +218,71 @@
         </div>
     </div>
 @endforeach
+
+<!-- Modal único de PIN (S9): se muestra una sola vez y no se persiste en sesión -->
+<div class="modal fade" id="pinModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-key me-2"></i>PIN de acceso generado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3" id="pinModalMessage">Este PIN es de un solo uso. Proporciónalo al usuario.</p>
+                <div class="input-group input-group-lg justify-content-center">
+                    <input type="text" class="form-control text-center fw-bold font-monospace" id="pinModalValue"
+                           readonly style="font-size: 1.6rem; letter-spacing: 4px;">
+                    <button class="btn btn-success" type="button" id="pinModalCopy" title="Copiar PIN">
+                        <i class="bi bi-clipboard me-1"></i>Copiar
+                    </button>
+                </div>
+                <div class="form-text mt-2">El PIN no se guarda en el sistema: cópialo ahora y entrégalo al usuario.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
+let pinModalCallback = null;
+
+function mostrarPinModal(pin, mensaje, callback) {
+    if (!pin) {
+        alert(mensaje || 'Operación exitosa');
+        if (callback) callback();
+        return;
+    }
+    document.getElementById('pinModalMessage').textContent = mensaje || 'Este PIN es de un solo uso. Proporciónalo al usuario.';
+    const input = document.getElementById('pinModalValue');
+    input.value = pin;
+    pinModalCallback = callback || null;
+    const modal = new bootstrap.Modal(document.getElementById('pinModal'));
+    modal.show();
+    document.getElementById('pinModalCopy').onclick = function() {
+        input.select();
+        input.setSelectionRange(0, 99999);
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(pin).catch(function() {});
+        }
+        document.execCommand('copy');
+        this.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copiado';
+        const btn = this;
+        setTimeout(function() { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar'; }, 2000);
+    };
+}
+
+$(document).on('hidden.bs.modal', '#pinModal', function() {
+    if (pinModalCallback) {
+        const cb = pinModalCallback;
+        pinModalCallback = null;
+        cb();
+    }
+});
+
 function generarPin(userId) {
     if (!confirm('¿Generar un nuevo PIN de acceso? El PIN anterior quedará invalido.')) {
         return;
@@ -238,9 +299,10 @@ function generarPin(userId) {
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                alert('PIN generado: ' + response.pin + '\n\nEste PIN es de un solo uso. Proporcionarlo al usuario.');
+                mostrarPinModal(response.pin, 'PIN generado. Este PIN es de un solo uso. Proporcionarlo al usuario.', function() {
+                    window.location.reload();
+                });
                 $('#pinDisplay' + userId).val('**********');
-                window.location.reload();
             } else {
                 alert(response.message || 'Error al generar PIN');
             }
@@ -290,12 +352,9 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 modal.modal('hide');
-                if (response.pin) {
-                    alert(response.message + '\n\nPIN: ' + response.pin);
-                } else {
-                    alert(response.message || 'Usuario creado exitosamente');
-                }
-                window.location.reload();
+                mostrarPinModal(response.pin, response.message || 'Usuario creado exitosamente', function() {
+                    window.location.reload();
+                });
             },
             error: function(xhr) {
                 let errorMessage = 'Error al crear usuario';
@@ -326,12 +385,9 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     modal.modal('hide');
-                    if (response.pin) {
-                        alert(response.message + '\n\nPIN: ' + response.pin);
-                    } else {
-                        alert(response.message);
-                    }
-                    window.location.reload();
+                    mostrarPinModal(response.pin, response.message || 'Usuario actualizado exitosamente', function() {
+                        window.location.reload();
+                    });
                 }
             },
             error: function(xhr) {

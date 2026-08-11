@@ -77,7 +77,6 @@ Route::middleware([\App\Http\Middleware\PreventBackHistory::class, 'auth'])->gro
     Route::middleware('role:Administrador,Desarrollador')->group(function () {
         Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
         Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
-        Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
         
         // Rutas para gestión de PIN de acceso
         Route::post('/admin/users/{user}/generar-pin', [AdminController::class, 'generarPin'])

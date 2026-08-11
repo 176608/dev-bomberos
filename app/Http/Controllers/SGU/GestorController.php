@@ -147,49 +147,6 @@ class GestorController
         ]);
     }
 
-    public function verificarPin(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'pin' => ['required', 'string', 'digits:10'],
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'Usuario no encontrado',
-            ], 404);
-        }
-
-        if (!in_array($user->log_in_status, [1, 2])) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'El usuario no requiere PIN',
-            ], 400);
-        }
-
-        if (!$user->initial_token) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'PIN no configurado. Contacta al administrador.',
-            ], 400);
-        }
-
-        if (!Hash::check($request->pin, $user->initial_token)) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'PIN incorrecto',
-            ], 401);
-        }
-
-        return response()->json([
-            'valid' => true,
-            'message' => 'PIN válido',
-        ]);
-    }
-
     protected function generateInitialToken(): string
     {
         return str_pad((string) random_int(0, 9999999999), 10, '0', STR_PAD_LEFT);

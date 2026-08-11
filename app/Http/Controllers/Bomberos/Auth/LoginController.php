@@ -17,8 +17,6 @@ class LoginController extends Controller
 {
     use HashIp;
 
-    protected $redirectTo = '/dashboard';
-
     private function registrarAcceso(?int $userId, string $accion, string $ip, ?string $detalle = null, bool $ipBruta = false): void
     {
         AuditoriaAcceso::create([
@@ -64,7 +62,7 @@ class LoginController extends Controller
             $this->registrarAcceso(null, 'intento_fallido', $ip, 'usuario_no_encontrado', true);
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Usuario no encontrado.']);
+                ->withErrors(['email' => 'Credenciales incorrectas.']);
         }
 
         if (in_array($user->log_in_status, [1, 2])) {
@@ -79,7 +77,7 @@ class LoginController extends Controller
                     $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'pin_incorrecto', true);
                     return back()
                         ->withInput($request->only('email'))
-                        ->withErrors(['password' => 'PIN incorrecto.']);
+                        ->withErrors(['password' => 'Credenciales incorrectas.']);
                 }
 
                 $request->session()->regenerate();
@@ -104,7 +102,7 @@ class LoginController extends Controller
             $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'contrasena_incorrecta', true);
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['password' => 'Contraseña incorrecta.']);
+                ->withErrors(['password' => 'Credenciales incorrectas.']);
         }
 
         RateLimiter::clear($key);
@@ -117,7 +115,7 @@ class LoginController extends Controller
             $this->registrarAcceso($user->id, 'intento_fallido', $ip, 'cuenta_desactivada', true);
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'Tu cuenta está desactivada.']);
+                ->withErrors(['email' => 'Credenciales incorrectas.']);
         }
 
         $request->session()->regenerate();
@@ -174,20 +172,16 @@ class LoginController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
-            Log::info('checkEmail: email no encontrado', compact('email', 'ip'));
-            return response()->json([
-                'exists' => false,
-                'log_in_status' => null,
-            ]);
-        }
+        // Respuesta uniforme anti-enumeración: un email inexistente responde
+        // igual que uno registrado con acceso normal (log_in_status 0).
+        $logInStatus = $user ? $user->log_in_status : 0;
 
-        $requiresPin = in_array($user->log_in_status, [1, 2]);
-        $requiresPassword = $user->log_in_status === 0;
+        $requiresPin = in_array($logInStatus, [1, 2]);
+        $requiresPassword = $logInStatus === 0;
 
         return response()->json([
             'exists' => true,
-            'log_in_status' => $user->log_in_status,
+            'log_in_status' => $logInStatus,
             'requires_pin' => $requiresPin,
             'requires_password' => $requiresPassword
         ]);
@@ -200,7 +194,7 @@ class LoginController extends Controller
         if ($user->role === 'Administrador') {
             return redirect()->route('sgu.admin.index');
         } elseif ($user->role === 'Desarrollador') {
-            return redirect()->route('admin.panel');
+            return redirect()->route('sgu.admin.index');
         } elseif ($user->role === 'Capturista') {
             return redirect()->route('capturista.panel');
         } elseif ($user->role === 'Registrador') {

@@ -45,8 +45,8 @@ class CheckRole
         }
 
         $redirects = [
-            'Administrador'             => 'sigem.admin.index',
-            'Desarrollador'             => 'admin.panel',
+            'Administrador'             => 'sgu.admin.index',
+            'Desarrollador'             => 'sgu.admin.index',
             'Capturista'                => 'capturista.panel',
             'Registrador'               => 'registrador.panel',
             'Administrador Dictamenes'  => 'gestor-dictamenes.index',

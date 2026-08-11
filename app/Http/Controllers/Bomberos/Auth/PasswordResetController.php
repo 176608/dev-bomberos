@@ -14,8 +14,6 @@ class PasswordResetController extends Controller
 {
     use HashIp;
 
-    protected int $tokenExpiryMinutes = 15;
-
     private function registrarAcceso(?int $userId, string $accion, string $ip, ?string $detalle = null, bool $ipBruta = false): void
     {
         AuditoriaAcceso::create([
@@ -45,7 +43,7 @@ class PasswordResetController extends Controller
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return redirect()->route('login')->with('error', 'Usuario no encontrado.');
+            return redirect()->route('login')->with('error', 'Credenciales incorrectas.');
         }
 
         if (!in_array($user->log_in_status, [1,2])) {
@@ -53,7 +51,7 @@ class PasswordResetController extends Controller
                 'user_id' => $user->id,
                 'log_in_status' => $user->log_in_status
             ]);
-            return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
+            return redirect()->route('login')->with('error', 'Credenciales incorrectas.');
         }
 
         $requirePin = $user->initial_token && session('pin_verificado') !== $user->id;
@@ -84,17 +82,17 @@ class PasswordResetController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !in_array($user->log_in_status, [1,2])) {
-            return redirect()->route('login')->with('error', 'No autorizado para cambiar contraseña.');
+            return redirect()->route('login')->with('error', 'Credenciales incorrectas.');
         }
 
         if ($user->initial_token && session('pin_verificado') !== $user->id) {
             if (!$request->filled('pin')) {
-                return back()->withInput()->withErrors(['pin' => 'Ingresa el PIN proporcionado por el administrador.']);
+                return back()->withInput()->withErrors(['pin' => 'Credenciales incorrectas.']);
             }
 
             if (!Hash::check($request->pin, $user->initial_token)) {
                 $this->registrarAcceso($user->id, 'intento_fallido', $request->ip(), 'pin_incorrecto', true);
-                return back()->withInput()->withErrors(['pin' => 'PIN incorrecto.']);
+                return back()->withInput()->withErrors(['pin' => 'Credenciales incorrectas.']);
             }
         }
 

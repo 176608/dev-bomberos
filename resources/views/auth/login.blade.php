@@ -115,11 +115,6 @@ $(function() {
             _token: '{{ csrf_token() }}',
             email: email
         }, function(response) {
-            if (!response.exists) {
-                $('#login-error').removeClass('d-none').text('Correo no registrado.');
-                return;
-            }
-            
             $('#login-step1').addClass('d-none');
             $('#login-step2').removeClass('d-none');
             $('#email-hidden').val(email);
