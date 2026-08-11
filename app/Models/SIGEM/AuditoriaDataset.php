@@ -2,7 +2,7 @@
 
 namespace App\Models\SIGEM;
 
-use App\Models\User;
+use App\Models\SGU\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
