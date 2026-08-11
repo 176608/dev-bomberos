@@ -14,6 +14,7 @@ use App\Models\SIGEM\AuditoriaSgiem;
 use App\Models\SIGEM\AuditoriaDataset;
 use App\Models\SIGEM\PubVisitante;
 use App\Models\SIGEM\PubVisita;
+use App\Services\GestorSIGEM\AuditoriaDatasetService;
 use App\Services\SecureFileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -22,8 +23,9 @@ class AdminController extends Controller
 {
     protected SecureFileUpload $fileUploader;
 
-    public function __construct()
-    {
+    public function __construct(
+        private AuditoriaDatasetService $auditoriaDatasetService,
+    ) {
         $this->fileUploader = new SecureFileUpload();
     }
 
@@ -127,6 +129,8 @@ class AdminController extends Controller
         }
 
         $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'semanal';
+
+        $this->auditoriaDatasetService->cerrarTodasSesiones();
 
         $querySgiem = AuditoriaSgiem::with('usuario');
         $queryDataset = Schema::hasTable('auditoria_datasets')

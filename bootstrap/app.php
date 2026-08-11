@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\SetVisitorUuid::class,
             \App\Http\Middleware\DebugByRole::class,
+            \App\Http\Middleware\CerrarSesionAuditoriaDataset::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

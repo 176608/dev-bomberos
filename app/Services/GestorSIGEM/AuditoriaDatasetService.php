@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class AuditoriaDatasetService
 {
     private const SESION_KEY = 'audit_dataset_open_';
+    private const SESION_USER_KEY = 'audit_dataset_user_';
 
     public function __construct(
         private DatasetService $datasetService,
@@ -41,6 +42,8 @@ class AuditoriaDatasetService
             'estado_apertura' => $estado,
             'datos_secciones' => $this->capturarDatosSecciones($cuadroId),
         ], now()->addHours(8));
+
+        $this->agregarAlIndice($cuadroId);
     }
 
     public function cerrarSesion(int $cuadroId): void
@@ -54,6 +57,7 @@ class AuditoriaDatasetService
         $estadoApertura = $sesion['estado_apertura'];
 
         Cache::forget(self::SESION_KEY . $cuadroId);
+        $this->quitarDelIndice($cuadroId);
 
         if ($this->estadosIguales($estadoApertura, $estadoActual)) return;
 
@@ -65,6 +69,44 @@ class AuditoriaDatasetService
             'estado_nuevo' => $estadoActual,
             'resumen_cambios' => $this->resumenCambios($estadoApertura, $estadoActual, $cuadroId, $sesion['datos_secciones'] ?? []),
         ]);
+    }
+
+    public function cerrarTodasSesiones(): void
+    {
+        if (!Auth::check()) return;
+
+        $key = self::SESION_USER_KEY . Auth::id();
+        $lista = Cache::get($key, []);
+
+        foreach ($lista as $cuadroId) {
+            $this->cerrarSesion((int) $cuadroId);
+        }
+
+        Cache::forget($key);
+    }
+
+    private function agregarAlIndice(int $cuadroId): void
+    {
+        $key = self::SESION_USER_KEY . Auth::id();
+        $lista = Cache::get($key, []);
+
+        if (!in_array($cuadroId, $lista)) {
+            $lista[] = $cuadroId;
+            Cache::put($key, $lista, now()->addHours(8));
+        }
+    }
+
+    private function quitarDelIndice(int $cuadroId): void
+    {
+        $key = self::SESION_USER_KEY . Auth::id();
+        $lista = Cache::get($key, []);
+        $lista = array_values(array_diff($lista, [$cuadroId]));
+
+        if (empty($lista)) {
+            Cache::forget($key);
+        } else {
+            Cache::put($key, $lista, now()->addHours(8));
+        }
     }
 
     private function capturarDatosSecciones(int $cuadroId): array
