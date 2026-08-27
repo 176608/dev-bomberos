@@ -777,7 +777,7 @@ $(document).ready(function() {
                 [10, 25, 50, 100, 150, -1],
                 ['10', '25', '50', '100', '150', 'Todos los registros']
             ],
-            "pageLength": 50,
+            "pageLength": 10,
             "searching": true,
             "info": true,
             "ordering": true,
