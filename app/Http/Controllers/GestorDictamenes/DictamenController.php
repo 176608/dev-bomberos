@@ -355,8 +355,6 @@ class DictamenController extends Controller
     {
         $porAnio = $this->archivosDiscoPorAnio();
 
-        $dictamenesPorAnio = Dictamen::whereNotNull('anio')->get()->groupBy('anio');
-
         $archivos = [];
         foreach ($porAnio as $anio => $nombres) {
             foreach ($nombres as $nombre) {
@@ -364,20 +362,10 @@ class DictamenController extends Controller
                     continue;
                 }
                 $ruta = $anio !== '' ? $anio . '/' . $nombre : $nombre;
-                $ligado = 0;
-                if ($anio !== '' && isset($dictamenesPorAnio[$anio])) {
-                    $nombreNorm = $this->normalizarClave($nombre);
-                    foreach ($dictamenesPorAnio[$anio] as $d) {
-                        if ($this->claveCoincide($this->normalizarClave($d->numero_oficio), $nombreNorm)) {
-                            $ligado++;
-                        }
-                    }
-                }
                 $archivos[] = [
                     'ruta' => $ruta,
                     'anio' => $anio !== '' ? $anio : null,
                     'nombre' => $nombre,
-                    'ligado' => $ligado,
                 ];
             }
         }

@@ -633,12 +633,11 @@ tr:hover td {
                             <tr>
                                 <th>Carpeta</th>
                                 <th>Archivo</th>
-                                <th class="text-center" style="width: 120px;">Ligado a</th>
-                                <th class="text-center" style="width: 50px;"></th>
+                                <th class="text-center" style="width: 120px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="archivosLista">
-                            <tr><td colspan="4" class="text-center text-muted">Cargando archivos...</td></tr>
+                            <tr><td colspan="3" class="text-center text-muted">Cargando archivos...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1222,12 +1221,12 @@ $(document).ready(function() {
     }
 
     function cargarArchivos() {
-        $('#archivosLista').html('<tr><td colspan="4" class="text-center text-muted">Cargando archivos...</td></tr>');
+        $('#archivosLista').html('<tr><td colspan="3" class="text-center text-muted">Cargando archivos...</td></tr>');
         $.get(URL_ARCHIVOS, function(res) {
             window.__archivos = res.archivos || [];
             renderArchivos();
         }).fail(function() {
-            $('#archivosLista').html('<tr><td colspan="4" class="text-center text-danger">No se pudo cargar la lista de archivos.</td></tr>');
+            $('#archivosLista').html('<tr><td colspan="3" class="text-center text-danger">No se pudo cargar la lista de archivos.</td></tr>');
         });
     }
 
@@ -1241,14 +1240,11 @@ $(document).ready(function() {
         );
 
         if (!lista.length) {
-            $tbody.html('<tr><td colspan="4" class="text-center text-muted">No se encontraron archivos.</td></tr>');
+            $tbody.html('<tr><td colspan="3" class="text-center text-muted">No se encontraron archivos.</td></tr>');
             return;
         }
 
         lista.forEach(a => {
-            const badge = a.ligado > 0
-                ? '<span class="badge bg-success">' + a.ligado + '</span>'
-                : '<span class="badge bg-secondary">0</span>';
             const anio = a.anio
                 ? '<span class="badge bg-dark">' + a.anio + '</span>'
                 : '<span class="badge bg-secondary">raíz</span>';
@@ -1256,10 +1252,9 @@ $(document).ready(function() {
                 '<tr>' +
                     '<td>' + anio + '</td>' +
                     '<td><button type="button" class="btn btn-link btn-sm p-0 ver-btn me-1" data-ruta="' + a.ruta + '" title="Visualizar contenido"><i class="bi bi-eye text-primary"></i></button>' + $('<span>').text(a.nombre).html() + '</td>' +
-                    '<td class="text-center">' + badge + '</td>' +
                     '<td class="text-center">' + (PUEDE_BORRAR
                         ? '<button class="btn btn-sm btn-outline-danger btn-eliminar-archivo" data-ruta="' + a.ruta + '" title="Eliminar del servidor"><i class="bi bi-trash"></i></button>'
-                        : '<button type="button" class="btn btn-link btn-sm p-0 ver-btn" data-ruta="' + a.ruta + '" title="Visualizar contenido"><i class="bi bi-eye text-primary"></i></button>') + '</td>' +
+                        : '') + '</td>' +
                 '</tr>'
             );
         });
