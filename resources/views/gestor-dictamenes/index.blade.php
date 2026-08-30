@@ -419,7 +419,7 @@ tr:hover td {
                     <div class="row g-3">
                         <div class="col-md-2">
                             <label>Recibido en fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <input type="date" class="form-control" name="fecha" required>
+                            <input type="date" class="form-control" name="fecha" required oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')">
                         </div>
                         <div class="col-md-5">
                             <label>Tipo de dictamen</label>
@@ -432,7 +432,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-5">
                             <label>Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <input type="text" class="form-control" name="oficio_recibido" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24">
+                            <input type="text" class="form-control" name="oficio_recibido" required placeholder="Ej. DGDU/DCP/APDU/2515/2024 EXP. 50.24" oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')">
                         </div>
                         <div class="col-md-6">
                             <label>Dependencia</label>
@@ -454,7 +454,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-4">
                             <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <select class="form-select" name="estatus" required>
+                            <select class="form-select" name="estatus" required oninvalid="this.setCustomValidity('Este campo es obligatorio')" onchange="this.setCustomValidity('')">
                                 <option value="">Seleccione un estatus...</option>
                                 @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
                                     <option value="{{ $estatus }}">{{ $estatus }}</option>
@@ -476,7 +476,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-12">
                             <label>Asunto <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <textarea class="form-control" name="asunto" required rows="2"></textarea>
+                            <textarea class="form-control" name="asunto" required rows="2" oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')"></textarea>
                         </div>
                         <div class="col-md-12">
                             <label>Observaciones</label>
@@ -508,7 +508,7 @@ tr:hover td {
                     <div class="row g-3">
                         <div class="col-md-2">
                             <label>Recibido en fecha <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <input type="date" class="form-control" id="fecha_edit" name="fecha" required>
+                            <input type="date" class="form-control" id="fecha_edit" name="fecha" required oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')">
                         </div>
                         <div class="col-md-5">
                             <label>Tipo de dictamen</label>
@@ -521,7 +521,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-5">
                             <label>Oficio Recibido <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <input type="text" class="form-control" id="oficio_recibido_edit" name="oficio_recibido" required>
+                            <input type="text" class="form-control" id="oficio_recibido_edit" name="oficio_recibido" required oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')">
                         </div>
                         <div class="col-md-6">
                             <label>Dependencia</label>
@@ -543,7 +543,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-4">
                             <label>Estatus <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <select class="form-select" id="estatus_edit" name="estatus" required>
+                            <select class="form-select" id="estatus_edit" name="estatus" required oninvalid="this.setCustomValidity('Este campo es obligatorio')" onchange="this.setCustomValidity('')">
                                 <option value="">Seleccione un estatus...</option>
                                 @foreach(\App\Models\GestorDictamenes\Dictamen::STATUSES as $estatus)
                                     <option value="{{ $estatus }}">{{ $estatus }}</option>
@@ -565,7 +565,7 @@ tr:hover td {
                         </div>
                         <div class="col-md-12">
                             <label>Asunto <span class="text-danger" title="Campo obligatorio">*</span></label>
-                            <textarea class="form-control" id="asunto_edit" name="asunto" required rows="2"></textarea>
+                            <textarea class="form-control" id="asunto_edit" name="asunto" required rows="2" oninvalid="this.setCustomValidity('Este campo es obligatorio')" oninput="this.setCustomValidity('')"></textarea>
                         </div>
                         <div class="col-md-12">
                             <label>Observaciones</label>
