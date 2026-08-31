@@ -27,7 +27,7 @@ class AuditorController
 
     public function accesos(): View
     {
-        $accesos = AuditoriaAcceso::with('usuario')->orderByDesc('created_at')->paginate(25);
+        $accesos = AuditoriaAcceso::with('usuario')->orderByDesc('created_at')->paginate(500);
 
         return view('sgu.auditor.accesos', [
             'accesos' => $accesos,
@@ -38,7 +38,7 @@ class AuditorController
 
     public function usuarios(): View
     {
-        $auditorias = AuditoriaUsuario::with(['usuario', 'actor'])->orderByDesc('created_at')->paginate(25);
+        $auditorias = AuditoriaUsuario::with(['usuario', 'actor'])->orderByDesc('created_at')->paginate(500);
 
         return view('sgu.auditor.usuarios', [
             'auditorias' => $auditorias,

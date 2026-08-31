@@ -57,7 +57,7 @@
         </table>
     </div>
     <div class="card-footer d-flex justify-content-end">
-        {{ $accesos->links() }}
+        <small class="text-muted">Mostrando registros más recientes primero — DataTables gestiona la paginación</small>
     </div>
 </div>
 @endsection
