@@ -61,6 +61,29 @@ Convenciones estructurales:
 - Seguir el estilo del módulo tocado y `vendor/bin/pint`.
 - No commitear `.env` ni credenciales.
 
-## Documentación
+## Documentación — jerarquía de fuentes
 
-- Documentación técnica interna en `archivoslocales/documentacion tecnica/` (modelo C4, docs SGIEM/SIGEM/SGU, listas de bugs, análisis RF/RNF). Consultarla antes de tocar lógica de dominio.
+Prioridad de consulta antes de tocar cualquier lógica de dominio (orden decreciente):
+
+1. **Especificaciones — fuente única de verdad:** `archivoslocales/Especificaciones/` (actualizado y verificado contra el código). **Prioridad SIEMPRE sobre `documentacion tecnica`.**
+2. **Contexto para agentes:** `Docs/` en la raíz del repo. Resúmenes concisos por módulo (`Docs/README.md`, `Docs/SistemaAux.md`, `Docs/SGIEM.md`, `Docs/SIGEM.md`, `Docs/SGU.md`, `Docs/SGD.md`, `Docs/Bomberos.md`). Puerta de entrada recomendada; se mantienen sincronizados con el código (ver `11` — modalidad *spec-anchored*).
+3. **Legacy (NO usar como fuente):** `archivoslocales/documentacion tecnica/`. Solo referencia histórica: `Manual_SGD.md`, `Requisitos Funcionales y No funcionales_revisada.xlsx` (obsoleto → versión MD en Especificaciones) y versiones antiguas de los docs 01–06.
+4. **Históricos:** `archivoslocales/Old files/` (SQL/migraciones viejos, no activos).
+
+Directorio **local** de trabajo: `archivoslocales/` (especificaciones, SQL crudo del schema, históricos). Directorio de **contexto para agentes**: `Docs/`.
+
+Archivos críticos de Especificaciones:
+
+- `12_Requisitos_Funcionales_y_No_Funcionales.md` — **documento fundamental y orientativo** del sistema: 54 RF (RF-01 a RF-54) y 35 RNF (RNF-01 a RNF-35). Leer antes de cambios de dominio.
+- `01`…`05` — docs técnicos SGIEM, SIGEM, SGU, análisis holístico y modelo C4.
+- `06_Listado_Bugs.md` — bugs documentados y decisiones del equipo (consultar antes de tocar áreas ya analizadas; respetar estados Aceptado/Pendiente).
+- `10_Mapa_E_R.md` — entidad-relación del dataset y métricas.
+- `11_Spec_Driven_Development_Metodologia.md` — metodología SDD del proyecto.
+
+## Flujo de trabajo SDD (recomendado)
+
+Trabajar en modalidad **spec-driven** con los distintos modelos que ofrece la plataforma opencode (planificador/explorador/implementador/revisor):
+
+- **Especificar antes de codificar:** consulta `archivoslocales/Especificaciones/` (y el resumen en `Docs/`) antes de modificar lógica de dominio; valida contra `12_Requisitos_Funcionales_y_No_Funcionales.md`.
+- **No dejar que el código derive de la especificación:** al terminar un cambio, actualiza los resúmenes afectados de `Docs/` (modalidad *spec-anchored*, ver `11`). La verificación falla si derivan.
+- Usa los modelos/skills de opencode más adecuados a la fase: exploración, planificación, implementación o revisión.
