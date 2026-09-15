@@ -296,7 +296,7 @@ function visor() {
         copyShareUrl() {
             this.updateUrl();
             navigator.clipboard.writeText(window.location.href)
-                .then(() => alert('URL copiada al portapapeles'));
+                .then(() => mostrarToast('success', 'URL copiada al portapapeles'));
         },
     }
 }

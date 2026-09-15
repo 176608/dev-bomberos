@@ -189,5 +189,51 @@
 
 @section('scripts')
     @parent
+    {{-- B6 (doc 16): patrón único de alertas en el visor — toast global, sin alert() nativo --}}
+    <div class="toast-container position-fixed bottom-0 start-0 p-3" id="visorToastContainer" style="z-index: 9999;"></div>
+    <script>
+    function mostrarToast(type, message) {
+        const container = document.getElementById('visorToastContainer');
+        if (!container) return;
+        const esc = function (s) {
+            return String(s ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+        const icons = {
+            success: 'bi-check-circle-fill',
+            danger: 'bi-exclamation-circle-fill',
+            warning: 'bi-exclamation-triangle-fill',
+            info: 'bi-info-circle-fill'
+        };
+        const titleText = {
+            success: 'Éxito',
+            danger: 'Error',
+            warning: 'Advertencia',
+            info: 'Información'
+        };
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.innerHTML = `
+            <div class="toast-header text-white bg-${type}">
+                <i class="bi ${icons[type] || icons.info} me-2"></i>
+                <strong class="me-auto">${titleText[type] || 'Mensaje'}</strong>
+                <small>ahora</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${esc(message)}</div>
+        `;
+        container.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 4000 });
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', function() { this.remove(); });
+    }
+    </script>
     @stack('visor_scripts')
 @endsection

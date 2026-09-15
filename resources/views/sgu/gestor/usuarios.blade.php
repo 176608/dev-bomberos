@@ -19,16 +19,7 @@
         </button>
     </div>
     <div class="card-body">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
+        {{-- B6 (doc 16): flashes de sesión los muestra el toast global del layout SGU --}}
         <div class="table-responsive">
             <table id="usersTable" class="table table-striped table-bordered">
                 <thead class="table-dark">
@@ -252,7 +243,7 @@ let pinModalCallback = null;
 
 function mostrarPinModal(pin, mensaje, callback) {
     if (!pin) {
-        alert(mensaje || 'Operación exitosa');
+        mostrarToast('info', mensaje || 'Operación exitosa');
         if (callback) callback();
         return;
     }
@@ -304,7 +295,7 @@ function generarPin(userId) {
                 });
                 $('#pinDisplay' + userId).val('**********');
             } else {
-                alert(response.message || 'Error al generar PIN');
+                mostrarToast('danger', response.message || 'Error al generar PIN');
             }
         },
         error: function(xhr) {
@@ -318,7 +309,7 @@ function generarPin(userId) {
             } else if (xhr.responseJSON && xhr.responseJSON.error) {
                 errorMessage = xhr.responseJSON.error;
             }
-            alert(errorMessage);
+            mostrarToast('danger', errorMessage);
         }
     });
 }
@@ -366,7 +357,7 @@ $(document).ready(function() {
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
-                alert(errorMessage);
+                mostrarToast('danger', errorMessage);
             }
         });
     });
@@ -400,7 +391,7 @@ $(document).ready(function() {
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
-                alert(errorMessage);
+                mostrarToast('danger', errorMessage);
             }
         });
     });

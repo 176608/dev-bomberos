@@ -23,12 +23,7 @@
         </div>
     </div>
     <div class="card-body bg-transparent">
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
+        {{-- B6 (doc 16): flashes de sesión los muestra el toast global del layout SGIEM (unico patrón) --}}
 
         @if(isset($cuadros) && $cuadros->count() > 0)
             <div class="row g-2 mb-2 align-items-end">
@@ -757,13 +752,7 @@ $(document).ready(function() {
         });
     };
 
-    // Mostrar toasts de sesión
-    @if(session('success'))
-        mostrarToast('success', '{{ session('success') }}');
-    @endif
-    @if(session('error'))
-        mostrarToast('danger', '{{ session('error') }}');
-    @endif
+    // B6 (doc 16): el toast de sesión ya lo emite el layout SGIEM — bloque local retirado
 
     // Reset modal al cerrar
     document.getElementById('modalCrearCuadro')?.addEventListener('hidden.bs.modal', function() {

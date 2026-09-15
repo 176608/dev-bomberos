@@ -710,7 +710,7 @@ function verContenidoCE(id) {
         fila.cells[1].querySelector('small').textContent : 
         'Sin contenido disponible';
     
-    alert('Contenido CE ID: ' + id + '\n\nPreview:\n' + contenidoPreview + '\n\n(Modal de vista completa pendiente)');
+    mostrarToast('warning', 'Vista completa pendiente — Contenido CE ID: ' + id + ' | Preview: ' + contenidoPreview);
 }
 */
 
@@ -756,7 +756,7 @@ function generarTabla() {
     const columnas = parseInt(document.getElementById('tabla_columnas').value);
     
     if (filas < 1 || filas > 50 || columnas < 1 || columnas > 20) {
-        alert('Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
+        mostrarToast('danger', 'Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
         return;
     }
     
@@ -960,7 +960,7 @@ function editarContenidoCE(id) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                alert('Error: ' + data.error);
+                mostrarToast('danger', 'Error: ' + data.error);
                 modalEditar.hide();
                 return;
             }
@@ -994,7 +994,7 @@ function editarContenidoCE(id) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al cargar los datos del contenido');
+            mostrarToast('danger', 'Error al cargar los datos del contenido');
             modalEditar.hide();
         });
 }
@@ -1105,7 +1105,7 @@ function regenerarTablaEdicion() {
     const columnas = parseInt(document.getElementById('edit_tabla_columnas').value);
     
     if (filas < 1 || filas > 50 || columnas < 1 || columnas > 20) {
-        alert('Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
+        mostrarToast('danger', 'Las dimensiones deben estar entre 1-50 filas y 1-20 columnas');
         return;
     }
     

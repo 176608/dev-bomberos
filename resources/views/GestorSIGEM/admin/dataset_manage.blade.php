@@ -414,10 +414,10 @@
                 btn.className = 'btn btn-sm ' + (pub ? 'btn-success' : 'btn-secondary');
                 btn.innerHTML = '<i class="bi ' + (pub ? 'bi-check-circle' : 'bi-x-circle') + ' me-1"></i>' + (pub ? 'Publicado' : 'No publicado');
             } else {
-                alert(j.message || 'Error al cambiar estado');
+                mostrarToast('danger', j.message || 'Error al cambiar estado');
             }
         })
-        .catch(function() { alert('Error de red'); })
+        .catch(function() { mostrarToast('danger', 'Error de red'); })
         .finally(function() { btn.disabled = false; });
     }
 

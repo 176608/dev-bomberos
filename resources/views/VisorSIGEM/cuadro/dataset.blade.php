@@ -605,7 +605,7 @@ function seleccionarExportType(tipo) {
         })
         .catch(function(err) {
             loading.style.display = 'none';
-            alert('Error al generar el archivo: ' + err.message);
+            mostrarToast('danger', 'Error al generar el archivo: ' + err.message);
         });
 }
 

@@ -53,12 +53,7 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
+        {{-- B6 (doc 16): flashes de sesión los muestra el toast global del layout SGIEM --}}
 
         @if($esMapa)
             {{-- == Mapa PDF == --}}
