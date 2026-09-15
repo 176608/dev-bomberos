@@ -562,6 +562,18 @@ $(document).ready(function() {
 
     // ============ FILTROS CUADROS + URL STATE ============
     var filtroCuadroCallbacks = [];
+    var restaurandoFiltros = false;
+
+    // Datos de cascada tema → subtema (server-rendered); debe existir ANTES de la restauración
+    window.subtemasPorTema = {
+        @foreach($temas as $tema)
+            {{ $tema->tema_id }}: [
+                @foreach($tema->subtemas as $sub)
+                    { id: {{ $sub->subtema_id }}, nombre: '{{ addslashes($sub->subtema_titulo) }}' },
+                @endforeach
+            ],
+        @endforeach
+    };
 
     function aplicarFiltrosCuadro() {
         var temaId = document.getElementById('filtroCuadroTema').value;
@@ -571,15 +583,17 @@ $(document).ready(function() {
         var graf = document.getElementById('filtroCuadroGrafica').value;
         var sec = document.getElementById('filtroCuadroSecciones').value;
 
-        var url = new URL(window.location);
-        ['tema_id','subtema_id','dataset','publicado','grafica','secciones'].forEach(function(k) { url.searchParams.delete(k); });
-        if (temaId) url.searchParams.set('tema_id', temaId);
-        if (subId) url.searchParams.set('subtema_id', subId);
-        if (ds) url.searchParams.set('dataset', ds);
-        if (pub) url.searchParams.set('publicado', pub);
-        if (graf) url.searchParams.set('grafica', graf);
-        if (sec) url.searchParams.set('secciones', sec);
-        window.history.replaceState(null, '', url);
+        if (!restaurandoFiltros) {
+            var url = new URL(window.location);
+            ['tema_id','subtema_id','dataset','publicado','grafica','secciones'].forEach(function(k) { url.searchParams.delete(k); });
+            if (temaId) url.searchParams.set('tema_id', temaId);
+            if (subId) url.searchParams.set('subtema_id', subId);
+            if (ds) url.searchParams.set('dataset', ds);
+            if (pub) url.searchParams.set('publicado', pub);
+            if (graf) url.searchParams.set('grafica', graf);
+            if (sec) url.searchParams.set('secciones', sec);
+            window.history.replaceState(null, '', url);
+        }
 
         var dt = $('#tablaCuadrosV2').DataTable();
         while (filtroCuadroCallbacks.length) {
@@ -663,8 +677,10 @@ $(document).ready(function() {
             var selTema = document.getElementById('filtroCuadroTema');
             var temaExiste = Array.prototype.some.call(selTema.options, function(o) { return o.value === temaUrl; });
             if (temaExiste) {
+                restaurandoFiltros = true;
                 selTema.value = temaUrl;
                 poblarSubtemasFiltro();
+                restaurandoFiltros = false;
             } else {
                 aplicarFiltrosCuadro();
             }
@@ -681,17 +697,6 @@ $(document).ready(function() {
             });
         }
     });
-
-    // ========== CASCADING TEMA → SUBTEMA ==========
-    window.subtemasPorTema = {
-        @foreach($temas as $tema)
-            {{ $tema->tema_id }}: [
-                @foreach($tema->subtemas as $sub)
-                    { id: {{ $sub->subtema_id }}, nombre: '{{ addslashes($sub->subtema_titulo) }}' },
-                @endforeach
-            ],
-        @endforeach
-    };
 
     function poblarSubtemas(temaId, selectId, valorSeleccionado) {
         const select = document.getElementById(selectId);
