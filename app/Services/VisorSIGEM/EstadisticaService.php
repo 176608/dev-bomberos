@@ -60,7 +60,7 @@ class EstadisticaService
             if (!$esDesarrollador) {
                 $query->where('publicado', true);
             }
-            $cuadros = $query->get();
+            $cuadros = Cuadro::ordenaNaturalPorCodigo($query->get());
         }
 
         return [

@@ -839,8 +839,10 @@ class DatasetService
             $query->whereHas('subtema', fn($q) => $q->where('tema_id', $temaId));
         }
 
-        return $query->orderBy('codigo_cuadro')
-            ->get(['cuadro_id', 'subtema_id', 'codigo_cuadro', 'c_titulo', 'publicado', 'pivot_label']);
+        return Cuadro::ordenaNaturalPorCodigo(
+            $query->orderBy('codigo_cuadro')
+                ->get(['cuadro_id', 'subtema_id', 'codigo_cuadro', 'c_titulo', 'publicado', 'pivot_label'])
+        );
     }
 
     public function importarEstructura(int $destinoId, int $origenId): array

@@ -63,7 +63,7 @@ class CatalogoService
                 $query->where('publicado', true);
             }
 
-            $cuadros = $query->get()
+            $cuadros = Cuadro::ordenaNaturalPorCodigo($query->get())
                 ->map(function ($cuadro) {
                     return [
                         'cuadro_id' => $cuadro->cuadro_id,

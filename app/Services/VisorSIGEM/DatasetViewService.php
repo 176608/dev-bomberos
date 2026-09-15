@@ -12,7 +12,9 @@ class DatasetViewService
         if (!$esDesarrollador) {
             $query->where('publicado', true);
         }
-        return $query->orderBy('codigo_cuadro')->get()->toArray();
+        return Cuadro::ordenaNaturalPorCodigo(
+            $query->orderBy('codigo_cuadro')->get()
+        )->toArray();
     }
 
     public function datosCuadro(int $id, ?bool $esDesarrollador): ?array

@@ -73,11 +73,20 @@ class Cuadro extends Model
         return $this->hasMany(CuadroSeccion::class, 'cuadro_id', 'cuadro_id')->orderBy('orden');
     }
 
+    public static function ordenaNaturalPorCodigo($cuadros)
+    {
+        return $cuadros->sortBy(function ($cuadro) {
+            return $cuadro->codigo_cuadro;
+        }, SORT_NATURAL | SORT_FLAG_CASE)->values();
+    }
+
     public static function obtenerTodos()
     {
-        return self::with(['subtema.tema', 'categorias', 'datos'])
-            ->orderBy('codigo_cuadro', 'asc')
-            ->get();
+        return self::ordenaNaturalPorCodigo(
+            self::with(['subtema.tema', 'categorias', 'datos'])
+                ->orderBy('codigo_cuadro', 'asc')
+                ->get()
+        );
     }
 
     public static function obtenerPorId($cuadro_id)
@@ -88,10 +97,12 @@ class Cuadro extends Model
 
     public static function obtenerPorSubtema($subtema_id)
     {
-        return self::with(['subtema.tema'])
-            ->where('subtema_id', $subtema_id)
-            ->orderBy('codigo_cuadro', 'asc')
-            ->get();
+        return self::ordenaNaturalPorCodigo(
+            self::with(['subtema.tema'])
+                ->where('subtema_id', $subtema_id)
+                ->orderBy('codigo_cuadro', 'asc')
+                ->get()
+        );
     }
 
     public static function publicados()
