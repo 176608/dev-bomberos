@@ -35,26 +35,31 @@
 </script>
 
     <div class="d-flex justify-content-between align-items-center mb-2" id="mode-tabs">
-        <div class="btn-group btn-group-sm" role="group" aria-label="Modo de edición">
-            <button type="button" class="btn btn-outline-primary active" data-mode="diseno" onclick="switchMode('diseno')">
-                <i class="bi bi-pencil-square me-1"></i>Diseño
-            </button>
-            <button type="button" class="btn btn-outline-primary" data-mode="datos" onclick="switchMode('datos')">
-                <i class="bi bi-table me-1"></i>Datos
-            </button>
-            <a href="{{ route('sgiem.admin.cuadros.grafica', $cuadro->cuadro_id) }}" class="btn btn-outline-primary" style="text-decoration:none">
-                <i class="bi bi-bar-chart me-1"></i>Gráfica
-            </a>
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Modo de edición">
+                <button type="button" class="btn btn-outline-primary active" data-mode="diseno" onclick="switchMode('diseno')" title="Diseño: estructura de filas, columnas y nombres (añadir, renombrar, reordenar, eliminar)">
+                    <i class="bi bi-pencil-square me-1"></i>Diseño
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-mode="datos" onclick="switchMode('datos')" title="Datos: editar celdas; también permite renombrar categorías y pivote">
+                    <i class="bi bi-table me-1"></i>Datos
+                </button>
+                <a href="{{ route('sgiem.admin.cuadros.grafica', $cuadro->cuadro_id) }}" class="btn btn-outline-primary" style="text-decoration:none" title="Configurar las gráficas del cuadro">
+                    <i class="bi bi-bar-chart me-1"></i>Gráfica
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-1 ms-2" id="btn-size-wrap">
+                <small class="text-muted">Tamaño de botones:</small>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Tamaño de botones">
+                    <input type="radio" class="btn-check" name="btnSize" id="btnSizeCompact" value="compact" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="btnSizeCompact" title="Botones extra-chicos (tamaño por defecto)">Extra-chicos</label>
+                    <input type="radio" class="btn-check" name="btnSize" id="btnSizeMedio" value="medio" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="btnSizeMedio" title="Tamaño intermedio">Medianos</label>
+                    <input type="radio" class="btn-check" name="btnSize" id="btnSizeGrande" value="grande" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="btnSizeGrande" title="Botones grandes">Grandes</label>
+                </div>
+            </div>
         </div>
-        <div class="btn-group btn-group-sm edit-only ms-2" id="btn-size-group" role="group" aria-label="Tamaño de botones">
-            <input type="radio" class="btn-check" name="btnSize" id="btnSizeCompact" value="compact" autocomplete="off">
-            <label class="btn btn-outline-secondary" for="btnSizeCompact" title="Botones extra-chicos (tamaño por defecto)">Extra-chicos</label>
-            <input type="radio" class="btn-check" name="btnSize" id="btnSizeMedio" value="medio" autocomplete="off">
-            <label class="btn btn-outline-secondary" for="btnSizeMedio" title="Tamaño intermedio">Medianos</label>
-            <input type="radio" class="btn-check" name="btnSize" id="btnSizeGrande" value="grande" autocomplete="off">
-            <label class="btn btn-outline-secondary" for="btnSizeGrande" title="Botones grandes">Grandes</label>
-        </div>
-        <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
+        {{-- B4: hint por modo retirado — la explicación de cada modo vive en los title de los botones --}}
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
                 <i class="bi bi-eraser me-1"></i>Limpiar datos
@@ -573,9 +578,9 @@
         const c = document.getElementById('grid-container');
         c.classList.remove('mode-datos', 'mode-diseno');
         c.classList.add('mode-' + mode);
-        document.getElementById('mode-hint').textContent =
-            mode === 'diseno' ? 'Diseño: estructura de filas, columnas y nombres'
-            : 'Datos: editar celdas. También puede renombrar categorías y pivote';
+        // B4: hint por modo retirado (explicación en los title de los botones de modo)
+        const sizeWrap = document.getElementById('btn-size-wrap');
+        if (sizeWrap) sizeWrap.classList.toggle('d-none', mode !== 'diseno');
         document.querySelectorAll('#dataset-table .cat-name, #dataset-table .pivot-label').forEach(el => el.contentEditable = 'true');
         document.querySelectorAll('#dataset-table td[data-vertical-id] > div').forEach(el => {
             el.contentEditable = mode === 'datos';
