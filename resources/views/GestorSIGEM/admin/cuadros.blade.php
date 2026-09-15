@@ -81,7 +81,7 @@
                             <th>Título</th>
                             <th>Tema</th>
                             <th>Subtema</th>
-                            <th>Dataset</th>
+                            <th title="Publicado · Tipo · Gráficas">Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -91,6 +91,7 @@
                             $esMapa = $cuadro->tipo_mapa_pdf;
                             $tieneGrafica = $cuadro->permite_grafica;
                             $estaPublicado = $cuadro->publicado;
+                            $tieneDS = $cuadro->categorias()->count() > 0;
                             $colorTema = $cuadro->subtema && $cuadro->subtema->tema ? ($cuadro->subtema->tema->color ?? '#6c757d') : '#6c757d';
                         @endphp
                         <tr data-id="{{ $cuadro->cuadro_id }}"
@@ -101,7 +102,12 @@
                             data-dataset="{{ $cuadro->categorias()->count() > 0 ? '1' : '0' }}"
                             data-secciones="{{ $seccionCounts[$cuadro->cuadro_id] ?? 0 }}">
                             <td class="text-center" data-order="{{ naturalSortKey($cuadro->codigo_cuadro) }}"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
-                            <td><strong>{{ $cuadro->c_titulo }}</strong></td>
+                            <td>
+                                <strong>{{ $cuadro->c_titulo }}</strong>
+                                @if($cuadro->c_subtitulo)
+                                    <small class="text-muted d-block fst-italic" style="font-size:0.75rem">{{ $cuadro->c_subtitulo }}</small>
+                                @endif
+                            </td>
                             <td>
                                 @if($cuadro->subtema && $cuadro->subtema->tema)
                                     <span class="badge" style="background-color: {{ $colorTema }}; color: #212529;">
@@ -120,12 +126,11 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                            <td class="text-center" data-order="{{ $cuadro->categorias()->count() > 0 ? 1 : 0 }}">
-                                @php
-                                    $tieneDS = $cuadro->categorias()->count() > 0;
-                                @endphp
-                                <span class="badge bg-{{ $tieneDS ? 'success' : 'secondary' }}">
-                                    <i class="bi bi-{{ $tieneDS ? 'check-lg' : 'x-lg' }}"></i>
+                            <td class="text-center" data-order="{{ $estaPublicado ? 1 : 0 }}">
+                                <span class="d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-{{ $estaPublicado ? 'eye-fill text-success' : 'eye-slash-fill text-secondary' }}" title="{{ $estaPublicado ? 'Publicado' : 'No publicado' }}"></i>
+                                    <i class="bi bi-{{ $esMapa ? 'map-fill text-danger' : 'table text-primary' }}" title="{{ $esMapa ? 'Tipo: Mapa (PDF)' : 'Tipo: Dataset' }}"></i>
+                                    <i class="bi bi-{{ $tieneGrafica ? 'bar-chart-fill text-success' : 'bar-chart text-secondary' }}" title="{{ $tieneGrafica ? 'Gráficas activadas' : 'Gráficas desactivadas' }}"></i>
                                 </span>
                             </td>
                             <td class="text-center">
@@ -543,7 +548,7 @@ $(document).ready(function() {
             { targets: 1, width: "25%" },
             { targets: 2, width: "15%", className: "text-center" },
             { targets: 3, width: "18%", className: "text-center" },
-            { targets: 4, width: "5%", className: "text-center", orderable: true, searchable: false },
+            { targets: 4, width: "8%", className: "text-center", orderable: true, searchable: false },
             { targets: 5, width: "auto", className: "text-center", orderable: false, searchable: false }
         ],
         order: [[0, 'asc']],
