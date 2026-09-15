@@ -19,11 +19,22 @@
                 </a>
             @endif
             <a href="{{ route('sgiem.admin.cuadros.index') }}"
-               class="btn btn-outline-light btn-sm ms-2">
+               class="btn btn-outline-light btn-sm ms-2" id="btn-volver-cuadros">
                 <i class="bi bi-arrow-left me-1"></i>Volver
             </a>
         </div>
     </div>
+<script>
+    document.getElementById('btn-volver-cuadros')?.addEventListener('click', function(e) {
+        var saved = null;
+        try { saved = sessionStorage.getItem('sgiem.cuadros.return'); } catch (err) {}
+        if (saved && saved.indexOf(window.location.origin) === 0) {
+            e.preventDefault();
+            try { sessionStorage.removeItem('sgiem.cuadros.return'); } catch (err) {}
+            window.location.href = saved;
+        }
+    });
+</script>
     <div class="card-body bg-transparent">
         <div class="row mb-4">
             <div class="col-md-8">

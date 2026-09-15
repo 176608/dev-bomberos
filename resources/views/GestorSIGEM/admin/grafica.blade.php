@@ -17,11 +17,22 @@
                 <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
                 {{ $cuadro->publicado ? 'Publicado' : 'No publicado' }}
             </button>
-            <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('sgiem.admin.cuadros.index') }}" class="btn btn-outline-secondary btn-sm" id="btn-volver-cuadros">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
         </div>
     </div>
+<script>
+    document.getElementById('btn-volver-cuadros')?.addEventListener('click', function(e) {
+        var saved = null;
+        try { saved = sessionStorage.getItem('sgiem.cuadros.return'); } catch (err) {}
+        if (saved && saved.indexOf(window.location.origin) === 0) {
+            e.preventDefault();
+            try { sessionStorage.removeItem('sgiem.cuadros.return'); } catch (err) {}
+            window.location.href = saved;
+        }
+    });
+</script>
 
     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
         <select id="select-tipo-grafica" class="form-select form-select-sm" style="width:auto"></select>

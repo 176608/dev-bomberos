@@ -20,6 +20,9 @@ class GestorController
         }
 
         $status = $request->get('status', 'active');
+        if (!in_array($status, ['active', 'inactive', 'all'], true)) {
+            $status = 'active';
+        }
 
         $users = User::when($status !== 'all', function ($query) use ($status) {
             return $query->where('status', $status === 'active' ? 1 : 0);
@@ -57,7 +60,7 @@ class GestorController
             ]);
         }
 
-        return redirect()->route('sgu.admin.gestor.usuarios')
+        return redirect()->back()
             ->with('success', "Usuario creado exitosamente. PIN de acceso: {$initialToken}");
     }
 
@@ -101,11 +104,11 @@ class GestorController
             }
 
             if ($pinGenerado) {
-                return redirect()->route('sgu.admin.gestor.usuarios')
+                return redirect()->back()
                     ->with('success', "Usuario actualizado. PIN de acceso: {$pinGenerado}");
             }
 
-            return redirect()->route('sgu.admin.gestor.usuarios')
+            return redirect()->back()
                 ->with('success', 'Usuario actualizado exitosamente');
         } catch (\Exception $e) {
             \Log::error('SGU: error al actualizar usuario', ['user_id' => $user->id ?? null, 'error' => $e->getMessage()]);
@@ -116,7 +119,7 @@ class GestorController
                 ], 422);
             }
 
-            return redirect()->route('sgu.admin.gestor.usuarios')
+            return redirect()->back()
                 ->with('error', 'Error al actualizar usuario.');
         }
     }

@@ -33,7 +33,7 @@
         @if(isset($cuadros) && $cuadros->count() > 0)
             <div class="row g-2 mb-2 align-items-end">
                 <div class="col-auto">
-                    <select class="form-select form-select-sm" id="filtroCuadroTema" onchange="aplicarFiltrosCuadro()" style="min-width:140px">
+                    <select class="form-select form-select-sm" id="filtroCuadroTema" style="min-width:140px">
                         <option value="">Todos los temas</option>
                         @foreach($temas as $tema)
                             <option value="{{ $tema->tema_id }}" {{ request('tema_id') == $tema->tema_id ? 'selected' : '' }}>{{ $tema->tema_titulo }}</option>
@@ -633,13 +633,54 @@ $(document).ready(function() {
 
     (function() {
         var params = new URLSearchParams(window.location.search);
-        if (params.get('tema_id')) {
-            document.getElementById('filtroCuadroTema').value = params.get('tema_id');
-            poblarSubtemasFiltro();
+        var esperado = {
+            'tema_id': /^\d+$/,
+            'subtema_id': /^\d+$/,
+            'dataset': /^[01]$/,
+            'publicado': /^[01]$/,
+            'grafica': /^[01]$/,
+            'secciones': /^\d+$/
+        };
+        var limpiado = false;
+        Object.keys(esperado).forEach(function(k) {
+            var v = params.get(k);
+            if (v !== null && !esperado[k].test(v)) {
+                params.delete(k);
+                limpiado = true;
+            }
+        });
+        if (limpiado) {
+            var urlLimpia = new URL(window.location);
+            ['tema_id','subtema_id','dataset','publicado','grafica','secciones'].forEach(function(k) {
+                var v = params.get(k);
+                if (v === null) urlLimpia.searchParams.delete(k);
+                else urlLimpia.searchParams.set(k, v);
+            });
+            try { window.history.replaceState(null, '', urlLimpia); } catch (e) {}
+        }
+        var temaUrl = params.get('tema_id');
+        if (temaUrl) {
+            var selTema = document.getElementById('filtroCuadroTema');
+            var temaExiste = Array.prototype.some.call(selTema.options, function(o) { return o.value === temaUrl; });
+            if (temaExiste) {
+                selTema.value = temaUrl;
+                poblarSubtemasFiltro();
+            } else {
+                aplicarFiltrosCuadro();
+            }
         } else {
             aplicarFiltrosCuadro();
         }
     })();
+
+    // Guardar la URL filtrada de la lista al navegar a un editor (Dataset/Gráfica/Documento)
+    document.querySelectorAll('#tablaCuadrosV2 a[href]').forEach(function(a) {
+        if (/(dataset|grafica|documento)([?#]|$)/.test(a.getAttribute('href'))) {
+            a.addEventListener('click', function() {
+                try { sessionStorage.setItem('sgiem.cuadros.return', window.location.href); } catch (e) {}
+            });
+        }
+    });
 
     // ========== CASCADING TEMA → SUBTEMA ==========
     window.subtemasPorTema = {

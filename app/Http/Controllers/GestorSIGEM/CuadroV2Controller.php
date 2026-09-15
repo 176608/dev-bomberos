@@ -61,7 +61,7 @@ class CuadroV2Controller extends Controller
             return response()->json(['success' => true, 'message' => "Cuadro {$cuadro->codigo_cuadro} creado correctamente."]);
         }
 
-        return redirect()->route('sgiem.admin.cuadros.index')
+        return redirect()->back()
             ->with('success', "Cuadro {$cuadro->codigo_cuadro} creado correctamente.");
     }
 
@@ -306,18 +306,18 @@ class CuadroV2Controller extends Controller
                 $this->datasetService->eliminarDataset((int) $id);
             }
 
-            if ($request->ajax()) {
+                if ($request->ajax()) {
                 return response()->json(['success' => true, 'message' => 'Metadatos actualizados correctamente.']);
             }
 
-            return redirect()->route('sgiem.admin.cuadros.index')
+            return redirect()->back()
                 ->with('success', 'Cuadro actualizado.');
 
         } catch (\RuntimeException $e) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
             }
-            return redirect()->route('sgiem.admin.cuadros.index')
+            return redirect()->back()
                 ->with('error', $e->getMessage());
         }
     }
@@ -327,11 +327,11 @@ class CuadroV2Controller extends Controller
         try {
             $codigo = $this->cuadroV2Service->eliminar((int) $id);
 
-            return redirect()->route('sgiem.admin.cuadros.index')
+            return redirect()->back()
                 ->with('success', "Cuadro {$codigo} eliminado.");
 
         } catch (\RuntimeException $e) {
-            return redirect()->route('sgiem.admin.cuadros.index')
+            return redirect()->back()
                 ->with('error', $e->getMessage());
         }
     }
