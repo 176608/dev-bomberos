@@ -7,6 +7,9 @@
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>
                 <strong>{{ $cuadro->c_titulo }}</strong>
+                @if($cuadro->c_subtitulo)
+                    <span class="d-block fst-italic" style="font-size:0.72rem">{{ $cuadro->c_subtitulo }}</span>
+                @endif
             </small>
         </div>
         <div class="d-flex gap-2">
@@ -101,7 +104,9 @@
             </div>
             <div class="card-footer py-1 d-flex justify-content-between align-items-center" id="status-bar">
                 <small id="status-text"></small>
-                <div>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="status-history-panel" class="d-none"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" id="status-history-btn" title="Historial de acciones en el dataset"><i class="bi bi-clock-history"></i></button>
                     <span class="badge bg-secondary" id="dimension-badge"></span>
                 </div>
             </div>
@@ -302,8 +307,19 @@
 /* Extra small button group */
 .btn-group-xs .btn { padding: 0.1rem 0.25rem; font-size: 0.6rem; line-height: 1.3; border-radius: 0; }
 .btn-group-xs .btn:first-child { border-radius: 0.15rem 0 0 0.15rem; }
-.btn-group-xs .btn:last-child { border-radius: 0 0.15rem 0.15rem 0; }
+.btn-group-xs .btn:last-child { border-radius: 0 0 0.15rem 0.15rem; }
 .btn-group-xs .btn i { font-size: 0.6rem; }
+
+/* B4: grupos de acciones de categorías en vertical (modo diseño) */
+.btn-group-vertical.btn-group-xs .btn:first-child { border-radius: 0.15rem 0.15rem 0 0; }
+.btn-group-vertical.btn-group-xs .btn:last-child { border-radius: 0 0 0.15rem 0.15rem; }
+.cat-actions .btn-group-vertical .btn { padding: 0 0.3rem; line-height: 1.2; font-size: 0.55rem; }
+.cat-actions .btn-group-vertical .btn i { font-size: 0.55rem; }
+
+/* B4: panel de historial de acciones del dataset */
+#status-bar { position: relative; }
+#status-history-panel { position: absolute; bottom: calc(100% + 4px); right: 8px; min-width: 280px; max-height: 230px; overflow-y: auto; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; box-shadow: 0 6px 14px rgba(0,0,0,0.18); z-index: 1055; }
+#status-history-panel > div { padding: 0.25rem 0.5rem; border-bottom: 1px solid #f1f3f5; font-size: 0.75rem; }
 
 /* Status bar */
 #status-bar .badge { font-size: 0.7rem; }
@@ -415,7 +431,31 @@
             clearTimeout(bar._flashTimer);
             bar._flashTimer = setTimeout(() => bar.classList.remove('status-flash'), 2500);
         }
+        pushActividad(msg);
     }
+
+    // B4: historial de acciones del dataset (extensión del componente de avisos)
+    var actividadLog = [];
+    function pushActividad(msg) {
+        if (!msg) return;
+        var now = new Date();
+        var t = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) + ':' + ('0' + now.getSeconds()).slice(-2);
+        var last = actividadLog[0];
+        if (last && last.msg === msg) { last.t = t; }
+        else { actividadLog.unshift({ t: t, msg: msg }); if (actividadLog.length > 20) actividadLog.pop(); }
+        renderActividad();
+    }
+    function renderActividad() {
+        var el = document.getElementById('status-history-panel');
+        if (!el) return;
+        el.innerHTML = actividadLog.length
+            ? actividadLog.map(function(a) { return '<div><span class="text-muted me-2">' + a.t + '</span>' + esc(a.msg) + '</div>'; }).join('')
+            : '<div class="text-muted">Sin acciones registradas.</div>';
+    }
+    document.getElementById('status-history-btn')?.addEventListener('click', function() {
+        var panel = document.getElementById('status-history-panel');
+        if (panel) panel.classList.toggle('d-none');
+    });
 
     function esc(s) {
         if (!s) return '';
@@ -454,7 +494,8 @@
 
     function catActionsHtml(catId, esHijo, numHijos, esParent, esVertical) {
         var size = esHijo ? 'xs' : 'sm';
-        var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-' + size + '">';
+        var orientacion = esVertical ? 'btn-group-vertical' : 'btn-group';
+        var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="' + orientacion + ' btn-group-' + size + '">';
         if (!esHijo) {
             var c = esVertical ? 'success' : 'primary';
             h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
