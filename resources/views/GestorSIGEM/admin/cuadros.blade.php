@@ -399,7 +399,7 @@
                                 <input type="checkbox" class="form-check-input" id="edit_eliminar_dataset" name="eliminar_dataset" value="1">
                                 <label class="form-check-label text-danger" for="edit_eliminar_dataset">
                                     <i class="bi bi-exclamation-triangle me-1"></i>Eliminar dataset completamente
-                                    <small class="d-block text-muted fw-normal">Borra todas las filas, columnas, categorías y datos. El cuadro quedará como recién creado, sin grilla.</small>
+                                    <small class="d-block text-muted fw-normal">Borra todas las filas, columnas, categorías y datos. El cuadro quedará como recién creado, sin cuadrícula.</small>
                                 </label>
                             </div>
                         </div>

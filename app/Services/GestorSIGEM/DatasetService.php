@@ -568,7 +568,7 @@ class DatasetService
         }
 
         if ($vIdx === false || $hIdx === false) {
-            throw new \RuntimeException('Posición inicial no encontrada en la grilla');
+            throw new \RuntimeException('Posición inicial no encontrada en la cuadrícula');
         }
 
         if ($seccionId === null) {

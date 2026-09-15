@@ -58,7 +58,7 @@
             <div class="card-body text-center py-5">
                 <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
                 <h5 class="mt-3">Generar cuadrícula</h5>
-                <p class="text-muted small mb-3">Creá una cuadrícula vacía para empezar a cargar datos</p>
+                <p class="text-muted small mb-3">Crea una cuadrícula vacía para empezar a cargar datos</p>
                 <div class="row justify-content-center g-2 mb-3">
                     <div class="col-auto">
                         <label class="form-label small">Filas</label>
@@ -1495,7 +1495,7 @@
         const cols = parseInt(document.getElementById('input-columnas').value) || 5;
         status('Generando...');
         api('/generar', { method: 'POST', body: { filas, columnas: cols } })
-            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Grilla generada'); } else alerta(j.message); })
+            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula generada'); } else alerta(j.message); })
             .catch(() => alerta('Error [' + ERR.GENERAR + ']'));
     });
 
