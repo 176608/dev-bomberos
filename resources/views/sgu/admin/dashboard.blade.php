@@ -53,13 +53,14 @@
             <small class="text-muted">Activos en el periodo</small>
         </div>
     </div>
-    <div class="col-6 col-md-4 col-xl-2">
+    {{-- B3 (doc 16): métrica de bots oculta en UI hasta validar la detección contra tráfico real (reactivación manual vía BD) --}}
+    {{-- <div class="col-6 col-md-4 col-xl-2">
         <div class="card h-100 border-0 shadow-sm text-center p-2">
             <i class="bi bi-robot display-6 text-secondary"></i>
             <h4 class="mt-1 mb-0">{{ number_format($bots) }}</h4>
             <small class="text-muted">Bots / {{ number_format($humanos) }} humanos</small>
         </div>
-    </div>
+    </div> --}}
     <div class="col-6 col-md-4 col-xl-2">
         <div class="card h-100 border-0 shadow-sm text-center p-2">
             <i class="bi bi-image-fill display-6 text-warning"></i>
