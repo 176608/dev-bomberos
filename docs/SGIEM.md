@@ -49,6 +49,7 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 - **Autorización**: `authorize()` por rol en FormRequests + middleware `role:` en rutas.
 - **No exponer internos** (`$e->getMessage()`, nombres de tablas/columnas, SQL) en respuestas al usuario (bug G5). Mensaje genérico + `Log::error`.
 - No depender de rutas v1 (`/sigem/*`) ni de módulos legacy.
+- Ajuste de accesibilidad del editor de dataset: el tamaño de los botones de acción de categorías (filas y columnas) es elegible por radio («Extra-chicos / Medianos / Grandes») junto a los tabs de modo, visible solo en Diseño; preferencia en `localStorage` (`sgiem.dataset.btnSize`) + `sessionStorage` — no hardcodear tamaños de esos botones fuera de las variables CSS (`--btn-pad`/`--btn-font`).
 
 ## Gotchas del equipo (06)
 

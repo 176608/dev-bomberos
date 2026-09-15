@@ -46,6 +46,14 @@
                 <i class="bi bi-bar-chart me-1"></i>Gráfica
             </a>
         </div>
+        <div class="btn-group btn-group-sm edit-only ms-2" id="btn-size-group" role="group" aria-label="Tamaño de botones">
+            <input type="radio" class="btn-check" name="btnSize" id="btnSizeCompact" value="compact" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btnSizeCompact" title="Botones extra-chicos (tamaño por defecto)">Extra-chicos</label>
+            <input type="radio" class="btn-check" name="btnSize" id="btnSizeMedio" value="medio" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btnSizeMedio" title="Tamaño intermedio">Medianos</label>
+            <input type="radio" class="btn-check" name="btnSize" id="btnSizeGrande" value="grande" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btnSizeGrande" title="Botones grandes">Grandes</label>
+        </div>
         <small class="text-muted" id="mode-hint">Editar estructura de filas, columnas y nombres</small>
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn btn-sm btn-outline-danger datos-only" id="btn-limpiar-datos" onclick="window.limpiarDatos()" title="Limpiar todas las celdas">
@@ -313,8 +321,13 @@
 /* B4: grupos de acciones de categorías en vertical (modo diseño) */
 .btn-group-vertical.btn-group-xs .btn:first-child { border-radius: 0.15rem 0.15rem 0 0; }
 .btn-group-vertical.btn-group-xs .btn:last-child { border-radius: 0 0 0.15rem 0.15rem; }
-.cat-actions .btn-group-vertical .btn { padding: 0 0.3rem; line-height: 1.2; font-size: 0.55rem; }
-.cat-actions .btn-group-vertical .btn i { font-size: 0.55rem; }
+
+/* B4: normalización de tamaño (elegible por el usuario; filas y columnas al mismo estándar) */
+#dataset-table { --btn-pad: 0 0.3rem; --btn-font: 0.55rem; }
+#dataset-table.btn-size-medio { --btn-pad: 0.05rem 0.4rem; --btn-font: 0.66rem; }
+#dataset-table.btn-size-grande { --btn-pad: 0.25rem 0.5rem; --btn-font: 0.75rem; }
+.cat-actions .btn { padding: var(--btn-pad); line-height: 1.2; font-size: var(--btn-font); }
+.cat-actions .btn i { font-size: var(--btn-font); }
 
 /* B4: panel de historial de acciones del dataset */
 #status-bar { position: relative; }
@@ -456,6 +469,29 @@
         var panel = document.getElementById('status-history-panel');
         if (panel) panel.classList.toggle('d-none');
     });
+
+    // B4: preferencia de tamaño de botones (accesibilidad) — localStorage + sessionStorage
+    var BTN_SIZE_KEY = 'sgiem.dataset.btnSize';
+    function aplicarTamanoBotones(tamano) {
+        var tabla = document.getElementById('dataset-table');
+        if (!tabla) return;
+        tabla.classList.remove('btn-size-compact', 'btn-size-medio', 'btn-size-grande');
+        tabla.classList.add(tamano === 'medio' ? 'btn-size-medio' : (tamano === 'grande' ? 'btn-size-grande' : 'btn-size-compact'));
+        var radio = document.querySelector('input[name="btnSize"][value="' + tamano + '"]');
+        if (radio) radio.checked = true;
+    }
+    function guardarTamanoBotones(tamano) {
+        try { localStorage.setItem(BTN_SIZE_KEY, tamano); sessionStorage.setItem(BTN_SIZE_KEY, tamano); } catch (e) {}
+        aplicarTamanoBotones(tamano);
+    }
+    (function() {
+        var guardado = null;
+        try { guardado = localStorage.getItem(BTN_SIZE_KEY) || sessionStorage.getItem(BTN_SIZE_KEY); } catch (e) {}
+        aplicarTamanoBotones(guardado || 'compact');
+        document.querySelectorAll('input[name="btnSize"]').forEach(function(r) {
+            r.addEventListener('change', function() { guardarTamanoBotones(this.value); });
+        });
+    })();
 
     function esc(s) {
         if (!s) return '';
