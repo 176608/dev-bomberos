@@ -7,12 +7,12 @@
 Cara **pública** de consulta de cuadros estadísticos (dataset, gráficas, mapas y exportación a Excel). Consume el contenido producido por SGIEM (solo `publicado=true`).
 
 - Prefijo de rutas: `sigem-v2` · ruta raíz `/sigem-v2` · archivo `routes/VisorSIGEM/laravel_v2.php`.
-- Middleware: grupo web + `throttle:60,1` en `/cuadro/*` + `throttle:30,1` en `/track` + `log.404` (detección de escaneo).
+- Middleware: grupo web + `throttle:60,1` en todo `sigem-v2` + `throttle:30,1` en `/track` + `log.404` global (grupo web, detección de escaneo).
 - **V1 legacy (`/sigem`): NO tocar**, está en retiro; solo referencia en `routes/SIGEM/laravel.php` y partials v1.
 
 ## Estructura
 
-- Controladores (5): `SIGEMV2Controller` (páginas + consulta express), `VisorCuadroController` (dataset/grafica/mapa/documento + `verificarAccesoCuadro` + credenciales), `DatasetViewController` (inspección), `DocumentoController` (exportar Excel con firma `?s=`), `Controller` (base: `registrarEvento`, track, detección de bots).
+- Controladores (5): `SIGEMV2Controller` (páginas + consulta express), `VisorCuadroController` (dataset/grafica/mapa/documento + `verificarAccesoCuadro` + credenciales), `DatasetViewController` (inspección), `DocumentoController` (exportar Excel con filtrado de secciones `?v/h/s=`), `Controller` (base: `registrarEvento`, track, detección de bots).
 - Servicios (5): `CatalogoService`, `EstadisticaService`, `DatasetViewService`, `ConsultaExpressService`, `CuadroExcelExport` (export `app/Exports/`).
 - Modelos: `Cuadro`, `CuadroCategoria`, `CuadroDato`, `CuadroSeccion`, `PubVisita`, `PubVisitante`, `ce_tema`, `ce_subtema`, `ce_contenido`.
 - Vistas: `resources/views/VisorSIGEM/` (`layouts/visor.blade.php`, `pages/*`, `cuadro/*`).
@@ -22,10 +22,8 @@ Cara **pública** de consulta de cuadros estadísticos (dataset, gráficas, mapa
 ```
 verificarAccesoCuadro:
   - Cuadro no existe → abort(404)
-  - !publicado → abort(403, 'El cuadro no está disponible')
-  - permite_acceso_publico=1 → OK
-  - requiere credencial → BD (tieneCredenciales) o sesión (24 h) → si no, redirect a página de credenciales
-  - tipo_mapa_pdf=1 → redirect /documento (muestra el PDF, no hay dataset)
+  - !publicado sin credenciales (Estadístico/Desarrollador) → abort(404) (respuesta 404 también en JSON)
+  - tipo_mapa_pdf=1 → redirect /mapa (muestra el PDF, no hay dataset)
 
 Cache::remember("visor_cuadro_estado_{id}", 300)  ← TTL 300 s
   - miss → DatasetViewService::datosCuadro (categorías verticales/horizontales, secciones, celdas)
@@ -40,10 +38,10 @@ La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el 
 ## Reglas duras
 
 - El visor **solo lee** BD y **solo escribe métricas** (`pub_visita`/`pub_visitante`). La invalidación de caché la hace **SGIEM** (`invalidarCacheVisor`).
-- Identidad anónima: cookie `_vuid` (`SetVisitorUuid`, UUID httpOnly, 10 años, `secure` dinámico). IP se almacena **hasheada** (`HashIp`, sha1 + salt), nunca en claro para visitantes.
-- Detección de bots por User-Agent (allowlist) → cuenta pero marca `is_bot=1`.
-- Exportación Excel requiere firma HMAC de secciones (`?s=`), validada en `DocumentoController`.
-- Seguridad pública: throttle 60/30, `log.404` (20 errores en 300 s → bloqueo de IP), headers `SecurityHeaders`, `no-store` en rutas públicas (`PreventBackHistory`).
+- Identidad anónima: cookie `_vuid` (`SetVisitorUuid`, UUID httpOnly, 10 años, `secure` dinámico). IP se almacena **hasheada** (`HashIp`, HMAC-SHA256 con `IP_HASH_SALT`), nunca en claro para visitantes.
+- Detección de bots por User-Agent (allowlist) → cuenta pero marca `es_bot=1`.
+- Exportación Excel: la selección de secciones viaja en la cadena de consulta (`?s=`, parse de ids con excepciones); **no valida firma HMAC** (hallazgo A15 del 06) — mitigación vigente: `throttle` + `log.404`.
+- Seguridad pública: `throttle:60,1` (grupo `sigem-v2`), 30/min en `/track`, `log.404` global (20×404 en 300 s → registro de IP para análisis/bloqueo administrativo), headers `SecurityHeaders`, `no-store` en rutas públicas (`PreventBackHistory`).
 - Render híbrido servidor+cliente (no SPA); no cambiar el modelo de los datos de la grilla sin coordinar con `DatasetViewService` y `dataset.blade.php`.
 
 ## Gotchas del equipo (06)

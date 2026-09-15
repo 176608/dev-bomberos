@@ -29,4 +29,4 @@ Route::middleware(['throttle:60,1'])->group(function () {
 // Rutas PÚBLICAS sin límite (páginas estáticas - no consumen base de datos)
 Route::get('/sobre-la-biblioteca', function() {
     return view('biblioteca.about');
-})->name('about.library');
+})->middleware('throttle:60,1')->name('about.library');

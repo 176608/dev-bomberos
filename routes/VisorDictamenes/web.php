@@ -5,4 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 // Ruta PÚBLICA (sin autenticación)
 Route::get('/VisorDictamenes', [DictamenController::class, 'publicIndex'])
+    ->middleware('throttle:60,1')
     ->name('visor-dictamenes.public');

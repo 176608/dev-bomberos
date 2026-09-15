@@ -21,30 +21,29 @@ class SecureFileUpload
 
     public function uploadIcon(UploadedFile $file, ?string $existingFile = null): ?string
     {
-        $this->validateOrFail($file, 'png', 'PNG');
+        $extension = $this->validateOrFail($file, 'png');
 
-        return $this->storeFile($file, 'img/SIGEM_mapas', $existingFile);
+        return $this->storeFile($file, 'img/SIGEM_mapas', $existingFile, $extension);
     }
 
     public function uploadImage(UploadedFile $file, ?string $existingFile = null): ?string
     {
-        $this->validateOrFail($file, 'png', 'PNG', 'jpg', 'JPEG', 'gif', 'GIF');
+        $extension = $this->validateOrFail($file, 'png', 'jpg', 'gif');
 
-        return $this->storeFile($file, 'imagenes/subtemas_u', $existingFile);
+        return $this->storeFile($file, 'imagenes/subtemas_u', $existingFile, $extension);
     }
 
     public function uploadPDF(UploadedFile $file, ?string $existingFile = null): ?string
     {
-        $this->validateOrFail($file, 'pdf', 'PDF');
+        $extension = $this->validateOrFail($file, 'pdf');
 
-        return $this->storeFile($file, 'u_pdf', $existingFile);
+        return $this->storeFile($file, 'u_pdf', $existingFile, $extension);
     }
 
     public function uploadPDFToMapas(UploadedFile $file, ?string $existingFile = null): string
     {
-        $this->validateOrFail($file, 'pdf', 'PDF');
+        $extension = $this->validateOrFail($file, 'pdf');
 
-        $extension = $file->getClientOriginalExtension();
         $safeFilename = $this->generateSafeFilename($extension);
 
         if ($existingFile) {
@@ -61,46 +60,45 @@ class SecureFileUpload
 
     public function uploadExcel(UploadedFile $file, ?string $existingFile = null): ?string
     {
-        $extension = strtolower($file->getClientOriginalExtension());
-        $this->validateOrFail($file, $extension, strtoupper($extension));
+        $extension = $this->validateOrFail($file, 'xlsx', 'xls');
 
-        return $this->storeFile($file, 'u_excel', $existingFile);
+        return $this->storeFile($file, 'u_excel', $existingFile, $extension);
     }
 
     public function uploadExcelFormated(UploadedFile $file, ?string $existingFile = null): ?string
     {
-        $this->validateOrFail($file, 'xlsx', 'XLSX', 'xls', 'XLS');
+        $extension = $this->validateOrFail($file, 'xlsx', 'xls');
 
-        return $this->storeFile($file, 'u_xlsx_formated', $existingFile);
+        return $this->storeFile($file, 'u_xlsx_formated', $existingFile, $extension);
     }
 
-    protected function validateOrFail(UploadedFile $file, ...$types): void
+    protected function validateOrFail(UploadedFile $file, ...$types): string
     {
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        $valid = false;
+        $validatedType = null;
         foreach ($types as $type) {
             if ($this->validator->validate($file, $type)) {
-                $valid = true;
+                $validatedType = $type;
                 break;
             }
         }
 
-        if (!$valid) {
+        if (!$validatedType) {
             $errors = $this->validator->getErrors();
             $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Tipo de archivo no permitido';
             throw new \InvalidArgumentException($errorMsg);
         }
 
-        if ($this->validator->hasErrors()) {
-            Log::warning('Validación de contenido tuvo advertencias', [
+        if ($this->validator->containsExecutableContent($file)) {
+            Log::warning('Contenido potencialmente peligroso rechazado en subida', [
                 'file' => $file->getClientOriginalName(),
-                'errors' => $this->validator->getErrors(),
             ]);
+            throw new \InvalidArgumentException('El archivo contiene contenido no permitido.');
         }
+
+        return strtolower($validatedType);
     }
 
-    protected function storeFile(UploadedFile $file, string $directory, ?string $existingFile = null): string
+    protected function storeFile(UploadedFile $file, string $directory, ?string $existingFile, string $extension): string
     {
         $directory = public_path($directory);
 
@@ -115,7 +113,6 @@ class SecureFileUpload
             }
         }
 
-        $extension = $file->getClientOriginalExtension();
         $safeFilename = $this->generateSafeFilename($extension);
 
         $file->move($directory, $safeFilename);

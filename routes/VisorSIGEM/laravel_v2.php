@@ -5,7 +5,7 @@ use App\Http\Controllers\VisorSIGEM\DatasetViewController;
 use App\Http\Controllers\VisorSIGEM\VisorCuadroController;
 use App\Http\Controllers\VisorSIGEM\DocumentoController;
 
-Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
+Route::prefix('sigem-v2')->name('sigem.v2.')->middleware('throttle:60,1')->group(function () {
     Route::get('/', [SIGEMV2Controller::class, 'index'])->name('index');
     Route::get('/catalogo', [SIGEMV2Controller::class, 'catalogo'])->name('catalogo');
     Route::get('/estadistica', [SIGEMV2Controller::class, 'estadistica'])->name('estadistica');
@@ -23,7 +23,7 @@ Route::prefix('sigem-v2')->name('sigem.v2.')->group(function () {
         Route::get('/{id}', [DatasetViewController::class, 'show'])->name('show')->whereNumber('id');
     });
 
-    Route::prefix('cuadro/{id}')->middleware(['throttle:60,1', 'log.404'])->whereNumber('id')->name('cuadro.')->group(function () {
+    Route::prefix('cuadro/{id}')->whereNumber('id')->name('cuadro.')->group(function () {
         Route::get('/dataset', [VisorCuadroController::class, 'dataset'])->name('dataset');
         Route::get('/grafica', [VisorCuadroController::class, 'grafica'])->name('grafica');
         Route::get('/dataset/seccion/{seccion}/data', [VisorCuadroController::class, 'seccionData'])->name('seccion.data')->whereNumber('seccion');

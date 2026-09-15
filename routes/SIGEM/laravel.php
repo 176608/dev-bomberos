@@ -4,7 +4,7 @@ use App\Http\Controllers\SIGEM\PublicController;
 use App\Http\Controllers\SIGEM\AdminController;
 
 // Rutas públicas Laravel del módulo SIGEM
-Route::prefix('sigem')->group(function () {  
+Route::prefix('sigem')->middleware('throttle:60,1')->group(function () {
     // === RUTA PRINCIPAL (UNA SOLA) ===
     Route::get('/', [PublicController::class, 'index'])->name('sigem.index');
     

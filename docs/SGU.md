@@ -13,30 +13,29 @@ Administra usuarios y roles, registra accesos (autenticación y auditoría) y pr
 ## Estructura
 
 - Controladores (3) en `app/Http/Controllers/SGU/`: `DashboardController` (métricas del visor), `GestorController` (CRUD usuarios + PIN + estado), `AuditorController` (auditoría de accesos y de usuarios).
-- Modelos en `App\Models\SGU\`: `User` (tabla `users`: `email`, `password`, `pin`, `rol`, `estado`, `nivel`, `last_login_at`, `last_login_ip`), `AuditoriaUsuario`, `Traits\AuditableUsuario`. En `App\Models\SIGEM\`: `AuditoriaAcceso`.
-- Vistas: `resources/views/sgu/` (`dashboard.blade.php`, `gestor.blade.php`, `auditoria_accesos.blade.php`, `auditoria_usuarios.blade.php`) + `auth/` (login/pin).
+- Modelos en `App\Models\SGU\`: `User` (tabla `users`: `name`, `email`, `password`, `role`, `status`, `log_in_status`, `initial_token`), `AuditoriaUsuario`, `Traits\AuditableUsuario`. En `App\Models\SIGEM\`: `AuditoriaAcceso`.
+- Vistas: `resources/views/sgu/` (`layouts/admin.blade.php`, `admin/dashboard.blade.php`, `gestor/usuarios.blade.php`, `auditor/accesos.blade.php`, `auditor/usuarios.blade.php`).
 - Métricas: lee `pub_visita`/`pub_visitante` (las produce el visor SIGEM).
 
-## Flujo: login en 2 pasos
+## Flujo: login (AJAX + un POST)
 
 ```
-POST /login {email} (LoginRateLimiter: 10/60s por IP; 5/60s por email)
-  → existe usuario? (respuesta anti-enumeración unificada "Credenciales incorrectas")
-  → inactivo? → fallo auditado
-  → session login_email → GET /login/pin
-POST /login/pin {pin_or_password} → PIN (primer acceso) o contraseña
-  → Auth::login + regenerar sesión (anti-fixation) + last_login_at/ip
-  → AuditoriaAcceso (login) → redirect según rol
+POST /login/check-email (login.throttle 10/60s por IP + RateLimiter 5/300s por email)
+  → respuesta uniforme anti-enumeración: requires_pin / requires_password según log_in_status
+POST /login {email, password o pin} (login.throttle)
+  → PIN contra initial_token hasheado (log_in_status 1/2) o contraseña (Auth::attempt)
+  → status inactivo → fallo auditado
+  → session()->regenerate() (anti-fixation) + AuditoriaAcceso + redirect según rol
 ```
 
-Primer acceso: PIN de un solo uso → el sistema solicita crear contraseña (`PasswordResetRequired`). Mapa de roles: Dev/Admin → `sgu.admin.index`, Estadístico → `sgiem.admin.index`, otros → su panel.
+Primer acceso (status 1/2): PIN correcto (hash `initial_token`, marcador de sesión `pin_verificado`) → redirige a `/password/reset` para crear contraseña (política RNF-06) y editar el nombre si status=1; el PIN no se persiste en claro. Mapa de roles: Dev/Admin → `sgu.admin.index`, Estadístico → `sgiem.admin.index`, otros → su panel.
 
-## Flujo: gestión de usuarios
+## Flujo: gestión de usuarios (`routes/SGU/web.php:17-21`)
 
-- `POST /gestor/usuarios/crear` → alta + PIN aleatorio (`password_hash`).
-- `PUT /gestor/usuarios/{id}/actualizar` → edición; contraseña re-encriptada si viene.
-- `GET /gestor/usuarios/{id}/generar-pin` → nuevo PIN (se muestra **una sola vez** en modal, ver 06 S9).
-- `DELETE /.../eliminar` → soft-delete (flag) + auditoría; `POST /.../toggle-estado` → activar/inactivar + auditoría.
+- `GET /sgu/admin/gestor/usuarios` → listado con filtro de estado.
+- `POST /sgu/admin/gestor/usuarios` → alta + PIN aleatorio hasheado (`initial_token`) + status inicial.
+- `PUT /sgu/admin/gestor/usuarios/{user}` → edición de rol y `status` (la baja/desactivación se hace vía `update`; no existe DELETE ni `toggle-estado` — ver 06 S1).
+- `POST /sgu/admin/gestor/usuarios/{user}/generar-pin` → nuevo PIN (se muestra **una sola vez** en modal, ver 06 S9).
 
 ## Reglas duras
 

@@ -50,6 +50,10 @@ Auditoría de accesos: `AuditoriaAcceso` (login/fallo/logout). Hash de IP: trait
 - No exponer `$e->getMessage()` ni internos al cliente (deuda compartida G5/S11, ver `06`): mensaje genérico + `Log::error`.
 - Config de middleware: `bootstrap/app.php`.
 
+## Auditoría de requisitos y ciberseguridad (2026-09-14)
+
+Revisión RF/RNF completa documentada en `Especificaciones/13_Auditoria_Cumplimiento_RF.md` (inventario + matriz RF-01..54: 52/54 implementados, RF-49 y RF-54 parciales) y `14_Auditoria_Ciberseguridad_RNF.md` (RNF + superficie de ataque + suite de pruebas de seguridad). Hallazgos A1–A17 en `06` §9 — **A1 crítico corregido el 2026-09-14** (extensión de subida derivada del tipo validado + `containsExecutableContent()` activo); también corregidos A5 (`log.404` global), A6 (throttles públicos), A8 (sanitización gestor) y A10 (`.env.example`). Verificación dinámica pendiente de `vendor/` (BD local en pausa).
+
 ## Base de datos — IMPORTANTE
 
 - `database/migrations/` **está vacío**: el schema NO se gestiona con migraciones de Laravel.

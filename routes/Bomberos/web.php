@@ -10,9 +10,9 @@ use App\Http\Controllers\Bomberos\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 // ALTERNATIVA: Si hay conflicto, usar ruta específica
-Route::get('/consultor', [DashboardController::class, 'index'])->name('consultor.dashboard');
-Route::get('/consultor/buscar', [DashboardController::class, 'buscarHidrante'])->name('consultor.buscar');
-Route::get('/hidrante-pdf/{id}', [DashboardController::class, 'generarPDF'])->name('hidrante.pdf');
+Route::get('/consultor', [DashboardController::class, 'index'])->middleware('throttle:60,1')->name('consultor.dashboard');
+Route::get('/consultor/buscar', [DashboardController::class, 'buscarHidrante'])->middleware('throttle:60,1')->name('consultor.buscar');
+Route::get('/hidrante-pdf/{id}', [DashboardController::class, 'generarPDF'])->middleware('throttle:60,1')->name('hidrante.pdf');
 
 // Rutas de autenticación
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

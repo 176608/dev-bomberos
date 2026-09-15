@@ -386,9 +386,9 @@
                                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="var u=prompt('URL:');if(u)document.execCommand('createLink',false,u)" title="Enlace"><i class="bi bi-link-45deg"></i></button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.execCommand('removeFormat')" title="Limpiar formato"><i class="bi bi-eraser"></i></button>
                                     </div>
-                                    <div id="edit-pp-editor" contenteditable="true" class="form-control" style="min-height:100px;overflow-y:auto;font-size:0.9rem;line-height:1.5">{!! $cuadro->pie_pagina !!}</div>
+                                    <div id="edit-pp-editor" contenteditable="true" class="form-control" style="min-height:100px;overflow-y:auto;font-size:0.9rem;line-height:1.5">{!! App\Services\HtmlSanitizer::sanitize($cuadro->pie_pagina) !!}</div>
                                 </div>
-                                <div id="edit-pp-preview" class="d-none border rounded p-2" style="min-height:100px;font-size:0.9rem;line-height:1.5;background:#f8f9fa">{!! $cuadro->pie_pagina !!}</div>
+                                <div id="edit-pp-preview" class="d-none border rounded p-2" style="min-height:100px;font-size:0.9rem;line-height:1.5;background:#f8f9fa">{!! App\Services\HtmlSanitizer::sanitize($cuadro->pie_pagina) !!}</div>
                                 <input type="hidden" id="edit_pie_pagina" name="pie_pagina" value="{{ old('pie_pagina', $cuadro->pie_pagina) }}">
                             </div>
                         </div>

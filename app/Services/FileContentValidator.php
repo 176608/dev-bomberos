@@ -228,7 +228,7 @@ class FileContentValidator
         return $content;
     }
 
-    protected function containsExecutableContent(UploadedFile $file): bool
+    public function containsExecutableContent(UploadedFile $file): bool
     {
         $handle = fopen($file->getRealPath(), 'rb');
         if (!$handle) {

@@ -13,6 +13,8 @@ Este directorio es la **capa de contexto para agentes** (humanos o IA) que manip
 
 Archivo fundamental del sistema: `archivoslocales/Especificaciones/12_Requisitos_Funcionales_y_No_Funcionales.md` (54 RF + 35 RNF). Revisarlo antes de cualquier cambio de dominio.
 
+Auditoría vigente (2026-09-14): `archivoslocales/Especificaciones/13_Auditoria_Cumplimiento_RF.md` (inventario integral + matriz RF-01..54 con evidencia) y `archivoslocales/Especificaciones/14_Auditoria_Ciberseguridad_RNF.md` (verificación RNF, superficie de ataque, suite de pruebas de seguridad y plan de herramientas/staging/Envoy). Hallazgos registrados en `06_Listado_Bugs.md` §9 (IDs A1–A17).
+
 ## Mapa de módulos → documentos
 
 | Módulo | Prefijo/ruta | Docs | Especificación fuente |
