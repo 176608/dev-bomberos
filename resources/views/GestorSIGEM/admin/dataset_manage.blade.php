@@ -150,9 +150,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body py-2">
-                <label class="form-label small mb-1">Nombre del pivote <span class="text-danger">*</span></label>
+                <label class="form-label small mb-1">Nombre del pivote <small class="text-muted">(vacío usa «Concepto»)</small></label>
                 <input type="text" id="modal-crear-pivot" class="form-control form-control-sm" placeholder="Concepto">
-                <small id="modal-crear-pivot-error" class="text-danger d-none mt-1"></small>
             </div>
             <div class="modal-footer py-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -1652,17 +1651,12 @@
     document.getElementById('btn-crear-dataset')?.addEventListener('click', function() {
         var modal = new bootstrap.Modal(document.getElementById('modalCrearDataset'));
         document.getElementById('modal-crear-pivot').value = '';
-        document.getElementById('modal-crear-pivot-error').classList.add('d-none');
         modal.show();
         setTimeout(function() { document.getElementById('modal-crear-pivot').focus(); }, 100);
     });
 
     document.getElementById('btn-crear-dataset-confirm')?.addEventListener('click', function() {
-        var input = document.getElementById('modal-crear-pivot');
-        var pivot = input.value.trim();
-        var errEl = document.getElementById('modal-crear-pivot-error');
-        if (!pivot) { errEl.textContent = 'Escribe el nombre del pivote.'; errEl.classList.remove('d-none'); input.focus(); return; }
-        errEl.classList.add('d-none');
+        var pivot = document.getElementById('modal-crear-pivot').value.trim() || 'Concepto';
         status('Creando dataset...');
         api('/regenerar', { method: 'POST', body: { pivot_label: pivot } })
             .then(function(j) {

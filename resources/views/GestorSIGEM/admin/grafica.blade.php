@@ -10,9 +10,6 @@
             </small>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}" class="btn btn-outline-info btn-sm">
-                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Cuadro
-            </a>
             <button type="button" class="btn btn-sm {{ $cuadro->publicado ? 'btn-success' : 'btn-secondary' }}" id="btn-toggle-publicado" onclick="togglePublicado({{ $cuadro->cuadro_id }})">
                 <i class="bi {{ $cuadro->publicado ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
                 {{ $cuadro->publicado ? 'Publicado' : 'No publicado' }}
@@ -40,9 +37,12 @@
             <i class="bi bi-gear me-1"></i> Tipos
         </button>
         <span class="text-muted small mx-1">|</span>
-        <button type="button" class="btn btn-sm btn-outline-info" id="btn-toggle-panel" title="Mostrar/ocultar panel">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-panel" title="Mostrar/ocultar panel">
             <i class="bi bi-list-check"></i> Categorías
         </button>
+        <a href="{{ route('sgiem.admin.cuadros.dataset', $cuadro->cuadro_id) }}" class="btn btn-sm btn-outline-success" title="Volver al editor del cuadro (dataset)">
+            <i class="bi bi-grid-3x3-gap-fill me-1"></i> Cuadro
+        </a>
     </div>
 
     <!-- Modal: Tipos de gráfica -->
@@ -914,11 +914,24 @@ document.getElementById('btn-guardar-tipos')?.addEventListener('click', function
 document.getElementById('btn-toggle-panel')?.addEventListener('click', function() {
     var panel = document.getElementById('chart-panel');
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    sincronizarBotonPanel();
 });
 
 document.getElementById('btn-cerrar-panel')?.addEventListener('click', function() {
     document.getElementById('chart-panel').style.display = 'none';
+    sincronizarBotonPanel();
 });
+
+// B8.4: el botón Categorías refleja el estado del panel — abierto → outline, guardado → fill
+function sincronizarBotonPanel() {
+    var btn = document.getElementById('btn-toggle-panel');
+    var panel = document.getElementById('chart-panel');
+    if (!btn || !panel) return;
+    var abierto = panel.style.display !== 'none';
+    btn.classList.toggle('btn-outline-secondary', abierto);
+    btn.classList.toggle('btn-secondary', !abierto);
+}
+sincronizarBotonPanel();
 
 document.getElementById('switch-invertir-ejes')?.addEventListener('change', function() {
     chartAxis = this.checked ? 'horizontal' : 'vertical';
