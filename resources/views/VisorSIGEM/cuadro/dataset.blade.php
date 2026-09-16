@@ -85,8 +85,13 @@
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
 #tables-container > .section-block { margin-bottom:1.5rem; overflow-x:auto; }
-#tables-container .section-block .section-title { font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
+/* B11-P6 (doc 16): modos de sticky thead — sec-scroll (tabla ancha, scroll interno) / sec-fit (angosta, página) */
+#tables-container > .section-block.sec-scroll { max-height: calc(100vh - 190px); overflow: auto; }
+#tables-container > .section-block.sec-fit { overflow-x: visible; }
+#tables-container .section-title { position: sticky; top: 0; z-index: 4; font-weight:700; font-size:0.85rem; padding:0.3rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
+#tables-container .sec-fit .section-title { top: var(--toolbar-h, 0px); }
 #tables-container .section-block table { font-size:0.85rem; margin-bottom:0; border-radius:0 0 4px 4px; overflow:hidden; }
+#tables-container table th.thead-sticky { position: sticky; z-index: 3; }
 #tables-container .section-block table thead tr:first-child th:first-child { border-top-left-radius:0; }
 #tables-container table th { white-space:nowrap; text-align:center; width:1%; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
@@ -184,6 +189,11 @@ function status(msg) {
     var el = document.getElementById('status-text');
     if (!el) return;
     el.textContent = msg || '';
+    clearTimeout(el._clearTimer);
+    if (msg) {
+        // B11-P8 (doc 16): el mensaje desaparece solo — no persiste hasta recarga
+        el._clearTimer = setTimeout(function() { el.textContent = ''; }, 3000);
+    }
     var bar = document.getElementById('status-bar');
     if (bar && msg) {
         bar.classList.add('status-flash');
@@ -384,21 +394,22 @@ function renderTables() {
     var lockedSerieUnica = secList.length === 1 && /serie[\s-]*unica/i.test((secList[0].nombre || '').trim());
 
     var allHtml = '';
+    var esSeccionUnica = (estado.secciones || []).length === 1;
     (estado.secciones || []).forEach(function(sec) {
         var sid = sec.seccion_id;
         var secName = sec.nombre || ('Sección ' + sid);
         var locked = lockedSerieUnica;
         var isActive = locked || selectedSections[sid] !== false;
 
+        // B11-P7 (doc 16): escenario A — con una sola sección no se muestra el nombre;
+        // escenario B — barra separadora sticky con nombre + checkbox de visibilidad.
         allHtml += '<div class="section-block">';
-        allHtml += '<div class="section-title">';
-        if (locked) {
-            allHtml += esc(secName);
-        } else {
+        if (!esSeccionUnica) {
+            allHtml += '<div class="section-title">';
             var secCk = isActive ? 'checked' : '';
             allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+            allHtml += '</div>';
         }
-        allHtml += '</div>';
 
         if (!isActive) {
             allHtml += '<div class="text-muted small px-2 py-2" style="border:1px solid #dee2e6;border-top:none;">Sección desactivada.</div>';
@@ -507,7 +518,47 @@ function renderTables() {
             }
         });
     });
+
+    aplicarStickyHeaders();
 }
+
+// ─── B11-P6 (doc 16): thead sticky vertical (pivote + encabezados) — condicional por ancho ───
+function alturaToolbar() {
+    var tb = document.querySelector('#app-dataset .sticky-top');
+    return tb ? tb.offsetHeight : 0;
+}
+
+function aplicarStickyHeaders() {
+    var toolbarH = alturaToolbar();
+    var cont = document.getElementById('tables-container');
+    if (cont) cont.style.setProperty('--toolbar-h', toolbarH + 'px');
+    var blocks = cont ? cont.querySelectorAll('.section-block') : [];
+    blocks.forEach(function(block) {
+        var table = block.querySelector('table');
+        if (!table) return;
+        var angosta = table.scrollWidth <= block.clientWidth + 2;
+        block.classList.toggle('sec-scroll', !angosta);
+        block.classList.toggle('sec-fit', angosta);
+        var title = block.querySelector('.section-title');
+        var titleH = title ? title.offsetHeight : 0;
+        var acum = 0;
+        var rows = table.querySelectorAll('thead tr');
+        rows.forEach(function(tr) {
+            var top = (angosta ? toolbarH + titleH : titleH) + acum;
+            tr.querySelectorAll('th').forEach(function(th) {
+                th.style.top = top + 'px';
+                th.classList.add('thead-sticky');
+            });
+            acum += tr.offsetHeight;
+        });
+    });
+}
+
+var _stickyResizeTimer = null;
+window.addEventListener('resize', function() {
+    clearTimeout(_stickyResizeTimer);
+    _stickyResizeTimer = setTimeout(aplicarStickyHeaders, 150);
+});
 
 // ─── Section loading ───
 
@@ -692,6 +743,7 @@ document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
     this.className = on
         ? 'btn btn-sm btn-outline-secondary'
         : 'btn btn-sm btn-outline-success';
+    aplicarStickyHeaders();
 });
 document.getElementById('btn-show-desel')?.addEventListener('click', function() {
     showDeselected = !showDeselected;
