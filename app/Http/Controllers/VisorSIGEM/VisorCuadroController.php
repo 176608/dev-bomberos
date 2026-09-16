@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\VisorSIGEM;
 
+use App\Models\SIGEM\AuditoriaDataset;
+use App\Models\SIGEM\AuditoriaSgiem;
 use App\Models\SIGEM\Cuadro;
 use App\Services\GestorSIGEM\DatasetService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class VisorCuadroController extends Controller
@@ -61,11 +64,25 @@ class VisorCuadroController extends Controller
 
         $this->registrarMetrica($cuadro, 'dataset', null, 'secciones:' . count($estadoInicial['secciones'] ?? []));
 
+        // B11-P10 (doc 16): fechas de auditoría — última operación sobre el cuadro (alta o edición)
+        // y última operación sobre el dataset (creación o actualización por sesión).
+        $fechaCuadro = AuditoriaSgiem::where('modelo', 'Cuadro')
+            ->where('modelo_id', $id)
+            ->orderByDesc('created_at')
+            ->first();
+        $fechaDataset = Schema::hasTable('auditoria_datasets')
+            ? AuditoriaDataset::where('cuadro_id', $id)
+                ->orderByDesc('created_at')
+                ->first()
+            : null;
+
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
             'esDesarrollador' => $this->esDesarrollador(),
             'userRoleDisplay' => $this->getUserRoleDisplay(),
+            'fechaCuadro' => $fechaCuadro,
+            'fechaDataset' => $fechaDataset,
         ]);
     }
 

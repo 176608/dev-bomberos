@@ -28,6 +28,18 @@
                     <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
                 @endif
             </small>
+            {{-- B11-P10 (doc 16): trazabilidad visible — fechas de alta/edición del cuadro y del dataset --}}
+            @php
+                $fechaCuadroTxt = $fechaCuadro ? $fechaCuadro->created_at->format('d/m/Y H:i') : null;
+                $fechaDatasetTxt = $fechaDataset ? $fechaDataset->created_at->format('d/m/Y H:i') : null;
+            @endphp
+            @if($fechaCuadroTxt || $fechaDatasetTxt)
+                <small class="text-muted d-block mt-1" style="font-size:0.72rem">
+                    <i class="bi bi-clock-history me-1"></i>
+                    @if($fechaCuadroTxt)
+                        Cuadro {{ $fechaCuadro->accion === 'crear' ? 'alta' : 'últ. edición' }}: {{ $fechaCuadroTxt }}@endif@if($fechaDatasetTxt) &middot; Dataset {{ $fechaDataset->accion === 'crear_dataset' ? 'creado' : 'actualizado' }}: {{ $fechaDatasetTxt }}@endif@if(!$fechaDatasetTxt && $fechaCuadroTxt) &middot; dataset sin registros@endif
+                </small>
+            @endif
             {{-- B11-P3 (doc 16): indicador de vista previa para cuadros no publicados (solo autorizados llegan aquí) --}}
             @if(!$cuadro->publicado)
                 <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>

@@ -361,7 +361,7 @@
                                             ? route('sigem.v2.cuadro.mapa', $cuadro['cuadro_id'])
                                             : route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']);
                                     @endphp
-                                    <a href="{{ $targetUrl }}" target="_blank"
+                                    <a href="{{ $targetUrl }}"
                                        class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
                                        @if(!$cuadro['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
                                         @if(!$cuadro['publicado'] && $esDesarrollador)
@@ -509,7 +509,7 @@ function renderizarCuadros(cuadros) {
         var claseOpacidad = noPublicado ? 'opacity-50' : '';
         var estiloBorde = noPublicado ? ' border-warning' : '';
         var urlSuffix = ind.tipo_mapa_pdf ? '/mapa' : '/dataset';
-        html += '<a href="{{ url('/sigem-v2/cuadro') }}/' + ind.cuadro_id + urlSuffix + '" target="_blank" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
+        html += '<a href="{{ url('/sigem-v2/cuadro') }}/' + ind.cuadro_id + urlSuffix + '" class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block ' + claseOpacidad + estiloBorde + '">';
         if (noPublicado) {
             html += '<div class="d-flex justify-content-between align-items-start"><span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span></div>';
         }

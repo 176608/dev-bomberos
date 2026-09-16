@@ -195,7 +195,7 @@
                                                     $cBorde = (!$cuadro->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
                                                     $targetUrl = route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id);
                                                 @endphp
-                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.open('{{ $targetUrl }}', '_blank')">
+                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="var w = window.open('{{ $targetUrl }}', '_blank'); if (w) { w.blur(); window.focus(); }">
                                                     <span class="codigo">{{ $cuadro->codigo_cuadro }}</span>
                                                     <span class="titulo">
                                                         <strong>{{ $cuadro->c_titulo }}</strong>
