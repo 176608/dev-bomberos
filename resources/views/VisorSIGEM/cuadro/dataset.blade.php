@@ -84,9 +84,13 @@
 <style>
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
-#tables-container > .section-block { margin-bottom:1.5rem; overflow-x:auto; }
+/* B11-P6b (doc 16): sticky thead por sección (arquitectura A) — el bloque es el scroll container;
+   cero JS, sin posicionamiento absoluto, el sticky no sale de su div de sección */
+#tables-container > .section-block { margin-bottom:1.5rem; overflow: auto; max-height: calc(100vh - 200px); }
 #tables-container .section-block .section-title { font-weight:700; font-size:1rem; letter-spacing:0.02em; text-align:center; padding:0.45rem 0.5rem; background:#e8edf2; border:1px solid #dee2e6; border-bottom:none; border-radius:4px 4px 0 0; }
-#tables-container .section-block table { font-size:0.85rem; margin-bottom:0; border-radius:0 0 4px 4px; overflow:hidden; }
+#tables-container .section-block thead { position: sticky; top: 0; z-index: 2; }
+#tables-container .section-block thead th { box-shadow: inset 0 -1px 0 #dee2e6; }
+#tables-container .section-block table { font-size:0.85rem; margin-bottom:0; border-radius:0 0 4px 4px; }
 #tables-container .section-block table thead tr:first-child th:first-child { border-top-left-radius:0; }
 #tables-container table th { white-space:nowrap; text-align:center; width:1%; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
