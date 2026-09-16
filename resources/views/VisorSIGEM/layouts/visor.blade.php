@@ -229,10 +229,21 @@
             </div>
             <div class="toast-body">${esc(message)}</div>
         `;
-        container.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 4000 });
-        bsToast.show();
-        toast.addEventListener('hidden.bs.toast', function() { this.remove(); });
+    container.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 4000 });
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', function() { this.remove(); });
+    }
+
+    {{-- B11-P1 (doc 16): compartir enlace del cuadro con feedback toast --}}
+    function copiarEnlaceVisor(msg) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => mostrarToast('success', msg || 'URL copiada al portapapeles'))
+                .catch(() => mostrarToast('danger', 'No se pudo copiar el enlace'));
+        } else {
+            mostrarToast('warning', 'El navegador no permite copiar automáticamente');
+        }
     }
     </script>
     @stack('visor_scripts')

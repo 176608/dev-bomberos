@@ -7,11 +7,31 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
+            {{-- B11-P2 (doc 16): contexto de navegación — Estadística › Tema › Subtema --}}
+            <nav aria-label="breadcrumb" class="mb-1">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
+                    @if($cuadro->subtema && $cuadro->subtema->tema)
+                        <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica.tema', $cuadro->subtema->tema->tema_id) }}">{{ $cuadro->subtema->tema->tema_titulo }}</a></li>
+                    @endif
+                    @if($cuadro->subtema)
+                        <li class="breadcrumb-item">{{ $cuadro->subtema->subtema_titulo }}</li>
+                    @endif
+                    <li class="breadcrumb-item active">Dataset</li>
+                </ol>
+            </nav>
             <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadro</h5>
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>
                 <strong>{{ $cuadro->c_titulo }}</strong>
+                @if($cuadro->c_subtitulo)
+                    <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
+                @endif
             </small>
+            {{-- B11-P3 (doc 16): indicador de vista previa para cuadros no publicados (solo autorizados llegan aquí) --}}
+            @if(!$cuadro->publicado)
+                <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
+            @endif
         </div>
         <div class="d-flex gap-2">
             @if($cuadro->permite_grafica)
@@ -21,13 +41,17 @@
                 <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
             </a>
             @endif
+            <button class="btn btn-outline-secondary btn-sm" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
+                <i class="bi bi-link-45deg me-1"></i>Copiar enlace
+            </button>
             <button class="btn btn-outline-primary btn-sm" onclick="exportarExcel()" title="Descargar Excel del cuadro">
                 <i class="bi bi-file-earmark-excel me-1"></i>Excel
             </button>
         </div>
     </div>
 
-    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+    {{-- B11-P5 (doc 16): toolbar de selección persistente durante el recorrido del cuadro --}}
+    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap sticky-top bg-white p-2 rounded shadow-sm" style="z-index:1020;">
         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar u ocultar los checkboxes de la tabla">
             <i class="bi bi-check2-square"></i> Ocultar
         </button>

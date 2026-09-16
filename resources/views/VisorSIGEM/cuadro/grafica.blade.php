@@ -7,11 +7,30 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
+            {{-- B11-P2 (doc 16): contexto de navegación --}}
+            <nav aria-label="breadcrumb" class="mb-1">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
+                    @if($cuadro->subtema && $cuadro->subtema->tema)
+                        <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica.tema', $cuadro->subtema->tema->tema_id) }}">{{ $cuadro->subtema->tema->tema_titulo }}</a></li>
+                    @endif
+                    @if($cuadro->subtema)
+                        <li class="breadcrumb-item">{{ $cuadro->subtema->subtema_titulo }}</li>
+                    @endif
+                    <li class="breadcrumb-item active">Gráfica</li>
+                </ol>
+            </nav>
             <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Gráfica</h5>
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>
                 <strong>{{ $cuadro->c_titulo }}</strong>
+                @if($cuadro->c_subtitulo)
+                    <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
+                @endif
             </small>
+            @if(!$cuadro->publicado)
+                <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
+            @endif
         </div>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
@@ -24,6 +43,9 @@
             </button>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-download-png" title="Descargar gráfica como PNG">
                 <i class="bi bi-download me-1"></i>PNG
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración">
+                <i class="bi bi-link-45deg me-1"></i>Copiar enlace
             </button>
         </div>
     </div>
