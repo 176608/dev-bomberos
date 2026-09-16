@@ -184,6 +184,11 @@ function status(msg) {
     var el = document.getElementById('status-text');
     if (!el) return;
     el.textContent = msg || '';
+    clearTimeout(el._clearTimer);
+    if (msg) {
+        // B11-P8 (doc 16): el mensaje desaparece solo — no persiste hasta recarga
+        el._clearTimer = setTimeout(function() { el.textContent = ''; }, 3000);
+    }
     var bar = document.getElementById('status-bar');
     if (bar && msg) {
         bar.classList.add('status-flash');
@@ -384,21 +389,22 @@ function renderTables() {
     var lockedSerieUnica = secList.length === 1 && /serie[\s-]*unica/i.test((secList[0].nombre || '').trim());
 
     var allHtml = '';
+    var esSeccionUnica = (estado.secciones || []).length === 1;
     (estado.secciones || []).forEach(function(sec) {
         var sid = sec.seccion_id;
         var secName = sec.nombre || ('Sección ' + sid);
         var locked = lockedSerieUnica;
         var isActive = locked || selectedSections[sid] !== false;
 
+        // B11-P7 (doc 16): escenario A — con una sola sección no se muestra el nombre;
+        // escenario B — separador entre datasets con el nombre + checkbox de visibilidad.
         allHtml += '<div class="section-block">';
-        allHtml += '<div class="section-title">';
-        if (locked) {
-            allHtml += esc(secName);
-        } else {
+        if (!esSeccionUnica) {
+            allHtml += '<div class="section-title">';
             var secCk = isActive ? 'checked' : '';
             allHtml += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb sec-table-cb" data-sid="' + sid + '" ' + secCk + '> ' + esc(secName) + '</label>';
+            allHtml += '</div>';
         }
-        allHtml += '</div>';
 
         if (!isActive) {
             allHtml += '<div class="text-muted small px-2 py-2" style="border:1px solid #dee2e6;border-top:none;">Sección desactivada.</div>';
