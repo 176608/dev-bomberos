@@ -34,7 +34,7 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 
 1. **CRUD temas/subtemas**: orden automático; imagen de subtema vía `SecureFileUpload`; eliminar tema con subtemas asociados lanza excepción.
 2. **CRUD cuadros**: `pie_pagina`/`piepagina_gen` pasan por `HtmlSanitizer`; `toggle-publicado` invierte flag; al eliminar se borra el PDF de disco si existe.
-3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (generar ≤50×50, filas/columnas, jerarquía hijo/clonar, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar).
+3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (crear desde vacío pide el **nombre del pivote** — obligatorio, placeholder «Concepto» — y genera cuadrícula 1×1; el tamaño crece agregando filas/columnas en Modo Diseño; filas/columnas, jerarquía hijo/clonar+pegar lista con barra de progreso, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar).
 4. **Auditoría del dataset por sesión**: apertura → snapshot en caché (8 h); cierre → compara firma y registra solo si cambió; cierre diferido vía middleware `CerrarSesionAuditoriaDataset`.
 5. **Consulta Express**: CRUD de temas/contenidos CE con dimensión validada y estructura 2D.
 6. **Cambios/auditoría**: `GET /cambios` unifica `auditoria_sgiem` + `auditoria_datasets`; detalle con `?tipo=dataset`.

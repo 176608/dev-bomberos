@@ -84,19 +84,9 @@
         <div class="card shadow-sm border-0" id="empty-state">
             <div class="card-body text-center py-5">
                 <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
-                <h5 class="mt-3">Generar cuadrícula</h5>
-                <p class="text-muted small mb-3">Crea una cuadrícula vacía para empezar a cargar datos</p>
-                <div class="row justify-content-center g-2 mb-3">
-                    <div class="col-auto">
-                        <label class="form-label small">Filas</label>
-                        <input type="number" class="form-control text-center" id="input-filas" value="5" min="1" max="50" style="width:80px">
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small">Columnas</label>
-                        <input type="number" class="form-control text-center" id="input-columnas" value="5" min="1" max="50" style="width:80px">
-                    </div>
-                </div>
-                <button class="btn btn-primary px-4" id="btn-generar"><i class="bi bi-plus-square me-1"></i>Generar</button>
+                <h5 class="mt-3">Este cuadro aún no tiene dataset</h5>
+                <p class="text-muted small mb-3">Crea el dataset con un nombre de pivote o importa la configuración de otro cuadro. Las filas y columnas se agregan después en Modo Diseño.</p>
+                <button class="btn btn-primary px-4" id="btn-crear-dataset"><i class="bi bi-plus-square me-1"></i>Crear</button>
                 @if(!$cuadro->publicado)
                     <button class="btn btn-outline-secondary px-4 ms-2" onclick="openImportModal()"><i class="bi bi-upload me-1"></i>Importar configuración</button>
                 @endif
@@ -138,7 +128,7 @@
             <div class="modal-body py-2">
                 <div class="alert alert-warning py-2 small mb-2">
                     <i class="bi bi-exclamation-triangle me-1"></i>
-                    Se <strong>eliminarán todas las categorías y datos</strong>. ¿Confirmás?
+                    Se <strong>eliminarán todas las categorías y datos</strong>. ¿Confirmas?
                 </div>
                 <label class="form-label small mb-1">Nombre del pivote:</label>
                 <input type="text" id="modal-regenerar-pivot" class="form-control form-control-sm" placeholder="PIVOTE">
@@ -146,6 +136,27 @@
             <div class="modal-footer py-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-sm btn-danger" id="btn-regenerar-confirm"><i class="bi bi-sliders me-1"></i>Regenerar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- B8.2: Modal crear dataset (pide pivote; sin dimensiones — crea 1×1 y crece en Modo Diseño) -->
+<div class="modal fade" id="modalCrearDataset" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title"><i class="bi bi-plus-square me-1"></i>Crear dataset</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-2">
+                <label class="form-label small mb-1">Nombre del pivote <span class="text-danger">*</span></label>
+                <input type="text" id="modal-crear-pivot" class="form-control form-control-sm" placeholder="Concepto">
+                <small id="modal-crear-pivot-error" class="text-danger d-none mt-1"></small>
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary" id="btn-crear-dataset-confirm"><i class="bi bi-check-lg me-1"></i>Crear</button>
             </div>
         </div>
     </div>
@@ -319,6 +330,9 @@
 .mode-datos .cat-cell .cat-name { width: 100%; text-align: center; }
 .mode-datos .cat-actions { display: none !important; }
 .mode-diseno .cat-actions { display: flex !important; }
+
+/* B8.2: pivote más evidente en el editor */
+#dataset-table .pivot-label { font-size: 0.9rem; font-weight: 700; background: #e2e6ea; border-radius: 3px; padding: 0.2rem 0.5rem; }
 
 /* Extra small button group */
 .btn-group-xs .btn { padding: 0.1rem 0.25rem; font-size: 0.6rem; line-height: 1.3; border-radius: 0; }
@@ -880,7 +894,7 @@
         let theadHtml = '';
         if (headers.length === 0) {
             theadHtml = '<tr><th class="text-center align-middle p-1" style="background:#f0f2f5">'
-                + '<div class="d-flex align-items-center w-100 cat-inner"><div class="cat-name flex-grow-1 fw-semibold small" style="font-size:0.7rem">' + esc(estado.pivot_label || 'PIVOTE') + '</div>'
+                + '<div class="d-flex align-items-center w-100 cat-inner"><div class="cat-name pivot-label flex-grow-1">' + esc(estado.pivot_label || 'PIVOTE') + '</div>'
                 + '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-xs">'
                 + '<button class="btn btn-outline-danger" title="Regenerar Dataset" onclick="window.regenerarDataset()"><i class="bi bi-sliders"></i></button>'
                 + '</div></div></div></th>'
@@ -893,7 +907,7 @@
                     if (cell.tipo === 'corner') {
                         theadHtml += '<th rowspan="' + (cell.rowspan || numHR) + '" colspan="' + numLabelCols + '" class="text-center align-middle p-1" style="background:#f0f2f5">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
-                            + '<span contenteditable="true" class="cat-name flex-grow-1 fw-semibold pivot-label" style="font-size:0.7rem" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
+                            + '<span contenteditable="true" class="cat-name pivot-label flex-grow-1" onblur="window.guardarPivot(this)">' + esc(estado.pivot_label || 'PIVOTE') + '</span>'
                             + '<div class="cat-actions edit-only flex-shrink-0"><div class="btn-group btn-group-xs">'
                             + '<button class="btn btn-outline-danger" title="Regenerar Dataset" onclick="window.regenerarDataset()"><i class="bi bi-sliders"></i></button>'
                             + '</div></div></div></th>';
@@ -1634,14 +1648,37 @@
             .catch(() => alerta('Error [' + ERR.SECCION + ']'));
     };
 
-    // ============ GENERATE / REGENERATE ============
-    document.getElementById('btn-generar')?.addEventListener('click', function() {
-        const filas = parseInt(document.getElementById('input-filas').value) || 5;
-        const cols = parseInt(document.getElementById('input-columnas').value) || 5;
-        status('Generando...');
-        api('/generar', { method: 'POST', body: { filas, columnas: cols } })
-            .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Cuadrícula generada'); } else alerta(j.message); })
-            .catch(() => alerta('Error [' + ERR.GENERAR + ']'));
+    // ============ CREATE (B8.2: flujo nuevo — pide pivote, crea 1×1, crece en Diseño) ============
+    document.getElementById('btn-crear-dataset')?.addEventListener('click', function() {
+        var modal = new bootstrap.Modal(document.getElementById('modalCrearDataset'));
+        document.getElementById('modal-crear-pivot').value = '';
+        document.getElementById('modal-crear-pivot-error').classList.add('d-none');
+        modal.show();
+        setTimeout(function() { document.getElementById('modal-crear-pivot').focus(); }, 100);
+    });
+
+    document.getElementById('btn-crear-dataset-confirm')?.addEventListener('click', function() {
+        var input = document.getElementById('modal-crear-pivot');
+        var pivot = input.value.trim();
+        var errEl = document.getElementById('modal-crear-pivot-error');
+        if (!pivot) { errEl.textContent = 'Escribe el nombre del pivote.'; errEl.classList.remove('d-none'); input.focus(); return; }
+        errEl.classList.add('d-none');
+        status('Creando dataset...');
+        api('/regenerar', { method: 'POST', body: { pivot_label: pivot } })
+            .then(function(j) {
+                if (j.success) {
+                    estado = j.data;
+                    clearSelection();
+                    renderGrid(estado);
+                    status('Dataset creado');
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearDataset'))?.hide();
+                } else alerta(j.message);
+            })
+            .catch(function() { alerta('Error [' + ERR.REGEN + ']'); });
+    });
+
+    document.getElementById('modal-crear-pivot')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('btn-crear-dataset-confirm').click();
     });
 
     document.getElementById('btn-regenerar-confirm')?.addEventListener('click', function() {
