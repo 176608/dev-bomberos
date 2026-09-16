@@ -267,7 +267,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body py-2 position-relative" id="modalBatchBody">
-                <label class="form-label small mb-1">Pegá la lista (un elemento por línea):</label>
+                <label class="form-label small mb-1">Pega la lista (un elemento por línea):</label>
                 <div class="batch-textarea-wrapper">
                     <div class="batch-line-numbers" id="batchLineNumbers">1</div>
                     <textarea id="modalBatchTextarea" class="form-control form-control-sm" rows="8" placeholder="Elemento 1&#10;Elemento 2&#10;Elemento 3"></textarea>
@@ -275,7 +275,10 @@
                 <small id="modalBatchError" class="text-danger d-none mt-1"></small>
                 <div id="batchLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index:1055; border-radius:inherit;">
                     <div class="spinner-border text-primary mb-2" role="status"></div>
-                    <small class="text-muted" id="batchLoadingText">Creando...</small>
+                    <div class="progress" style="width:70%; height:20px;" aria-label="Progreso de creación">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="batchProgressBar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted mt-1" id="batchLoadingText">Creando...</small>
                 </div>
             </div>
             <div class="modal-footer py-1">
@@ -1326,10 +1329,20 @@
         if (context !== undefined) _batchContext = context;
         document.getElementById('modalBatchError').classList.add('d-none');
         document.getElementById('modalBatchTextarea').value = '';
+        _batchMax = null;
+        var bar = document.getElementById('batchProgressBar');
+        if (bar) { bar.style.width = '0%'; bar.setAttribute('aria-valuenow', 0); bar.textContent = ''; }
         var label = '';
         if (type === 'hijo') { label = 'hijos'; _batchCreateFn = batchCreateHijos; _batchValidateFn = makeValidateSibling('vertical', _batchContext); }
         else if (type === 'fila') { label = 'filas'; _batchCreateFn = batchCreateFilas; _batchValidateFn = makeValidateSibling('vertical', null); }
         else if (type === 'columna') { label = 'columnas'; _batchCreateFn = batchCreateColumnas; _batchValidateFn = makeValidateSibling('horizontal', null); }
+        else if (type === 'duplicar') {
+            label = 'duplicados';
+            _batchCreateFn = batchCreateDuplicados;
+            var fuente = buscarCategoriaPorId(_batchContext && _batchContext.catId);
+            _batchValidateFn = fuente ? makeValidateSibling(fuente.eje, fuente.padre_id) : null;
+            _batchMax = 50;
+        }
         document.getElementById('modalBatchTitle').innerHTML = '<i class="bi bi-clipboard me-1"></i>Pegar ' + label;
         new bootstrap.Modal(document.getElementById('modalBatch')).show();
         setTimeout(function() { document.getElementById('modalBatchTextarea').focus(); }, 100);
@@ -1339,7 +1352,12 @@
         var raw = document.getElementById('modalBatchTextarea').value;
         var names = raw.split('\n').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
         var errEl = document.getElementById('modalBatchError');
-        if (!names.length) { errEl.textContent = 'Pegá al menos un elemento.'; errEl.classList.remove('d-none'); return; }
+        if (!names.length) { errEl.textContent = 'Pega al menos un elemento.'; errEl.classList.remove('d-none'); return; }
+        if (_batchMax && names.length > _batchMax) {
+            errEl.textContent = 'Máximo ' + _batchMax + ' elementos por lote.';
+            errEl.classList.remove('d-none');
+            return;
+        }
 
         for (var i = 0; i < names.length; i++) {
             if (_batchValidateFn) {
@@ -1361,12 +1379,20 @@
         errEl.classList.add('d-none');
         var overlay = document.getElementById('batchLoadingOverlay');
         var btnConfirm = document.getElementById('modalBatchConfirm');
+        var bar = document.getElementById('batchProgressBar');
         overlay.classList.remove('d-none');
         btnConfirm.disabled = true;
+        if (bar) { bar.style.width = '0%'; bar.setAttribute('aria-valuenow', 0); bar.textContent = ''; }
         document.getElementById('batchLoadingText').textContent = 'Creando 0 de ' + names.length + '...';
         var fn = _batchCreateFn;
         fn(names, function(completed) {
             document.getElementById('batchLoadingText').textContent = 'Creando ' + completed + ' de ' + names.length + '...';
+            if (bar) {
+                var pct = Math.round((completed / names.length) * 100);
+                bar.style.width = pct + '%';
+                bar.setAttribute('aria-valuenow', pct);
+                bar.textContent = completed + ' de ' + names.length;
+            }
         }, function() {
             overlay.classList.add('d-none');
             btnConfirm.disabled = false;
@@ -1453,7 +1479,32 @@
             .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
     }
 
+    function buscarCategoriaPorId(catId) {
+        var all = (estado.all_verticales || []).concat(estado.all_horizontales || []);
+        return all.find(function(c) { return c.categoria_id === catId; }) || null;
+    }
+
+    function batchCreateDuplicados(names, onProgress, onDone) {
+        var catId = _batchContext && _batchContext.catId;
+        saveAllBeforeAction();
+        var p = Promise.resolve();
+        var completed = 0;
+        names.forEach(function(name) {
+            p = p.then(function() {
+                return api('/clonar/' + catId, { method: 'POST', body: { nombre: name } })
+                    .then(function(j) {
+                        if (!j.success) throw new Error(j.message);
+                        completed++;
+                        if (onProgress) onProgress(completed);
+                    });
+            });
+        });
+        p.then(function() { renderGrid(estado); status(names.length + ' duplicados creados'); if (onDone) onDone(); })
+            .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
+    }
+
     var _batchContext = null;
+    var _batchMax = null;
 
     // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
@@ -1467,12 +1518,13 @@
     };
 
     window.duplicarCategoria = function(categoriaId) {
+        _batchContext = { catId: categoriaId };
         saveAllBeforeAction();
         showNameModal('Duplicar categoría', function(name) {
             api('/clonar/' + categoriaId, { method: 'POST', body: { nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría duplicada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.CLON + ']'));
-        });
+        }, '', null, 'duplicar');
     };
 
     window.agregarFila = function() {
