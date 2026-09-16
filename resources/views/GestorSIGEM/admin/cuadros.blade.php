@@ -73,7 +73,7 @@
                     <button class="btn btn-sm btn-warning" onclick="limpiarFiltrosCuadro()" title="Limpiar filtros" style="height:31px"><i class="bi bi-x-lg"></i><i class="bi bi-funnel-fill"></i></button>
                 </div>
             </div>
-            <div class="table-responsive">
+            {{-- B8.3: sin contenedor de scroll horizontal — la tabla se ajusta al ancho del contenedor --}}
                 <table id="tablaCuadrosV2" class="table table-striped table-hover table-sm">
                     <thead class="table-dark">
                         <tr>
@@ -181,7 +181,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
         @else
             <div class="text-center py-5">
                 <i class="bi bi-table" style="font-size: 3rem;"></i>

@@ -12,7 +12,7 @@
     </div>
     <div class="card-body bg-transparent">
         @if(isset($temas) && count($temas) > 0)
-            <div class="table-responsive">
+            {{-- B8.3: sin contenedor de scroll horizontal — la tabla se ajusta al ancho del contenedor --}}
                 <table id="tablaTemas" class="table table-striped table-hover table-sm">
                     <thead class="table-dark">
                         <tr>
@@ -77,7 +77,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
         @else
             <div class="text-center py-4">
                 <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>

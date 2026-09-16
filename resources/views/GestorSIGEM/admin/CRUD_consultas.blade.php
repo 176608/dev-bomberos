@@ -37,7 +37,7 @@
         <div class="card tabla-temas-ce">
             <div class="card-body">
                 @if(isset($ce_temas) && count($ce_temas) > 0)
-                    <div class="table-responsive">
+                    {{-- B8.3: sin contenedor de scroll horizontal --}}
                         <table id="tablaTemasCE" class="table table-striped table-hover table-sm">
                             <thead class="table-primary">
                                 <tr>
@@ -76,7 +76,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
                 @else
                     <div class="text-center py-4">
                         <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
@@ -107,7 +106,7 @@
         <div class="card tabla-contenidos-ce">
             <div class="card-body">
                 @if(isset($ce_contenidos) && count($ce_contenidos) > 0)
-                    <div class="table-responsive">
+                    {{-- B8.3: sin contenedor de scroll horizontal --}}
                         <table id="tablaContenidosCE" class="table table-striped table-hover table-sm">
                             <thead class="table-warning">
                                 <tr>
@@ -177,7 +176,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
                 @else
                     <div class="text-center py-4">
                         <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
@@ -1214,30 +1212,30 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 0;
 }
 
-/* Tabla de Temas CE - Anchos fluidos */
+/* Tabla de Temas CE - Anchos fluidos (B8.3: sin min-width forzados, la tabla se ajusta) */
 #tablaTemasCE {
     table-layout: auto;
     width: 100% !important;
 }
 
-#tablaTemasCE th:nth-child(1), #tablaTemasCE td:nth-child(1) { width: 15%; min-width: 80px; }
-#tablaTemasCE th:nth-child(2), #tablaTemasCE td:nth-child(2) { width: 50%; min-width: 200px; }
-#tablaTemasCE th:nth-child(3), #tablaTemasCE td:nth-child(3) { width: 20%; min-width: 120px; }
-#tablaTemasCE th:nth-child(4), #tablaTemasCE td:nth-child(4) { width: 15%; min-width: 120px; }
+#tablaTemasCE th:nth-child(1), #tablaTemasCE td:nth-child(1) { width: 15%; }
+#tablaTemasCE th:nth-child(2), #tablaTemasCE td:nth-child(2) { width: 50%; }
+#tablaTemasCE th:nth-child(3), #tablaTemasCE td:nth-child(3) { width: 20%; }
+#tablaTemasCE th:nth-child(4), #tablaTemasCE td:nth-child(4) { width: 15%; }
 
-/* Tabla de Contenidos CE - Anchos fluidos */
+/* Tabla de Contenidos CE - Anchos fluidos (B8.3: sin min-width forzados) */
 #tablaContenidosCE {
     table-layout: auto;
     width: 100% !important;
 }
 
-#tablaContenidosCE th:nth-child(1), #tablaContenidosCE td:nth-child(1) { width: 8%; min-width: 80px; }
-#tablaContenidosCE th:nth-child(2), #tablaContenidosCE td:nth-child(2) { width: 30%; min-width: 200px; }
-#tablaContenidosCE th:nth-child(3), #tablaContenidosCE td:nth-child(3) { width: 12%; min-width: 100px; }
-#tablaContenidosCE th:nth-child(4), #tablaContenidosCE td:nth-child(4) { width: 15%; min-width: 120px; }
-#tablaContenidosCE th:nth-child(5), #tablaContenidosCE td:nth-child(5) { width: 15%; min-width: 120px; }
-#tablaContenidosCE th:nth-child(6), #tablaContenidosCE td:nth-child(6) { width: 10%; min-width: 110px; }
-#tablaContenidosCE th:nth-child(7), #tablaContenidosCE td:nth-child(7) { width: 10%; min-width: 140px; }
+#tablaContenidosCE th:nth-child(1), #tablaContenidosCE td:nth-child(1) { width: 8%; }
+#tablaContenidosCE th:nth-child(2), #tablaContenidosCE td:nth-child(2) { width: 30%; }
+#tablaContenidosCE th:nth-child(3), #tablaContenidosCE td:nth-child(3) { width: 12%; }
+#tablaContenidosCE th:nth-child(4), #tablaContenidosCE td:nth-child(4) { width: 15%; }
+#tablaContenidosCE th:nth-child(5), #tablaContenidosCE td:nth-child(5) { width: 15%; }
+#tablaContenidosCE th:nth-child(6), #tablaContenidosCE td:nth-child(6) { width: 10%; }
+#tablaContenidosCE th:nth-child(7), #tablaContenidosCE td:nth-child(7) { width: 10%; }
 
 /* ===== EFECTO VISUAL MINIMALISTA ===== */
 
@@ -1254,9 +1252,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ===== TEXTO FLUIDO ===== */
 
 .table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 #tablaTemasCE td:nth-child(2),

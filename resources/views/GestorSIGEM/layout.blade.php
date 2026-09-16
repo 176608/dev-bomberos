@@ -107,6 +107,10 @@
     background-color: #0b5ed7 !important;
     color: #fff !important;
 }
+
+/* B8.3: datatables sin desplazamiento horizontal (temas, subtemas, consultas exprés y cuadros) */
+#tablaTemas, #tablaSubtemas, #tablaTemasCE, #tablaContenidosCE, #tablaCuadrosV2 { width: 100% !important; }
+#tablaTemas td, #tablaSubtemas td, #tablaTemasCE td, #tablaContenidosCE td, #tablaCuadrosV2 td { white-space: normal; overflow-wrap: break-word; }
 </style>
 
 <div class="toast-container position-fixed bottom-0 start-0 p-3" id="sgiemToastContainer" style="z-index: 9999;"></div>

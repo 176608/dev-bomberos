@@ -12,7 +12,7 @@
     </div>
     <div class="card-body bg-transparent">
         @if(isset($subtemas) && count($subtemas) > 0)
-            <div class="table-responsive">
+            {{-- B8.3: sin contenedor de scroll horizontal --}}
                 <table id="tablaSubtemas" class="table table-striped table-hover table-sm">
                     <thead class="table-dark">
                         <tr>
@@ -86,7 +86,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
         @else
             <div class="text-center py-4">
                 <i class="bi bi-bookmarks text-muted" style="font-size: 3rem;"></i>
