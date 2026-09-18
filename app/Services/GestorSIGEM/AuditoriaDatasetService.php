@@ -23,6 +23,7 @@ class AuditoriaDatasetService
         $this->cerrarSesion($cuadroId);
 
         $estado = $this->obtenerEstadoSeguro($cuadroId);
+        $estado = $this->recortarEstado($estado);
 
         $sinHistorial = AuditoriaDataset::where('cuadro_id', $cuadroId)->doesntExist();
 
@@ -53,13 +54,15 @@ class AuditoriaDatasetService
         $sesion = Cache::get(self::SESION_KEY . $cuadroId);
         if (!$sesion) return;
 
-        $estadoActual = $this->obtenerEstadoSeguro($cuadroId);
+        $estadoActual = $this->recortarEstado($this->obtenerEstadoSeguro($cuadroId));
         $estadoApertura = $sesion['estado_apertura'];
+        $datosApertura = $sesion['datos_secciones'] ?? [];
+        $datosActuales = $this->capturarDatosSecciones($cuadroId);
 
         Cache::forget(self::SESION_KEY . $cuadroId);
         $this->quitarDelIndice($cuadroId);
 
-        if ($this->estadosIguales($estadoApertura, $estadoActual)) return;
+        if ($this->sinCambios($estadoApertura, $estadoActual, $datosApertura, $datosActuales)) return;
 
         AuditoriaDataset::create([
             'user_id' => Auth::id(),
@@ -67,7 +70,7 @@ class AuditoriaDatasetService
             'accion' => 'actualizar_dataset',
             'estado_anterior' => $estadoApertura,
             'estado_nuevo' => $estadoActual,
-            'resumen_cambios' => $this->resumenCambios($estadoApertura, $estadoActual, $cuadroId, $sesion['datos_secciones'] ?? []),
+            'resumen_cambios' => $this->resumenCambios($estadoApertura, $estadoActual, $datosApertura, $datosActuales),
         ]);
     }
 
@@ -147,6 +150,20 @@ class AuditoriaDatasetService
         return $this->firmaEstado($a) === $this->firmaEstado($b);
     }
 
+    private function sinCambios(array $antes, array $despues, array $datosAntes, array $datosDespues): bool
+    {
+        if ($this->firmaEstado($antes) !== $this->firmaEstado($despues)) {
+            return false;
+        }
+        return $datosAntes == $datosDespues;
+    }
+
+    private function recortarEstado(array $estado): array
+    {
+        unset($estado['headers'], $estado['labels']);
+        return $estado;
+    }
+
     private function firmaEstado(array $estado): string
     {
         $firma = [
@@ -197,10 +214,10 @@ class AuditoriaDatasetService
         return $celdas;
     }
 
-    private function resumenCambios(array $antes, array $despues, int $cuadroId, array $datosApertura): array
+    private function resumenCambios(array $antes, array $despues, array $datosApertura, array $datosActuales): array
     {
-        $aCeldas = $this->mapaCeldas($antes['data'] ?? []);
-        $dCeldas = $this->mapaCeldas($despues['data'] ?? []);
+        $aCeldas = $this->mapaDatos($datosApertura);
+        $dCeldas = $this->mapaDatos($datosActuales);
 
         $celdasModificadas = 0;
         foreach ($dCeldas as $clave => $valor) {
@@ -224,7 +241,7 @@ class AuditoriaDatasetService
                 $antes['secciones'] ?? [],
                 $despues['secciones'] ?? [],
                 $datosApertura,
-                $this->capturarDatosSecciones($cuadroId),
+                $datosActuales,
             ),
             'celdas' => [
                 'antes' => count($aCeldas),
@@ -315,12 +332,12 @@ class AuditoriaDatasetService
         return array_values($grupos);
     }
 
-    private function mapaCeldas(array $data): array
+    private function mapaDatos(array $mapaSecciones): array
     {
         $mapa = [];
-        foreach ($data as $fila) {
-            foreach ($fila as $celda) {
-                $mapa[($celda['cat_vertical_id'] ?? '') . '|' . ($celda['cat_horizontal_id'] ?? '')] = $celda['valor'] ?? '';
+        foreach ($mapaSecciones as $seccionId => $celdas) {
+            foreach ($celdas as $clave => $valor) {
+                $mapa[$seccionId . '|' . $clave] = $valor;
             }
         }
         return $mapa;

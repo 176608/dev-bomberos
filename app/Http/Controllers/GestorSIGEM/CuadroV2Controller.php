@@ -76,6 +76,8 @@ class CuadroV2Controller extends Controller
 
         $this->auditoriaDatasetService->abrirSesion((int) $id);
 
+        $temasDataset = \App\Models\SIGEM\TemaV2::with('subtemas')->get();
+
         try {
             $estado = $this->datasetService->obtenerEstado((int) $id);
         } catch (\RuntimeException) {
@@ -100,6 +102,7 @@ class CuadroV2Controller extends Controller
             'crud_view' => 'GestorSIGEM.admin.dataset_manage',
             'cuadro' => $cuadro,
             'estadoInicial' => $estado,
+            'temasDataset' => $temasDataset,
         ]);
     }
 

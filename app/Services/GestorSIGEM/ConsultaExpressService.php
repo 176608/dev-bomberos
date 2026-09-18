@@ -17,7 +17,11 @@ class ConsultaExpressService
     public function listarTemas(): array
     {
         $temas = $this->ceTema->obtenerTodos();
-        $contenidos = $this->ceContenido->with(['subtema.tema'])->orderBy('created_at', 'desc')->get();
+        $contenidos = $this->ceContenido
+            ->select('ce_contenido_id', 'ce_subtema_id', 'titulo_tabla', 'pie_tabla', 'tabla_filas', 'tabla_columnas', 'created_at')
+            ->with(['subtema.tema'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return [
             'ce_temas' => $temas,

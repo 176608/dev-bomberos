@@ -91,7 +91,9 @@ class AdminController extends Controller
         $audHumanos = PubVisitante::where('es_bot', false)->count();
 
         $audUltimasVisitas = (clone $visitas)->with(['visitante', 'cuadro'])
-            ->orderByDesc('created_at')->get();
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get();
 
         return view('GestorSIGEM.layout')->with([
             'crud_view' => 'GestorSIGEM.admin.dashboard',
@@ -130,11 +132,12 @@ class AdminController extends Controller
 
         $rango = in_array($request->rango, ['hoy', 'semanal', 'mensual', 'todos']) ? $request->rango : 'semanal';
 
-        $this->auditoriaDatasetService->cerrarTodasSesiones();
-
         $querySgiem = AuditoriaSgiem::with('usuario');
         $queryDataset = Schema::hasTable('auditoria_datasets')
-            ? AuditoriaDataset::with('usuario')
+            ? AuditoriaDataset::query()
+                ->select('auditoria_id', 'user_id', 'cuadro_id', 'accion', 'resumen_cambios', 'created_at')
+                ->selectRaw('(estado_anterior IS NOT NULL OR estado_nuevo IS NOT NULL) AS tiene_payload')
+                ->with('usuario')
             : null;
 
         if ($rango === 'hoy') {
@@ -147,6 +150,9 @@ class AdminController extends Controller
             $querySgiem->where('created_at', '>=', now()->subDays(30));
             if ($queryDataset) $queryDataset->where('created_at', '>=', now()->subDays(30));
         }
+
+        $querySgiem->limit(200);
+        if ($queryDataset) $queryDataset->limit(200);
 
         $auditoria = $querySgiem->orderBy('created_at', 'desc')->get();
         if ($queryDataset) {

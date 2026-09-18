@@ -110,7 +110,7 @@
                             </td>
                             <td>
                                 <small class="text-muted me-2">{{ $accionTexto }}</small>
-                                @if($log->datos_previos || $log->datos_nuevos)
+                                @if($esDataset ? !empty($log->tiene_payload) : ($log->datos_previos || $log->datos_nuevos))
                                     <button class="btn btn-sm btn-outline-info py-0 px-1"
                                             onclick="verDiff({{ $log->auditoria_id }}, '{{ $esDataset ? 'dataset' : 'sgiem' }}')" title="Ver detalle">
                                         <i class="bi bi-eye"></i>

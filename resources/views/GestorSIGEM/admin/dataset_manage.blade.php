@@ -408,9 +408,9 @@
     const CSRF = '{{ csrf_token() }}';
     const BASE = '{{ url("/sgiem/admin/cuadros") }}/' + CUADRO_ID + '/dataset';
     const IS_DEV = @json(auth()->user()?->hasRole('Desarrollador') ?? false);
-    window._temasData = @json(\App\Models\SIGEM\TemaV2::with('subtemas')->get()->map(fn($t) => ['tema_id' => $t->tema_id, 'tema_titulo' => $t->tema_titulo]));
+    window._temasData = @json($temasDataset->map(fn($t) => ['tema_id' => $t->tema_id, 'tema_titulo' => $t->tema_titulo]));
     window._subtemasPorTema = {};
-    @foreach(\App\Models\SIGEM\TemaV2::with('subtemas')->get() as $tema)
+    @foreach($temasDataset as $tema)
         window._subtemasPorTema[{{ $tema->tema_id }}] = @json($tema->subtemas->map(fn($s) => ['id' => $s->subtema_id, 'nombre' => $s->subtema_titulo]));
     @endforeach
     function log(...args) { if (IS_DEV) console.log('[Dataset]', ...args); }
