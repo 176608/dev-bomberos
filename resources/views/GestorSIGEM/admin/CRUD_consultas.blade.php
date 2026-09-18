@@ -50,9 +50,9 @@
                                 @foreach($ce_temas as $tema)
                                 <tr>
                                     <td><strong>{{ $tema->tema }}</strong></td>
-                                    <td data-order="{{ $tema->subtemas()->count() }}">
+                                    <td data-order="{{ $tema->subtemas_count ?? 0 }}">
                                         @php
-                                            $subtemas_count = $tema->subtemas()->count();
+                                            $subtemas_count = $tema->subtemas_count ?? 0;
                                         @endphp
                                         @if($subtemas_count > 0)
                                             <span class="badge bg-success">{{ $subtemas_count }} subtemas</span>

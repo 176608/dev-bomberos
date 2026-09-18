@@ -12,7 +12,7 @@ class TemaService
 
     public function listar(): array
     {
-        $temas = $this->temaV2->orderBy('tema_titulo', 'asc')->get();
+        $temas = $this->temaV2->withCount('subtemas')->orderBy('tema_titulo', 'asc')->get();
         $siguienteOrden = ($this->temaV2->max('orden_indice') ?? 0) + 1;
 
         return [

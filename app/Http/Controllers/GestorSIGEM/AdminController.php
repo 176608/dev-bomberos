@@ -92,7 +92,7 @@ class AdminController extends Controller
 
         $audUltimasVisitas = (clone $visitas)->with(['visitante', 'cuadro'])
             ->orderByDesc('created_at')
-            ->limit(100)
+            ->limit($this->limiteVisitas($request))
             ->get();
 
         return view('GestorSIGEM.layout')->with([
@@ -100,6 +100,7 @@ class AdminController extends Controller
             'esAdmin' => $user->hasRole('Administrador'),
             'desde' => $desde,
             'hasta' => $hasta,
+            'limiteVisitas' => $this->limiteVisitas($request),
             'audEventos' => $audEventos,
             'audVisitantesTotales' => $audVisitantesTotales,
             'audVisitantesNuevos' => $audVisitantesNuevos,
@@ -116,6 +117,12 @@ class AdminController extends Controller
                 'total' => (int) $c->total,
             ])->reverse()->values(),
         ]);
+    }
+
+    private function limiteVisitas(Request $request): int
+    {
+        $limite = (int) $request->input('visitas', 100);
+        return in_array($limite, [100, 250, 500], true) ? $limite : 100;
     }
 
     public function cambios(Request $request)

@@ -50,7 +50,10 @@ class ce_tema extends Model
      */
     public static function obtenerTodos()
     {
-        return self::orderBy('tema', 'asc')->get();
+        return self::with(['subtemas' => fn ($q) => $q->withCount('contenidos')])
+            ->withCount('subtemas')
+            ->orderBy('tema', 'asc')
+            ->get();
     }
     
     /**

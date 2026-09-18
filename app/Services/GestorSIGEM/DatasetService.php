@@ -160,17 +160,19 @@ class DatasetService
                 ]);
             }
 
+            $lote = [];
             foreach ($verticales as $f => $vCat) {
                 foreach ($horizontales as $c => $hCat) {
-                    $this->dato->create([
+                    $lote[] = [
                         'cuadro_id' => $cuadro_id,
                         'seccion_id' => $seccion->seccion_id,
                         'cat_horizontal_id' => $hCat->categoria_id,
                         'cat_vertical_id' => $vCat->categoria_id,
                         'valor' => '', 'fila' => $f + 1, 'columna' => $c + 1,
-                    ]);
+                    ];
                 }
             }
+            $this->insertarDatosLote($lote);
         });
 
         return $this->obtenerEstado($cuadro_id);
@@ -207,17 +209,19 @@ class DatasetService
         $secciones = $this->seccion->where('cuadro_id', $cuadro_id)->get();
         $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
 
+        $lote = [];
         foreach ($secciones as $seccion) {
             foreach ($horizontales as $c => $hCat) {
-                $this->dato->create([
+                $lote[] = [
                     'cuadro_id' => $cuadro_id,
                     'seccion_id' => $seccion->seccion_id,
                     'cat_horizontal_id' => $hCat->categoria_id,
                     'cat_vertical_id' => $cat->categoria_id,
                     'valor' => '', 'fila' => $maxOrden + 1, 'columna' => $c + 1,
-                ]);
+                ];
             }
         }
+        $this->insertarDatosLote($lote);
 
         return $this->obtenerEstado($cuadro_id);
     }
@@ -256,17 +260,19 @@ class DatasetService
         $secciones = $this->seccion->where('cuadro_id', $cuadro_id)->get();
         $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
 
+        $lote = [];
         foreach ($secciones as $seccion) {
             foreach ($verticales as $f => $vCat) {
-                $this->dato->create([
+                $lote[] = [
                     'cuadro_id' => $cuadro_id,
                     'seccion_id' => $seccion->seccion_id,
                     'cat_horizontal_id' => $cat->categoria_id,
                     'cat_vertical_id' => $vCat->categoria_id,
                     'valor' => '', 'fila' => $f + 1, 'columna' => $maxOrden + 1,
-                ]);
+                ];
             }
         }
+        $this->insertarDatosLote($lote);
 
         return $this->obtenerEstado($cuadro_id);
     }
@@ -315,32 +321,36 @@ class DatasetService
 
         if ($padre->eje === 'vertical') {
             $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
+            $lote = [];
             foreach ($secciones as $seccion) {
                 foreach ($horizontales as $c => $hCat) {
-                    $this->dato->create([
+                    $lote[] = [
                         'cuadro_id' => $cuadro_id,
                         'seccion_id' => $seccion->seccion_id,
                         'cat_horizontal_id' => $hCat->categoria_id,
                         'cat_vertical_id' => $hijo->categoria_id,
                         'valor' => '',
                         'fila' => $maxOrden + 1, 'columna' => $c + 1,
-                    ]);
+                    ];
                 }
             }
+            $this->insertarDatosLote($lote);
         } else {
             $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
+            $lote = [];
             foreach ($secciones as $seccion) {
                 foreach ($verticales as $f => $vCat) {
-                    $this->dato->create([
+                    $lote[] = [
                         'cuadro_id' => $cuadro_id,
                         'seccion_id' => $seccion->seccion_id,
                         'cat_horizontal_id' => $hijo->categoria_id,
                         'cat_vertical_id' => $vCat->categoria_id,
                         'valor' => '',
                         'fila' => $f + 1, 'columna' => $maxOrden + 1,
-                    ]);
+                    ];
                 }
             }
+            $this->insertarDatosLote($lote);
         }
 
         return $this->obtenerEstado($cuadro_id);
@@ -447,6 +457,19 @@ class DatasetService
             ->increment('orden', $desplazamiento);
     }
 
+    private function insertarDatosLote(array $filas): void
+    {
+        $ahora = now();
+        foreach ($filas as $i => $fila) {
+            $filas[$i]['created_at'] = $ahora;
+            $filas[$i]['updated_at'] = $ahora;
+        }
+
+        foreach (array_chunk($filas, 500) as $chunk) {
+            $this->dato->newQuery()->insert($chunk);
+        }
+    }
+
     private function asegurarSeccionBase(int $cuadro_id): void
     {
         if (!$this->seccion->where('cuadro_id', $cuadro_id)->exists()) {
@@ -503,18 +526,19 @@ class DatasetService
 
     private function crearDatosCategoria(int $cuadro_id, string $eje, Collection $secciones, Collection $hojasOtroEje, array $nuevosHijos): void
     {
+        $lote = [];
         if ($eje === 'vertical') {
             foreach ($secciones as $seccion) {
                 foreach ($nuevosHijos as $nh) {
                     foreach ($hojasOtroEje as $c => $hCat) {
-                        $this->dato->create([
+                        $lote[] = [
                             'cuadro_id' => $cuadro_id,
                             'seccion_id' => $seccion->seccion_id,
                             'cat_horizontal_id' => $hCat->categoria_id,
                             'cat_vertical_id' => $nh->categoria_id,
                             'valor' => '',
                             'fila' => $nh->orden, 'columna' => $c + 1,
-                        ]);
+                        ];
                     }
                 }
             }
@@ -522,18 +546,19 @@ class DatasetService
             foreach ($secciones as $seccion) {
                 foreach ($hojasOtroEje as $f => $vCat) {
                     foreach ($nuevosHijos as $nh) {
-                        $this->dato->create([
+                        $lote[] = [
                             'cuadro_id' => $cuadro_id,
                             'seccion_id' => $seccion->seccion_id,
                             'cat_horizontal_id' => $nh->categoria_id,
                             'cat_vertical_id' => $vCat->categoria_id,
                             'valor' => '',
                             'fila' => $f + 1, 'columna' => $nh->orden,
-                        ]);
+                        ];
                     }
                 }
             }
         }
+        $this->insertarDatosLote($lote);
     }
 
     public function actualizarCelda(int $cuadro_id, int $dato_id, string $valor): CuadroDato
@@ -635,19 +660,21 @@ class DatasetService
                 ]);
             }
 
+            $lote = [];
             foreach ($verticales as $f => $vCat) {
                 foreach ($horizontales as $c => $hCat) {
                     $valor = $grid[$f + 1][$c + 1] ?? '';
-                    $this->dato->create([
+                    $lote[] = [
                         'cuadro_id' => $cuadro_id,
                         'seccion_id' => $seccion->seccion_id,
                         'cat_horizontal_id' => $hCat->categoria_id,
                         'cat_vertical_id' => $vCat->categoria_id,
                         'valor' => $valor, 'valor_crudo' => $valor,
                         'fila' => $f + 1, 'columna' => $c + 1,
-                    ]);
+                    ];
                 }
             }
+            $this->insertarDatosLote($lote);
         });
 
         return $this->obtenerEstado($cuadro_id);
@@ -752,9 +779,10 @@ class DatasetService
         $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
         $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
 
+        $lote = [];
         foreach ($verticales as $f => $vCat) {
             foreach ($horizontales as $c => $hCat) {
-                $this->dato->create([
+                $lote[] = [
                     'cuadro_id' => $cuadro_id,
                     'seccion_id' => $seccion->seccion_id,
                     'cat_vertical_id' => $vCat->categoria_id,
@@ -763,9 +791,10 @@ class DatasetService
                     'valor_crudo' => '',
                     'fila' => $f + 1,
                     'columna' => $c + 1,
-                ]);
+                ];
             }
         }
+        $this->insertarDatosLote($lote);
 
         return $this->obtenerEstado($cuadro_id, $seccion->seccion_id);
     }
@@ -1044,10 +1073,11 @@ class DatasetService
             $leafV = $this->getLeafCategories($destinoId, 'vertical');
             $leafH = $this->getLeafCategories($destinoId, 'horizontal');
 
+            $lote = [];
             foreach ($sectionIdMap as $secId) {
                 foreach ($leafV as $f => $vCat) {
                     foreach ($leafH as $c => $hCat) {
-                        $this->dato->create([
+                        $lote[] = [
                             'cuadro_id' => $destinoId,
                             'seccion_id' => $secId,
                             'cat_horizontal_id' => $hCat->categoria_id,
@@ -1055,10 +1085,11 @@ class DatasetService
                             'valor' => '',
                             'fila' => $f + 1,
                             'columna' => $c + 1,
-                        ]);
+                        ];
                     }
                 }
             }
+            $this->insertarDatosLote($lote);
 
             // 5. Copy pivot_label
             $destino->actualizar(['pivot_label' => $origen->pivot_label ?? 'PIVOTE']);

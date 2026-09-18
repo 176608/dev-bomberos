@@ -40,7 +40,7 @@ La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el 
 - El visor **solo lee** BD y **solo escribe métricas** (`pub_visita`/`pub_visitante`). La invalidación de caché la hace **SGIEM** (`invalidarCacheVisor`).
 - Identidad anónima: cookie `_vuid` (`SetVisitorUuid`, UUID httpOnly, 10 años, `secure` dinámico). IP se almacena **hasheada** (`HashIp`, HMAC-SHA256 con `IP_HASH_SALT`), nunca en claro para visitantes.
 - Detección de bots por User-Agent (allowlist) → cuenta pero marca `es_bot=1`.
-- Exportación Excel: la selección de secciones viaja en la cadena de consulta (`?s=`, parse de ids con excepciones); **no valida firma HMAC** (hallazgo A15 del 06) — mitigación vigente: `throttle` + `log.404`.
+- Exportación Excel: la selección de secciones viaja en la cadena de consulta (`?s=`, parse de ids con excepciones); **no valida firma HMAC** (hallazgo A15 del 06) — mitigación vigente: `throttle` + `log.404`. Rendimiento (R9 del 06 §10, 2026-09-18): **sin límites artificiales** — el export intenta siempre (el visor es la referencia de tamaño, carga seccional); `CuadroExcelExport` usa autosize de columnas **condicional** (solo si el cuadro real ≤ 20k celdas); plan para cuadros >20k queda en pendientes del 06 (memory_limit del hosting o export en cola).
 - Seguridad pública: `throttle:60,1` (grupo `sigem-v2`), 30/min en `/track`, `log.404` global (20×404 en 300 s → registro de IP para análisis/bloqueo administrativo), headers `SecurityHeaders`, `no-store` en rutas públicas (`PreventBackHistory`).
 - Render híbrido servidor+cliente (no SPA); no cambiar el modelo de los datos de la grilla sin coordinar con `DatasetViewService` y `dataset.blade.php`.
 

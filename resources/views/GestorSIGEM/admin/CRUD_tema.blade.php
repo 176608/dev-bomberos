@@ -29,7 +29,7 @@
                         <tr>
                             <td>
                                 <strong>{{ $tema->tema_titulo }}</strong>
-                                @php $subtemas_count = $tema->subtemas()->count() ?? 0; @endphp
+                                @php $subtemas_count = $tema->subtemas_count ?? 0; @endphp
                                 <br><small class="text-muted">Subtemas: {{ $subtemas_count }} asignados</small>
                             </td>
                             <td data-order="{{ $tema->orden_indice ?? 0 }}">

@@ -47,7 +47,7 @@ Primer acceso (status 1/2): PIN correcto (hash `initial_token`, marcador de sesi
 
 ## Gotchas del equipo (06)
 
-`S1` ruta `DELETE /admin/users/{user}` purgada; `S3` no usar migraciones como referencia (BD manual); `S5` mapa de roles unificado; `S7` no hay expiración de PIN; `S9` PIN en modal con copiar/confirmación; `S4` dashboard con `->get()` sin paginar (pendiente rediseño) — no empeorar sin consulta; R2b (06 §10): `ultimasVisitas` del dashboard ya usa `limit(100)` (2026-09-18).
+`S1` ruta `DELETE /admin/users/{user}` purgada; `S3` no usar migraciones como referencia (BD manual); `S5` mapa de roles unificado; `S7` no hay expiración de PIN; `S9` PIN en modal con copiar/confirmación; `S4` dashboard con `->get()` sin paginar (pendiente rediseño) — no empeorar sin consulta; R2b (06 §10): `ultimasVisitas` con `limit($limiteVisitas)` + selector «Últimas 100/250/500» (`?visitas`); R11: auditoría de accesos y usuarios con `paginate(100)` (2026-09-18).
 
 ## Requisitos asociados
 

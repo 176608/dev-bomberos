@@ -83,15 +83,16 @@ class DashboardController
         $bots = PubVisitante::where('es_bot', true)->count();
         $humanos = PubVisitante::where('es_bot', false)->count();
 
+        $limiteVisitas = in_array((int) $request->input('visitas', 100), [100, 250, 500], true) ? (int) $request->input('visitas', 100) : 100;
         $ultimasVisitas = (clone $visitas)->with(['visitante', 'cuadro'])
             ->orderByDesc('created_at')
-            ->limit(100)
+            ->limit($limiteVisitas)
             ->get();
 
         return view('sgu.admin.dashboard', compact(
             'desde', 'hasta', 'eventos', 'visitantesTotales', 'visitantesNuevos',
             'visitantesActivos', 'bots', 'humanos', 'topAcciones',
-            'pngDescargas', 'ultimasVisitas',
+            'pngDescargas', 'ultimasVisitas', 'limiteVisitas',
             'diasLabels', 'diasData', 'cuadrosChart'
         ));
     }

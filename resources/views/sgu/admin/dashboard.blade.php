@@ -97,7 +97,14 @@
 </div>
 
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white">Visitas del periodo</div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span>Visitas del periodo</span>
+        <select class="form-select form-select-sm w-auto" onchange="window.location.href = this.value">
+            @foreach([100, 250, 500] as $n)
+                <option value="{{ request()->fullUrlWithQuery(['visitas' => $n]) }}" {{ $limiteVisitas === $n ? 'selected' : '' }}>Últimas {{ $n }}</option>
+            @endforeach
+        </select>
+    </div>
     <div class="card-body table-responsive">
         <table id="visitasTable" class="table table-striped table-sm table-bordered">
             <thead class="table-dark">
