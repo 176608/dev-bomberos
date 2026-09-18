@@ -67,7 +67,6 @@
         <h1>Demasiadas solicitudes</h1>
         <p>Se han enviado demasiadas solicitudes desde esta dirección en poco tiempo.
            Espera unos minutos e inténtalo de nuevo.</p>
-        <a class="btn" href="{{ route('login') }}">Ir al inicio de sesión</a>
         <div class="hint">Si el problema continúa, contacta al administrador del sistema.</div>
     </div>
 </body>

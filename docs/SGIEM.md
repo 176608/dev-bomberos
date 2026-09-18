@@ -11,8 +11,8 @@ Backend de **administración del contenido estadístico** que consume el visor S
 
 ## Estructura
 
-- Controladores (5): `AdminController` (dashboard + cambios + detalle auditoría), `TemaController` (temas/subtemas), `CuadroV2Controller` (CRUD cuadros, publicación, dataset/grafica/documento manage, PDFs), `DatasetController` (editor AJAX, 24 endpoints), `ConsultaExpressController`.
-- Servicios (7): `TemaService`, `SubtemaService`, `CuadroV2Service`, `DatasetService` (~942 ln, grilla + operaciones), `DatasetGridPresenter`, `ConsultaExpressService`, `AuditoriaDatasetService`.
+- Controladores (5): `AdminController` (dashboard + cambios + detalle auditoría), `TemaController` (temas/subtemas), `CuadroV2Controller` (CRUD cuadros, publicación, dataset/grafica/documento manage, PDFs), `DatasetController` (editor AJAX, 25 endpoints), `ConsultaExpressController`.
+- Servicios (7): `TemaService`, `SubtemaService`, `CuadroV2Service`, `DatasetService` (~1020 ln, grilla + operaciones), `DatasetGridPresenter`, `ConsultaExpressService`, `AuditoriaDatasetService`.
 - FormRequests (7) en `app/Http/Requests/GestorSIGEM/` con `authorize()` por rol + `validate()`.
 - Vistas: `resources/views/GestorSIGEM/layout.blade.php` (shell) + `GestorSIGEM/admin/*`.
 
@@ -34,7 +34,7 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 
 1. **CRUD temas/subtemas**: orden automático; imagen de subtema vía `SecureFileUpload`; eliminar tema con subtemas asociados lanza excepción.
 2. **CRUD cuadros**: `pie_pagina`/`piepagina_gen` pasan por `HtmlSanitizer`; `toggle-publicado` invierte flag; al eliminar se borra el PDF de disco si existe.
-3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (crear desde vacío pide el **nombre del pivote** — obligatorio, placeholder «Concepto» — y genera cuadrícula 1×1; el tamaño crece agregando filas/columnas en Modo Diseño; filas/columnas, jerarquía hijo/clonar+pegar lista con barra de progreso, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar).
+3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (crear desde vacío pide el **nombre del pivote** — obligatorio, placeholder «Concepto» — y genera cuadrícula 1×1; el tamaño crece agregando filas/columnas en Modo Diseño; filas/columnas, jerarquía hijo, clonar categoría individual con validación de hermanos en el modal, y clonar-lista transaccional FIFO con barra de progreso, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar).
 4. **Auditoría del dataset por sesión**: apertura → snapshot en caché (8 h); cierre → compara firma y registra solo si cambió; cierre diferido vía middleware `CerrarSesionAuditoriaDataset`.
 5. **Consulta Express**: CRUD de temas/contenidos CE con dimensión validada y estructura 2D.
 6. **Cambios/auditoría**: `GET /cambios` unifica `auditoria_sgiem` + `auditoria_datasets`; detalle con `?tipo=dataset`.
@@ -43,7 +43,8 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 ## Reglas duras (sí o sí al tocar este módulo)
 
 - **Cada mutación llama `invalidarCacheVisor($cuadroId)`** (`Cache::forget` de `visor_cuadro_estado_{id}` y `visor_cuadro_{id}_seccion_{seccionId}`) — definida en `CuadroV2Controller.php:26-34` y `DatasetController.php:18-24`.
-- **Transacciones (`DB::transaction`)** en las 4 operaciones destructivas del dataset: `generarGrilla`, `pasteGrid`, `eliminarDataset`, `importarEstructura` (requisito RNF-32).
+- **Transacciones (`DB::transaction`)** en las 4 operaciones destructivas del dataset: `generarGrilla`, `pasteGrid`, `eliminarDataset`, `importarEstructura` (requisito RNF-32). El clonado de categorías (individual `clonarCategoria` y lista `clonarListaCategoria`) también corre dentro de transacción (todo-o-nada).
+- **Unicidad de nombres por scope**: no pueden existir dos categorías hermanas con el mismo nombre — mismo scope = raíces del mismo eje (`padre_id IS NULL`) o hijos del mismo padre; sí se permiten nombres iguales bajo padres distintos. Enforcement: los modales del editor validan antes de enviar (`makeValidateSibling` con el eje/padre reales de la fuente) y el backend garantiza el invariante con auto-sufijo ` (n)` vía `generarNombreUnico` en `agregarFila`/`agregarColumna`/`agregarHijo`/`clonarCategoria`/`clonarListaCategoria`; el renombrado lo implementa `actualizarCategoria` (flag `_renombrado`).
 - **Sanitizar HTML** (`HtmlSanitizer`) todo input enriquecido; **nunca** deshabilitar.
 - **Auditar** con los patrones existentes: trait `AuditableSgiem` para modelos; `AuditoriaDatasetService` para sesiones de dataset. No añadir auditoría por celda (ruido; ver decisión en 06 G4 y doc 01 Sec 5).
 - **Autorización**: `authorize()` por rol en FormRequests + middleware `role:` en rutas.

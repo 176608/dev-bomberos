@@ -1346,7 +1346,12 @@
         var bar = document.getElementById('batchProgressBar');
         if (bar) { bar.style.width = '0%'; bar.setAttribute('aria-valuenow', 0); bar.textContent = ''; }
         var label = '';
-        if (type === 'hijo') { label = 'hijos'; _batchCreateFn = batchCreateHijos; _batchValidateFn = makeValidateSibling('vertical', _batchContext); }
+        if (type === 'hijo') {
+            label = 'hijos';
+            _batchCreateFn = batchCreateHijos;
+            var padreFuente = buscarCategoriaPorId(_batchContext);
+            _batchValidateFn = padreFuente ? makeValidateSibling(padreFuente.eje, _batchContext) : null;
+        }
         else if (type === 'fila') { label = 'filas'; _batchCreateFn = batchCreateFilas; _batchValidateFn = makeValidateSibling('vertical', null); }
         else if (type === 'columna') { label = 'columnas'; _batchCreateFn = batchCreateColumnas; _batchValidateFn = makeValidateSibling('horizontal', null); }
         else if (type === 'duplicar') {
@@ -1500,20 +1505,21 @@
     function batchCreateDuplicados(names, onProgress, onDone) {
         var catId = _batchContext && _batchContext.catId;
         saveAllBeforeAction();
-        var p = Promise.resolve();
-        var completed = 0;
-        names.forEach(function(name) {
-            p = p.then(function() {
-                return api('/clonar/' + catId, { method: 'POST', body: { nombre: name } })
-                    .then(function(j) {
-                        if (!j.success) throw new Error(j.message);
-                        completed++;
-                        if (onProgress) onProgress(completed);
-                    });
+        api('/clonar-lista/' + catId, { method: 'POST', body: { nombres: names } })
+            .then(function(j) {
+                if (!j.success) throw new Error(j.message);
+                if (onProgress) onProgress(names.length);
+                renderGrid(estado);
+                status(names.length + ' duplicados creados');
+                if (onDone) onDone();
+            })
+            .catch(function(e) {
+                document.getElementById('batchLoadingOverlay').classList.add('d-none');
+                document.getElementById('modalBatchConfirm').disabled = false;
+                alerta('Error: ' + e.message);
+                renderGrid(estado);
+                if (onDone) onDone();
             });
-        });
-        p.then(function() { renderGrid(estado); status(names.length + ' duplicados creados'); if (onDone) onDone(); })
-            .catch(function(e) { document.getElementById('batchLoadingOverlay').classList.add('d-none'); document.getElementById('modalBatchConfirm').disabled = false; alerta('Error: ' + e.message); renderGrid(estado); if (onDone) onDone(); });
     }
 
     var _batchContext = null;
@@ -1522,22 +1528,25 @@
     // ============ GLOBAL ACTION FUNCTIONS ============
     window.agregarHijo = function(padreId) {
         _batchContext = padreId;
+        var fuente = buscarCategoriaPorId(padreId);
+        var eje = fuente ? fuente.eje : 'vertical';
         showNameModal('Nuevo hijo', function(name) {
             saveAllBeforeAction();
             api('/hijo', { method: 'POST', body: { padre_id: padreId, nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Hijo agregado'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.HIJOS + ']'));
-        }, '', makeValidateSibling('vertical', padreId), 'hijo');
+        }, '', makeValidateSibling(eje, padreId), 'hijo');
     };
 
     window.duplicarCategoria = function(categoriaId) {
         _batchContext = { catId: categoriaId };
         saveAllBeforeAction();
+        var fuente = buscarCategoriaPorId(categoriaId);
         showNameModal('Duplicar categoría', function(name) {
             api('/clonar/' + categoriaId, { method: 'POST', body: { nombre: name } })
                 .then(j => { if (j.success) { estado = j.data; clearSelection(); renderGrid(estado); status('Categoría duplicada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.CLON + ']'));
-        }, '', null, 'duplicar');
+        }, '', fuente ? makeValidateSibling(fuente.eje, fuente.padre_id) : null, 'duplicar');
     };
 
     window.agregarFila = function() {

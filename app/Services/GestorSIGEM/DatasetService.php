@@ -194,9 +194,11 @@ class DatasetService
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'vertical')->max('orden') ?? 0;
 
+        $nombreFinal = $this->generarNombreUnico($cuadro_id, 'vertical', $nombre ?? ('Fila ' . ($maxOrden + 1)));
+
         $cat = $this->categoria->create([
             'cuadro_id' => $cuadro_id, 'eje' => 'vertical',
-            'nombre' => $nombre ?? ('Fila ' . ($maxOrden + 1)),
+            'nombre' => $nombreFinal,
             'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
@@ -239,9 +241,11 @@ class DatasetService
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'horizontal')->max('orden') ?? 0;
 
+        $nombreFinal = $this->generarNombreUnico($cuadro_id, 'horizontal', $nombre ?? ('Columna ' . ($maxOrden + 1)));
+
         $cat = $this->categoria->create([
             'cuadro_id' => $cuadro_id, 'eje' => 'horizontal',
-            'nombre' => $nombre ?? ('Columna ' . ($maxOrden + 1)),
+            'nombre' => $nombreFinal,
             'orden' => $maxOrden + 1, 'tipo' => 'dato',
         ]);
 
@@ -292,11 +296,13 @@ class DatasetService
 
         $maxOrden = $padre->hijos()->max('orden') ?? 0;
 
+        $nombreFinal = $this->generarNombreUnico($cuadro_id, $padre->eje, $nombre ?? ('Hijo ' . ($maxOrden + 1)), $padre->categoria_id);
+
         $hijo = $this->categoria->create([
             'cuadro_id' => $cuadro_id,
             'eje' => $padre->eje,
             'padre_id' => $padre->categoria_id,
-            'nombre' => $nombre ?? ('Hijo ' . ($maxOrden + 1)),
+            'nombre' => $nombreFinal,
             'orden' => $maxOrden + 1,
             'tipo' => 'dato',
         ]);
@@ -338,49 +344,132 @@ class DatasetService
 
     public function clonarCategoria(int $cuadro_id, int $categoria_id, ?string $nombre = null): array
     {
-        $padre = $this->categoria->find($categoria_id);
-        if (!$padre || $padre->cuadro_id != $cuadro_id) {
+        [$fuente, $hijos] = $this->validarFuenteClonado($cuadro_id, $categoria_id);
+
+        $eje = $fuente->eje;
+        $secciones = $this->seccion->where('cuadro_id', $cuadro_id)->get();
+        $hojasOtroEje = $this->getLeafCategories($cuadro_id, $eje === 'vertical' ? 'horizontal' : 'vertical');
+
+        DB::transaction(function () use ($cuadro_id, $fuente, $hijos, $nombre, $eje, $secciones, $hojasOtroEje) {
+            $this->desplazarRaicesPosteriores($cuadro_id, $eje, $fuente->orden, 1);
+
+            $baseNombre = $nombre ?? ($fuente->nombre . ' Duplicado');
+            $this->crearClonCompleto(
+                $cuadro_id,
+                $fuente,
+                $hijos,
+                $this->generarNombreUnico($cuadro_id, $eje, $baseNombre),
+                $fuente->orden + 1,
+                $secciones,
+                $hojasOtroEje
+            );
+        });
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
+    public function clonarListaCategoria(int $cuadro_id, int $categoria_id, array $nombres): array
+    {
+        [$fuente, $hijos] = $this->validarFuenteClonado($cuadro_id, $categoria_id);
+
+        $limpios = [];
+        foreach ($nombres as $nombre) {
+            $limpio = trim((string) $nombre);
+            if ($limpio === '') {
+                throw new \RuntimeException('La lista contiene líneas vacías');
+            }
+            $limpios[] = $limpio;
+        }
+        if (count($limpios) < 1 || count($limpios) > 50) {
+            throw new \RuntimeException('La lista debe tener entre 1 y 50 elementos');
+        }
+
+        $vistos = [];
+        foreach ($limpios as $i => $limpio) {
+            $clave = mb_strtolower($limpio);
+            if (isset($vistos[$clave])) {
+                throw new \RuntimeException('Líneas ' . ($vistos[$clave] + 1) . ' y ' . ($i + 1) . ': «' . $limpio . '» está repetido en la lista');
+            }
+            $vistos[$clave] = $i;
+        }
+
+        $eje = $fuente->eje;
+        $secciones = $this->seccion->where('cuadro_id', $cuadro_id)->get();
+        $hojasOtroEje = $this->getLeafCategories($cuadro_id, $eje === 'vertical' ? 'horizontal' : 'vertical');
+
+        DB::transaction(function () use ($cuadro_id, $fuente, $hijos, $limpios, $eje, $secciones, $hojasOtroEje) {
+            $this->desplazarRaicesPosteriores($cuadro_id, $eje, $fuente->orden, count($limpios));
+
+            foreach ($limpios as $i => $nombre) {
+                $this->crearClonCompleto(
+                    $cuadro_id,
+                    $fuente,
+                    $hijos,
+                    $this->generarNombreUnico($cuadro_id, $eje, $nombre),
+                    $fuente->orden + 1 + $i,
+                    $secciones,
+                    $hojasOtroEje
+                );
+            }
+        });
+
+        return $this->obtenerEstado($cuadro_id);
+    }
+
+    private function validarFuenteClonado(int $cuadro_id, int $categoria_id): array
+    {
+        $fuente = $this->categoria->find($categoria_id);
+        if (!$fuente || $fuente->cuadro_id != $cuadro_id) {
             throw new \RuntimeException('Categoría no encontrada');
         }
-        if ($padre->padre_id !== null) {
+        if ($fuente->padre_id !== null) {
             throw new \RuntimeException('No se puede duplicar una categoría hija');
         }
 
-        $hijos = $padre->hijos()->orderBy('orden')->get();
+        $hijos = $fuente->hijos()->orderBy('orden')->get();
         if ($hijos->count() < 2) {
             throw new \RuntimeException('La categoría debe tener al menos 2 hijos para duplicar');
         }
 
-        $eje = $padre->eje;
+        return [$fuente, $hijos];
+    }
 
+    private function desplazarRaicesPosteriores(int $cuadro_id, string $eje, int $ordenFuente, int $desplazamiento): void
+    {
         $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', $eje)
             ->whereNull('padre_id')
-            ->where('orden', '>', $padre->orden)
-            ->increment('orden');
+            ->where('orden', '>', $ordenFuente)
+            ->increment('orden', $desplazamiento);
+    }
 
-        if ($nombre === null) {
-            $baseNombre = $padre->nombre . ' Duplicado';
-            $nombre = $baseNombre;
-        } else {
-            $baseNombre = $nombre;
-        }
+    private function generarNombreUnico(int $cuadro_id, string $eje, string $base, ?int $padre_id = null): string
+    {
+        $nombre = $base;
         $contador = 0;
-        while ($this->categoria->where('cuadro_id', $cuadro_id)
-            ->where('eje', $eje)
-            ->whereNull('padre_id')
-            ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])
-            ->exists()
-        ) {
+        while (true) {
+            $consulta = $this->categoria->where('cuadro_id', $cuadro_id)
+                ->where('eje', $eje)
+                ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)]);
+            if ($padre_id === null) {
+                $consulta->whereNull('padre_id');
+            } else {
+                $consulta->where('padre_id', $padre_id);
+            }
+            if (!$consulta->exists()) break;
             $contador++;
-            $nombre = $baseNombre . ' (' . $contador . ')';
+            $nombre = $base . ' (' . $contador . ')';
         }
+        return $nombre;
+    }
 
+    private function crearClonCompleto(int $cuadro_id, CuadroCategoria $fuente, Collection $hijos, string $nombre, int $orden, Collection $secciones, Collection $hojasOtroEje): void
+    {
         $clon = $this->categoria->create([
             'cuadro_id' => $cuadro_id,
-            'eje' => $eje,
+            'eje' => $fuente->eje,
             'nombre' => $nombre,
-            'orden' => $padre->orden + 1,
+            'orden' => $orden,
             'tipo' => 'dato',
         ]);
 
@@ -388,7 +477,7 @@ class DatasetService
         foreach ($hijos as $hijo) {
             $nuevosHijos[] = $this->categoria->create([
                 'cuadro_id' => $cuadro_id,
-                'eje' => $eje,
+                'eje' => $fuente->eje,
                 'padre_id' => $clon->categoria_id,
                 'nombre' => $hijo->nombre,
                 'orden' => $hijo->orden,
@@ -396,13 +485,15 @@ class DatasetService
             ]);
         }
 
-        $secciones = $this->seccion->where('cuadro_id', $cuadro_id)->get();
+        $this->crearDatosCategoria($cuadro_id, $fuente->eje, $secciones, $hojasOtroEje, $nuevosHijos);
+    }
 
+    private function crearDatosCategoria(int $cuadro_id, string $eje, Collection $secciones, Collection $hojasOtroEje, array $nuevosHijos): void
+    {
         if ($eje === 'vertical') {
-            $horizontales = $this->getLeafCategories($cuadro_id, 'horizontal');
             foreach ($secciones as $seccion) {
                 foreach ($nuevosHijos as $nh) {
-                    foreach ($horizontales as $c => $hCat) {
+                    foreach ($hojasOtroEje as $c => $hCat) {
                         $this->dato->create([
                             'cuadro_id' => $cuadro_id,
                             'seccion_id' => $seccion->seccion_id,
@@ -415,9 +506,8 @@ class DatasetService
                 }
             }
         } else {
-            $verticales = $this->getLeafCategories($cuadro_id, 'vertical');
             foreach ($secciones as $seccion) {
-                foreach ($verticales as $f => $vCat) {
+                foreach ($hojasOtroEje as $f => $vCat) {
                     foreach ($nuevosHijos as $nh) {
                         $this->dato->create([
                             'cuadro_id' => $cuadro_id,
@@ -431,8 +521,6 @@ class DatasetService
                 }
             }
         }
-
-        return $this->obtenerEstado($cuadro_id);
     }
 
     public function actualizarCelda(int $cuadro_id, int $dato_id, string $valor): CuadroDato

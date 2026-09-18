@@ -150,6 +150,21 @@ class DatasetController extends Controller
         }
     }
 
+    public function cloneListaCategoria(Request $request, $id, $categoria)
+    {
+        $request->validate([
+            'nombres' => 'required|array|min:1|max:50',
+            'nombres.*' => 'string',
+        ]);
+
+        try {
+            $this->invalidarCacheVisor((int) $id);
+            return response()->json(['success' => true, 'data' => $this->datasetService->clonarListaCategoria((int) $id, (int) $categoria, $request->nombres)]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function storeHijo(Request $request, $id)
     {
         $request->validate(['padre_id' => 'required|integer']);
