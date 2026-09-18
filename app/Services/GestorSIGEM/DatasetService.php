@@ -795,6 +795,14 @@ class DatasetService
 
         $seccion->delete();
 
+        $restantes = $this->seccion->where('cuadro_id', $cuadro_id)
+            ->orderBy('orden')->orderBy('seccion_id')->get()->values();
+        foreach ($restantes as $i => $sec) {
+            if ($sec->orden !== $i + 1) {
+                $sec->update(['orden' => $i + 1]);
+            }
+        }
+
         $primera = $this->seccion->where('cuadro_id', $cuadro_id)->orderBy('orden')->first();
         return $this->obtenerEstado($cuadro_id, $primera->seccion_id);
     }
@@ -811,17 +819,33 @@ class DatasetService
             ->firstOrFail();
         $cuadro_id = $seccion->cuadro_id;
 
-        $ordenActual = $seccion->orden;
-        $ordenObjetivo = $direccion === 'up' ? $ordenActual - 1 : $ordenActual + 1;
+        DB::transaction(function () use ($cuadro_id, $seccion, $direccion) {
+            $ordenadas = $this->seccion->where('cuadro_id', $cuadro_id)
+                ->orderBy('orden')->orderBy('seccion_id')->get()->values();
 
-        if ($ordenObjetivo < 1) throw new \RuntimeException('La sección ya está en la primera posición');
+            $indice = $ordenadas->search(fn($s) => $s->seccion_id === $seccion->seccion_id);
+            if ($indice === false) {
+                throw new \RuntimeException('Sección no encontrada');
+            }
 
-        $vecina = $this->seccion->where('cuadro_id', $cuadro_id)
-            ->where('orden', $ordenObjetivo)->first();
-        if (!$vecina) throw new \RuntimeException('No hay sección adyacente en esa dirección');
+            $objetivo = $direccion === 'up' ? $indice - 1 : $indice + 1;
+            if ($objetivo < 0) {
+                throw new \RuntimeException('La sección ya está en la primera posición');
+            }
+            if ($objetivo >= $ordenadas->count()) {
+                throw new \RuntimeException('La sección ya está en la última posición');
+            }
 
-        $seccion->update(['orden' => $ordenObjetivo]);
-        $vecina->update(['orden' => $ordenActual]);
+            $lista = $ordenadas->all();
+            [$movida] = array_splice($lista, $indice, 1);
+            array_splice($lista, $objetivo, 0, [$movida]);
+
+            foreach ($lista as $i => $sec) {
+                if ($sec->orden !== $i + 1) {
+                    $sec->update(['orden' => $i + 1]);
+                }
+            }
+        });
 
         return $this->obtenerEstado($cuadro_id, $seccion_id);
     }
