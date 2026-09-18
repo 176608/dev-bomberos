@@ -348,7 +348,7 @@ function renderChart(tipo) {
 
     var opts = { axis: chartAxis, visibleV: visibleV, visibleH: visibleH };
 
-    var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    var activeSids = (estado.secciones || []).filter(function(s) { return selectedSections[s.seccion_id]; }).map(function(s) { return s.seccion_id; });
     var isMultiUnsupported = multiSectionUnsupported.indexOf(tipo) >= 0;
     var useMulti = activeSids.length > 0 && !isMultiUnsupported;
 
@@ -863,7 +863,7 @@ function enforceSingleSection(tipo) {
     var checks = container.querySelectorAll('.sec-check');
 
     if (isSingle) {
-        var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+        var activeSids = (estado.secciones || []).filter(function(s) { return selectedSections[s.seccion_id]; }).map(function(s) { return s.seccion_id; });
         if (activeSids.length > 1) {
             var keep = activeSids[0];
             activeSids.slice(1).forEach(function(sid) { selectedSections[sid] = false; });

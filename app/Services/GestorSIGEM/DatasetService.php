@@ -191,6 +191,8 @@ class DatasetService
 
     public function agregarFila(int $cuadro_id, ?string $nombre = null): array
     {
+        $this->asegurarSeccionBase($cuadro_id);
+
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'vertical')->max('orden') ?? 0;
 
@@ -238,6 +240,8 @@ class DatasetService
 
     public function agregarColumna(int $cuadro_id, ?string $nombre = null): array
     {
+        $this->asegurarSeccionBase($cuadro_id);
+
         $maxOrden = $this->categoria->where('cuadro_id', $cuadro_id)
             ->where('eje', 'horizontal')->max('orden') ?? 0;
 
@@ -441,6 +445,15 @@ class DatasetService
             ->whereNull('padre_id')
             ->where('orden', '>', $ordenFuente)
             ->increment('orden', $desplazamiento);
+    }
+
+    private function asegurarSeccionBase(int $cuadro_id): void
+    {
+        if (!$this->seccion->where('cuadro_id', $cuadro_id)->exists()) {
+            $this->seccion->create([
+                'cuadro_id' => $cuadro_id, 'nombre' => 'Serie única', 'orden' => 1,
+            ]);
+        }
     }
 
     private function generarNombreUnico(int $cuadro_id, string $eje, string $base, ?int $padre_id = null): string

@@ -80,19 +80,19 @@
 
     <div id="alerts"></div>
 
-    @if(!$estadoInicial['tiene_dataset'])
-        <div class="card shadow-sm border-0" id="empty-state">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
-                <h5 class="mt-3">Este cuadro aún no tiene dataset</h5>
-                <p class="text-muted small mb-3">Crea el dataset con un nombre de pivote o importa la configuración de otro cuadro. Las filas y columnas se agregan después en Modo Diseño.</p>
-                <button class="btn btn-primary px-4" id="btn-crear-dataset"><i class="bi bi-plus-square me-1"></i>Crear</button>
-                @if(!$cuadro->publicado)
-                    <button class="btn btn-outline-secondary px-4 ms-2" onclick="openImportModal()"><i class="bi bi-upload me-1"></i>Importar configuración</button>
-                @endif
-            </div>
+    <div class="card shadow-sm border-0" id="empty-state" style="{{ $estadoInicial['tiene_dataset'] ? 'display:none;' : '' }}">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-table" style="font-size:3rem;color:var(--bs-primary)"></i>
+            <h5 class="mt-3">Este cuadro aún no tiene filas ni columnas</h5>
+            <p class="text-muted small mb-3">Agrega la primera fila o columna (desde el Modo Diseño también puedes pegar listas), crea el dataset con un nombre de pivote o importa la configuración de otro cuadro.</p>
+            <button class="btn btn-success px-3" onclick="window.agregarFila()"><i class="bi bi-plus-lg me-1"></i>Agregar fila</button>
+            <button class="btn btn-primary px-3 ms-1" onclick="window.agregarColumna()"><i class="bi bi-plus-lg me-1"></i>Agregar columna</button>
+            <button class="btn btn-outline-primary px-3 ms-1" id="btn-crear-dataset"><i class="bi bi-plus-square me-1"></i>Crear dataset</button>
+            @if(!$cuadro->publicado)
+                <button class="btn btn-outline-secondary px-3 ms-1" onclick="openImportModal()"><i class="bi bi-upload me-1"></i>Importar configuración</button>
+            @endif
         </div>
-    @endif
+    </div>
 
     <div id="grid-container" style="overflow-x:auto;{{ !$estadoInicial['tiene_dataset'] ? 'display:none;' : '' }}">
         <div class="card shadow-sm border-0">
@@ -549,23 +549,24 @@
         });
     }
 
-    function catActionsHtml(catId, esHijo, numHijos, esParent, esVertical) {
+    function catActionsHtml(catId, nombre, esHijo, numHijos, esParent, esVertical) {
         var size = esHijo ? 'xs' : 'sm';
         var orientacion = esVertical ? 'btn-group-vertical' : 'btn-group';
+        var n = esc(nombre || '');
         var h = '<div class="cat-actions edit-only flex-shrink-0"><div class="' + orientacion + ' btn-group-' + size + '">';
         if (!esHijo) {
             var c = esVertical ? 'success' : 'primary';
-            h += '<button class="btn btn-' + c + '" title="Añadir hijo" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
-            h += '<button class="btn btn-' + c + '" title="Añadir varios hijos" onclick="openBatchModal(\'hijo\',' + catId + ')"><i class="bi bi-plus-lg me-1"></i><i class="bi bi-list"></i></button>';
+            h += '<button class="btn btn-' + c + '" title="Añadir hijo a &quot;' + n + '&quot;" onclick="window.agregarHijo(' + catId + ')"><i class="bi bi-plus-lg"></i></button>';
+            h += '<button class="btn btn-' + c + '" title="Añadir varios hijos a &quot;' + n + '&quot;" onclick="openBatchModal(\'hijo\',' + catId + ')"><i class="bi bi-plus-lg me-1"></i><i class="bi bi-list"></i></button>';
         }
         if (esParent && numHijos >= 2)
-            h += '<button class="btn btn-info" title="Duplicar categoría" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
+            h += '<button class="btn btn-info" title="Duplicar &quot;' + n + '&quot;" onclick="window.duplicarCategoria(' + catId + ')"><i class="bi bi-copy"></i></button>';
         var si = siblingInfoCache[catId];
         if (si) {
-            if (si.index > 0) h += '<button class="btn btn-outline-secondary" title="Subir" onclick="window.reordenarCategoria(' + catId + ', \'up\')"><i class="bi bi-caret-up-fill"></i></button>';
-            if (si.index < si.total - 1) h += '<button class="btn btn-outline-secondary" title="Bajar" onclick="window.reordenarCategoria(' + catId + ', \'down\')"><i class="bi bi-caret-down-fill"></i></button>';
+            if (si.index > 0) h += '<button class="btn btn-outline-secondary" title="Subir &quot;' + n + '&quot;" onclick="window.reordenarCategoria(' + catId + ', \'up\')"><i class="bi bi-caret-up-fill"></i></button>';
+            if (si.index < si.total - 1) h += '<button class="btn btn-outline-secondary" title="Bajar &quot;' + n + '&quot;" onclick="window.reordenarCategoria(' + catId + ', \'down\')"><i class="bi bi-caret-down-fill"></i></button>';
         }
-        h += '<button class="btn btn-danger" title="' + (esVertical ? 'Eliminar fila' : 'Eliminar columna') + '" onclick="window.' + (esVertical ? 'eliminarFila' : 'eliminarColumna') + '(' + catId + ')"><i class="bi bi-x-lg"></i></button>';
+        h += '<button class="btn btn-danger" title="' + (esVertical ? 'Eliminar fila' : 'Eliminar columna') + ' &quot;' + n + '&quot;" onclick="window.' + (esVertical ? 'eliminarFila' : 'eliminarColumna') + '(' + catId + ')"><i class="bi bi-x-lg"></i></button>';
         h += '</div></div>';
         return h;
     }
@@ -914,13 +915,13 @@
                         theadHtml += '<th colspan="' + cell.colspan + '" data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#e2e6ea;font-weight:600">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(cell.nombre) + '</div>'
-                            + catActionsHtml(cell.categoria_id, cell.es_hijo, cell.num_hijos || 0, true, false)
+                            + catActionsHtml(cell.categoria_id, cell.nombre, cell.es_hijo, cell.num_hijos || 0, true, false)
                             + '</div></th>';
                     } else {
                         theadHtml += '<th data-categoria-id="' + cell.categoria_id + '" data-col-index="' + cell.col_index + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f0f2f5">'
                             + '<div class="d-flex align-items-center w-100 cat-inner">'
                             + '<div contenteditable="true" data-categoria-id="' + cell.categoria_id + '" data-es-hijo="' + (cell.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + cell.categoria_id + ')" class="cat-name flex-grow-1">' + e(cell.nombre) + '</div>'
-                            + catActionsHtml(cell.categoria_id, cell.es_hijo, 0, false, false)
+                            + catActionsHtml(cell.categoria_id, cell.nombre, cell.es_hijo, 0, false, false)
                             + '</div></th>';
                     }
                 }
@@ -939,19 +940,19 @@
                     tbodyHtml += '<th rowspan="' + label.rowspan + '" data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa;font-weight:600">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(label.nombre) + '</div>'
-                        + catActionsHtml(label.categoria_id, label.es_hijo, label.num_hijos || 0, true, true)
+                        + catActionsHtml(label.categoria_id, label.nombre, label.es_hijo, label.num_hijos || 0, true, true)
                         + '</div></th>';
                 } else if (label.tipo === 'parent') {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa;font-weight:600">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
                         + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1 fw-semibold">' + e(label.nombre) + '</div>'
-                        + catActionsHtml(label.categoria_id, label.es_hijo, 0, false, true)
+                        + catActionsHtml(label.categoria_id, label.nombre, label.es_hijo, 0, false, true)
                         + '</div></th>';
                 } else {
                     tbodyHtml += '<th data-categoria-id="' + label.categoria_id + '" data-row-index="' + label.row_index + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" class="cat-cell align-middle text-center" style="background:#f8f9fa">'
                         + '<div class="d-flex align-items-center w-100 cat-inner">'
-                        + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1">' + e(label.nombre) + '</div>'
-                        + catActionsHtml(label.categoria_id, label.es_hijo, 0, false, true)
+                            + '<div contenteditable="true" data-categoria-id="' + label.categoria_id + '" data-es-hijo="' + (label.es_hijo ? 1 : 0) + '" onblur="window.renombrarHeader(this, ' + label.categoria_id + ')" class="cat-name flex-grow-1">' + e(label.nombre) + '</div>'
+                        + catActionsHtml(label.categoria_id, label.nombre, label.es_hijo, 0, false, true)
                         + '</div></th>';
                 }
             }
@@ -1553,7 +1554,7 @@
         showNameModal('Nueva fila', function(name) {
             saveAllBeforeAction();
             api('/fila', { method: 'POST', body: { nombre: name } })
-                .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
+                .then(j => { if (j.success) { estado = j.data; if (!lastCell) initLastCell(); renderGrid(estado); status('Fila agregada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.FILA + ']'));
         }, '', makeValidateSibling('vertical', null), 'fila');
     };
@@ -1562,7 +1563,7 @@
         showNameModal('Nueva columna', function(name) {
             saveAllBeforeAction();
             api('/columna', { method: 'POST', body: { nombre: name } })
-                .then(j => { if (j.success) { estado = j.data; renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
+                .then(j => { if (j.success) { estado = j.data; if (!lastCell) initLastCell(); renderGrid(estado); status('Columna agregada'); } else alerta(j.message); })
                 .catch(() => alerta('Error [' + ERR.COL + ']'));
         }, '', makeValidateSibling('horizontal', null), 'columna');
     };
@@ -1978,11 +1979,9 @@
     }
 
     // ============ INIT ============
-    if (estado.tiene_dataset) {
-        initLastCell();
-        renderGrid(estado);
-        switchMode('diseno');
-    }
+    initLastCell();
+    renderGrid(estado);
+    switchMode('diseno');
 })();
 </script>
 

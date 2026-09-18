@@ -347,7 +347,7 @@ function renderChart(tipo) {
 
     var opts = { axis: chartAxis, visibleV: visibleV, visibleH: visibleH };
 
-    var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+    var activeSids = (estado.secciones || []).filter(function(s) { return selectedSections[s.seccion_id]; }).map(function(s) { return s.seccion_id; });
     if (activeSids.length === 0) {
         status('Sin secciones activas. Actívalas en Configuración.');
         return;
@@ -611,7 +611,7 @@ function enforceSingleSection(tipo) {
     if (!container) return;
     if (isSingle) {
         var totalSecs = (estado.secciones || []).length;
-        var activeSids = Object.keys(selectedSections).filter(function(sid) { return selectedSections[sid]; });
+        var activeSids = (estado.secciones || []).filter(function(s) { return selectedSections[s.seccion_id]; }).map(function(s) { return s.seccion_id; });
         if (activeSids.length > 1) {
             var keep = activeSids[0];
             activeSids.slice(1).forEach(function(sid) { selectedSections[sid] = false; });

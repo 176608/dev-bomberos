@@ -34,11 +34,12 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 
 1. **CRUD temas/subtemas**: orden automático; imagen de subtema vía `SecureFileUpload`; eliminar tema con subtemas asociados lanza excepción.
 2. **CRUD cuadros**: `pie_pagina`/`piepagina_gen` pasan por `HtmlSanitizer`; `toggle-publicado` invierte flag; al eliminar se borra el PDF de disco si existe.
-3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (crear desde vacío pide el **nombre del pivote** — obligatorio, placeholder «Concepto» — y genera cuadrícula 1×1; el tamaño crece agregando filas/columnas en Modo Diseño; filas/columnas, jerarquía hijo, clonar categoría individual con validación de hermanos en el modal, y clonar-lista transaccional FIFO con barra de progreso, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar).
-4. **Auditoría del dataset por sesión**: apertura → snapshot en caché (8 h); cierre → compara firma y registra solo si cambió; cierre diferido vía middleware `CerrarSesionAuditoriaDataset`.
-5. **Consulta Express**: CRUD de temas/contenidos CE con dimensión validada y estructura 2D.
-6. **Cambios/auditoría**: `GET /cambios` unifica `auditoria_sgiem` + `auditoria_datasets`; detalle con `?tipo=dataset`.
-7. **Dashboard**: métricas de visita (13 KPIs) sobre `pub_visita`/`pub_visitante`.
+3. **Editor de dataset** (corazón del gestor): grilla relacional editada por AJAX (crear desde vacío pide el **nombre del pivote** — obligatorio, placeholder «Concepto» — y genera cuadrícula 1×1; el tamaño crece agregando filas/columnas en Modo Diseño; filas/columnas, jerarquía hijo, clonar categoría individual con validación de hermanos en el modal, y clonar-lista transaccional FIFO con barra de progreso, celdas, pegado, secciones, importar estructura entre cuadros, pivot, tipos de gráfica, regenerar, limpiar). Sin filas/columnas se muestra una card de estado vacío **siempre operable** (agregar primera fila/columna, crear dataset, importar); renderizada en ambas direcciones (también tras borrar todo sin recargar) y con `asegurarSeccionBase` que crea la sección «Serie única» si el cuadro nunca tuvo dataset. Los botones de categoría del Modo Diseño llevan tooltips con el nombre de la categoría (`Duplicar "X"`, `Eliminar fila "X"`, …).
+4. **Gráficas del gestor y del visor**: las secciones activas se iteran en el orden del campo `orden` (`estado.secciones`, ya ordenado por `obtenerEstado`), no en el orden de inserción de la selección (`Object.keys(selectedSections)`).
+5. **Auditoría del dataset por sesión**: apertura → snapshot en caché (8 h); cierre → compara firma y registra solo si cambió; cierre diferido vía middleware `CerrarSesionAuditoriaDataset`.
+6. **Consulta Express**: CRUD de temas/contenidos CE con dimensión validada y estructura 2D.
+7. **Cambios/auditoría**: `GET /cambios` unifica `auditoria_sgiem` + `auditoria_datasets`; detalle con `?tipo=dataset`.
+8. **Dashboard**: métricas de visita (13 KPIs) sobre `pub_visita`/`pub_visitante`.
 
 ## Reglas duras (sí o sí al tocar este módulo)
 
