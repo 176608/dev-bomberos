@@ -91,7 +91,7 @@
                             $esMapa = $cuadro->tipo_mapa_pdf;
                             $tieneGrafica = $cuadro->permite_grafica;
                             $estaPublicado = $cuadro->publicado;
-                            $tieneDS = $cuadro->categorias()->count() > 0;
+                            $tieneDS = ($cuadro->categorias_count ?? $cuadro->categorias()->count()) > 0;
                             $colorTema = $cuadro->subtema && $cuadro->subtema->tema ? ($cuadro->subtema->tema->color ?? '#6c757d') : '#6c757d';
                         @endphp
                         <tr data-id="{{ $cuadro->cuadro_id }}"
@@ -99,7 +99,7 @@
                             data-subtema-id="{{ $cuadro->subtema?->subtema_id }}"
                             data-publicado="{{ $cuadro->publicado ? '1' : '0' }}"
                             data-grafica="{{ $cuadro->permite_grafica ? '1' : '0' }}"
-                            data-dataset="{{ $cuadro->categorias()->count() > 0 ? '1' : '0' }}"
+                            data-dataset="{{ ($cuadro->categorias_count ?? $cuadro->categorias()->count()) > 0 ? '1' : '0' }}"
                             data-secciones="{{ $seccionCounts[$cuadro->cuadro_id] ?? 0 }}">
                             <td class="text-center" data-order="{{ naturalSortKey($cuadro->codigo_cuadro) }}"><code class="text-primary">{{ $cuadro->codigo_cuadro }}</code></td>
                             <td>

@@ -83,7 +83,8 @@ class Cuadro extends Model
     public static function obtenerTodos()
     {
         return self::ordenaNaturalPorCodigo(
-            self::with(['subtema.tema', 'categorias', 'datos'])
+            self::with(['subtema.tema'])
+                ->withCount('categorias')
                 ->orderBy('codigo_cuadro', 'asc')
                 ->get()
         );
@@ -91,7 +92,7 @@ class Cuadro extends Model
 
     public static function obtenerPorId($cuadro_id)
     {
-        return self::with(['subtema.tema', 'categorias', 'datos'])
+        return self::with(['subtema.tema'])
             ->find($cuadro_id);
     }
 

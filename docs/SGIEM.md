@@ -50,6 +50,7 @@ tema_v2 1──< subtema_v2 1──< cuadro_v2 1──< cuadro_secciones
 - **Auditar** con los patrones existentes: trait `AuditableSgiem` para modelos; `AuditoriaDatasetService` para sesiones de dataset. No añadir auditoría por celda (ruido; ver decisión en 06 G4 y doc 01 Sec 5).
 - **Autorización**: `authorize()` por rol en FormRequests + middleware `role:` en rutas.
 - **No exponer internos** (`$e->getMessage()`, nombres de tablas/columnas, SQL) en respuestas al usuario (bug G5). Mensaje genérico + `Log::error`.
+- **No precargar `datos`/`categorias` en listados** (`Cuadro::obtenerTodos`/`obtenerPorId` solo precargan `subtema.tema`): el index de cuadros revientó el `memory_limit` de 128 MB del hosting al cargar todos los `cuadro_datos` del sistema (las vistas solo necesitan counts — index usa `withCount('categorias')` → `$cuadro->categorias_count`). Las operaciones del dataset siempre re-consultan por relación con filtros; acceder a las colecciones hace lazy-load on-demand.
 - No depender de rutas v1 (`/sigem/*`) ni de módulos legacy.
 - Ajuste de accesibilidad del editor de dataset: el tamaño de los botones de acción de categorías (filas y columnas) es elegible por radio («Extra-chicos / Medianos / Grandes») junto a los tabs de modo, visible solo en Diseño; preferencia en `localStorage` (`sgiem.dataset.btnSize`) + `sessionStorage` — no hardcodear tamaños de esos botones fuera de las variables CSS (`--btn-pad`/`--btn-font`).
 
