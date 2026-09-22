@@ -1,5 +1,5 @@
 {{-- contexto de navegación — Estadística › Tema › Subtema › Código --}}
-<nav aria-label="breadcrumb" class="mb-1 visor-breadcrumb">
+<nav aria-label="breadcrumb" class="mb-2 pb-1 visor-breadcrumb">
     <ol class="breadcrumb small mb-0 align-items-center">
         <li class="breadcrumb-item"><a class="bc-btn" href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
         @if($cuadro->subtema && $cuadro->subtema->tema)
