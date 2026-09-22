@@ -37,9 +37,13 @@ class SIGEMV2Controller extends Controller
         return view('VisorSIGEM.estadistica', $data);
     }
 
-    public function estadisticaTema($tema_id)
+    public function estadisticaTema(Request $request, $tema_id)
     {
-        $data = $this->estadisticaService->obtenerDatosTema($tema_id, $this->esDesarrollador());
+        $data = $this->estadisticaService->obtenerDatosTema(
+            $tema_id,
+            $this->esDesarrollador(),
+            $request->integer('subtema') ?: null
+        );
         $this->registrarEvento('vista', 'estadistica_tema:' . $tema_id);
         return view('VisorSIGEM.estadistica_tema', $data);
     }

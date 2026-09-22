@@ -33,7 +33,7 @@ registrarEvento('dataset') si no es bot:
   - PubVisita::create({_vuid, ip_hash, cuadro_id, evento:'dataset', credenciales})
 ```
 
-La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el JS renderiza tablas y pide secciones por AJAX (`/dataset/seccion/{s}/data`, cacheada por sección TTL 300).
+La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el JS renderiza tablas y pide secciones por AJAX (`/dataset/seccion/{s}/data`, cacheada por sección TTL 300). Mientras carga: spinner por sección + contador «N de M secciones» + botón Reintentar en error (2026-09-22). Breadcrumb de cuadro (partial `VisorSIGEM/partials/breadcrumb_cuadro.blade.php` en dataset/gráfica/mapa): botones hover con separador caret y **código del cuadro** al final; el botón de subtema regresa al tema con `?subtema=ID` (SSR, sidebar activa); los cuadros de Estadística navegan en la **misma pestaña**.
 
 ## Reglas duras
 

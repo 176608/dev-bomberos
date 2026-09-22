@@ -29,7 +29,7 @@ class EstadisticaService
         ];
     }
 
-    public function obtenerDatosTema(int $tema_id, ?bool $esDesarrollador): array
+    public function obtenerDatosTema(int $tema_id, ?bool $esDesarrollador, ?int $subtemaId = null): array
     {
         $tema = $this->temaV2->with(['subtemas' => function ($q) use ($esDesarrollador) {
             $q->orderBy('orden_indice');
@@ -54,7 +54,8 @@ class EstadisticaService
         $subtema_seleccionado = null;
 
         if ($tema_subtemas && $tema_subtemas->count() > 0) {
-            $subtema_seleccionado = $tema_subtemas->first();
+            $subtema_seleccionado = ($subtemaId !== null ? $tema_subtemas->firstWhere('subtema_id', $subtemaId) : null)
+                ?? $tema_subtemas->first();
             $query = $this->cuadro->where('subtema_id', $subtema_seleccionado->subtema_id)
                 ->orderBy('codigo_cuadro');
             if (!$esDesarrollador) {

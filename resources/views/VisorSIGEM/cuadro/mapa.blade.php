@@ -7,19 +7,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            {{-- B11-P2 (doc 16): contexto de navegación --}}
-            <nav aria-label="breadcrumb" class="mb-1">
-                <ol class="breadcrumb small mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
-                    @if($cuadro->subtema && $cuadro->subtema->tema)
-                        <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica.tema', $cuadro->subtema->tema->tema_id) }}">{{ $cuadro->subtema->tema->tema_titulo }}</a></li>
-                    @endif
-                    @if($cuadro->subtema)
-                        <li class="breadcrumb-item">{{ $cuadro->subtema->subtema_titulo }}</li>
-                    @endif
-                    <li class="breadcrumb-item active">Mapa</li>
-                </ol>
-            </nav>
+            @include('VisorSIGEM.partials.breadcrumb_cuadro', ['cuadro' => $cuadro])
             <h5 class="mb-0"><i class="bi bi-map-fill me-2"></i>Mapa</h5>
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>

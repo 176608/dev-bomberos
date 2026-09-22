@@ -7,19 +7,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            {{-- B11-P2 (doc 16): contexto de navegación — Estadística › Tema › Subtema --}}
-            <nav aria-label="breadcrumb" class="mb-1">
-                <ol class="breadcrumb small mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica') }}">Estadística</a></li>
-                    @if($cuadro->subtema && $cuadro->subtema->tema)
-                        <li class="breadcrumb-item"><a href="{{ route('sigem.v2.estadistica.tema', $cuadro->subtema->tema->tema_id) }}">{{ $cuadro->subtema->tema->tema_titulo }}</a></li>
-                    @endif
-                    @if($cuadro->subtema)
-                        <li class="breadcrumb-item">{{ $cuadro->subtema->subtema_titulo }}</li>
-                    @endif
-                    <li class="breadcrumb-item active">Dataset</li>
-                </ol>
-            </nav>
+            @include('VisorSIGEM.partials.breadcrumb_cuadro', ['cuadro' => $cuadro])
             <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadro</h5>
             <small class="text-muted">
                 <code>{{ $cuadro->codigo_cuadro }}</code>
@@ -69,7 +57,12 @@
     </div>
 
     <div>
-        <div id="tables-container"></div>
+        <div id="tables-container">
+            <div class="text-center py-5 text-muted" id="dataset-loading">
+                <div class="spinner-border text-success" role="status"><span class="visually-hidden">Cargando...</span></div>
+                <p class="mt-2 mb-0">Cargando dataset…</p>
+            </div>
+        </div>
         @if($cuadro->pie_pagina)
         <div class="mt-3 small text-muted pie-pagina">{!! App\Services\HtmlSanitizer::sanitize($cuadro->pie_pagina) !!}</div>
         @endif
@@ -105,6 +98,10 @@
 #tables-container .total-row td.valor { font-weight:700; }
 #tables-container table tbody tr:hover td.valor { background:#f0f0f0; }
 .pie-pagina { border-top:1px solid #dee2e6; padding-top:0.5rem; text-align:center; }
+#tables-container .section-loading,
+#tables-container .section-error { border:1px solid #dee2e6; border-top:none; }
+#tables-container .section-loading { padding:1.5rem; text-align:center; }
+#tables-container .section-error { padding:1.25rem; text-align:center; }
 </style>
 </div>
 
@@ -178,6 +175,8 @@ var visibleV = {};
 var visibleH = {};
 var sectionsCache = {};
 var selectedSections = {};
+var sectionsError = {};
+var _carga = { total: 0, completadas: 0, fallidas: 0 };
 
 // ─── Utilities ───
 
@@ -199,6 +198,28 @@ function status(msg) {
         clearTimeout(bar._flashTimer);
         bar._flashTimer = setTimeout(function() { bar.classList.remove('status-flash'); }, 2500);
     }
+}
+function cargaStatus(msg) {
+    var el = document.getElementById('status-text');
+    if (!el) return;
+    clearTimeout(el._clearTimer);
+    el.textContent = msg || '';
+}
+function cargarSecciones(sids) {
+    _carga = { total: sids.length, completadas: 0, fallidas: 0 };
+    cargaStatus('Cargando 0 de ' + _carga.total + ' secciones…');
+    return Promise.all(sids.map(function(sid) {
+        return loadSectionData(sid)
+            .catch(function() { _carga.fallidas++; })
+            .finally(function() {
+                _carga.completadas++;
+                if (_carga.completadas < _carga.total) {
+                    cargaStatus('Cargando ' + _carga.completadas + ' de ' + _carga.total + ' secciones…');
+                }
+            });
+    })).then(function() {
+        cargaStatus('');
+    });
 }
 function esc(s) {
     if (!s) return '';
@@ -416,6 +437,21 @@ function renderTables() {
             return;
         }
 
+        if (!sectionsCache[sid]) {
+            if (sectionsError[sid]) {
+                allHtml += '<div class="section-error">'
+                    + '<div class="small text-muted"><i class="bi bi-exclamation-triangle text-danger me-1"></i>No se pudo cargar la sección: ' + esc(sectionsError[sid]) + '</div>'
+                    + '<button type="button" class="btn btn-sm btn-outline-success mt-2 btn-retry-seccion" data-sid="' + sid + '"><i class="bi bi-arrow-clockwise me-1"></i>Reintentar</button>'
+                    + '</div></div>';
+            } else {
+                allHtml += '<div class="section-loading">'
+                    + '<div class="spinner-border spinner-border-sm text-success" role="status"></div>'
+                    + '<span class="small text-muted ms-2">Cargando sección…</span>'
+                    + '</div></div>';
+            }
+            return;
+        }
+
         allHtml += '<table class="table table-bordered table-sm mb-0">';
         allHtml += '<thead class="table-light">' + headerHtml + '</thead>';
         allHtml += '<tbody>';
@@ -474,6 +510,17 @@ function renderTables() {
 
     container.innerHTML = allHtml;
 
+    container.querySelectorAll('.btn-retry-seccion').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var sid = parseInt(this.dataset.sid);
+            this.disabled = true;
+            cargaStatus('Reintentando sección…');
+            loadSectionData(sid)
+                .then(function() { renderTables(); cargaStatus(''); })
+                .catch(function() { renderTables(); });
+        });
+    });
+
     // Set indeterminate state on parent checkboxes
     container.querySelectorAll('.row-cb[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
     container.querySelectorAll('.col-cb[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
@@ -506,10 +553,10 @@ function renderTables() {
             selectedSections[sid] = on;
             if (on && !sectionsCache[sid]) {
                 this.disabled = true;
-                status('Cargando sección...');
+                cargaStatus('Cargando sección…');
                 loadSectionData(sid)
-                    .then(function() { renderTables(); saveStateToURL(); status(''); })
-                    .catch(function(err) { selectedSections[sid] = false; cb.checked = false; alerta(err.message || 'Error'); })
+                    .then(function() { renderTables(); saveStateToURL(); cargaStatus(''); })
+                    .catch(function() { renderTables(); saveStateToURL(); cargaStatus(''); })
                     .finally(function() { cb.disabled = false; });
             } else {
                 renderTables();
@@ -528,9 +575,14 @@ function loadSectionData(sid) {
             if (j.data) {
                 var sName = ((estado.secciones || []).find(function(s) { return s.seccion_id === sid; }) || {}).nombre || '';
                 sectionsCache[sid] = { nombre: sName, data: j.data || [] };
+                delete sectionsError[sid];
                 return sectionsCache[sid];
             }
             throw new Error(j.message || 'Error al cargar sección');
+        })
+        .catch(function(err) {
+            sectionsError[sid] = err.message || 'Error al cargar la sección';
+            throw err;
         });
 }
 
@@ -680,7 +732,7 @@ function init() {
 
     var pending = [];
     Object.keys(selectedSections).forEach(function(sid) {
-        if (selectedSections[sid] && !sectionsCache[sid]) pending.push(loadSectionData(parseInt(sid)));
+        if (selectedSections[sid] && !sectionsCache[sid]) pending.push(parseInt(sid));
     });
 
     function done() {
@@ -688,7 +740,7 @@ function init() {
         applyTheme(estado.tema_color);
         saveStateToURL();
     }
-    if (pending.length) Promise.all(pending).then(done).catch(done);
+    if (pending.length) cargarSecciones(pending).then(done);
     else done();
 }
 
@@ -734,10 +786,15 @@ document.getElementById('btn-activar-todas')?.addEventListener('click', function
     if (!changed) return;
     var pend = [];
     Object.keys(selectedSections).forEach(function(sid) {
-        if (selectedSections[sid] && !sectionsCache[sid]) pend.push(loadSectionData(parseInt(sid)));
+        if (selectedSections[sid] && !sectionsCache[sid]) pend.push(parseInt(sid));
     });
-    var finish = function() { renderTables(); saveStateToURL(); status('Todas las secciones activadas'); };
-    if (pend.length) Promise.all(pend).then(finish).catch(finish);
+    var finish = function() {
+        renderTables();
+        saveStateToURL();
+        if (_carga.fallidas) status('No se pudieron cargar ' + _carga.fallidas + ' sección(es)');
+        else status('Todas las secciones activadas');
+    };
+    if (pend.length) cargarSecciones(pend).then(finish);
     else finish();
 });
 
