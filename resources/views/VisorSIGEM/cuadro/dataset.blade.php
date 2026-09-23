@@ -500,7 +500,7 @@ function renderTables() {
             rowCells.forEach(function(c) { if (c.tipo === 'leaf') rowLeaf = c; if (c.tipo === 'parent') rowParent = c; });
             var isRowDesel = rowLeaf && deselV[rowLeaf.categoria_id];
             var totalName = rowLeaf ? rowLeaf.nombre : (rowParent ? rowParent.nombre : '');
-            var isTotal = /^(Total|Totales|Sumatoria)$/i.test(totalName);
+            var isTotal = /^(Total|Totales|Sumatoria|Preliminar|Acumulado)$/i.test(totalName);
             allHtml += '<tr' + (isRowDesel ? ' class="desel-row"' : isTotal ? ' class="total-row"' : '') + '>';
             rowCells.forEach(function(cell) {
                 if (cell.tipo === 'parent') {

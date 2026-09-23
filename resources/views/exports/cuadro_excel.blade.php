@@ -135,7 +135,7 @@
     <table><tr><td colspan="{{ $totalCols }}" style="border-top:1px solid #999;height:4px"></td></tr></table>
     @endif
     <table>
-        <tr><td colspan="{{ $totalCols }}" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;text-align:center;">{{ esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) }}</td></tr>
+        <tr><td colspan="{{ $totalCols }}" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;text-align:center;">{!! esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) !!}</td></tr>
     </table>
 @endif
 
@@ -146,7 +146,7 @@
             @foreach ($headers[$ri] as $cell)
                 @if ($cell['tipo'] === 'corner')
                     <th rowspan="{{ $cell['rowspan'] ?? $hDepth }}" colspan="{{ $numLabelCols }}" style="text-align:center;font-weight:bold;background:#e8edf2;border:1px solid #000;">
-                        {{ esc($pivotLabel) }}
+                        {!! esc($pivotLabel) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'parent')
                     @php
@@ -157,12 +157,12 @@
                         if ($cnt === 0) continue;
                     @endphp
                     <th colspan="{{ $cnt }}" style="text-align:center;font-weight:bold;background:#d4e6f1;border:1px solid #000;">
-                        {{ esc($cell['nombre']) }}
+                        {!! esc($cell['nombre']) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
                     @php if (!in_array($cell['col_index'], $visHIdx)) continue; @endphp
                     <th style="text-align:center;font-weight:bold;background:#eaf2f8;border:1px solid #000;white-space:nowrap;">
-                        {{ esc($cell['nombre']) }}
+                        {!! esc($cell['nombre']) !!}
                     </th>
                 @endif
             @endforeach
@@ -175,7 +175,7 @@
             $rowLeaf = null;
             foreach ($rowCells as $c) { if ($c['tipo'] === 'leaf') $rowLeaf = $c; }
             $totalName = $rowLeaf ? ($rowLeaf['nombre'] ?? '') : '';
-            $isTotal = preg_match('/^(Total|Totales|Sumatoria)$/', $totalName);
+            $isTotal = preg_match('/^(Total|Totales|Sumatoria|Preliminar|Acumulado)$/', $totalName);
             $dataBg = $isTotal ? $totalBg : ($isEven ? $stripedBg : '#ffffff');
             $dataStyle = 'text-align:right;border:1px solid #000;background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
         @endphp
@@ -183,7 +183,7 @@
             @foreach ($rowCells as $cell)
                 @if ($cell['tipo'] === 'parent')
                     <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;">
-                        {{ esc($cell['nombre']) }}
+                        {!! esc($cell['nombre']) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
                     @php
@@ -192,7 +192,7 @@
                         $cs = $hasParent && !empty($cell['colspan']) ? ' colspan="'.$cell['colspan'].'"' : '';
                     @endphp
                     <th{{ $cs }} style="text-align:left;font-weight:bold;background:#fef9e7;border:1px solid #000;">
-                        {{ esc($cell['nombre']) }}
+                        {!! esc($cell['nombre']) !!}
                     </th>
                 @endif
             @endforeach
@@ -208,7 +208,7 @@
                         }
                     }
                 @endphp
-                <td style="{{ $dataStyle }}">{{ esc($val) }}</td>
+                <td style="{{ $dataStyle }}">{!! esc($val) !!}</td>
             @endforeach
         </tr>
     @endforeach

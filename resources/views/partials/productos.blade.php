@@ -175,7 +175,7 @@
                 <div class="card h-100 product-card">
                     <div class="card-body">
                         <div class="product-section">
-                            <a href="https://www.imip.org.mx/imip/node/41" target="_blank" class="product-image-link">
+                            <a href="https://www.imip.org.mx/imip/node/RadSoc" target="_blank" class="product-image-link">
                                 <div class="product-image-container">
                                     <img src="{{ asset('imagenes/rad2020.png') }}" alt="Radiografía Socioeconómica" class="img-fluid">
                                     <div class="product-overlay">
@@ -185,7 +185,7 @@
                             </a>
                             <div class="product-text">
                                 <h5>
-                                    <a href="https://www.imip.org.mx/imip/node/41" target="_blank" class="text-decoration-none">
+                                    <a href="https://www.imip.org.mx/imip/node/RadSoc" target="_blank" class="text-decoration-none">
                                         <i class="bi bi-folder2 me-2"></i>
                                         Repositorio de Radiografías Socioeconómicas del Municipio de Juárez
                                         <i class="bi bi-box-arrow-up-right ms-1"></i>

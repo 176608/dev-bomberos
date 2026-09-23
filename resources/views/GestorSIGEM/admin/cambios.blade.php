@@ -112,7 +112,11 @@
                                 <small class="text-muted me-2">{{ $accionTexto }}</small>
                                 @if($esDataset ? !empty($log->tiene_payload) : ($log->datos_previos || $log->datos_nuevos))
                                     <button class="btn btn-sm btn-outline-info py-0 px-1"
-                                            onclick="verDiff({{ $log->auditoria_id }}, '{{ $esDataset ? 'dataset' : 'sgiem' }}')" title="Ver detalle">
+                                            data-modelo="{{ $log->modelo }}"
+                                            data-accion-texto="{{ $accionTexto }}"
+                                            data-usuario="{{ $log->usuario->name ?? '—' }}"
+                                            data-fecha="{{ $log->created_at?->format('d/m/Y H:i') }}"
+                                            onclick="verDiff({{ $log->auditoria_id }}, '{{ $esDataset ? 'dataset' : 'sgiem' }}', this)" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 @endif
@@ -379,46 +383,140 @@ function renderDiffDataset(data) {
     return html;
 }
 
+var ETIQUETAS_MODELO = {
+    TemaV2: {
+        tema_id: 'ID', tema_titulo: 'Título', orden_indice: 'Orden', clave_tema: 'Clave',
+        color: 'Color', icono: 'Icono', publicado: 'Publicado', created_at: 'Creado', updated_at: 'Actualizado'
+    },
+    SubtemaV2: {
+        subtema_id: 'ID', tema_id: 'Tema (ID)', subtema_titulo: 'Título', orden_indice: 'Orden',
+        imagen: 'Imagen', publicado: 'Publicado', created_at: 'Creado', updated_at: 'Actualizado'
+    },
+    Cuadro: {
+        cuadro_id: 'ID', subtema_id: 'Subtema (ID)', codigo_cuadro: 'Código', c_titulo: 'Título',
+        c_subtitulo: 'Subtítulo', publicado: 'Publicado', tipo_mapa_pdf: 'Tipo mapa (PDF)',
+        permite_grafica: 'Permite gráfica', tipos_grafica_permitida: 'Tipos de gráfica permitidos',
+        cabecera_gen: 'Cabecera', piepagina_gen: 'Pie de página (general)', pie_pagina: 'Pie de página',
+        pivot_label: 'Pivote', pdf_file: 'Archivo PDF', created_at: 'Creado', updated_at: 'Actualizado'
+    },
+    ce_tema: {
+        ce_tema_id: 'ID', tema: 'Tema', created_at: 'Creado', updated_at: 'Actualizado'
+    },
+    ce_subtema: {
+        ce_subtema_id: 'ID', ce_tema_id: 'Tema (ID)', ce_subtema: 'Título de subtema',
+        created_at: 'Creado', updated_at: 'Actualizado'
+    },
+    ce_contenido: {
+        ce_contenido_id: 'ID', ce_subtema_id: 'Subtema (ID)', titulo_tabla: 'Título',
+        pie_tabla: 'Pie de tabla', tabla_filas: 'Filas', tabla_columnas: 'Columnas',
+        tabla_datos: 'Tabla (datos)', created_at: 'Creado', updated_at: 'Actualizado'
+    }
+};
+
+function etiquetaCampo(modelo, key) {
+    var mapa = ETIQUETAS_MODELO[modelo] || {};
+    if (mapa[key]) return mapa[key];
+    return key.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
+function fmtValor(key, val) {
+    if (val === null || val === undefined || val === '') return '—';
+
+    if (key === 'publicado' || key === 'permite_grafica' || key === 'tipo_mapa_pdf') {
+        var activo = (val === true || val === 1 || val === '1');
+        return activo ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>';
+    }
+    if (typeof val === 'boolean') {
+        return val ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>';
+    }
+    if (/_id$/.test(key) && /^\d+$/.test(String(val))) return '#' + val;
+    if ((key === 'created_at' || key === 'updated_at' || /^fecha/.test(key)) && typeof val === 'string') {
+        var d = new Date(String(val).replace(' ', 'T'));
+        if (!isNaN(d.getTime())) {
+            return d.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+    }
+    if (key === 'pie_pagina' || key === 'cabecera_gen' || key === 'piepagina_gen' || key === 'pie_tabla') {
+        var txt = String(val).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        return '<span title="' + esc(String(val)) + '">' + esc(txt.substring(0, 140)) + (txt.length > 140 ? '…' : '') + '</span>';
+    }
+    if (key === 'tabla_datos' && typeof val === 'object') {
+        var filas = Array.isArray(val) ? val.length : 0;
+        var cols = (filas && Array.isArray(val[0])) ? val[0].length : 0;
+        return 'Tabla de ' + filas + '×' + cols;
+    }
+    if (typeof val === 'object') {
+        var s = JSON.stringify(val);
+        return '<code style="font-size:0.78rem">' + esc(s.length > 160 ? s.substring(0, 160) + '…' : s) + '</code>';
+    }
+    var str = String(val);
+    if (str.length > 200) return '<span title="' + esc(str) + '">' + esc(str.substring(0, 200)) + '…</span>';
+    return esc(str);
+}
+
+function renderMeta(data) {
+    var m = data._meta || {};
+    var partes = [];
+    if (data.modelo) partes.push('<span class="badge bg-dark"><i class="bi bi-box me-1"></i>' + esc(data.modelo) + '</span>');
+    if (m.accion) partes.push('<span class="badge bg-info text-dark">' + esc(m.accion) + '</span>');
+    else if (data.accion) partes.push('<span class="badge bg-info text-dark">' + esc(data.accion) + '</span>');
+    if (m.usuario) partes.push('<span class="text-muted small"><i class="bi bi-person me-1"></i>' + esc(m.usuario) + '</span>');
+    if (m.fecha) partes.push('<span class="text-muted small"><i class="bi bi-clock me-1"></i>' + esc(m.fecha) + '</span>');
+    if (!partes.length) return '';
+    return '<div class="d-flex flex-wrap align-items-center gap-2 mb-3 pb-2 border-bottom">' + partes.join('') + '</div>';
+}
+
 function renderDiff(data) {
     if (!data) return '<p class="text-muted">Sin datos</p>';
 
-    if (data.resumen_cambios) return renderDiffDataset(data);
+    if (data.resumen_cambios) return renderMeta(data) + renderDiffDataset(data);
 
     var prev = data.datos_previos;
     var next = data.datos_nuevos;
-    if (!prev && !next) return '<p class="text-muted">Sin datos</p>';
+    if (!prev && !next) return renderMeta(data) + '<p class="text-muted mb-0">Sin datos</p>';
 
-    if (next && next.acciones) return renderActions(next.acciones);
-    if (prev && prev.acciones) return renderActions(prev.acciones);
+    if (next && next.acciones) return renderMeta(data) + renderActions(next.acciones);
+    if (prev && prev.acciones) return renderMeta(data) + renderActions(prev.acciones);
 
+    var modelo = data.modelo || '';
     var allKeys = {};
     if (prev) Object.keys(prev).forEach(function(k) { allKeys[k] = true; });
     if (next) Object.keys(next).forEach(function(k) { allKeys[k] = true; });
-    var keys = Object.keys(allKeys);
 
-    var html = '<table class="table table-sm table-bordered mb-0"><thead class="table-dark"><tr><th style="width:25%">Campo</th><th>Antes</th><th>Después</th></tr></thead><tbody>';
+    var rows = '';
     var changes = 0;
-    keys.forEach(function(key) {
+    Object.keys(allKeys).forEach(function(key) {
         if (key === 'acciones') return;
-        var oldVal = prev ? JSON.stringify(prev[key], null, 2) : null;
-        var newVal = next ? JSON.stringify(next[key], null, 2) : null;
-        if (oldVal === newVal) return;
+        var hasPrev = prev && Object.prototype.hasOwnProperty.call(prev, key);
+        var hasNext = next && Object.prototype.hasOwnProperty.call(next, key);
+        var a = hasPrev ? prev[key] : undefined;
+        var b = hasNext ? next[key] : undefined;
+        if (JSON.stringify(a) === JSON.stringify(b)) return;
         changes++;
-        html += '<tr><td><code>' + esc(key) + '</code></td>';
-        html += '<td class="text-danger" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(oldVal != null ? oldVal : '—') + '</pre></td>';
-        html += '<td class="text-success" style="font-size:0.8rem"><pre class="mb-0" style="white-space:pre-wrap">' + esc(newVal != null ? newVal : '—') + '</pre></td></tr>';
+        rows += '<tr><td class="fw-semibold text-nowrap">' + esc(etiquetaCampo(modelo, key)) + '</td>'
+            + '<td class="text-danger">' + (hasPrev ? fmtValor(key, a) : '—') + '</td>'
+            + '<td class="text-success">' + (hasNext ? fmtValor(key, b) : '—') + '</td></tr>';
     });
-    if (changes === 0) {
-        html += '<tr><td colspan="3" class="text-muted text-center">Sin cambios</td></tr>';
-    }
-    html += '</tbody></table>';
+
+    var html = renderMeta(data);
+    if (!changes) return html + '<p class="text-muted mb-0">Sin cambios en campos.</p>';
+
+    html += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0">'
+        + '<thead class="table-dark"><tr><th style="width:30%">Campo</th><th>Antes</th><th>Después</th></tr></thead>'
+        + '<tbody>' + rows + '</tbody></table></div>';
     return html;
 }
 
-function verDiff(id, tipo) {
+function verDiff(id, tipo, btn) {
+    var meta = btn ? {
+        accion: btn.dataset.accionTexto || '',
+        usuario: btn.dataset.usuario || '',
+        fecha: btn.dataset.fecha || ''
+    } : null;
     fetch('{{ route("sgiem.admin.auditoria.detalle", ":id") }}'.replace(':id', id) + (tipo === 'dataset' ? '?tipo=dataset' : ''))
         .then(r => r.json())
         .then(data => {
+            data._meta = meta;
             document.getElementById('diff-content').innerHTML = renderDiff(data);
             new bootstrap.Modal(document.getElementById('modalDiff')).show();
         })
