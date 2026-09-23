@@ -20,20 +20,21 @@
                 <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
             @endif
         </div>
-        <div class="d-flex gap-2 align-items-center">
+        <div class="btn-group btn-group-lg" role="group" aria-label="Acciones de la gráfica">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-success btn-sm" id="link-to-dataset"
-               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}">
-                <i class="bi bi-table me-1"></i> Volver al Cuadro
+               class="btn btn-outline-success" id="link-to-dataset"
+               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}"
+               title="Regresa a la vista tabular con la misma configuración de estadísticas">
+                <i class="bi bi-table"></i>
             </a>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
-                <i class="bi bi-gear me-1"></i>Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
+            <button type="button" class="btn btn-outline-primary" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
+                <i class="bi bi-gear"></i> Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-download-png" title="Descargar gráfica como PNG">
-                <i class="bi bi-download me-1"></i>PNG
+            <button type="button" class="btn btn-outline-warning" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración actual">
+                <i class="bi bi-link-45deg"></i><i class="bi bi-clipboard"></i>
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración">
-                <i class="bi bi-link-45deg me-1"></i>Copiar enlace
+            <button type="button" class="btn btn-success" id="btn-download-png" title="Descargar la gráfica configurada en un fondo claro con formato PNG.">
+                <i class="bi bi-download"></i><i class="bi bi-filetype-png"></i>
             </button>
         </div>
     </div>
@@ -400,6 +401,7 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
     html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
     html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
         + (axis === 'vertical' ? 'Todas las verticales' : 'Todas las horizontales');
+    html += '<i class="bi axis-eye ms-1 ' + (allVisible ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-todo="1"></i>';
     html += '</label></div>';
     var parentIds = {}, parentToChildren = {};
     (leaves || []).forEach(function(l) {
@@ -432,6 +434,7 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
         html += '<label style="cursor:pointer;font-weight:600">';
         html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
         html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
+        html += '<i class="bi axis-eye ms-1 ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + pid + '"></i>';
         html += '</label></div>';
         children.forEach(function(ch) {
             var childChecked = visMap[ch.categoria_id] !== false;
@@ -440,6 +443,7 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
             html += '<label style="cursor:pointer">';
             html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
             html += esc(ch.nombre);
+            html += '<i class="bi axis-eye ms-1 ' + (childChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + ch.categoria_id + '"></i>';
             html += '</label></div>';
         });
     });
@@ -451,6 +455,7 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
         html += '<label style="cursor:pointer">';
         html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
         html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
+        html += '<i class="bi axis-eye ms-1 ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + l.categoria_id + '"></i>';
         html += '</label></div>';
     });
     if (!Object.keys(parentToChildren).length && !flatLeaves.length)
@@ -481,6 +486,7 @@ function setupCategoryCheckboxListeners(container) {
                 }, this);
             }
             syncTodoCheckboxes(container);
+            syncEyeIcons(container, axis);
             renderChart(document.getElementById('select-tipo-grafica').value);
             updateEjeHelper();
             saveStateToURL();
@@ -505,6 +511,7 @@ function setupCategoryCheckboxListeners(container) {
                 var visMap2 = axis === 'vertical' ? visibleV : visibleH;
                 visMap2[parseInt(pcb.dataset.id)] = on;
             });
+            syncEyeIcons(container, axis);
             renderChart(document.getElementById('select-tipo-grafica').value);
             updateEjeHelper();
             saveStateToURL();
@@ -552,6 +559,21 @@ function syncTodoCheckboxes(container) {
         if (icon) {
             icon.className = 'bi ' + (allVis ? 'bi-check2-square' : (anyVis ? 'bi-dash-square' : 'bi-square')) + ' me-1';
         }
+    });
+}
+
+function syncEyeIcons(container, axis) {
+    if (!container) return;
+    var visMap = axis === 'vertical' ? visibleV : visibleH;
+    container.querySelectorAll('.axis-eye[data-axis="' + axis + '"]').forEach(function(icon) {
+        var on;
+        if (icon.dataset.eyeTodo) {
+            var ids = (axis === 'vertical' ? (estado.verticales || []) : (estado.horizontales || [])).map(function(c) { return c.categoria_id; });
+            on = ids.length > 0 && ids.every(function(id) { return visMap[id] !== false; });
+        } else {
+            on = visMap[parseInt(icon.dataset.eyeId)] !== false;
+        }
+        icon.className = 'bi axis-eye ms-1 ' + (on ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary');
     });
 }
 
@@ -622,11 +644,7 @@ function updateEjeHelper() {
     if (!el) return;
     var vCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
     var hCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
-    if (chartAxis === 'vertical') {
-        el.textContent = 'Verticales en eje X (' + vCount + ') — Horizontales como series (' + hCount + ')';
-    } else {
-        el.textContent = 'Horizontales en eje X (' + hCount + ') — Verticales como series (' + vCount + ')';
-    }
+    el.textContent = 'Verticales (' + vCount + ') - Horizontales (' + hCount + ')';
 }
 
 function parseIdList(str) {
@@ -769,13 +787,21 @@ document.getElementById('switch-invertir-ejes')?.addEventListener('change', func
     saveStateToURL();
 });
 
+function actualizarBotonConfig() {
+    var panel = document.getElementById('config-panel');
+    var btn = document.getElementById('btn-toggle-config');
+    var eye = document.getElementById('config-eye-icon');
+    if (!panel || !btn) return;
+    var abierto = panel.style.display !== 'none';
+    btn.classList.toggle('btn-primary', abierto);
+    btn.classList.toggle('btn-outline-primary', !abierto);
+    if (eye) eye.className = 'bi ms-1 ' + (abierto ? 'bi-eye-fill' : 'bi-eye');
+}
 document.getElementById('btn-toggle-config')?.addEventListener('click', function() {
     var panel = document.getElementById('config-panel');
-    var eye = document.getElementById('config-eye-icon');
     if (!panel) return;
-    var isVisible = panel.style.display !== 'none';
-    panel.style.display = isVisible ? 'none' : 'block';
-    if (eye) eye.className = 'bi ' + (isVisible ? 'bi-eye' : 'bi-eye-slash') + ' ms-1';
+    panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+    actualizarBotonConfig();
 });
 
 document.getElementById('btn-download-png')?.addEventListener('click', function() {
@@ -799,9 +825,8 @@ document.getElementById('btn-download-png')?.addEventListener('click', function(
 
 document.getElementById('btn-cerrar-config')?.addEventListener('click', function() {
     var panel = document.getElementById('config-panel');
-    var eye = document.getElementById('config-eye-icon');
     if (panel) panel.style.display = 'none';
-    if (eye) eye.className = 'bi bi-eye ms-1';
+    actualizarBotonConfig();
 });
 
 document.getElementById('panel-sections')?.addEventListener('change', function(e) {

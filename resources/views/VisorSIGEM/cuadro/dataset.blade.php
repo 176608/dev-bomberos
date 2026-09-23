@@ -21,25 +21,25 @@
                 <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
             @endif
         </div>
-        <div class="d-flex gap-2">
+        <div class="btn-group btn-group-lg" role="group" aria-label="Acciones del cuadro">
             @if($cuadro->permite_grafica)
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-success btn-sm" id="link-to-grafica"
-               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}">
-                <i class="bi bi-bar-chart-fill me-1"></i> Gráfica
+               class="btn btn-outline-success" id="link-to-grafica"
+               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}"
+               title="Ver la gráfica de este cuadro con la selección actual">
+                <i class="bi bi-bar-chart-fill"></i>
             </a>
             @endif
-            <button class="btn btn-outline-secondary btn-sm" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
-                <i class="bi bi-link-45deg me-1"></i>Copiar enlace
+            <button type="button" class="btn btn-outline-warning" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
+                <i class="bi bi-link-45deg"></i><i class="bi bi-clipboard"></i>
             </button>
-            <button class="btn btn-outline-primary btn-sm" onclick="exportarExcel()" title="Descargar Excel del cuadro">
-                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+            <button type="button" class="btn btn-success" onclick="exportarExcel()" title="Descargar archivo excel del cuadro, puedes descargar el cuadro completo o solo la selección actual">
+                <i class="bi bi-download"></i><i class="bi bi-filetype-xlsx"></i>
             </button>
         </div>
     </div>
 
-    {{-- B11-P5 (doc 16): toolbar de selección persistente durante el recorrido del cuadro --}}
-    <div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap sticky-top p-2 rounded shadow-sm" style="z-index:1020;background:rgba(255,255,255,0.5);">
+      <div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap sticky-top p-2 rounded shadow-sm" style="z-index:1020;background:rgba(255,255,255,0.5);">
         <button type="button" class="btn btn-sm btn-outline-success" id="btn-toggle-cb" title="Mostrar categorías">
             <i class="bi bi-check2-square"></i> <span id="toggle-cb-label">Mostrar</span>
         </button>
@@ -251,7 +251,10 @@ function updateToolbar() {
         var label = document.getElementById('show-desel-label');
         if (label) label.textContent = 'Ver categorías desactivadas';
         var b = document.getElementById('btn-show-desel');
-        if (b) b.className = 'btn btn-sm btn-outline-success';
+        if (b) {
+            b.classList.remove('btn-outline-secondary');
+            b.classList.add('btn-outline-success');
+        }
     }
     actualizarBotonCategorias();
 }
@@ -792,9 +795,8 @@ document.getElementById('btn-show-desel')?.addEventListener('click', function() 
     showDeselected = !showDeselected;
     var label = document.getElementById('show-desel-label');
     if (label) label.textContent = showDeselected ? 'Ocultar categorías desactivadas' : 'Ver categorías desactivadas';
-    this.className = showDeselected
-        ? 'btn btn-sm btn-outline-secondary'
-        : 'btn btn-sm btn-outline-success';
+    this.classList.toggle('btn-outline-secondary', showDeselected);
+    this.classList.toggle('btn-outline-success', !showDeselected);
     renderTables();
     saveStateToURL();
 });

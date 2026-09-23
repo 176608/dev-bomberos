@@ -229,26 +229,20 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        {{-- 2026-09-22: título «Sección de Inicio y Consulta Exprés» retirado — ver bitácora 17 §4 --}}
-        {{-- Backup del texto original (pendiente de actualizar). Propuestas de texto nuevo registradas en bitácora 17 §4:
-        <h2 class="text-success mb-4 text-center">
-            <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Exprés
-        </h2>
-        --}}
+
 
         <div class="row mb-4">
             <div class="col-md-9">
-                {{-- Texto en actualización (backup del original; propuestas en bitácora 17 §4):
+                
                 <p class="text-muted">
                     Bienvenidos al portal del <strong>Sistema de Información Geográfica y Estadística Municipal, SIGEM</strong>, creado por el Instituto Municipal de Investigación y Planeación (<strong>IMIP</strong>) del Municipio de Juárez, el cual provee información estadística y cartográfica confiable, de calidad y alineada a estándares internacionales.
                 </p>
                 <p class="text-muted">
-                    Está dirigido a dependencias del sector público y privado, el sector educativo, organizaciones de la sociedad civil y al público en general. Tiene el propósito de apoyar la toma de decisiones para la gestión, diseño e instrumentación de políticas públicas, en beneficio de los habitantes del Municipio de  Juárez.
+                    Está dirigido a dependencias del sector público y privado, el sector educativo, organizaciones de la sociedad civil y al público en general. Tiene el propósito de apoyar la toma de decisiones para la gestión, diseño e instrumentación de políticas públicas, en beneficio de los habitantes del Municipio de Juárez.
                 </p>
                 <p class="text-muted">
-                    Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en tres módulos:
+                    Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se organiza en tres módulos principales:
                 </p>
-                --}}
             </div>
             <div class="col-md-3 text-center mb-3 mb-md-0">
                 <div class="consulta-express-container" data-bs-toggle="modal" data-bs-target="#consultaExpressModal">
@@ -280,7 +274,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Revisa nuestro catálogo de estadísticas organizadas por temas y subtemas con navegación intuitiva y reactiva.
+                            Revisa nuestro catálogo interactivo de estadísticas municipales organizadas por temas y subtemas con navegación reactiva.
                         </p>
                         <a href="{{ route('sigem.v2.catalogo') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
@@ -306,7 +300,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Explora el menú navegable de cuadros estadísticos organizados por tema y subtema para consulta y análisis de datos municipales.
+                            Explora el menú navegable de cuadros estadísticos dinámicos organizados por tema y subtema para análisis y graficación de datos municipales. 
                         </p>
                         <a href="{{ route('sigem.v2.estadistica') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas

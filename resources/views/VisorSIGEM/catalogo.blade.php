@@ -113,7 +113,7 @@
             <ol class="mb-0 ps-3">
                 <li>Usa el <strong>Índice</strong> (panel izquierdo) para ubicar un tema; al hacer clic te lleva directo al subtema correspondiente.</li>
                 <li>Elige un <strong>subtema</strong> y revisa sus cuadros en el panel derecho: cada fila muestra el <strong>código</strong> y el <strong>título</strong> del cuadro.</li>
-                <li>Haz clic en un <strong>cuadro</strong> para abrir su dataset. Desde ahí puedes descargar el <strong>Excel</strong>, ver la <strong>gráfica</strong> (cuando el cuadro lo permite) o regresar con el breadcrumb.</li>
+                <li>Haz clic en un <strong>cuadro</strong> para abrir su dataset. Desde ahí puedes descargar el <strong>Excel</strong>, ver la <strong>gráfica</strong> (cuando el cuadro lo permite) o regresar con la ruta de navegación.</li>
                 <li>El <strong>código</strong> del cuadro (por ejemplo <code>2.TAG.1</code>) es la referencia para citarlo o localizarlo rápidamente.</li>
             </ol>
         </div>
@@ -205,7 +205,7 @@
                                                     $cBorde = (!$cuadro->publicado && $puedePrevisualizar) ? 'border-left: 3px solid #ffc107;' : '';
                                                     $targetUrl = route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id);
                                                 @endphp
-                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.open('{{ $targetUrl }}', '_blank')">
+                                                 <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.location.href='{{ $targetUrl }}'">
                                                     <span class="codigo">{{ $cuadro->codigo_cuadro }}</span>
                                                     <span class="titulo">
                                                         <strong>{{ $cuadro->c_titulo }}</strong>
