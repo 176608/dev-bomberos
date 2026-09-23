@@ -274,7 +274,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Revisa nuestro catálogo interactivo de estadísticas municipales organizadas por temas y subtemas con navegación reactiva.
+                            Explora el catálogo interactivo de cuadros organizados por tema y subtema: cada uno muestra su código y título, con acceso directo a sus datos.
                         </p>
                         <a href="{{ route('sigem.v2.catalogo') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Catálogo
@@ -300,7 +300,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Explora el menú navegable de cuadros estadísticos dinámicos organizados por tema y subtema para análisis y graficación de datos municipales. 
+                            Consulta cuadros por tema o subtemas; Configura tabulares dinámicos con categorías simples o anidadas, conservando tu configuración entre tabular y gráfica (tipo, ejes y categorías).
                         </p>
                         <a href="{{ route('sigem.v2.estadistica') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Estadísticas
@@ -326,7 +326,7 @@
                             </div>
                         </div>
                         <p class="text-muted mb-3">
-                            Conoce más sobre nuestro Sistema de Información Geográfica Municipal (SIGMUN) con datos sobre el municipio de Juárez.
+                            Conoce más sobre nuestro Sistema de Información Geográfica Municipal (SIGMUN) con datos e información geográfica del municipio de Juárez.
                         </p>
                         <a href="{{ route('sigem.v2.cartografia') }}" class="btn btn-success btn-sm">
                             <i class="bi bi-arrow-right me-1"></i>Ver Mapas
@@ -334,6 +334,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -363,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cards = document.querySelectorAll('.module-card');
     cards.forEach(function (card) {
         card.addEventListener('click', function (e) {
-            if (e.target.closest('a') || e.target.closest('.module-image-container')) {
+            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.module-image-container')) {
                 sendTrack('inicio_card', card.querySelector('.card-header h5')?.textContent.trim() || '');
             }
         });

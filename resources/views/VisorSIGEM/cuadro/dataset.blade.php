@@ -21,7 +21,7 @@
                 <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
             @endif
         </div>
-        <div class="btn-group btn-group-lg" role="group" aria-label="Acciones del cuadro">
+        <div class="btn-group" role="group" aria-label="Acciones del cuadro">
             @if($cuadro->permite_grafica)
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
                class="btn btn-outline-success" id="link-to-grafica"
@@ -30,11 +30,11 @@
                 <i class="bi bi-bar-chart-fill"></i>
             </a>
             @endif
-            <button type="button" class="btn btn-outline-warning" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
-                <i class="bi bi-link-45deg"></i><i class="bi bi-clipboard"></i>
+            <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
+                <i class="bi bi-link-45deg"></i> Enlace <i class="bi bi-clipboard"></i>
             </button>
-            <button type="button" class="btn btn-success" onclick="exportarExcel()" title="Descargar archivo excel del cuadro, puedes descargar el cuadro completo o solo la selección actual">
-                <i class="bi bi-download"></i><i class="bi bi-filetype-xlsx"></i>
+            <button type="button" class="btn btn-success" onclick="exportarExcel()" title="Descargar Excel del cuadro">
+                <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-xlsx"></i>
             </button>
         </div>
     </div>

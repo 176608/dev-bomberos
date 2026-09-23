@@ -20,7 +20,7 @@
                 <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
             @endif
         </div>
-        <div class="btn-group btn-group-lg" role="group" aria-label="Acciones de la gráfica">
+        <div class="btn-group" role="group" aria-label="Acciones de la gráfica">
             <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
                class="btn btn-outline-success" id="link-to-dataset"
                data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}"
@@ -30,11 +30,11 @@
             <button type="button" class="btn btn-outline-primary" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
                 <i class="bi bi-gear"></i> Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
             </button>
-            <button type="button" class="btn btn-outline-warning" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración actual">
-                <i class="bi bi-link-45deg"></i><i class="bi bi-clipboard"></i>
+            <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración">
+                <i class="bi bi-link-45deg"></i> Enlace <i class="bi bi-clipboard"></i>
             </button>
-            <button type="button" class="btn btn-success" id="btn-download-png" title="Descargar la gráfica configurada en un fondo claro con formato PNG.">
-                <i class="bi bi-download"></i><i class="bi bi-filetype-png"></i>
+            <button type="button" class="btn btn-success" id="btn-download-png" title="Descargar gráfica configurada en un fondo claro con formato PNG.">
+                <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-png"></i>
             </button>
         </div>
     </div>
@@ -48,7 +48,8 @@
             <input class="form-check-input" type="checkbox" id="switch-invertir-ejes" title="Invertir: usa las horizontales como etiquetas del eje X">
             <label class="form-check-label small" for="switch-invertir-ejes">Invertir ejes</label>
         </div>
-        <div id="eje-helper" class="small text-muted" style="line-height:1.2"></div>
+        <div id="eje-helper" class="text-muted" style="line-height:1.2"></div>
+        <span id="filtro-chip" class="badge bg-danger d-none" style="cursor:pointer" title="Reactivar todas las categorías desactivadas"></span>
     </div>
 
     <div id="config-panel" class="border rounded p-2 mb-2" style="display:none">
@@ -58,19 +59,17 @@
         </div>
         <div class="mb-2 d-flex align-items-center gap-3 flex-wrap" id="panel-sections"></div>
         <hr class="my-1">
-        <div class="row">
-            <div class="col-6" id="panel-horizontal">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <small class="fw-semibold">Categorías Horizontales</small>
-                </div>
-                <div id="panel-horizontal-items" class="small" style="overflow-y:auto;max-height:300px"></div>
+        <div class="row g-2">
+            <div class="col-12 col-md-6" id="panel-horizontal">
+                <div id="panel-horizontal-items" class="panel-items" style="overflow-y:auto;max-height:320px"></div>
             </div>
-            <div class="col-6" id="panel-vertical">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <small class="fw-semibold">Categorías Verticales</small>
-                </div>
-                <div id="panel-vertical-items" class="small" style="overflow-y:auto;max-height:300px"></div>
+            <div class="col-12 col-md-6" id="panel-vertical">
+                <div id="panel-vertical-items" class="panel-items" style="overflow-y:auto;max-height:320px"></div>
             </div>
+        </div>
+        <div class="small text-muted mt-2">
+            <i class="bi bi-eye-fill text-success"></i> activa ·
+            <i class="bi bi-eye-slash-fill text-secondary"></i> desactivada
         </div>
     </div>
 
@@ -89,11 +88,23 @@
 </div>
 
 <style>
-.panel-parent { cursor:pointer; user-select:none; }
-.panel-parent:hover { background:#f0f2f5; border-radius:2px; }
-.panel-child { padding-left:1.2rem; }
-.panel-child label { cursor:pointer; }
-.panel-child label:hover { color:var(--bs-primary); }
+.panel-items { font-size: 0.9rem; }
+.panel-parent, .panel-child { margin-bottom: 1px; }
+.panel-parent label, .panel-child label, .panel-axis-header label, .panel-child-grid label {
+    display: flex; align-items: center; gap: .35rem; width: 100%;
+    margin-bottom: 0; padding: .25rem .35rem; border-radius: .3rem; cursor: pointer;
+}
+.panel-parent label:hover, .panel-child label:hover, .panel-child-grid label:hover { background: #f0f2f5; }
+.panel-parent label { font-weight: 600; }
+.panel-axis-header { background: #eef2f6; border-radius: .35rem; padding: .15rem; margin-bottom: .4rem; }
+.panel-axis-header label { justify-content: center; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: .85em; }
+.panel-child { padding-left: 1.2rem; }
+.panel-hijos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .15rem .5rem; padding-left: 1.2rem; }
+.panel-child-grid { min-width: 0; }
+.panel-child-grid label { overflow-wrap: anywhere; color: #495057; }
+.panel-child-grid label span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#row-tipo-grafica label, #row-tipo-grafica select, #eje-helper, #filtro-chip { font-size: 0.9rem; }
+#config-panel, #config-panel .small { font-size: 0.9rem; }
 #status-bar .badge { font-size: 0.7rem; }
 #status-bar #status-text { font-size: 0.8rem; }
 #status-bar.status-flash { background: #d1e7fd !important; transition: background 0.3s; }
@@ -396,12 +407,12 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
     var anyVisible = allIds.some(function(id) { return visMap[id] !== false; });
 
     var html = '';
-    html += '<div class="mb-1 mt-1">';
-    html += '<label style="cursor:pointer;font-weight:600" class="small">';
-    html += '<input type="checkbox" class="me-1 todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
-    html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + ' me-1"></i>'
+    html += '<div class="panel-axis-header">';
+    html += '<label>';
+    html += '<input type="checkbox" class="todo-check" data-axis="' + axis + '" ' + (allVisible ? 'checked' : '') + '>';
+    html += '<i class="bi ' + (allVisible ? 'bi-check2-square' : (anyVisible ? 'bi-dash-square' : 'bi-square')) + '"></i>'
         + (axis === 'vertical' ? 'Todas las verticales' : 'Todas las horizontales');
-    html += '<i class="bi axis-eye ms-1 ' + (allVisible ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-todo="1"></i>';
+    html += '<i class="bi axis-eye ' + (allVisible ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-todo="1"></i>';
     html += '</label></div>';
     var parentIds = {}, parentToChildren = {};
     (leaves || []).forEach(function(l) {
@@ -431,31 +442,35 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
         var isChecked = visMap[pid] !== false;
         var checked = isChecked ? 'checked' : '';
         html += '<div class="panel-parent">';
-        html += '<label style="cursor:pointer;font-weight:600">';
-        html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
-        html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + ' me-1"></i>' + esc(pName);
-        html += '<i class="bi axis-eye ms-1 ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + pid + '"></i>';
+        html += '<label>';
+        html += '<input type="checkbox" class="cat-check" data-axis="' + axis + '" data-id="' + pid + '" data-parent="" ' + checked + (someVis && !allVis ? ' data-indet="1"' : '') + '>';
+        html += '<i class="bi ' + (isChecked ? 'bi-folder2-open' : 'bi-folder2') + '"></i><span class="flex-grow-1">' + esc(pName) + '</span>';
+        html += '<i class="bi axis-eye ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + pid + '"></i>';
         html += '</label></div>';
-        children.forEach(function(ch) {
-            var childChecked = visMap[ch.categoria_id] !== false;
-            var chk = childChecked ? 'checked' : '';
-            html += '<div class="panel-child" style="padding-left:1.5rem">';
-            html += '<label style="cursor:pointer">';
-            html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
-            html += esc(ch.nombre);
-            html += '<i class="bi axis-eye ms-1 ' + (childChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + ch.categoria_id + '"></i>';
-            html += '</label></div>';
-        });
+        if (children.length) {
+            html += '<div class="panel-hijos">';
+            children.forEach(function(ch) {
+                var childChecked = visMap[ch.categoria_id] !== false;
+                var chk = childChecked ? 'checked' : '';
+                html += '<div class="panel-child-grid">';
+                html += '<label>';
+                html += '<input type="checkbox" class="cat-check" data-axis="' + axis + '" data-id="' + ch.categoria_id + '" data-parent="' + pid + '" ' + chk + '>';
+                html += '<span>' + esc(ch.nombre) + '</span>';
+                html += '<i class="bi axis-eye ' + (childChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + ch.categoria_id + '"></i>';
+                html += '</label></div>';
+            });
+            html += '</div>';
+        }
     });
     var flatLeaves = (leaves || []).filter(function(l) { return !l.padre_id; });
     flatLeaves.forEach(function(l) {
         var isChecked = visMap[l.categoria_id] !== false;
         var checked = isChecked ? 'checked' : '';
-        html += '<div class="panel-child" style="padding-left:0.3rem">';
-        html += '<label style="cursor:pointer">';
-        html += '<input type="checkbox" class="me-1 cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
-        html += '<i class="bi bi-file-earmark me-1"></i>' + esc(l.nombre);
-        html += '<i class="bi axis-eye ms-1 ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + l.categoria_id + '"></i>';
+        html += '<div class="panel-child">';
+        html += '<label>';
+        html += '<input type="checkbox" class="cat-check" data-axis="' + axis + '" data-id="' + l.categoria_id + '" data-parent="" ' + checked + '>';
+        html += '<i class="bi bi-file-earmark"></i><span class="flex-grow-1">' + esc(l.nombre) + '</span>';
+        html += '<i class="bi axis-eye ' + (isChecked ? 'bi-eye-fill text-success' : 'bi-eye-slash-fill text-secondary') + '" data-axis="' + axis + '" data-eye-id="' + l.categoria_id + '"></i>';
         html += '</label></div>';
     });
     if (!Object.keys(parentToChildren).length && !flatLeaves.length)
@@ -466,6 +481,7 @@ function renderCategoryPanelAxis(container, leaves, layers, axis) {
     container.querySelectorAll('.cat-check[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
     syncTodoCheckboxes(container);
     setupCategoryCheckboxListeners(container);
+    layoutHijosGrids(container);
 }
 
 function setupCategoryCheckboxListeners(container) {
@@ -577,6 +593,28 @@ function syncEyeIcons(container, axis) {
     });
 }
 
+function layoutHijosGrids(container) {
+    if (!container) return;
+    container.querySelectorAll('.panel-hijos').forEach(function(grid) {
+        var items = grid.querySelectorAll('.panel-child-grid');
+        if (!items.length) return;
+        var maxLen = 0;
+        items.forEach(function(it) {
+            var span = it.querySelector('span');
+            var t = span ? span.textContent : (it.textContent || '');
+            if (t.length > maxLen) maxLen = t.length;
+        });
+        var charPx = 7.0;
+        var needed = (maxLen * charPx) + 34;
+        var avail = grid.clientWidth - 8;
+        if (avail <= 0) return;
+        var cols = Math.floor(avail / needed);
+        cols = Math.max(3, Math.min(12, cols));
+        cols = Math.max(3, Math.floor(cols / 3) * 3);
+        grid.style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0, 1fr))';
+    });
+}
+
 function renderSections() {
     var container = document.getElementById('panel-sections');
     if (!container) return;
@@ -642,9 +680,22 @@ function enforceSingleSection(tipo) {
 function updateEjeHelper() {
     var el = document.getElementById('eje-helper');
     if (!el) return;
+    var vTotal = (estado.verticales || []).length;
+    var hTotal = (estado.horizontales || []).length;
     var vCount = (estado.verticales || []).filter(function(v) { return visibleV[v.categoria_id] !== false; }).length;
     var hCount = (estado.horizontales || []).filter(function(h) { return visibleH[h.categoria_id] !== false; }).length;
-    el.textContent = 'Verticales (' + vCount + ') - Horizontales (' + hCount + ')';
+    el.textContent = 'Verticales (' + vCount + '/' + vTotal + ') - Horizontales (' + hCount + '/' + hTotal + ')';
+
+    var chip = document.getElementById('filtro-chip');
+    if (chip) {
+        var desactivadas = (vTotal - vCount) + (hTotal - hCount);
+        if (desactivadas > 0) {
+            chip.textContent = desactivadas + (desactivadas === 1 ? ' categoría desactivada' : ' categorías desactivadas');
+            chip.classList.remove('d-none');
+        } else {
+            chip.classList.add('d-none');
+        }
+    }
 }
 
 function parseIdList(str) {
@@ -763,6 +814,13 @@ function initGraficaPage() {
         enforceSingleSection(document.getElementById('select-tipo-grafica').value);
         renderChart(document.getElementById('select-tipo-grafica').value);
         updateEjeHelper();
+        try {
+            if (localStorage.getItem('sigem.grafica.configOpen') === '1') {
+                var panelCfg = document.getElementById('config-panel');
+                if (panelCfg) panelCfg.style.display = 'block';
+            }
+        } catch (e) {}
+        actualizarBotonConfig();
         saveStateToURL();
     }
 
@@ -802,6 +860,26 @@ document.getElementById('btn-toggle-config')?.addEventListener('click', function
     if (!panel) return;
     panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
     actualizarBotonConfig();
+    try { localStorage.setItem('sigem.grafica.configOpen', panel.style.display === 'none' ? '0' : '1'); } catch (e) {}
+});
+
+document.getElementById('filtro-chip')?.addEventListener('click', function() {
+    Object.keys(visibleV).forEach(function(id) { visibleV[id] = true; });
+    Object.keys(visibleH).forEach(function(id) { visibleH[id] = true; });
+    renderVerticalPanel();
+    renderHorizontalPanel();
+    renderChart(document.getElementById('select-tipo-grafica').value);
+    updateEjeHelper();
+    saveStateToURL();
+});
+
+var _hijosResizeTimer = null;
+window.addEventListener('resize', function() {
+    clearTimeout(_hijosResizeTimer);
+    _hijosResizeTimer = setTimeout(function() {
+        layoutHijosGrids(document.getElementById('panel-horizontal-items'));
+        layoutHijosGrids(document.getElementById('panel-vertical-items'));
+    }, 150);
 });
 
 document.getElementById('btn-download-png')?.addEventListener('click', function() {
@@ -827,6 +905,7 @@ document.getElementById('btn-cerrar-config')?.addEventListener('click', function
     var panel = document.getElementById('config-panel');
     if (panel) panel.style.display = 'none';
     actualizarBotonConfig();
+    try { localStorage.setItem('sigem.grafica.configOpen', '0'); } catch (e) {}
 });
 
 document.getElementById('panel-sections')?.addEventListener('change', function(e) {

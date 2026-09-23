@@ -22,7 +22,7 @@
         </div>
         <div class="d-flex gap-2">
             @if($cuadro->pdf_file)
-            <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-outline-primary btn-sm">
+            <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-outline-danger btn-sm" title="Descargar el documento PDF de este mapa">
                 <i class="bi bi-download me-1"></i> Descargar PDF
             </a>
             @endif
@@ -35,7 +35,7 @@
             <p class="text-muted py-5 text-center">
                 <i class="bi bi-filetype-pdf me-2" style="font-size:2rem;"></i><br>
                 El navegador no puede mostrar el PDF. 
-                <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-sm btn-outline-primary mt-2">
+                <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-sm btn-outline-danger mt-2">
                     <i class="bi bi-download me-1"></i>Descargar PDF
                 </a>
             </p>
