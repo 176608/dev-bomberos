@@ -19,7 +19,7 @@ abstract class Controller extends \Illuminate\Routing\Controller
         );
     }
 
-    protected function esDesarrollador(): bool
+    protected function puedePrevisualizar(): bool
     {
         return $this->tieneCredenciales();
     }

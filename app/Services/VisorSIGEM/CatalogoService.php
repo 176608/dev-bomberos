@@ -13,23 +13,23 @@ class CatalogoService
         private Cuadro $cuadro,
     ) {}
 
-    public function obtenerCatalogo(?bool $esDesarrollador): array
+    public function obtenerCatalogo(?bool $puedePrevisualizar): array
     {
-        $temasQuery = $this->temaV2->with(['subtemas' => function ($q) use ($esDesarrollador) {
+        $temasQuery = $this->temaV2->with(['subtemas' => function ($q) use ($puedePrevisualizar) {
             $q->orderBy('orden_indice');
-            if (!$esDesarrollador) {
+            if (!$puedePrevisualizar) {
                 $q->where('publicado', true);
             }
         }])->orderBy('orden_indice');
 
-        if (!$esDesarrollador) {
+        if (!$puedePrevisualizar) {
             $temasQuery->where('publicado', true);
         }
 
         $temas = $temasQuery->get();
 
         $cuadrosQuery = $this->cuadro->query();
-        if (!$esDesarrollador) {
+        if (!$puedePrevisualizar) {
             $cuadrosQuery->where('publicado', true);
         }
         $cuadros = $cuadrosQuery->get();
@@ -49,17 +49,17 @@ class CatalogoService
         return [
             'temas' => $temas,
             'cuadros' => $cuadros,
-            'esDesarrollador' => $esDesarrollador,
+            'puedePrevisualizar' => $puedePrevisualizar,
         ];
     }
 
-    public function cuadrosPorSubtema(int $subtema_id, ?bool $esDesarrollador): array
+    public function cuadrosPorSubtema(int $subtema_id, ?bool $puedePrevisualizar): array
     {
         try {
             $query = $this->cuadro->where('subtema_id', $subtema_id)
                 ->orderBy('codigo_cuadro');
 
-            if (!$esDesarrollador) {
+            if (!$puedePrevisualizar) {
                 $query->where('publicado', true);
             }
 

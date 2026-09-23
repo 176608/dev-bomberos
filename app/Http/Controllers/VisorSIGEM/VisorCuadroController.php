@@ -64,7 +64,7 @@ class VisorCuadroController extends Controller
         return view('VisorSIGEM.cuadro.dataset', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
-            'esDesarrollador' => $this->esDesarrollador(),
+            'puedePrevisualizar' => $this->puedePrevisualizar(),
             'userRoleDisplay' => $this->getUserRoleDisplay(),
         ]);
     }
@@ -85,7 +85,7 @@ class VisorCuadroController extends Controller
 
         return view('VisorSIGEM.cuadro.mapa', [
             'cuadro' => $cuadro,
-            'esDesarrollador' => $this->esDesarrollador(),
+            'puedePrevisualizar' => $this->puedePrevisualizar(),
             'userRoleDisplay' => $this->getUserRoleDisplay(),
         ]);
     }
@@ -162,7 +162,7 @@ class VisorCuadroController extends Controller
         return view('VisorSIGEM.cuadro.grafica', [
             'cuadro' => $cuadro,
             'estadoInicial' => $estadoInicial,
-            'esDesarrollador' => $this->esDesarrollador(),
+            'puedePrevisualizar' => $this->puedePrevisualizar(),
             'userRoleDisplay' => $this->getUserRoleDisplay(),
         ]);
     }

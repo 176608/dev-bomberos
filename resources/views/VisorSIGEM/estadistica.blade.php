@@ -209,10 +209,10 @@
                         @php
                             $bgColor = $tema->color ?? '#8FBC8F';
                             $icono = $tema->icono ?? 'bi-file-earmark-text';
-                            $claseNoPublicado = (!$tema->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                            $claseNoPublicado = (!$tema->publicado && $puedePrevisualizar) ? 'opacity-50' : '';
                         @endphp
                         <div class="tema-card {{ $claseNoPublicado }}" style="background-color: {{ $bgColor }}; color: #3b3b3bff;">
-                            @if(!$tema->publicado && $esDesarrollador)
+                            @if(!$tema->publicado && $puedePrevisualizar)
                                 <span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2" style="z-index: 10;">
                                     <i class="bi bi-eye-slash"></i> No publicado
                                 </span>

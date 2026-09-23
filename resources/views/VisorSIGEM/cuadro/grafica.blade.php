@@ -1,6 +1,6 @@
 @extends('VisorSIGEM.layouts.visor')
 
-@section('visor_title', 'Gráfica — ' . ($cuadro->codigo_cuadro ?? ''))
+@section('visor_title', 'G-' . ($cuadro->codigo_cuadro ?? ''))
 
 @section('visor_content')
 <div class="container-fluid py-3" id="app-grafica">

@@ -229,12 +229,16 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
+        {{-- 2026-09-22: título «Sección de Inicio y Consulta Exprés» retirado — ver bitácora 17 §4 --}}
+        {{-- Backup del texto original (pendiente de actualizar). Propuestas de texto nuevo registradas en bitácora 17 §4:
         <h2 class="text-success mb-4 text-center">
             <i class="bi bi-house-fill me-2"></i>Sección de Inicio y Consulta Exprés
         </h2>
+        --}}
 
         <div class="row mb-4">
             <div class="col-md-9">
+                {{-- Texto en actualización (backup del original; propuestas en bitácora 17 §4):
                 <p class="text-muted">
                     Bienvenidos al portal del <strong>Sistema de Información Geográfica y Estadística Municipal, SIGEM</strong>, creado por el Instituto Municipal de Investigación y Planeación (<strong>IMIP</strong>) del Municipio de Juárez, el cual provee información estadística y cartográfica confiable, de calidad y alineada a estándares internacionales.
                 </p>
@@ -244,6 +248,7 @@
                 <p class="text-muted">
                     Nuestro compromiso es que a través de la disponibilidad de información se logre un desarrollo integral, equilibrado y sostenido para todos los sectores que componen el Municipio de Juárez, para ello la información se concentra en tres módulos:
                 </p>
+                --}}
             </div>
             <div class="col-md-3 text-center mb-3 mb-md-0">
                 <div class="consulta-express-container" data-bs-toggle="modal" data-bs-target="#consultaExpressModal">

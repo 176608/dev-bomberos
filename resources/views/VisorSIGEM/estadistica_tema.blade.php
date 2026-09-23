@@ -263,8 +263,8 @@
                                 <a href="javascript:void(0)"
                                    onclick="cargarCuadros({{ $tema_subtema->subtema_id }}); return false;"
                                    class="subtema-nav-item text-decoration-none text-dark {{ isset($subtema_seleccionado) && $tema_subtema->subtema_id == $subtema_seleccionado->subtema_id ? 'active' : '' }}
-                                          {{ !$tema_subtema->publicado && $esDesarrollador ? 'opacity-50' : '' }}">
-                                    @if(!$tema_subtema->publicado && $esDesarrollador)
+                                          {{ !$tema_subtema->publicado && $puedePrevisualizar ? 'opacity-50' : '' }}">
+                                    @if(!$tema_subtema->publicado && $puedePrevisualizar)
                                         <span class="position-absolute top-0 end-0 badge bg-warning text-dark m-1 small" style="z-index: 10; font-size: 0.6rem;">
                                             <i class="bi bi-eye-slash"></i>
                                         </span>
@@ -362,9 +362,9 @@
                                             : route('sigem.v2.cuadro.dataset', $cuadro['cuadro_id']);
                                     @endphp
                                     <a href="{{ $targetUrl }}"
-                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $esDesarrollador ? 'opacity-50' : '' }}"
-                                       @if(!$cuadro['publicado'] && $esDesarrollador) style="border-color: #ffc107 !important;" @endif>
-                                        @if(!$cuadro['publicado'] && $esDesarrollador)
+                                       class="cuadro-item p-3 mb-3 border rounded text-decoration-none d-block {{ !$cuadro['publicado'] && $puedePrevisualizar ? 'opacity-50' : '' }}"
+                                       @if(!$cuadro['publicado'] && $puedePrevisualizar) style="border-color: #ffc107 !important;" @endif>
+                                        @if(!$cuadro['publicado'] && $puedePrevisualizar)
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <span class="badge bg-warning text-dark mb-1"><i class="bi bi-eye-slash"></i> No publicado</span>
                                             </div>
@@ -376,10 +376,17 @@
                                                         {{ $cuadro['codigo_cuadro'] ?? 'N/A' }}
                                                     </span>
                                                     {{ $cuadro['c_titulo'] ?? 'Sin título' }}
+                                                    @if(!empty($cuadro['permite_grafica']))
+                                                        <i class="bi bi-bar-chart-fill text-success ms-2" title="Permite gráfica"></i>
+                                                    @else
+                                                        <i class="bi bi-bar-chart text-secondary ms-2" title="Sin gráfica"></i>
+                                                    @endif
                                                     @if(!empty($cuadro['tipo_mapa_pdf']))
                                                         <span class="badge bg-warning text-dark ms-2">
                                                             <i class="bi bi-map-fill me-1"></i>Mapa PDF
                                                         </span>
+                                                    @else
+                                                        <i class="bi bi-table text-primary ms-2" title="Cuadro estadístico"></i>
                                                     @endif
                                                 </span>
                                                 @if(!empty($cuadro['c_subtitulo']))
@@ -515,8 +522,13 @@ function renderizarCuadros(cuadros) {
         }
         html += '<div class="row align-items-center"><div class="col-12">';
         html += '<span class="mb-1 d-block text-dark"><span class="fw-bold text-success">' + esc(ind.codigo_cuadro || 'N/A') + '</span> ' + esc(ind.c_titulo || 'Sin título');
+        html += ind.permite_grafica
+            ? ' <i class="bi bi-bar-chart-fill text-success ms-1" title="Permite gráfica"></i>'
+            : ' <i class="bi bi-bar-chart text-secondary ms-1" title="Sin gráfica"></i>';
         if (ind.tipo_mapa_pdf) {
             html += ' <span class="badge bg-warning text-dark ms-2"><i class="bi bi-map-fill me-1"></i>Mapa PDF</span>';
+        } else {
+            html += ' <i class="bi bi-table text-primary ms-1" title="Cuadro estadístico"></i>';
         }
         html += '</span>';
         if (ind.c_subtitulo) {

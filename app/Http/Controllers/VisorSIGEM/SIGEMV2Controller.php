@@ -25,14 +25,14 @@ class SIGEMV2Controller extends Controller
 
     public function catalogo()
     {
-        $data = $this->catalogoService->obtenerCatalogo($this->esDesarrollador());
+        $data = $this->catalogoService->obtenerCatalogo($this->puedePrevisualizar());
         $this->registrarEvento('vista', 'catalogo');
         return view('VisorSIGEM.catalogo', $data);
     }
 
     public function estadistica()
     {
-        $data = $this->estadisticaService->obtenerTemas($this->esDesarrollador());
+        $data = $this->estadisticaService->obtenerTemas($this->puedePrevisualizar());
         $this->registrarEvento('vista', 'estadistica');
         return view('VisorSIGEM.estadistica', $data);
     }
@@ -41,7 +41,7 @@ class SIGEMV2Controller extends Controller
     {
         $data = $this->estadisticaService->obtenerDatosTema(
             $tema_id,
-            $this->esDesarrollador(),
+            $this->puedePrevisualizar(),
             $request->integer('subtema') ?: null
         );
         $this->registrarEvento('vista', 'estadistica_tema:' . $tema_id);
@@ -61,7 +61,7 @@ class SIGEMV2Controller extends Controller
 
     public function ajaxCuadrosV2($subtema_id)
     {
-        $data = $this->catalogoService->cuadrosPorSubtema($subtema_id, $this->esDesarrollador());
+        $data = $this->catalogoService->cuadrosPorSubtema($subtema_id, $this->puedePrevisualizar());
         return response()->json($data);
     }
 

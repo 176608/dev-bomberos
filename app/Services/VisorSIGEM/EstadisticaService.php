@@ -12,12 +12,12 @@ class EstadisticaService
         private Cuadro $cuadro,
     ) {}
 
-    public function obtenerTemas(?bool $esDesarrollador): array
+    public function obtenerTemas(?bool $puedePrevisualizar): array
     {
         $query = $this->temaV2->withCount('subtemas')
             ->orderBy('orden_indice');
 
-        if (!$esDesarrollador) {
+        if (!$puedePrevisualizar) {
             $query->where('publicado', true);
         }
 
@@ -25,27 +25,27 @@ class EstadisticaService
 
         return [
             'temas' => $temas,
-            'esDesarrollador' => $esDesarrollador,
+            'puedePrevisualizar' => $puedePrevisualizar,
         ];
     }
 
-    public function obtenerDatosTema(int $tema_id, ?bool $esDesarrollador, ?int $subtemaId = null): array
+    public function obtenerDatosTema(int $tema_id, ?bool $puedePrevisualizar, ?int $subtemaId = null): array
     {
-        $tema = $this->temaV2->with(['subtemas' => function ($q) use ($esDesarrollador) {
+        $tema = $this->temaV2->with(['subtemas' => function ($q) use ($puedePrevisualizar) {
             $q->orderBy('orden_indice');
-            if (!$esDesarrollador) {
+            if (!$puedePrevisualizar) {
                 $q->where('publicado', true);
             }
         }])->findOrFail($tema_id);
 
-        if (!$esDesarrollador && !$tema->publicado) {
+        if (!$puedePrevisualizar && !$tema->publicado) {
             abort(404);
         }
 
         $tema_subtemas = $tema->subtemas;
 
         $temasQuery = $this->temaV2->orderBy('orden_indice');
-        if (!$esDesarrollador) {
+        if (!$puedePrevisualizar) {
             $temasQuery->where('publicado', true);
         }
         $temas = $temasQuery->get();
@@ -58,7 +58,7 @@ class EstadisticaService
                 ?? $tema_subtemas->first();
             $query = $this->cuadro->where('subtema_id', $subtema_seleccionado->subtema_id)
                 ->orderBy('codigo_cuadro');
-            if (!$esDesarrollador) {
+            if (!$puedePrevisualizar) {
                 $query->where('publicado', true);
             }
             $cuadros = Cuadro::ordenaNaturalPorCodigo($query->get());
@@ -70,7 +70,7 @@ class EstadisticaService
             'tema_subtemas' => $tema_subtemas,
             'subtema_seleccionado' => $subtema_seleccionado,
             'cuadros' => $cuadros,
-            'esDesarrollador' => $esDesarrollador,
+            'puedePrevisualizar' => $puedePrevisualizar,
         ];
     }
 }

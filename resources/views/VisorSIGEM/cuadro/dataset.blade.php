@@ -1,9 +1,9 @@
 @extends('VisorSIGEM.layouts.visor')
 
-@section('visor_title', 'Cuadro — ' . ($cuadro->codigo_cuadro ?? ''))
+@section('visor_title', 'C-' . ($cuadro->codigo_cuadro ?? ''))
 
 @section('visor_content')
-<div class="container-fluid py-3 show-cb" id="app-dataset">
+<div class="container-fluid py-3" id="app-dataset">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -39,21 +39,19 @@
     </div>
 
     {{-- B11-P5 (doc 16): toolbar de selección persistente durante el recorrido del cuadro --}}
-    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap sticky-top bg-white p-2 rounded shadow-sm" style="z-index:1020;">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-cb" title="Mostrar u ocultar los checkboxes de la tabla">
-            <i class="bi bi-check2-square"></i> Ocultar
+    <div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap sticky-top p-2 rounded shadow-sm" style="z-index:1020;background:rgba(255,255,255,0.5);">
+        <button type="button" class="btn btn-sm btn-outline-success" id="btn-toggle-cb" title="Mostrar categorías">
+            <i class="bi bi-check2-square"></i> <span id="toggle-cb-label">Mostrar</span>
         </button>
-        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-limpiar-seleccion" title="Restaurar selección por defecto">
-            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+        <button type="button" class="btn btn-sm btn-outline-primary d-none" id="btn-limpiar-seleccion" title="Activar de nuevo todas las categorías desactivadas">
+            <i class="bi bi-arrow-counterclockwise"></i> Activar categorías
         </button>
-        <button type="button" class="btn btn-sm btn-outline-success" id="btn-show-desel" title="Mostrar temporalmente las categorías deseleccionadas para poder reactivarlas">
-            <i class="bi bi-eye-slash"></i> <span id="show-desel-label">Ver deselecciones</span>
+        <button type="button" class="btn btn-sm btn-outline-success d-none" id="btn-show-desel" title="Solo visualiza las categorías desactivadas, no las activa">
+            <i class="bi bi-eye-slash"></i> <span id="show-desel-label">Ver categorías desactivadas</span>
         </button>
-        @if(count($estadoInicial['secciones'] ?? []) > 1)
-        <button type="button" class="btn btn-sm btn-outline-success" id="btn-activar-todas" title="Activar todas las secciones">
-            <i class="bi bi-check-all"></i> Activar todas
+        <button type="button" class="btn btn-sm btn-outline-success d-none" id="btn-activar-todas" title="Volver a mostrar todas las secciones">
+            <i class="bi bi-check-all"></i> Reactivar todas las secciones
         </button>
-        @endif
     </div>
 
     <div>
@@ -177,6 +175,11 @@ var sectionsCache = {};
 var selectedSections = {};
 var sectionsError = {};
 var _carga = { total: 0, completadas: 0, fallidas: 0 };
+try {
+    if (localStorage.getItem('sigem.dataset.showCb') === '1') {
+        document.getElementById('app-dataset')?.classList.add('show-cb');
+    }
+} catch (e) {}
 
 // ─── Utilities ───
 
@@ -220,6 +223,37 @@ function cargarSecciones(sids) {
     })).then(function() {
         cargaStatus('');
     });
+}
+function actualizarBotonCategorias() {
+    var app = document.getElementById('app-dataset');
+    var btn = document.getElementById('btn-toggle-cb');
+    if (!btn || !app) return;
+    var on = app.classList.contains('show-cb');
+    var label = document.getElementById('toggle-cb-label');
+    if (label) label.textContent = on ? 'Ocultar' : 'Mostrar';
+    btn.title = on ? 'Ocultar categorías' : 'Mostrar categorías';
+    btn.className = on ? 'btn btn-sm btn-outline-secondary' : 'btn btn-sm btn-outline-success';
+}
+function hayCategoriasDesactivadas() {
+    return (estado.verticales || []).some(function(c) { return visibleV[c.categoria_id] === false; })
+        || (estado.horizontales || []).some(function(c) { return visibleH[c.categoria_id] === false; });
+}
+function haySeccionesDesactivadas() {
+    return (estado.secciones || []).some(function(s) { return selectedSections[s.seccion_id] === false; });
+}
+function updateToolbar() {
+    var desel = hayCategoriasDesactivadas();
+    document.getElementById('btn-limpiar-seleccion')?.classList.toggle('d-none', !desel);
+    document.getElementById('btn-show-desel')?.classList.toggle('d-none', !desel);
+    document.getElementById('btn-activar-todas')?.classList.toggle('d-none', !haySeccionesDesactivadas());
+    if (!desel && showDeselected) {
+        showDeselected = false;
+        var label = document.getElementById('show-desel-label');
+        if (label) label.textContent = 'Ver categorías desactivadas';
+        var b = document.getElementById('btn-show-desel');
+        if (b) b.className = 'btn btn-sm btn-outline-success';
+    }
+    actualizarBotonCategorias();
 }
 function esc(s) {
     if (!s) return '';
@@ -564,6 +598,8 @@ function renderTables() {
             }
         });
     });
+
+    updateToolbar();
 }
 
 // ─── Section loading ───
@@ -747,18 +783,15 @@ function init() {
 // ─── Events ───
 
 document.getElementById('btn-toggle-cb')?.addEventListener('click', function() {
-    var on = document.getElementById('app-dataset').classList.toggle('show-cb');
-    this.innerHTML = on
-        ? '<i class="bi bi-check2-square"></i> Ocultar'
-        : '<i class="bi bi-check2-square"></i> Mostrar';
-    this.className = on
-        ? 'btn btn-sm btn-outline-secondary'
-        : 'btn btn-sm btn-outline-success';
+    var app = document.getElementById('app-dataset');
+    var on = app.classList.toggle('show-cb');
+    try { localStorage.setItem('sigem.dataset.showCb', on ? '1' : '0'); } catch (e) {}
+    actualizarBotonCategorias();
 });
 document.getElementById('btn-show-desel')?.addEventListener('click', function() {
     showDeselected = !showDeselected;
     var label = document.getElementById('show-desel-label');
-    if (label) label.textContent = showDeselected ? 'Ocultar deselecciones' : 'Ver deselecciones';
+    if (label) label.textContent = showDeselected ? 'Ocultar categorías desactivadas' : 'Ver categorías desactivadas';
     this.className = showDeselected
         ? 'btn btn-sm btn-outline-secondary'
         : 'btn btn-sm btn-outline-success';
@@ -776,7 +809,7 @@ document.getElementById('btn-limpiar-seleccion')?.addEventListener('click', func
     });
     renderTables();
     saveStateToURL();
-    status('Selección restaurada');
+    status('Categorías activadas');
 });
 document.getElementById('btn-activar-todas')?.addEventListener('click', function() {
     var changed = false;

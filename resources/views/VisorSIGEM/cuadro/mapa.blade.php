@@ -1,6 +1,6 @@
 @extends('VisorSIGEM.layouts.visor')
 
-@section('visor_title', 'Mapa — ' . ($cuadro->codigo_cuadro ?? ''))
+@section('visor_title', 'M-' . ($cuadro->codigo_cuadro ?? ''))
 
 @section('visor_content')
 <div class="container-fluid py-3">

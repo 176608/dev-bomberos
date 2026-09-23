@@ -106,7 +106,17 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <p class="text-center lead">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos. *Manual de uso para nuevo catalogo*</p>
+        <p class="text-center lead mb-2">Son {{ $totalTemas }} temas principales y a cada uno le corresponden diferentes subtemas en donde encontramos los cuadros estadísticos.</p>
+
+        <div class="alert alert-light border small mb-4">
+            <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-1 text-success"></i>Guía de uso rápida</div>
+            <ol class="mb-0 ps-3">
+                <li>Usa el <strong>Índice</strong> (panel izquierdo) para ubicar un tema; al hacer clic te lleva directo al subtema correspondiente.</li>
+                <li>Elige un <strong>subtema</strong> y revisa sus cuadros en el panel derecho: cada fila muestra el <strong>código</strong> y el <strong>título</strong> del cuadro.</li>
+                <li>Haz clic en un <strong>cuadro</strong> para abrir su dataset. Desde ahí puedes descargar el <strong>Excel</strong>, ver la <strong>gráfica</strong> (cuando el cuadro lo permite) o regresar con el breadcrumb.</li>
+                <li>El <strong>código</strong> del cuadro (por ejemplo <code>2.TAG.1</code>) es la referencia para citarlo o localizarlo rápidamente.</li>
+            </ol>
+        </div>
 
         <div class="row mt-4 catalogo-row">
             <div class="col-lg-4">
@@ -119,7 +129,7 @@
                             @forelse($temas as $temaIdx => $tema)
                                 @php
                                     $bgColor = $tema->color ?? '#8FBC8F';
-                                    $claseNoPublicado = (!$tema->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                                    $claseNoPublicado = (!$tema->publicado && $puedePrevisualizar) ? 'opacity-50' : '';
                                 @endphp
                                 <div class="indice-tema-container">
                                     <div class="indice-tema-header {{ $claseNoPublicado }}" style="background-color: {{ $bgColor }};" onclick="document.getElementById('tema-{{ $tema->tema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
@@ -127,19 +137,19 @@
                                         @if($tema->icono)
                                             <i class="{{ $tema->icono }} ms-2"></i>
                                         @endif
-                                        @if(!$tema->publicado && $esDesarrollador)
+                                        @if(!$tema->publicado && $puedePrevisualizar)
                                             <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i></span>
                                         @endif
                                     </div>
                                     @forelse($tema->subtemas as $stIdx => $subtema)
                                         @php
                                             $claveEfectiva = $subtema->obtenerClaveEfectiva() ?? ($tema->clave_tema ?? 'N/A');
-                                            $stClaseNoPublicado = (!$subtema->publicado && $esDesarrollador) ? 'opacity-50' : '';
+                                            $stClaseNoPublicado = (!$subtema->publicado && $puedePrevisualizar) ? 'opacity-50' : '';
                                         @endphp
                                         <div class="indice-subtema-row {{ $stClaseNoPublicado }}" style="background-color: {{ $stIdx % 2 === 0 ? hexToRgba($tema->color ?? '#8FBC8F', 0.12) : hexToRgba($tema->color ?? '#8FBC8F', 0.06) }};" onclick="document.getElementById('subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}')?.scrollIntoView({behavior:'smooth', block:'start'});">
                                             <div style="min-width:40px;text-align:center;font-weight:600;color:#2a6e48;padding:8px;">{{ $claveEfectiva }}</div>
                                             <div style="flex:1;padding:8px 8px 8px 0;">{{ $subtema->subtema_titulo }}</div>
-                                            @if(!$subtema->publicado && $esDesarrollador)
+                                            @if(!$subtema->publicado && $puedePrevisualizar)
                                                 <div style="padding:8px;"><span class="badge bg-warning text-dark" style="font-size:0.6rem;"><i class="bi bi-eye-slash"></i></span></div>
                                             @endif
                                         </div>
@@ -172,7 +182,7 @@
                                         @if($tema->icono)
                                             <i class="{{ $tema->icono }} ms-2"></i>
                                         @endif
-                                        @if(!$tema->publicado && $esDesarrollador)
+                                        @if(!$tema->publicado && $puedePrevisualizar)
                                             <span class="badge bg-warning text-dark ms-2"><i class="bi bi-eye-slash"></i> No publicado</span>
                                         @endif
                                     </div>
@@ -182,17 +192,17 @@
                                             $cuadrosSubtema = $cuadros->where('subtema_id', $subtema->subtema_id);
                                         @endphp
                                         <div id="subtema-{{ $tema->tema_id }}-{{ $subtema->subtema_id }}">
-                                            <div class="fw-bold px-2 py-1" style="background:{{ hexToRgba($tema->color ?? '#8FBC8F', 0.12) }};border-left:4px solid {{ $tema->color ?? '#8FBC8F' }};font-size:0.9rem;{{ !$subtema->publicado && $esDesarrollador ? 'opacity:0.5;' : '' }}">
+                                            <div class="fw-bold px-2 py-1" style="background:{{ hexToRgba($tema->color ?? '#8FBC8F', 0.12) }};border-left:4px solid {{ $tema->color ?? '#8FBC8F' }};font-size:0.9rem;{{ !$subtema->publicado && $puedePrevisualizar ? 'opacity:0.5;' : '' }}">
                                                 <i class="bi bi-bookmark-fill me-1" style="color: {{ $tema->color ?? '#8FBC8F' }};"></i>{{ $subtema->subtema_titulo }}
-                                                @if(!$subtema->publicado && $esDesarrollador)
+                                                @if(!$subtema->publicado && $puedePrevisualizar)
                                                     <span class="badge bg-warning text-dark ms-1"><i class="bi bi-eye-slash"></i></span>
                                                 @endif
                                             </div>
 
                                              @forelse($cuadrosSubtema as $cIdx => $cuadro)
                                                 @php
-                                                    $cClase = (!$cuadro->publicado && $esDesarrollador) ? 'opacity-50' : '';
-                                                    $cBorde = (!$cuadro->publicado && $esDesarrollador) ? 'border-left: 3px solid #ffc107;' : '';
+                                                    $cClase = (!$cuadro->publicado && $puedePrevisualizar) ? 'opacity-50' : '';
+                                                    $cBorde = (!$cuadro->publicado && $puedePrevisualizar) ? 'border-left: 3px solid #ffc107;' : '';
                                                     $targetUrl = route('sigem.v2.cuadro.dataset', $cuadro->cuadro_id);
                                                 @endphp
                                                  <div class="cuadro-fila {{ $cClase }}" style="background:{{ $cIdx % 2 === 0 ? '#ffffff' : '#f8f9fa' }};{{ $cBorde }}" onclick="window.open('{{ $targetUrl }}', '_blank')">
@@ -203,7 +213,7 @@
                                                             <div class="subtitulo">{{ $cuadro->c_subtitulo }}</div>
                                                         @endif
                                                     </span>
-                                                    @if(!$cuadro->publicado && $esDesarrollador)
+                                                    @if(!$cuadro->publicado && $puedePrevisualizar)
                                                         <span class="badge bg-warning text-dark ms-1" style="font-size:0.6rem;"><i class="bi bi-eye-slash"></i></span>
                                                     @endif
                                                 </div>

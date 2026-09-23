@@ -21,7 +21,7 @@ class DatasetViewController extends Controller
             return redirect()->route('sigem.v2.cuadro.mapa', $id);
         }
 
-        $data = $this->datasetViewService->datosCuadro($id, $this->esDesarrollador());
+        $data = $this->datasetViewService->datosCuadro($id, $this->puedePrevisualizar());
         if (!$data) {
             abort(404);
         }
@@ -37,7 +37,7 @@ class DatasetViewController extends Controller
 
     public function cuadroApi(int $id)
     {
-        $data = $this->datasetViewService->datosCuadro($id, $this->esDesarrollador());
+        $data = $this->datasetViewService->datosCuadro($id, $this->puedePrevisualizar());
         if (!$data) {
             return response()->json(['error' => 'Cuadro no encontrado'], 404);
         }

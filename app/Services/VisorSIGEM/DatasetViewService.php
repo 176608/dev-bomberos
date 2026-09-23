@@ -6,10 +6,10 @@ use App\Models\SIGEM\Cuadro;
 
 class DatasetViewService
 {
-    public function catalogo(?bool $esDesarrollador): array
+    public function catalogo(?bool $puedePrevisualizar): array
     {
         $query = Cuadro::with(['subtema.tema']);
-        if (!$esDesarrollador) {
+        if (!$puedePrevisualizar) {
             $query->where('publicado', true);
         }
         return Cuadro::ordenaNaturalPorCodigo(
@@ -17,12 +17,12 @@ class DatasetViewService
         )->toArray();
     }
 
-    public function datosCuadro(int $id, ?bool $esDesarrollador): ?array
+    public function datosCuadro(int $id, ?bool $puedePrevisualizar): ?array
     {
         $cuadro = Cuadro::obtenerPorId($id);
 
         if (!$cuadro) return null;
-        if (!$esDesarrollador && !$cuadro->publicado) return null;
+        if (!$puedePrevisualizar && !$cuadro->publicado) return null;
 
         $verticales = $cuadro->categoriasVerticales->sortBy('orden')->values();
         $horizontales = $cuadro->categoriasHorizontales->sortBy('orden')->values();
