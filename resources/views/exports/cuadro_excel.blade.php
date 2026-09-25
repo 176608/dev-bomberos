@@ -21,7 +21,9 @@
 
 @if($mostrarLogo)
 <table>
-    <tr><td style="height:45px"></td></tr>
+    <tr><td></td><td style="height:45px"></td></tr>
+    <tr><td></td><td style="height:16pt"></td></tr>
+    <tr><td></td><td style="height:16pt"></td></tr>
 </table>
 @endif
 
@@ -32,14 +34,16 @@
     $subH = $subtituloCuadro ? max(1, ceil(mb_strlen($subtituloCuadro) / 90)) * 14 + 4 . 'pt' : 0;
 @endphp
 <table>
-    <tr><td colspan="{{ $maxCols }}" style="height:8pt"></td></tr>
+    <tr><td></td><td colspan="{{ $maxCols }}" style="height:8pt"></td></tr>
     <tr>
+        <td></td>
         <td colspan="{{ $maxCols }}" style="font-size:14pt;font-weight:bold;white-space:normal;word-wrap:break-word;height:{{ $titleH }};">
             {{ $titleFull }}
         </td>
     </tr>
     @if($subtituloCuadro)
     <tr>
+        <td></td>
         <td colspan="{{ $maxCols }}" style="font-size:10pt;color:#666;white-space:normal;word-wrap:break-word;height:{{ $subH }};">{{ $subtituloCuadro }}</td>
     </tr>
     @endif
@@ -132,10 +136,10 @@
 @php $showSecHeader = ($seccion['nombre'] ?? '') !== 'Serie única'; @endphp
 @if($showSecHeader)
     @if($secIdx > 0)
-    <table><tr><td colspan="{{ $totalCols }}" style="border-top:1px solid #999;height:4px"></td></tr></table>
+    <table><tr><td></td><td colspan="{{ $totalCols }}" style="border-top:1px solid #999;height:4px"></td></tr></table>
     @endif
     <table>
-        <tr><td colspan="{{ $totalCols }}" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;text-align:center;">{!! esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) !!}</td></tr>
+        <tr><td></td><td colspan="{{ $totalCols }}" style="font-size:11pt;font-weight:bold;color:#333;background:#f0f0f0;padding:4px 8px;text-align:center;">{!! esc($seccion['nombre'] ?? ('Sección ' . ($secIdx + 1))) !!}</td></tr>
     </table>
 @endif
 
@@ -143,6 +147,7 @@
     @php $hDepth = count($headers); @endphp
     @for ($ri = 0; $ri < $hDepth; $ri++)
         <tr>
+            <td></td>
             @foreach ($headers[$ri] as $cell)
                 @if ($cell['tipo'] === 'corner')
                     <th rowspan="{{ $cell['rowspan'] ?? $hDepth }}" colspan="{{ $numLabelCols }}" style="text-align:center;font-weight:bold;background:#e8edf2;border:1px solid #000;">
@@ -177,12 +182,18 @@
             $totalName = $rowLeaf ? ($rowLeaf['nombre'] ?? '') : '';
             $isTotal = preg_match('/^(Total|Totales|Sumatoria|Preliminar|Acumulado)$/', $totalName);
             $dataBg = $isTotal ? $totalBg : ($isEven ? $stripedBg : '#ffffff');
-            $dataStyle = 'text-align:right;border:1px solid #000;background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
+            $rowHasParent = false;
+            foreach ($rowCells as $c) { if ($c['tipo'] === 'parent') { $rowHasParent = true; break; } }
+            $groupTop = ($rowHasParent && $ri > 0)
+                ? 'border-top:medium ' . (preg_match('/^#[0-9a-fA-F]{6}$/', $temaColor) ? $temaColor : '#adb5bd') . ';'
+                : '';
+            $dataStyle = 'text-align:right;border:1px solid #000;' . $groupTop . 'background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
         @endphp
         <tr>
+            <td></td>
             @foreach ($rowCells as $cell)
                 @if ($cell['tipo'] === 'parent')
-                    <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;">
+                    <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;{{ $groupTop }}">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
@@ -191,7 +202,7 @@
                         foreach ($rowCells as $rc) { if ($rc['tipo'] === 'parent') { $hasParent = true; break; } }
                         $cs = $hasParent && !empty($cell['colspan']) ? ' colspan="'.$cell['colspan'].'"' : '';
                     @endphp
-                    <th{{ $cs }} style="text-align:left;font-weight:bold;background:#fef9e7;border:1px solid #000;">
+                    <th{{ $cs }} style="text-align:left;font-weight:bold;background:#fef9e7;border:1px solid #000;{{ $groupTop }}">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @endif
@@ -217,6 +228,6 @@
 
 @if($piePagina)
 <table>
-    <tr><td colspan="{{ $maxCols }}" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! App\Services\HtmlSanitizer::sanitize($piePagina) !!}</td></tr>
+    <tr><td></td><td colspan="{{ $maxCols }}" style="border-top:1px solid #ccc;padding-top:8px;font-size:9pt;color:#555;">{!! App\Services\HtmlSanitizer::sanitize($piePagina) !!}</td></tr>
 </table>
 @endif

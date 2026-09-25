@@ -15,6 +15,7 @@ class CuadroExcelExport implements FromView, WithTitle, WithDrawings, WithEvents
 {
     private const LOGO_PATH = 'imagenes/IMIP_icon_text.png';
     private const LIMITE_AUTOANCHO_CELDAS = 20000;
+    private const ANCHO_COLUMNA_ESPACIADORA = 12;
 
     private int $totalCeldas = 0;
     private int $maxColumnas = 1;
@@ -49,10 +50,12 @@ class CuadroExcelExport implements FromView, WithTitle, WithDrawings, WithEvents
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $sheet->getColumnDimension('A')->setWidth(self::ANCHO_COLUMNA_ESPACIADORA);
+
                 if ($this->totalCeldas > self::LIMITE_AUTOANCHO_CELDAS) return;
 
-                $sheet = $event->sheet->getDelegate();
-                for ($i = 1; $i <= $this->maxColumnas; $i++) {
+                for ($i = 2; $i <= $this->maxColumnas + 1; $i++) {
                     $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($i))->setAutoSize(true);
                 }
             },
@@ -86,7 +89,7 @@ class CuadroExcelExport implements FromView, WithTitle, WithDrawings, WithEvents
         $drawing->setDescription('Logo');
         $drawing->setPath($path);
         $drawing->setHeight(90);
-        $drawing->setCoordinates('A1');
+        $drawing->setCoordinates('B1');
 
         return [$drawing];
     }
