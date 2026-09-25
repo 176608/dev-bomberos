@@ -305,6 +305,14 @@
                                     </a>
                                 </li>
 
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sigem.v2.*') ? 'active' : '' }}" 
+                                        href="{{ route('sigem.v2.index') }}" 
+                                        title="Visor SIGEM v2 — Nueva versión con Blade">
+                                        <i class="bi bi-binoculars-fill"></i> SIGEM V2
+                                    </a>
+                                </li>
+
                             @elseif(auth()->user()->role === 'Capturista') 
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('capturista.panel') ? 'active' : '' }}" 
