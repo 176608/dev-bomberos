@@ -83,8 +83,13 @@
 #tables-container .section-block thead th { box-shadow: inset 0 -1px 0 #dee2e6; }
 #tables-container .section-block table { font-size:0.85rem; margin-bottom:0; border-radius:0 0 4px 4px; }
 #tables-container .section-block table thead tr:first-child th:first-child { border-top-left-radius:0; }
-#tables-container table th { white-space:nowrap; text-align:center; width:1%; }
+#tables-container table th { white-space:nowrap; text-align:center; width:1%; vertical-align:middle; }
+#tables-container table td { vertical-align:middle; }
+#tables-container table tbody th { text-align:left; padding-left:0.5rem; }
+#tables-container table tbody th.sub-cat { padding-left:1.5rem; }
 #tables-container table td.valor { text-align:right; white-space:nowrap; }
+#tables-container tbody tr.row-group-start > th,
+#tables-container tbody tr.row-group-start > td { border-top:2px solid #adb5bd; }
 .vis-cb { cursor:pointer; margin-right:2px; vertical-align:middle; }
 #app-dataset.show-cb .vis-cb { display:inline-block; }
 #app-dataset:not(.show-cb) .vis-cb { display:none; }
@@ -299,7 +304,9 @@ function applyTheme(hexColor) {
         '#tables-container table tbody tr th.sub-cat{background:' + bg25 + '}' +
         '#tables-container table tbody tr:nth-child(odd) td.valor{background:' + bg125 + '}' +
         '#tables-container table tbody tr:hover td.valor{background:' + bg50 + '}' +
-        '#tables-container .total-row td.valor{background:' + bg60 + '!important;font-weight:700}';
+        '#tables-container .total-row td.valor{background:' + bg60 + '!important;font-weight:700}' +
+        '#tables-container table tbody tr.row-group-start > th,' +
+        '#tables-container table tbody tr.row-group-start > td{border-top:2px solid ' + hexToIntensity(hexColor, 1) + '}';
     document.head.appendChild(s);
 }
 function api(path, opts) {
@@ -427,14 +434,14 @@ function renderTables() {
                     var hsomeVis = hvis.length > 0;
                     var hpck = hallVis ? 'checked' : '';
                     var hindet = hsomeVis && !hallVis ? ' data-indet="1"' : '';
-                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center small">';
+                    h += '<th colspan="' + cnt + '" class="fw-semibold text-center align-middle small">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + pid + '" ' + hpck + hindet + '> ' + e(cell.nombre) + '</label>';
                     h += '</th>';
                 } else if (cell.tipo === 'leaf') {
                     if (visHIdx.indexOf(cell.col_index) < 0) continue;
                     var cid = cell.categoria_id;
                     var ck = visibleH[cid] !== false ? 'checked' : '';
-                    var hClasses = 'fw-semibold text-center small' + (isChildH[cid] ? ' sub-cat' : '');
+                    var hClasses = 'fw-semibold text-center align-middle small' + (isChildH[cid] ? ' sub-cat' : '');
                     h += '<th class="' + hClasses + '" style="white-space:nowrap">';
                     h += '<label style="cursor:pointer;font-weight:inherit"><input type="checkbox" class="vis-cb col-cb" data-cid="' + cid + '" ' + ck + '> ' + e(cell.nombre) + '</label>';
                     h += '</th>';
@@ -495,13 +502,17 @@ function renderTables() {
 
         var secData = sectionsCache[sid] ? sectionsCache[sid].data : [];
 
-        visLabelRows.forEach(function(rowCells) {
+        visLabelRows.forEach(function(rowCells, bodyRowIdx) {
             var rowLeaf = null; var rowParent = null;
             rowCells.forEach(function(c) { if (c.tipo === 'leaf') rowLeaf = c; if (c.tipo === 'parent') rowParent = c; });
             var isRowDesel = rowLeaf && deselV[rowLeaf.categoria_id];
             var totalName = rowLeaf ? rowLeaf.nombre : (rowParent ? rowParent.nombre : '');
             var isTotal = /^(Total|Totales|Sumatoria|Preliminar|Acumulado)$/i.test(totalName);
-            allHtml += '<tr' + (isRowDesel ? ' class="desel-row"' : isTotal ? ' class="total-row"' : '') + '>';
+            var trClasses = [];
+            if (isRowDesel) trClasses.push('desel-row');
+            else if (isTotal) trClasses.push('total-row');
+            if (rowParent && bodyRowIdx > 0) trClasses.push('row-group-start');
+            allHtml += '<tr' + (trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '') + '>';
             rowCells.forEach(function(cell) {
                 if (cell.tipo === 'parent') {
                     var span = parentSpan[cell.categoria_id] || 1;
