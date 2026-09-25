@@ -15,7 +15,8 @@ abstract class Controller extends \Illuminate\Routing\Controller
     {
         return auth()->check() && (
             auth()->user()->hasRole('Desarrollador') ||
-            auth()->user()->hasRole('Estadistico')
+            auth()->user()->hasRole('Estadistico') ||
+            auth()->user()->hasRole('Administrador')
         );
     }
 

@@ -22,7 +22,7 @@ Cara **pública** de consulta de cuadros estadísticos (dataset, gráficas, mapa
 ```
 verificarAccesoCuadro:
   - Cuadro no existe → abort(404)
-  - !publicado sin credenciales (Estadístico/Desarrollador) → abort(404) (respuesta 404 también en JSON)
+  - !publicado sin credenciales (Estadístico/Desarrollador/Administrador) → abort(404) (respuesta 404 también en JSON)
   - tipo_mapa_pdf=1 → redirect /mapa (muestra el PDF, no hay dataset)
 
 Cache::remember("visor_cuadro_estado_{id}", 300)  ← TTL 300 s
@@ -33,7 +33,7 @@ registrarEvento('dataset') si no es bot:
   - PubVisita::create({_vuid, ip_hash, cuadro_id, evento:'dataset', credenciales})
 ```
 
-La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el JS renderiza tablas y pide secciones por AJAX (`/dataset/seccion/{s}/data`, cacheada por sección TTL 300). Mientras carga: spinner por sección + contador «N de M secciones» + botón Reintentar en error (2026-09-22). Breadcrumb de cuadro (partial `VisorSIGEM/partials/breadcrumb_cuadro.blade.php` en dataset/gráfica/mapa): botones hover con separador caret y **código del cuadro** al final; el botón de subtema regresa al tema con `?subtema=ID` (SSR, sidebar activa); los cuadros de Estadística navegan en la **misma pestaña**. Toolbar del dataset: checkboxes ocultos por defecto (preferencia persistente `localStorage sigem.dataset.showCb`), botones «Mostrar/Ocultar», «Activar categorías», «Ver categorías desactivadas» y «Reactivar todas las secciones» con visibilidad condicional. La credencial de previsualización del visor es `puedePrevisualizar()` (Dev o Estadístico; renombrada desde `esDesarrollador()` el 2026-09-22).
+La grilla se construye en el **servidor** (Blade + `@json($estadoInicial)`); el JS renderiza tablas y pide secciones por AJAX (`/dataset/seccion/{s}/data`, cacheada por sección TTL 300). Mientras carga: spinner por sección + contador «N de M secciones» + botón Reintentar en error (2026-09-22). Breadcrumb de cuadro (partial `VisorSIGEM/partials/breadcrumb_cuadro.blade.php` en dataset/gráfica/mapa): botones hover con separador caret y **código del cuadro** al final; el botón de subtema regresa al tema con `?subtema=ID` (SSR, sidebar activa); los cuadros de Estadística navegan en la **misma pestaña**. Toolbar del dataset: checkboxes ocultos por defecto (preferencia persistente `localStorage sigem.dataset.showCb`), botones «Mostrar/Ocultar», «Activar categorías», «Ver categorías desactivadas» y «Reactivar todas las secciones» con visibilidad condicional. La credencial de previsualización del visor es `puedePrevisualizar()` (Dev, Estadístico o Administrador; renombrada desde `esDesarrollador()` el 2026-09-22).
 
 ## Reglas duras
 

@@ -20,6 +20,7 @@ class VisorCuadroController extends Controller
         if (!auth()->check()) return null;
         if (auth()->user()->hasRole('Desarrollador')) return 'Desarrollador';
         if (auth()->user()->hasRole('Estadistico')) return 'Estadístico';
+        if (auth()->user()->hasRole('Administrador')) return 'Administrador';
         return null;
     }
 
