@@ -5,24 +5,25 @@
 @section('visor_content')
 <div class="container-fluid py-3">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
+    <div class="row align-items-center g-2 mb-3">
+        <div class="col-12 col-md-8">
             @include('VisorSIGEM.partials.breadcrumb_cuadro', ['cuadro' => $cuadro])
-            <h5 class="mb-0"><i class="bi bi-map-fill me-2"></i>Mapa</h5>
-            <small class="text-muted">
-                <code>{{ $cuadro->codigo_cuadro }}</code>
-                <strong>{{ $cuadro->c_titulo }}</strong>
-                @if($cuadro->c_subtitulo)
-                    <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
-                @endif
-            </small>
-            @if(!$cuadro->publicado)
-                <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
-            @endif
+            <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-map-fill fs-4 text-success lh-1"></i>
+                <div>
+                    <h5 class="mb-0">{{ $cuadro->c_titulo }}</h5>
+                    @if($cuadro->c_subtitulo)
+                        <div class="text-muted fst-italic" style="font-size:0.85rem">{{ $cuadro->c_subtitulo }}</div>
+                    @endif
+                    @if(!$cuadro->publicado)
+                        <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
+                    @endif
+                </div>
+            </div>
         </div>
-        <div class="d-flex gap-2">
+        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
             @if($cuadro->pdf_file)
-            <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-outline-danger btn-sm" title="Descargar el documento PDF de este mapa">
+            <a href="{{ route('sigem.v2.cuadro.mapa.descargar', $cuadro->cuadro_id) }}" class="btn btn-outline-danger" title="Descargar el documento PDF de este mapa">
                 <i class="bi bi-download me-1"></i> Descargar PDF
             </a>
             @endif

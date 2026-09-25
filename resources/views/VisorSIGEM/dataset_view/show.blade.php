@@ -34,10 +34,20 @@
 
     <template x-if="!loading && !error">
         <div>
-            <div class="row mb-3">
-                <div class="col-12">
-                    <h2 class="h4 mb-1" x-text="cuadro.c_titulo"></h2>
-                    <p class="text-muted small" x-text="cuadro.c_subtitulo"></p>
+            <div class="row align-items-center g-2 mb-3">
+                <div class="col-12 col-md-8">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-table fs-4 text-success lh-1"></i>
+                        <div>
+                            <h5 class="mb-0" x-text="cuadro.c_titulo"></h5>
+                            <div class="text-muted fst-italic" style="font-size:0.85rem" x-text="cuadro.c_subtitulo"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
+                    <button class="btn btn-outline-danger" @click="copyShareUrl" title="Copiar enlace con la configuración actual">
+                        <i class="bi bi-link-45deg"></i> <i class="bi bi-clipboard"></i>
+                    </button>
                 </div>
             </div>
 
@@ -56,11 +66,6 @@
                                     <option value="radar">Radar</option>
                                     <option value="polarArea">Área Polar</option>
                                 </select>
-                                <button class="btn btn-sm btn-outline-secondary"
-                                        @click="copyShareUrl"
-                                        title="Copiar URL con configuración actual">
-                                    <i class="bi bi-share"></i>
-                                </button>
                             </div>
                         </div>
                         <div class="card-body">

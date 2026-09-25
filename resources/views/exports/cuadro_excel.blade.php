@@ -4,6 +4,18 @@
         return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
 
+    function hexToIntensity($hex, $intensity) {
+        $hex = ltrim((string)$hex, '#');
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) return null;
+        $mix = 1 - (float)$intensity;
+        $rgb = '#';
+        for ($i = 0; $i < 6; $i += 2) {
+            $c = hexdec(substr($hex, $i, 2));
+            $rgb .= str_pad(dechex((int)round($c * $intensity + 255 * $mix)), 2, '0', STR_PAD_LEFT);
+        }
+        return $rgb;
+    }
+
     $maxCols = 0;
     foreach ($seccionesData as $sd) {
         $est = $sd['estado'];
@@ -59,8 +71,16 @@
     $horizontales = $estado['horizontales'] ?? [];
     $verticales = $estado['verticales'] ?? [];
     $temaColor = $estado['tema_color'] ?? '';
-    $stripedBg = '#f2f2f2';
-    $totalBg = '#bfbfbf';
+    $themeOk = is_string($temaColor) && preg_match('/^#[0-9a-fA-F]{6}$/', $temaColor) === 1;
+    $pivotBg = $themeOk ? $temaColor : '#e8edf2';
+    $pivotBottom = $themeOk ? 'border-bottom:medium ' . $temaColor . ';' : '';
+    $hParentBg = $themeOk ? hexToIntensity($temaColor, 0.75) : '#d4e6f1';
+    $hLeafBg = $themeOk ? hexToIntensity($temaColor, 0.5) : '#eaf2f8';
+    $vParentBg = $themeOk ? hexToIntensity($temaColor, 0.75) : '#d5f5e3';
+    $vLeafBg = $themeOk ? hexToIntensity($temaColor, 0.5) : '#fef9e7';
+    $vChildBg = $themeOk ? hexToIntensity($temaColor, 0.25) : '#fef9e7';
+    $stripedBg = $themeOk ? hexToIntensity($temaColor, 0.125) : '#f2f2f2';
+    $totalBg = $themeOk ? hexToIntensity($temaColor, 0.6) : '#bfbfbf';
     $pivotLabel = $estado['pivot_label'] ?? 'PIVOTE';
     $numLabelCols = 1;
     if (!empty($headers) && !empty($headers[0]) && ($headers[0][0]['tipo'] ?? '') === 'corner') {
@@ -150,7 +170,7 @@
             <td></td>
             @foreach ($headers[$ri] as $cell)
                 @if ($cell['tipo'] === 'corner')
-                    <th rowspan="{{ $cell['rowspan'] ?? $hDepth }}" colspan="{{ $numLabelCols }}" style="text-align:center;font-weight:bold;background:#e8edf2;border:1px solid #000;">
+                    <th rowspan="{{ $cell['rowspan'] ?? $hDepth }}" colspan="{{ $numLabelCols }}" style="text-align:center;vertical-align:middle;font-weight:bold;background:{{ $pivotBg }};border:1px solid #000;{{ $pivotBottom }}">
                         {!! esc($pivotLabel) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'parent')
@@ -161,12 +181,12 @@
                         foreach ($visHIdx as $hidx) { if ($hidx >= $start && $hidx < $end) $cnt++; }
                         if ($cnt === 0) continue;
                     @endphp
-                    <th colspan="{{ $cnt }}" style="text-align:center;font-weight:bold;background:#d4e6f1;border:1px solid #000;">
+                    <th colspan="{{ $cnt }}" style="text-align:center;vertical-align:middle;font-weight:bold;background:{{ $hParentBg }};border:1px solid #000;">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
                     @php if (!in_array($cell['col_index'], $visHIdx)) continue; @endphp
-                    <th style="text-align:center;font-weight:bold;background:#eaf2f8;border:1px solid #000;white-space:nowrap;">
+                    <th style="text-align:center;vertical-align:middle;font-weight:bold;background:{{ $hLeafBg }};border:1px solid #000;white-space:nowrap;">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @endif
@@ -185,15 +205,15 @@
             $rowHasParent = false;
             foreach ($rowCells as $c) { if ($c['tipo'] === 'parent') { $rowHasParent = true; break; } }
             $groupTop = ($rowHasParent && $ri > 0)
-                ? 'border-top:medium ' . (preg_match('/^#[0-9a-fA-F]{6}$/', $temaColor) ? $temaColor : '#adb5bd') . ';'
+                ? 'border-top:medium ' . ($themeOk ? $temaColor : '#adb5bd') . ';'
                 : '';
-            $dataStyle = 'text-align:right;border:1px solid #000;' . $groupTop . 'background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
+            $dataStyle = 'text-align:right;vertical-align:middle;border:1px solid #000;' . $groupTop . 'background:' . $dataBg . ';' . ($isTotal ? 'font-weight:700;' : '');
         @endphp
         <tr>
             <td></td>
             @foreach ($rowCells as $cell)
                 @if ($cell['tipo'] === 'parent')
-                    <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;font-weight:bold;background:#d5f5e3;border:1px solid #000;{{ $groupTop }}">
+                    <th rowspan="{{ $parentSpan[$cell['categoria_id']] ?? 1 }}" style="text-align:left;vertical-align:middle;font-weight:bold;background:{{ $vParentBg }};border:1px solid #000;{{ $groupTop }}">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @elseif ($cell['tipo'] === 'leaf')
@@ -201,8 +221,9 @@
                         $hasParent = false;
                         foreach ($rowCells as $rc) { if ($rc['tipo'] === 'parent') { $hasParent = true; break; } }
                         $cs = $hasParent && !empty($cell['colspan']) ? ' colspan="'.$cell['colspan'].'"' : '';
+                        $vBg = !empty($cell['es_hijo']) ? $vChildBg : $vLeafBg;
                     @endphp
-                    <th{{ $cs }} style="text-align:left;font-weight:bold;background:#fef9e7;border:1px solid #000;{{ $groupTop }}">
+                    <th{{ $cs }} style="text-align:left;vertical-align:middle;font-weight:bold;background:{{ $vBg }};border:1px solid #000;{{ $groupTop }}">
                         {!! esc($cell['nombre']) !!}
                     </th>
                 @endif

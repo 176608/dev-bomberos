@@ -5,37 +5,40 @@
 @section('visor_content')
 <div class="container-fluid py-3" id="app-grafica">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
+    <div class="row align-items-center g-2 mb-3">
+        <div class="col-12 col-md-8">
             @include('VisorSIGEM.partials.breadcrumb_cuadro', ['cuadro' => $cuadro])
-            <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Gráfica</h5>
-            <small class="text-muted">
-                <code>{{ $cuadro->codigo_cuadro }}</code>
-                <strong>{{ $cuadro->c_titulo }}</strong>
-                @if($cuadro->c_subtitulo)
-                    <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
-                @endif
-            </small>
-            @if(!$cuadro->publicado)
-                <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
-            @endif
+            <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-bar-chart-fill fs-4 text-success lh-1"></i>
+                <div>
+                    <h5 class="mb-0">{{ $cuadro->c_titulo }}</h5>
+                    @if($cuadro->c_subtitulo)
+                        <div class="text-muted fst-italic" style="font-size:0.85rem">{{ $cuadro->c_subtitulo }}</div>
+                    @endif
+                    @if(!$cuadro->publicado)
+                        <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
+                    @endif
+                </div>
+            </div>
         </div>
-        <div class="btn-group" role="group" aria-label="Acciones de la gráfica">
-            <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-success" id="link-to-dataset"
-               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}"
-               title="Regresa a la vista tabular con la misma configuración de estadísticas">
-                <i class="bi bi-table"></i>
-            </a>
-            <button type="button" class="btn btn-outline-primary" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
-                <i class="bi bi-gear"></i> Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
-            </button>
-            <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración">
-                <i class="bi bi-link-45deg"></i> Enlace <i class="bi bi-clipboard"></i>
-            </button>
-            <button type="button" class="btn btn-success" id="btn-download-png" title="Descargar gráfica configurada en un fondo claro con formato PNG.">
-                <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-png"></i>
-            </button>
+        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
+            <div class="btn-group" role="group" aria-label="Acciones de la gráfica">
+                <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
+                   class="btn btn-outline-success" id="link-to-dataset"
+                   data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/dataset') }}"
+                   title="Regresa a la vista tabular con la misma configuración de estadísticas">
+                    <i class="bi bi-table"></i>
+                </a>
+                <button type="button" class="btn btn-outline-primary" id="btn-toggle-config" title="Ver configuración de la gráfica, incluye alternar eje, seleccionar o deseleccionar categorías horizontales y verticales">
+                    <i class="bi bi-gear"></i> Configuración <i class="bi bi-eye ms-1" id="config-eye-icon"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de esta gráfica con su configuración">
+                    <i class="bi bi-link-45deg"></i> <i class="bi bi-clipboard"></i>
+                </button>
+                <button type="button" class="btn btn-success" id="btn-download-png" title="Descargar gráfica configurada en un fondo claro con formato PNG.">
+                    <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-png"></i>
+                </button>
+            </div>
         </div>
     </div>
 

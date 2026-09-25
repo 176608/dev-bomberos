@@ -5,37 +5,40 @@
 @section('visor_content')
 <div class="container-fluid py-3" id="app-dataset">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
+    <div class="row align-items-center g-2 mb-3">
+        <div class="col-12 col-md-8">
             @include('VisorSIGEM.partials.breadcrumb_cuadro', ['cuadro' => $cuadro])
-            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Cuadro</h5>
-            <small class="text-muted">
-                <code>{{ $cuadro->codigo_cuadro }}</code>
-                <strong>{{ $cuadro->c_titulo }}</strong>
-                @if($cuadro->c_subtitulo)
-                    <span class="d-block fst-italic" style="font-size:0.78rem">{{ $cuadro->c_subtitulo }}</span>
-                @endif
-            </small>
-            {{-- B11-P3 (doc 16): indicador de vista previa para cuadros no publicados (solo autorizados llegan aquí) --}}
-            @if(!$cuadro->publicado)
-                <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
-            @endif
+            <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-table fs-4 text-success lh-1"></i>
+                <div>
+                    <h5 class="mb-0">{{ $cuadro->c_titulo }}</h5>
+                    @if($cuadro->c_subtitulo)
+                        <div class="text-muted fst-italic" style="font-size:0.85rem">{{ $cuadro->c_subtitulo }}</div>
+                    @endif
+                    {{-- B11-P3 (doc 16): indicador de vista previa para cuadros no publicados (solo autorizados llegan aquí) --}}
+                    @if(!$cuadro->publicado)
+                        <span class="badge bg-warning text-dark mt-1"><i class="bi bi-eye-slash me-1"></i>No publicado — vista previa</span>
+                    @endif
+                </div>
+            </div>
         </div>
-        <div class="btn-group" role="group" aria-label="Acciones del cuadro">
-            @if($cuadro->permite_grafica)
-            <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-               class="btn btn-outline-success" id="link-to-grafica"
-               data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}"
-               title="Ver la gráfica de este cuadro con la selección actual">
-                <i class="bi bi-bar-chart-fill"></i>
-            </a>
-            @endif
-            <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
-                <i class="bi bi-link-45deg"></i> Enlace <i class="bi bi-clipboard"></i>
-            </button>
-            <button type="button" class="btn btn-success" onclick="exportarExcel()" title="Descargar Excel del cuadro">
-                <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-xlsx"></i>
-            </button>
+        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
+            <div class="btn-group" role="group" aria-label="Acciones del cuadro">
+                @if($cuadro->permite_grafica)
+                <a href="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
+                   class="btn btn-outline-success" id="link-to-grafica"
+                   data-base="{{ url('/sigem-v2/cuadro/' . $cuadro->cuadro_id . '/grafica') }}"
+                   title="Ver la gráfica de este cuadro con la selección actual">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </a>
+                @endif
+                <button type="button" class="btn btn-outline-danger" onclick="copiarEnlaceVisor()" title="Copiar el enlace de este cuadro con la selección actual">
+                    <i class="bi bi-link-45deg"></i> <i class="bi bi-clipboard"></i>
+                </button>
+                <button type="button" class="btn btn-success" onclick="exportarExcel()" title="Descargar Excel del cuadro">
+                    <i class="bi bi-download"></i> Descargar <i class="bi bi-filetype-xlsx"></i>
+                </button>
+            </div>
         </div>
     </div>
 
