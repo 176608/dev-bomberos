@@ -1,6 +1,6 @@
 <div class="card bg-dark bg-opacity-10 border-0">
     <div class="card-header d-flex justify-content-between align-items-center bg-dark bg-opacity-75 text-white border-bottom">
-        <h5 class="mb-0"><i class="bi bi-search"></i> Consultas Express</h5>
+        <h5 class="mb-0"><i class="bi bi-search"></i> Consultas Exprés</h5>
         <span class="badge bg-light text-dark">Total: <strong>{{ (count($ce_temas ?? []) + count($ce_contenidos ?? [])) }}</strong> registros</span>
     </div>
     <div class="card-header bg-transparent border-bottom-0 pb-0">
@@ -24,8 +24,8 @@
     <div class="tab-pane fade pb-5" id="nav-temas" role="tabpanel" aria-labelledby="nav-temas-tab">
         <div class="row pb-2">
             <div class="col-md-8">
-                <h6 class=""><i class="bi bi-bookmark-fill"></i> Temas de Consultas Express</h6>
-                <small class="">Gestiona los temas principales para las consultas express</small>
+                <h6 class=""><i class="bi bi-bookmark-fill"></i> Temas de Consultas Exprés</h6>
+                <small class="">Gestiona los temas principales para las consultas exprés</small>
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAgregarTema">
@@ -93,8 +93,8 @@
     <div class="tab-pane fade show active pb-5" id="nav-contenidos" role="tabpanel" aria-labelledby="nav-contenidos-tab">
         <div class="row pb-2">
             <div class="col-md-8">
-                <h6><i class="bi bi-file-earmark-text-fill"></i> Contenidos de Consultas Express</h6>
-                <small class="text-muted">Gestiona el contenido HTML de las consultas express</small>
+                <h6><i class="bi bi-file-earmark-text-fill"></i> Contenidos de Consultas Exprés</h6>
+                <small class="text-muted">Gestiona el contenido HTML de las consultas exprés</small>
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalAgregarContenido">
@@ -110,8 +110,8 @@
                         <table id="tablaContenidosCE" class="table table-striped table-hover table-sm">
                             <thead class="table-warning">
                                 <tr>
-                                    <th>Tabla</th>
-                                    <th>Dimensiones</th>
+                                    <th>Título</th>
+                                    <th width="110">Dimensiones</th>
                                     <th>Tema</th>
                                     <th>Subtema</th>
                                     <th>Fecha</th>
@@ -122,7 +122,7 @@
                                 @foreach($ce_contenidos as $contenido)
                                 <tr>
                                     <td>
-                                        <div style="max-width: 200px;">
+                                        <div>
                                             <strong>{{ $contenido->titulo_tabla ?: 'Sin título' }}</strong>
                                             @if($contenido->pie_tabla)
                                                 <br><small class="text-muted">{{ Str::limit($contenido->pie_tabla, 60) }}</small>
@@ -267,7 +267,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-table"></i> Nueva Tabla de Consulta Express</h5>
+                <h5 class="modal-title"><i class="bi bi-table"></i> Nueva Tabla de Consulta Exprés</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formAgregarContenido" method="POST" action="{{ route('sgiem.admin.consultas.contenido.crear') }}">
@@ -408,7 +408,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tabla de Consulta Express</h5>
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Tabla de Consulta Exprés</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formEditarContenido" method="POST" action="">
@@ -594,22 +594,22 @@ $(document).ready(function() {
         language: dataTablesLanguage,
         columnDefs: [
             {
-                targets: 0, // Tabla
-                width: "28%"
+                targets: 0, // Título
+                width: "30%"
             },
             {
                 targets: 1, // Dimensiones
-                width: "12%",
+                width: "10%",
                 className: "text-center",
                 type: "num"
             },
             {
                 targets: 2, // Tema
-                width: "18%"
+                width: "16%"
             },
             {
                 targets: 3, // Subtema
-                width: "18%"
+                width: "20%"
             },
             {
                 targets: 4, // Fecha
@@ -827,7 +827,7 @@ function verTablaContenidoCE(id) {
                 <span class="visually-hidden">Cargando...</span>
             </div>
             <h5 class="text-primary">Cargando tabla...</h5>
-            <p class="text-muted">Obteniendo contenido de Consulta Express</p>
+            <p class="text-muted">Obteniendo contenido de Consulta Exprés</p>
         </div>
     `;
     
@@ -1229,13 +1229,13 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 100% !important;
 }
 
-#tablaContenidosCE th:nth-child(1), #tablaContenidosCE td:nth-child(1) { width: 8%; }
-#tablaContenidosCE th:nth-child(2), #tablaContenidosCE td:nth-child(2) { width: 30%; }
-#tablaContenidosCE th:nth-child(3), #tablaContenidosCE td:nth-child(3) { width: 12%; }
-#tablaContenidosCE th:nth-child(4), #tablaContenidosCE td:nth-child(4) { width: 15%; }
-#tablaContenidosCE th:nth-child(5), #tablaContenidosCE td:nth-child(5) { width: 15%; }
-#tablaContenidosCE th:nth-child(6), #tablaContenidosCE td:nth-child(6) { width: 10%; }
-#tablaContenidosCE th:nth-child(7), #tablaContenidosCE td:nth-child(7) { width: 10%; }
+#tablaContenidosCE th:nth-child(1), #tablaContenidosCE td:nth-child(1) { width: 30%; }
+#tablaContenidosCE th:nth-child(2), #tablaContenidosCE td:nth-child(2) { width: 10%; }
+#tablaContenidosCE th:nth-child(3), #tablaContenidosCE td:nth-child(3) { width: 16%; }
+#tablaContenidosCE th:nth-child(4), #tablaContenidosCE td:nth-child(4) { width: 20%; }
+#tablaContenidosCE th:nth-child(5), #tablaContenidosCE td:nth-child(5) { width: 12%; }
+#tablaContenidosCE th:nth-child(6), #tablaContenidosCE td:nth-child(6) { width: 12%; }
+#tablaContenidosCE th:nth-child(7), #tablaContenidosCE td:nth-child(7) { width: 0%; padding: 0; }
 
 /* ===== EFECTO VISUAL MINIMALISTA ===== */
 
@@ -1262,7 +1262,11 @@ document.addEventListener('DOMContentLoaded', function() {
     word-wrap: break-word;
 }
 
-/* ===== BADGES OPTIMIZADOS ===== */
+#tablaContenidosCE td:nth-child(2) {
+    white-space: nowrap;
+}
+
+/* ===== BADGES ===== */
 
 .badge.bg-success i.bi-check-circle-fill,
 .badge.bg-light i.bi-x-circle {

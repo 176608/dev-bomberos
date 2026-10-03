@@ -18,7 +18,7 @@ class DashboardController
         'mapa' => 'Consulta de mapa',
         'mapa_pdf' => 'Descarga mapa PDF',
         'excel' => 'Descarga Excel',
-        'consulta_express' => 'Consulta express',
+        'consulta_express' => 'Consulta Exprés',
         'inicio_card' => 'Tarjeta de inicio',
         'cartografia_link' => 'Enlace cartografía',
         'producto_link' => 'Enlace productos',

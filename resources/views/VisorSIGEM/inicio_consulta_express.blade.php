@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="consultaExpressModalLabel">
-                    <i class="bi bi-search me-2"></i>Consulta Express
+                    <i class="bi bi-search me-2"></i>Consulta Exprés
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -43,7 +43,7 @@
                                 <div class="mt-4">
                                     <div class="alert alert-success alert-sm">
                                         <i class="bi bi-journal-text me-2"></i>
-                                        <strong>Consulta Express</strong><br>
+                                        <strong>Consulta Exprés</strong><br>
                                         <small>Sistema de consulta rápida de información estadística municipal organizada por temas y subtemas.</small>
                                     </div>
                                 </div>
@@ -54,7 +54,7 @@
                             <div id="ce_contenido_container_modal" class="border rounded p-3 bg-light" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
                                 <div class="text-center text-muted py-5" id="ce_estado_inicial">
                                     <i class="bi bi-table" style="font-size: 3rem; opacity: 0.5;"></i>
-                                    <h5 class="mt-3 text-muted">Consulta Express</h5>
+                                    <h5 class="mt-3 text-muted">Consulta Exprés</h5>
                                     <p class="mb-0">Seleccione un tema y subtema para ver la información estadística</p>
                                 </div>
                             </div>
